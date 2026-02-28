@@ -1,0 +1,172 @@
+{
+  "total_tests": 33,
+  "passed_tests": 33,
+  "success_rate": 100.0,
+  "test_results": [
+    {
+      "name": "API Connectivity",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Seed Data",
+      "success": true,
+      "details": "Status: 200, Response: {'message': 'Data already seeded'}"
+    },
+    {
+      "name": "Get Categories",
+      "success": true,
+      "details": "Found 7 categories"
+    },
+    {
+      "name": "Get All Products",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Get Approved Products",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Get Product Detail",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Certificate Endpoint",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "User Registration",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Auth Session Endpoint",
+      "success": true,
+      "details": "Status: 400 (expected 400/401)"
+    },
+    {
+      "name": "Cart Auth Required",
+      "success": true,
+      "details": "Status: 401 (expected 401)"
+    },
+    {
+      "name": "Chat Auth Required",
+      "success": true,
+      "details": "Status: 401 (expected 401)"
+    },
+    {
+      "name": "Admin Auth Required",
+      "success": true,
+      "details": "Status: 401 (expected 401)"
+    },
+    {
+      "name": "Payment Auth Required",
+      "success": true,
+      "details": "Status: 401 (expected 401)"
+    },
+    {
+      "name": "GET /config/locale",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "GET /config/countries",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "GET /config/languages",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "GET /config/currencies",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Products for Spain (ES)",
+      "success": true,
+      "details": "Status: 200, Count: 5"
+    },
+    {
+      "name": "Products for US",
+      "success": true,
+      "details": "Status: 200, Count: 5"
+    },
+    {
+      "name": "Products for Japan (JP)",
+      "success": true,
+      "details": "Status: 200, Count: 4"
+    },
+    {
+      "name": "Products have display pricing",
+      "success": true,
+      "details": "Fields: ['product_id', 'producer_id', 'producer_name', 'category_id', 'name', 'slug', 'description', 'price', 'images', 'country_origin', 'ingredients', 'allergens', 'certifications', 'approved', 'created_at', 'low_stock_threshold', 'stock', 'track_stock', 'display_price', 'display_currency']"
+    },
+    {
+      "name": "GET /user/locale",
+      "success": true,
+      "details": "Status: 200, Data: {'country': 'ES', 'language': 'fr', 'currency': 'EUR'}"
+    },
+    {
+      "name": "PUT /user/locale",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Locale Update Verified",
+      "success": true,
+      "details": "Data: {'country': 'FR', 'language': 'fr', 'currency': 'EUR'}"
+    },
+    {
+      "name": "Add to Cart",
+      "success": true,
+      "details": "Status: 200, Response: {'message': 'Added to cart', 'stock': 100}"
+    },
+    {
+      "name": "Cart Country Validation",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Apply Country Change",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "Checkout Country Validation",
+      "success": true,
+      "details": "Status: 400, Response: {'detail': {'message': 'Checkout validation failed', 'issues': [\"Price changed for 'Premium Extra Virgin Olive Oil'. Please refresh your cart.\", \"Price changed for 'Premium Extra Virgin Olive Oil'. Please refresh your cart.\"]}}"
+    },
+    {
+      "name": "AI Chat Endpoint",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "GET Producer Product Countries",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "PUT Producer Product Countries",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "POST Add Country",
+      "success": true,
+      "details": "Status: 200"
+    },
+    {
+      "name": "DELETE Remove Country",
+      "success": true,
+      "details": "Status: 200"
+    }
+  ]
+}

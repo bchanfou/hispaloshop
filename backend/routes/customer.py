@@ -1,0 +1,404 @@
+"""
+Customer dashboard, profile, account management, and shipping addresses.
+Extracted from server.py.
+"""
+from fastapi import APIRouter, HTTPException, Depends
+from typing import Optional
+from datetime import datetime, timezone
+import uuid
+import logging
+
+from core.database import db
+from core.models import User, ShippingAddress, DeleteAccountRequest
+from core.auth import get_current_user, require_role
+from services.auth_helpers import hash_password, verify_password
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
+
+# ============================================
+# CUSTOMER DASHBOARD ENDPOINTS
+# ============================================
+
+@router.get("/customer/orders")
+async def get_customer_orders(user: User = Depends(get_current_user)):
+    """Get orders for logged-in customer"""
+    orders = await db.orders.find({"user_id": user.user_id}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return orders
+
+@router.get("/customer/orders/{order_id}")
+async def get_customer_order_detail(order_id: str, user: User = Depends(get_current_user)):
+    """Get single order details"""
+    order = await db.orders.find_one({"order_id": order_id, "user_id": user.user_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
+
+@router.post("/customer/orders/{order_id}/reorder")
+async def reorder(order_id: str, user: User = Depends(get_current_user)):
+    """Re-add all items from a previous order to the cart."""
+    order = await db.orders.find_one({"order_id": order_id, "user_id": user.user_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    added = 0
+    for item in order.get("line_items", []):
+        product = await db.products.find_one({"product_id": item.get("product_id")}, {"_id": 0, "stock": 1, "status": 1})
+        if not product or product.get("status") != "active":
+            continue
+        existing = await db.cart_items.find_one({"user_id": user.user_id, "product_id": item["product_id"]})
+        if existing:
+            await db.cart_items.update_one({"user_id": user.user_id, "product_id": item["product_id"]}, {"$inc": {"quantity": item.get("quantity", 1)}})
+        else:
+            await db.cart_items.insert_one({
+                "user_id": user.user_id,
+                "product_id": item["product_id"],
+                "product_name": item.get("product_name", item.get("name", "")),
+                "price": item.get("price", 0),
+                "quantity": item.get("quantity", 1),
+                "producer_id": item.get("producer_id", ""),
+                "image": item.get("image"),
+            })
+        added += 1
+    
+    return {"added": added, "message": f"{added} productos agregados al carrito"}
+
+@router.put("/customer/orders/{order_id}/cancel")
+async def cancel_customer_order(order_id: str, user: User = Depends(get_current_user)):
+    """Cancel an order (if status allows)"""
+    order = await db.orders.find_one({"order_id": order_id, "user_id": user.user_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order["status"] not in ["pending", "processing"]:
+        raise HTTPException(status_code=400, detail="Order cannot be cancelled")
+    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "cancelled", "updated_at": datetime.now(timezone.utc).isoformat()}})
+    
+    # Phase 4: Reverse influencer commission if applicable
+    if order.get("influencer_id") and order.get("influencer_commission_status") == "pending":
+        commission_amount = order.get("influencer_commission_amount", 0)
+        
+        await db.orders.update_one(
+            {"order_id": order_id},
+            {"$set": {"influencer_commission_status": "reversed"}}
+        )
+        await db.influencer_commissions.update_one(
+            {"order_id": order_id},
+            {"$set": {"commission_status": "reversed"}}
+        )
+        await db.influencers.update_one(
+            {"influencer_id": order["influencer_id"]},
+            {"$inc": {
+                "total_sales_generated": -order.get("total_amount", 0),
+                "total_commission_earned": -commission_amount,
+                "available_balance": -commission_amount
+            }}
+        )
+    
+    return {"message": "Order cancelled"}
+
+@router.get("/customer/profile")
+async def get_customer_profile(user: User = Depends(get_current_user)):
+    """Get customer profile with preferences"""
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "user_id": 1, "email": 1, "name": 1, "country": 1, "username": 1, "consent": 1})
+    prefs = await db.user_preferences.find_one({"user_id": user.user_id}, {"_id": 0})
+    return {
+        "user_id": user.user_id,
+        "email": user.email,
+        "name": user_doc.get("name", user.name) if user_doc else user.name,
+        "country": user_doc.get("country", user.country) if user_doc else user.country,
+        "username": user_doc.get("username", "") if user_doc else "",
+        "consent": user_doc.get("consent") if user_doc else None,
+        "preferences": prefs
+    }
+
+@router.put("/customer/profile")
+async def update_customer_profile(data: dict, user: User = Depends(get_current_user)):
+    """Update customer profile"""
+    allowed_fields = ["name", "country", "username"]
+    update_data = {k: v for k, v in data.items() if k in allowed_fields and v is not None}
+
+    # Validate username if being updated
+    if "username" in update_data:
+        username = update_data["username"].strip().lower().replace(" ", "")
+        # Remove @ prefix if user typed it
+        if username.startswith("@"):
+            username = username[1:]
+        # Only allow alphanumeric, underscores, dots
+        import re
+        if not re.match(r'^[a-z0-9_.]+$', username):
+            raise HTTPException(status_code=400, detail="Username solo puede contener letras, numeros, puntos y guiones bajos")
+        if len(username) < 3:
+            raise HTTPException(status_code=400, detail="Username debe tener al menos 3 caracteres")
+        if len(username) > 30:
+            raise HTTPException(status_code=400, detail="Username no puede tener mas de 30 caracteres")
+        # Check uniqueness (excluding current user)
+        existing = await db.users.find_one(
+            {"username": username, "user_id": {"$ne": user.user_id}},
+            {"_id": 0, "user_id": 1}
+        )
+        if existing:
+            raise HTTPException(status_code=400, detail="Este username ya esta en uso")
+        update_data["username"] = username
+
+    if update_data:
+        await db.users.update_one({"user_id": user.user_id}, {"$set": update_data})
+    return {"message": "Profile updated"}
+
+@router.put("/customer/password")
+async def change_customer_password(current_password: str, new_password: str, user: User = Depends(get_current_user)):
+    """Change customer password"""
+    user_doc = await db.users.find_one({"user_id": user.user_id})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if not verify_password(current_password, user_doc.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    await db.users.update_one({"user_id": user.user_id}, {"$set": {"password_hash": hash_password(new_password)}})
+    return {"message": "Password changed"}
+
+@router.get("/customer/stats")
+async def get_customer_stats(user: User = Depends(get_current_user)):
+    """Get customer dashboard statistics"""
+    total_orders = await db.orders.count_documents({"user_id": user.user_id})
+    pending_orders = await db.orders.count_documents({"user_id": user.user_id, "status": {"$in": ["pending", "processing"]}})
+    
+    return {
+        "total_orders": total_orders,
+        "pending_orders": pending_orders
+    }
+
+@router.get("/customer/followed-stores")
+async def get_followed_stores(user: User = Depends(get_current_user)):
+    """Get all stores followed by the customer"""
+    follows = await db.store_followers.find({"user_id": user.user_id}, {"_id": 0}).to_list(100)
+    
+    stores = []
+    for follow in follows:
+        store = await db.store_profiles.find_one({"store_id": follow["store_id"]}, {"_id": 0})
+        if store:
+            product_count = await db.products.count_documents({
+                "producer_id": store.get("producer_id"),
+                "status": "approved"
+            })
+            follower_count = await db.store_followers.count_documents({"store_id": store["store_id"]})
+            
+            stores.append({
+                **store,
+                "product_count": product_count,
+                "follower_count": follower_count,
+                "followed_at": follow.get("followed_at")
+            })
+    
+    stores.sort(key=lambda x: x.get("followed_at", ""), reverse=True)
+    return stores
+
+
+# ============================================
+# ACCOUNT MANAGEMENT (Delete/Modify)
+# ============================================
+
+@router.delete("/account/delete")
+async def delete_account(request: DeleteAccountRequest, user: User = Depends(get_current_user)):
+    """
+    Permanently delete user account and all associated data.
+    Requires password confirmation and explicit "DELETE" confirmation text.
+    """
+    if request.confirmation != "DELETE":
+        raise HTTPException(status_code=400, detail="Please type DELETE to confirm account deletion")
+    
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "password_hash": 1})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if not verify_password(request.password, user_doc.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    
+    user_id = user.user_id
+    
+    if user.role == "customer":
+        await db.cart.delete_many({"user_id": user_id})
+        await db.ai_profiles.delete_one({"user_id": user_id})
+        await db.user_inferred_insights.delete_one({"user_id": user_id})
+        await db.chat_messages.delete_many({"user_id": user_id})
+        await db.orders.update_many(
+            {"user_id": user_id},
+            {"$set": {"user_email": "deleted@account.com", "user_name": "Deleted User"}}
+        )
+        await db.reviews.update_many(
+            {"user_id": user_id},
+            {"$set": {"user_name": "Deleted User"}}
+        )
+    
+    elif user.role == "producer":
+        pending_orders = await db.orders.count_documents({
+            "items.producer_id": user_id,
+            "status": {"$in": ["pending", "processing", "confirmed", "preparing"]}
+        })
+        if pending_orders > 0:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Cannot delete account with {pending_orders} pending orders. Please complete or cancel them first."
+            )
+        await db.products.update_many(
+            {"producer_id": user_id},
+            {"$set": {"status": "deleted", "visible": False}}
+        )
+    
+    await db.users.delete_one({"user_id": user_id})
+    return {"message": "Account deleted successfully"}
+
+
+@router.put("/account/update-email")
+async def update_email(data: dict, user: User = Depends(get_current_user)):
+    """Update user email address - requires password confirmation"""
+    new_email = data.get("new_email")
+    password = data.get("password")
+    
+    if not new_email or not password:
+        raise HTTPException(status_code=400, detail="Email and password required")
+    
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "password_hash": 1})
+    if not verify_password(password, user_doc.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    
+    existing = await db.users.find_one({"email": new_email}, {"_id": 0, "user_id": 1})
+    if existing and existing.get("user_id") != user.user_id:
+        raise HTTPException(status_code=400, detail="Email already in use")
+    
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {"email": new_email, "email_verified": False}}
+    )
+    
+    return {"message": "Email updated. Please verify your new email address."}
+
+
+@router.put("/account/withdraw-consent")
+async def withdraw_analytics_consent(user: User = Depends(get_current_user)):
+    """Withdraw analytics consent and delete inferred insights data"""
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {
+            "consent.analytics_consent": False,
+            "consent.withdrawal_date": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    await db.user_inferred_insights.delete_one({"user_id": user.user_id})
+    return {"message": "Analytics consent withdrawn. Your inferred data has been deleted."}
+
+
+@router.put("/account/reactivate-consent")
+async def reactivate_analytics_consent(user: User = Depends(get_current_user)):
+    """Reactivate analytics consent for the user"""
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {
+            "consent.analytics_consent": True,
+            "consent.reactivation_date": datetime.now(timezone.utc).isoformat(),
+            "consent.consent_version": "1.0"
+        }}
+    )
+    return {"message": "Analytics consent reactivated. AI personalization is now enabled."}
+
+
+# ============================================
+# CUSTOMER SHIPPING ADDRESSES
+# ============================================
+
+@router.get("/customer/addresses")
+async def get_customer_addresses(user: User = Depends(get_current_user)):
+    """Get all saved shipping addresses for the customer"""
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "shipping_addresses": 1, "default_address_id": 1})
+    return {
+        "addresses": user_doc.get("shipping_addresses", []),
+        "default_address_id": user_doc.get("default_address_id")
+    }
+
+
+@router.post("/customer/addresses")
+async def add_customer_address(address: ShippingAddress, user: User = Depends(get_current_user)):
+    """Add a new shipping address"""
+    address_id = f"addr_{uuid.uuid4().hex[:12]}"
+    address_data = address.model_dump()
+    address_data["address_id"] = address_id
+    
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"shipping_addresses": 1})
+    existing_addresses = user_doc.get("shipping_addresses", [])
+    
+    update_ops = {"$push": {"shipping_addresses": address_data}}
+    
+    if not existing_addresses or address.is_default:
+        update_ops["$set"] = {"default_address_id": address_id}
+        if existing_addresses:
+            await db.users.update_one(
+                {"user_id": user.user_id},
+                {"$set": {"shipping_addresses.$[].is_default": False}}
+            )
+    
+    await db.users.update_one({"user_id": user.user_id}, update_ops)
+    return {"message": "Address added", "address_id": address_id}
+
+
+@router.put("/customer/addresses/{address_id}")
+async def update_customer_address(address_id: str, address: ShippingAddress, user: User = Depends(get_current_user)):
+    """Update an existing shipping address"""
+    address_data = address.model_dump()
+    address_data["address_id"] = address_id
+    
+    result = await db.users.update_one(
+        {"user_id": user.user_id, "shipping_addresses.address_id": address_id},
+        {"$set": {"shipping_addresses.$": address_data}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Address not found")
+    
+    if address.is_default:
+        await db.users.update_one(
+            {"user_id": user.user_id},
+            {"$set": {"default_address_id": address_id}}
+        )
+    
+    return {"message": "Address updated"}
+
+
+@router.delete("/customer/addresses/{address_id}")
+async def delete_customer_address(address_id: str, user: User = Depends(get_current_user)):
+    """Delete a shipping address"""
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"default_address_id": 1})
+    
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$pull": {"shipping_addresses": {"address_id": address_id}}}
+    )
+    
+    if user_doc.get("default_address_id") == address_id:
+        await db.users.update_one(
+            {"user_id": user.user_id},
+            {"$unset": {"default_address_id": ""}}
+        )
+    
+    return {"message": "Address deleted"}
+
+
+@router.put("/customer/addresses/{address_id}/default")
+async def set_default_address(address_id: str, user: User = Depends(get_current_user)):
+    """Set an address as the default shipping address"""
+    user_doc = await db.users.find_one(
+        {"user_id": user.user_id, "shipping_addresses.address_id": address_id}
+    )
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="Address not found")
+    
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {"shipping_addresses.$[].is_default": False}}
+    )
+    await db.users.update_one(
+        {"user_id": user.user_id, "shipping_addresses.address_id": address_id},
+        {"$set": {"shipping_addresses.$.is_default": True, "default_address_id": address_id}}
+    )
+    
+    return {"message": "Default address updated"}

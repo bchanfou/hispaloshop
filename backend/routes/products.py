@@ -1,0 +1,563 @@
+"""
+Product routes: CRUD, search, variants, filtering.
+"""
+import uuid
+import logging
+import asyncio
+from typing import Optional, List
+from datetime import datetime, timezone
+from fastapi import APIRouter, HTTPException, Depends, Request, Query
+
+from core.database import db
+from core.auth import get_current_user, get_optional_user, require_role
+from core.models import User, ProductInput
+from core.constants import SUPPORTED_LANGUAGES
+from services.translation import TranslationService
+
+# Translation languages - must match server.py
+TRANSLATION_LANGUAGES = ['en', 'es', 'fr', 'de', 'pt', 'ar', 'hi', 'zh', 'ja', 'ko', 'ru']
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter()
+
+@router.get("/products")
+async def get_products(
+    category: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    country: Optional[str] = None,
+    certifications: Optional[str] = None,
+    approved_only: bool = True,
+    seller_id: Optional[str] = None,
+    featured_only: bool = False,
+    lang: Optional[str] = None,
+    search: Optional[str] = None,
+    sort: Optional[str] = None,
+    origin_country: Optional[str] = None,
+    free_shipping: Optional[str] = None
+):
+    """Get products. Default: all active/approved products. featured_only for Best Products."""
+    query = {}
+    and_conditions = []
+    
+    if approved_only:
+        # Show products that are active/approved (supports both field formats)
+        and_conditions.append({
+            "$or": [
+                {"status": "active"},
+                {"approved": True},
+                {"status": "approved"}
+            ]
+        })
+    
+    if seller_id:
+        query["producer_id"] = seller_id
+    
+    if featured_only:
+        query["featured"] = True
+    
+    if category:
+        # Find category by ID or slug and include subcategories
+        cat_doc = await db.categories.find_one(
+            {"$or": [{"category_id": category}, {"slug": category}]},
+            {"_id": 0, "category_id": 1, "level": 1}
+        )
+        if cat_doc:
+            cat_id = cat_doc["category_id"]
+            if cat_doc.get("level") == 1:
+                # Main category: include all subcategories
+                sub_ids = await db.categories.distinct(
+                    "category_id", {"parent_id": cat_id}
+                )
+                and_conditions.append({"category_id": {"$in": [cat_id] + sub_ids}})
+            else:
+                query["category_id"] = cat_id
+        else:
+            query["category_id"] = category
+    if min_price is not None or max_price is not None:
+        query["price"] = {}
+        if min_price is not None:
+            query["price"]["$gte"] = min_price
+        if max_price is not None:
+            query["price"]["$lte"] = max_price
+    if country:
+        # Filter by country availability (products available in this country)
+        and_conditions.append({
+            "$or": [
+                {"available_countries": country},
+                {"available_countries": None},
+                {"available_countries": {"$exists": False}}
+            ]
+        })
+    if certifications:
+        cert_list = certifications.split(',')
+        query["certifications"] = {"$in": cert_list}
+    if origin_country:
+        query["country_origin"] = origin_country
+    
+    # Filter for free shipping products
+    if free_shipping == "true":
+        and_conditions.append({
+            "$or": [
+                {"shipping_cost": None},
+                {"shipping_cost": 0},
+                {"shipping_cost": {"$exists": False}}
+            ]
+        })
+    
+    # Text search on name and description
+    if search:
+        and_conditions.append({
+            "$or": [
+                {"name": {"$regex": search, "$options": "i"}},
+                {"description": {"$regex": search, "$options": "i"}},
+                {"tagline": {"$regex": search, "$options": "i"}}
+            ]
+        })
+    
+    # Combine all conditions
+    if and_conditions:
+        query["$and"] = and_conditions
+    
+    # Determine sort order
+    sort_query = []
+    if sort == "price_asc":
+        sort_query = [("price", 1)]
+    elif sort == "price_desc":
+        sort_query = [("price", -1)]
+    elif sort == "rating":
+        sort_query = [("average_rating", -1)]
+    elif sort == "newest":
+        sort_query = [("created_at", -1)]
+    else:
+        # Default: Mix popular with new products
+        # First get all products sorted by date
+        sort_query = [("created_at", -1)]
+    
+    products = await db.products.find(query, {"_id": 0}).sort(sort_query).to_list(1000)
+    
+    # For default sorting: Mix new products with popular ones
+    # New products (last 7 days) get featured at the start
+    if sort is None:
+        from datetime import timedelta
+        seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
+        
+        new_products = []
+        established_products = []
+        
+        for p in products:
+            created_at = p.get("created_at")
+            if isinstance(created_at, str):
+                try:
+                    created_at = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+                except:
+                    created_at = None
+            
+            if created_at and created_at > seven_days_ago:
+                new_products.append(p)
+            else:
+                established_products.append(p)
+        
+        # Sort established by units_sold (popularity)
+        established_products.sort(key=lambda x: x.get("units_sold", 0), reverse=True)
+        
+        # Interleave: 1 new product every 4 established products (up to first 5 new products)
+        result = []
+        new_idx = 0
+        est_idx = 0
+        
+        while est_idx < len(established_products):
+            # Add up to 4 established products
+            for _ in range(4):
+                if est_idx < len(established_products):
+                    result.append(established_products[est_idx])
+                    est_idx += 1
+            # Add 1 new product (but only for first 5 new products to feature)
+            if new_idx < len(new_products) and new_idx < 5:
+                result.append(new_products[new_idx])
+                new_idx += 1
+        
+        # Add remaining new products at the end if any
+        while new_idx < len(new_products):
+            result.append(new_products[new_idx])
+            new_idx += 1
+        
+        products = result
+    
+    # Get store slugs for all producers
+    producer_ids = list(set(p.get("producer_id") for p in products if p.get("producer_id")))
+    store_profiles = await db.store_profiles.find(
+        {"producer_id": {"$in": producer_ids}},
+        {"producer_id": 1, "slug": 1}
+    ).to_list(len(producer_ids))
+    producer_slug_map = {s["producer_id"]: s["slug"] for s in store_profiles}
+    
+    # Enrich products with producer_slug
+    for product in products:
+        product["producer_slug"] = producer_slug_map.get(product.get("producer_id"))
+    
+    # Enrich products with country-specific pricing and multi-market availability
+    for product in products:
+        inv = product.get("inventory_by_country", [])
+        if country:
+            # Find market for this country
+            market = next((m for m in inv if m["country_code"] == country and m.get("active")), None)
+            if market:
+                product["display_price"] = market.get("price", product["price"])
+                product["display_currency"] = market.get("currency", "EUR")
+                product["available_in_country"] = True
+                product["market_stock"] = market.get("stock", 0)
+                product["delivery_sla"] = market.get("delivery_sla_hours", 48)
+            else:
+                # Fallback to old country_prices
+                country_prices = product.get("country_prices", {})
+                if country in country_prices:
+                    product["display_price"] = country_prices[country]
+                    product["display_currency"] = product.get("country_currency", {}).get(country, "EUR")
+                    product["available_in_country"] = True
+                else:
+                    product["display_price"] = product["price"]
+                    product["display_currency"] = "EUR"
+                    product["available_in_country"] = len(inv) == 0  # available if no inventory system
+        else:
+            product["available_in_country"] = True  # no country filter = show all
+    
+    # Apply translations if language is specified
+    if lang and lang in SUPPORTED_LANGUAGES:
+        for product in products:
+            source_lang = product.get('source_language', 'es')
+            if source_lang != lang:
+                # Check cached translations
+                translated_fields = product.get('translated_fields', {})
+                if lang in translated_fields:
+                    for field, value in translated_fields[lang].items():
+                        product[field] = value
+                # Note: For list views, we use cache only to avoid slow responses
+                # Full translation happens on detail page view
+    
+    # Fresh Save — dynamic pricing by expiry date
+    for product in products:
+        expiry = product.get("expiry_date")
+        if expiry:
+            try:
+                days_to_expiry = (datetime.fromisoformat(expiry.replace("Z", "+00:00")) - datetime.now(timezone.utc)).days
+                if days_to_expiry <= 1:
+                    product["fresh_save"] = {"discount": 50, "tag": "LAST DAY -50%", "days_left": max(0, days_to_expiry)}
+                elif days_to_expiry <= 3:
+                    product["fresh_save"] = {"discount": 30, "tag": "FRESH -30%", "days_left": days_to_expiry}
+                elif days_to_expiry <= 5:
+                    product["fresh_save"] = {"discount": 15, "tag": "FRESH -15%", "days_left": days_to_expiry}
+            except:
+                pass
+    
+    return products
+
+@router.get("/products/{product_id}")
+async def get_product(product_id: str, country: Optional[str] = None, lang: Optional[str] = None):
+    """Get a single product, optionally translated to the specified language"""
+    
+    # If language is requested, use the translation service
+    if lang and lang in SUPPORTED_LANGUAGES:
+        product = await TranslationService.get_product_in_language(product_id, lang)
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+    else:
+        product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Add country-specific pricing info
+    if country:
+        available_countries = product.get("available_countries", [])
+        country_prices = product.get("country_prices", {})
+        
+        # Check if available in country (or has no restrictions)
+        is_available = not available_countries or country in available_countries
+        product["is_available_in_country"] = is_available
+        
+        if country in country_prices:
+            product["display_price"] = country_prices[country]
+            product["display_currency"] = product.get("country_currency", {}).get(country, "EUR")
+        else:
+            product["display_price"] = product["price"]
+            product["display_currency"] = "EUR"
+    
+    return product
+
+@router.post("/products")
+async def create_product(input: ProductInput, user: User = Depends(get_current_user)):
+    await require_role(user, ["producer", "admin"])
+    if user.role == "producer" and not user.approved:
+        raise HTTPException(status_code=403, detail="Producer account not approved")
+    product_id = f"prod_{uuid.uuid4().hex[:12]}"
+    slug = input.name.lower().replace(' ', '-')
+    
+    # Process packs if provided
+    packs_data = None
+    if input.packs:
+        packs_data = []
+        for pack in input.packs:
+            pack_dict = {
+                "pack_id": pack.pack_id or f"pack_{uuid.uuid4().hex[:8]}",
+                "quantity": pack.quantity,
+                "price": pack.price,
+                "label": pack.label or f"Pack of {pack.quantity}"
+            }
+            # Calculate discount percentage based on unit price
+            unit_price = input.price
+            expected_price = unit_price * pack.quantity
+            if expected_price > pack.price:
+                discount_pct = round(((expected_price - pack.price) / expected_price) * 100)
+                pack_dict["discount_percentage"] = discount_pct
+            packs_data.append(pack_dict)
+    
+    product = {
+        "product_id": product_id,
+        "producer_id": user.user_id,
+        "producer_name": user.company_name or user.name,
+        "category_id": input.category_id,
+        "name": input.name,
+        "slug": slug,
+        "description": input.description,
+        "price": input.price,
+        "images": input.images,
+        "country_origin": input.country_origin,
+        "ingredients": input.ingredients,
+        "allergens": input.allergens,
+        "certifications": input.certifications,
+        "approved": True,  # Products are auto-approved (marketplace model)
+        "status": "active",  # active = visible everywhere
+        "featured": False,  # Only affects "Best Products" section
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        # Stock management fields
+        "stock": 100,
+        "low_stock_threshold": 5,
+        "track_stock": True,
+        # Country availability - default to country of origin
+        "available_countries": [input.country_origin] if input.country_origin else [],
+        "country_prices": {input.country_origin: input.price} if input.country_origin else {},
+        "country_currency": {input.country_origin: "EUR"} if input.country_origin else {},
+        # Translation fields
+        "source_language": input.source_language or "es",
+        "translated_fields": {},
+        # New fields
+        "sku": input.sku,
+        "nutritional_info": input.nutritional_info.dict() if input.nutritional_info else None,
+        "flavor": input.flavor,
+        "parent_product_id": input.parent_product_id,
+        "packs": packs_data,
+        "vat_rate": input.vat_rate,
+        "vat_included": input.vat_included,
+    }
+    await db.products.insert_one(product)
+    product.pop("_id", None)
+    
+    # Auto-create certificate for the product
+    try:
+        cert_id = f"cert_{uuid.uuid4().hex[:12]}"
+        cert_number = f"HSP-{datetime.now(timezone.utc).strftime('%Y')}-{uuid.uuid4().hex[:6].upper()}"
+        markets = [m["country_code"] for m in product.get("inventory_by_country", []) if m.get("active")]
+        requirements = ["origin_verification", "quality_check"]
+        cat_slug = product.get("category_id", "")
+        if any(k in cat_slug for k in ["carne", "meat", "lact", "dairy", "queso", "cheese", "congel", "frozen"]):
+            requirements.extend(["food_safety", "allergen_labeling", "cold_chain"])
+        if any(k in cat_slug for k in ["fruta", "fruit", "verdura"]):
+            requirements.extend(["food_safety", "origin_traceability"])
+        
+        cert = {
+            "certificate_id": cert_id, "certificate_number": cert_number,
+            "product_id": product_id, "product_name": product["name"],
+            "seller_id": user.user_id,
+            "certificate_type": "food_safety" if "food_safety" in requirements else "origin",
+            "data": {"origin_country": product.get("country_origin", ""), "compliance_requirements": requirements, "target_markets": markets},
+            "approved": False, "status": "pending_review",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        await db.certificates.insert_one(cert)
+        await db.products.update_one({"product_id": product_id}, {"$set": {"certificate_id": cert_id}})
+        logger.info(f"[CERT] Auto-created {cert_number} for product {product_id}")
+    except Exception as e:
+        logger.warning(f"[CERT] Auto-create failed: {e}")
+    
+    # Trigger background translation + notify followers (non-blocking)
+    if product.get("approved"):
+        asyncio.create_task(translate_product_to_all_bg(product_id, input.source_language or "es"))
+        try:
+            store = await db.store_profiles.find_one({"producer_id": user.user_id})
+            if store:
+                from routes.stores import notify_store_followers
+                asyncio.create_task(notify_store_followers(store["store_id"], input.name, product_id))
+        except Exception as e:
+            logger.warning(f"Could not notify store followers: {e}")
+    
+    return product
+
+async def translate_product_to_all_bg(product_id: str, source_lang: str):
+    """Background task to translate product to all languages"""
+    try:
+        for target_lang in TRANSLATION_LANGUAGES:
+            if target_lang == source_lang:
+                continue
+            try:
+                await TranslationService.get_product_in_language(product_id, target_lang)
+            except Exception as e:
+                logger.error(f"Error translating product {product_id} to {target_lang}: {e}")
+    except Exception as e:
+        logger.error(f"Background product translation failed: {e}")
+
+@router.put("/products/{product_id}")
+async def update_product(product_id: str, input: ProductInput, user: User = Depends(get_current_user)):
+    await require_role(user, ["producer", "admin"])
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if user.role == "producer" and product["producer_id"] != user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Clear translations if content changed (will be re-translated on demand)
+    content_changed = (
+        product.get("name") != input.name or
+        product.get("description") != input.description or
+        product.get("ingredients") != input.ingredients or
+        product.get("allergens") != input.allergens or
+        product.get("certifications") != input.certifications
+    )
+    
+    # Process packs if provided
+    packs_data = None
+    if input.packs:
+        packs_data = []
+        for pack in input.packs:
+            pack_dict = {
+                "pack_id": pack.pack_id or f"pack_{uuid.uuid4().hex[:8]}",
+                "quantity": pack.quantity,
+                "price": pack.price,
+                "label": pack.label or f"Pack of {pack.quantity}"
+            }
+            # Calculate discount percentage based on unit price
+            unit_price = input.price
+            expected_price = unit_price * pack.quantity
+            if expected_price > pack.price:
+                discount_pct = round(((expected_price - pack.price) / expected_price) * 100)
+                pack_dict["discount_percentage"] = discount_pct
+            packs_data.append(pack_dict)
+    
+    update_data = {
+        "name": input.name,
+        "description": input.description,
+        "price": input.price,
+        "images": input.images,
+        "country_origin": input.country_origin,
+        "ingredients": input.ingredients,
+        "allergens": input.allergens,
+        "certifications": input.certifications,
+        "slug": input.name.lower().replace(' ', '-'),
+        # New fields
+        "sku": input.sku,
+        "nutritional_info": input.nutritional_info.dict() if input.nutritional_info else None,
+        "flavor": input.flavor,
+        "parent_product_id": input.parent_product_id,
+        "packs": packs_data
+    }
+    
+    if content_changed:
+        update_data["translated_fields"] = {}  # Clear cached translations
+        update_data["source_language"] = input.source_language or product.get("source_language", "es")
+    
+    await db.products.update_one(
+        {"product_id": product_id},
+        {"$set": update_data}
+    )
+    
+    # Notify wishlist users if price dropped
+    if input.price < product.get("price", 0):
+        from routes.notifications import create_notification
+        wishlist_entries = await db.wishlists.find(
+            {"product_id": product_id}, {"_id": 0, "user_id": 1}
+        ).to_list(500)
+        for entry in wishlist_entries:
+            await create_notification(
+                user_id=entry["user_id"],
+                notif_type="price_drop",
+                title="Bajada de precio",
+                message=f"'{product.get('name', '')}' bajo de {product.get('price', 0):.2f}EUR a {input.price:.2f}EUR.",
+                link=f"/product/{product_id}",
+            )
+    
+    # Trigger re-translation if content changed and product is approved
+    if content_changed and product.get("approved"):
+        asyncio.create_task(translate_product_to_all_bg(product_id, input.source_language or "es"))
+    
+    return {"message": "Product updated"}
+
+@router.get("/products/{product_id}/variants")
+async def get_product_variants(product_id: str):
+    """Get all flavor variants of a product (products sharing the same flavor_group_id or parent)"""
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Check for flavor_group_id first (new system), then fall back to parent_product_id (legacy)
+    flavor_group = product.get("flavor_group_id")
+    parent_id = product.get("parent_product_id") or product_id
+    
+    if flavor_group:
+        # New system: find all products with the same flavor_group_id
+        variants = await db.products.find(
+            {
+                "flavor_group_id": flavor_group,
+                "status": "approved"
+            },
+            {"_id": 0, "product_id": 1, "name": 1, "flavor": 1, "price": 1, "images": 1, "packs": 1}
+        ).to_list(50)
+    else:
+        # Legacy system: use parent_product_id
+        variants = await db.products.find(
+            {
+                "$or": [
+                    {"product_id": parent_id},
+                    {"parent_product_id": parent_id}
+                ],
+                "$or": [
+                    {"approved": True},
+                    {"status": "approved"}
+                ]
+            },
+            {"_id": 0, "product_id": 1, "name": 1, "flavor": 1, "price": 1, "images": 1, "packs": 1}
+        ).to_list(50)
+    
+    return variants
+
+@router.delete("/products/{product_id}")
+async def delete_product(product_id: str, user: User = Depends(get_current_user)):
+    await require_role(user, ["admin", "super_admin", "producer"])
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "producer_id": 1})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if user.role == "producer" and product.get("producer_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Not your product")
+    
+    # Delete product and ALL related data (zero residue)
+    await db.products.delete_one({"product_id": product_id})
+    await db.reviews.delete_many({"product_id": product_id})
+    await db.certificates.delete_many({"product_id": product_id})
+    await db.cart_items.delete_many({"product_id": product_id})
+    await db.post_bookmarks.delete_many({"product_id": product_id})
+    
+    # Remove from any posts that tagged this product
+    await db.user_posts.update_many(
+        {"tagged_product.product_id": product_id},
+        {"$set": {"tagged_product": None}}
+    )
+    
+    # Audit log
+    await db.audit_log.insert_one({
+        "action": "PRODUCT_DELETE",
+        "actor": {"user_id": user.user_id, "role": user.role},
+        "target": {"type": "product", "id": product_id},
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
+    
+    logger.info(f"[DELETE] Product {product_id} + all residues deleted by {user.user_id}")
+    return {"message": "Product and all related data deleted"}

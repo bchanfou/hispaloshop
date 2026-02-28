@@ -1,0 +1,205 @@
+"""
+Application constants — countries, languages, currencies, email templates.
+"""
+
+SUPPORTED_COUNTRIES = {
+    # Europe
+    "ES": {"name": "Spain", "flag": "\U0001f1ea\U0001f1f8", "currency": "EUR", "languages": ["es", "en"]},
+    "FR": {"name": "France", "flag": "\U0001f1eb\U0001f1f7", "currency": "EUR", "languages": ["fr", "en"]},
+    "DE": {"name": "Germany", "flag": "\U0001f1e9\U0001f1ea", "currency": "EUR", "languages": ["de", "en"]},
+    "IT": {"name": "Italy", "flag": "\U0001f1ee\U0001f1f9", "currency": "EUR", "languages": ["it", "en"]},
+    "PT": {"name": "Portugal", "flag": "\U0001f1f5\U0001f1f9", "currency": "EUR", "languages": ["pt", "en"]},
+    "NL": {"name": "Netherlands", "flag": "\U0001f1f3\U0001f1f1", "currency": "EUR", "languages": ["nl", "en"]},
+    "BE": {"name": "Belgium", "flag": "\U0001f1e7\U0001f1ea", "currency": "EUR", "languages": ["nl", "fr", "en"]},
+    "AT": {"name": "Austria", "flag": "\U0001f1e6\U0001f1f9", "currency": "EUR", "languages": ["de", "en"]},
+    "IE": {"name": "Ireland", "flag": "\U0001f1ee\U0001f1ea", "currency": "EUR", "languages": ["en"]},
+    "GR": {"name": "Greece", "flag": "\U0001f1ec\U0001f1f7", "currency": "EUR", "languages": ["el", "en"]},
+    "FI": {"name": "Finland", "flag": "\U0001f1eb\U0001f1ee", "currency": "EUR", "languages": ["fi", "en"]},
+    "SE": {"name": "Sweden", "flag": "\U0001f1f8\U0001f1ea", "currency": "SEK", "languages": ["sv", "en"]},
+    "DK": {"name": "Denmark", "flag": "\U0001f1e9\U0001f1f0", "currency": "DKK", "languages": ["da", "en"]},
+    "NO": {"name": "Norway", "flag": "\U0001f1f3\U0001f1f4", "currency": "NOK", "languages": ["no", "en"]},
+    "PL": {"name": "Poland", "flag": "\U0001f1f5\U0001f1f1", "currency": "PLN", "languages": ["pl", "en"]},
+    "CZ": {"name": "Czech Republic", "flag": "\U0001f1e8\U0001f1ff", "currency": "CZK", "languages": ["cs", "en"]},
+    "RO": {"name": "Romania", "flag": "\U0001f1f7\U0001f1f4", "currency": "RON", "languages": ["ro", "en"]},
+    "HU": {"name": "Hungary", "flag": "\U0001f1ed\U0001f1fa", "currency": "HUF", "languages": ["hu", "en"]},
+    "CH": {"name": "Switzerland", "flag": "\U0001f1e8\U0001f1ed", "currency": "CHF", "languages": ["de", "fr", "it", "en"]},
+    "LU": {"name": "Luxembourg", "flag": "\U0001f1f1\U0001f1fa", "currency": "EUR", "languages": ["fr", "de", "en"]},
+    "HR": {"name": "Croatia", "flag": "\U0001f1ed\U0001f1f7", "currency": "EUR", "languages": ["hr", "en"]},
+    "BG": {"name": "Bulgaria", "flag": "\U0001f1e7\U0001f1ec", "currency": "BGN", "languages": ["bg", "en"]},
+    "SK": {"name": "Slovakia", "flag": "\U0001f1f8\U0001f1f0", "currency": "EUR", "languages": ["sk", "en"]},
+    "SI": {"name": "Slovenia", "flag": "\U0001f1f8\U0001f1ee", "currency": "EUR", "languages": ["sl", "en"]},
+    "LT": {"name": "Lithuania", "flag": "\U0001f1f1\U0001f1f9", "currency": "EUR", "languages": ["lt", "en"]},
+    "LV": {"name": "Latvia", "flag": "\U0001f1f1\U0001f1fb", "currency": "EUR", "languages": ["lv", "en"]},
+    "EE": {"name": "Estonia", "flag": "\U0001f1ea\U0001f1ea", "currency": "EUR", "languages": ["et", "en"]},
+    "IS": {"name": "Iceland", "flag": "\U0001f1ee\U0001f1f8", "currency": "ISK", "languages": ["is", "en"]},
+    "GB": {"name": "United Kingdom", "flag": "\U0001f1ec\U0001f1e7", "currency": "GBP", "languages": ["en"]},
+    # Americas
+    "US": {"name": "United States", "flag": "\U0001f1fa\U0001f1f8", "currency": "USD", "languages": ["en", "es"]},
+    "CA": {"name": "Canada", "flag": "\U0001f1e8\U0001f1e6", "currency": "CAD", "languages": ["en", "fr"]},
+    "MX": {"name": "Mexico", "flag": "\U0001f1f2\U0001f1fd", "currency": "MXN", "languages": ["es", "en"]},
+    "BR": {"name": "Brazil", "flag": "\U0001f1e7\U0001f1f7", "currency": "BRL", "languages": ["pt", "en"]},
+    "AR": {"name": "Argentina", "flag": "\U0001f1e6\U0001f1f7", "currency": "ARS", "languages": ["es", "en"]},
+    "CL": {"name": "Chile", "flag": "\U0001f1e8\U0001f1f1", "currency": "CLP", "languages": ["es", "en"]},
+    "CO": {"name": "Colombia", "flag": "\U0001f1e8\U0001f1f4", "currency": "COP", "languages": ["es", "en"]},
+    "PE": {"name": "Peru", "flag": "\U0001f1f5\U0001f1ea", "currency": "PEN", "languages": ["es", "en"]},
+    "UY": {"name": "Uruguay", "flag": "\U0001f1fa\U0001f1fe", "currency": "UYU", "languages": ["es", "en"]},
+    "CR": {"name": "Costa Rica", "flag": "\U0001f1e8\U0001f1f7", "currency": "CRC", "languages": ["es", "en"]},
+    "PA": {"name": "Panama", "flag": "\U0001f1f5\U0001f1e6", "currency": "USD", "languages": ["es", "en"]},
+    # Asia-Pacific
+    "JP": {"name": "Japan", "flag": "\U0001f1ef\U0001f1f5", "currency": "JPY", "languages": ["ja", "en"]},
+    "KR": {"name": "South Korea", "flag": "\U0001f1f0\U0001f1f7", "currency": "KRW", "languages": ["ko", "en"]},
+    "CN": {"name": "China", "flag": "\U0001f1e8\U0001f1f3", "currency": "CNY", "languages": ["zh", "en"]},
+    "IN": {"name": "India", "flag": "\U0001f1ee\U0001f1f3", "currency": "INR", "languages": ["hi", "en"]},
+    "AU": {"name": "Australia", "flag": "\U0001f1e6\U0001f1fa", "currency": "AUD", "languages": ["en"]},
+    "NZ": {"name": "New Zealand", "flag": "\U0001f1f3\U0001f1ff", "currency": "NZD", "languages": ["en"]},
+    "SG": {"name": "Singapore", "flag": "\U0001f1f8\U0001f1ec", "currency": "SGD", "languages": ["en", "zh"]},
+    "HK": {"name": "Hong Kong", "flag": "\U0001f1ed\U0001f1f0", "currency": "HKD", "languages": ["zh", "en"]},
+    "TW": {"name": "Taiwan", "flag": "\U0001f1f9\U0001f1fc", "currency": "TWD", "languages": ["zh", "en"]},
+    "TH": {"name": "Thailand", "flag": "\U0001f1f9\U0001f1ed", "currency": "THB", "languages": ["th", "en"]},
+    "MY": {"name": "Malaysia", "flag": "\U0001f1f2\U0001f1fe", "currency": "MYR", "languages": ["ms", "en"]},
+    "PH": {"name": "Philippines", "flag": "\U0001f1f5\U0001f1ed", "currency": "PHP", "languages": ["en", "tl"]},
+    "ID": {"name": "Indonesia", "flag": "\U0001f1ee\U0001f1e9", "currency": "IDR", "languages": ["id", "en"]},
+    "VN": {"name": "Vietnam", "flag": "\U0001f1fb\U0001f1f3", "currency": "VND", "languages": ["vi", "en"]},
+    # Middle East & Africa
+    "AE": {"name": "UAE", "flag": "\U0001f1e6\U0001f1ea", "currency": "AED", "languages": ["ar", "en"]},
+    "SA": {"name": "Saudi Arabia", "flag": "\U0001f1f8\U0001f1e6", "currency": "SAR", "languages": ["ar", "en"]},
+    "IL": {"name": "Israel", "flag": "\U0001f1ee\U0001f1f1", "currency": "ILS", "languages": ["he", "en"]},
+    "QA": {"name": "Qatar", "flag": "\U0001f1f6\U0001f1e6", "currency": "QAR", "languages": ["ar", "en"]},
+    "KW": {"name": "Kuwait", "flag": "\U0001f1f0\U0001f1fc", "currency": "KWD", "languages": ["ar", "en"]},
+    "ZA": {"name": "South Africa", "flag": "\U0001f1ff\U0001f1e6", "currency": "ZAR", "languages": ["en", "af"]},
+    "NG": {"name": "Nigeria", "flag": "\U0001f1f3\U0001f1ec", "currency": "NGN", "languages": ["en"]},
+    "EG": {"name": "Egypt", "flag": "\U0001f1ea\U0001f1ec", "currency": "EGP", "languages": ["ar", "en"]},
+    "MA": {"name": "Morocco", "flag": "\U0001f1f2\U0001f1e6", "currency": "MAD", "languages": ["ar", "fr", "en"]},
+    "TR": {"name": "Turkey", "flag": "\U0001f1f9\U0001f1f7", "currency": "TRY", "languages": ["tr", "en"]},
+    "RU": {"name": "Russia", "flag": "\U0001f1f7\U0001f1fa", "currency": "RUB", "languages": ["ru", "en"]},
+    # End of countries (sanctions), replaced with more markets
+}
+
+SUPPORTED_LANGUAGES = {
+    "en": {"name": "English", "native": "English"},
+    "zh": {"name": "Mandarin Chinese", "native": "\u4e2d\u6587"},
+    "es": {"name": "Spanish", "native": "Espa\u00f1ol"},
+    "hi": {"name": "Hindi", "native": "\u0939\u093f\u0928\u094d\u0926\u0940"},
+    "ar": {"name": "Arabic", "native": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629"},
+    "fr": {"name": "French", "native": "Fran\u00e7ais"},
+    "pt": {"name": "Portuguese", "native": "Portugu\u00eas"},
+    "de": {"name": "German", "native": "Deutsch"},
+    "ja": {"name": "Japanese", "native": "\u65e5\u672c\u8a9e"},
+    "ko": {"name": "Korean", "native": "\ud55c\uad6d\uc5b4"},
+    "it": {"name": "Italian", "native": "Italiano"},
+    "nl": {"name": "Dutch", "native": "Nederlands"},
+    "pl": {"name": "Polish", "native": "Polski"},
+    "tr": {"name": "Turkish", "native": "T\u00fcrk\u00e7e"},
+    "th": {"name": "Thai", "native": "\u0e44\u0e17\u0e22"},
+    "vi": {"name": "Vietnamese", "native": "Ti\u1ebfng Vi\u1ec7t"},
+    "sv": {"name": "Swedish", "native": "Svenska"},
+    "da": {"name": "Danish", "native": "Dansk"},
+    "no": {"name": "Norwegian", "native": "Norsk"},
+    "fi": {"name": "Finnish", "native": "Suomi"},
+}
+
+SUPPORTED_CURRENCIES = {
+    "EUR": {"symbol": "\u20ac", "name": "Euro"},
+    "USD": {"symbol": "$", "name": "US Dollar"},
+    "GBP": {"symbol": "\u00a3", "name": "British Pound"},
+    "JPY": {"symbol": "\u00a5", "name": "Japanese Yen"},
+    "KRW": {"symbol": "\u20a9", "name": "Korean Won"},
+    "CNY": {"symbol": "\u00a5", "name": "Chinese Yuan"},
+    "INR": {"symbol": "\u20b9", "name": "Indian Rupee"},
+    "AED": {"symbol": "\u062f.\u0625", "name": "UAE Dirham"},
+    "SAR": {"symbol": "\ufdfc", "name": "Saudi Riyal"},
+    "BRL": {"symbol": "R$", "name": "Brazilian Real"},
+    "MXN": {"symbol": "$", "name": "Mexican Peso"},
+    "CAD": {"symbol": "$", "name": "Canadian Dollar"},
+    "AUD": {"symbol": "$", "name": "Australian Dollar"},
+    "NZD": {"symbol": "$", "name": "New Zealand Dollar"},
+    "CHF": {"symbol": "Fr.", "name": "Swiss Franc"},
+    "SEK": {"symbol": "kr", "name": "Swedish Krona"},
+    "NOK": {"symbol": "kr", "name": "Norwegian Krone"},
+    "DKK": {"symbol": "kr", "name": "Danish Krone"},
+    "PLN": {"symbol": "z\u0142", "name": "Polish Zloty"},
+    "CZK": {"symbol": "K\u010d", "name": "Czech Koruna"},
+    "HUF": {"symbol": "Ft", "name": "Hungarian Forint"},
+    "RON": {"symbol": "lei", "name": "Romanian Leu"},
+    "TRY": {"symbol": "\u20ba", "name": "Turkish Lira"},
+    "SGD": {"symbol": "$", "name": "Singapore Dollar"},
+    "HKD": {"symbol": "$", "name": "Hong Kong Dollar"},
+    "TWD": {"symbol": "$", "name": "Taiwan Dollar"},
+    "THB": {"symbol": "\u0e3f", "name": "Thai Baht"},
+    "MYR": {"symbol": "RM", "name": "Malaysian Ringgit"},
+    "PHP": {"symbol": "\u20b1", "name": "Philippine Peso"},
+    "IDR": {"symbol": "Rp", "name": "Indonesian Rupiah"},
+    "VND": {"symbol": "\u20ab", "name": "Vietnamese Dong"},
+    "ILS": {"symbol": "\u20aa", "name": "Israeli Shekel"},
+    "QAR": {"symbol": "\ufdfc", "name": "Qatari Riyal"},
+    "KWD": {"symbol": "\u062f.\u0643", "name": "Kuwaiti Dinar"},
+    "ZAR": {"symbol": "R", "name": "South African Rand"},
+    "NGN": {"symbol": "\u20a6", "name": "Nigerian Naira"},
+    "EGP": {"symbol": "\u00a3", "name": "Egyptian Pound"},
+    "MAD": {"symbol": "MAD", "name": "Moroccan Dirham"},
+    "ARS": {"symbol": "$", "name": "Argentine Peso"},
+    "CLP": {"symbol": "$", "name": "Chilean Peso"},
+    "COP": {"symbol": "$", "name": "Colombian Peso"},
+    "PEN": {"symbol": "S/", "name": "Peruvian Sol"},
+}
+
+EMAIL_TEMPLATES = {
+    "verification": {
+        "es": {
+            "subject": "Verifica tu cuenta - Hispaloshop",
+            "title": "Verifica tu cuenta",
+            "body": "Introduce este c\u00f3digo en tu panel para activar tu cuenta:",
+            "expires": "Este c\u00f3digo expira en 24 horas.",
+            "ignore": "Si no has solicitado esta verificaci\u00f3n, ignora este email."
+        },
+        "en": {
+            "subject": "Verify your account - Hispaloshop",
+            "title": "Verify your account",
+            "body": "Enter this code in your dashboard to activate your account:",
+            "expires": "This code expires in 24 hours.",
+            "ignore": "If you didn't request this verification, please ignore this email."
+        },
+        "ko": {
+            "subject": "\uacc4\uc815 \uc778\uc99d - Hispaloshop",
+            "title": "\uacc4\uc815 \uc778\uc99d",
+            "body": "\uc544\ub798 \ucf54\ub4dc\ub97c \ub300\uc2dc\ubcf4\ub4dc\uc5d0 \uc785\ub825\ud558\uc5ec \uacc4\uc815\uc744 \ud65c\uc131\ud654\ud558\uc138\uc694:",
+            "expires": "\uc774 \ucf54\ub4dc\ub294 24\uc2dc\uac04 \ud6c4\uc5d0 \ub9cc\ub8cc\ub429\ub2c8\ub2e4.",
+            "ignore": "\uc774 \uc778\uc99d\uc744 \uc694\uccad\ud558\uc9c0 \uc54a\uc73c\uc168\ub2e4\uba74 \uc774 \uc774\uba54\uc77c\uc744 \ubb34\uc2dc\ud558\uc138\uc694."
+        }
+    },
+    "password_reset": {
+        "es": {
+            "subject": "Restablecer contrase\u00f1a - Hispaloshop",
+            "title": "Restablecer contrase\u00f1a",
+            "body": "Haz clic en el bot\u00f3n de abajo para restablecer tu contrase\u00f1a:",
+            "button": "Restablecer Contrase\u00f1a",
+            "expires": "Este enlace expira en 24 horas.",
+            "ignore": "Si no solicitaste esto, ignora este email."
+        },
+        "en": {
+            "subject": "Reset your password - Hispaloshop",
+            "title": "Reset your password",
+            "body": "Click the button below to reset your password:",
+            "button": "Reset Password",
+            "expires": "This link expires in 24 hours.",
+            "ignore": "If you didn't request this, please ignore this email."
+        },
+        "ko": {
+            "subject": "\ube44\ubc00\ubc88\ud638 \uc7ac\uc124\uc815 - Hispaloshop",
+            "title": "\ube44\ubc00\ubc88\ud638 \uc7ac\uc124\uc815",
+            "body": "\uc544\ub798 \ubc84\ud2bc\uc744 \ud074\ub9ad\ud558\uc5ec \ube44\ubc00\ubc88\ud638\ub97c \uc7ac\uc124\uc815\ud558\uc138\uc694:",
+            "button": "\ube44\ubc00\ubc88\ud638 \uc7ac\uc124\uc815",
+            "expires": "\uc774 \ub9c1\ud06c\ub294 24\uc2dc\uac04 \ud6c4\uc5d0 \ub9cc\ub8cc\ub429\ub2c8\ub2e4.",
+            "ignore": "\uc694\uccad\ud558\uc9c0 \uc54a\uc73c\uc168\ub2e4\uba74 \uc774 \uc774\uba54\uc77c\uc744 \ubb34\uc2dc\ud558\uc138\uc694."
+        }
+    }
+}
+
+
+def get_email_template(template_name: str, language: str = "es") -> dict:
+    """Get email template by name and language"""
+    if language not in ["es", "en", "ko"]:
+        language = "en"
+    return EMAIL_TEMPLATES.get(template_name, {}).get(
+        language, EMAIL_TEMPLATES.get(template_name, {}).get("en", {})
+    )

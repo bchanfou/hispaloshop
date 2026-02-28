@@ -1,0 +1,699 @@
+"""
+Producer dashboard: products, certificates, orders, profile,
+payments, stats, health score, follower stats, Stripe Connect.
+Extracted from server.py.
+"""
+from fastapi import APIRouter, HTTPException, Depends, Request
+from typing import Optional
+from datetime import datetime, timezone, timedelta
+import uuid
+import os
+import logging
+
+import stripe
+
+from core.database import db
+from core.models import User, ProducerAddressInput
+from core.config import PLATFORM_COMMISSION
+from core.auth import get_current_user, require_role
+from services.auth_helpers import send_email
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+
+# ============================================
+# PRODUCER DASHBOARD ENDPOINTS
+# ============================================
+
+@router.get("/producer/products")
+async def get_producer_products(user: User = Depends(get_current_user)):
+    """Get products for logged-in producer"""
+    await require_role(user, ["producer"])
+    products = await db.products.find({"producer_id": user.user_id}, {"_id": 0}).to_list(100)
+    return products
+
+@router.get("/producer/certificates")
+async def get_producer_certificates(user: User = Depends(get_current_user)):
+    """Get certificates for producer's products"""
+    await require_role(user, ["producer"])
+    products = await db.products.find({"producer_id": user.user_id}, {"product_id": 1}).to_list(100)
+    product_ids = [p["product_id"] for p in products]
+    certificates = await db.certificates.find({"product_id": {"$in": product_ids}}, {"_id": 0}).to_list(100)
+    return certificates
+
+@router.get("/producer/orders")
+async def get_producer_orders(user: User = Depends(get_current_user)):
+    """Get orders containing producer's products"""
+    await require_role(user, ["producer"])
+    orders = await db.orders.find({}, {"_id": 0}).to_list(500)
+    producer_orders = []
+    for order in orders:
+        producer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == user.user_id]
+        if producer_items:
+            producer_orders.append({
+                "order_id": order["order_id"],
+                "customer_name": order.get("user_name", "Unknown"),
+                "shipping_address": order.get("shipping_address", {}),
+                "items": producer_items,
+                "total": sum(item.get("amount", 0) for item in producer_items),
+                "status": order["status"],
+                "tracking_number": order.get("tracking_number"),
+                "tracking_url": order.get("tracking_url"),
+                "status_history": order.get("status_history", []),
+                "created_at": order["created_at"],
+                "updated_at": order.get("updated_at")
+            })
+    return producer_orders
+
+
+@router.get("/producer/profile")
+async def get_producer_profile(user: User = Depends(get_current_user)):
+    """Get producer profile including addresses"""
+    await require_role(user, ["producer"])
+    producer = await db.users.find_one(
+        {"user_id": user.user_id},
+        {"_id": 0, "password_hash": 0}
+    )
+    return producer
+
+
+@router.put("/producer/addresses")
+async def update_producer_addresses(input: ProducerAddressInput, user: User = Depends(get_current_user)):
+    """Update producer office and warehouse addresses"""
+    await require_role(user, ["producer"])
+    
+    update_data = {}
+    if input.office_address is not None:
+        update_data["office_address"] = input.office_address
+    if input.warehouse_address is not None:
+        update_data["warehouse_address"] = input.warehouse_address
+    
+    if update_data:
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.users.update_one({"user_id": user.user_id}, {"$set": update_data})
+    
+    return {"message": "Addresses updated"}
+
+@router.get("/producer/payments")
+async def get_producer_payments(user: User = Depends(get_current_user)):
+    """Get comprehensive payment/earnings summary for producer"""
+    await require_role(user, ["producer"])
+    
+    # Get ALL orders that contain this producer's items (any paid status)
+    all_orders = await db.orders.find(
+        {"line_items.producer_id": user.user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(500)
+    
+    total_gross = 0
+    total_net = 0
+    total_platform_fee = 0
+    pending_payout = 0
+    paid_orders_count = 0
+    pending_orders_count = 0
+    recent_orders = []
+    monthly_data = {}
+    
+    for order in all_orders:
+        # Calculate this producer's share in the order
+        producer_subtotal = 0
+        producer_items = []
+        for item in order.get("line_items", []):
+            if item.get("producer_id") == user.user_id:
+                item_total = item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
+                producer_subtotal += item_total
+                producer_items.append({
+                    "product_name": item.get("product_name", ""),
+                    "quantity": item.get("quantity", 1),
+                    "price": item.get("price", 0),
+                    "subtotal": item_total
+                })
+        
+        if producer_subtotal <= 0:
+            continue
+        
+        platform_fee = round(producer_subtotal * PLATFORM_COMMISSION, 2)
+        net_earnings = round(producer_subtotal - platform_fee, 2)
+        is_paid = order.get("status") in ("paid", "confirmed", "preparing", "shipped", "delivered")
+        
+        if is_paid:
+            total_gross += producer_subtotal
+            total_net += net_earnings
+            total_platform_fee += platform_fee
+            paid_orders_count += 1
+            
+            # Track if payout is still pending (not yet transferred)
+            split = order.get("split_details", [])
+            producer_split = next((s for s in split if s.get("producer_id") == user.user_id), None)
+            if not producer_split or not producer_split.get("paid_out", False):
+                pending_payout += net_earnings
+        else:
+            pending_orders_count += 1
+        
+        # Monthly aggregation
+        created = order.get("created_at", "")
+        month_key = created[:7] if created else "unknown"  # "2026-02"
+        if month_key not in monthly_data:
+            monthly_data[month_key] = {"gross": 0, "net": 0, "orders": 0}
+        if is_paid:
+            monthly_data[month_key]["gross"] += producer_subtotal
+            monthly_data[month_key]["net"] += net_earnings
+            monthly_data[month_key]["orders"] += 1
+        
+        # Recent orders (last 20)
+        if len(recent_orders) < 20:
+            recent_orders.append({
+                "order_id": order["order_id"],
+                "date": order.get("created_at", ""),
+                "status": order.get("status", "unknown"),
+                "customer_name": order.get("user_name", "Unknown"),
+                "gross_amount": round(producer_subtotal, 2),
+                "platform_fee": platform_fee,
+                "net_earnings": net_earnings,
+                "items": producer_items,
+                "currency": order.get("currency", "EUR")
+            })
+    
+    # Sort monthly data
+    monthly_summary = [
+        {"month": k, "gross": round(v["gross"], 2), "net": round(v["net"], 2), "orders": v["orders"]}
+        for k, v in sorted(monthly_data.items(), reverse=True)
+    ]
+    
+    # Check Stripe Connect status
+    stripe_connected = False
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "stripe_account_id": 1})
+    if user_doc and user_doc.get("stripe_account_id"):
+        stripe_connected = True
+    store = await db.stores.find_one({"user_id": user.user_id}, {"_id": 0, "stripe_account_id": 1, "stripe_charges_enabled": 1})
+    if store and store.get("stripe_charges_enabled"):
+        stripe_connected = True
+    
+    return {
+        "total_gross": round(total_gross, 2),
+        "total_net": round(total_net, 2),
+        "total_platform_fee": round(total_platform_fee, 2),
+        "pending_payout": round(pending_payout, 2),
+        "commission_rate": PLATFORM_COMMISSION,
+        "paid_orders": paid_orders_count,
+        "pending_orders": pending_orders_count,
+        "stripe_connected": stripe_connected,
+        "recent_orders": recent_orders,
+        "monthly_summary": monthly_summary
+    }
+
+@router.get("/producer/stats")
+async def get_producer_stats(user: User = Depends(get_current_user)):
+    """Get producer dashboard statistics"""
+    await require_role(user, ["producer"])
+    
+    total_products = await db.products.count_documents({"producer_id": user.user_id})
+    approved_products = await db.products.count_documents({"producer_id": user.user_id, "approved": True})
+    pending_products = await db.products.count_documents({"producer_id": user.user_id, "approved": False})
+    
+    # Count orders with producer's products
+    orders = await db.orders.find({}, {"line_items": 1}).to_list(500)
+    order_count = sum(1 for o in orders if any(item.get("producer_id") == user.user_id for item in o.get("line_items", [])))
+    
+    # Get store followers count
+    store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"store_id": 1})
+    follower_count = 0
+    if store:
+        follower_count = await db.store_followers.count_documents({"store_id": store["store_id"]})
+    
+    # Low stock products
+    low_stock = await db.products.find(
+        {"producer_id": user.user_id, "status": "active", "stock": {"$lte": 5, "$gt": 0}},
+        {"_id": 0, "product_id": 1, "name": 1, "stock": 1}
+    ).limit(5).to_list(5)
+    
+    # Recent reviews
+    product_ids = [p["product_id"] for p in await db.products.find({"producer_id": user.user_id}, {"_id": 0, "product_id": 1}).to_list(100)]
+    recent_reviews = []
+    if product_ids:
+        recent_reviews = await db.reviews.find(
+            {"product_id": {"$in": product_ids}, "visible": True},
+            {"_id": 0, "rating": 1, "comment": 1, "user_name": 1, "created_at": 1}
+        ).sort("created_at", -1).limit(3).to_list(3)
+    
+    return {
+        "total_products": total_products,
+        "approved_products": approved_products,
+        "pending_products": pending_products,
+        "total_orders": order_count,
+        "follower_count": follower_count,
+        "account_status": "approved" if user.approved else "pending",
+        "low_stock_products": low_stock,
+        "recent_reviews": recent_reviews,
+    }
+
+@router.get("/producer/health-score")
+async def get_producer_health_score(user: User = Depends(get_current_user)):
+    """Calculate seller health score based on sales, followers, and reviews"""
+    await require_role(user, ["producer"])
+    
+    # Initialize scores
+    sales_score = 0
+    followers_score = 0
+    reviews_score = 0
+    products_score = 0
+    profile_score = 0
+    
+    # Get store info
+    store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"_id": 0})
+    
+    # 1. SALES SCORE (max 25 points)
+    # Get orders from last 30 days
+    from datetime import timedelta
+    thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    
+    orders = await db.orders.find({
+        "created_at": {"$gte": thirty_days_ago}
+    }, {"line_items": 1, "total_amount": 1}).to_list(1000)
+    
+    producer_orders = []
+    total_revenue = 0
+    for order in orders:
+        for item in order.get("line_items", []):
+            if item.get("producer_id") == user.user_id:
+                producer_orders.append(order)
+                total_revenue += item.get("price", 0) * item.get("quantity", 1)
+                break
+    
+    order_count = len(producer_orders)
+    if order_count >= 20:
+        sales_score = 25
+    elif order_count >= 10:
+        sales_score = 20
+    elif order_count >= 5:
+        sales_score = 15
+    elif order_count >= 1:
+        sales_score = 10
+    else:
+        sales_score = 0
+    
+    # 2. FOLLOWERS SCORE (max 20 points)
+    follower_count = 0
+    if store:
+        follower_count = await db.store_followers.count_documents({"store_id": store.get("store_id")})
+    
+    if follower_count >= 100:
+        followers_score = 20
+    elif follower_count >= 50:
+        followers_score = 15
+    elif follower_count >= 20:
+        followers_score = 10
+    elif follower_count >= 5:
+        followers_score = 5
+    else:
+        followers_score = 0
+    
+    # 3. REVIEWS SCORE (max 25 points)
+    products = await db.products.find({"producer_id": user.user_id}, {"product_id": 1}).to_list(100)
+    product_ids = [p["product_id"] for p in products]
+    
+    reviews = await db.reviews.find({
+        "product_id": {"$in": product_ids},
+        "status": "approved"
+    }, {"rating": 1}).to_list(500)
+    
+    review_count = len(reviews)
+    avg_rating = 0
+    if review_count > 0:
+        avg_rating = sum(r.get("rating", 0) for r in reviews) / review_count
+    
+    # Review count component (max 15 points)
+    if review_count >= 20:
+        reviews_score += 15
+    elif review_count >= 10:
+        reviews_score += 10
+    elif review_count >= 5:
+        reviews_score += 5
+    elif review_count >= 1:
+        reviews_score += 2
+    
+    # Average rating component (max 10 points)
+    if avg_rating >= 4.5:
+        reviews_score += 10
+    elif avg_rating >= 4.0:
+        reviews_score += 8
+    elif avg_rating >= 3.5:
+        reviews_score += 5
+    elif avg_rating >= 3.0:
+        reviews_score += 3
+    
+    # 4. PRODUCTS SCORE (max 15 points)
+    approved_products = await db.products.count_documents({"producer_id": user.user_id, "approved": True})
+    
+    if approved_products >= 10:
+        products_score = 15
+    elif approved_products >= 5:
+        products_score = 10
+    elif approved_products >= 3:
+        products_score = 7
+    elif approved_products >= 1:
+        products_score = 3
+    
+    # 5. PROFILE COMPLETENESS (max 15 points)
+    if store:
+        if store.get("name"):
+            profile_score += 3
+        if store.get("tagline"):
+            profile_score += 2
+        if store.get("story"):
+            profile_score += 3
+        if store.get("logo_url"):
+            profile_score += 3
+        if store.get("hero_image_url"):
+            profile_score += 2
+        if store.get("location"):
+            profile_score += 2
+    
+    # Calculate total score
+    total_score = sales_score + followers_score + reviews_score + products_score + profile_score
+    
+    # Determine health status
+    if total_score >= 80:
+        status = "excellent"
+        status_label = "Excelente"
+        status_color = "green"
+    elif total_score >= 60:
+        status = "good"
+        status_label = "Bueno"
+        status_color = "blue"
+    elif total_score >= 40:
+        status = "average"
+        status_label = "Regular"
+        status_color = "yellow"
+    elif total_score >= 20:
+        status = "needs_improvement"
+        status_label = "Necesita mejorar"
+        status_color = "orange"
+    else:
+        status = "critical"
+        status_label = "Crítico"
+        status_color = "red"
+    
+    # Generate recommendations
+    recommendations = []
+    if sales_score < 15:
+        recommendations.append({
+            "type": "sales",
+            "message": "Aumenta tus ventas promocionando tus productos en redes sociales",
+            "priority": "high"
+        })
+    if followers_score < 10:
+        recommendations.append({
+            "type": "followers",
+            "message": "Consigue más seguidores completando tu perfil de tienda",
+            "priority": "medium"
+        })
+    if reviews_score < 15:
+        recommendations.append({
+            "type": "reviews",
+            "message": "Solicita reseñas a tus clientes satisfechos",
+            "priority": "medium"
+        })
+    if products_score < 10:
+        recommendations.append({
+            "type": "products",
+            "message": "Añade más productos para aumentar tu visibilidad",
+            "priority": "low"
+        })
+    if profile_score < 10:
+        recommendations.append({
+            "type": "profile",
+            "message": "Completa tu perfil de tienda con logo e historia",
+            "priority": "high"
+        })
+    
+    return {
+        "total_score": total_score,
+        "max_score": 100,
+        "status": status,
+        "status_label": status_label,
+        "status_color": status_color,
+        "breakdown": {
+            "sales": {"score": sales_score, "max": 25, "label": "Ventas (30 días)"},
+            "followers": {"score": followers_score, "max": 20, "label": "Seguidores"},
+            "reviews": {"score": reviews_score, "max": 25, "label": "Reseñas"},
+            "products": {"score": products_score, "max": 15, "label": "Productos"},
+            "profile": {"score": profile_score, "max": 15, "label": "Perfil"}
+        },
+        "metrics": {
+            "orders_30d": order_count,
+            "revenue_30d": total_revenue,
+            "follower_count": follower_count,
+            "review_count": review_count,
+            "avg_rating": round(avg_rating, 1),
+            "approved_products": approved_products
+        },
+        "recommendations": recommendations[:3]  # Top 3 recommendations
+    }
+
+@router.get("/producer/follower-stats")
+async def get_producer_follower_stats(user: User = Depends(get_current_user), days: int = 30):
+    """Get follower statistics for producer's store over time"""
+    await require_role(user, ["producer"])
+    
+    store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"store_id": 1})
+    if not store:
+        return {"followers": [], "total": 0}
+    
+    # Get followers grouped by day
+    from datetime import timedelta
+    now = datetime.now(timezone.utc)
+    start_date = now - timedelta(days=days)
+    
+    followers = await db.store_followers.find(
+        {"store_id": store["store_id"]},
+        {"created_at": 1}
+    ).to_list(10000)
+    
+    # Group by date
+    daily_counts = {}
+    for f in followers:
+        try:
+            created = datetime.fromisoformat(f["created_at"].replace("Z", "+00:00"))
+            date_key = created.strftime("%Y-%m-%d")
+            daily_counts[date_key] = daily_counts.get(date_key, 0) + 1
+        except:
+            pass
+    
+    # Build cumulative chart data
+    chart_data = []
+    cumulative = 0
+    current = start_date
+    while current <= now:
+        date_key = current.strftime("%Y-%m-%d")
+        cumulative += daily_counts.get(date_key, 0)
+        chart_data.append({
+            "date": date_key,
+            "followers": cumulative,
+            "new": daily_counts.get(date_key, 0)
+        })
+        current += timedelta(days=1)
+    
+    return {"chart_data": chart_data, "total": len(followers)}
+
+# ============================================
+# STRIPE CONNECT FOR PRODUCERS
+# ============================================
+# stripe.api_key already set at module level
+
+@router.post("/producer/stripe/create-account")
+async def create_stripe_connect_account(request: Request, user: User = Depends(get_current_user)):
+    """Create a Stripe Connect Express account for the producer"""
+    await require_role(user, ["producer"])
+    
+    # Country name to ISO 3166-1 alpha-2 code mapping
+    COUNTRY_TO_ISO = {
+        "spain": "ES", "españa": "ES",
+        "united states": "US", "usa": "US", "us": "US",
+        "united kingdom": "GB", "uk": "GB", "great britain": "GB",
+        "france": "FR", "francia": "FR",
+        "germany": "DE", "alemania": "DE", "deutschland": "DE",
+        "italy": "IT", "italia": "IT",
+        "portugal": "PT",
+        "netherlands": "NL", "holland": "NL",
+        "belgium": "BE", "bélgica": "BE",
+        "austria": "AT",
+        "switzerland": "CH", "suiza": "CH",
+        "ireland": "IE", "irlanda": "IE",
+        "greece": "GR", "grecia": "GR",
+        "poland": "PL", "polonia": "PL",
+        "sweden": "SE", "suecia": "SE",
+        "denmark": "DK", "dinamarca": "DK",
+        "finland": "FI", "finlandia": "FI",
+        "norway": "NO", "noruega": "NO",
+        "canada": "CA", "canadá": "CA",
+        "australia": "AU",
+        "new zealand": "NZ", "nueva zelanda": "NZ",
+        "mexico": "MX", "méxico": "MX",
+        "brazil": "BR", "brasil": "BR",
+        "argentina": "AR",
+        "japan": "JP", "japón": "JP",
+        "china": "CN",
+        "india": "IN",
+        "singapore": "SG", "singapur": "SG",
+    }
+    
+    def get_country_code(country_input):
+        """Convert country name or code to ISO 3166-1 alpha-2"""
+        if not country_input:
+            return "US"  # Default
+        
+        country_input = country_input.strip()
+        
+        # If already a 2-letter code, return uppercase
+        if len(country_input) == 2 and country_input.isalpha():
+            return country_input.upper()
+        
+        # Look up in mapping
+        country_lower = country_input.lower()
+        if country_lower in COUNTRY_TO_ISO:
+            return COUNTRY_TO_ISO[country_lower]
+        
+        # Default to US if unknown
+        logger.warning(f"Unknown country '{country_input}', defaulting to US")
+        return "US"
+    
+    # Check if producer already has a Stripe account
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
+    if user_doc.get("stripe_account_id"):
+        # Account already exists, create a new onboarding link
+        try:
+            origin = request.headers.get('origin', str(request.base_url).rstrip('/'))
+            account_link = stripe.AccountLink.create(
+                account=user_doc["stripe_account_id"],
+                refresh_url=f"{origin}/producer?stripe_refresh=true",
+                return_url=f"{origin}/producer?stripe_return=true",
+                type="account_onboarding",
+            )
+            return {"url": account_link.url, "account_id": user_doc["stripe_account_id"]}
+        except stripe.error.StripeError as e:
+            logger.error(f"Stripe error creating account link: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Stripe error: {str(e)}")
+    
+    try:
+        # Create a new Stripe Connect Express account
+        country_code = get_country_code(user.country)
+        logger.info(f"Creating Stripe account for {user.email} with country code: {country_code}")
+        
+        account = stripe.Account.create(
+            type="express",
+            country=country_code,
+            email=user.email,
+            capabilities={
+                "card_payments": {"requested": True},
+                "transfers": {"requested": True},
+            },
+            business_type="individual",
+            metadata={
+                "producer_id": user.user_id,
+                "platform": "hispaloshop"
+            }
+        )
+        
+        # Store the account ID in the database
+        await db.users.update_one(
+            {"user_id": user.user_id},
+            {"$set": {
+                "stripe_account_id": account.id,
+                "stripe_connect_status": "pending",
+                "stripe_connect_created_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # Create an account link for onboarding
+        origin = request.headers.get('origin', str(request.base_url).rstrip('/'))
+        account_link = stripe.AccountLink.create(
+            account=account.id,
+            refresh_url=f"{origin}/producer?stripe_refresh=true",
+            return_url=f"{origin}/producer?stripe_return=true",
+            type="account_onboarding",
+        )
+        
+        logger.info(f"Created Stripe Connect account {account.id} for producer {user.user_id}")
+        return {"url": account_link.url, "account_id": account.id}
+        
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error creating account: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Stripe error: {str(e)}")
+
+@router.get("/producer/stripe/status")
+async def get_stripe_connect_status(user: User = Depends(get_current_user)):
+    """Get the Stripe Connect status for the producer"""
+    await require_role(user, ["producer"])
+    
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
+    stripe_account_id = user_doc.get("stripe_account_id")
+    
+    if not stripe_account_id:
+        return {
+            "connected": False,
+            "status": "not_connected",
+            "stripe_account_id": None,
+            "payouts_enabled": False,
+            "charges_enabled": False
+        }
+    
+    try:
+        # Fetch the account status from Stripe
+        account = stripe.Account.retrieve(stripe_account_id)
+        
+        # Determine connection status
+        is_connected = account.charges_enabled and account.payouts_enabled
+        status = "connected" if is_connected else "pending"
+        
+        # Update the status in our database
+        await db.users.update_one(
+            {"user_id": user.user_id},
+            {"$set": {
+                "stripe_connect_status": status,
+                "stripe_payouts_enabled": account.payouts_enabled,
+                "stripe_charges_enabled": account.charges_enabled
+            }}
+        )
+        
+        return {
+            "connected": is_connected,
+            "status": status,
+            "stripe_account_id": stripe_account_id,
+            "payouts_enabled": account.payouts_enabled,
+            "charges_enabled": account.charges_enabled,
+            "details_submitted": account.details_submitted
+        }
+        
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error fetching account: {str(e)}")
+        return {
+            "connected": False,
+            "status": "error",
+            "stripe_account_id": stripe_account_id,
+            "error": str(e)
+        }
+
+@router.post("/producer/stripe/create-login-link")
+async def create_stripe_login_link(user: User = Depends(get_current_user)):
+    """Create a login link to the Stripe Express dashboard"""
+    await require_role(user, ["producer"])
+    
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
+    stripe_account_id = user_doc.get("stripe_account_id")
+    
+    if not stripe_account_id:
+        raise HTTPException(status_code=400, detail="No Stripe account connected")
+    
+    try:
+        login_link = stripe.Account.create_login_link(stripe_account_id)
+        return {"url": login_link.url}
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error creating login link: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Stripe error: {str(e)}")
+
+# ============================================
+# IMAGE UPLOAD — CLOUDINARY (persistent CDN storage)
+# ============================================

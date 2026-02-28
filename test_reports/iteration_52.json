@@ -1,0 +1,75 @@
+{
+  "summary": "Iteration 52 - Tested high-priority features: Buy buttons with login messages/loading states, Pack toggle ON/OFF, Mobile footer language selector. Fixed critical bug in ProductDetailPage.js where variant_id and pack_id were not being passed to addToCart function.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+
+  "passed_tests": [
+    "BOTONES: Non-logged user clicking 'Add to Cart' shows toast 'Inicia sesión para añadir productos' with Login button - PASS",
+    "BOTONES: Non-logged user clicking 'Buy Now' shows toast 'Inicia sesión para comprar' with Login button - PASS",
+    "BOTONES: Logged-in user clicking 'Add to Cart' shows loading toast then 'Added successfully' - PASS (after fix)",
+    "BOTONES: Logged-in user clicking 'Buy Now' redirects to /cart - PASS (after fix)",
+    "PACKS: Click on pack selects it (green checkbox visible) - PASS",
+    "PACKS: Click on selected pack deselects it (toggle OFF) - PASS",
+    "PACKS: Price total updates when selecting/deselecting packs (€24.99 → €134.95) - PASS",
+    "FOOTER: Mobile (390px) language selector with Globe icon visible - PASS",
+    "FOOTER: Click on language selector opens dialog with 11 language options - PASS",
+    "FOOTER: Selecting language changes UI (Spanish → 'Todos los Productos', 'Tiendas', etc.) - PASS"
+  ],
+
+  "bugs_fixed": [
+    {
+      "file": "/app/frontend/src/pages/ProductDetailPage.js",
+      "issue": "handleAddToCart and handleBuyNow functions were not passing selectedVariant.variant_id and selectedPack.pack_id to addToCart function",
+      "fix": "Added variantId and packId parameters to addToCart calls",
+      "impact": "Products with variants were failing to add to cart with 400 Bad Request error"
+    }
+  ],
+
+  "test_report_links": [
+    "/app/test_reports/iteration_52.json"
+  ],
+
+  "action_items": [],
+
+  "critical_code_review_comments": [
+    "ProductDetailPage.js: Fixed - now correctly passes variant_id and pack_id to addToCart",
+    "ProductCard.js: Buy buttons correctly show login required toast for non-logged users",
+    "Footer.js: Mobile language selector working correctly with Globe icon and dialog",
+    "Pack selection toggle ON/OFF working with visual checkbox indicator"
+  ],
+
+  "updated_files": [
+    "/app/frontend/src/pages/ProductDetailPage.js"
+  ],
+
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+
+  "test_credentials": {
+    "customer_verified": "test@example.com / password123"
+  },
+
+  "seed_data_creation": "Created test user test@example.com with password123 (SHA256 hash)",
+
+  "retest_needed": false,
+
+  "should_main_agent_self_test": true,
+
+  "context_for_next_testing_agent": "Iteration 52 tested buy buttons, pack toggle, and footer language selector. Key fix: ProductDetailPage.js was not passing variant_id and pack_id to addToCart function, causing 400 errors for products with variants. All features now working correctly. Test user: test@example.com / password123. Producer certificates wizard and admin certificates panel were not tested in this iteration - they require producer/admin login.",
+
+  "features_not_tested": [
+    "ProducerCertificates.js - Wizard de certificados con 4 pasos (requires producer login)",
+    "AdminCertificates.js - Panel de admin con aprobar/rechazar/eliminar (requires admin login)"
+  ]
+}

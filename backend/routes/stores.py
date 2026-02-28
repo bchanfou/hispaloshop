@@ -1,0 +1,478 @@
+"""
+Store routes: listings, profiles, follow, upload, notifications.
+"""
+from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File, Form
+from fastapi.responses import FileResponse
+from typing import Optional, List
+from datetime import datetime, timezone
+from pathlib import Path
+import unicodedata
+import uuid
+import logging
+import os
+import resend
+
+from core.database import db
+from core.models import User, StoreProfileUpdate
+from core.auth import get_current_user, require_role, get_optional_user
+from services.cloudinary_storage import upload_image as cloudinary_upload
+
+logger = logging.getLogger(__name__)
+router = APIRouter()
+
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.hispaloshop.com')
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+EMAIL_FROM = os.environ.get('EMAIL_FROM', 'Hispaloshop <onboarding@resend.dev>')
+
+def send_email(to, subject, html):
+    if not RESEND_API_KEY:
+        return
+    try:
+        resend.api_key = RESEND_API_KEY
+        resend.Emails.send({"from": EMAIL_FROM, "to": [to], "subject": subject, "html": html})
+    except Exception as e:
+        logger.error(f"Email error: {e}")
+
+# STORE PROFILE ENDPOINTS
+# ============================================
+
+def generate_store_slug(name: str) -> str:
+    """Generate URL-friendly slug from store name"""
+    import unicodedata
+    # Normalize unicode characters (remove accents)
+    slug = unicodedata.normalize('NFD', name.lower())
+    slug = ''.join(c for c in slug if unicodedata.category(c) != 'Mn')
+    # Replace spaces and special chars with hyphens
+    slug = ''.join(c if c.isalnum() else '-' for c in slug)
+    # Remove consecutive hyphens and trim
+    while '--' in slug:
+        slug = slug.replace('--', '-')
+    return slug.strip('-')
+
+@router.get("/stores")
+async def get_all_stores(
+    country: Optional[str] = None,
+    region: Optional[str] = None,
+    search: Optional[str] = None,
+    seller_id: Optional[str] = None,
+    producer_id: Optional[str] = None
+):
+    """Get all public store profiles with optional filtering"""
+    # Build query
+    query = {}
+    if country:
+        query["country"] = country.upper()
+    if region:
+        query["region"] = region.upper()
+    # Filter by seller/producer ID
+    if seller_id:
+        query["producer_id"] = seller_id
+    elif producer_id:
+        query["producer_id"] = producer_id
+    
+    stores = await db.store_profiles.find(query, {"_id": 0}).to_list(1000)
+    
+    # Filter by search if provided
+    if search:
+        search_lower = search.lower()
+        stores = [
+            s for s in stores 
+            if search_lower in (s.get("name") or "").lower() 
+            or search_lower in (s.get("location") or "").lower()
+            or search_lower in (s.get("tagline") or "").lower()
+        ]
+    
+    # Enrich stores with product and follower counts
+    for store in stores:
+        # Get product count
+        product_count = await db.products.count_documents({
+            "producer_id": store.get("producer_id"),
+            "status": "approved"
+        })
+        store["product_count"] = product_count
+        
+        # Get follower count
+        follower_count = await db.store_followers.count_documents({
+            "store_id": store.get("store_id")
+        })
+        store["follower_count"] = follower_count
+    
+    return stores
+
+@router.get("/store/{slug}")
+async def get_store_by_slug(slug: str):
+    """Get public store profile by slug"""
+    store = await db.store_profiles.find_one({"slug": slug}, {"_id": 0})
+    if not store:
+        # Try to find by producer_id as fallback
+        store = await db.store_profiles.find_one({"producer_id": slug}, {"_id": 0})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    # Get producer info for additional details
+    producer = await db.users.find_one({"user_id": store["producer_id"]}, {"_id": 0, "password_hash": 0})
+    if producer:
+        store["producer_name"] = producer.get("name", store["name"])
+        store["producer_verified"] = producer.get("approved", False)
+    
+    # Calculate rating from product reviews
+    products = await db.products.find(
+        {"producer_id": store["producer_id"], "status": "approved"},
+        {"product_id": 1}
+    ).to_list(1000)
+    product_ids = [p["product_id"] for p in products]
+    
+    if product_ids:
+        reviews = await db.reviews.find(
+            {"product_id": {"$in": product_ids}, "approved": True}
+        ).to_list(10000)
+        if reviews:
+            store["rating"] = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
+            store["review_count"] = len(reviews)
+    
+    # Get follower count for Instagram-style display
+    follower_count = await db.store_followers.count_documents({"store_id": store.get("store_id")})
+    store["follower_count"] = follower_count
+    
+    # Get product count
+    product_count = await db.products.count_documents({"producer_id": store["producer_id"], "approved": True})
+    store["product_count"] = product_count
+    
+    return store
+
+@router.get("/store/{slug}/products")
+async def get_store_products(
+    slug: str,
+    category: Optional[str] = None,
+    sort: str = "featured",
+    limit: int = 20,
+    offset: int = 0
+):
+    """Get products from a specific store"""
+    store = await db.store_profiles.find_one({"slug": slug}, {"_id": 0, "producer_id": 1})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    query = {"producer_id": store["producer_id"], "status": "approved"}
+    if category:
+        query["category_id"] = category
+    
+    # Sorting
+    sort_map = {
+        "featured": [("featured", -1), ("created_at", -1)],
+        "price_asc": [("price", 1)],
+        "price_desc": [("price", -1)],
+        "newest": [("created_at", -1)],
+        "rating": [("average_rating", -1)]
+    }
+    sort_order = sort_map.get(sort, [("created_at", -1)])
+    
+    products = await db.products.find(query, {"_id": 0}).sort(sort_order).skip(offset).limit(limit).to_list(limit)
+    total = await db.products.count_documents(query)
+    
+    return {"products": products, "total": total}
+
+@router.get("/store/{slug}/reviews")
+async def get_store_reviews(slug: str, limit: int = 20, offset: int = 0):
+    """Get reviews for all products in a store"""
+    store = await db.store_profiles.find_one({"slug": slug}, {"_id": 0, "producer_id": 1})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    # Get all product IDs from this store
+    products = await db.products.find(
+        {"producer_id": store["producer_id"]},
+        {"product_id": 1, "name": 1}
+    ).to_list(1000)
+    product_ids = [p["product_id"] for p in products]
+    product_names = {p["product_id"]: p["name"] for p in products}
+    
+    if not product_ids:
+        return {"reviews": [], "total": 0, "average_rating": 0}
+    
+    # Get reviews
+    reviews = await db.reviews.find(
+        {"product_id": {"$in": product_ids}, "approved": True},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    # Add product name to each review
+    for review in reviews:
+        review["product_name"] = product_names.get(review["product_id"], "Unknown")
+    
+    total = await db.reviews.count_documents({"product_id": {"$in": product_ids}, "approved": True})
+    
+    # Calculate average
+    all_reviews = await db.reviews.find(
+        {"product_id": {"$in": product_ids}, "approved": True},
+        {"rating": 1}
+    ).to_list(10000)
+    avg_rating = round(sum(r["rating"] for r in all_reviews) / len(all_reviews), 1) if all_reviews else 0
+    
+    return {"reviews": reviews, "total": total, "average_rating": avg_rating}
+
+@router.get("/store/{slug}/certificates")
+async def get_store_certificates(slug: str):
+    """Get all certificates for products in a store"""
+    store = await db.store_profiles.find_one({"slug": slug}, {"_id": 0, "producer_id": 1})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    # Get all product IDs from this store
+    products = await db.products.find(
+        {"producer_id": store["producer_id"]},
+        {"product_id": 1}
+    ).to_list(1000)
+    product_ids = [p["product_id"] for p in products]
+    
+    certificates = await db.certificates.find(
+        {"product_id": {"$in": product_ids}, "approved": True},
+        {"_id": 0}
+    ).to_list(100)
+    
+    return certificates
+
+@router.get("/producer/store-profile")
+async def get_my_store_profile(user: User = Depends(get_current_user)):
+    """Get current producer's store profile"""
+    await require_role(user, ["producer"])
+    
+    store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"_id": 0})
+    if not store:
+        # Create default profile
+        slug = generate_store_slug(user.company_name or user.name)
+        # Check uniqueness
+        existing = await db.store_profiles.find_one({"slug": slug})
+        if existing:
+            slug = f"{slug}-{uuid.uuid4().hex[:4]}"
+        
+        store = {
+            "store_id": f"store_{uuid.uuid4().hex[:12]}",
+            "producer_id": user.user_id,
+            "slug": slug,
+            "name": user.company_name or user.name,
+            "tagline": None,
+            "story": None,
+            "founder_name": None,
+            "founder_quote": None,
+            "hero_image": None,
+            "logo": None,
+            "gallery": [],
+            "country": user.country,
+            "region": None,
+            "location": user.country,
+            "full_address": user.fiscal_address,
+            "map_image": None,
+            "coverage_area": None,
+            "delivery_time": None,
+            "store_type": "producer",
+            "verified": user.approved,
+            "contact_email": user.email,
+            "contact_phone": user.phone,
+            "whatsapp": user.whatsapp,
+            "website": None,
+            "social_instagram": None,
+            "social_facebook": None,
+            "business_hours": None,
+            "badges": [],
+            "rating": 0.0,
+            "review_count": 0,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.store_profiles.insert_one(store)
+        store.pop("_id", None)
+    
+    return store
+
+@router.put("/producer/store-profile")
+async def update_my_store_profile(input: StoreProfileUpdate, user: User = Depends(get_current_user)):
+    """Update current producer's store profile"""
+    await require_role(user, ["producer"])
+    
+    # Get existing profile or create one
+    store = await db.store_profiles.find_one({"producer_id": user.user_id})
+    if not store:
+        # First get the profile (this will create it)
+        await get_my_store_profile(user)
+    
+    update_data = {k: v for k, v in input.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.store_profiles.update_one(
+        {"producer_id": user.user_id},
+        {"$set": update_data}
+    )
+    
+    return {"message": "Store profile updated"}
+
+@router.post("/producer/store-profile/upload-image")
+async def upload_store_image(
+    file: UploadFile = File(...),
+    image_type: str = "gallery",  # hero | logo | gallery
+    user: User = Depends(get_current_user)
+):
+    """Upload image for store profile (hero, logo, or gallery)"""
+    await require_role(user, ["producer"])
+    
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/webp"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type")
+    
+    # Validate file size (5MB max, 2MB for logo)
+    max_size = 2 * 1024 * 1024 if image_type == "logo" else 5 * 1024 * 1024
+    content = await file.read()
+    if len(content) > max_size:
+        raise HTTPException(status_code=400, detail=f"File too large. Max: {max_size // (1024*1024)}MB")
+    
+    # Upload to Cloudinary
+    result = await cloudinary_upload(content, folder="stores", filename=f"store_{user.user_id}_{image_type}_{uuid.uuid4().hex[:6]}")
+    image_url = result["url"]
+    
+    # Auto-update profile if hero or logo
+    if image_type in ["hero", "logo"]:
+        field_name = "hero_image" if image_type == "hero" else "logo"
+        await db.store_profiles.update_one(
+            {"producer_id": user.user_id},
+            {"$set": {field_name: image_url, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+    
+    return {"url": image_url, "filename": result.get("public_id", "")}
+
+@router.get("/uploads/stores/{filename}")
+async def get_store_image(filename: str):
+    """Legacy: serve local store images (backward compat)"""
+    file_path = Path("/app/uploads/stores") / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(file_path)
+
+# ============================================
+# STORE FOLLOW SYSTEM
+# ============================================
+
+@router.post("/store/{slug}/follow")
+async def follow_store(slug: str, user: User = Depends(get_current_user)):
+    """Follow a store to receive notifications about new products"""
+    store = await db.store_profiles.find_one({"slug": slug}, {"_id": 0})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    # Check if already following
+    existing = await db.store_followers.find_one({
+        "user_id": user.user_id,
+        "store_id": store["store_id"]
+    })
+    if existing:
+        return {"message": "Already following", "following": True}
+    
+    # Create follower record
+    follower = {
+        "follower_id": f"follow_{uuid.uuid4().hex[:12]}",
+        "user_id": user.user_id,
+        "store_id": store["store_id"],
+        "store_slug": store["slug"],
+        "store_name": store["name"],
+        "notify_email": True,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.store_followers.insert_one(follower)
+    
+    # Update follower count
+    await db.store_profiles.update_one(
+        {"store_id": store["store_id"]},
+        {"$inc": {"follower_count": 1}}
+    )
+    
+    return {"message": "Now following store", "following": True}
+
+@router.delete("/store/{slug}/follow")
+async def unfollow_store(slug: str, user: User = Depends(get_current_user)):
+    """Unfollow a store"""
+    store = await db.store_profiles.find_one({"slug": slug}, {"_id": 0})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    result = await db.store_followers.delete_one({
+        "user_id": user.user_id,
+        "store_id": store["store_id"]
+    })
+    
+    if result.deleted_count > 0:
+        await db.store_profiles.update_one(
+            {"store_id": store["store_id"]},
+            {"$inc": {"follower_count": -1}}
+        )
+    
+    return {"message": "Unfollowed store", "following": False}
+@router.get("/store/{slug}/following")
+async def check_following_store(slug: str, user: User = Depends(get_current_user)):
+    """Check if user is following a store"""
+    store = await db.store_profiles.find_one({"slug": slug}, {"_id": 0, "store_id": 1})
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    following = await db.store_followers.find_one({
+        "user_id": user.user_id,
+        "store_id": store["store_id"]
+    })
+    
+    return {"following": following is not None}
+
+@router.get("/user/followed-stores")
+async def get_followed_stores(user: User = Depends(get_current_user)):
+    """Get list of stores the user follows"""
+    follows = await db.store_followers.find(
+        {"user_id": user.user_id},
+        {"_id": 0}
+    ).to_list(100)
+    
+    return follows
+
+async def notify_store_followers(store_id: str, product_name: str, product_id: str):
+    """Send notifications to store followers when a new product is added"""
+    store = await db.store_profiles.find_one({"store_id": store_id}, {"_id": 0})
+    if not store:
+        return
+    
+    followers = await db.store_followers.find({"store_id": store_id}).to_list(10000)
+    
+    for follower in followers:
+        # Create in-app notification
+        notification = {
+            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+            "user_id": follower["user_id"],
+            "type": "new_product",
+            "title": f"Nuevo producto en {store['name']}",
+            "message": f"{store['name']} ha añadido un nuevo producto: {product_name}",
+            "link": f"/products/{product_id}",
+            "read": False,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.user_notifications.insert_one(notification)
+        
+        # Send email if enabled
+        if follower.get("notify_email", True):
+            user = await db.users.find_one({"user_id": follower["user_id"]}, {"_id": 0, "email": 1, "name": 1})
+            if user and user.get("email"):
+                try:
+                    html = f'''
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #8B7355;">¡Nuevo producto en {store["name"]}!</h2>
+                        <p>Hola {user.get("name", "")},</p>
+                        <p>Una tienda que sigues ha añadido un nuevo producto:</p>
+                        <div style="background: #f5f5f4; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                            <h3 style="margin: 0 0 8px 0; color: #1c1917;">{product_name}</h3>
+                            <p style="margin: 0; color: #78716c;">de {store["name"]}</p>
+                        </div>
+                        <a href="{FRONTEND_URL}/products/{product_id}" style="display: inline-block; background: #8B7355; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">Ver producto</a>
+                        <p style="color: #a8a29e; font-size: 12px; margin-top: 24px;">
+                            Recibes este email porque sigues a {store["name"]} en Hispaloshop.
+                            <a href="{FRONTEND_URL}/store/{store['slug']}">Dejar de seguir</a>
+                        </p>
+                    </div>
+                    '''
+                    send_email(user["email"], f"Nuevo producto en {store['name']}", html)
+                except Exception as e:
+                    logger.error(f"Error sending follower notification email: {e}")

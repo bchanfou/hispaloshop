@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="theme-color" content="#1C1C1C" />
+        <meta name="description" content="Hispaloshop — Global marketplace for certified food products. Buy from local producers, sell worldwide, or earn as an influencer." />
+        <meta property="og:title" content="Hispaloshop — Buy, Sell & Earn" />
+        <meta property="og:description" content="The marketplace that connects artisan food producers with conscious consumers worldwide. 18+ countries, secure payments, 24-48h delivery." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.hispaloshop.com" />
+        
+        <!-- Google Sitelinks: 3 entry points -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Hispaloshop",
+          "url": "https://www.hispaloshop.com",
+          "description": "Global marketplace for certified food products. Buy, sell, or earn as an influencer.",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.hispaloshop.com/products?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+        </script>
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "Hispaloshop",
+          "url": "https://www.hispaloshop.com",
+          "description": "The marketplace that connects artisan food producers with conscious consumers worldwide.",
+          "sameAs": ["https://instagram.com/hispaloshop"],
+          "hasPart": [
+            {
+              "@type": "WebPage",
+              "name": "Hispaloshop for Sellers",
+              "description": "Sell your products to 18+ countries. Commission from 16%. Automatic payments via Stripe.",
+              "url": "https://www.hispaloshop.com/vender"
+            },
+            {
+              "@type": "WebPage",
+              "name": "Hispaloshop Influencer Program",
+              "description": "Earn 3-7% commission recommending products. 18-month attribution. Payouts every 15 days.",
+              "url": "https://www.hispaloshop.com/influencers"
+            }
+          ]
+        }
+        </script>
+        
+        <!-- Cross-browser compatibility meta tags -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        
+        <!-- DNS Prefetch for performance -->
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        
+        <!-- Leaflet CSS for interactive maps -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+        
+        <title>Hispaloshop — Buy, Sell & Earn | Global Food Marketplace</title>
+        
+        <!-- Polyfills for older browsers -->
+        <script>
+            // Feature detection and polyfills
+            (function() {
+                'use strict';
+                
+                // Polyfill for fetch (IE11, older browsers)
+                if (!window.fetch) {
+                    var script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.2/dist/fetch.umd.min.js';
+                    document.head.appendChild(script);
+                }
+                
+                // Polyfill for Promise (IE11)
+                if (!window.Promise) {
+                    var promiseScript = document.createElement('script');
+                    promiseScript.src = 'https://cdn.jsdelivr.net/npm/promise-polyfill@8.2.3/dist/polyfill.min.js';
+                    document.head.appendChild(promiseScript);
+                }
+                
+                // Polyfill for Object.assign (IE11)
+                if (typeof Object.assign !== 'function') {
+                    Object.assign = function(target) {
+                        if (target === null || target === undefined) {
+                            throw new TypeError('Cannot convert undefined or null to object');
+                        }
+                        var to = Object(target);
+                        for (var index = 1; index < arguments.length; index++) {
+                            var nextSource = arguments[index];
+                            if (nextSource !== null && nextSource !== undefined) {
+                                for (var nextKey in nextSource) {
+                                    if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                                        to[nextKey] = nextSource[nextKey];
+                                    }
+                                }
+                            }
+                        }
+                        return to;
+                    };
+                }
+                
+                // Polyfill for Array.from (IE11)
+                if (!Array.from) {
+                    Array.from = function(arrayLike) {
+                        return [].slice.call(arrayLike);
+                    };
+                }
+                
+                // Polyfill for Array.includes (IE11)
+                if (!Array.prototype.includes) {
+                    Array.prototype.includes = function(searchElement) {
+                        return this.indexOf(searchElement) !== -1;
+                    };
+                }
+                
+                // Polyfill for String.includes (IE11)
+                if (!String.prototype.includes) {
+                    String.prototype.includes = function(search) {
+                        return this.indexOf(search) !== -1;
+                    };
+                }
+                
+                // Polyfill for Element.closest (IE11)
+                if (!Element.prototype.closest) {
+                    Element.prototype.closest = function(s) {
+                        var el = this;
+                        do {
+                            if (el.matches(s)) return el;
+                            el = el.parentElement || el.parentNode;
+                        } while (el !== null && el.nodeType === 1);
+                        return null;
+                    };
+                }
+                
+                // Polyfill for Element.matches (IE11)
+                if (!Element.prototype.matches) {
+                    Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+                }
+                
+                // Safe localStorage wrapper for privacy-focused browsers
+                window.safeStorage = {
+                    getItem: function(key) {
+                        try {
+                            return localStorage.getItem(key);
+                        } catch(e) {
+                            return null;
+                        }
+                    },
+                    setItem: function(key, value) {
+                        try {
+                            localStorage.setItem(key, value);
+                        } catch(e) {
+                            // Storage blocked (Tor, private mode)
+                        }
+                    },
+                    removeItem: function(key) {
+                        try {
+                            localStorage.removeItem(key);
+                        } catch(e) {}
+                    }
+                };
+            })();
+        </script>
+        
+        <!-- CSS for cross-browser compatibility -->
+        <style>
+            /* Fallbacks for older browsers */
+            .backdrop-blur-fallback {
+                background-color: rgba(255, 255, 255, 0.95);
+            }
+            @supports (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px)) {
+                .backdrop-blur-fallback {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    -webkit-backdrop-filter: blur(12px);
+                    backdrop-filter: blur(12px);
+                }
+            }
+            
+            /* Flexbox gap fallback */
+            .flex-gap-fallback > * {
+                margin: 4px;
+            }
+            @supports (gap: 8px) {
+                .flex-gap-fallback {
+                    gap: 8px;
+                }
+                .flex-gap-fallback > * {
+                    margin: 0;
+                }
+            }
+            
+            /* Smooth scroll fallback */
+            html {
+                scroll-behavior: auto;
+            }
+            @supports (scroll-behavior: smooth) {
+                html {
+                    scroll-behavior: smooth;
+                }
+            }
+        </style>
+        
+        <script src="https://assets.emergent.sh/scripts/emergent-main.js" onerror="console.log('Analytics script blocked or unavailable')"></script>
+        
+        <script>
+            // Only load visual edit scripts when inside an iframe
+            if (window.self !== window.top) {
+                var debugMonitorScript = document.createElement('script');
+                debugMonitorScript.src = 'https://assets.emergent.sh/scripts/debug-monitor.js';
+                document.head.appendChild(debugMonitorScript);
+
+                window.tailwind = window.tailwind || {};
+                tailwind.config = {
+                    corePlugins: { preflight: false },
+                };
+
+                var tailwindScript = document.createElement('script');
+                tailwindScript.src = 'https://cdn.tailwindcss.com';
+                document.head.appendChild(tailwindScript);
+            }
+        </script>
+    </head>
+    <body>
+        <noscript>
+            <div style="padding: 20px; text-align: center; font-family: sans-serif;">
+                <h1>JavaScript Required</h1>
+                <p>Please enable JavaScript in your browser to use Hispaloshop.</p>
+                <p>Si usas Tor Browser, permite JavaScript para este sitio.</p>
+            </div>
+        </noscript>
+        <div id="root"></div>
+        <script>
+            !(function (t, e) {
+                var o, n, p, r;
+                e.__SV ||
+                    ((window.posthog = e),
+                    (e._i = []),
+                    (e.init = function (i, s, a) {
+                        function g(t, e) {
+                            var o = e.split(".");
+                            2 == o.length && ((t = t[o[0]]), (e = o[1])),
+                                (t[e] = function () {
+                                    t.push(
+                                        [e].concat(
+                                            Array.prototype.slice.call(
+                                                arguments,
+                                                0,
+                                            ),
+                                        ),
+                                    );
+                                });
+                        }
+                        ((p = t.createElement("script")).type =
+                            "text/javascript"),
+                            (p.crossOrigin = "anonymous"),
+                            (p.async = !0),
+                            (p.src =
+                                s.api_host.replace(
+                                    ".i.posthog.com",
+                                    "-assets.i.posthog.com",
+                                ) + "/static/array.js"),
+                            (r =
+                                t.getElementsByTagName(
+                                    "script",
+                                )[0]).parentNode.insertBefore(p, r);
+                        var u = e;
+                        for (
+                            void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
+                                u.people = u.people || [],
+                                u.toString = function (t) {
+                                    var e = "posthog";
+                                    return (
+                                        "posthog" !== a && (e += "." + a),
+                                        t || (e += " (stub)"),
+                                        e
+                                    );
+                                },
+                                u.people.toString = function () {
+                                    return u.toString(1) + ".people (stub)";
+                                },
+                                o =
+                                    "init me ws ys ps bs capture je Di ks register register_once register_for_session unregister unregister_for_session Ps getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty Es $s createPersonProfile Is opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing Ss debug xs getPageViewId captureTraceFeedback captureTraceMetric".split(
+                                        " ",
+                                    ),
+                                n = 0;
+                            n < o.length;
+                            n++
+                        )
+                            g(u, o[n]);
+                        e._i.push([i, s, a]);
+                    }),
+                    (e.__SV = 1));
+            })(document, window.posthog || []);
+            posthog.init("phc_xAvL2Iq4tFmANRE7kzbKwaSqp1HJjN7x48s3vr0CMjs", {
+                api_host: "https://us.i.posthog.com",
+                person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well,
+                session_recording: {
+                    recordCrossOriginIframes: true,
+                    capturePerformance: false,
+                },
+            });
+        </script>
+    </body>
+</html>

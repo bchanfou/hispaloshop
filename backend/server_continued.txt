@@ -1,0 +1,3 @@
+# This file continues the server.py implementation
+# Due to file size, the payment, order, chat, preferences, notifications, admin routes and app setup remain identical to the previous version
+# They should be appended to server.py after the cart routes
