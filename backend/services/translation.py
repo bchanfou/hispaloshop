@@ -2,6 +2,7 @@
 Translation service using LLM for product/certificate translations.
 SAFE VERSION — no emergentintegrations dependency.
 """
+
 import uuid
 import logging
 from typing import List
@@ -15,63 +16,47 @@ LANGUAGE_NAMES = {
     'ja': 'Japanese', 'ko': 'Korean', 'ru': 'Russian'
 }
 
-PRODUCT_TRANSLATABLE_FIELDS = [
-    'name', 'description', 'ingredients', 'allergens', 'certifications'
-]
-
-CERTIFICATE_TRANSLATABLE_FIELDS = [
-    'ingredients', 'origin', 'nutritional_info',
-    'allergens', 'compliance', 'notes'
-]
-
 
 class TranslationService:
 
     @staticmethod
     async def translate_text(text: str, source_lang: str, target_lang: str) -> str:
-        """
-        SAFE fallback: returns original text.
-        Replace later with OpenAI if needed.
-        """
         return text
 
 
     @staticmethod
     async def translate_list(items: List[str], source_lang: str, target_lang: str) -> List[str]:
-        """
-        SAFE fallback: returns original list.
-        """
         return items
 
 
     @staticmethod
-    async def translate_product_fields(product: dict, source_lang: str, target_lang: str) -> dict:
+    async def translate_product_fields(product: dict, source_lang: str, target_lang: str):
 
         if source_lang == target_lang:
             return {}
 
         translated = {}
 
-        if product.get('name'):
-            translated['name'] = product['name']
+        if product.get("name"):
+            translated["name"] = product["name"]
 
-        if product.get('description'):
-            translated['description'] = product['description']
+        if product.get("description"):
+            translated["description"] = product["description"]
 
-        if product.get('ingredients'):
-            translated['ingredients'] = product['ingredients']
+        if product.get("ingredients"):
+            translated["ingredients"] = product["ingredients"]
 
-        if product.get('allergens'):
-            translated['allergens'] = product['allergens']
+        if product.get("allergens"):
+            translated["allergens"] = product["allergens"]
 
-        if product.get('certifications'):
-            translated['certifications'] = product['certifications']
+        if product.get("certifications"):
+            translated["certifications"] = product["certifications"]
 
         return translated
 
 
     @staticmethod
-    async def translate_certificate_data(cert_data: dict, source_lang: str, target_lang: str) -> dict:
+    async def translate_certificate_data(cert_data: dict, source_lang: str, target_lang: str):
 
         return cert_data
 
@@ -84,9 +69,6 @@ class TranslationService:
             {"_id": 0}
         )
 
-        if not product:
-            return None
-
         return product
 
 
@@ -98,7 +80,4 @@ class TranslationService:
             {"_id": 0}
         )
 
-        return cert
-        except Exception as e:
-            logger.error(f"Error translating certificate {certificate_id}: {e}")
         return cert
