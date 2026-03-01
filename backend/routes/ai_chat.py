@@ -10,7 +10,7 @@ import uuid
 import os
 import logging
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+# from emergentintegrations.llm.chat import LlmChat, UserMessage
 from core.database import db
 from core.models import (
     User, AIProfileUpdate, AIExecuteActionInput, AISmartCartAction,
