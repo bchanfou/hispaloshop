@@ -52,7 +52,7 @@ from core.constants import (
 import uuid
 from datetime import datetime, timezone, timedelta
 import asyncio
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+# from emergentintegrations.llm.chat import LlmChat, UserMessage
 # emergentintegrations Stripe helper removed — using raw stripe SDK for Connect support
 import qrcode
 import io
