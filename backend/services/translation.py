@@ -6,12 +6,12 @@ import os
 import logging
 from typing import List
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+# from emergentintegrations.llm.chat import LlmChat, UserMessage
 from core.database import db
 
 logger = logging.getLogger(__name__)
 
-EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+# EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 
 LANGUAGE_NAMES = {
     'en': 'English', 'es': 'Spanish', 'fr': 'French', 'de': 'German',
@@ -32,19 +32,20 @@ class TranslationService:
             return text
         try:
             session_id = f"translate_{uuid.uuid4().hex[:8]}"
-            chat = LlmChat(
-                api_key=EMERGENT_LLM_KEY,
-                session_id=session_id,
-                system_message=f"""You are a professional translator. Translate the following text from {LANGUAGE_NAMES.get(source_lang, source_lang)} to {LANGUAGE_NAMES.get(target_lang, target_lang)}.
+            return text
+           # chat = LlmChat(
+           #     api_key=EMERGENT_LLM_KEY,
+           #     session_id=session_id,
+           #     system_message=f"""You are a professional translator. Translate the following text from {LANGUAGE_NAMES.get(source_lang, source_lang)} to {LANGUAGE_NAMES.get(target_lang, target_lang)}.
 Rules:
 - Maintain the original meaning and tone
 - Keep proper nouns unchanged (brand names, place names)
 - For food/product terms, use the appropriate local terminology
 - Return ONLY the translation, nothing else"""
             )
-            chat.with_model("openai", "gpt-5.2")
-            response = await chat.send_message(UserMessage(text=text))
-            translated = response.strip()
+           # chat.with_model("openai", "gpt-5.2")
+           # response = await chat.send_message(UserMessage(text=text))
+           # translated = response.strip()
             if translated and translated != text:
                 return translated
             return text
