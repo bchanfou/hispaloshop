@@ -1,4 +1,12 @@
-# Commented out AI chat router import and include statements
+from fastapi import FastAPI
 
-# from routes.ai_chat import router as ai_chat_router
-# api_router.include_router(ai_chat_router)
+# Initialize FastAPI application
+app = FastAPI()
+
+# Include routers here
+# from your_router import router as ai_chat_router
+# app.include_router(ai_chat_router)
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
