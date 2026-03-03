@@ -9,7 +9,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     full_name: str = Field(..., min_length=2, max_length=100)
-    role: str = Field(..., pattern="^(buyer|producer|influencer)$")
+    role: str = Field(..., pattern="^(buyer|producer|influencer|importer)$")
 
 
 class LoginRequest(BaseModel):
@@ -755,7 +755,7 @@ class ConversationDetailResponse(BaseModel):
 
 
 class ConversationCreateRequest(BaseModel):
-    type: str = Field(pattern="^(support|transaction|influencer_brand|social|group_order)$")
+    type: str = Field(pattern="^(support|transaction|influencer_brand|social|group_order|b2b_negotiation)$")
     participant_ids: List[UUID] = Field(default_factory=list, min_length=1, max_length=50)
     related_order_id: Optional[UUID] = None
     related_product_id: Optional[UUID] = None
@@ -772,3 +772,119 @@ class MessageCreateRequest(BaseModel):
 
 class MarkConversationReadRequest(BaseModel):
     read_at: Optional[datetime] = None
+
+
+class ImporterProfileBase(BaseModel):
+    company_name: str = Field(min_length=2, max_length=255)
+    vat_tax_id: Optional[str] = None
+    business_registration: Optional[str] = None
+    country_origin: str = Field(min_length=2, max_length=2)
+    warehouses: List[Dict[str, Any]] = Field(default_factory=list)
+    specializations: List[str] = Field(default_factory=list)
+    years_experience: Optional[int] = Field(default=None, ge=0)
+    certifications: Dict[str, Any] = Field(default_factory=dict)
+    annual_volume_usd: Optional[float] = Field(default=None, ge=0)
+    payment_terms_accepted: List[str] = Field(default_factory=list)
+
+
+class ImporterProfileCreateRequest(ImporterProfileBase):
+    verification_documents: Dict[str, Any] = Field(default_factory=dict)
+
+
+class ImporterProfileUpdateRequest(BaseModel):
+    company_name: Optional[str] = Field(default=None, min_length=2, max_length=255)
+    vat_tax_id: Optional[str] = None
+    business_registration: Optional[str] = None
+    country_origin: Optional[str] = Field(default=None, min_length=2, max_length=2)
+    warehouses: Optional[List[Dict[str, Any]]] = None
+    specializations: Optional[List[str]] = None
+    years_experience: Optional[int] = Field(default=None, ge=0)
+    certifications: Optional[Dict[str, Any]] = None
+    annual_volume_usd: Optional[float] = Field(default=None, ge=0)
+    payment_terms_accepted: Optional[List[str]] = None
+
+
+class ImporterBrandCreateRequest(BaseModel):
+    brand_name: str = Field(min_length=2, max_length=255)
+    brand_country: Optional[str] = Field(default=None, min_length=2, max_length=2)
+    category: Optional[str] = None
+    exclusive_territory: List[str] = Field(default_factory=list)
+    contract_start: Optional[datetime] = None
+    contract_end: Optional[datetime] = None
+    minimum_order_value: Optional[float] = Field(default=None, ge=0)
+    documentation_url: Optional[str] = None
+
+
+class ImporterBrandResponse(ImporterBrandCreateRequest):
+    id: UUID
+    importer_id: UUID
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ImporterProfileResponse(ImporterProfileBase):
+    id: UUID
+    user_id: UUID
+    is_verified: bool
+    verification_documents: Dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime
+    updated_at: datetime
+    brands: List[ImporterBrandResponse] = Field(default_factory=list)
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ImporterPublicProfileResponse(BaseModel):
+    id: UUID
+    company_name: str
+    country_origin: str
+    specializations: List[str] = Field(default_factory=list)
+    is_verified: bool
+    brands: List[ImporterBrandResponse] = Field(default_factory=list)
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ImporterVerificationRequest(BaseModel):
+    verification_documents: Dict[str, Any]
+
+
+class QuoteItem(BaseModel):
+    product_id: UUID
+    qty_requested: int = Field(ge=1)
+    unit_price_quoted: Optional[float] = Field(default=None, ge=0)
+    notes: Optional[str] = None
+
+
+class B2BQuoteCreateRequest(BaseModel):
+    importer_id: UUID
+    items: List[QuoteItem] = Field(min_length=1)
+    valid_until: Optional[datetime] = None
+    incoterm: Optional[str] = None
+    shipping_estimate: Optional[str] = None
+    terms_conditions: Optional[str] = None
+
+
+class B2BQuoteUpdateRequest(BaseModel):
+    status: Optional[str] = Field(default=None, pattern='^(draft|sent|accepted|rejected|expired)$')
+    items: Optional[List[QuoteItem]] = None
+    valid_until: Optional[datetime] = None
+    incoterm: Optional[str] = None
+    shipping_estimate: Optional[str] = None
+    terms_conditions: Optional[str] = None
+
+
+class B2BQuoteResponse(BaseModel):
+    id: UUID
+    importer_id: UUID
+    requester_producer_id: UUID
+    status: str
+    items: List[Dict[str, Any]]
+    total_value: float
+    valid_until: Optional[datetime] = None
+    incoterm: Optional[str] = None
+    shipping_estimate: Optional[str] = None
+    terms_conditions: Optional[str] = None
+    accepted_at: Optional[datetime] = None
+    converted_to_order_id: Optional[UUID] = None
+    created_at: datetime
+    updated_at: datetime
+    model_config = ConfigDict(from_attributes=True)
