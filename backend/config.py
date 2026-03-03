@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     STRIPE_PRICE_ELITE: str = ""
     STRIPE_PUBLISHABLE_KEY: str = ""
     FRONTEND_URL: str = "http://localhost:3000"
+    # Used for generating affiliate redirect links (/r/{code})
+    BACKEND_URL: str | None = None
 
     CLOUDINARY_CLOUD_NAME: str = ""
     CLOUDINARY_API_KEY: str = ""
