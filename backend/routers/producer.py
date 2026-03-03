@@ -1,18 +1,25 @@
 import re
+from datetime import datetime, timezone
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from database import get_db
-from models import Product, ProductImage, User
+from models import AffiliateLink, AffiliateLinkRequest, Product, ProductImage, User
 from routers.auth import get_current_user
 from schemas import ProductCreateRequest, ProductImageUploadResponse, ProductUpdateRequest
 from services.cloudinary import upload_image
 from services.stripe_connect import create_connect_account, create_onboarding_link
 
 router = APIRouter(prefix="/producer")
+
+
+class RejectRequest(BaseModel):
+    reason: str | None = None
 
 
 def slugify(value: str) -> str:
@@ -127,3 +134,148 @@ async def connect_stripe_account(db: AsyncSession = Depends(get_db), user: User 
         await db.flush()
     onboarding_url = create_onboarding_link(user.stripe_account_id)
     return {"onboarding_url": onboarding_url, "stripe_account_id": user.stripe_account_id}
+
+
+@router.get("/affiliate/requests")
+async def get_affiliate_requests(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    require_producer(user)
+    pending = (
+        await db.execute(
+            select(AffiliateLinkRequest)
+            .options(
+                selectinload(AffiliateLinkRequest.influencer).selectinload(User.influencer_profile),
+                selectinload(AffiliateLinkRequest.product),
+            )
+            .where(AffiliateLinkRequest.producer_id == user.id, AffiliateLinkRequest.status == "pending")
+        )
+    ).scalars().all()
+
+    active_links = await db.scalar(
+        select(func.count(AffiliateLink.id)).join(Product, Product.id == AffiliateLink.product_id).where(Product.producer_id == user.id, AffiliateLink.status == "active")
+    )
+    monthly_gmv = await db.scalar(
+        select(func.coalesce(func.sum(AffiliateLink.total_gmv_cents), 0)).join(Product, Product.id == AffiliateLink.product_id).where(Product.producer_id == user.id)
+    )
+
+    return {
+        "pending": [
+            {
+                "id": req.id,
+                "influencer": {
+                    "id": req.influencer.id,
+                    "full_name": req.influencer.full_name,
+                    "avatar_url": req.influencer.avatar_url,
+                    "tier": req.influencer.influencer_profile.tier if req.influencer.influencer_profile else "perseo",
+                    "followers_count": req.influencer.influencer_profile.followers_count if req.influencer.influencer_profile else 0,
+                    "niche": req.influencer.influencer_profile.niche if req.influencer.influencer_profile else [],
+                    "total_gmv_cents": req.influencer.influencer_profile.total_gmv_cents if req.influencer.influencer_profile else 0,
+                },
+                "product": {"id": req.product.id, "name": req.product.name, "image_url": req.product.images[0].url if req.product.images else None},
+                "message": req.message,
+                "requested_at": req.created_at,
+            }
+            for req in pending
+        ],
+        "stats": {
+            "total_affiliates": len({str(req.influencer_id) for req in pending}),
+            "active_links": active_links or 0,
+            "monthly_gmv_from_affiliates": monthly_gmv or 0,
+        },
+    }
+
+
+@router.post("/affiliate/requests/{request_id}/approve")
+async def approve_affiliate_request(request_id: UUID, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    require_producer(user)
+    request_row = await db.scalar(
+        select(AffiliateLinkRequest).options(selectinload(AffiliateLinkRequest.product)).where(AffiliateLinkRequest.id == request_id)
+    )
+    if not request_row or request_row.producer_id != user.id:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    request_row.status = "approved"
+    request_row.approved_by = user.id
+    request_row.responded_at = datetime.now(timezone.utc)
+
+    code = f"{request_row.influencer.full_name or 'AFF'}".upper().replace(" ", "")[:8]
+    code = f"{code}{str(request_row.id).replace('-', '')[:4]}"
+    link = AffiliateLink(
+        influencer_id=request_row.influencer_id,
+        product_id=request_row.product_id,
+        code=code,
+        tracking_url=f"https://hispaloshop.com/r/{code}",
+        status="active",
+    )
+    db.add(link)
+    await db.flush()
+    return link
+
+
+@router.post("/affiliate/requests/{request_id}/reject")
+async def reject_affiliate_request(
+    request_id: UUID,
+    payload: RejectRequest,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    require_producer(user)
+    request_row = await db.scalar(select(AffiliateLinkRequest).where(AffiliateLinkRequest.id == request_id))
+    if not request_row or request_row.producer_id != user.id:
+        raise HTTPException(status_code=404, detail="Request not found")
+    request_row.status = "rejected"
+    request_row.responded_at = datetime.now(timezone.utc)
+    if payload.reason:
+        request_row.message = f"{request_row.message or ''}\nRechazado: {payload.reason}".strip()
+    await db.flush()
+    return {"ok": True}
+
+
+@router.get("/affiliate/links")
+async def get_producer_affiliate_links(product_id: UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    require_producer(user)
+    stmt = select(AffiliateLink).join(Product, Product.id == AffiliateLink.product_id).where(Product.producer_id == user.id)
+    if product_id:
+        stmt = stmt.where(AffiliateLink.product_id == product_id)
+    links = (await db.execute(stmt.order_by(AffiliateLink.created_at.desc()))).scalars().all()
+    return {"items": links, "total": len(links)}
+
+
+@router.patch("/affiliate/links/{link_id}/toggle")
+async def toggle_affiliate_link(link_id: UUID, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    require_producer(user)
+    link = await db.scalar(select(AffiliateLink).join(Product, Product.id == AffiliateLink.product_id).where(AffiliateLink.id == link_id, Product.producer_id == user.id))
+    if not link:
+        raise HTTPException(status_code=404, detail="Link not found")
+    link.status = "paused" if link.status == "active" else "active"
+    await db.flush()
+    return {"id": link.id, "status": link.status}
+
+
+@router.get("/affiliate/stats")
+async def producer_affiliate_stats(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    require_producer(user)
+    links = (
+        await db.execute(select(AffiliateLink).join(Product, Product.id == AffiliateLink.product_id).where(Product.producer_id == user.id))
+    ).scalars().all()
+    clicks = sum(l.total_clicks for l in links)
+    conversions = sum(l.total_conversions for l in links)
+    gmv = sum(l.total_gmv_cents for l in links)
+    commissions = sum(l.total_commission_cents for l in links)
+
+    return {
+        "period": "last_30_days",
+        "affiliates": {
+            "total": len({str(l.influencer_id) for l in links}),
+            "active": len({str(l.influencer_id) for l in links if l.status == 'active'}),
+            "new": 0,
+        },
+        "performance": {
+            "clicks": clicks,
+            "conversions": conversions,
+            "conversion_rate": round((conversions / clicks) * 100, 2) if clicks else 0,
+            "gmv_cents": gmv,
+            "commission_paid_cents": commissions,
+            "platform_earnings_cents": int(gmv * 0.15),
+        },
+        "top_affiliates": [],
+    }

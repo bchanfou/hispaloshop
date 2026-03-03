@@ -6,6 +6,19 @@ export interface CartItemCreateRequest {
   affiliate_code?: string;
 }
 
+export interface AffiliateLinkCreateRequest {
+  product_id?: string | null;
+  custom_code?: string;
+}
+
+export interface InfluencerDashboardResponse {
+  profile: Record<string, unknown>;
+  earnings: Record<string, unknown>;
+  this_month: Record<string, unknown>;
+  trend: Record<string, unknown>;
+  next_tier?: Record<string, unknown> | null;
+}
+
 export interface ShippingAddress {
   name: string;
   line1: string;
@@ -137,6 +150,68 @@ class ApiClient {
   async fulfillOrderItem(itemId: string, data: { action: 'process' | 'ship' | 'deliver'; tracking_number?: string }) {
     return this.request(`/producer/orders/${itemId}/fulfill`, { method: 'PATCH', body: JSON.stringify(data) });
   }
+
+  // Influencer
+  async getInfluencerDashboard(): Promise<InfluencerDashboardResponse> {
+    return this.request('/influencer/dashboard');
+  }
+
+  async getAffiliateLinks(params?: { status?: string; page?: number }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/influencer/affiliate-links${query}`);
+  }
+
+  async createAffiliateLink(data: AffiliateLinkCreateRequest) {
+    return this.request('/influencer/affiliate-links', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deactivateAffiliateLink(linkId: string) {
+    return this.request(`/influencer/affiliate-links/${linkId}/deactivate`, {
+      method: 'POST',
+    });
+  }
+
+  async getCommissions(params?: { status?: string }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/influencer/commissions${query}`);
+  }
+
+  async getPayouts() {
+    return this.request('/influencer/payouts');
+  }
+
+  async requestPayout() {
+    return this.request('/influencer/payouts', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  // Productor - Afiliados
+  async getAffiliateRequests() {
+    return this.request('/producer/affiliate/requests');
+  }
+
+  async approveAffiliateRequest(requestId: string) {
+    return this.request(`/producer/affiliate/requests/${requestId}/approve`, {
+      method: 'POST',
+    });
+  }
+
+  async rejectAffiliateRequest(requestId: string, reason?: string) {
+    return this.request(`/producer/affiliate/requests/${requestId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async getProducerAffiliateStats() {
+    return this.request('/producer/affiliate/stats');
+  }
+
 }
 
 export const api = new ApiClient();

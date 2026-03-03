@@ -20,6 +20,11 @@ class Settings(BaseSettings):
 
     FIREBASE_CREDENTIALS: str = ""
 
+    AFFILIATE_ATTRIBUTION_DAYS: int = 548
+    AFFILIATE_COOKIE_NAME: str = "hispaloshop_ref"
+    AFFILIATE_MIN_PAYOUT_CENTS: int = 1000
+    TIER_RECALCULATION_DAY: int = 1
+
     class Config:
         env_file = ".env"
 

@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
 
 import stripe
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from config import settings
 from database import get_db
-from models import Cart, CartItem, InfluencerProfile, Order, OrderItem, Product, Subscription, User
+from models import AffiliateLink, Cart, CartItem, Order, OrderItem, Product, Subscription, User
 from routers.auth import get_current_user
 from schemas import CheckoutCreateRequest, CheckoutResponse
 
@@ -19,6 +19,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 @router.post("/checkout/session", response_model=CheckoutResponse)
 async def create_checkout_session(
     payload: CheckoutCreateRequest,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -46,13 +47,17 @@ async def create_checkout_session(
 
     affiliate_bps = None
     affiliate_cents = None
-    if cart.affiliate_code:
-        influencer_profile = await db.scalar(
-            select(InfluencerProfile).join(User, User.id == InfluencerProfile.user_id).where(User.full_name == cart.affiliate_code)
-        )
-        tier_bps = {"bronze": 300, "silver": 500, "gold": 700}
-        affiliate_bps = tier_bps.get(influencer_profile.tier, 300) if influencer_profile else 300
-        affiliate_cents = int(subtotal * affiliate_bps / 10000)
+
+    affiliate_code = request.cookies.get(settings.AFFILIATE_COOKIE_NAME) if request else None
+    if not affiliate_code and cart.affiliate_code:
+        affiliate_code = cart.affiliate_code
+
+    if affiliate_code:
+        link = await db.scalar(select(AffiliateLink).options(selectinload(AffiliateLink.influencer).selectinload(User.influencer_profile)).where(AffiliateLink.code.ilike(affiliate_code), AffiliateLink.status == "active"))
+        if link and link.influencer and link.influencer.influencer_profile:
+            affiliate_code = link.code
+            affiliate_bps = link.influencer.influencer_profile.get_commission_bps()
+            affiliate_cents = int(subtotal * affiliate_bps / 10000)
 
     order = Order(
         user_id=current_user.id,
@@ -65,7 +70,7 @@ async def create_checkout_session(
         total_cents=total_cents,
         platform_fee_bps=platform_fee_bps,
         platform_fee_cents=platform_fee_cents,
-        affiliate_code=cart.affiliate_code,
+        affiliate_code=affiliate_code,
         affiliate_commission_bps=affiliate_bps,
         affiliate_commission_cents=affiliate_cents,
         shipping_address=payload.shipping_address.model_dump(),
@@ -105,7 +110,7 @@ async def create_checkout_session(
     checkout = stripe.checkout.Session.create(
         mode="payment",
         line_items=line_items,
-        metadata={"order_id": str(order.id), "affiliate_code": cart.affiliate_code or ""},
+        metadata={"order_id": str(order.id), "affiliate_code": affiliate_code or ""},
         success_url=f"{settings.FRONTEND_URL}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
         cancel_url=f"{settings.FRONTEND_URL}/cart",
     )

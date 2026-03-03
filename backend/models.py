@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 from uuid import UUID as UUIDType
 import uuid
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy.dialects.postgresql import ARRAY, INET, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
@@ -53,6 +53,9 @@ class User(Base):
     influencer_profile: Mapped[Optional["InfluencerProfile"]] = relationship(back_populates="user")
     cart: Mapped[Optional["Cart"]] = relationship(back_populates="user", uselist=False)
     orders: Mapped[List["Order"]] = relationship(back_populates="user")
+    affiliate_links: Mapped[List["AffiliateLink"]] = relationship(back_populates="influencer")
+    commissions: Mapped[List["Commission"]] = relationship(back_populates="influencer")
+    payouts: Mapped[List["Payout"]] = relationship(back_populates="influencer")
 
 
 class Category(Base):
@@ -97,6 +100,7 @@ class Product(Base):
     is_gluten_free: Mapped[bool] = mapped_column(default=False)
     is_organic: Mapped[bool] = mapped_column(default=False)
     origin_country: Mapped[Optional[str]] = mapped_column(String(2), nullable=True)
+    is_affiliate_enabled: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
     updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
     published_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
@@ -107,6 +111,7 @@ class Product(Base):
     images: Mapped[List["ProductImage"]] = relationship(back_populates="product", order_by="ProductImage.sort_order")
     certificates: Mapped[List["ProductCertificate"]] = relationship(back_populates="product")
     order_items: Mapped[List["OrderItem"]] = relationship(back_populates="product")
+    affiliate_link_requests: Mapped[List["AffiliateLinkRequest"]] = relationship(back_populates="product")
 
     def get_price_cents(self) -> int:
         return self.price_cents
@@ -162,11 +167,44 @@ class InfluencerProfile(Base):
 
     id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"))
-    tier: Mapped[str] = mapped_column(String(20), default="bronze")
-    total_earnings_cents: Mapped[int] = mapped_column(default=0)
+    tier: Mapped[str] = mapped_column(String(20), default="perseo")
+    total_earnings_cents: Mapped[int] = mapped_column(BigInteger, default=0)
+    pending_earnings_cents: Mapped[int] = mapped_column(BigInteger, default=0)
+    paid_earnings_cents: Mapped[int] = mapped_column(BigInteger, default=0)
     followers_count: Mapped[int] = mapped_column(default=0)
+    monthly_gmv_cents: Mapped[int] = mapped_column(BigInteger, default=0)
+    total_gmv_cents: Mapped[int] = mapped_column(BigInteger, default=0)
+    total_referrals: Mapped[int] = mapped_column(default=0)
+    total_clicks: Mapped[int] = mapped_column(default=0)
+    niche: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), nullable=True)
+    avg_engagement_rate: Mapped[Optional[float]] = mapped_column(nullable=True)
+    is_verified: Mapped[bool] = mapped_column(default=False)
+    is_active: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+    tier_updated_at: Mapped[datetime] = mapped_column(default=func.now())
 
     user: Mapped["User"] = relationship(back_populates="influencer_profile")
+
+    def recalculate_tier(self) -> str:
+        if self.monthly_gmv_cents >= 5_000_000 or self.followers_count >= 100_000:
+            return "zeus"
+        if self.monthly_gmv_cents >= 1_000_000 or self.followers_count >= 25_000:
+            return "apolo"
+        if self.monthly_gmv_cents >= 200_000 or self.followers_count >= 5_000:
+            return "hercules"
+        if self.monthly_gmv_cents >= 50_000 or self.followers_count >= 1_000:
+            return "aquiles"
+        return "perseo"
+
+    def get_commission_bps(self) -> int:
+        return {
+            "perseo": 300,
+            "aquiles": 400,
+            "hercules": 500,
+            "apolo": 600,
+            "zeus": 700,
+        }.get(self.tier, 300)
 
 
 class Cart(Base):
@@ -241,6 +279,7 @@ class OrderItem(Base):
     producer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"))
     producer_payout_cents: Mapped[int] = mapped_column(default=0)
     platform_fee_cents: Mapped[int] = mapped_column(default=0)
+    affiliate_commission_cents: Mapped[int] = mapped_column(default=0)
     fulfillment_status: Mapped[str] = mapped_column(String(20), default="pending")
     tracking_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     shipped_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
@@ -265,3 +304,111 @@ class Transaction(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
+
+class AffiliateLink(Base):
+    __tablename__ = "affiliate_links"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    influencer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"))
+    product_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("products.id"), nullable=True)
+    code: Mapped[str] = mapped_column(String(20), unique=True, index=True)
+    tracking_url: Mapped[str] = mapped_column(String(500))
+    status: Mapped[str] = mapped_column(String(20), default="active")
+    expires_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    total_clicks: Mapped[int] = mapped_column(default=0)
+    total_conversions: Mapped[int] = mapped_column(default=0)
+    total_gmv_cents: Mapped[int] = mapped_column(BigInteger, default=0)
+    total_commission_cents: Mapped[int] = mapped_column(BigInteger, default=0)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    influencer: Mapped["User"] = relationship(back_populates="affiliate_links")
+    product: Mapped[Optional["Product"]] = relationship()
+    events: Mapped[List["AffiliateEvent"]] = relationship(back_populates="link")
+
+
+class AffiliateEvent(Base):
+    __tablename__ = "affiliate_events"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    link_id: Mapped[UUIDType] = mapped_column(ForeignKey("affiliate_links.id"))
+    event_type: Mapped[str] = mapped_column(String(20))
+    ip_address: Mapped[Optional[str]] = mapped_column(INET, nullable=True)
+    user_agent: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    referrer: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    cookie_id: Mapped[str] = mapped_column(String(100), index=True)
+    attributed_order_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("orders.id"), nullable=True)
+    conversion_value_cents: Mapped[Optional[int]] = mapped_column(nullable=True)
+    commission_cents: Mapped[Optional[int]] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    link: Mapped["AffiliateLink"] = relationship(back_populates="events")
+    order: Mapped[Optional["Order"]] = relationship()
+
+
+class Payout(Base):
+    __tablename__ = "payouts"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    influencer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    amount_cents: Mapped[int] = mapped_column()
+    currency: Mapped[str] = mapped_column(String(3), default="EUR")
+    status: Mapped[str] = mapped_column(String(20), default="requested")
+    method: Mapped[str] = mapped_column(String(20), default="stripe_transfer")
+    stripe_transfer_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    requested_at: Mapped[datetime] = mapped_column(default=func.now())
+    processed_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    paid_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    commissions: Mapped[List["Commission"]] = relationship(back_populates="payout")
+    influencer: Mapped["User"] = relationship(back_populates="payouts")
+
+
+class Commission(Base):
+    __tablename__ = "commissions"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    influencer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    order_id: Mapped[UUIDType] = mapped_column(ForeignKey("orders.id"))
+    order_item_id: Mapped[UUIDType] = mapped_column(ForeignKey("order_items.id"))
+    affiliate_link_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("affiliate_links.id"), nullable=True)
+    sale_amount_cents: Mapped[int] = mapped_column()
+    commission_rate_bps: Mapped[int] = mapped_column()
+    commission_cents: Mapped[int] = mapped_column()
+    platform_fee_cents: Mapped[int] = mapped_column(default=0)
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    approved_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    paid_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    payout_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("payouts.id"), nullable=True)
+    cookie_attribution_days: Mapped[int] = mapped_column(default=548)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    influencer: Mapped["User"] = relationship(back_populates="commissions")
+    order: Mapped["Order"] = relationship()
+    order_item: Mapped["OrderItem"] = relationship()
+    affiliate_link: Mapped[Optional["AffiliateLink"]] = relationship()
+    payout: Mapped[Optional["Payout"]] = relationship(back_populates="commissions")
+
+
+class AffiliateLinkRequest(Base):
+    __tablename__ = "affiliate_link_requests"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    product_id: Mapped[UUIDType] = mapped_column(ForeignKey("products.id"))
+    influencer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"))
+    producer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"))
+    message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    approved_by: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    responded_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+
+    product: Mapped["Product"] = relationship(back_populates="affiliate_link_requests")
+    influencer: Mapped["User"] = relationship(foreign_keys=[influencer_id])
+    producer: Mapped["User"] = relationship(foreign_keys=[producer_id])
+
+
+Index("idx_affiliate_events_cookie_created", AffiliateEvent.cookie_id, AffiliateEvent.created_at)
+Index("idx_commissions_influencer_status", Commission.influencer_id, Commission.status)
+Index("idx_affiliate_links_code_status", AffiliateLink.code, AffiliateLink.status)

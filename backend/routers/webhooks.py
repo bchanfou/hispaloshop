@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import stripe
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -8,7 +8,8 @@ from sqlalchemy.orm import selectinload
 
 from config import settings
 from database import get_db
-from models import InfluencerProfile, Order, OrderItem, Transaction, User
+from models import Commission, Order, OrderItem, Transaction, User
+from services.affiliate_service import track_conversion
 
 router = APIRouter()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -78,21 +79,36 @@ async def stripe_webhook(
                 )
             )
 
-            if order.affiliate_code and order.affiliate_commission_cents:
-                influencer = await db.scalar(
-                    select(User).join(InfluencerProfile, InfluencerProfile.user_id == User.id).where(User.full_name == order.affiliate_code)
-                )
-                if influencer:
-                    db.add(
-                        Transaction(
-                            order_id=order.id,
-                            user_id=influencer.id,
-                            type="commission",
-                            amount_cents=order.affiliate_commission_cents,
-                            status="completed",
-                            completed_at=datetime.now(timezone.utc),
-                        )
+            if order.affiliate_code:
+                for item in order.items:
+                    commission = await track_conversion(
+                        db=db,
+                        order_id=order.id,
+                        order_item_id=item.id,
+                        cookie_code=order.affiliate_code,
+                        sale_amount_cents=item.total_cents,
                     )
+                    if commission:
+                        db.add(
+                            Transaction(
+                                order_id=order.id,
+                                user_id=commission.influencer_id,
+                                type="commission",
+                                amount_cents=commission.commission_cents,
+                                status="completed",
+                                completed_at=datetime.now(timezone.utc),
+                            )
+                        )
+
+            approval_cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+            stale_pending = (
+                await db.execute(
+                    select(Commission).where(Commission.status == "pending", Commission.created_at <= approval_cutoff)
+                )
+            ).scalars().all()
+            for pending_commission in stale_pending:
+                pending_commission.status = "approved"
+                pending_commission.approved_at = datetime.now(timezone.utc)
 
     elif event["type"] == "charge.refunded":
         charge = event["data"]["object"]

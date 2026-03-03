@@ -292,3 +292,76 @@ class ProducerOrderItemResponse(BaseModel):
 class FulfillRequest(BaseModel):
     action: str = Field(..., pattern="^(process|ship|deliver)$")
     tracking_number: Optional[str] = Field(None, max_length=100)
+
+
+class AffiliateLinkCreateRequest(BaseModel):
+    product_id: Optional[UUID] = None
+    custom_code: Optional[str] = Field(None, min_length=4, max_length=20, pattern="^[A-Za-z0-9]+$")
+
+
+class AffiliateLinkResponse(BaseModel):
+    id: UUID
+    code: str
+    tracking_url: str
+    product: Optional[ProductListResponse] = None
+    status: str
+    total_clicks: int
+    total_conversions: int
+    total_gmv_cents: int
+    total_commission_cents: int
+    conversion_rate: float
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AffiliateLinkListResponse(BaseModel):
+    items: List[AffiliateLinkResponse]
+    total: int
+
+
+class InfluencerDashboardResponse(BaseModel):
+    profile: dict
+    earnings: dict
+    this_month: dict
+    trend: dict
+    next_tier: Optional[dict]
+
+
+class CommissionResponse(BaseModel):
+    id: UUID
+    order_id: UUID
+    product_name: str
+    sale_amount_cents: int
+    commission_rate_bps: int
+    commission_cents: int
+    status: str
+    created_at: datetime
+    can_approve_at: Optional[datetime]
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CommissionSummaryResponse(BaseModel):
+    pending_cents: int
+    approved_cents: int
+    paid_cents: int
+
+
+class CommissionListResponse(BaseModel):
+    items: List[CommissionResponse]
+    summary: CommissionSummaryResponse
+
+
+class PayoutResponse(BaseModel):
+    id: UUID
+    amount_cents: int
+    status: str
+    method: str
+    requested_at: datetime
+    processed_at: Optional[datetime]
+    paid_at: Optional[datetime]
+    commissions_count: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PayoutRequestCreate(BaseModel):
+    pass
