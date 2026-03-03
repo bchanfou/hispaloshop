@@ -13,6 +13,7 @@ from database import get_db
 from models import AffiliateLink, AffiliateLinkRequest, Commission, InfluencerProfile, Payout, Product, User
 from routers.auth import get_current_user
 from schemas import AffiliateLinkCreateRequest, AffiliateLinkListResponse, CommissionListResponse, InfluencerDashboardResponse, PayoutRequestCreate, PayoutResponse
+from services.affiliate_service import build_affiliate_tracking_url
 
 router = APIRouter(prefix="/influencer")
 
@@ -168,7 +169,7 @@ async def create_affiliate_link(
         influencer_id=current_user.id,
         product_id=payload.product_id,
         code=code,
-        tracking_url=f"{settings.FRONTEND_URL.rstrip('/')}/r/{code}",
+        tracking_url=build_affiliate_tracking_url(code),
         status="active" if not product else "pending",
     )
     db.add(link)

@@ -13,6 +13,7 @@ from database import get_db
 from models import AffiliateLink, AffiliateLinkRequest, Product, ProductImage, User
 from routers.auth import get_current_user
 from schemas import ProductCreateRequest, ProductImageUploadResponse, ProductUpdateRequest
+from services.affiliate_service import build_affiliate_tracking_url
 from services.cloudinary import upload_image
 from services.stripe_connect import create_connect_account, create_onboarding_link
 
@@ -207,16 +208,20 @@ async def approve_affiliate_request(request_id: UUID, db: AsyncSession = Depends
     request_row.approved_by = user.id
     request_row.responded_at = datetime.now(timezone.utc)
 
-    code = f"{request_row.influencer.full_name or 'AFF'}".upper().replace(" ", "")[:8]
-    code = f"{code}{str(request_row.id).replace('-', '')[:4]}"
-    link = AffiliateLink(
-        influencer_id=request_row.influencer_id,
-        product_id=request_row.product_id,
-        code=code,
-        tracking_url=f"https://hispaloshop.com/r/{code}",
-        status="active",
+    link = await db.scalar(
+        select(AffiliateLink).where(
+            AffiliateLink.influencer_id == request_row.influencer_id,
+            AffiliateLink.product_id == request_row.product_id,
+            AffiliateLink.status.in_(["pending", "active"]),
+        )
     )
-    db.add(link)
+    if not link:
+        raise HTTPException(status_code=409, detail="Pending affiliate link not found")
+
+    link.status = "active"
+    if not link.tracking_url:
+        link.tracking_url = build_affiliate_tracking_url(link.code)
+
     await db.flush()
     return link
 

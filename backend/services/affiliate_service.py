@@ -24,6 +24,11 @@ async def get_affiliate_link_by_code(db: AsyncSession, code: str) -> Optional[Af
     return await db.scalar(select(AffiliateLink).where(func.lower(AffiliateLink.code) == code.lower()))
 
 
+def build_affiliate_tracking_url(code: str, base_url: str | None = None) -> str:
+    backend_base_url = (base_url or settings.BACKEND_URL).rstrip("/")
+    return f"{backend_base_url}/r/{code}"
+
+
 async def track_click(db: AsyncSession, code: str, request_metadata: dict) -> Optional[AffiliateEvent]:
     link = await get_affiliate_link_by_code(db, code)
     if not link or link.status != "active":
@@ -79,6 +84,16 @@ async def track_conversion(
     if not link or link.status != "active":
         return None
 
+    existing_commission = await db.scalar(
+        select(Commission).where(
+            Commission.order_id == order_id,
+            Commission.order_item_id == order_item_id,
+            Commission.affiliate_link_id == link.id,
+        )
+    )
+    if existing_commission:
+        return existing_commission
+
     last_click = await db.scalar(
         select(AffiliateEvent)
         .where(AffiliateEvent.link_id == link.id, AffiliateEvent.event_type == "click")
@@ -114,10 +129,18 @@ async def track_conversion(
     link.total_gmv_cents += sale_amount_cents
     link.total_commission_cents += commission_cents
 
-    last_click.event_type = "conversion"
-    last_click.attributed_order_id = order_id
-    last_click.conversion_value_cents = sale_amount_cents
-    last_click.commission_cents = commission_cents
+    conversion_event = AffiliateEvent(
+        link_id=link.id,
+        event_type="conversion",
+        ip_address=last_click.ip_address,
+        user_agent=last_click.user_agent,
+        referrer=last_click.referrer,
+        cookie_id=last_click.cookie_id,
+        attributed_order_id=order_id,
+        conversion_value_cents=sale_amount_cents,
+        commission_cents=commission_cents,
+    )
+    db.add(conversion_event)
 
     if influencer_profile:
         influencer_profile.total_earnings_cents += commission_cents
