@@ -64,9 +64,10 @@ def upgrade() -> None:
                     FROM pg_constraint c
                     JOIN pg_class rel ON rel.oid = c.conrelid
                     JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
+                    -- We derive schema from pg_class to avoid search_path issues.
                     WHERE c.conname = 'uq_products_slug'
                       AND rel.relname = 'products'
-                      AND nsp.nspname = current_schema()
+                      AND rel.oid = to_regclass('products')
                 ) THEN
                     ALTER TABLE products
                     ADD CONSTRAINT uq_products_slug UNIQUE (slug);
@@ -89,9 +90,10 @@ def downgrade() -> None:
                     FROM pg_constraint c
                     JOIN pg_class rel ON rel.oid = c.conrelid
                     JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
+                    -- We derive schema from pg_class to avoid search_path issues.
                     WHERE c.conname = 'uq_products_slug'
                       AND rel.relname = 'products'
-                      AND nsp.nspname = current_schema()
+                      AND rel.oid = to_regclass('products')
                 ) THEN
                     ALTER TABLE products DROP CONSTRAINT uq_products_slug;
                 END IF;
