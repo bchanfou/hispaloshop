@@ -15,6 +15,7 @@ from routers.auth import get_current_user
 from routers.products import _map_product
 from schemas import PersonalizedRecommendationsResponse, RecommendationItem, TrendingProductsResponse
 from services.embedding_service import embedding_service
+from services.product_visibility import active_product_filters
 
 router = APIRouter(prefix="/recommendations")
 
@@ -26,6 +27,7 @@ async def personalized_recommendations(
     current_user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    product_filters = active_product_filters(category)
     products = await embedding_service.find_products_for_user(db, current_user.id, limit=limit)
     if category:
         products = [item for item in products if item.category_id == category]
@@ -35,7 +37,7 @@ async def personalized_recommendations(
                 await db.scalars(
                     select(Product)
                     .options(selectinload(Product.images), selectinload(Product.producer), selectinload(Product.category))
-                    .where(Product.status == "active")
+                    .where(*product_filters)
                     .order_by(Product.is_featured.desc(), Product.created_at.desc())
                     .limit(limit)
                 )
@@ -72,7 +74,7 @@ async def similar_products(product_id: UUID, limit: int = 6, db: AsyncSession = 
             await db.scalars(
                 select(Product)
                 .options(selectinload(Product.images), selectinload(Product.producer), selectinload(Product.category))
-                .where(Product.id.in_([pid for pid, _ in matches]))
+                .where(Product.id.in_([pid for pid, _ in matches]), *active_product_filters())
             )
         ).all()
     )
@@ -87,7 +89,7 @@ async def trending_products(limit: int = 10, db: AsyncSession = Depends(get_db))
             await db.scalars(
                 select(Product)
                 .options(selectinload(Product.images), selectinload(Product.producer), selectinload(Product.category))
-                .where(Product.status == "active")
+                .where(*active_product_filters())
                 .order_by(Product.is_featured.desc(), Product.created_at.desc())
                 .limit(limit)
             )

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID as UUIDType
 import uuid
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import ARRAY, INET, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -502,6 +502,9 @@ class ChatMessage(Base):
 
 class MatchingScore(Base):
     __tablename__ = "matching_scores"
+    __table_args__ = (
+        UniqueConstraint("producer_id", "influencer_id", "match_type", name="uq_matching_scores_pair_type"),
+    )
 
     id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     producer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
