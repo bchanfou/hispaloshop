@@ -335,6 +335,12 @@ class Importer(Base):
     clients: Mapped[List["ImporterClient"]] = relationship(back_populates="importer", cascade="all, delete-orphan")
     quotes: Mapped[List["B2BQuote"]] = relationship(back_populates="importer", cascade="all, delete-orphan")
     products: Mapped[List["Product"]] = relationship(back_populates="importer")
+    shipments: Mapped[List["Shipment"]] = relationship(
+        foreign_keys="Shipment.importer_id", back_populates="importer", cascade="all, delete-orphan"
+    )
+    escrow_transactions: Mapped[List["B2BEscrow"]] = relationship(
+        foreign_keys="B2BEscrow.importer_id", back_populates="importer", cascade="all, delete-orphan"
+    )
 
 
 class ImporterBrand(Base):
@@ -393,6 +399,126 @@ class B2BQuote(Base):
     importer: Mapped["Importer"] = relationship(back_populates="quotes")
     requester_producer: Mapped["User"] = relationship()
     orders: Mapped[List["Order"]] = relationship(back_populates="b2b_quote")
+
+
+class ShippingRoute(Base):
+    __tablename__ = "shipping_routes"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    origin_country: Mapped[str] = mapped_column(String(2), index=True)
+    destination_country: Mapped[str] = mapped_column(String(2), index=True)
+    transit_time_days: Mapped[int] = mapped_column(default=0)
+    modes_available: Mapped[List[str]] = mapped_column(JSONB, default=list)
+    base_cost_per_kg: Mapped[float] = mapped_column(Float, default=0)
+    base_cost_per_cbm: Mapped[float] = mapped_column(Float, default=0)
+    fuel_surcharge_percent: Mapped[float] = mapped_column(Float, default=0)
+    active_carriers: Mapped[List[Dict[str, Any]]] = mapped_column(JSONB, default=list)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    shipments: Mapped[List["Shipment"]] = relationship(back_populates="route")
+
+
+class ForwarderPartner(Base):
+    __tablename__ = "forwarder_partners"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_name: Mapped[str] = mapped_column(String(255), unique=True)
+    countries_covered: Mapped[List[str]] = mapped_column(JSONB, default=list)
+    specialties: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    services: Mapped[List[str]] = mapped_column(JSONB, default=list)
+    api_integration: Mapped[bool] = mapped_column(default=False)
+    api_endpoint: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    api_credentials: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    rating: Mapped[float] = mapped_column(Float, default=0)
+    volume_handled_ytd: Mapped[float] = mapped_column(Float, default=0)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    shipments: Mapped[List["Shipment"]] = relationship(back_populates="carrier")
+
+
+class Shipment(Base):
+    __tablename__ = "shipments"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    shipment_number: Mapped[str] = mapped_column(String(30), unique=True, index=True)
+    type: Mapped[str] = mapped_column(String(10))
+    importer_id: Mapped[UUIDType] = mapped_column(ForeignKey("importers.id"), index=True)
+    exporter_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    route_id: Mapped[UUIDType] = mapped_column(ForeignKey("shipping_routes.id"), index=True)
+    carrier_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("forwarder_partners.id"), nullable=True, index=True)
+    service_level: Mapped[str] = mapped_column(String(20), default="standard")
+    status: Mapped[str] = mapped_column(String(30), default="draft")
+    containers: Mapped[List[Dict[str, Any]]] = mapped_column(JSONB, default=list)
+    incoterm: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    payment_term: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    documents: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    tracking_events: Mapped[List[Dict[str, Any]]] = mapped_column(JSONB, default=list)
+    cost_breakdown: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    estimated_departure: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    estimated_arrival: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    actual_arrival: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    importer: Mapped["Importer"] = relationship(back_populates="shipments")
+    exporter: Mapped["User"] = relationship()
+    route: Mapped["ShippingRoute"] = relationship(back_populates="shipments")
+    carrier: Mapped[Optional["ForwarderPartner"]] = relationship(back_populates="shipments")
+    orders: Mapped[List["ShipmentOrder"]] = relationship(back_populates="shipment", cascade="all, delete-orphan")
+    escrow_transactions: Mapped[List["B2BEscrow"]] = relationship(back_populates="shipment")
+
+
+class ShipmentOrder(Base):
+    __tablename__ = "shipment_orders"
+    __table_args__ = (UniqueConstraint("shipment_id", "order_id", name="uq_shipment_order_pair"),)
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    shipment_id: Mapped[UUIDType] = mapped_column(ForeignKey("shipments.id", ondelete="CASCADE"), index=True)
+    order_id: Mapped[UUIDType] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"), index=True)
+    consolidation_fee_applied: Mapped[float] = mapped_column(Float, default=0)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    shipment: Mapped["Shipment"] = relationship(back_populates="orders")
+    order: Mapped["Order"] = relationship()
+
+
+class B2BDocument(Base):
+    __tablename__ = "b2b_documents"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    shipment_id: Mapped[UUIDType] = mapped_column(ForeignKey("shipments.id", ondelete="CASCADE"), index=True)
+    document_type: Mapped[str] = mapped_column(String(50), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="generated")
+    file_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    content: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    signed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+
+class B2BEscrow(Base):
+    __tablename__ = "b2b_escrows"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    importer_id: Mapped[UUIDType] = mapped_column(ForeignKey("importers.id"), index=True)
+    exporter_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    shipment_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("shipments.id"), nullable=True, index=True)
+    amount_cents: Mapped[int] = mapped_column(Integer)
+    currency: Mapped[str] = mapped_column(String(3), default="EUR")
+    status: Mapped[str] = mapped_column(String(20), default="PENDING_FUNDS")
+    provider: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    provider_reference: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    timeline_events: Mapped[List[Dict[str, Any]]] = mapped_column(JSONB, default=list)
+    released_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    importer: Mapped["Importer"] = relationship(back_populates="escrow_transactions")
+    exporter: Mapped["User"] = relationship()
+    shipment: Mapped[Optional["Shipment"]] = relationship(back_populates="escrow_transactions")
 
 
 class OrderItem(Base):

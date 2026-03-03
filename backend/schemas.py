@@ -888,3 +888,147 @@ class B2BQuoteResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     model_config = ConfigDict(from_attributes=True)
+
+
+class ShippingQuoteCargo(BaseModel):
+    actual_weight_kg: float = Field(gt=0)
+    volume_cbm: float = Field(gt=0)
+    declared_value: float = Field(gt=0)
+    hs_code_tariff_rate: float = Field(ge=0, le=1)
+
+
+class ShippingQuoteRequest(BaseModel):
+    origin_country: str = Field(min_length=2, max_length=2)
+    destination_country: str = Field(min_length=2, max_length=2)
+    mode: Optional[str] = Field(default=None, pattern="^(sea|air|road|rail)$")
+    cargo: ShippingQuoteCargo
+
+
+class ShippingQuoteResponse(BaseModel):
+    freight_cost: float
+    origin_charges: float
+    destination_charges: float
+    insurance: float
+    total_estimated: float
+    transit_time_days: int
+    valid_until: datetime
+
+
+class ShipmentCreateRequest(BaseModel):
+    type: str = Field(pattern="^(fcl|lcl|air|road|rail)$")
+    importer_id: UUID
+    exporter_id: UUID
+    route_id: UUID
+    carrier_id: Optional[UUID] = None
+    service_level: str = Field(default="standard", pattern="^(economy|standard|express)$")
+    containers: List[Dict[str, Any]] = Field(default_factory=list)
+    incoterm: Optional[str] = None
+    payment_term: Optional[str] = None
+    estimated_departure: Optional[datetime] = None
+    estimated_arrival: Optional[datetime] = None
+    related_order_ids: List[UUID] = Field(default_factory=list)
+
+
+class ShipmentDocumentUpdateRequest(BaseModel):
+    documents: Dict[str, Any]
+
+
+class ShipmentEventCreateRequest(BaseModel):
+    status: str = Field(pattern="^(draft|booked|in_transit|customs_clearance|delivered)$")
+    location: str = Field(min_length=2)
+    description: Optional[str] = None
+    occurred_at: Optional[datetime] = None
+
+
+class ShipmentResponse(BaseModel):
+    id: UUID
+    shipment_number: str
+    type: str
+    importer_id: UUID
+    exporter_id: UUID
+    route_id: UUID
+    carrier_id: Optional[UUID] = None
+    service_level: str
+    status: str
+    containers: List[Dict[str, Any]] = Field(default_factory=list)
+    incoterm: Optional[str] = None
+    payment_term: Optional[str] = None
+    documents: Dict[str, Any] = Field(default_factory=dict)
+    tracking_events: List[Dict[str, Any]] = Field(default_factory=list)
+    cost_breakdown: Dict[str, Any] = Field(default_factory=dict)
+    estimated_departure: Optional[datetime] = None
+    estimated_arrival: Optional[datetime] = None
+    actual_arrival: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EscrowCreateRequest(BaseModel):
+    importer_id: UUID
+    exporter_id: UUID
+    shipment_id: Optional[UUID] = None
+    amount_cents: int = Field(gt=0)
+    currency: str = Field(default="EUR", min_length=3, max_length=3)
+    provider: Optional[str] = None
+
+
+class EscrowFundRequest(BaseModel):
+    provider_reference: Optional[str] = None
+
+
+class EscrowDisputeRequest(BaseModel):
+    reason: str = Field(min_length=5, max_length=500)
+
+
+class EscrowResponse(BaseModel):
+    id: UUID
+    importer_id: UUID
+    exporter_id: UUID
+    shipment_id: Optional[UUID] = None
+    amount_cents: int
+    currency: str
+    status: str
+    provider: Optional[str] = None
+    provider_reference: Optional[str] = None
+    timeline_events: List[Dict[str, Any]] = Field(default_factory=list)
+    released_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DocumentGenerateRequest(BaseModel):
+    shipment_id: UUID
+    document_types: List[str] = Field(min_length=1)
+
+
+class DocumentSignRequest(BaseModel):
+    signer_name: str = Field(min_length=2)
+
+
+class B2BDocumentResponse(BaseModel):
+    id: UUID
+    shipment_id: UUID
+    document_type: str
+    status: str
+    file_url: Optional[str] = None
+    content: Dict[str, Any] = Field(default_factory=dict)
+    signed_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ForwarderResponse(BaseModel):
+    id: UUID
+    company_name: str
+    countries_covered: List[str] = Field(default_factory=list)
+    specialties: Dict[str, Any] = Field(default_factory=dict)
+    services: List[str] = Field(default_factory=list)
+    api_integration: bool
+    api_endpoint: Optional[str] = None
+    rating: float
+    volume_handled_ytd: float
+    active: bool
+    model_config = ConfigDict(from_attributes=True)
