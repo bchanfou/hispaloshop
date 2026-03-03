@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str = ""
     STRIPE_PRICE_PRO: str = ""
     STRIPE_PRICE_ELITE: str = ""
+    STRIPE_PUBLISHABLE_KEY: str = ""
+    FRONTEND_URL: str = "http://localhost:3000"
 
     CLOUDINARY_CLOUD_NAME: str = ""
     CLOUDINARY_API_KEY: str = ""

@@ -6,10 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from database import get_db
-from models import Product, ProductImage
+from models import Product, ProductImage, User
 from routers.auth import get_current_user
 from schemas import ProductCreateRequest, ProductImageUploadResponse, ProductUpdateRequest
 from services.cloudinary import upload_image
+from services.stripe_connect import create_connect_account, create_onboarding_link
 
 router = APIRouter(prefix="/producer")
 
@@ -115,3 +116,14 @@ async def delete_product(product_id: str, db: AsyncSession = Depends(get_db), us
     product.status = "deleted"
     await db.flush()
     return {"ok": True}
+
+
+@router.post("/stripe/connect")
+async def connect_stripe_account(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    require_producer(user)
+    if not user.stripe_account_id:
+        user.stripe_account_id = create_connect_account(user.email)
+        user.stripe_account_status = "pending"
+        await db.flush()
+    onboarding_url = create_onboarding_link(user.stripe_account_id)
+    return {"onboarding_url": onboarding_url, "stripe_account_id": user.stripe_account_id}
