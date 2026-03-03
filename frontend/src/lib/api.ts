@@ -19,6 +19,20 @@ export interface InfluencerDashboardResponse {
   next_tier?: Record<string, unknown> | null;
 }
 
+
+export interface ReelViewTrackRequest {
+  watch_time_seconds: number;
+  watched_full: boolean;
+  device_type: 'mobile' | 'tablet' | 'desktop';
+  source?: 'for_you' | 'following' | 'hashtag' | 'profile';
+}
+
+export interface SavedCollectionCreateRequest {
+  name: string;
+  description?: string;
+  is_private?: boolean;
+}
+
 export interface ShippingAddress {
   name: string;
   line1: string;
@@ -325,6 +339,61 @@ class ApiClient {
   async getPublicProfile(username: string) {
     return this.request(`/profiles/${username}`);
   }
+
+
+  // Reels
+  async createReel(data: FormData) {
+    return this.request('/reels', { method: 'POST', body: data, headers: {} });
+  }
+
+  async getReelsFeed(params?: { cursor?: string; source?: string; hashtag?: string }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/reels${query}`);
+  }
+
+  async trackReelView(reelId: string, data: ReelViewTrackRequest) {
+    return this.request(`/reels/${reelId}/view`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  // Hashtags
+  async getTrendingHashtags() {
+    return this.request('/hashtags/trending');
+  }
+
+  async searchHashtags(query: string) {
+    return this.request(`/hashtags/search?q=${encodeURIComponent(query)}`);
+  }
+
+  async getHashtagDetail(name: string) {
+    return this.request(`/hashtags/${name}`);
+  }
+
+  // Stories
+  async createStory(data: FormData) {
+    return this.request('/stories', { method: 'POST', body: data, headers: {} });
+  }
+
+  async getStoriesFeed() {
+    return this.request('/stories/feed');
+  }
+
+  async getUserStories(userId: string) {
+    return this.request(`/stories/${userId}`);
+  }
+
+  async viewStory(storyId: string) {
+    return this.request(`/stories/${storyId}/view`, { method: 'POST' });
+  }
+
+  // Collections
+  async createCollection(data: SavedCollectionCreateRequest) {
+    return this.request('/collections', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async addToCollection(collectionId: string, postId: string) {
+    return this.request(`/collections/${collectionId}/posts/${postId}`, { method: 'POST' });
+  }
+
 }
 
 export const api = new ApiClient();

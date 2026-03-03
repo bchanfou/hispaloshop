@@ -592,3 +592,105 @@ class PublicProfileResponse(BaseModel):
     stats: Dict[str, Any]
     role_info: Dict[str, Any]
     recent_posts: List[PostResponse]
+
+
+class ReelCreateRequest(BaseModel):
+    caption: Optional[str] = Field(None, max_length=2200)
+    hashtags: Optional[str] = Field(None, max_length=500)
+    tagged_products: Optional[List[Dict[str, Any]]] = None
+    sound_id: Optional[UUID] = None
+    cover_frame_seconds: Optional[float] = Field(default=0, ge=0)
+
+
+class ReelVideoResponse(BaseModel):
+    url_480p: str
+    url_720p: str
+    thumbnail_url: str
+    duration_seconds: float
+    aspect_ratio: str
+
+
+class ReelResponse(PostResponse):
+    is_reel: bool = True
+    video: ReelVideoResponse
+    views_unique: int
+    completion_rate: Optional[float]
+    viral_score: float
+    hashtags: List[str] = Field(default_factory=list)
+
+
+class ReelViewTrackRequest(BaseModel):
+    watch_time_seconds: float = Field(..., ge=0)
+    watched_full: bool
+    device_type: str = Field(..., pattern="^(mobile|tablet|desktop)$")
+    source: str = Field(default="for_you", pattern="^(for_you|following|hashtag|profile|feed)$")
+
+
+class HashtagResponse(BaseModel):
+    id: UUID
+    name: str
+    posts_count: int
+    is_followed_by_me: bool
+
+    class Config:
+        from_attributes = True
+
+
+class HashtagDetailResponse(HashtagResponse):
+    trending_score: float
+    recent_posts: List[Any]
+
+
+class StoryInteractiveElement(BaseModel):
+    type: str
+    data: Dict[str, Any]
+
+
+class StoryCreateRequest(BaseModel):
+    tagged_product_id: Optional[UUID] = None
+    polls: Optional[List[StoryInteractiveElement]] = None
+    questions: Optional[List[StoryInteractiveElement]] = None
+    sliders: Optional[List[StoryInteractiveElement]] = None
+    countdowns: Optional[List[StoryInteractiveElement]] = None
+    links: Optional[List[StoryInteractiveElement]] = None
+
+
+class StoryResponse(BaseModel):
+    id: UUID
+    user: PostUserSummary
+    media_url: str
+    media_type: str
+    thumbnail_url: Optional[str] = None
+    duration_seconds: Optional[float] = None
+    tagged_product: Optional[ProductListResponse] = None
+    interactive_elements: List[StoryInteractiveElement] = Field(default_factory=list)
+    expires_at: datetime
+    is_viewed_by_me: bool = False
+
+    class Config:
+        from_attributes = True
+
+
+class StoryFeedResponse(BaseModel):
+    user: PostUserSummary
+    has_unviewed_stories: bool
+    latest_story_thumbnail: Optional[str]
+
+
+class SavedCollectionCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=500)
+    is_private: bool = True
+
+
+class SavedCollectionResponse(BaseModel):
+    id: UUID
+    name: str
+    description: Optional[str]
+    cover_image_url: Optional[str]
+    items_count: int
+    is_private: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
