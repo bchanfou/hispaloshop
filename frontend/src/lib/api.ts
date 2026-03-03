@@ -1,5 +1,21 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+export interface CartItemCreateRequest {
+  product_id: string;
+  quantity: number;
+  affiliate_code?: string;
+}
+
+export interface ShippingAddress {
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  postal_code: string;
+  country: string;
+  phone?: string;
+}
+
 class ApiClient {
   private baseUrl: string;
   private token: string | null;
@@ -27,33 +43,25 @@ class ApiClient {
       ...((options.headers as Record<string, string>) || {}),
     };
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    const response = await fetch(`${this.baseUrl}${endpoint}`, { ...options, headers });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
       throw new Error(error.detail || `HTTP ${response.status}`);
     }
 
+    if (response.status === 204) return null;
     return response.json();
   }
 
   async login(email: string, password: string) {
-    const data = await this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    const data = await this.request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
     this.setToken(data.access_token);
     return data;
   }
 
   async register(userData: { email: string; password: string; full_name: string; role: string }) {
-    return this.request('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    });
+    return this.request('/auth/register', { method: 'POST', body: JSON.stringify(userData) });
   }
 
   async getMe() {
@@ -61,10 +69,7 @@ class ApiClient {
   }
 
   async updateMe(data: Partial<{ full_name: string; bio: string; avatar_url: string }>) {
-    return this.request('/auth/me', {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
+    return this.request('/auth/me', { method: 'PATCH', body: JSON.stringify(data) });
   }
 
   async getCategories(parentId?: string) {
@@ -86,21 +91,51 @@ class ApiClient {
   }
 
   async createProduct(data: Record<string, unknown>) {
-    return this.request('/producer/products', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    return this.request('/producer/products', { method: 'POST', body: JSON.stringify(data) });
   }
 
   async uploadProductImage(productId: string, file: File) {
     const formData = new FormData();
     formData.append('file', file);
+    return this.request(`/producer/products/${productId}/images`, { method: 'POST', body: formData, headers: {} });
+  }
 
-    return this.request(`/producer/products/${productId}/images`, {
-      method: 'POST',
-      body: formData,
-      headers: {},
-    });
+  async getCart() {
+    return this.request('/cart');
+  }
+
+  async addToCart(data: CartItemCreateRequest) {
+    return this.request('/cart/items', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async updateCartItem(itemId: string, quantity: number) {
+    return this.request(`/cart/items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ quantity }) });
+  }
+
+  async removeFromCart(itemId: string) {
+    return this.request(`/cart/items/${itemId}`, { method: 'DELETE' });
+  }
+
+  async createCheckout(shippingAddress: ShippingAddress) {
+    return this.request('/checkout/session', { method: 'POST', body: JSON.stringify({ shipping_address: shippingAddress }) });
+  }
+
+  async getMyOrders(params?: { status?: string; page?: number }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/orders${query}`);
+  }
+
+  async getOrder(orderId: string) {
+    return this.request(`/orders/${orderId}`);
+  }
+
+  async getProducerOrders(params?: { status?: string; page?: number }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/producer/orders${query}`);
+  }
+
+  async fulfillOrderItem(itemId: string, data: { action: 'process' | 'ship' | 'deliver'; tracking_number?: string }) {
+    return this.request(`/producer/orders/${itemId}/fulfill`, { method: 'PATCH', body: JSON.stringify(data) });
   }
 }
 

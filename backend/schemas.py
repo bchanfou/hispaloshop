@@ -172,3 +172,123 @@ class CursorPaginationResponse(BaseModel):
 
 class CategoryListResponse(BaseModel):
     items: List[CategoryResponse]
+
+
+class CartItemProductResponse(BaseModel):
+    id: UUID
+    name: str
+    slug: str
+    images: List[ProductImageResponse]
+    producer: ProducerSummaryResponse
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CartItemResponse(BaseModel):
+    id: UUID
+    product: CartItemProductResponse
+    quantity: int
+    unit_price_cents: int
+    total_cents: int
+    max_available: int
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CartResponse(BaseModel):
+    id: UUID
+    items: List[CartItemResponse]
+    subtotal_cents: int
+    item_count: int
+    affiliate_code: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CartItemCreateRequest(BaseModel):
+    product_id: UUID
+    quantity: int = Field(..., ge=1, le=99)
+    affiliate_code: Optional[str] = Field(None, max_length=20)
+
+
+class CartItemUpdateRequest(BaseModel):
+    quantity: int = Field(..., ge=0, le=99)
+
+
+class ShippingAddress(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    line1: str = Field(..., min_length=1, max_length=200)
+    line2: Optional[str] = Field(None, max_length=200)
+    city: str = Field(..., min_length=1, max_length=100)
+    postal_code: str = Field(..., min_length=3, max_length=20)
+    country: str = Field(..., min_length=2, max_length=2)
+    phone: Optional[str] = Field(None, max_length=20)
+
+
+class CheckoutCreateRequest(BaseModel):
+    shipping_address: ShippingAddress
+
+
+class CheckoutResponse(BaseModel):
+    checkout_url: str
+    order_id: UUID
+    expires_at: datetime
+
+
+class OrderItemResponse(BaseModel):
+    id: UUID
+    product_id: UUID
+    product_name: str
+    product_sku: Optional[str]
+    quantity: int
+    unit_price_cents: int
+    total_cents: int
+    fulfillment_status: str
+    tracking_number: Optional[str]
+    shipped_at: Optional[datetime]
+    delivered_at: Optional[datetime]
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OrderResponse(BaseModel):
+    id: UUID
+    status: str
+    payment_status: str
+    subtotal_cents: int
+    shipping_cents: int
+    tax_cents: int
+    total_cents: int
+    platform_fee_cents: int
+    affiliate_code: Optional[str]
+    affiliate_commission_cents: Optional[int]
+    items: List[OrderItemResponse]
+    shipping_address: Optional[dict]
+    created_at: datetime
+    paid_at: Optional[datetime]
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OrderListResponse(BaseModel):
+    id: UUID
+    status: str
+    total_cents: int
+    item_count: int
+    created_at: datetime
+    thumbnail_url: Optional[str]
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProducerOrderItemResponse(BaseModel):
+    order_item_id: UUID
+    order_id: UUID
+    product_name: str
+    quantity: int
+    unit_price_cents: int
+    total_cents: int
+    producer_payout_cents: int
+    fulfillment_status: str
+    shipping_address: dict
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FulfillRequest(BaseModel):
+    action: str = Field(..., pattern="^(process|ship|deliver)$")
+    tracking_number: Optional[str] = Field(None, max_length=100)
