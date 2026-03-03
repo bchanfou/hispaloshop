@@ -9,6 +9,8 @@ from routers.cart import router as cart_router
 from routers.checkout import router as checkout_router
 from routers.orders import router as orders_router
 from routers.webhooks import router as webhooks_router
+from routers.affiliate_public import router as affiliate_public_router
+from routers.influencer import router as influencer_router
 
 app = FastAPI(title="Hispaloshop API", version="1.0.0")
 
@@ -28,6 +30,8 @@ app.include_router(cart_router, prefix="/api/v1", tags=["cart"])
 app.include_router(checkout_router, prefix="/api/v1", tags=["checkout"])
 app.include_router(orders_router, prefix="/api/v1", tags=["orders"])
 app.include_router(webhooks_router, prefix="/api/v1", tags=["webhooks"])
+app.include_router(affiliate_public_router, tags=["affiliate"])
+app.include_router(influencer_router, prefix="/api/v1", tags=["influencer"])
 
 
 @app.get("/health")
