@@ -212,6 +212,52 @@ class ApiClient {
     return this.request('/producer/affiliate/stats');
   }
 
+
+
+  // Recommendations
+  async getPersonalizedRecommendations(params?: { limit?: number; category?: string }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/recommendations/personalized${query}`);
+  }
+
+  async getSimilarProducts(productId: string, limit: number = 6) {
+    return this.request(`/recommendations/similar/${productId}?limit=${limit}`);
+  }
+
+  async getTrendingProducts(limit: number = 10) {
+    return this.request(`/recommendations/trending?limit=${limit}`);
+  }
+
+  // Chat
+  async createChatSession(context?: Record<string, unknown>) {
+    return this.request('/chat/sessions', { method: 'POST', body: JSON.stringify({ context }) });
+  }
+
+  async sendChatMessage(sessionId: string, content: string) {
+    return this.request(`/chat/sessions/${sessionId}/messages`, { method: 'POST', body: JSON.stringify({ content }) });
+  }
+
+  async getChatHistory(sessionId: string) {
+    return this.request(`/chat/sessions/${sessionId}/messages`);
+  }
+
+  async closeChatSession(sessionId: string, data?: { satisfaction_rating?: number; feedback?: string }) {
+    return this.request(`/chat/sessions/${sessionId}/close`, { method: 'POST', body: JSON.stringify(data || {}) });
+  }
+
+  // Matching
+  async getProducerMatches(limit: number = 10) {
+    return this.request(`/matching/producer/suggestions?limit=${limit}`);
+  }
+
+  async contactInfluencer(data: Record<string, unknown>) {
+    return this.request('/matching/contact', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async getInfluencerOpportunities(category?: string) {
+    const query = category ? `?category=${category}` : '';
+    return this.request(`/matching/influencer/opportunities${query}`);
+  }
 }
 
 export const api = new ApiClient();

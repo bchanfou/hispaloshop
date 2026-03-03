@@ -365,3 +365,121 @@ class PayoutResponse(BaseModel):
 
 class PayoutRequestCreate(BaseModel):
     pass
+
+from typing import Dict, Any
+
+
+class ProductEmbeddingCreate(BaseModel):
+    product_id: UUID
+    embedding_text: str
+
+
+class RecommendationItem(BaseModel):
+    product: ProductListResponse
+    recommendation_reason: str
+    similarity_score: float
+    position: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PersonalizedRecommendationsResponse(BaseModel):
+    items: List[RecommendationItem]
+    generated_at: datetime
+    based_on: Dict[str, Any]
+
+
+class TrendingProductsResponse(BaseModel):
+    items: List[ProductListResponse]
+    period: str
+    generated_at: datetime
+
+
+class ChatSessionCreateRequest(BaseModel):
+    context: Optional[Dict[str, Any]] = None
+
+
+class ChatSessionResponse(BaseModel):
+    id: UUID
+    status: str
+    welcome_message: str
+    created_at: datetime
+
+
+class ChatMessageCreateRequest(BaseModel):
+    content: str = Field(..., min_length=1, max_length=1000)
+
+
+class ChatMessageResponse(BaseModel):
+    id: UUID
+    role: str
+    content: str
+    recommended_products: Optional[List[UUID]]
+    tokens_used: Optional[int]
+    created_at: datetime
+
+
+class ChatHistoryResponse(BaseModel):
+    session: ChatSessionResponse
+    messages: List[ChatMessageResponse]
+    suggested_products: List[ProductListResponse]
+
+
+class ChatCloseRequest(BaseModel):
+    satisfaction_rating: Optional[int] = Field(None, ge=1, le=5)
+    feedback: Optional[str] = Field(None, max_length=500)
+
+
+class InfluencerMatchSummary(BaseModel):
+    id: UUID
+    full_name: str
+    avatar_url: Optional[str]
+    tier: str
+    followers_count: int
+    niche: List[str]
+    engagement_rate: Optional[float]
+    avg_gmv_monthly: Optional[int]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MatchScoreBreakdown(BaseModel):
+    category_match: float
+    performance: float
+    audience: float
+    location: float
+    values: float
+
+
+class MatchResponse(BaseModel):
+    influencer: InfluencerMatchSummary
+    score: float
+    breakdown: MatchScoreBreakdown
+    reasons: List[str]
+    suggested_collaboration: str
+    confidence: str
+
+
+class ProducerMatchesResponse(BaseModel):
+    matches: List[MatchResponse]
+    total_available: int
+    generated_at: datetime
+
+
+class ContactInfluencerRequest(BaseModel):
+    influencer_id: UUID
+    message: str = Field(..., min_length=10, max_length=1000)
+    offer_type: str = Field(..., pattern="^(samples|paid|affiliate|event)$")
+
+
+class InfluencerOpportunity(BaseModel):
+    producer: ProducerSummaryResponse
+    score: float
+    reasons: List[str]
+    product_categories: List[str]
+    estimated_gmv_potential: int
+
+
+class InfluencerOpportunitiesResponse(BaseModel):
+    opportunities: List[InfluencerOpportunity]
+    total_available: int

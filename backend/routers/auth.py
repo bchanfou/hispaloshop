@@ -34,6 +34,22 @@ async def get_current_user(
     return user
 
 
+
+
+async def get_optional_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    if not credentials:
+        return None
+    try:
+        payload = decode_token(credentials.credentials)
+    except ValueError:
+        return None
+
+    return await db.get(User, payload.get("sub"))
+
+
 def _validate_password(password: str) -> None:
     if len(password) < 8 or not re.search(r"[A-Z]", password) or not re.search(r"\d", password):
         raise HTTPException(status_code=400, detail="Password must include min 8 chars, 1 uppercase and 1 number")
