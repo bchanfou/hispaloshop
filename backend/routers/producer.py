@@ -4,7 +4,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -27,6 +28,10 @@ def slugify(value: str) -> str:
     return slug or "producto"
 
 
+def _slug_with_suffix(slug_base: str, attempt: int) -> str:
+    return slug_base if attempt == 0 else f"{slug_base}-{attempt + 1}"
+
+
 def require_producer(user):
     if user.role != "producer":
         raise HTTPException(status_code=403, detail="Producer role required")
@@ -40,28 +45,33 @@ async def create_product(
 ):
     require_producer(user)
     slug_base = slugify(payload.name)
-    dup = await db.scalar(select(func.count(Product.id)).where(Product.slug.like(f"{slug_base}%")))
-    slug = slug_base if dup == 0 else f"{slug_base}-{dup + 1}"
 
-    product = Product(
-        tenant_id=user.tenant_id,
-        producer_id=user.id,
-        category_id=payload.category_id,
-        name=payload.name,
-        slug=slug,
-        description=payload.description,
-        short_description=payload.short_description,
-        price_cents=payload.price_cents,
-        compare_at_price_cents=payload.compare_at_price_cents,
-        inventory_quantity=payload.inventory_quantity,
-        is_vegan=payload.is_vegan,
-        is_gluten_free=payload.is_gluten_free,
-        is_organic=payload.is_organic,
-        origin_country=payload.origin_country,
-    )
-    db.add(product)
-    await db.flush()
-    return product
+    for attempt in range(10):
+        product = Product(
+            tenant_id=user.tenant_id,
+            producer_id=user.id,
+            category_id=payload.category_id,
+            name=payload.name,
+            slug=_slug_with_suffix(slug_base, attempt),
+            description=payload.description,
+            short_description=payload.short_description,
+            price_cents=payload.price_cents,
+            compare_at_price_cents=payload.compare_at_price_cents,
+            inventory_quantity=payload.inventory_quantity,
+            is_vegan=payload.is_vegan,
+            is_gluten_free=payload.is_gluten_free,
+            is_organic=payload.is_organic,
+            origin_country=payload.origin_country,
+        )
+        try:
+            async with db.begin_nested():
+                db.add(product)
+                await db.flush()
+            return product
+        except IntegrityError:
+            continue
+
+    raise HTTPException(status_code=409, detail="Could not generate a unique product slug")
 
 
 @router.post("/products/{product_id}/images", response_model=ProductImageUploadResponse)

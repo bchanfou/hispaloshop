@@ -1,4 +1,8 @@
+import base64
+import json
+from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import and_, func, or_, select
@@ -31,6 +35,55 @@ def _map_product(product: Product) -> ProductListResponse:
     )
 
 
+def _encode_cursor(sort: str, product: Product) -> str:
+    if sort in {"price_asc", "price_desc"}:
+        payload = {"sort": sort, "price_cents": product.price_cents, "id": str(product.id)}
+    else:
+        payload = {"sort": sort, "created_at": product.created_at.isoformat(), "id": str(product.id)}
+    return base64.urlsafe_b64encode(json.dumps(payload).encode()).decode()
+
+
+def _decode_cursor(cursor: str) -> dict:
+    try:
+        decoded = base64.urlsafe_b64decode(cursor.encode()).decode()
+        payload = json.loads(decoded)
+    except (ValueError, json.JSONDecodeError):
+        raise HTTPException(status_code=400, detail="Invalid cursor")
+
+    if not isinstance(payload, dict) or "id" not in payload or "sort" not in payload:
+        raise HTTPException(status_code=400, detail="Invalid cursor")
+    return payload
+
+
+def _cursor_filter(sort: str, payload: dict):
+    cursor_id = payload.get("id")
+    try:
+        cursor_uuid = UUID(cursor_id)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Invalid cursor")
+
+    if sort in {"price_asc", "price_desc"}:
+        cursor_price = payload.get("price_cents")
+        if not isinstance(cursor_price, int):
+            raise HTTPException(status_code=400, detail="Invalid cursor")
+        if sort == "price_asc":
+            return or_(Product.price_cents > cursor_price, and_(Product.price_cents == cursor_price, Product.id > cursor_uuid))
+        return or_(Product.price_cents < cursor_price, and_(Product.price_cents == cursor_price, Product.id > cursor_uuid))
+
+    cursor_created_at_raw = payload.get("created_at")
+    if not isinstance(cursor_created_at_raw, str):
+        raise HTTPException(status_code=400, detail="Invalid cursor")
+    try:
+        cursor_created_at = datetime.fromisoformat(cursor_created_at_raw)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid cursor")
+
+    return or_(
+        Product.created_at < cursor_created_at,
+        and_(Product.created_at == cursor_created_at, Product.id > cursor_uuid),
+    )
+
+
 @router.get("/products", response_model=CursorPaginationResponse)
 async def list_products(
     category: Optional[str] = None,
@@ -60,30 +113,37 @@ async def list_products(
                 filters.append(Product.is_organic.is_(True))
             if b == "gluten_free":
                 filters.append(Product.is_gluten_free.is_(True))
-    if cursor:
-        filters.append(Product.id > cursor)
 
-    order = Product.created_at.desc()
-    if sort == "price_asc":
-        order = Product.price_cents.asc()
-    elif sort == "price_desc":
-        order = Product.price_cents.desc()
+    sort_orders = {
+        "newest": [Product.created_at.desc(), Product.id.asc()],
+        "price_asc": [Product.price_cents.asc(), Product.id.asc()],
+        "price_desc": [Product.price_cents.desc(), Product.id.asc()],
+    }
+    if sort not in sort_orders:
+        raise HTTPException(status_code=400, detail="Invalid sort option")
+
+    count_filters = list(filters)
+    if cursor:
+        cursor_payload = _decode_cursor(cursor)
+        if cursor_payload["sort"] != sort:
+            raise HTTPException(status_code=400, detail="Cursor does not match current sort")
+        filters.append(_cursor_filter(sort, cursor_payload))
 
     stmt = (
         select(Product)
         .options(selectinload(Product.images), selectinload(Product.producer), selectinload(Product.category))
         .where(and_(*filters))
-        .order_by(order, Product.id.asc())
+        .order_by(*sort_orders[sort])
         .limit(limit + 1)
     )
     rows = list((await db.scalars(stmt)).all())
-    total = await db.scalar(select(func.count(Product.id)).where(and_(*filters[: len(filters) - (1 if cursor else 0)])))
+    total = await db.scalar(select(func.count(Product.id)).where(and_(*count_filters)))
 
     has_more = len(rows) > limit
     rows = rows[:limit]
     return CursorPaginationResponse(
         items=[_map_product(p) for p in rows],
-        next_cursor=str(rows[-1].id) if has_more and rows else None,
+        next_cursor=_encode_cursor(sort, rows[-1]) if has_more and rows else None,
         has_more=has_more,
         total_count=total,
     )

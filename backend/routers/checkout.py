@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Iterable
 
 import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -8,13 +9,20 @@ from sqlalchemy.orm import selectinload
 
 from config import settings
 from database import get_db
-from models import AffiliateLink, Cart, CartItem, Order, OrderItem, Product, Subscription, User
+from models import AffiliateLink, Cart, CartItem, Order, OrderItem, Subscription, User
 from routers.auth import get_current_user
 from schemas import CheckoutCreateRequest, CheckoutResponse
 
 router = APIRouter()
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+
+def _commission_by_producer(subscriptions: Iterable[Subscription]) -> dict[str, int]:
+    return {str(subscription.user_id): subscription.get_commission_bps() for subscription in subscriptions}
+
+
+def _calculate_platform_fee(line_total: int, producer_commission_bps: int) -> int:
+    return int(line_total * producer_commission_bps / 10000)
 
 @router.post("/checkout/session", response_model=CheckoutResponse)
 async def create_checkout_session(
@@ -41,9 +49,11 @@ async def create_checkout_session(
     tax_cents = int((subtotal + shipping_cents) * 0.21)
     total_cents = subtotal + shipping_cents + tax_cents
 
-    subscription = await db.scalar(select(Subscription).where(Subscription.user_id == current_user.id, Subscription.status == "active"))
-    platform_fee_bps = subscription.get_commission_bps() if subscription else 2000
-    platform_fee_cents = int(subtotal * platform_fee_bps / 10000)
+    producer_ids = {item.product.producer_id for item in cart.items}
+    producer_subscriptions = (
+        await db.scalars(select(Subscription).where(Subscription.user_id.in_(producer_ids), Subscription.status == "active"))
+    ).all()
+    commission_map = _commission_by_producer(producer_subscriptions)
 
     affiliate_bps = None
     affiliate_cents = None
@@ -53,12 +63,17 @@ async def create_checkout_session(
         affiliate_code = cart.affiliate_code
 
     if affiliate_code:
-        link = await db.scalar(select(AffiliateLink).options(selectinload(AffiliateLink.influencer).selectinload(User.influencer_profile)).where(AffiliateLink.code.ilike(affiliate_code), AffiliateLink.status == "active"))
+        link = await db.scalar(
+            select(AffiliateLink)
+            .options(selectinload(AffiliateLink.influencer).selectinload(User.influencer_profile))
+            .where(AffiliateLink.code.ilike(affiliate_code), AffiliateLink.status == "active")
+        )
         if link and link.influencer and link.influencer.influencer_profile:
             affiliate_code = link.code
             affiliate_bps = link.influencer.influencer_profile.get_commission_bps()
             affiliate_cents = int(subtotal * affiliate_bps / 10000)
 
+    platform_fee_cents = 0
     order = Order(
         user_id=current_user.id,
         tenant_id=current_user.tenant_id,
@@ -68,7 +83,7 @@ async def create_checkout_session(
         shipping_cents=shipping_cents,
         tax_cents=tax_cents,
         total_cents=total_cents,
-        platform_fee_bps=platform_fee_bps,
+        platform_fee_bps=0,
         platform_fee_cents=platform_fee_cents,
         affiliate_code=affiliate_code,
         affiliate_commission_bps=affiliate_bps,
@@ -81,8 +96,11 @@ async def create_checkout_session(
     line_items = []
     for item in cart.items:
         line_total = item.quantity * item.unit_price_cents
-        line_platform_fee = int(line_total * platform_fee_bps / 10000)
+        producer_commission_bps = commission_map.get(str(item.product.producer_id), 2000)
+        line_platform_fee = _calculate_platform_fee(line_total, producer_commission_bps)
         line_affiliate = int(line_total * (affiliate_bps or 0) / 10000)
+        platform_fee_cents += line_platform_fee
+
         db.add(
             OrderItem(
                 order_id=order.id,
@@ -96,6 +114,7 @@ async def create_checkout_session(
                 platform_fee_cents=line_platform_fee,
             )
         )
+
         line_items.append(
             {
                 "price_data": {
@@ -106,6 +125,32 @@ async def create_checkout_session(
                 "quantity": item.quantity,
             }
         )
+
+    if shipping_cents:
+        line_items.append(
+            {
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {"name": "Shipping"},
+                    "unit_amount": shipping_cents,
+                },
+                "quantity": 1,
+            }
+        )
+    if tax_cents:
+        line_items.append(
+            {
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {"name": "Tax"},
+                    "unit_amount": tax_cents,
+                },
+                "quantity": 1,
+            }
+        )
+
+    order.platform_fee_cents = platform_fee_cents
+    order.platform_fee_bps = round((platform_fee_cents * 10000) / subtotal) if subtotal else 0
 
     checkout = stripe.checkout.Session.create(
         mode="payment",

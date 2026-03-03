@@ -10,8 +10,15 @@ from sqlalchemy.orm import selectinload
 
 from database import get_db
 from models import InfluencerProfile, Subscription, Tenant, User
-from schemas import LoginRequest, RegisterRequest, TokenResponse, UserProfileResponse, UserResponse, UserUpdateRequest
-from security import create_access_token, create_refresh_token, decode_token, get_password_hash, verify_password
+from schemas import LoginRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserProfileResponse, UserResponse, UserUpdateRequest
+from security import (
+    create_access_token,
+    create_refresh_token,
+    decode_access_token,
+    decode_refresh_token,
+    get_password_hash,
+    verify_password,
+)
 
 router = APIRouter(prefix="/auth")
 security = HTTPBearer(auto_error=False)
@@ -24,7 +31,7 @@ async def get_current_user(
     if not credentials:
         raise HTTPException(status_code=401, detail="Not authenticated")
     try:
-        payload = decode_token(credentials.credentials)
+        payload = decode_access_token(credentials.credentials)
     except ValueError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
@@ -34,8 +41,6 @@ async def get_current_user(
     return user
 
 
-
-
 async def get_optional_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
@@ -43,7 +48,7 @@ async def get_optional_user(
     if not credentials:
         return None
     try:
-        payload = decode_token(credentials.credentials)
+        payload = decode_access_token(credentials.credentials)
     except ValueError:
         return None
 
@@ -97,6 +102,26 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = await db.scalar(select(User).where(User.email == payload.email))
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token_data = {"sub": str(user.id), "role": user.role, "tenant_id": str(user.tenant_id)}
+    return TokenResponse(
+        access_token=create_access_token(token_data),
+        refresh_token=create_refresh_token(token_data),
+        expires_in=1800,
+        user=UserResponse.model_validate(user),
+    )
+
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh_access_token(payload: RefreshTokenRequest, db: AsyncSession = Depends(get_db)):
+    try:
+        token_payload = decode_refresh_token(payload.refresh_token)
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    user = await db.get(User, token_payload.get("sub"))
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
 
     token_data = {"sub": str(user.id), "role": user.role, "tenant_id": str(user.tenant_id)}
     return TokenResponse(

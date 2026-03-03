@@ -21,18 +21,19 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def _create_token(data: dict, token_type: str, expires_delta: timedelta) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire})
+    expire = datetime.now(timezone.utc) + expires_delta
+    to_encode.update({"exp": expire, "token_type": token_type})
     return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=ALGORITHM)
+
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    return _create_token(data, token_type="access", expires_delta=expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
 
 
 def create_refresh_token(data: dict) -> str:
-    to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=ALGORITHM)
+    return _create_token(data, token_type="refresh", expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
 
 
 def decode_token(token: str) -> dict:
@@ -40,3 +41,17 @@ def decode_token(token: str) -> dict:
         return jwt.decode(token, settings.JWT_SECRET, algorithms=[ALGORITHM])
     except JWTError as exc:
         raise ValueError("Invalid token") from exc
+
+
+def decode_access_token(token: str) -> dict:
+    payload = decode_token(token)
+    if payload.get("token_type") != "access":
+        raise ValueError("Invalid token")
+    return payload
+
+
+def decode_refresh_token(token: str) -> dict:
+    payload = decode_token(token)
+    if payload.get("token_type") != "refresh":
+        raise ValueError("Invalid token")
+    return payload
