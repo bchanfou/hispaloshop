@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -31,6 +31,31 @@ def slugify(value: str) -> str:
 
 def _slug_with_suffix(slug_base: str, attempt: int) -> str:
     return slug_base if attempt == 0 else f"{slug_base}-{attempt + 1}"
+
+
+def _is_slug_unique_violation(exc: IntegrityError) -> bool:
+    """Return True only for slug unique constraint violations."""
+    orig = getattr(exc, "orig", None)
+    diag = getattr(orig, "diag", None)
+    constraint_name = getattr(diag, "constraint_name", None) or getattr(orig, "constraint_name", None)
+    if constraint_name == "uq_products_slug":
+        return True
+
+    # Fallback for drivers that do not expose diag.constraint_name consistently.
+    error_text = str(orig or exc)
+    return "uq_products_slug" in error_text or "products_slug_key" in error_text
+
+
+def _http_error_from_integrity_error(exc: IntegrityError) -> HTTPException:
+    orig = getattr(exc, "orig", None)
+    pgcode = getattr(orig, "pgcode", None) or getattr(orig, "sqlstate", None)
+
+    # Known validation-style DB errors should be surfaced as 422.
+    if pgcode in {"23502", "23503", "23514"}:
+        return HTTPException(status_code=422, detail="Invalid product payload")
+
+    # Unexpected integrity issues are server errors and should not be retried.
+    return HTTPException(status_code=500, detail="Database error while creating product")
 
 
 def require_producer(user):
@@ -69,8 +94,10 @@ async def create_product(
                 db.add(product)
                 await db.flush()
             return product
-        except IntegrityError:
-            continue
+        except IntegrityError as exc:
+            if _is_slug_unique_violation(exc):
+                continue
+            raise _http_error_from_integrity_error(exc) from exc
 
     raise HTTPException(status_code=409, detail="Could not generate a unique product slug")
 

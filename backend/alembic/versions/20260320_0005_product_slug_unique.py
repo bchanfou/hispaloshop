@@ -16,22 +16,79 @@ depends_on = None
 
 
 def upgrade() -> None:
+    bind = op.get_bind()
+
+    # Pull all products in deterministic order so slug rewrites are stable.
+    rows = bind.execute(
+        sa.text(
+            """
+            SELECT id, slug
+            FROM products
+            ORDER BY slug, created_at, id
+            """
+        )
+    ).fetchall()
+
+    # Track every existing slug (including already suffixed values) to avoid collisions.
+    used_slugs = {row.slug for row in rows}
+    seen_original = set()
+
+    for row in rows:
+        slug = row.slug
+        if slug not in seen_original:
+            # Keep the first row for each original slug untouched.
+            seen_original.add(slug)
+            continue
+
+        # Duplicate slug: generate slug-1, slug-2, ... and pick first globally free value.
+        suffix = 1
+        while True:
+            candidate = f"{slug}-{suffix}"
+            if candidate not in used_slugs:
+                bind.execute(
+                    sa.text("UPDATE products SET slug = :candidate WHERE id = :product_id"),
+                    {"candidate": candidate, "product_id": row.id},
+                )
+                used_slugs.add(candidate)
+                break
+            suffix += 1
+
+    # Idempotent guard in case the migration is replayed in non-standard workflows.
     op.execute(
         sa.text(
             """
-            WITH ranked AS (
-                SELECT id, slug, ROW_NUMBER() OVER (PARTITION BY slug ORDER BY created_at, id) AS rn
-                FROM products
-            )
-            UPDATE products p
-            SET slug = CONCAT(r.slug, '-', r.rn)
-            FROM ranked r
-            WHERE p.id = r.id AND r.rn > 1
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_constraint
+                    WHERE conname = 'uq_products_slug'
+                ) THEN
+                    ALTER TABLE products
+                    ADD CONSTRAINT uq_products_slug UNIQUE (slug);
+                END IF;
+            END
+            $$;
             """
         )
     )
-    op.create_unique_constraint("uq_products_slug", "products", ["slug"])
 
 
 def downgrade() -> None:
-    op.drop_constraint("uq_products_slug", "products", type_="unique")
+    op.execute(
+        sa.text(
+            """
+            DO $$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1
+                    FROM pg_constraint
+                    WHERE conname = 'uq_products_slug'
+                ) THEN
+                    ALTER TABLE products DROP CONSTRAINT uq_products_slug;
+                END IF;
+            END
+            $$;
+            """
+        )
+    )
