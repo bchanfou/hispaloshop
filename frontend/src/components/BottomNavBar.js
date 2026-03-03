@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { MessageCircle, TrendingUp, Sparkles, Plus, User, X, Image as ImageIcon, Tag, Loader2 } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../utils/api';
-import AIAssistant from './AIAssistant';
-import SellerAIAssistant from './SellerAIAssistant';
-import InfluencerAIAssistant from './InfluencerAIAssistant';
 import InternalChat from './InternalChat';
 
 const HIDDEN_ON_PATHS = [
@@ -16,26 +13,6 @@ const HIDDEN_ON_PATHS = [
   '/signup', '/vender/registro', '/vender/login', '/influencers/registro', '/influencers/login',
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
 ];
-
-function getDashboardUrl(role) {
-  switch (role) {
-    case 'super_admin': return '/super-admin';
-    case 'admin': return '/admin';
-    case 'producer': return '/producer';
-    case 'influencer': return '/influencer/dashboard';
-    case 'customer':
-    default: return '/dashboard/profile';
-  }
-}
-
-/* AI stars icon — "two sparkles" */
-function HiAIIcon({ active }) {
-  return (
-    <div className={`relative w-6 h-6 ${active ? 'text-[#2D5A27]' : 'text-stone-500'}`}>
-      <Sparkles className="w-6 h-6" strokeWidth={1.5} />
-    </div>
-  );
-}
 
 /* Quick Post Creator Panel */
 function CreatePostPanel({ user, onClose, initialFile = null }) {
@@ -195,53 +172,14 @@ export default function BottomNavBar() {
     }
   };
 
-  const role = user?.role || 'guest';
   const profileUrl = user ? `/user/${user.user_id}` : '/login';
   const profileImage = user?.profile_image;
-  const leftItems = [];
-  const rightItems = [];
-
-  // Left side
-  if (user) {
-    leftItems.push({
-      id: 'chat',
-      icon: MessageCircle,
-      label: t('bottomNav.chat', 'Chat'),
-      action: () => togglePanel('chat'),
-    });
-  }
-
-  leftItems.push({
-    id: 'ai',
-    isAI: true,
-    label: 'Hi AI',
-    action: () => togglePanel('ai'),
-  });
-
-  // Right side
-  if (user && (role === 'producer' || role === 'admin')) {
-    rightItems.push({
-      id: 'sales',
-      icon: TrendingUp,
-      label: t('bottomNav.salesAI', 'Sales'),
-      action: () => togglePanel('sales'),
-    });
-  } else if (user && role === 'influencer') {
-    rightItems.push({
-      id: 'creative',
-      icon: Sparkles,
-      label: t('bottomNav.creativeAI', 'Creative'),
-      action: () => togglePanel('creative'),
-    });
-  }
-
-  rightItems.push({
-    id: 'profile',
-    icon: User,
-    label: t('bottomNav.profile', 'Profile'),
-    link: profileUrl,
-    isProfile: true,
-  });
+  const navItems = [
+    { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
+    { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover' },
+    { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
+    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, isProfile: true },
+  ];
 
   return (
     <>
@@ -250,23 +188,6 @@ export default function BottomNavBar() {
         <div className="fixed inset-0 md:inset-auto md:bottom-[68px] md:right-4 z-50" data-testid="chat-panel">
           <div className="h-full md:h-[550px] md:w-[380px] bg-white md:rounded-2xl shadow-2xl flex flex-col md:border md:border-stone-200">
             <InternalChat isEmbedded={true} onClose={closePanel} initialChatUserId={initialChatUserId} />
-          </div>
-        </div>
-      )}
-      {activePanel === 'ai' && (
-        <AIAssistant forceOpen={true} onForceClose={closePanel} />
-      )}
-      {activePanel === 'sales' && (
-        <div className="fixed inset-0 md:inset-auto md:bottom-[68px] md:right-4 z-50" data-testid="sales-ai-panel">
-          <div className="h-full md:h-auto md:max-h-[550px] md:w-[380px] bg-white md:rounded-2xl shadow-2xl overflow-hidden md:border md:border-stone-200">
-            <SellerAIAssistant isEmbedded={true} onClose={closePanel} />
-          </div>
-        </div>
-      )}
-      {activePanel === 'creative' && (
-        <div className="fixed inset-0 md:inset-auto md:bottom-[68px] md:right-4 z-50" data-testid="creative-ai-panel">
-          <div className="h-full md:h-auto md:max-h-[550px] md:w-[380px] bg-white md:rounded-2xl shadow-2xl overflow-hidden md:border md:border-stone-200">
-            <InfluencerAIAssistant isEmbedded={true} onClose={closePanel} />
           </div>
         </div>
       )}
@@ -282,28 +203,23 @@ export default function BottomNavBar() {
         className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 safe-area-bottom"
         data-testid="bottom-nav-bar"
       >
-        <div className="max-w-lg mx-auto grid grid-cols-[1fr_1fr_auto_1fr_1fr] items-center h-[60px] px-1">
-          {/* Left items */}
-          {leftItems.map((item) => {
-            const isActive = activePanel === item.id;
-            if (item.isAI) {
+        <div className="max-w-lg mx-auto grid grid-cols-[1fr_1fr_auto_1fr_1fr] items-center h-[64px] px-1">
+          {navItems.slice(0, 2).map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.link;
+            if (item.link) {
               return (
-                <button
+                <Link
                   key={item.id}
-                  onClick={item.action}
-                  className="flex flex-col items-center justify-center gap-0.5 py-1 transition-colors"
+                  to={item.link}
+                  className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
-                  {isActive ? (
-                    <X className="w-6 h-6 text-[#2D5A27]" strokeWidth={1.5} />
-                  ) : (
-                    <HiAIIcon active={isActive} />
-                  )}
-                  <span className={`text-[10px] leading-none font-semibold ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}>{item.label}</span>
-                </button>
+                  <Icon className="w-6 h-6" strokeWidth={1.5} />
+                  <span className="text-[10px] leading-none font-medium">{item.label}</span>
+                </Link>
               );
             }
-            const Icon = item.icon;
             return (
               <button
                 key={item.id}
@@ -311,16 +227,12 @@ export default function BottomNavBar() {
                 className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
                 data-testid={`bottom-nav-${item.id}`}
               >
-                {isActive ? <X className="w-6 h-6" strokeWidth={1.5} /> : <Icon className="w-6 h-6" strokeWidth={1.5} />}
-                <span className="text-[10px] leading-none">{item.label}</span>
+                <Icon className="w-6 h-6" strokeWidth={1.5} />
+                <span className="text-[10px] leading-none font-medium">{item.label}</span>
               </button>
             );
           })}
 
-          {/* Spacer if only 1 left item */}
-          {leftItems.length < 2 && <div />}
-
-          {/* Center + Post button - ALWAYS visible */}
           <button
             onClick={handlePostButton}
             className="flex flex-col items-center justify-center -mt-5 mx-2"
@@ -329,15 +241,13 @@ export default function BottomNavBar() {
             <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 ring-4 ring-white ${activePanel === 'post' ? 'bg-stone-700 shadow-stone-500/25' : 'bg-[#1C1C1C] shadow-stone-900/25 hover:bg-[#2A2A2A]'}`}>
               {activePanel === 'post' ? <X className="w-7 h-7 text-white" strokeWidth={2.5} /> : <Plus className="w-7 h-7 text-white" strokeWidth={2.5} />}
             </div>
+            <span className="text-[10px] leading-none mt-0.5 text-stone-500 font-medium">{t('bottomNav.create', 'Crear')}</span>
           </button>
 
-          {/* Spacer if only 1 right item */}
-          {rightItems.length < 2 && <div />}
-
-          {/* Right items */}
-          {rightItems.map((item) => {
+          {navItems.slice(2).map((item) => {
             const Icon = item.icon;
-            const isActive = activePanel === item.id;
+            const isPathActive = item.link ? location.pathname.startsWith(item.link) : false;
+            const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;
 
             if (item.isProfile) {
               return (
@@ -356,7 +266,7 @@ export default function BottomNavBar() {
                       <Icon className="w-4 h-4" strokeWidth={1.5} />
                     </div>
                   )}
-                  <span className="text-[10px] text-stone-500 leading-none">{item.label}</span>
+                  <span className="text-[10px] text-stone-500 leading-none font-medium">{item.label}</span>
                 </Link>
               );
             }
