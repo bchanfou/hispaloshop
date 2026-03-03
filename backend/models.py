@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID as UUIDType
 import uuid
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import ARRAY, INET, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -70,6 +70,8 @@ class User(Base):
     embedding_profile: Mapped[Optional["UserEmbedding"]] = relationship(back_populates="user", uselist=False)
     interactions: Mapped[List["UserInteraction"]] = relationship(back_populates="user")
     chat_sessions: Mapped[List["ChatSession"]] = relationship(back_populates="user")
+    chat_conversation_participants: Mapped[List["ConversationParticipant"]] = relationship(back_populates="user")
+    chat_messages_sent: Mapped[List["Message"]] = relationship(back_populates="sender")
     posts: Mapped[List["Post"]] = relationship(back_populates="user")
     saved_collections: Mapped[List["SavedCollection"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     stories: Mapped[List["Story"]] = relationship(back_populates="user", cascade="all, delete-orphan")
@@ -521,6 +523,85 @@ class ChatMessage(Base):
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
     session: Mapped["ChatSession"] = relationship(back_populates="messages")
+
+
+class Conversation(Base):
+    __tablename__ = "conversations"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    type: Mapped[str] = mapped_column(
+        Enum("support", "transaction", "influencer_brand", "social", "group_order", name="conversation_type"),
+        default="social",
+    )
+    related_order_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("orders.id"), nullable=True, index=True)
+    related_product_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("products.id"), nullable=True, index=True)
+    is_active: Mapped[bool] = mapped_column(default=True, index=True)
+    metadata: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now(), index=True)
+
+    participants: Mapped[List["ConversationParticipant"]] = relationship(back_populates="conversation", cascade="all, delete-orphan")
+    messages: Mapped[List["Message"]] = relationship(back_populates="conversation", cascade="all, delete-orphan")
+    related_order: Mapped[Optional["Order"]] = relationship()
+    related_product: Mapped[Optional["Product"]] = relationship()
+
+
+class ConversationParticipant(Base):
+    __tablename__ = "conversation_participants"
+    __table_args__ = (UniqueConstraint("conversation_id", "user_id", name="uq_conversation_user"),)
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    conversation_id: Mapped[UUIDType] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    role: Mapped[str] = mapped_column(Enum("admin", "member", name="participant_role"), default="member")
+    notifications_enabled: Mapped[bool] = mapped_column(default=True)
+    joined_at: Mapped[datetime] = mapped_column(default=func.now())
+    left_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    last_read_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+
+    conversation: Mapped["Conversation"] = relationship(back_populates="participants")
+    user: Mapped["User"] = relationship(back_populates="chat_conversation_participants")
+
+
+class Message(Base):
+    __tablename__ = "messages"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    conversation_id: Mapped[UUIDType] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), index=True)
+    sender_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
+    sender_type: Mapped[str] = mapped_column(Enum("user", "system", "ai", name="message_sender_type"), default="user")
+    content: Mapped[str] = mapped_column(Text)
+    message_type: Mapped[str] = mapped_column(
+        Enum("text", "image", "product", "order", "ai_response", name="message_type"),
+        default="text",
+    )
+    reply_to_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("messages.id"), nullable=True)
+    metadata: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+    edited_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(nullable=True, index=True)
+    delivered_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    read_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+
+    conversation: Mapped["Conversation"] = relationship(back_populates="messages")
+    sender: Mapped["User"] = relationship(back_populates="chat_messages_sent")
+    reply_to: Mapped[Optional["Message"]] = relationship(remote_side=[id])
+    attachments: Mapped[List["MessageAttachment"]] = relationship(back_populates="message", cascade="all, delete-orphan")
+
+
+class MessageAttachment(Base):
+    __tablename__ = "message_attachments"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    message_id: Mapped[UUIDType] = mapped_column(ForeignKey("messages.id", ondelete="CASCADE"), index=True)
+    type: Mapped[str] = mapped_column(Enum("image", "document", name="message_attachment_type"), default="image")
+    url: Mapped[str] = mapped_column(String(1000))
+    cloudinary_public_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    size: Mapped[Optional[int]] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    message: Mapped["Message"] = relationship(back_populates="attachments")
 
 
 class MatchingScore(Base):

@@ -694,3 +694,81 @@ class SavedCollectionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class MessageAttachmentCreate(BaseModel):
+    type: str = Field(pattern="^(image|document)$")
+    url: HttpUrl
+    cloudinary_public_id: Optional[str] = None
+    size: Optional[int] = Field(default=None, ge=1)
+
+
+class MessageResponse(BaseModel):
+    id: UUID
+    conversation_id: UUID
+    sender_id: UUID
+    sender_type: str
+    content: str
+    message_type: str
+    reply_to_id: Optional[UUID] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime
+    edited_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] = None
+    delivered_at: Optional[datetime] = None
+    read_at: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ConversationParticipantResponse(BaseModel):
+    user_id: UUID
+    role: str
+    last_read_at: Optional[datetime] = None
+    notifications_enabled: bool
+    joined_at: datetime
+    left_at: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ConversationResponse(BaseModel):
+    id: UUID
+    type: str
+    related_order_id: Optional[UUID] = None
+    related_product_id: Optional[UUID] = None
+    created_at: datetime
+    updated_at: datetime
+    is_active: bool
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ConversationListItemResponse(ConversationResponse):
+    unread_count: int = 0
+    last_message: Optional[MessageResponse] = None
+
+
+class ConversationDetailResponse(BaseModel):
+    conversation: ConversationResponse
+    messages: List[MessageResponse] = Field(default_factory=list)
+    next_cursor: Optional[datetime] = None
+    has_more: bool = False
+
+
+class ConversationCreateRequest(BaseModel):
+    type: str = Field(pattern="^(support|transaction|influencer_brand|social|group_order)$")
+    participant_ids: List[UUID] = Field(default_factory=list, min_length=1, max_length=50)
+    related_order_id: Optional[UUID] = None
+    related_product_id: Optional[UUID] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+
+class MessageCreateRequest(BaseModel):
+    content: str = Field(min_length=1, max_length=5000)
+    message_type: str = Field(default="text", pattern="^(text|image|product|order|ai_response)$")
+    reply_to_id: Optional[UUID] = None
+    metadata: Optional[Dict[str, Any]] = None
+    attachments: List[MessageAttachmentCreate] = Field(default_factory=list)
+
+
+class MarkConversationReadRequest(BaseModel):
+    read_at: Optional[datetime] = None

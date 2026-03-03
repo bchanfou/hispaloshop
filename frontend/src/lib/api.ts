@@ -259,6 +259,31 @@ class ApiClient {
     return this.request(`/chat/sessions/${sessionId}/close`, { method: 'POST', body: JSON.stringify(data || {}) });
   }
 
+  async getConversations() {
+    return this.request('/chat/conversations');
+  }
+
+  async createConversation(data: Record<string, unknown>) {
+    return this.request('/chat/conversations', { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async getConversationMessages(conversationId: string, cursor?: string) {
+    const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : '';
+    return this.request(`/chat/conversations/${conversationId}/messages${query}`);
+  }
+
+  async sendConversationMessage(conversationId: string, data: Record<string, unknown>) {
+    return this.request(`/chat/conversations/${conversationId}/messages`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async markConversationRead(conversationId: string, readAt?: string) {
+    return this.request(`/chat/conversations/${conversationId}/read`, {
+      method: 'POST',
+      body: JSON.stringify(readAt ? { read_at: readAt } : {}),
+    });
+  }
+
+
   // Matching
   async getProducerMatches(limit: number = 10) {
     return this.request(`/matching/producer/suggestions?limit=${limit}`);
