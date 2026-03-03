@@ -11,6 +11,9 @@ from routers.orders import router as orders_router
 from routers.webhooks import router as webhooks_router
 from routers.affiliate_public import router as affiliate_public_router
 from routers.influencer import router as influencer_router
+from routers.matching import router as matching_router
+from routers.chat import router as chat_router
+from routers.recommendations import router as recommendations_router
 
 app = FastAPI(title="Hispaloshop API", version="1.0.0")
 
@@ -32,6 +35,9 @@ app.include_router(orders_router, prefix="/api/v1", tags=["orders"])
 app.include_router(webhooks_router, prefix="/api/v1", tags=["webhooks"])
 app.include_router(affiliate_public_router, tags=["affiliate"])
 app.include_router(influencer_router, prefix="/api/v1", tags=["influencer"])
+app.include_router(matching_router, prefix="/api/v1", tags=["matching"])
+app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
+app.include_router(recommendations_router, prefix="/api/v1", tags=["recommendations"])
 
 
 @app.get("/health")

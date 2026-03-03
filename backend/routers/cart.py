@@ -7,6 +7,7 @@ from database import get_db
 from models import Cart, CartItem, InfluencerProfile, Product, User
 from routers.auth import get_current_user
 from schemas import CartItemCreateRequest, CartItemResponse, CartItemUpdateRequest, CartResponse
+from services.tracking_service import tracking_service
 
 router = APIRouter()
 
@@ -96,6 +97,14 @@ async def add_cart_item(payload: CartItemCreateRequest, current_user: User = Dep
     )
     db.add(item)
     await db.flush()
+    await tracking_service.track_interaction(
+        db,
+        user_id=current_user.id,
+        product_id=product.id,
+        interaction_type="cart",
+        source="recommendation" if payload.affiliate_code else "direct",
+        affiliate_code=payload.affiliate_code,
+    )
     await db.refresh(item, ["product"])
     await db.refresh(item.product, ["images", "producer"])
     return _serialize_cart_item(item)

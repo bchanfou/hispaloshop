@@ -1,11 +1,18 @@
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID as UUIDType
 import uuid
 
-from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, INET, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+try:
+    from pgvector.sqlalchemy import Vector
+except Exception:  # pragma: no cover - optional dependency fallback
+    class Vector(ARRAY):
+        def __init__(self, dimensions: int):
+            super().__init__(Float)
 
 from database import Base
 
@@ -56,6 +63,9 @@ class User(Base):
     affiliate_links: Mapped[List["AffiliateLink"]] = relationship(back_populates="influencer")
     commissions: Mapped[List["Commission"]] = relationship(back_populates="influencer")
     payouts: Mapped[List["Payout"]] = relationship(back_populates="influencer")
+    embedding_profile: Mapped[Optional["UserEmbedding"]] = relationship(back_populates="user", uselist=False)
+    interactions: Mapped[List["UserInteraction"]] = relationship(back_populates="user")
+    chat_sessions: Mapped[List["ChatSession"]] = relationship(back_populates="user")
 
 
 class Category(Base):
@@ -112,6 +122,8 @@ class Product(Base):
     certificates: Mapped[List["ProductCertificate"]] = relationship(back_populates="product")
     order_items: Mapped[List["OrderItem"]] = relationship(back_populates="product")
     affiliate_link_requests: Mapped[List["AffiliateLinkRequest"]] = relationship(back_populates="product")
+    embedding: Mapped[Optional["ProductEmbedding"]] = relationship(back_populates="product", uselist=False)
+    interactions: Mapped[List["UserInteraction"]] = relationship(back_populates="product")
 
     def get_price_cents(self) -> int:
         return self.price_cents
@@ -407,6 +419,103 @@ class AffiliateLinkRequest(Base):
     product: Mapped["Product"] = relationship(back_populates="affiliate_link_requests")
     influencer: Mapped["User"] = relationship(foreign_keys=[influencer_id])
     producer: Mapped["User"] = relationship(foreign_keys=[producer_id])
+
+
+class ProductEmbedding(Base):
+    __tablename__ = "product_embeddings"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    product_id: Mapped[UUIDType] = mapped_column(ForeignKey("products.id"), unique=True, index=True)
+    embedding: Mapped[List[float]] = mapped_column(Vector(1536))
+    embedding_text: Mapped[str] = mapped_column(Text)
+    model_version: Mapped[str] = mapped_column(String(50), default="text-embedding-3-small")
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    product: Mapped["Product"] = relationship(back_populates="embedding")
+
+
+class UserEmbedding(Base):
+    __tablename__ = "user_embeddings"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
+    embedding: Mapped[List[float]] = mapped_column(Vector(1536))
+    based_on: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    model_version: Mapped[str] = mapped_column(String(50), default="text-embedding-3-small")
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    user: Mapped["User"] = relationship(back_populates="embedding_profile")
+
+
+class UserInteraction(Base):
+    __tablename__ = "user_interactions"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    product_id: Mapped[UUIDType] = mapped_column(ForeignKey("products.id"), index=True)
+    interaction_type: Mapped[str] = mapped_column(String(20))
+    source: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    affiliate_code: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    session_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    device_type: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    purchase_value_cents: Mapped[Optional[int]] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
+
+    user: Mapped[Optional["User"]] = relationship(back_populates="interactions")
+    product: Mapped["Product"] = relationship(back_populates="interactions")
+
+
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="active")
+    context: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    message_count: Mapped[int] = mapped_column(default=0)
+    user_satisfaction: Mapped[Optional[int]] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+    closed_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+
+    user: Mapped["User"] = relationship(back_populates="chat_sessions")
+    messages: Mapped[List["ChatMessage"]] = relationship(back_populates="session", order_by="ChatMessage.created_at")
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id: Mapped[UUIDType] = mapped_column(ForeignKey("chat_sessions.id"), index=True)
+    role: Mapped[str] = mapped_column(String(20))
+    content: Mapped[str] = mapped_column(Text)
+    recommended_products: Mapped[Optional[List[str]]] = mapped_column(JSONB, nullable=True)
+    prompt_tokens: Mapped[Optional[int]] = mapped_column(nullable=True)
+    completion_tokens: Mapped[Optional[int]] = mapped_column(nullable=True)
+    total_tokens: Mapped[Optional[int]] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    session: Mapped["ChatSession"] = relationship(back_populates="messages")
+
+
+class MatchingScore(Base):
+    __tablename__ = "matching_scores"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    producer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    influencer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    match_type: Mapped[str] = mapped_column(String(20), default="product_influencer")
+    overall_score: Mapped[float] = mapped_column(Float)
+    score_breakdown: Mapped[Dict[str, float]] = mapped_column(JSONB)
+    reasons: Mapped[List[str]] = mapped_column(JSONB)
+    status: Mapped[str] = mapped_column(String(20), default="suggested")
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    producer: Mapped["User"] = relationship(foreign_keys=[producer_id])
+    influencer: Mapped["User"] = relationship(foreign_keys=[influencer_id])
 
 
 Index("idx_affiliate_events_cookie_created", AffiliateEvent.cookie_id, AffiliateEvent.created_at)

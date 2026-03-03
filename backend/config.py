@@ -20,6 +20,9 @@ class Settings(BaseSettings):
 
     FIREBASE_CREDENTIALS: str = ""
 
+    OPENAI_API_KEY: str = ""
+    OPENAI_ORG_ID: str = ""
+
     AFFILIATE_ATTRIBUTION_DAYS: int = 548
     AFFILIATE_COOKIE_NAME: str = "hispaloshop_ref"
     AFFILIATE_MIN_PAYOUT_CENTS: int = 1000

@@ -7,7 +7,9 @@ from sqlalchemy.orm import selectinload
 
 from database import get_db
 from models import Product
+from routers.auth import get_optional_user
 from schemas import CursorPaginationResponse, ProductDetailResponse, ProductListResponse
+from services.tracking_service import tracking_service
 
 router = APIRouter()
 
@@ -88,7 +90,7 @@ async def list_products(
 
 
 @router.get("/products/{slug}", response_model=ProductDetailResponse)
-async def product_detail(slug: str, db: AsyncSession = Depends(get_db)):
+async def product_detail(slug: str, db: AsyncSession = Depends(get_db), current_user=Depends(get_optional_user)):
     product = await db.scalar(
         select(Product)
         .options(
@@ -120,5 +122,12 @@ async def product_detail(slug: str, db: AsyncSession = Depends(get_db)):
             "certificates": [c for c in product.certificates],
             "related_products": [_map_product(p) for p in related],
         }
+    )
+    await tracking_service.track_interaction(
+        db,
+        user_id=current_user.id if current_user else None,
+        product_id=product.id,
+        interaction_type="view",
+        source="direct",
     )
     return ProductDetailResponse(**data)
