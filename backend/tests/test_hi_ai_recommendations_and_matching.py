@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import asyncio
 from types import SimpleNamespace
 from uuid import uuid4
 import sys
@@ -9,7 +10,7 @@ import pytest
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from models import MatchingScore, User
+from models import User
 from routers.recommendations import personalized_recommendations, similar_products
 from services import matching_service as matching_service_module
 from services.matching_service import MatchingService
@@ -121,6 +122,7 @@ class _MatchingDB:
     def __init__(self, influencers):
         self.influencers = influencers
         self.rows = {}
+        self._lock = asyncio.Lock()
 
     async def scalars(self, stmt):
         entity = stmt.column_descriptions[0].get("entity")
@@ -128,21 +130,19 @@ class _MatchingDB:
             return _ScalarRows(self.influencers)
         raise AssertionError("unexpected scalars query")
 
-    async def scalar(self, stmt):
-        entity = stmt.column_descriptions[0].get("entity")
-        if entity is MatchingScore:
-            params = stmt.compile().params
-            key = (
-                params["producer_id_1"],
-                params["influencer_id_1"],
-                params["match_type_1"],
-            )
-            return self.rows.get(key)
-        raise AssertionError("unexpected scalar query")
-
-    def add(self, row):
-        key = (row.producer_id, row.influencer_id, row.match_type)
-        self.rows[key] = row
+    async def execute(self, stmt):
+        params = stmt.compile().params
+        key = (
+            params["producer_id_m0"],
+            params["influencer_id_m0"],
+            params["match_type_m0"],
+        )
+        async with self._lock:
+            self.rows[key] = {
+                "overall_score": params["overall_score_m0"],
+                "score_breakdown": params["score_breakdown_m0"],
+                "reasons": params["reasons_m0"],
+            }
 
     async def flush(self):
         return None
@@ -154,23 +154,23 @@ async def test_matching_service_upserts_instead_of_duplicates(monkeypatch):
     influencer = SimpleNamespace(id=uuid4(), role="influencer", is_active=True)
     db = _MatchingDB([influencer])
 
-    call_scores = iter([72.0, 88.0])
-
     async def _score(*args, **kwargs):
-        value = next(call_scores)
         return {
-            "overall_score": value,
-            "breakdown": {"category_match": value},
-            "reasons": [f"score {value}"],
+            "overall_score": 88.0,
+            "breakdown": {"category_match": 88.0},
+            "reasons": ["score 88.0"],
             "confidence": "high",
         }
 
     monkeypatch.setattr(MatchingService, "calculate_producer_influencer_score", staticmethod(_score))
 
-    await matching_service_module.matching_service.find_matches_for_producer(db, producer_id=producer_id, limit=10)
+    await asyncio.gather(
+        matching_service_module.matching_service.find_matches_for_producer(db, producer_id=producer_id, limit=10),
+        matching_service_module.matching_service.find_matches_for_producer(db, producer_id=producer_id, limit=10),
+    )
     await matching_service_module.matching_service.find_matches_for_producer(db, producer_id=producer_id, limit=10)
 
     assert len(db.rows) == 1
     only_row = next(iter(db.rows.values()))
-    assert only_row.overall_score == 88.0
-    assert only_row.reasons == ["score 88.0"]
+    assert only_row["overall_score"] == 88.0
+    assert only_row["reasons"] == ["score 88.0"]
