@@ -82,9 +82,15 @@ async def get_posts(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    cursor_created_at: Optional[datetime] = None
+    if cursor and source in {"trending", "discover"}:
+        cursor_post = await db.scalar(select(Post.created_at).where(Post.id == cursor))
+        if cursor_post:
+            cursor_created_at = cursor_post
+
     if source == "following":
         cache = await db.scalar(select(FeedCache).where(FeedCache.user_id == current_user.id))
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
         if not cache or cache.expires_at < now:
             cache = await FeedService.recalculate_feed_cache(db, current_user.id)
 
@@ -94,20 +100,24 @@ async def get_posts(
         page_ids = post_ids[:limit]
         posts = (await db.scalars(select(Post).where(Post.id.in_(page_ids)).order_by(desc(Post.created_at)))).unique().all() if page_ids else []
     elif source == "trending":
-        stmt = select(Post).where(Post.status == "published").order_by(desc(Post.trending_score), desc(Post.created_at)).limit(limit)
+        stmt = select(Post).where(Post.status == "published")
+        if cursor_created_at:
+            stmt = stmt.where(Post.created_at < cursor_created_at)
+        stmt = stmt.order_by(desc(Post.trending_score), desc(Post.created_at)).limit(limit)
         posts = (await db.scalars(stmt)).all()
     else:
         following_subq = select(Follow.following_id).where(Follow.follower_id == current_user.id)
-        stmt = (
-            select(Post)
-            .where(and_(Post.status == "published", ~Post.user_id.in_(following_subq)))
-            .order_by(desc(Post.likes_count), desc(Post.comments_count), desc(Post.created_at))
-            .limit(limit)
+        stmt = select(Post).where(
+            and_(
+                Post.status == "published",
+                Post.visibility == "public",
+                ~Post.user_id.in_(following_subq),
+            )
         )
+        if cursor_created_at:
+            stmt = stmt.where(Post.created_at < cursor_created_at)
+        stmt = stmt.order_by(desc(Post.likes_count), desc(Post.comments_count), desc(Post.created_at)).limit(limit)
         posts = (await db.scalars(stmt)).all()
-
-    if cursor and source != "following":
-        posts = [p for p in posts if p.id != cursor]
 
     items = []
     for post in posts:

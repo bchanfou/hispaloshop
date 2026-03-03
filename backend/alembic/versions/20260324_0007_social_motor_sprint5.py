@@ -60,7 +60,8 @@ def upgrade() -> None:
     )
     op.create_index("idx_posts_user_created", "posts", ["user_id", "created_at"], unique=False)
     op.create_index("idx_posts_score", "posts", ["score"], unique=False)
-    op.create_index("idx_posts_search_vector", "posts", ["content"], postgresql_using="gin")
+    op.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm")
+    op.execute("CREATE INDEX idx_posts_search_vector ON posts USING gin (content gin_trgm_ops)")
 
     op.create_table(
         "post_likes",
