@@ -24,12 +24,17 @@ Estado de accesos al momento de la auditoría:
 - `GET /api/v1/checkout/success` devuelve estado por `session_id`.
 
 ### 1.2 Riesgos y bugs críticos encontrados (Checkout)
-1. **Posible no persistencia de Order/OrderItems antes de redirección a Stripe**: no hay `commit` explícito ni dependencia visible con auto-commit transaccional por request.
-2. **Riesgo de doble cargo/doble procesamiento por falta de idempotencia** en webhook y en creación de checkout; no se usa idempotency-key ni tabla de eventos procesados.
-3. **Dependencia frágil en `payment_intent.succeeded`**: se asigna `order.stripe_payment_intent_id = checkout.payment_intent` en creación de sesión, pero en Checkout Session ese valor puede no estar listo aún.
-4. **Sin lock de inventario al checkout**: solo verifica stock en carrito/checkout, pero no reserva stock; posible sobreventa en concurrencia.
-5. **En webhook no existe verificación anti-replay explícita** ni persistencia de `event.id` procesado.
-6. **No hay split real automático a productores en Stripe Connect durante checkout**; se registra contabilidad interna, pero no se observa `Transfer` por order-item en este flujo.
+**Bugs críticos reales (P0/P1):**
+1. **Riesgo de doble cargo/doble procesamiento por falta de idempotencia** en webhook y en creación de checkout; no se usa idempotency-key ni tabla de eventos procesados.
+2. **Dependencia frágil en `payment_intent.succeeded`**: se asigna `order.stripe_payment_intent_id = checkout.payment_intent` en creación de sesión, pero en Checkout Session ese valor puede no estar listo aún.
+3. **Sin lock de inventario al checkout**: solo verifica stock en carrito/checkout, pero no reserva stock; posible sobreventa en concurrencia.
+4. **En webhook no existe verificación anti-replay explícita** ni persistencia de `event.id` procesado.
+
+**Decisiones arquitectónicas (no críticas por sí mismas):**
+5. **No hay split real automático a productores en Stripe Connect durante checkout**; se registra contabilidad interna, pero no se observa `Transfer` por order-item en este flujo. Esto es una brecha funcional/roadmap más que un bug transaccional inmediato.
+
+**Falso positivo corregido (informativo / LOW):**
+6. **Persistencia de `Order`/`OrderItem` antes de redirección a Stripe**: la dependencia `get_db` aplica commit transaccional por request al completar la operación sin excepción, y `create_checkout_session` usa esa dependencia. Por tanto, en este flujo **no es obligatorio un `commit` explícito** dentro del handler; el riesgo se reclasifica a **LOW (nota informativa de diseño transaccional)**.
 
 ### 1.3 Severidad operativa
 - **Riesgo de lanzamiento checkout:** **ALTO**.
@@ -173,7 +178,7 @@ Observaciones técnicas HI AI:
 
 | Flujo | Estado | Comentario |
 |---|---|---|
-| Registro→Login→Producto→Carrito→Checkout→Pago→Confirmación | **Parcial / frágil** | Checkout y webhook requieren hardening transaccional |
+| Registro→Login→Producto→Carrito→Checkout→Pago→Confirmación | **Parcial / frágil** | Checkout y webhook requieren hardening de idempotencia, stock y reconciliación (modelo transaccional request-scoped ya presente) |
 | Influencer Link→Click→Compra→Comisión→Dashboard | **Parcial** | Atribución básica sí, payout y refresh realtime limitados |
 | Productor Recibe→Confirma→Envía→Tracking→Entregado | **Parcial** | Existe fulfill, pero notificaciones y trazabilidad completas no cerradas |
 | HI AI Chat→Recomendación→Producto→Carrito | **Parcial bajo** | Chat responde, pero recomendaciones accionables aún pobres |
@@ -231,7 +236,7 @@ Observaciones técnicas HI AI:
 ## 9) Recomendaciones estratégicas
 
 ### A) Fix obligatorios antes de Fase 2
-1. Hardening checkout/webhooks (idempotencia, commit transaccional, deduplicación eventos, recon de pagos).
+1. Hardening checkout/webhooks (idempotencia, deduplicación eventos, recon de pagos y documentación del modelo transaccional request-scoped vigente).
 2. Alinear comisiones/planes con estrategia (incluye ELITE 17% si ese es negocio definitivo).
 3. Unificar frontend (evitar doble stack conceptual spec vs implementación real).
 4. Añadir rate limiting + WAF básico + observabilidad.
@@ -257,6 +262,9 @@ Observaciones técnicas HI AI:
 - Día 3: rate limiting auth/chat + protección endpoints sensibles.
 - Día 4: pruebas E2E compra + afiliado.
 - Día 5: fix contratos BF críticos y smoke test demo.
+
+**Nota transaccional (checkout):**
+- El flujo actual persiste `Order`/`OrderItem` mediante commit por request en la dependencia de base de datos; no se añade tarea de `commit` explícito en endpoint porque no corresponde al modelo adoptado.
 
 ### Semana 2 (P1)
 - Día 1-2: observabilidad (logs estructurados, dashboards, alertas).
