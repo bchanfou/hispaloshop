@@ -3,7 +3,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import func, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -61,30 +62,34 @@ async def contact_influencer(payload: ContactInfluencerRequest, current_user: Us
     if not influencer or influencer.role != "influencer":
         raise HTTPException(status_code=404, detail="Influencer not found")
 
-    match = await db.scalar(
-        select(MatchingScore).where(
-            MatchingScore.producer_id == current_user.id,
-            MatchingScore.influencer_id == influencer.id,
-            MatchingScore.match_type == "product_influencer",
-        )
-    )
-    if match:
-        match.overall_score = 75
-        match.score_breakdown = {"category_match": 75, "performance": 75, "audience": 75, "location": 75, "values": 75}
-        match.reasons = ["Contacto iniciado por productor"]
-        match.status = "contacted"
-        match.updated_at = datetime.now(timezone.utc)
-    else:
-        match = MatchingScore(
+    score_breakdown = {"category_match": 75, "performance": 75, "audience": 75, "location": 75, "values": 75}
+    reasons = ["Contacto iniciado por productor"]
+
+    # Atomic upsert prevents race condition under concurrent requests.
+    stmt = (
+        insert(MatchingScore)
+        .values(
             producer_id=current_user.id,
             influencer_id=influencer.id,
             match_type="product_influencer",
             overall_score=75,
-            score_breakdown={"category_match": 75, "performance": 75, "audience": 75, "location": 75, "values": 75},
-            reasons=["Contacto iniciado por productor"],
+            score_breakdown=score_breakdown,
+            reasons=reasons,
             status="contacted",
+            updated_at=func.now(),
         )
-        db.add(match)
+        .on_conflict_do_update(
+            index_elements=["producer_id", "influencer_id", "match_type"],
+            set_={
+                "overall_score": 75,
+                "score_breakdown": score_breakdown,
+                "reasons": reasons,
+                "status": "contacted",
+                "updated_at": func.now(),
+            },
+        )
+    )
+    await db.execute(stmt)
     await db.flush()
     return {"ok": True, "message": "Contacto registrado"}
 
