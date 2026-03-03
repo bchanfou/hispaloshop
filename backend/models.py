@@ -97,7 +97,7 @@ class Product(Base):
     category_id: Mapped[UUIDType] = mapped_column(ForeignKey("categories.id"))
 
     name: Mapped[str] = mapped_column(String(200))
-    slug: Mapped[str] = mapped_column(String(200))
+    slug: Mapped[str] = mapped_column(String(200), unique=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     short_description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     price_cents: Mapped[int] = mapped_column(default=0)

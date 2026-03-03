@@ -17,6 +17,10 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+
 class TenantResponse(BaseModel):
     id: UUID
     code: str
