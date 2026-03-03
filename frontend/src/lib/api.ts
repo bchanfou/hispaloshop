@@ -258,6 +258,73 @@ class ApiClient {
     const query = category ? `?category=${category}` : '';
     return this.request(`/matching/influencer/opportunities${query}`);
   }
+
+  // Social posts
+  async createPost(data: FormData) {
+    return this.request('/posts', { method: 'POST', body: data, headers: {} });
+  }
+
+  async getFeed(params?: { cursor?: string; limit?: number; source?: string }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/posts${query}`);
+  }
+
+  async getPost(postId: string) {
+    return this.request(`/posts/${postId}`);
+  }
+
+  async deletePost(postId: string) {
+    return this.request(`/posts/${postId}`, { method: 'DELETE' });
+  }
+
+  async toggleLikePost(postId: string) {
+    return this.request(`/posts/${postId}/like`, { method: 'POST' });
+  }
+
+  async getPostLikes(postId: string, params?: { limit?: number }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/posts/${postId}/likes${query}`);
+  }
+
+  async createComment(postId: string, data: { content: string; parent_id?: string | null }) {
+    return this.request(`/posts/${postId}/comments`, { method: 'POST', body: JSON.stringify(data) });
+  }
+
+  async getPostComments(postId: string) {
+    return this.request(`/posts/${postId}/comments`);
+  }
+
+  async toggleSavePost(postId: string) {
+    return this.request(`/posts/${postId}/save`, { method: 'POST' });
+  }
+
+  async getSavedPosts(collection?: string) {
+    const query = collection ? `?collection=${collection}` : '';
+    return this.request(`/users/me/saved-posts${query}`);
+  }
+
+  async toggleFollow(userId: string) {
+    return this.request(`/follows/${userId}`, { method: 'POST' });
+  }
+
+  async getUserFollowers(userId: string, params?: { limit?: number }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/users/${userId}/followers${query}`);
+  }
+
+  async getUserFollowing(userId: string, params?: { limit?: number }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/users/${userId}/following${query}`);
+  }
+
+  async getUserPosts(userId: string, params?: { limit?: number }) {
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+    return this.request(`/users/${userId}/posts${query}`);
+  }
+
+  async getPublicProfile(username: string) {
+    return this.request(`/profiles/${username}`);
+  }
 }
 
 export const api = new ApiClient();

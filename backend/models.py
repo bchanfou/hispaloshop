@@ -44,6 +44,10 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     email_verified: Mapped[bool] = mapped_column(default=False)
     bio: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    username: Mapped[Optional[str]] = mapped_column(String(50), unique=True, index=True, nullable=True)
+    is_verified: Mapped[bool] = mapped_column(default=False)
+    website_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    social_links: Mapped[Optional[Dict[str, str]]] = mapped_column(JSONB, nullable=True)
     avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     location: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     kyc_status: Mapped[str] = mapped_column(String(20), default="pending")
@@ -66,6 +70,21 @@ class User(Base):
     embedding_profile: Mapped[Optional["UserEmbedding"]] = relationship(back_populates="user", uselist=False)
     interactions: Mapped[List["UserInteraction"]] = relationship(back_populates="user")
     chat_sessions: Mapped[List["ChatSession"]] = relationship(back_populates="user")
+    posts: Mapped[List["Post"]] = relationship(back_populates="user")
+    following: Mapped[List["Follow"]] = relationship(
+        foreign_keys="Follow.follower_id",
+        back_populates="follower",
+        cascade="all, delete-orphan",
+    )
+    followers: Mapped[List["Follow"]] = relationship(
+        foreign_keys="Follow.following_id",
+        back_populates="following",
+        cascade="all, delete-orphan",
+    )
+    followers_count: Mapped[int] = mapped_column(default=0)
+    following_count: Mapped[int] = mapped_column(default=0)
+    posts_count: Mapped[int] = mapped_column(default=0)
+    engagement_rate: Mapped[Optional[float]] = mapped_column(nullable=True)
 
 
 class Category(Base):
@@ -521,6 +540,148 @@ class MatchingScore(Base):
     influencer: Mapped["User"] = relationship(foreign_keys=[influencer_id])
 
 
+class Post(Base):
+    __tablename__ = "posts"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    tenant_id: Mapped[UUIDType] = mapped_column(ForeignKey("tenants.id"), index=True)
+    content: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    media_urls: Mapped[List[str]] = mapped_column(ARRAY(String), default=list)
+    media_type: Mapped[str] = mapped_column(String(20), default="image")
+    thumbnail_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    aspect_ratio: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    tagged_products: Mapped[List[UUIDType]] = mapped_column(ARRAY(UUID(as_uuid=True)), default=list)
+    product_tags_positions: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSONB, nullable=True)
+    likes_count: Mapped[int] = mapped_column(default=0)
+    comments_count: Mapped[int] = mapped_column(default=0)
+    shares_count: Mapped[int] = mapped_column(default=0)
+    saves_count: Mapped[int] = mapped_column(default=0)
+    views_count: Mapped[int] = mapped_column(default=0)
+    clicks_to_product: Mapped[int] = mapped_column(default=0)
+    conversions_count: Mapped[int] = mapped_column(default=0)
+    gmv_generated_cents: Mapped[int] = mapped_column(default=0)
+    score: Mapped[float] = mapped_column(default=0.0)
+    trending_score: Mapped[float] = mapped_column(default=0.0)
+    status: Mapped[str] = mapped_column(String(20), default="published")
+    visibility: Mapped[str] = mapped_column(String(20), default="public")
+    location_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    location_lat: Mapped[Optional[float]] = mapped_column(nullable=True)
+    location_lng: Mapped[Optional[float]] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+    published_at: Mapped[Optional[datetime]] = mapped_column(nullable=True, index=True)
+
+    user: Mapped["User"] = relationship(back_populates="posts")
+    likes: Mapped[List["PostLike"]] = relationship(back_populates="post", cascade="all, delete-orphan")
+    comments: Mapped[List["PostComment"]] = relationship(back_populates="post", cascade="all, delete-orphan")
+    saves: Mapped[List["PostSave"]] = relationship(back_populates="post", cascade="all, delete-orphan")
+
+
+class PostLike(Base):
+    __tablename__ = "post_likes"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[UUIDType] = mapped_column(ForeignKey("posts.id"), index=True)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    post: Mapped["Post"] = relationship(back_populates="likes")
+    user: Mapped["User"] = relationship()
+
+
+class PostComment(Base):
+    __tablename__ = "post_comments"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[UUIDType] = mapped_column(ForeignKey("posts.id"), index=True)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    content: Mapped[str] = mapped_column(Text)
+    parent_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("post_comments.id"), nullable=True)
+    likes_count: Mapped[int] = mapped_column(default=0)
+    is_edited: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    post: Mapped["Post"] = relationship(back_populates="comments")
+    user: Mapped["User"] = relationship()
+    parent: Mapped[Optional["PostComment"]] = relationship(remote_side=[id], back_populates="replies")
+    replies: Mapped[List["PostComment"]] = relationship(back_populates="parent")
+    likes: Mapped[List["CommentLike"]] = relationship(back_populates="comment", cascade="all, delete-orphan")
+
+
+class CommentLike(Base):
+    __tablename__ = "comment_likes"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    comment_id: Mapped[UUIDType] = mapped_column(ForeignKey("post_comments.id"), index=True)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    comment: Mapped["PostComment"] = relationship(back_populates="likes")
+    user: Mapped["User"] = relationship()
+
+
+class PostSave(Base):
+    __tablename__ = "post_saves"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[UUIDType] = mapped_column(ForeignKey("posts.id"), index=True)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    collection_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    post: Mapped["Post"] = relationship(back_populates="saves")
+    user: Mapped["User"] = relationship()
+
+
+class Follow(Base):
+    __tablename__ = "follows"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    follower_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    following_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    notify_posts: Mapped[bool] = mapped_column(default=True)
+    notify_stories: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    follower: Mapped["User"] = relationship(foreign_keys=[follower_id], back_populates="following")
+    following: Mapped["User"] = relationship(foreign_keys=[following_id], back_populates="followers")
+
+
+class FeedCache(Base):
+    __tablename__ = "feed_cache"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
+    feed_posts: Mapped[List[Dict[str, Any]]] = mapped_column(JSONB, default=list)
+    generated_at: Mapped[datetime] = mapped_column(default=func.now())
+    expires_at: Mapped[datetime] = mapped_column()
+    posts_considered: Mapped[int] = mapped_column(default=0)
+    generation_time_ms: Mapped[int] = mapped_column(default=0)
+
+
+class Story(Base):
+    __tablename__ = "stories"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    media_url: Mapped[str] = mapped_column(String(500))
+    media_type: Mapped[str] = mapped_column(String(20), default="image")
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
+    expires_at: Mapped[datetime] = mapped_column(index=True)
+    views_count: Mapped[int] = mapped_column(default=0)
+    tagged_product_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("products.id"), nullable=True)
+
+    user: Mapped["User"] = relationship()
+    tagged_product: Mapped[Optional["Product"]] = relationship()
+
+
 Index("idx_affiliate_events_cookie_created", AffiliateEvent.cookie_id, AffiliateEvent.created_at)
 Index("idx_commissions_influencer_status", Commission.influencer_id, Commission.status)
 Index("idx_affiliate_links_code_status", AffiliateLink.code, AffiliateLink.status)
+Index("idx_posts_user_created", Post.user_id, Post.created_at)
+Index("idx_posts_score", Post.score)
+Index("idx_posts_search_vector", Post.content, postgresql_using="gin")
+Index("idx_post_likes_unique", PostLike.post_id, PostLike.user_id, unique=True)
+Index("idx_follows_unique", Follow.follower_id, Follow.following_id, unique=True)

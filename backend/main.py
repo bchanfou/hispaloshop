@@ -14,6 +14,9 @@ from routers.influencer import router as influencer_router
 from routers.matching import router as matching_router
 from routers.chat import router as chat_router
 from routers.recommendations import router as recommendations_router
+from routers.posts import router as posts_router
+from routers.interactions import router as interactions_router
+from routers.follows import router as follows_router
 
 
 app = FastAPI(
@@ -48,6 +51,9 @@ app.include_router(influencer_router, prefix="/api/v1", tags=["influencer"])
 app.include_router(matching_router, prefix="/api/v1", tags=["matching"])
 app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
 app.include_router(recommendations_router, prefix="/api/v1", tags=["recommendations"])
+app.include_router(posts_router, prefix="/api/v1", tags=["posts"])
+app.include_router(interactions_router, prefix="/api/v1", tags=["interactions"])
+app.include_router(follows_router, prefix="/api/v1", tags=["follows"])
 
 
 @app.get("/health")

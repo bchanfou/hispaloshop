@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, ConfigDict
@@ -370,7 +370,6 @@ class PayoutResponse(BaseModel):
 class PayoutRequestCreate(BaseModel):
     pass
 
-from typing import Dict, Any
 
 
 class ProductEmbeddingCreate(BaseModel):
@@ -487,3 +486,109 @@ class InfluencerOpportunity(BaseModel):
 class InfluencerOpportunitiesResponse(BaseModel):
     opportunities: List[InfluencerOpportunity]
     total_available: int
+
+
+class PostCreateRequest(BaseModel):
+    content: Optional[str] = Field(None, max_length=2200)
+    visibility: str = Field(default="public", pattern="^(public|followers|private)$")
+    location: Optional[Dict[str, Any]] = None
+    tagged_products: Optional[List[Dict[str, Any]]] = None
+
+
+class PostMediaResponse(BaseModel):
+    url: str
+    width: int = 0
+    height: int = 0
+    type: str
+    thumbnail_url: Optional[str] = None
+
+
+class PostUserSummary(BaseModel):
+    id: UUID
+    full_name: Optional[str]
+    username: Optional[str]
+    avatar_url: Optional[str]
+    is_followed_by_me: bool = False
+    is_verified: bool = False
+
+
+class PostEngagementResponse(BaseModel):
+    likes_count: int
+    comments_count: int
+    shares_count: int
+    saves_count: int
+    is_liked_by_me: bool = False
+    is_saved_by_me: bool = False
+
+
+class PostResponse(BaseModel):
+    id: UUID
+    user: PostUserSummary
+    content: Optional[str]
+    media: List[PostMediaResponse] = Field(default_factory=list)
+    tagged_products: List[Dict[str, Any]] = Field(default_factory=list)
+    engagement: PostEngagementResponse
+    created_at: datetime
+    score: Optional[float] = None
+
+
+class PostListResponse(BaseModel):
+    items: List[PostResponse]
+    next_cursor: Optional[str] = None
+    has_more: bool
+
+
+class CommentCreateRequest(BaseModel):
+    content: str = Field(..., min_length=1, max_length=1000)
+    parent_id: Optional[UUID] = None
+
+
+class CommentUserSummary(BaseModel):
+    id: UUID
+    full_name: Optional[str]
+    avatar_url: Optional[str]
+    is_verified: bool = False
+
+
+class CommentResponse(BaseModel):
+    id: UUID
+    user: CommentUserSummary
+    content: str
+    likes_count: int
+    is_liked_by_me: bool = False
+    is_edited: bool
+    created_at: datetime
+    replies: List["CommentResponse"] = Field(default_factory=list)
+
+
+class FollowResponse(BaseModel):
+    id: UUID
+    follower_id: UUID
+    following_id: UUID
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FollowerResponse(BaseModel):
+    id: UUID
+    full_name: Optional[str]
+    username: Optional[str]
+    avatar_url: Optional[str]
+    is_verified: bool = False
+    is_followed_by_me: bool = False
+    followers_count: int = 0
+
+
+class PublicProfileResponse(BaseModel):
+    id: UUID
+    full_name: Optional[str]
+    username: Optional[str]
+    avatar_url: Optional[str]
+    bio: Optional[str]
+    website_url: Optional[str]
+    social_links: Optional[Dict[str, str]]
+    is_verified: bool
+    is_followed_by_me: bool
+    stats: Dict[str, Any]
+    role_info: Dict[str, Any]
+    recent_posts: List[PostResponse]
