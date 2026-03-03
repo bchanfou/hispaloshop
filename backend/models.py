@@ -204,6 +204,15 @@ class Subscription(Base):
         return bps_map.get(self.plan, 2000)
 
 
+class StripeEvent(Base):
+    __tablename__ = "stripe_events"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    event_id: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    event_type: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+
 class InfluencerProfile(Base):
     __tablename__ = "influencer_profiles"
 
