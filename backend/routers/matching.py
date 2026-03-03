@@ -61,16 +61,30 @@ async def contact_influencer(payload: ContactInfluencerRequest, current_user: Us
     if not influencer or influencer.role != "influencer":
         raise HTTPException(status_code=404, detail="Influencer not found")
 
-    match = MatchingScore(
-        producer_id=current_user.id,
-        influencer_id=influencer.id,
-        match_type="product_influencer",
-        overall_score=75,
-        score_breakdown={"category_match": 75, "performance": 75, "audience": 75, "location": 75, "values": 75},
-        reasons=["Contacto iniciado por productor"],
-        status="contacted",
+    match = await db.scalar(
+        select(MatchingScore).where(
+            MatchingScore.producer_id == current_user.id,
+            MatchingScore.influencer_id == influencer.id,
+            MatchingScore.match_type == "product_influencer",
+        )
     )
-    db.add(match)
+    if match:
+        match.overall_score = 75
+        match.score_breakdown = {"category_match": 75, "performance": 75, "audience": 75, "location": 75, "values": 75}
+        match.reasons = ["Contacto iniciado por productor"]
+        match.status = "contacted"
+        match.updated_at = datetime.now(timezone.utc)
+    else:
+        match = MatchingScore(
+            producer_id=current_user.id,
+            influencer_id=influencer.id,
+            match_type="product_influencer",
+            overall_score=75,
+            score_breakdown={"category_match": 75, "performance": 75, "audience": 75, "location": 75, "values": 75},
+            reasons=["Contacto iniciado por productor"],
+            status="contacted",
+        )
+        db.add(match)
     await db.flush()
     return {"ok": True, "message": "Contacto registrado"}
 
