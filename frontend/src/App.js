@@ -84,6 +84,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { HelmetProvider } from 'react-helmet-async';
+import { ChatProvider } from './context/chat/ChatProvider';
 import { usePushNotifications } from './hooks/usePushNotifications';
 
 function AppRouter() {
@@ -223,9 +224,11 @@ function App() {
         <AuthProvider>
           <LocaleProvider>
             <CartProvider>
-              <AppRouter />
-              <BottomNavBar />
-              <Toaster position="top-center" />
+              <ChatProvider>
+                <AppRouter />
+                <BottomNavBar />
+                <Toaster position="top-center" />
+              </ChatProvider>
             </CartProvider>
           </LocaleProvider>
         </AuthProvider>
