@@ -53,7 +53,7 @@ def upgrade() -> None:
                 break
             suffix += 1
 
-    # Idempotent guard in case the migration is replayed in non-standard workflows.
+    # Scope guard by table/schema because PostgreSQL constraint names are not globally unique.
     op.execute(
         sa.text(
             """
@@ -61,8 +61,12 @@ def upgrade() -> None:
             BEGIN
                 IF NOT EXISTS (
                     SELECT 1
-                    FROM pg_constraint
-                    WHERE conname = 'uq_products_slug'
+                    FROM pg_constraint c
+                    JOIN pg_class rel ON rel.oid = c.conrelid
+                    JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
+                    WHERE c.conname = 'uq_products_slug'
+                      AND rel.relname = 'products'
+                      AND nsp.nspname = current_schema()
                 ) THEN
                     ALTER TABLE products
                     ADD CONSTRAINT uq_products_slug UNIQUE (slug);
@@ -82,8 +86,12 @@ def downgrade() -> None:
             BEGIN
                 IF EXISTS (
                     SELECT 1
-                    FROM pg_constraint
-                    WHERE conname = 'uq_products_slug'
+                    FROM pg_constraint c
+                    JOIN pg_class rel ON rel.oid = c.conrelid
+                    JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
+                    WHERE c.conname = 'uq_products_slug'
+                      AND rel.relname = 'products'
+                      AND nsp.nspname = current_schema()
                 ) THEN
                     ALTER TABLE products DROP CONSTRAINT uq_products_slug;
                 END IF;
