@@ -91,6 +91,7 @@ class User(Base):
     posts_count: Mapped[int] = mapped_column(default=0)
     reels_count: Mapped[int] = mapped_column(default=0)
     engagement_rate: Mapped[Optional[float]] = mapped_column(nullable=True)
+    importer_profile: Mapped[Optional["Importer"]] = relationship(back_populates="user", uselist=False)
 
 
 class Category(Base):
@@ -136,6 +137,9 @@ class Product(Base):
     is_organic: Mapped[bool] = mapped_column(default=False)
     origin_country: Mapped[Optional[str]] = mapped_column(String(2), nullable=True)
     is_affiliate_enabled: Mapped[bool] = mapped_column(default=True)
+    source_type: Mapped[str] = mapped_column(String(20), default="own")
+    importer_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("importers.id"), nullable=True, index=True)
+    b2b_pricing: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
     updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
     published_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
@@ -149,6 +153,7 @@ class Product(Base):
     affiliate_link_requests: Mapped[List["AffiliateLinkRequest"]] = relationship(back_populates="product")
     embedding: Mapped[Optional["ProductEmbedding"]] = relationship(back_populates="product", uselist=False)
     interactions: Mapped[List["UserInteraction"]] = relationship(back_populates="product")
+    importer: Mapped[Optional["Importer"]] = relationship(back_populates="products")
 
     def get_price_cents(self) -> int:
         return self.price_cents
@@ -294,12 +299,100 @@ class Order(Base):
     stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     stripe_checkout_session_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     shipping_address: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    order_type: Mapped[str] = mapped_column(String(20), default="b2c")
+    b2b_quote_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("b2b_quotes.id"), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
     updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
     paid_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="orders")
     items: Mapped[List["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
+    b2b_quote: Mapped[Optional["B2BQuote"]] = relationship(back_populates="orders")
+
+
+class Importer(Base):
+    __tablename__ = "importers"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
+    company_name: Mapped[str] = mapped_column(String(255))
+    vat_tax_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    business_registration: Mapped[Optional[str]] = mapped_column(String(150), nullable=True)
+    country_origin: Mapped[str] = mapped_column(String(2))
+    warehouses: Mapped[List[Dict[str, Any]]] = mapped_column(JSONB, default=list)
+    specializations: Mapped[List[str]] = mapped_column(ARRAY(String), default=list)
+    years_experience: Mapped[Optional[int]] = mapped_column(nullable=True)
+    certifications: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    annual_volume_usd: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    payment_terms_accepted: Mapped[List[str]] = mapped_column(ARRAY(String), default=list)
+    is_verified: Mapped[bool] = mapped_column(default=False)
+    verification_documents: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    user: Mapped["User"] = relationship(back_populates="importer_profile")
+    brands: Mapped[List["ImporterBrand"]] = relationship(back_populates="importer", cascade="all, delete-orphan")
+    clients: Mapped[List["ImporterClient"]] = relationship(back_populates="importer", cascade="all, delete-orphan")
+    quotes: Mapped[List["B2BQuote"]] = relationship(back_populates="importer", cascade="all, delete-orphan")
+    products: Mapped[List["Product"]] = relationship(back_populates="importer")
+
+
+class ImporterBrand(Base):
+    __tablename__ = "importer_brands"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    importer_id: Mapped[UUIDType] = mapped_column(ForeignKey("importers.id", ondelete="CASCADE"), index=True)
+    brand_name: Mapped[str] = mapped_column(String(255))
+    brand_country: Mapped[Optional[str]] = mapped_column(String(2), nullable=True)
+    category: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    exclusive_territory: Mapped[List[str]] = mapped_column(JSONB, default=list)
+    contract_start: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    contract_end: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    minimum_order_value: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    documentation_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    importer: Mapped["Importer"] = relationship(back_populates="brands")
+
+
+class ImporterClient(Base):
+    __tablename__ = "importer_clients"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    importer_id: Mapped[UUIDType] = mapped_column(ForeignKey("importers.id", ondelete="CASCADE"), index=True)
+    client_producer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    relationship_type: Mapped[str] = mapped_column(String(20), default="regular")
+    credit_limit: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    payment_terms: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    since: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    total_purchases_usd: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    importer: Mapped["Importer"] = relationship(back_populates="clients")
+    client_producer: Mapped["User"] = relationship()
+
+
+class B2BQuote(Base):
+    __tablename__ = "b2b_quotes"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    importer_id: Mapped[UUIDType] = mapped_column(ForeignKey("importers.id", ondelete="CASCADE"), index=True)
+    requester_producer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    status: Mapped[str] = mapped_column(String(20), default="draft")
+    items: Mapped[List[Dict[str, Any]]] = mapped_column(JSONB, default=list)
+    total_value: Mapped[float] = mapped_column(Float, default=0)
+    valid_until: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    incoterm: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    shipping_estimate: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    terms_conditions: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    accepted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    converted_to_order_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("orders.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    importer: Mapped["Importer"] = relationship(back_populates="quotes")
+    requester_producer: Mapped["User"] = relationship()
+    orders: Mapped[List["Order"]] = relationship(back_populates="b2b_quote")
 
 
 class OrderItem(Base):
@@ -530,7 +623,7 @@ class Conversation(Base):
 
     id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     type: Mapped[str] = mapped_column(
-        Enum("support", "transaction", "influencer_brand", "social", "group_order", name="conversation_type"),
+        Enum("support", "transaction", "influencer_brand", "social", "group_order", "b2b_negotiation", name="conversation_type"),
         default="social",
     )
     related_order_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("orders.id"), nullable=True, index=True)

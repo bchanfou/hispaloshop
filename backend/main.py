@@ -23,6 +23,8 @@ from routers.hashtags import router as hashtags_router
 from routers.stories import router as stories_router
 from routers.collections import router as collections_router
 from routers.realtime_chat import router as realtime_chat_router
+from routers.importers import router as importers_router
+from routers.b2b_quotes import router as b2b_quotes_router
 
 
 app = FastAPI(
@@ -66,6 +68,8 @@ app.include_router(hashtags_router, prefix="/api/v1", tags=["hashtags"])
 app.include_router(stories_router, prefix="/api/v1", tags=["stories"])
 app.include_router(collections_router, prefix="/api/v1", tags=["collections"])
 app.include_router(realtime_chat_router, prefix="/api/v1", tags=["realtime-chat"])
+app.include_router(importers_router, prefix="/api/v1", tags=["importers"])
+app.include_router(b2b_quotes_router, prefix="/api/v1", tags=["b2b-quotes"])
 
 
 @app.get("/health")

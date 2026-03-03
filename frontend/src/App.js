@@ -29,6 +29,13 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import StoresListPage from './pages/StoresListPage';
 import UserProfilePage from './pages/UserProfilePage';
 import DiscoverPage from './pages/DiscoverPage';
+import ImporterRegisterPage from './pages/importer/ImporterRegisterPage';
+import ImporterDashboardPage from './pages/importer/ImporterDashboardPage';
+import ImporterCatalogPage from './pages/importer/ImporterCatalogPage';
+import ImporterBrandsPage from './pages/importer/ImporterBrandsPage';
+import ImporterQuotesPage from './pages/importer/ImporterQuotesPage';
+import B2BMarketplacePage from './pages/b2b/B2BMarketplacePage';
+import B2BQuotesHistoryPage from './pages/b2b/B2BQuotesHistoryPage';
 
 // Admin Dashboard
 import AdminLayout from './components/dashboard/AdminLayoutResponsive';
@@ -143,6 +150,13 @@ function AppRouter() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/importer/register" element={<ImporterRegisterPage />} />
+      <Route path="/importer/dashboard" element={<ImporterDashboardPage />} />
+      <Route path="/importer/catalog" element={<ImporterCatalogPage />} />
+      <Route path="/importer/brands" element={<ImporterBrandsPage />} />
+      <Route path="/importer/quotes" element={<ImporterQuotesPage />} />
+      <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
+      <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
 
       <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
