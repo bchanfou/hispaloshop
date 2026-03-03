@@ -124,6 +124,35 @@ class FeedService:
         stmt = select(Follow.id).where(and_(Follow.follower_id == follower_id, Follow.following_id == following_id)).limit(1)
         return (await db.scalar(stmt)) is not None
 
+
+    @staticmethod
+    async def get_feed_reels(db: AsyncSession, user_id: UUID, limit: int = 20) -> List[Dict[str, Any]]:
+        following_subq = select(Follow.following_id).where(Follow.follower_id == user_id)
+        stmt = (
+            select(Post)
+            .where(and_(Post.status == "published", Post.is_reel.is_(True), Post.user_id.in_(following_subq)))
+            .order_by(desc(Post.viral_score), desc(Post.created_at))
+            .limit(limit)
+        )
+        items = (await db.scalars(stmt)).all()
+        return [FeedService._post_to_dict(p) for p in items]
+
+    @staticmethod
+    async def generate_mixed_feed(db: AsyncSession, user_id: UUID, limit: int = 50) -> List[Dict[str, Any]]:
+        regular_posts = await FeedService.generate_feed_for_user(db, user_id, limit=int(limit * 0.6))
+        reels = await FeedService.get_feed_reels(db, user_id, limit=int(limit * 0.4))
+
+        mixed: List[Dict[str, Any]] = []
+        post_idx = reel_idx = 0
+        for i in range(limit):
+            if i % 3 == 2 and reel_idx < len(reels):
+                mixed.append({**reels[reel_idx], "type": "reel"})
+                reel_idx += 1
+            elif post_idx < len(regular_posts):
+                mixed.append({**regular_posts[post_idx], "type": "post"})
+                post_idx += 1
+        return mixed
+
     @staticmethod
     async def recalculate_feed_cache(db: AsyncSession, user_id: UUID) -> FeedCache:
         start = perf_counter()
@@ -154,4 +183,7 @@ class FeedService:
             "shares_count": post.shares_count,
             "saves_count": post.saves_count,
             "conversions_count": post.conversions_count,
+            "is_reel": post.is_reel,
+            "viral_score": post.viral_score,
+            "completion_rate": post.completion_rate,
         }

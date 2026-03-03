@@ -71,6 +71,9 @@ class User(Base):
     interactions: Mapped[List["UserInteraction"]] = relationship(back_populates="user")
     chat_sessions: Mapped[List["ChatSession"]] = relationship(back_populates="user")
     posts: Mapped[List["Post"]] = relationship(back_populates="user")
+    saved_collections: Mapped[List["SavedCollection"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    stories: Mapped[List["Story"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    story_views: Mapped[List["StoryView"]] = relationship(back_populates="viewer", cascade="all, delete-orphan")
     following: Mapped[List["Follow"]] = relationship(
         foreign_keys="Follow.follower_id",
         back_populates="follower",
@@ -84,6 +87,7 @@ class User(Base):
     followers_count: Mapped[int] = mapped_column(default=0)
     following_count: Mapped[int] = mapped_column(default=0)
     posts_count: Mapped[int] = mapped_column(default=0)
+    reels_count: Mapped[int] = mapped_column(default=0)
     engagement_rate: Mapped[Optional[float]] = mapped_column(nullable=True)
 
 
@@ -558,11 +562,18 @@ class Post(Base):
     shares_count: Mapped[int] = mapped_column(default=0)
     saves_count: Mapped[int] = mapped_column(default=0)
     views_count: Mapped[int] = mapped_column(default=0)
+    views_count_unique: Mapped[int] = mapped_column(BigInteger, default=0)
+    avg_watch_time_seconds: Mapped[Optional[float]] = mapped_column(nullable=True)
+    completion_rate: Mapped[Optional[float]] = mapped_column(nullable=True)
     clicks_to_product: Mapped[int] = mapped_column(default=0)
     conversions_count: Mapped[int] = mapped_column(default=0)
     gmv_generated_cents: Mapped[int] = mapped_column(default=0)
     score: Mapped[float] = mapped_column(default=0.0)
     trending_score: Mapped[float] = mapped_column(default=0.0)
+    viral_score: Mapped[float] = mapped_column(default=0.0)
+    is_reel: Mapped[bool] = mapped_column(default=False)
+    video_duration_seconds: Mapped[Optional[float]] = mapped_column(nullable=True)
+    audio_track_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="published")
     visibility: Mapped[str] = mapped_column(String(20), default="public")
     location_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
@@ -576,6 +587,8 @@ class Post(Base):
     likes: Mapped[List["PostLike"]] = relationship(back_populates="post", cascade="all, delete-orphan")
     comments: Mapped[List["PostComment"]] = relationship(back_populates="post", cascade="all, delete-orphan")
     saves: Mapped[List["PostSave"]] = relationship(back_populates="post", cascade="all, delete-orphan")
+    reel_views: Mapped[List["ReelView"]] = relationship(back_populates="post", cascade="all, delete-orphan")
+    hashtags: Mapped[List["PostHashtag"]] = relationship(back_populates="post", cascade="all, delete-orphan")
 
 
 class PostLike(Base):
@@ -622,17 +635,99 @@ class CommentLike(Base):
     user: Mapped["User"] = relationship()
 
 
+class SavedCollection(Base):
+    __tablename__ = "saved_collections"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    cover_image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    is_private: Mapped[bool] = mapped_column(default=True)
+    items_count: Mapped[int] = mapped_column(default=0)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+
+    user: Mapped["User"] = relationship(back_populates="saved_collections")
+
+
 class PostSave(Base):
     __tablename__ = "post_saves"
 
     id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     post_id: Mapped[UUIDType] = mapped_column(ForeignKey("posts.id"), index=True)
     user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    collection_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("saved_collections.id"), nullable=True)
     collection_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
 
     post: Mapped["Post"] = relationship(back_populates="saves")
     user: Mapped["User"] = relationship()
+    collection: Mapped[Optional["SavedCollection"]] = relationship()
+
+
+class Hashtag(Base):
+    __tablename__ = "hashtags"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(100), unique=True, index=True)
+    posts_count: Mapped[int] = mapped_column(default=0)
+    followers_count: Mapped[int] = mapped_column(default=0)
+    trending_score: Mapped[float] = mapped_column(default=0.0)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+
+class PostHashtag(Base):
+    __tablename__ = "post_hashtags"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[UUIDType] = mapped_column(ForeignKey("posts.id"), index=True)
+    hashtag_id: Mapped[UUIDType] = mapped_column(ForeignKey("hashtags.id"), index=True)
+
+    post: Mapped["Post"] = relationship(back_populates="hashtags")
+    hashtag: Mapped["Hashtag"] = relationship()
+
+
+class HashtagFollow(Base):
+    __tablename__ = "hashtag_follows"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    hashtag_id: Mapped[UUIDType] = mapped_column(ForeignKey("hashtags.id"), index=True)
+    user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+
+class ReelView(Base):
+    __tablename__ = "reel_views"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[UUIDType] = mapped_column(ForeignKey("posts.id"), index=True)
+    viewer_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    watch_time_seconds: Mapped[float] = mapped_column()
+    watched_full: Mapped[bool] = mapped_column(default=False)
+    liked: Mapped[bool] = mapped_column(default=False)
+    shared: Mapped[bool] = mapped_column(default=False)
+    source: Mapped[str] = mapped_column(String(20), default="feed")
+    device_type: Mapped[str] = mapped_column(String(20), default="mobile")
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
+
+    post: Mapped["Post"] = relationship(back_populates="reel_views")
+    viewer: Mapped[Optional["User"]] = relationship()
+
+
+class Sound(Base):
+    __tablename__ = "sounds"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(200))
+    artist: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    audio_url: Mapped[str] = mapped_column(String(500))
+    duration_seconds: Mapped[float] = mapped_column()
+    posts_count: Mapped[int] = mapped_column(default=0)
+    trending_score: Mapped[float] = mapped_column(default=0.0)
+    is_original: Mapped[bool] = mapped_column(default=False)
+    uploaded_by_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("users.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
 
 
 class Follow(Base):
@@ -668,13 +763,34 @@ class Story(Base):
     user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
     media_url: Mapped[str] = mapped_column(String(500))
     media_type: Mapped[str] = mapped_column(String(20), default="image")
+    polls: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSONB, nullable=True)
+    questions: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSONB, nullable=True)
+    sliders: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSONB, nullable=True)
+    countdowns: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSONB, nullable=True)
+    links: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
     expires_at: Mapped[datetime] = mapped_column(index=True)
     views_count: Mapped[int] = mapped_column(default=0)
+    views_unique_count: Mapped[int] = mapped_column(default=0)
     tagged_product_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("products.id"), nullable=True)
 
-    user: Mapped["User"] = relationship()
+    user: Mapped["User"] = relationship(back_populates="stories")
     tagged_product: Mapped[Optional["Product"]] = relationship()
+    viewers: Mapped[List["StoryView"]] = relationship(back_populates="story", cascade="all, delete-orphan")
+
+
+class StoryView(Base):
+    __tablename__ = "story_views"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    story_id: Mapped[UUIDType] = mapped_column(ForeignKey("stories.id"), index=True)
+    viewer_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
+    replied: Mapped[bool] = mapped_column(default=False)
+    reaction: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    story: Mapped["Story"] = relationship(back_populates="viewers")
+    viewer: Mapped["User"] = relationship(back_populates="story_views")
 
 
 Index("idx_affiliate_events_cookie_created", AffiliateEvent.cookie_id, AffiliateEvent.created_at)
@@ -685,3 +801,10 @@ Index("idx_posts_score", Post.score)
 Index("idx_posts_search_vector", Post.content, postgresql_using="gin")
 Index("idx_post_likes_unique", PostLike.post_id, PostLike.user_id, unique=True)
 Index("idx_follows_unique", Follow.follower_id, Follow.following_id, unique=True)
+
+Index("idx_posts_reel_viral", Post.is_reel, Post.viral_score)
+Index("idx_reel_views_post_created", ReelView.post_id, ReelView.created_at)
+Index("idx_stories_user_expires", Story.user_id, Story.expires_at)
+Index("idx_post_hashtag_unique", PostHashtag.post_id, PostHashtag.hashtag_id, unique=True)
+Index("idx_hashtag_follows_unique", HashtagFollow.hashtag_id, HashtagFollow.user_id, unique=True)
+Index("idx_story_views_unique", StoryView.story_id, StoryView.viewer_id, unique=True)

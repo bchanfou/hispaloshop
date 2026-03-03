@@ -17,6 +17,10 @@ from routers.recommendations import router as recommendations_router
 from routers.posts import router as posts_router
 from routers.interactions import router as interactions_router
 from routers.follows import router as follows_router
+from routers.reels import router as reels_router
+from routers.hashtags import router as hashtags_router
+from routers.stories import router as stories_router
+from routers.collections import router as collections_router
 
 
 app = FastAPI(
@@ -54,6 +58,10 @@ app.include_router(recommendations_router, prefix="/api/v1", tags=["recommendati
 app.include_router(posts_router, prefix="/api/v1", tags=["posts"])
 app.include_router(interactions_router, prefix="/api/v1", tags=["interactions"])
 app.include_router(follows_router, prefix="/api/v1", tags=["follows"])
+app.include_router(reels_router, prefix="/api/v1", tags=["reels"])
+app.include_router(hashtags_router, prefix="/api/v1", tags=["hashtags"])
+app.include_router(stories_router, prefix="/api/v1", tags=["stories"])
+app.include_router(collections_router, prefix="/api/v1", tags=["collections"])
 
 
 @app.get("/health")
