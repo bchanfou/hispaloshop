@@ -25,7 +25,11 @@ async def get_affiliate_link_by_code(db: AsyncSession, code: str) -> Optional[Af
 
 
 def build_affiliate_tracking_url(code: str, base_url: str | None = None) -> str:
-    backend_base_url = (base_url or settings.BACKEND_URL).rstrip("/")
+    configured_backend_url = getattr(settings, "BACKEND_URL", None)
+    backend_base_url = (base_url or configured_backend_url)
+    if not backend_base_url:
+        raise ValueError("Backend URL not configured for affiliate tracking")
+    backend_base_url = backend_base_url.rstrip("/")
     return f"{backend_base_url}/r/{code}"
 
 

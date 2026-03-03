@@ -148,3 +148,20 @@ async def test_create_affiliate_link_uses_backend_redirect_host():
 
     assert link.code == "MYCODE"
     assert link.tracking_url == build_affiliate_tracking_url("MYCODE")
+
+
+def test_build_affiliate_tracking_url_with_explicit_base_url():
+    assert build_affiliate_tracking_url("CODE123", base_url="https://api.example.com/") == "https://api.example.com/r/CODE123"
+
+
+def test_build_affiliate_tracking_url_with_settings_backend_url(monkeypatch):
+    monkeypatch.setattr("services.affiliate_service.settings.BACKEND_URL", "https://backend.example/")
+
+    assert build_affiliate_tracking_url("CODE123") == "https://backend.example/r/CODE123"
+
+
+def test_build_affiliate_tracking_url_without_any_backend_url(monkeypatch):
+    monkeypatch.setattr("services.affiliate_service.settings.BACKEND_URL", None)
+
+    with pytest.raises(ValueError, match="Backend URL not configured for affiliate tracking"):
+        build_affiliate_tracking_url("CODE123")
