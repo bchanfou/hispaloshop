@@ -15,16 +15,26 @@ from routers.matching import router as matching_router
 from routers.chat import router as chat_router
 from routers.recommendations import router as recommendations_router
 
-app = FastAPI(title="Hispaloshop API", version="1.0.0")
 
+app = FastAPI(
+    title="Hispaloshop API",
+    version="1.0.0"
+)
+
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://hispaloshop.com"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://hispaloshop.com",
+        "https://www.hispaloshop.com",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# API v1 Routes
 app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
 app.include_router(categories_router, prefix="/api/v1", tags=["categories"])
 app.include_router(products_router, prefix="/api/v1", tags=["products"])
@@ -33,7 +43,7 @@ app.include_router(cart_router, prefix="/api/v1", tags=["cart"])
 app.include_router(checkout_router, prefix="/api/v1", tags=["checkout"])
 app.include_router(orders_router, prefix="/api/v1", tags=["orders"])
 app.include_router(webhooks_router, prefix="/api/v1", tags=["webhooks"])
-app.include_router(affiliate_public_router, tags=["affiliate"])
+app.include_router(affiliate_public_router, prefix="/api/v1", tags=["affiliate"])
 app.include_router(influencer_router, prefix="/api/v1", tags=["influencer"])
 app.include_router(matching_router, prefix="/api/v1", tags=["matching"])
 app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
@@ -42,4 +52,7 @@ app.include_router(recommendations_router, prefix="/api/v1", tags=["recommendati
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "1.0.0"}
+    return {
+        "status": "ok",
+        "version": "1.0.0"
+    }
