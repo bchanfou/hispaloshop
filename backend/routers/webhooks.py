@@ -80,6 +80,16 @@ async def stripe_webhook(
             )
 
             if order.affiliate_code:
+                existing_commission_items = {
+                    commission_item_id
+                    for commission_item_id in (
+                        (
+                            await db.execute(
+                                select(Commission.order_item_id).where(Commission.order_id == order.id)
+                            )
+                        ).scalars().all()
+                    )
+                }
                 for item in order.items:
                     commission = await track_conversion(
                         db=db,
@@ -88,17 +98,31 @@ async def stripe_webhook(
                         cookie_code=order.affiliate_code,
                         sale_amount_cents=item.total_cents,
                     )
-                    if commission:
-                        db.add(
-                            Transaction(
-                                order_id=order.id,
-                                user_id=commission.influencer_id,
-                                type="commission",
-                                amount_cents=commission.commission_cents,
-                                status="completed",
-                                completed_at=datetime.now(timezone.utc),
-                            )
+                    if not commission:
+                        continue
+
+                    payout_ref = f"affiliate_commission:{item.id}"
+                    existing_commission_tx = await db.scalar(
+                        select(Transaction).where(
+                            Transaction.order_id == order.id,
+                            Transaction.type == "commission",
+                            Transaction.description == payout_ref,
                         )
+                    )
+                    if existing_commission_tx or item.id in existing_commission_items:
+                        continue
+
+                    db.add(
+                        Transaction(
+                            order_id=order.id,
+                            user_id=commission.influencer_id,
+                            type="commission",
+                            amount_cents=commission.commission_cents,
+                            status="completed",
+                            completed_at=datetime.now(timezone.utc),
+                            description=payout_ref,
+                        )
+                    )
 
             approval_cutoff = datetime.now(timezone.utc) - timedelta(days=30)
             stale_pending = (
