@@ -100,7 +100,9 @@ async def get_reels(
     stmt = stmt.where(~Post.id.in_(seen_subq))
 
     if cursor:
-        stmt = stmt.where(Post.id != cursor)
+        cursor_post = await db.get(Post, cursor)
+        if cursor_post:
+            stmt = stmt.where(Post.created_at < cursor_post.created_at)
 
     posts = (await db.scalars(stmt.limit(limit))).all()
     items = [await _to_reel_response(post, current_user.id, db) for post in posts]
