@@ -13,6 +13,7 @@ from database import get_db
 from models import Product
 from routers.auth import get_optional_user
 from schemas import CursorPaginationResponse, ProductDetailResponse, ProductListResponse
+from services.product_visibility import active_product_filters
 from services.tracking_service import tracking_service
 
 router = APIRouter()
@@ -96,7 +97,7 @@ async def list_products(
     limit: int = Query(default=20, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
 ):
-    filters = [Product.status == "active"]
+    filters = active_product_filters()
     if category:
         filters.append(Product.category_id == category)
     if q:
@@ -169,7 +170,7 @@ async def product_detail(slug: str, db: AsyncSession = Depends(get_db), current_
             await db.scalars(
                 select(Product)
                 .options(selectinload(Product.images), selectinload(Product.producer), selectinload(Product.category))
-                .where(Product.category_id == product.category_id, Product.id != product.id, Product.status == "active")
+                .where(Product.category_id == product.category_id, Product.id != product.id, *active_product_filters())
                 .limit(4)
             )
         ).all()

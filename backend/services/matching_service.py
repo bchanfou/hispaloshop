@@ -47,15 +47,27 @@ class MatchingService:
             score = await MatchingService.calculate_producer_influencer_score(db, producer_id, influencer.id)
             if score["overall_score"] < min_score:
                 continue
-            cache = MatchingScore(
-                producer_id=producer_id,
-                influencer_id=influencer.id,
-                overall_score=score["overall_score"],
-                score_breakdown=score["breakdown"],
-                reasons=score["reasons"],
-                match_type="product_influencer",
+            cache = await db.scalar(
+                select(MatchingScore).where(
+                    MatchingScore.producer_id == producer_id,
+                    MatchingScore.influencer_id == influencer.id,
+                    MatchingScore.match_type == "product_influencer",
+                )
             )
-            db.add(cache)
+            if cache:
+                cache.overall_score = score["overall_score"]
+                cache.score_breakdown = score["breakdown"]
+                cache.reasons = score["reasons"]
+            else:
+                cache = MatchingScore(
+                    producer_id=producer_id,
+                    influencer_id=influencer.id,
+                    overall_score=score["overall_score"],
+                    score_breakdown=score["breakdown"],
+                    reasons=score["reasons"],
+                    match_type="product_influencer",
+                )
+                db.add(cache)
             result.append({"influencer": influencer, **score})
         result.sort(key=lambda row: row["overall_score"], reverse=True)
         await db.flush()
