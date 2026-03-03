@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from routers.auth import router as auth_router
 from routers.categories import router as categories_router
@@ -27,6 +28,7 @@ app = FastAPI(
     title="Hispaloshop API",
     version="1.0.0"
 )
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # CORS Configuration
 app.add_middleware(

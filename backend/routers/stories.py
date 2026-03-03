@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
-from sqlalchemy import and_, desc, select
+from sqlalchemy import and_, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
@@ -38,9 +39,19 @@ async def create_story(
     if active_count and len((await db.scalars(select(Story).where(and_(Story.user_id == current_user.id, Story.expires_at > datetime.now(timezone.utc))))).all()) >= 100:
         raise HTTPException(status_code=400, detail="Maximum active stories reached")
 
+    upload_dir = "uploads/stories"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    ext = os.path.splitext(media.filename or "")[1]
+    filename = f"{uuid4().hex}{ext}"
+    file_path = os.path.join(upload_dir, filename)
+
+    with open(file_path, "wb") as buffer:
+        buffer.write(await media.read())
+
     story = Story(
         user_id=current_user.id,
-        media_url=f"/uploads/stories/{media.filename}",
+        media_url=f"/uploads/stories/{filename}",
         media_type="video" if (media.content_type or "").startswith("video") else "image",
         tagged_product_id=tagged_product_id,
         polls=_safe_json(polls),
@@ -72,13 +83,13 @@ async def stories_feed(current_user: User = Depends(get_current_user), db: Async
 
     payload = []
     for user_id, user_stories in by_user.items():
-        viewed = (
-            await db.scalar(
-                select(StoryView.id)
-                .where(and_(StoryView.viewer_id == current_user.id, StoryView.story_id.in_([s.id for s in user_stories])))
-                .limit(1)
-            )
-        ) is not None
+        story_ids = [s.id for s in user_stories]
+        total_active_stories = len(story_ids)
+        viewed_count = await db.scalar(
+            select(func.count())
+            .select_from(StoryView)
+            .where(and_(StoryView.viewer_id == current_user.id, StoryView.story_id.in_(story_ids)))
+        )
         user = await db.get(User, user_id)
         payload.append(
             {
@@ -90,7 +101,7 @@ async def stories_feed(current_user: User = Depends(get_current_user), db: Async
                     "is_followed_by_me": True,
                     "is_verified": user.is_verified,
                 },
-                "has_unviewed_stories": not viewed,
+                "has_unviewed_stories": (viewed_count or 0) < total_active_stories,
                 "latest_story_thumbnail": user_stories[0].media_url,
             }
         )

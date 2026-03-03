@@ -41,9 +41,16 @@ async def add_post_to_collection(collection_id: UUID, post_id: UUID, current_use
         save = PostSave(user_id=current_user.id, post_id=post_id)
         db.add(save)
         post.saves_count += 1
-    save.collection_id = collection_id
-    save.collection_name = collection.name
-    collection.items_count = (collection.items_count or 0) + 1
+        save.collection_id = collection_id
+        save.collection_name = collection.name
+        collection.items_count = (collection.items_count or 0) + 1
+    elif save.collection_id != collection_id:
+        previous_collection = await db.get(SavedCollection, save.collection_id) if save.collection_id else None
+        if previous_collection:
+            previous_collection.items_count = max(0, (previous_collection.items_count or 0) - 1)
+        collection.items_count = (collection.items_count or 0) + 1
+        save.collection_id = collection_id
+        save.collection_name = collection.name
     await db.flush()
     return {"ok": True}
 
