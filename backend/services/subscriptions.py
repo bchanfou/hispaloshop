@@ -6,6 +6,8 @@ import os
 import stripe
 import logging
 from datetime import datetime, timezone, timedelta
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +32,197 @@ ATTRIBUTION_LOCK_MONTHS = 18
 INFLUENCER_PAYOUT_DELAY_DAYS = 15
 INFLUENCER_MIN_PAYOUT_USD = 50
 GRACE_PERIOD_DAYS = 3
+
+SUBSCRIPTION_TIER_ORDER = {"free": 0, "pro": 1, "elite": 2}
+
+
+SUBSCRIPTION_PLAN_CATALOG = [
+    {
+        "name": "consumer_free",
+        "display_name": "Consumer Free",
+        "tier": "free",
+        "user_type": "consumer",
+        "price_monthly": 0,
+        "price_yearly": 0,
+        "commission_rate": None,
+        "features": ["basic_feed", "standard_checkout"],
+        "limits": {"hi_ai_queries": 5},
+    },
+    {
+        "name": "consumer_pro",
+        "display_name": "Consumer PRO",
+        "tier": "pro",
+        "user_type": "consumer",
+        "price_monthly": 9.99,
+        "price_yearly": 95.90,
+        "commission_rate": None,
+        "features": ["hi_ai_unlimited", "priority_support", "free_shipping_25"],
+        "limits": {"hi_ai_queries": -1},
+    },
+    {
+        "name": "producer_free",
+        "display_name": "Producer Free",
+        "tier": "free",
+        "user_type": "producer",
+        "price_monthly": 0,
+        "price_yearly": 0,
+        "commission_rate": 0.20,
+        "features": ["basic_listing", "email_support"],
+        "limits": {"products": 10},
+    },
+    {
+        "name": "producer_pro",
+        "display_name": "Producer PRO",
+        "tier": "pro",
+        "user_type": "producer",
+        "price_monthly": 9.99,
+        "price_yearly": 95.90,
+        "commission_rate": 0.18,
+        "features": ["advanced_analytics", "hi_ai_price_optimization", "pro_badge"],
+        "limits": {"products": -1},
+    },
+    {
+        "name": "producer_elite",
+        "display_name": "Producer ELITE",
+        "tier": "elite",
+        "user_type": "producer",
+        "price_monthly": 29.99,
+        "price_yearly": 287.90,
+        "commission_rate": 0.17,
+        "features": ["advanced_analytics", "hi_ai_price_optimization", "api_access", "dedicated_manager"],
+        "limits": {"products": -1},
+    },
+    {
+        "name": "importer_pro",
+        "display_name": "Importer PRO",
+        "tier": "pro",
+        "user_type": "importer",
+        "price_monthly": 9.99,
+        "price_yearly": 95.90,
+        "commission_rate": 0.18,
+        "features": ["advanced_analytics", "priority_support", "hi_ai_price_optimization"],
+        "limits": {"products": -1},
+    },
+    {
+        "name": "importer_elite",
+        "display_name": "Importer ELITE",
+        "tier": "elite",
+        "user_type": "importer",
+        "price_monthly": 29.99,
+        "price_yearly": 287.90,
+        "commission_rate": 0.17,
+        "features": ["advanced_analytics", "api_access", "dedicated_manager"],
+        "limits": {"products": -1},
+    },
+]
+
+
+def list_subscription_plans(user_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    plans = SUBSCRIPTION_PLAN_CATALOG
+    if user_type:
+        plans = [p for p in plans if p["user_type"] == user_type]
+    return plans
+
+
+def has_tier_access(current_tier: str, min_tier: str) -> bool:
+    return SUBSCRIPTION_TIER_ORDER.get(current_tier, 0) >= SUBSCRIPTION_TIER_ORDER.get(min_tier, 10)
+
+
+@dataclass
+class CommissionModifier:
+    type: str
+    description: str
+    delta: float
+
+
+def calculate_dynamic_commission(
+    base_rate: float,
+    order_total: float,
+    monthly_gmv: float,
+    return_rate_30d: float,
+    used_hi_ai_this_month: bool,
+) -> Dict[str, Any]:
+    modifiers: List[CommissionModifier] = []
+
+    if monthly_gmv > 50000:
+        modifiers.append(CommissionModifier(type="volume_bonus", description="Alto volumen mensual", delta=-0.005))
+    if return_rate_30d < 0.02:
+        modifiers.append(CommissionModifier(type="quality_bonus", description="Calidad premium", delta=-0.003))
+    if used_hi_ai_this_month:
+        modifiers.append(CommissionModifier(type="ai_adoption", description="Adopcion de HI AI", delta=-0.002))
+
+    final_rate = max(base_rate + sum(m.delta for m in modifiers), 0.10)
+    platform_fee = round(order_total * final_rate, 2)
+    seller_amount = round(order_total - platform_fee, 2)
+    return {
+        "base_rate": base_rate,
+        "final_rate": round(final_rate, 4),
+        "modifiers": [m.__dict__ for m in modifiers],
+        "platform_fee": platform_fee,
+        "seller_amount": seller_amount,
+        "applied_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+async def get_user_subscription_doc(db, user_id: str) -> Dict[str, Any]:
+    user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "subscription": 1}) or {}
+    return user_doc.get("subscription", {})
+
+
+async def record_subscription_event(db, user_id: str, event_type: str, metadata: Optional[Dict[str, Any]] = None):
+    await db.subscription_events.insert_one({
+        "event_id": f"se_{datetime.now(timezone.utc).timestamp()}",
+        "user_id": user_id,
+        "event_type": event_type,
+        "metadata": metadata or {},
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+
+async def get_hi_coin_balance(db, user_id: str) -> Dict[str, Any]:
+    balance = await db.hi_coin_balances.find_one({"user_id": user_id}, {"_id": 0})
+    if balance:
+        return balance
+    default = {
+        "user_id": user_id,
+        "balance": 0.0,
+        "lifetime_earned": 0.0,
+        "lifetime_spent": 0.0,
+        "currency": "HIC",
+    }
+    await db.hi_coin_balances.insert_one(default)
+    return default
+
+
+async def create_hi_coin_transaction(
+    db,
+    user_id: str,
+    tx_type: str,
+    amount: float,
+    description: str,
+    metadata: Optional[Dict[str, Any]] = None,
+):
+    tx = {
+        "id": f"hic_{datetime.now(timezone.utc).timestamp()}",
+        "user_id": user_id,
+        "type": tx_type,
+        "amount": round(amount, 2),
+        "description": description,
+        "metadata": metadata or {},
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.hi_coin_transactions.insert_one(tx)
+    return tx
+
+
+async def adjust_hi_coin_balance(db, user_id: str, amount_delta: float):
+    update = {"$inc": {"balance": round(amount_delta, 2)}}
+    if amount_delta > 0:
+        update["$inc"]["lifetime_earned"] = round(amount_delta, 2)
+    else:
+        update["$inc"]["lifetime_spent"] = round(abs(amount_delta), 2)
+
+    await db.hi_coin_balances.update_one({"user_id": user_id}, update, upsert=True)
 
 
 async def ensure_stripe_products(db):

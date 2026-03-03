@@ -26,6 +26,7 @@ from routers.realtime_chat import router as realtime_chat_router
 from routers.importers import router as importers_router
 from routers.b2b_quotes import router as b2b_quotes_router
 from routers.b2b_logistics import router as b2b_logistics_router
+from routers.subscriptions import router as subscriptions_router
 
 
 app = FastAPI(
@@ -72,6 +73,7 @@ app.include_router(realtime_chat_router, prefix="/api/v1", tags=["realtime-chat"
 app.include_router(importers_router, prefix="/api/v1", tags=["importers"])
 app.include_router(b2b_quotes_router, prefix="/api/v1", tags=["b2b-quotes"])
 app.include_router(b2b_logistics_router, prefix="/api/v1", tags=["b2b-logistics"])
+app.include_router(subscriptions_router, prefix="/api/v1", tags=["subscriptions"])
 
 
 @app.get("/health")
