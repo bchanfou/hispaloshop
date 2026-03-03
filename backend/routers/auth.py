@@ -1,7 +1,7 @@
 import re
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from database import get_db
+from middleware.rate_limit import rate_limiter
 from models import InfluencerProfile, Subscription, Tenant, User
 from schemas import LoginRequest, RefreshTokenRequest, RegisterRequest, TokenResponse, UserProfileResponse, UserResponse, UserUpdateRequest
 from security import (
@@ -25,6 +26,7 @@ security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> User:
@@ -38,10 +40,12 @@ async def get_current_user(
     user = await db.get(User, payload.get("sub"))
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
+    request.state.user = user
     return user
 
 
 async def get_optional_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> User | None:
@@ -52,7 +56,9 @@ async def get_optional_user(
     except ValueError:
         return None
 
-    return await db.get(User, payload.get("sub"))
+    user = await db.get(User, payload.get("sub"))
+    request.state.user = user
+    return user
 
 
 def _validate_password(password: str) -> None:
@@ -61,7 +67,8 @@ def _validate_password(password: str) -> None:
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db)):
+async def register(payload: RegisterRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    await rate_limiter.check(request, "register")
     _validate_password(payload.password)
     tenant = await db.scalar(select(Tenant).where(Tenant.code == "ES"))
     if not tenant:
@@ -98,7 +105,8 @@ async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db))
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(payload: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    await rate_limiter.check(request, "login")
     user = await db.scalar(select(User).where(User.email == payload.email))
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")

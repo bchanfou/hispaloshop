@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_ORG_ID: str = ""
 
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_PASSWORD: str | None = None
+
     AFFILIATE_ATTRIBUTION_DAYS: int = 548
     AFFILIATE_COOKIE_NAME: str = "hispaloshop_ref"
     AFFILIATE_MIN_PAYOUT_CENTS: int = 1000
