@@ -37,9 +37,9 @@ export default function AboutPage() {
     },
     {
       icon: Globe,
-      title: t('pages.about.forSellers'),
+      title: 'Para Productores',
       points: [t('pages.about.sellerPoint1'), t('pages.about.sellerPoint2'), t('pages.about.sellerPoint3'), t('pages.about.sellerPoint4')],
-      cta: t('pages.about.startSelling'),
+      cta: 'Ser Productor',
       to: '/vender',
       border: 'border-blue-200 bg-blue-50/30',
     },
@@ -50,6 +50,19 @@ export default function AboutPage() {
       cta: t('pages.about.monetize'),
       to: '/influencers',
       border: 'border-purple-200 bg-purple-50/30',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Para Importadores',
+      points: [
+        'Registro de perfil B2B verificado',
+        'Acceso al catálogo mayorista',
+        'Solicitudes y seguimiento de cotizaciones',
+        'Canal operativo para compras internacionales',
+      ],
+      cta: 'Ser Importador',
+      to: '/importador',
+      border: 'border-amber-200 bg-amber-50/30',
     },
   ];
 
@@ -119,7 +132,7 @@ export default function AboutPage() {
         {/* Audience */}
         <section className="mb-12">
           <h2 className="font-heading text-2xl font-semibold text-[#1C1C1C] text-center mb-8">{t('pages.about.forEveryone')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {audience.map((a, i) => (
               <div key={i} className={`rounded-2xl border p-5 ${a.border}`} data-testid={`about-audience-${i}`}>
                 <a.icon className="w-7 h-7 text-[#1C1C1C] mb-3" />
@@ -134,30 +147,6 @@ export default function AboutPage() {
                 <Link to={a.to}><Button variant="outline" size="sm" className="w-full rounded-xl hover:bg-[#1C1C1C] hover:text-white">{a.cta} <ArrowRight className="w-3.5 h-3.5 ml-1" /></Button></Link>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* Seller Plans Overview */}
-        <section className="mb-12" data-testid="about-plans">
-          <h2 className="font-heading text-2xl font-semibold text-[#1C1C1C] text-center mb-2">{t('pages.about.plansTitle')}</h2>
-          <p className="text-sm text-[#666] text-center mb-8">{t('pages.about.plansDesc')}</p>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { name: 'Free', commission: '20%', price: '$0', highlight: false },
-              { name: 'Pro', commission: '18%', price: '$54/mo', highlight: true },
-              { name: 'Elite', commission: '17%', price: '$108/mo', highlight: false },
-            ].map((plan, i) => (
-              <div key={i} className={`rounded-2xl border p-5 text-center ${plan.highlight ? 'border-[#2D5A27] bg-[#2D5A27]/5 ring-1 ring-[#2D5A27]/20' : 'border-stone-200 bg-white'}`}>
-                <h3 className="font-heading text-lg font-bold text-[#1C1C1C] mb-1">{plan.name}</h3>
-                <p className="text-2xl font-bold text-[#2D5A27] mb-1">{plan.price}</p>
-                <p className="text-xs text-[#666]">{t('pages.about.commission')}: {plan.commission}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-4">
-            <Link to="/pricing" className="text-sm text-[#2D5A27] hover:underline inline-flex items-center gap-1">
-              {t('pages.about.viewAllPlans')} <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
           </div>
         </section>
 

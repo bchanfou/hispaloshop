@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2, Clapperboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -176,7 +176,8 @@ export default function BottomNavBar() {
   const profileImage = user?.profile_image;
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
-    { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover' },
+    { id: 'reels', icon: Clapperboard, label: 'Reels', link: '/discover?tab=reels', match: (loc) => loc.pathname === '/discover' && new URLSearchParams(loc.search).get('tab') === 'reels' },
+    { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover', match: (loc) => loc.pathname === '/discover' && (!new URLSearchParams(loc.search).get('tab') || new URLSearchParams(loc.search).get('tab') === 'all') },
     { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
     { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, isProfile: true },
   ];
@@ -203,10 +204,10 @@ export default function BottomNavBar() {
         className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 safe-area-bottom"
         data-testid="bottom-nav-bar"
       >
-        <div className="max-w-lg mx-auto grid grid-cols-[1fr_1fr_auto_1fr_1fr] items-center h-[64px] px-1">
-          {navItems.slice(0, 2).map((item) => {
+        <div className="max-w-lg mx-auto grid grid-cols-[1fr_1fr_1fr_auto_1fr_1fr] items-center h-[64px] px-1">
+          {navItems.slice(0, 3).map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.link;
+            const isActive = item.match ? item.match(location) : location.pathname === item.link;
             if (item.link) {
               return (
                 <Link
@@ -244,9 +245,9 @@ export default function BottomNavBar() {
             <span className="text-[10px] leading-none mt-0.5 text-stone-500 font-medium">{t('bottomNav.create', 'Crear')}</span>
           </button>
 
-          {navItems.slice(2).map((item) => {
+          {navItems.slice(3).map((item) => {
             const Icon = item.icon;
-            const isPathActive = item.link ? location.pathname.startsWith(item.link) : false;
+            const isPathActive = item.match ? item.match(location) : item.link ? location.pathname.startsWith(item.link) : false;
             const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;
 
             if (item.isProfile) {

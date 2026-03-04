@@ -1,260 +1,211 @@
 import BackButton from '../components/BackButton';
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { 
-  Search, UserPlus, UserMinus, MessageCircle, Star, Store, 
-  Sparkles, ShoppingBag, Users, MapPin, Loader2, Filter
-} from 'lucide-react';
-import { Button } from '../components/ui/button';
+import { Search, CalendarClock, Loader2, Clapperboard, Image as ImageIcon } from 'lucide-react';
 import { Input } from '../components/ui/input';
-import { toast } from 'sonner';
-import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { API } from '../utils/api';
+import { sanitizeImageUrl } from '../utils/helpers';
 
-import { API } from '../utils/api'; // Centralized API URL
-
-function getRoleConfig(role, t) {
-  const configs = {
-    influencer: { label: 'Influencer', color: 'bg-purple-100 text-purple-700', icon: Sparkles },
-    producer: { label: t('directory.seller', 'Vendedor'), color: 'bg-emerald-100 text-emerald-700', icon: Store },
-    customer: { label: t('directory.customer', 'Comprador'), color: 'bg-sky-100 text-sky-700', icon: ShoppingBag },
-  };
-  return configs[role] || configs.customer;
+function toDateValue(value) {
+  const date = new Date(value || 0);
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
 }
 
-function ProfileCard({ profile, currentUser, onFollowToggle }) {
-  const { t } = useTranslation();
-  const [following, setFollowing] = useState(profile.is_following);
-  const [loading, setLoading] = useState(false);
-  const roleConf = getRoleConfig(profile.role, t);
-
-  const handleFollow = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!currentUser) { toast.error('Inicia sesión para seguir usuarios'); return; }
-    if (currentUser.user_id === profile.user_id) return;
-    setLoading(true);
-    try {
-      if (following) {
-        await axios.delete(`${API}/users/${profile.user_id}/follow`, { withCredentials: true });
-        setFollowing(false);
-      } else {
-        await axios.post(`${API}/users/${profile.user_id}/follow`, {}, { withCredentials: true });
-        setFollowing(true);
-      }
-      if (onFollowToggle) onFollowToggle(profile.user_id, !following);
-    } catch {
-      toast.error('Error al actualizar seguimiento');
-    } finally {
-      setLoading(false);
-    }
+function normalizePost(post) {
+  const mediaType = post.media_type || (post.is_reel ? 'video' : 'image');
+  const mediaUrl = sanitizeImageUrl(post.video_url || post.image_url || post.thumbnail_url || post.media_url);
+  return {
+    id: post.post_id || post.id,
+    type: post.is_reel || mediaType === 'video' ? 'reel' : 'post',
+    created_at: post.created_at,
+    user_id: post.user_id,
+    user_name: post.user_name || 'Usuario',
+    user_profile_image: sanitizeImageUrl(post.user_profile_image),
+    caption: post.caption || '',
+    media_url: mediaUrl,
+    likes_count: post.likes_count || 0,
+    comments_count: post.comments_count || 0,
   };
-
-  const handleMessage = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!currentUser) { toast.error('Inicia sesión para enviar mensajes'); return; }
-    window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId: profile.user_id } }));
-  };
-
-  return (
-    <Link
-      to={`/user/${profile.user_id}`}
-      className="group block bg-white rounded-xl border border-stone-200 hover:shadow-md transition-all overflow-hidden"
-      data-testid={`discover-profile-${profile.user_id}`}
-    >
-      <div className="p-3 flex items-center gap-3">
-        {/* Avatar — compact */}
-        <div className="w-12 h-12 rounded-full bg-stone-200 overflow-hidden shrink-0 border-2 border-white shadow-sm">
-          {profile.profile_image ? (
-            <img src={profile.profile_image.startsWith('http') ? profile.profile_image : profile.profile_image} alt={profile.name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-stone-400 text-lg font-bold">
-              {(profile.name || 'U')[0].toUpperCase()}
-            </div>
-          )}
-        </div>
-
-        {/* Info — compact */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm font-semibold text-[#1C1C1C] truncate">{profile.name}</p>
-            <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${roleConf.color}`}>
-              {roleConf.label}
-            </span>
-          </div>
-          {profile.bio && <p className="text-[11px] text-text-muted truncate mt-0.5">{profile.bio}</p>}
-          <div className="flex items-center gap-3 mt-1 text-[10px] text-text-muted">
-            <span>{profile.followers_count} {t('discover.followers', 'followers')}</span>
-            <span>{profile.posts_count} {t('discover.posts', 'posts')}</span>
-          </div>
-        </div>
-
-        {/* Follow button */}
-        <Button
-          size="sm"
-          variant={profile.is_following ? 'outline' : 'default'}
-          className={`shrink-0 rounded-full text-xs h-8 px-3 ${!profile.is_following ? 'bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white' : ''}`}
-        >
-          {profile.is_following ? t('actions.following') : t('actions.follow')}
-        </Button>
-      </div>
-    </Link>
-  );
 }
 
 export default function DiscoverPage() {
-  const { user } = useAuth();
   const { t } = useTranslation();
-  const [profiles, setProfiles] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [page, setPage] = useState(0);
-  const LIMIT = 24;
+  const [query, setQuery] = useState('');
+  const [items, setItems] = useState([]);
 
-  const fetchProfiles = async (reset = false, filterOverride = null, searchOverride = null) => {
-    setLoading(true);
-    try {
-      const currentFilter = filterOverride ?? activeFilter;
-      const currentSearch = searchOverride ?? search;
-      const skip = reset ? 0 : page * LIMIT;
-      const params = new URLSearchParams({ skip: String(skip), limit: String(LIMIT) });
-      if (currentFilter && currentFilter !== 'all') params.append('role', currentFilter);
-      if (currentSearch && currentSearch.trim()) params.append('search', currentSearch.trim());
-      
-      const res = await axios.get(`${API}/discover/profiles?${params}`, { withCredentials: true });
-      if (reset) {
-        setProfiles(res.data.profiles || []);
-      } else {
-        setProfiles(prev => [...prev, ...(res.data.profiles || [])]);
+  const rawTab = searchParams.get('tab') || 'all';
+  const tab = rawTab === 'reels' ? 'reel' : rawTab;
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [feedRes, reelsRes] = await Promise.allSettled([
+          axios.get(`${API}/feed?skip=0&limit=120`, { withCredentials: true }),
+          axios.get(`${API}/reels?limit=120`, { withCredentials: true }),
+        ]);
+
+        const feedPosts = feedRes.status === 'fulfilled' ? (feedRes.value.data?.posts || []) : [];
+        const reels = reelsRes.status === 'fulfilled' ? (reelsRes.value.data?.items || reelsRes.value.data || []) : [];
+
+        const merged = [
+          ...feedPosts.map(normalizePost),
+          ...reels.map((reel) =>
+            normalizePost({
+              ...reel,
+              post_id: reel.post_id || reel.id,
+              is_reel: true,
+              video_url: reel.video_url || reel.media?.[0]?.url,
+              thumbnail_url: reel.thumbnail_url || reel.media?.[0]?.thumbnail_url,
+              user_name: reel.user_name || reel.user?.full_name,
+              user_profile_image: reel.user_profile_image || reel.user?.avatar_url,
+              caption: reel.caption || reel.content || '',
+            })
+          ),
+        ];
+
+        const uniqueMap = new Map();
+        merged.forEach((item) => {
+          if (!item.id) return;
+          if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
+        });
+
+        const sorted = Array.from(uniqueMap.values()).sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at));
+        setItems(sorted);
+      } finally {
+        setLoading(false);
       }
-      setTotal(res.data.total || 0);
-    } catch (err) {
-      console.error('Error fetching profiles:', err);
-      toast.error('Error cargando perfiles');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    load();
+  }, []);
 
-  useEffect(() => {
-    setPage(0);
-    fetchProfiles(true, activeFilter, search);
-  }, [activeFilter, search]);
-
-  useEffect(() => {
-    if (page > 0) fetchProfiles(false);
-  }, [page]);
-
-  const filters = [
-    { key: 'all', label: t('discover.all', 'Todos'), icon: Users },
-    { key: 'producer', label: t('discover.stores', 'Tiendas'), icon: Store },
-    { key: 'influencer', label: t('discover.creators', 'Creadores'), icon: Sparkles },
-    { key: 'customer', label: t('discover.buyers', 'Compradores'), icon: ShoppingBag },
-  ];
-
-  const trendingTags = ['organico', 'sin gluten', 'aceites', 'vegano', 'artesanal', 'local', 'bio'];
-
-  const hasMore = profiles.length < total;
+  const filtered = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return items.filter((item) => {
+      const tabMatch = tab === 'all' || item.type === tab;
+      if (!tabMatch) return false;
+      if (!normalizedQuery) return true;
+      return (
+        item.user_name?.toLowerCase().includes(normalizedQuery) ||
+        item.caption?.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }, [items, tab, query]);
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
       <Header />
-      
-      <div className="max-w-6xl mx-auto px-4 pt-6 pb-16">
+      <div className="max-w-5xl mx-auto px-4 pt-6 pb-16">
         <BackButton />
-        
-        {/* Search — Big and prominent */}
-        <div className="relative mb-5" data-testid="discover-search">
+
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C]">Explorar</h1>
+          <span className="text-xs text-[#7A7A7A] inline-flex items-center gap-1">
+            <CalendarClock className="w-3.5 h-3.5" /> Ordenado por fecha de subida
+          </span>
+        </div>
+
+        <div className="relative mb-4">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
           <Input
             type="text"
             placeholder={t('search.placeholder')}
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             className="pl-12 h-12 rounded-full border-2 border-stone-200 focus:border-[#2D5A27] text-sm"
           />
         </div>
 
-        {/* Trending Tags */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
-          {trendingTags.map(tag => (
-            <button
-              key={tag}
-              onClick={() => setSearch(tag)}
-              className="shrink-0 text-xs px-3 py-1.5 rounded-full bg-white border border-stone-200 text-text-secondary hover:border-[#2D5A27] hover:text-[#2D5A27] transition-colors"
-            >
-              #{tag}
-            </button>
-          ))}
-        </div>
-
-        {/* Filter Tabs — Clean, pill style */}
         <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hide">
-          {filters.map(f => {
-            const Icon = f.icon;
-            const active = activeFilter === f.key;
+          {[
+            { key: 'all', label: 'Todo' },
+            { key: 'reel', label: 'Reels' },
+            { key: 'post', label: 'Posts' },
+          ].map((f) => {
+            const active = (f.key === 'all' && tab === 'all') || (f.key !== 'all' && tab === f.key);
             return (
               <button
                 key={f.key}
-                onClick={() => setActiveFilter(f.key)}
-                className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  active ? 'bg-[#1C1C1C] text-white' : 'bg-white border border-stone-200 text-text-secondary hover:border-stone-300'
+                onClick={() => setSearchParams(f.key === 'all' ? {} : { tab: f.key === 'reel' ? 'reels' : f.key })}
+                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  active ? 'bg-[#1C1C1C] text-white' : 'bg-white border border-stone-200 text-text-secondary'
                 }`}
-                data-testid={`filter-${f.key}`}
               >
-                <Icon className="w-4 h-4" />
                 {f.label}
               </button>
             );
           })}
         </div>
 
-        <p className="text-xs text-text-muted mb-4">{total} perfiles encontrados</p>
-
-        {/* Grid */}
-        {loading && profiles.length === 0 ? (
+        {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-[#7A7A7A]" />
           </div>
-        ) : profiles.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="text-center py-20">
-            <Users className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">No se encontraron perfiles</h3>
-            <p className="text-[#7A7A7A]">Intenta con otro filtro o término de búsqueda</p>
+            <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">No hay contenido para mostrar</h3>
+            <p className="text-[#7A7A7A]">Prueba con otro filtro o búsqueda</p>
           </div>
         ) : (
-          <>
-            <div className="space-y-2">
-              {profiles.map((p) => (
-                <ProfileCard key={p.user_id} profile={p} currentUser={user} />
-              ))}
-            </div>
+          <div className="space-y-3">
+            {filtered.map((item) => (
+              <Link
+                key={item.id}
+                to={`/user/${item.user_id}`}
+                className="block bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow"
+              >
+                <div className="p-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden">
+                    {item.user_profile_image ? (
+                      <img src={item.user_profile_image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-stone-400 text-sm font-bold">
+                        {(item.user_name || 'U')[0].toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#1C1C1C] truncate">{item.user_name}</p>
+                    <p className="text-xs text-[#7A7A7A]">{new Date(item.created_at).toLocaleString('es-ES')}</p>
+                  </div>
+                  <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${item.type === 'reel' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                    {item.type === 'reel' ? 'REEL' : 'POST'}
+                  </span>
+                </div>
 
-            {/* Load more */}
-            {hasMore && (
-              <div className="text-center mt-8">
-                <Button
-                  variant="outline"
-                  onClick={() => setPage(prev => prev + 1)}
-                  disabled={loading}
-                  className="rounded-xl px-8"
-                  data-testid="load-more-btn"
-                >
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Ver más perfiles
-                </Button>
-              </div>
-            )}
-          </>
+                {item.media_url ? (
+                  <div className="aspect-video bg-stone-100">
+                    {item.type === 'reel' ? (
+                      <video src={item.media_url} muted playsInline className="w-full h-full object-cover" />
+                    ) : (
+                      <img src={item.media_url} alt="" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                ) : (
+                  <div className="px-4 pb-4">
+                    <div className="rounded-xl bg-stone-50 border border-stone-100 p-3 text-xs text-[#666] flex items-center gap-2">
+                      {item.type === 'reel' ? <Clapperboard className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                      Publicación sin media
+                    </div>
+                  </div>
+                )}
+
+                {item.caption && <p className="px-4 py-3 text-sm text-[#333] line-clamp-2">{item.caption}</p>}
+
+                <div className="px-4 pb-4 text-xs text-[#7A7A7A]">
+                  {item.likes_count} me gusta · {item.comments_count} comentarios
+                </div>
+              </Link>
+            ))}
+          </div>
         )}
       </div>
-
       <Footer />
     </div>
   );

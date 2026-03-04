@@ -29,6 +29,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import StoresListPage from './pages/StoresListPage';
 import UserProfilePage from './pages/UserProfilePage';
 import DiscoverPage from './pages/DiscoverPage';
+import ImporterLandingPage from './pages/ImporterLandingPage';
 import ImporterRegisterPage from './pages/importer/ImporterRegisterPage';
 import ImporterDashboardPage from './pages/importer/ImporterDashboardPage';
 import ImporterCatalogPage from './pages/importer/ImporterCatalogPage';
@@ -144,6 +145,7 @@ function AppRouter() {
       <Route path="/stores" element={<StoresListPage />} />
       <Route path="/user/:userId" element={<UserProfilePage />} />
       <Route path="/discover" element={<DiscoverPage />} />
+      <Route path="/importador" element={<ImporterLandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/seller/login" element={<LoginPage />} />
       <Route path="/influencer/login" element={<LoginPage />} />

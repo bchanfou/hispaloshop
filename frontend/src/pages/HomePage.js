@@ -7,6 +7,7 @@ import SocialFeed from '../components/SocialFeed';
 import {
   ShoppingBag, Store, ChevronRight, Info,
   Flame, TrendingUp, Award,
+  Building2,
   Droplets, Cookie, Milk, Apple, Beef, Snowflake, Baby, Coffee, CakeSlice, UtensilsCrossed,
   Wine, Wheat, Salad, Candy, Soup, Leaf, Cherry, Fish, Egg, Croissant
 } from 'lucide-react';
@@ -186,10 +187,13 @@ export default function HomePage() {
               <Info className="w-3.5 h-3.5 text-[#2D5A27]" /> {t('home.whatIsHispaloshop')}
             </Link>
             <Link to="/vender" className="shrink-0 flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-2 text-xs text-text-secondary hover:border-[#2D5A27] transition-colors">
-              <Store className="w-3.5 h-3.5 text-[#2D5A27]" /> {t('home.becomeSeller')}
+              <Store className="w-3.5 h-3.5 text-[#2D5A27]" /> Ser Productor
             </Link>
             <Link to="/influencers" className="shrink-0 flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-2 text-xs text-text-secondary hover:border-[#2D5A27] transition-colors">
               <Award className="w-3.5 h-3.5 text-[#2D5A27]" /> {t('home.becomeInfluencer')}
+            </Link>
+            <Link to="/importador" className="shrink-0 flex items-center gap-2 bg-white border border-stone-200 rounded-full px-4 py-2 text-xs text-text-secondary hover:border-[#2D5A27] transition-colors">
+              <Building2 className="w-3.5 h-3.5 text-[#2D5A27]" /> Ser Importador
             </Link>
           </div>
         </div>
