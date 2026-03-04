@@ -7,6 +7,7 @@ from database import get_db
 from models import Cart, CartItem, InfluencerProfile, Product, User
 from routers.auth import get_current_user
 from schemas import CartItemCreateRequest, CartItemResponse, CartItemUpdateRequest, CartResponse
+from services.shipping_service import ShippingService
 from services.tracking_service import tracking_service
 
 router = APIRouter()
@@ -44,10 +45,50 @@ async def _get_or_create_cart(db: AsyncSession, user: User) -> Cart:
 async def get_cart(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     cart = await _get_or_create_cart(db, current_user)
     items = [_serialize_cart_item(item) for item in cart.items]
+    subtotal_cents = sum(item.total_cents for item in items)
+
+    shipping_cents = 0
+    producer_groups: dict[str, dict] = {}
+    for cart_item in cart.items:
+        product = cart_item.product
+        producer = getattr(product, "producer", None)
+        producer_id = str(getattr(product, "producer_id", ""))
+        if not producer_id:
+            continue
+        group = producer_groups.setdefault(
+            producer_id,
+            {"producer": producer, "subtotal_cents": 0, "item_count": 0},
+        )
+        group["subtotal_cents"] += cart_item.quantity * cart_item.unit_price_cents
+        group["item_count"] += cart_item.quantity
+
+    for group in producer_groups.values():
+        producer = group["producer"]
+        if not producer:
+            continue
+        policy = ShippingService.policy_from_user(producer)
+        shipping_cents += ShippingService.calculate_shipping_cents(
+            policy=policy,
+            item_count=group["item_count"],
+            subtotal_cents=group["subtotal_cents"],
+        )
+
+    tax_rate_bp = ShippingService.get_tax_rate_bp("ES")
+    totals = ShippingService.calculate_order_totals(
+        subtotal_cents=subtotal_cents,
+        shipping_cents=shipping_cents,
+        tax_rate_bp=tax_rate_bp,
+    )
+
     return CartResponse(
         id=cart.id,
         items=items,
-        subtotal_cents=sum(item.total_cents for item in items),
+        subtotal_cents=totals["subtotal_cents"],
+        shipping_cents=totals["shipping_cents"],
+        tax_cents=totals["tax_cents"],
+        tax_rate_bp=totals["tax_rate_bp"],
+        total_cents=totals["total_cents"],
+        currency="EUR",
         item_count=sum(item.quantity for item in items),
         affiliate_code=cart.affiliate_code,
     )

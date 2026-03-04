@@ -13,7 +13,7 @@ import logging
 import stripe
 
 from core.database import db
-from core.models import User, ProducerAddressInput
+from core.models import User, ProducerAddressInput, ShippingPolicyInput
 from core.config import PLATFORM_COMMISSION
 from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
@@ -95,6 +95,51 @@ async def update_producer_addresses(input: ProducerAddressInput, user: User = De
         await db.users.update_one({"user_id": user.user_id}, {"$set": update_data})
     
     return {"message": "Addresses updated"}
+
+
+@router.get("/producer/shipping/policy")
+async def get_shipping_policy(user: User = Depends(get_current_user)):
+    await require_role(user, ["producer"])
+    user_doc = await db.users.find_one(
+        {"user_id": user.user_id},
+        {
+            "_id": 0,
+            "shipping_policy_enabled": 1,
+            "shipping_base_cost_cents": 1,
+            "shipping_free_threshold_cents": 1,
+            "shipping_per_item_cents": 1,
+        },
+    )
+    user_doc = user_doc or {}
+    return {
+        "enabled": bool(user_doc.get("shipping_policy_enabled", False)),
+        "base_cost_cents": int(user_doc.get("shipping_base_cost_cents", 0) or 0),
+        "free_threshold_cents": user_doc.get("shipping_free_threshold_cents"),
+        "per_item_cents": int(user_doc.get("shipping_per_item_cents", 0) or 0),
+    }
+
+
+@router.put("/producer/shipping/policy")
+async def update_shipping_policy(input: ShippingPolicyInput, user: User = Depends(get_current_user)):
+    await require_role(user, ["producer"])
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {
+            "$set": {
+                "shipping_policy_enabled": input.enabled,
+                "shipping_base_cost_cents": input.base_cost_cents,
+                "shipping_free_threshold_cents": input.free_threshold_cents,
+                "shipping_per_item_cents": input.per_item_cents,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        },
+    )
+    return {
+        "enabled": input.enabled,
+        "base_cost_cents": input.base_cost_cents,
+        "free_threshold_cents": input.free_threshold_cents,
+        "per_item_cents": input.per_item_cents,
+    }
 
 @router.get("/producer/payments")
 async def get_producer_payments(user: User = Depends(get_current_user)):

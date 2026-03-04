@@ -12,6 +12,7 @@ from database import get_db
 from models import AffiliateLink, Cart, CartItem, Order, OrderItem, Product, Subscription, User
 from routers.auth import get_current_user
 from schemas import CheckoutCreateRequest, CheckoutResponse
+from services.shipping_service import ShippingService
 
 router = APIRouter()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -33,7 +34,7 @@ async def create_checkout_session(
 ):
     cart = await db.scalar(
         select(Cart)
-        .options(selectinload(Cart.items).selectinload(CartItem.product))
+        .options(selectinload(Cart.items).selectinload(CartItem.product).selectinload(Product.producer))
         .where(Cart.user_id == current_user.id, Cart.status == "active")
     )
     if not cart or not cart.items:
@@ -61,11 +62,43 @@ async def create_checkout_session(
             )
         subtotal += item.quantity * item.unit_price_cents
 
-    shipping_cents = 0 if subtotal >= 5000 else 490
-    tax_cents = int((subtotal + shipping_cents) * 0.21)
-    total_cents = subtotal + shipping_cents + tax_cents
+    producer_ids = {product.producer_id for product in locked_products.values()}
+    producers = (
+        await db.scalars(
+            select(User).where(User.id.in_(producer_ids))
+        )
+    ).all()
+    producers_by_id = {str(p.id): p for p in producers}
 
-    producer_ids = {item.product.producer_id for item in sorted_items}
+    shipping_cents = 0
+    producer_item_count: dict[str, int] = {}
+    producer_subtotals: dict[str, int] = {}
+    for item in sorted_items:
+        product = locked_products[str(item.product_id)]
+        producer_key = str(product.producer_id)
+        producer_item_count[producer_key] = producer_item_count.get(producer_key, 0) + item.quantity
+        producer_subtotals[producer_key] = producer_subtotals.get(producer_key, 0) + item.quantity * item.unit_price_cents
+
+    for producer_key, producer_subtotal in producer_subtotals.items():
+        producer = producers_by_id.get(producer_key)
+        if not producer:
+            continue
+        shipping_cents += ShippingService.calculate_shipping_cents(
+            policy=ShippingService.policy_from_user(producer),
+            item_count=producer_item_count.get(producer_key, 0),
+            subtotal_cents=producer_subtotal,
+        )
+
+    shipping_country = (payload.shipping_address.country or "ES").upper()
+    tax_rate_bp = ShippingService.get_tax_rate_bp(shipping_country)
+    totals = ShippingService.calculate_order_totals(
+        subtotal_cents=subtotal,
+        shipping_cents=shipping_cents,
+        tax_rate_bp=tax_rate_bp,
+    )
+    tax_cents = totals["tax_cents"]
+    total_cents = totals["total_cents"]
+
     producer_subscriptions = (
         await db.scalars(select(Subscription).where(Subscription.user_id.in_(producer_ids), Subscription.status == "active"))
     ).all()

@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from core.database import db
 from core.auth import get_current_user
 from core.models import User, CartUpdateInput
+from services.shipping_service import ShippingPolicy, ShippingService
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,8 @@ router = APIRouter()
 async def get_cart(user: User = Depends(get_current_user)):
     logger.info(f"[GET /cart] Fetching cart for user: {user.user_id}")
     cart_items = await db.cart_items.find({"user_id": user.user_id}, {"_id": 0}).to_list(100)
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "locale": 1})
+    user_country = (user_doc or {}).get("locale", {}).get("country", "ES")
     
     # Enrich cart items with current stock info
     enriched_items = []
@@ -32,10 +35,67 @@ async def get_cart(user: User = Depends(get_current_user)):
     
     # Get applied discount if any
     applied_discount = await db.cart_discounts.find_one({"user_id": user.user_id}, {"_id": 0})
+    subtotal_cents = int(round(sum((item.get("price", 0) * item.get("quantity", 0)) for item in enriched_items) * 100))
+
+    discount_cents = int(round(float((applied_discount or {}).get("discount_amount", 0)) * 100))
+    discounted_subtotal_cents = max(0, subtotal_cents - discount_cents)
+
+    # Group shipping by producer policy
+    producer_groups: dict[str, dict] = {}
+    for item in enriched_items:
+        producer_id = item.get("producer_id")
+        if not producer_id:
+            continue
+        producer_groups.setdefault(producer_id, {"subtotal_cents": 0, "item_count": 0})
+        producer_groups[producer_id]["subtotal_cents"] += int(round(item.get("price", 0) * item.get("quantity", 0) * 100))
+        producer_groups[producer_id]["item_count"] += int(item.get("quantity", 0) or 0)
+
+    shipping_cents = 0
+    for producer_id, group in producer_groups.items():
+        producer_doc = await db.users.find_one(
+            {"user_id": producer_id},
+            {
+                "_id": 0,
+                "shipping_policy_enabled": 1,
+                "shipping_base_cost_cents": 1,
+                "shipping_free_threshold_cents": 1,
+                "shipping_per_item_cents": 1,
+            },
+        )
+        if not producer_doc:
+            continue
+        policy = ShippingPolicy(
+            enabled=bool(producer_doc.get("shipping_policy_enabled", False)),
+            base_cost_cents=int(producer_doc.get("shipping_base_cost_cents", 0) or 0),
+            per_item_cents=int(producer_doc.get("shipping_per_item_cents", 0) or 0),
+            free_threshold_cents=producer_doc.get("shipping_free_threshold_cents"),
+        )
+        shipping_cents += ShippingService.calculate_shipping_cents(
+            policy=policy,
+            item_count=group["item_count"],
+            subtotal_cents=group["subtotal_cents"],
+        )
+
+    # Discount type free_shipping overrides producer shipping.
+    if (applied_discount or {}).get("type") == "free_shipping":
+        shipping_cents = 0
+
+    tax_rate_bp = ShippingService.get_tax_rate_bp(user_country)
+    totals = ShippingService.calculate_order_totals(
+        subtotal_cents=discounted_subtotal_cents,
+        shipping_cents=shipping_cents,
+        tax_rate_bp=tax_rate_bp,
+    )
     
     return {
         "items": enriched_items,
-        "discount": applied_discount
+        "discount": applied_discount,
+        "subtotal_cents": totals["subtotal_cents"],
+        "shipping_cents": totals["shipping_cents"],
+        "tax_cents": totals["tax_cents"],
+        "tax_rate_bp": totals["tax_rate_bp"],
+        "total_cents": totals["total_cents"],
+        "currency": "EUR",
     }
 
 @router.post("/cart/add")

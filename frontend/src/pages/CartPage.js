@@ -31,6 +31,13 @@ export default function CartPage() {
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [applyingDiscount, setApplyingDiscount] = useState(false);
   const [stockIssues, setStockIssues] = useState([]);
+  const [cartSummary, setCartSummary] = useState({
+    subtotal_cents: 0,
+    shipping_cents: 0,
+    tax_cents: 0,
+    tax_rate_bp: 2100,
+    total_cents: 0,
+  });
   
   // Address state
   const [savedAddresses, setSavedAddresses] = useState([]);
@@ -134,6 +141,13 @@ export default function CartPage() {
   const fetchCartWithDiscount = async () => {
     try {
       const response = await axios.get(`${API}/cart`, { withCredentials: true });
+      setCartSummary({
+        subtotal_cents: response.data.subtotal_cents || 0,
+        shipping_cents: response.data.shipping_cents || 0,
+        tax_cents: response.data.tax_cents || 0,
+        tax_rate_bp: response.data.tax_rate_bp || 2100,
+        total_cents: response.data.total_cents || 0,
+      });
       if (response.data.discount) {
         setAppliedDiscount(response.data.discount);
       }
@@ -215,6 +229,9 @@ export default function CartPage() {
 
   // Calculate totals with currency conversion
   const getDiscountedTotal = () => {
+    if (cartSummary.total_cents > 0) {
+      return cartSummary.total_cents / 100;
+    }
     const subtotal = getTotalPrice();
     if (!appliedDiscount) return subtotal;
     return Math.max(0, subtotal - (appliedDiscount.discount_amount || 0));
@@ -693,7 +710,9 @@ export default function CartPage() {
               <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
                 <div className="flex justify-between text-sm md:text-base">
                   <span className="text-text-muted">{t('cart.subtotal')}</span>
-                  <span className="text-text-primary">{convertAndFormatPrice(getTotalPrice(), 'EUR')}</span>
+                  <span className="text-text-primary">
+                    {convertAndFormatPrice((cartSummary.subtotal_cents || Math.round(getTotalPrice() * 100)) / 100, 'EUR')}
+                  </span>
                 </div>
                 
                 {appliedDiscount && appliedDiscount.discount_amount > 0 && (
@@ -706,9 +725,18 @@ export default function CartPage() {
                 <div className="flex justify-between text-sm md:text-base">
                   <span className="text-text-muted">{t('checkout.shipping')}</span>
                   <span className="text-text-primary">
-                    {appliedDiscount?.type === 'free_shipping' ? (
-                      <span className="text-green-600">{t('common.free')}</span>
-                    ) : t('common.free')}
+                    {(cartSummary.shipping_cents || 0) > 0
+                      ? convertAndFormatPrice(cartSummary.shipping_cents / 100, 'EUR')
+                      : <span className="text-green-600">{t('common.free')}</span>}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm md:text-base">
+                  <span className="text-text-muted">
+                    IVA ({((cartSummary.tax_rate_bp || 2100) / 100).toFixed(0)}%)
+                  </span>
+                  <span className="text-text-primary">
+                    {convertAndFormatPrice((cartSummary.tax_cents || 0) / 100, 'EUR')}
                   </span>
                 </div>
                 

@@ -69,6 +69,7 @@ import ProductCountryManagement from './pages/producer/ProductCountryManagement'
 import ProducerConnectPage from './pages/producer/ProducerConnectPage';
 import ProducerConnectSuccess from './pages/producer/ProducerConnectSuccess';
 import ProducerConnectRefresh from './pages/producer/ProducerConnectRefresh';
+import ProducerShippingPolicy from './pages/producer/ProducerShippingPolicy';
 
 // Customer Dashboard
 import CustomerLayout from './components/dashboard/CustomerLayoutResponsive';
@@ -198,6 +199,7 @@ function AppRouter() {
         <Route path="payments" element={<ProducerPayments />} />
         <Route path="profile" element={<ProducerProfile />} />
         <Route path="store" element={<ProducerStoreProfile />} />
+        <Route path="shipping" element={<ProducerShippingPolicy />} />
         <Route path="connect" element={<ProducerConnectPage />} />
         <Route path="connect/success" element={<ProducerConnectSuccess />} />
         <Route path="connect/refresh" element={<ProducerConnectRefresh />} />

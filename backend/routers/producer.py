@@ -12,7 +12,13 @@ from sqlalchemy.orm import selectinload
 from database import get_db
 from models import AffiliateLink, AffiliateLinkRequest, Product, ProductImage, User
 from routers.auth import get_current_user
-from schemas import ProductCreateRequest, ProductImageUploadResponse, ProductUpdateRequest
+from schemas import (
+    ProductCreateRequest,
+    ProductImageUploadResponse,
+    ProductUpdateRequest,
+    ShippingPolicyResponse,
+    ShippingPolicyUpdate,
+)
 from services.affiliate_service import build_affiliate_tracking_url
 from services.cloudinary import upload_image
 from services.stripe_connect import create_connect_account, create_onboarding_link
@@ -161,6 +167,39 @@ async def delete_product(product_id: str, db: AsyncSession = Depends(get_db), us
     product.status = "deleted"
     await db.flush()
     return {"ok": True}
+
+
+@router.get("/shipping/policy", response_model=ShippingPolicyResponse)
+async def get_shipping_policy(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    require_producer(user)
+    # keep db dependency for parity and future auditing hooks
+    _ = db
+    return ShippingPolicyResponse(
+        enabled=bool(user.shipping_policy_enabled),
+        base_cost_cents=int(user.shipping_base_cost_cents or 0),
+        free_threshold_cents=user.shipping_free_threshold_cents,
+        per_item_cents=int(user.shipping_per_item_cents or 0),
+    )
+
+
+@router.put("/shipping/policy", response_model=ShippingPolicyResponse)
+async def update_shipping_policy(
+    payload: ShippingPolicyUpdate,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    require_producer(user)
+    user.shipping_policy_enabled = payload.enabled
+    user.shipping_base_cost_cents = payload.base_cost_cents
+    user.shipping_free_threshold_cents = payload.free_threshold_cents
+    user.shipping_per_item_cents = payload.per_item_cents
+    await db.flush()
+    return ShippingPolicyResponse(
+        enabled=bool(user.shipping_policy_enabled),
+        base_cost_cents=int(user.shipping_base_cost_cents or 0),
+        free_threshold_cents=user.shipping_free_threshold_cents,
+        per_item_cents=int(user.shipping_per_item_cents or 0),
+    )
 
 
 @router.post("/stripe/connect")

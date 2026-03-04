@@ -113,6 +113,13 @@ class ProducerAddressInput(BaseModel):
     warehouse_address: Optional[Dict[str, str]] = None
 
 
+class ShippingPolicyInput(BaseModel):
+    enabled: bool = True
+    base_cost_cents: int = Field(default=0, ge=0)
+    free_threshold_cents: Optional[int] = Field(default=None, ge=0)
+    per_item_cents: int = Field(default=0, ge=0)
+
+
 class LocaleUpdateInput(BaseModel):
     country: Optional[str] = None
     language: Optional[str] = None

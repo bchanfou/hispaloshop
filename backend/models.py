@@ -62,6 +62,11 @@ class User(Base):
     stripe_account_charges_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
     connect_onboarding_completed: Mapped[bool] = mapped_column(Boolean, default=False)
     connect_requirements_due: Mapped[Optional[List[str]]] = mapped_column(JSONB, nullable=True)
+    shipping_policy_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    shipping_base_cost_cents: Mapped[int] = mapped_column(Integer, default=0)
+    shipping_free_threshold_cents: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    shipping_per_item_cents: Mapped[int] = mapped_column(Integer, default=0)
+    shipping_regions: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
     updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
 

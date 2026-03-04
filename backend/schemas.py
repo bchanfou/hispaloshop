@@ -205,9 +205,25 @@ class CartResponse(BaseModel):
     id: UUID
     items: List[CartItemResponse]
     subtotal_cents: int
+    shipping_cents: int = 0
+    tax_cents: int = 0
+    tax_rate_bp: int = 2100
+    total_cents: int = 0
+    currency: str = "EUR"
     item_count: int
     affiliate_code: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
+
+
+class ShippingPolicyUpdate(BaseModel):
+    enabled: bool = True
+    base_cost_cents: int = Field(default=0, ge=0)
+    free_threshold_cents: Optional[int] = Field(default=None, ge=0)
+    per_item_cents: int = Field(default=0, ge=0)
+
+
+class ShippingPolicyResponse(ShippingPolicyUpdate):
+    pass
 
 
 class CartItemCreateRequest(BaseModel):

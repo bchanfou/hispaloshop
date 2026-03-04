@@ -23,6 +23,7 @@ from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
 from services.ledger import write_ledger_event
 from config import normalize_influencer_tier
+from services.shipping_service import ShippingPolicy, ShippingService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -601,7 +602,57 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                             if not attr_check.get("existing"):
                                 await create_attribution(db, user.user_id, influencer["influencer_id"], discount_code["code"])
     
-    total_amount = max(0, subtotal - discount_amount)
+    discounted_subtotal = max(0, subtotal - discount_amount)
+
+    # Shipping policy calculation by producer
+    producer_groups: dict[str, dict] = {}
+    for item in cart_items:
+        pid = item.get("producer_id")
+        if not pid:
+            continue
+        producer_groups.setdefault(pid, {"subtotal_cents": 0, "item_count": 0})
+        producer_groups[pid]["subtotal_cents"] += int(round(item.get("price", 0) * item.get("quantity", 0) * 100))
+        producer_groups[pid]["item_count"] += int(item.get("quantity", 0) or 0)
+
+    shipping_cents = 0
+    for producer_id, group in producer_groups.items():
+        producer_doc = await db.users.find_one(
+            {"user_id": producer_id},
+            {
+                "_id": 0,
+                "shipping_policy_enabled": 1,
+                "shipping_base_cost_cents": 1,
+                "shipping_free_threshold_cents": 1,
+                "shipping_per_item_cents": 1,
+            },
+        )
+        if not producer_doc:
+            continue
+        policy = ShippingPolicy(
+            enabled=bool(producer_doc.get("shipping_policy_enabled", False)),
+            base_cost_cents=int(producer_doc.get("shipping_base_cost_cents", 0) or 0),
+            per_item_cents=int(producer_doc.get("shipping_per_item_cents", 0) or 0),
+            free_threshold_cents=producer_doc.get("shipping_free_threshold_cents"),
+        )
+        shipping_cents += ShippingService.calculate_shipping_cents(
+            policy=policy,
+            item_count=group["item_count"],
+            subtotal_cents=group["subtotal_cents"],
+        )
+
+    if discount_info and discount_info.get("type") == "free_shipping":
+        shipping_cents = 0
+
+    tax_rate_bp = ShippingService.get_tax_rate_bp(user_country)
+    totals_cents = ShippingService.calculate_order_totals(
+        subtotal_cents=int(round(discounted_subtotal * 100)),
+        shipping_cents=shipping_cents,
+        tax_rate_bp=tax_rate_bp,
+    )
+
+    shipping_amount = round(totals_cents["shipping_cents"] / 100, 2)
+    tax_amount = round(totals_cents["tax_cents"] / 100, 2)
+    total_amount = round(totals_cents["total_cents"] / 100, 2)
     order_id = f"order_{uuid.uuid4().hex[:12]}"
     
     line_items = []
@@ -687,6 +738,9 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
             "country": user_country,
             "seller_breakdown": _json.dumps(seller_breakdown),
             "influencer_id": influencer_commission_data["influencer_id"] if influencer_commission_data else "",
+            "shipping_cents": str(totals_cents["shipping_cents"]),
+            "tax_cents": str(totals_cents["tax_cents"]),
+            "tax_rate_bp": str(tax_rate_bp),
         },
         "line_items": [{
             "price_data": {
@@ -730,8 +784,12 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "country": user_country,
         "currency": base_currency,
         "subtotal": subtotal,
+        "subtotal_after_discount": round(discounted_subtotal, 2),
         "discount_info": discount_info,
         "discount_amount": round(discount_amount, 2),
+        "shipping_amount": shipping_amount,
+        "tax_amount": tax_amount,
+        "tax_rate_bp": tax_rate_bp,
         "total_amount": round(total_amount, 2),
         "status": "pending",
         "line_items": line_items,
