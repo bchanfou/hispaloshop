@@ -660,6 +660,10 @@ class CreateInfluencerCodeInput(BaseModel):
 
 class WithdrawalRequest(BaseModel):
     amount: Optional[float] = None
+    method: str = "stripe"  # stripe | bank_transfer
+    bank_account_holder: Optional[str] = None
+    bank_iban: Optional[str] = None
+    bank_bic: Optional[str] = None
 
 
 # ── Chat / Messaging ────────────────────────────────────────

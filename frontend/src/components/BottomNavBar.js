@@ -266,11 +266,11 @@ export default function BottomNavBar() {
 
             <button
               onClick={handlePostButton}
-              className="flex flex-col items-center justify-center -mt-4 mx-2"
+              className="flex flex-col items-center justify-center -mt-2 mx-1.5"
               data-testid="bottom-nav-post"
             >
-              <div className={`w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95 ring-2 ring-white ${activePanel === 'post' ? 'bg-stone-700 shadow-stone-500/25' : 'bg-[#1C1C1C] shadow-stone-900/20 hover:bg-[#2A2A2A]'}`}>
-                {activePanel === 'post' ? <X className="w-5 h-5 text-white" strokeWidth={2.2} /> : <Plus className="w-5 h-5 text-white" strokeWidth={2.2} />}
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 ring-1 ring-white ${activePanel === 'post' ? 'bg-stone-700 shadow-stone-500/20' : 'bg-[#1C1C1C] shadow-stone-900/15 hover:bg-[#2A2A2A]'}`}>
+                {activePanel === 'post' ? <X className="w-4.5 h-4.5 text-white" strokeWidth={2.2} /> : <Plus className="w-4.5 h-4.5 text-white" strokeWidth={2.2} />}
               </div>
               <span className="text-[10px] leading-none mt-1 text-stone-500 font-medium">{t('bottomNav.create', 'Crear')}</span>
             </button>

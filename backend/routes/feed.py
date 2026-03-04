@@ -97,7 +97,7 @@ async def get_stories(request: Request):
         followed_ids = [f["following_id"] for f in follows]
     
     # Get active sellers (followed + featured)
-    query = {"role": "producer", "status": {"$ne": "banned"}}
+    query = {"role": {"$in": ["producer", "importer"]}, "status": {"$ne": "banned"}}
     if followed_ids:
         query["user_id"] = {"$in": followed_ids}
     sellers = await db.users.find(query, {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1}).limit(15).to_list(15)
@@ -105,7 +105,7 @@ async def get_stories(request: Request):
     # If not enough from follows, add featured sellers
     if len(sellers) < 8:
         extra = await db.users.find(
-            {"role": "producer", "user_id": {"$nin": [s["user_id"] for s in sellers]}},
+            {"role": {"$in": ["producer", "importer"]}, "user_id": {"$nin": [s["user_id"] for s in sellers]}},
             {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "profile_image": 1}
         ).limit(8 - len(sellers)).to_list(8)
         sellers.extend(extra)

@@ -55,7 +55,7 @@ export default function Header() {
     } else if (scope === 'stores') {
       navigate(`/stores?search=${encodeURIComponent(q)}`);
     } else if (scope === 'profiles') {
-      navigate(`/discover?search=${encodeURIComponent(q)}`);
+      navigate(`/discover?scope=profiles&search=${encodeURIComponent(q)}`);
     } else {
       navigate(`/discover?search=${encodeURIComponent(q)}`);
     }

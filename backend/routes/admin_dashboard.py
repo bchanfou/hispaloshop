@@ -21,6 +21,32 @@ from routes.notifications import create_notification
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+async def _get_admin_country_scope(user: User) -> Optional[str]:
+    """Return assigned country for admins; super_admin sees all countries."""
+    if user.role == "super_admin":
+        return None
+    admin_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "assigned_country": 1})
+    return (admin_doc or {}).get("assigned_country")
+
+
+async def _build_seller_query(user: User, extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Scope seller queries to producer/importer and admin country."""
+    query: Dict[str, Any] = {"role": {"$in": ["producer", "importer"]}}
+    scoped_country = await _get_admin_country_scope(user)
+    if scoped_country:
+        query["country"] = scoped_country
+    if extra:
+        query.update(extra)
+    return query
+
+
+async def _get_scoped_seller_ids(user: User) -> List[str]:
+    """Return seller user_ids (producer/importer) visible for current admin scope."""
+    seller_query = await _build_seller_query(user)
+    sellers = await db.users.find(seller_query, {"_id": 0, "user_id": 1}).to_list(10000)
+    return [s.get("user_id") for s in sellers if s.get("user_id")]
+
 # ============================================
 # ADMIN DASHBOARD ENDPOINTS
 # ============================================
@@ -28,60 +54,86 @@ router = APIRouter()
 # Admin - Producer Management
 @router.get("/admin/producers")
 async def get_all_producers(user: User = Depends(get_current_user)):
-    """Get all producers with all statuses"""
+    """Get all producers/importers with all statuses (scoped by admin country)."""
     await require_role(user, ["admin"])
-    producers = await db.users.find({"role": "producer"}, {"_id": 0, "password_hash": 0}).to_list(100)
+    query = await _build_seller_query(user)
+    producers = await db.users.find(query, {"_id": 0, "password_hash": 0}).to_list(300)
     return producers
 
 @router.get("/admin/producers/pending")
 async def get_pending_producers(user: User = Depends(get_current_user)):
     await require_role(user, ["admin"])
-    producers = await db.users.find({"role": "producer", "approved": False, "status": {"$ne": "rejected"}}, {"_id": 0, "password_hash": 0}).to_list(100)
+    query = await _build_seller_query(user, {"approved": False, "status": {"$ne": "rejected"}})
+    producers = await db.users.find(query, {"_id": 0, "password_hash": 0}).to_list(300)
     return producers
 
 @router.get("/admin/producers/{producer_id}")
 async def get_producer_detail(producer_id: str, user: User = Depends(get_current_user)):
-    """Get single producer details"""
+    """Get single producer/importer details within admin scope."""
     await require_role(user, ["admin"])
-    producer = await db.users.find_one({"user_id": producer_id, "role": "producer"}, {"_id": 0, "password_hash": 0})
+    query = await _build_seller_query(user, {"user_id": producer_id})
+    producer = await db.users.find_one(query, {"_id": 0, "password_hash": 0})
     if not producer:
-        raise HTTPException(status_code=404, detail="Producer not found")
+        raise HTTPException(status_code=404, detail="Seller not found")
     return producer
 
 @router.put("/admin/producers/{producer_id}/status")
 async def update_producer_status(producer_id: str, status: str, user: User = Depends(get_current_user)):
-    """Update producer status: pending, approved, rejected, paused"""
+    """Update producer/importer status: pending, approved, rejected, paused."""
     await require_role(user, ["admin"])
     if status not in ["pending", "approved", "rejected", "paused"]:
         raise HTTPException(status_code=400, detail="Invalid status")
-    
+
+    scope_query = await _build_seller_query(user, {"user_id": producer_id})
+    target = await db.users.find_one(scope_query, {"_id": 0, "user_id": 1})
+    if not target:
+        raise HTTPException(status_code=404, detail="Seller not found")
+
     update_data = {"status": status, "approved": status == "approved"}
-    await db.users.update_one({"user_id": producer_id, "role": "producer"}, {"$set": update_data})
-    return {"message": f"Producer status updated to {status}"}
+    await db.users.update_one({"user_id": producer_id}, {"$set": update_data})
+    return {"message": f"Seller status updated to {status}"}
 
 @router.put("/admin/producers/{producer_id}")
 async def update_producer(producer_id: str, data: dict, user: User = Depends(get_current_user)):
-    """Edit producer data"""
+    """Edit producer/importer data within admin country scope."""
     await require_role(user, ["admin"])
     # Only allow certain fields to be updated
     allowed_fields = ["name", "company_name", "phone", "whatsapp", "contact_person", "fiscal_address", "vat_cif", "country"]
     update_data = {k: v for k, v in data.items() if k in allowed_fields}
     if update_data:
-        await db.users.update_one({"user_id": producer_id, "role": "producer"}, {"$set": update_data})
-    return {"message": "Producer updated"}
+        scope_query = await _build_seller_query(user, {"user_id": producer_id})
+        target = await db.users.find_one(scope_query, {"_id": 0, "user_id": 1})
+        if not target:
+            raise HTTPException(status_code=404, detail="Seller not found")
+        await db.users.update_one({"user_id": producer_id}, {"$set": update_data})
+    return {"message": "Seller updated"}
 
 # Admin - Product Management (enhanced)
 @router.get("/admin/products")
 async def get_all_products_admin(user: User = Depends(get_current_user)):
     """Get all products for admin (including unapproved)"""
     await require_role(user, ["admin"])
-    products = await db.products.find({}, {"_id": 0}).to_list(500)
+    product_query: Dict[str, Any] = {}
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if scoped_seller_ids:
+            product_query["producer_id"] = {"$in": scoped_seller_ids}
+        else:
+            product_query["producer_id"] = "__none__"
+    products = await db.products.find(product_query, {"_id": 0}).to_list(500)
     return products
 
 @router.get("/admin/products/pending")
 async def get_pending_products(user: User = Depends(get_current_user)):
     await require_role(user, ["admin"])
-    products = await db.products.find({"approved": False}, {"_id": 0}).to_list(100)
+    pending_query: Dict[str, Any] = {"approved": False}
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if scoped_seller_ids:
+            pending_query["producer_id"] = {"$in": scoped_seller_ids}
+        else:
+            pending_query["producer_id"] = "__none__"
+    products = await db.products.find(pending_query, {"_id": 0}).to_list(100)
     return products
 
 @router.put("/admin/products/{product_id}/approve")
@@ -90,6 +142,12 @@ async def approve_product(product_id: str, approved: bool, user: User = Depends(
     
     # Get product info before update
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if product.get("producer_id") not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Product not found")
     was_approved = product.get("approved", False) if product else False
     
     await db.products.update_one({"product_id": product_id}, {"$set": {"approved": approved, "status": "active" if approved else "inactive"}})
@@ -134,6 +192,13 @@ async def approve_product(product_id: str, approved: bool, user: User = Depends(
 async def toggle_product_featured(product_id: str, featured: bool, user: User = Depends(get_current_user)):
     """Admin: toggle featured status. Featured only affects Best Products section."""
     await require_role(user, ["admin"])
+    if user.role != "super_admin":
+        product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "producer_id": 1})
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if product.get("producer_id") not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Product not found")
     await db.products.update_one({"product_id": product_id}, {"$set": {"featured": featured}})
     return {"message": f"Product {'featured' if featured else 'unfeatured'}"}
 
@@ -143,6 +208,13 @@ async def update_product_price(product_id: str, price: float, user: User = Depen
     await require_role(user, ["admin"])
     
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "price": 1, "name": 1})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if user.role != "super_admin":
+        product_scope = await db.products.find_one({"product_id": product_id}, {"_id": 0, "producer_id": 1})
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if not product_scope or product_scope.get("producer_id") not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Product not found")
     old_price = product.get("price", 0) if product else 0
     
     await db.products.update_one({"product_id": product_id}, {"$set": {"price": price}})
@@ -168,7 +240,14 @@ async def update_product_price(product_id: str, price: float, user: User = Depen
 async def get_all_certificates_admin(user: User = Depends(get_current_user)):
     """Get all certificates for admin with producer info"""
     await require_role(user, ["admin"])
-    certificates = await db.certificates.find({}, {"_id": 0}).to_list(500)
+    cert_query: Dict[str, Any] = {}
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if scoped_seller_ids:
+            cert_query["producer_id"] = {"$in": scoped_seller_ids}
+        else:
+            cert_query["producer_id"] = "__none__"
+    certificates = await db.certificates.find(cert_query, {"_id": 0}).to_list(500)
     
     # Enrich with producer names
     for cert in certificates:
@@ -184,13 +263,27 @@ async def get_all_certificates_admin(user: User = Depends(get_current_user)):
 @router.get("/admin/certificates/pending")
 async def get_pending_certificates(user: User = Depends(get_current_user)):
     await require_role(user, ["admin"])
-    certificates = await db.certificates.find({"approved": False, "rejected": {"$ne": True}}, {"_id": 0}).to_list(100)
+    cert_query: Dict[str, Any] = {"approved": False, "rejected": {"$ne": True}}
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if scoped_seller_ids:
+            cert_query["producer_id"] = {"$in": scoped_seller_ids}
+        else:
+            cert_query["producer_id"] = "__none__"
+    certificates = await db.certificates.find(cert_query, {"_id": 0}).to_list(100)
     return certificates
     return certificates
 
 @router.put("/admin/certificates/{certificate_id}/approve")
 async def approve_certificate(certificate_id: str, approved: bool, user: User = Depends(get_current_user)):
     await require_role(user, ["admin"])
+    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0, "producer_id": 1})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if cert.get("producer_id") not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Certificate not found")
     update_data = {
         "approved": approved,
         "rejected": False,
@@ -212,6 +305,13 @@ async def approve_certificate(certificate_id: str, approved: bool, user: User = 
 async def reject_certificate(certificate_id: str, input: RejectCertificateInput, user: User = Depends(get_current_user)):
     """Reject a certificate with a reason"""
     await require_role(user, ["admin"])
+    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0, "producer_id": 1})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if cert.get("producer_id") not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Certificate not found")
     update_data = {
         "approved": False,
         "rejected": True,
@@ -233,6 +333,13 @@ async def reject_certificate(certificate_id: str, input: RejectCertificateInput,
 async def delete_certificate_admin(certificate_id: str, user: User = Depends(get_current_user)):
     """Delete a certificate permanently"""
     await require_role(user, ["admin"])
+    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0, "producer_id": 1})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if cert.get("producer_id") not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Certificate not found")
     result = await db.certificates.delete_one({"certificate_id": certificate_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Certificate not found")
@@ -250,6 +357,13 @@ async def delete_certificate_admin(certificate_id: str, user: User = Depends(get
 async def update_certificate_admin(certificate_id: str, data: Dict[str, Any], user: User = Depends(get_current_user)):
     """Admin can edit certificate data"""
     await require_role(user, ["admin"])
+    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0, "producer_id": 1})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if cert.get("producer_id") not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Certificate not found")
     await db.certificates.update_one({"certificate_id": certificate_id}, {"$set": {"data": data}})
     # Log the change
     await db.certificate_logs.insert_one({
@@ -265,6 +379,13 @@ async def update_certificate_admin(certificate_id: str, data: Dict[str, Any], us
 async def get_certificate_history(certificate_id: str, user: User = Depends(get_current_user)):
     """Get certificate change history"""
     await require_role(user, ["admin"])
+    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0, "producer_id": 1})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if cert.get("producer_id") not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Certificate not found")
     logs = await db.certificate_logs.find({"certificate_id": certificate_id}, {"_id": 0}).sort("timestamp", -1).to_list(50)
     return logs
 
@@ -273,14 +394,40 @@ async def get_certificate_history(certificate_id: str, user: User = Depends(get_
 async def get_all_orders_admin(user: User = Depends(get_current_user)):
     """Get all orders for admin view"""
     await require_role(user, ["admin"])
-    orders = await db.orders.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+
+    order_query: Dict[str, Any] = {}
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if scoped_seller_ids:
+            order_query["line_items.producer_id"] = {"$in": scoped_seller_ids}
+        else:
+            order_query["line_items.producer_id"] = "__none__"
+
+    orders = await db.orders.find(order_query, {"_id": 0}).sort("created_at", -1).to_list(500)
     return orders
 
 @router.get("/admin/payments")
 async def get_all_payments_admin(user: User = Depends(get_current_user)):
     """Get all payments with commission breakdown"""
     await require_role(user, ["admin"])
-    payments = await db.payment_transactions.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+
+    payment_query: Dict[str, Any] = {}
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if scoped_seller_ids:
+            scoped_orders = await db.orders.find(
+                {"line_items.producer_id": {"$in": scoped_seller_ids}},
+                {"_id": 0, "order_id": 1}
+            ).to_list(10000)
+            scoped_order_ids = [o.get("order_id") for o in scoped_orders if o.get("order_id")]
+            if scoped_order_ids:
+                payment_query["order_id"] = {"$in": scoped_order_ids}
+            else:
+                payment_query["order_id"] = "__none__"
+        else:
+            payment_query["order_id"] = "__none__"
+
+    payments = await db.payment_transactions.find(payment_query, {"_id": 0}).sort("created_at", -1).to_list(500)
     # Calculate totals
     total_amount = sum(p.get("amount", 0) for p in payments if p.get("status") == "completed")
     platform_commission = total_amount * PLATFORM_COMMISSION
@@ -299,8 +446,14 @@ async def get_all_payments_admin(user: User = Depends(get_current_user)):
 async def get_payments_by_producer(producer_id: str, user: User = Depends(get_current_user)):
     """Get payments for a specific producer"""
     await require_role(user, ["admin"])
+
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if producer_id not in scoped_seller_ids:
+            raise HTTPException(status_code=404, detail="Producer not found in your admin scope")
+
     # Get orders containing this producer's products
-    orders = await db.orders.find({}, {"_id": 0}).to_list(500)
+    orders = await db.orders.find({"line_items.producer_id": producer_id}, {"_id": 0}).to_list(500)
     producer_orders = []
     for order in orders:
         producer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == producer_id]
@@ -323,13 +476,39 @@ async def get_payments_by_producer(producer_id: str, user: User = Depends(get_cu
 async def get_admin_stats(user: User = Depends(get_current_user)):
     """Get admin dashboard statistics"""
     await require_role(user, ["admin"])
-    
-    pending_producers = await db.users.count_documents({"role": "producer", "approved": False, "status": {"$ne": "rejected"}})
-    total_producers = await db.users.count_documents({"role": "producer"})
-    pending_products = await db.products.count_documents({"approved": False})
-    total_products = await db.products.count_documents({})
-    pending_certificates = await db.certificates.count_documents({"approved": False})
-    total_orders = await db.orders.count_documents({})
+
+    seller_query = await _build_seller_query(user)
+    pending_producers = await db.users.count_documents({
+        **seller_query,
+        "approved": False,
+        "status": {"$ne": "rejected"}
+    })
+    total_producers = await db.users.count_documents(seller_query)
+
+    scoped_sellers = await db.users.find(seller_query, {"_id": 0, "user_id": 1}).to_list(5000)
+    scoped_seller_ids = [u.get("user_id") for u in scoped_sellers if u.get("user_id")]
+
+    product_query: Dict[str, Any] = {}
+    pending_product_query: Dict[str, Any] = {"approved": False}
+    certificate_query: Dict[str, Any] = {"approved": False}
+    order_query: Dict[str, Any] = {}
+
+    if scoped_seller_ids:
+        product_query["producer_id"] = {"$in": scoped_seller_ids}
+        pending_product_query["producer_id"] = {"$in": scoped_seller_ids}
+        certificate_query["producer_id"] = {"$in": scoped_seller_ids}
+        order_query["line_items.producer_id"] = {"$in": scoped_seller_ids}
+    elif user.role != "super_admin":
+        # Country-scoped admin with no sellers in scope should get zero stats.
+        product_query["producer_id"] = "__none__"
+        pending_product_query["producer_id"] = "__none__"
+        certificate_query["producer_id"] = "__none__"
+        order_query["line_items.producer_id"] = "__none__"
+
+    pending_products = await db.products.count_documents(pending_product_query)
+    total_products = await db.products.count_documents(product_query)
+    pending_certificates = await db.certificates.count_documents(certificate_query)
+    total_orders = await db.orders.count_documents(order_query)
     
     return {
         "pending_producers": pending_producers,
@@ -351,7 +530,7 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
     
     # User counts by role
     users_by_role = {}
-    for role in ["customer", "producer", "influencer", "admin", "super_admin"]:
+    for role in ["customer", "producer", "importer", "influencer", "admin", "super_admin"]:
         users_by_role[role] = await db.users.count_documents({"role": role})
     total_users = sum(users_by_role.values())
     new_users_7d = await db.users.count_documents({"created_at": {"$gte": seven_days_ago}})
@@ -375,7 +554,7 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
     orders_30d = rev_30d[0]["count"] if rev_30d else 0
     
     # Pending actions
-    pending_sellers = await db.users.count_documents({"role": "producer", "approved": False})
+    pending_sellers = await db.users.count_documents({"role": {"$in": ["producer", "importer"]}, "approved": False})
     pending_products = await db.products.count_documents({"status": {"$ne": "active"}, "approved": False})
     pending_certs = await db.certificates.count_documents({"approved": False})
     flagged_posts = await db.user_posts.count_documents({"status": "reported"})
@@ -704,3 +883,4 @@ async def get_admin_analytics(
         "country_filter": country_filter,
         "is_global": country_filter is None
     }
+

@@ -259,7 +259,7 @@ async def create_post(
     user: User = Depends(get_current_user)
 ):
     """Create a new post. Producers and influencers MUST tag a product."""
-    requires_product = user.role in ("producer", "influencer")
+    requires_product = user.role in ("producer", "importer", "influencer")
     if requires_product and (not product_id or not product_id.strip()):
         raise HTTPException(status_code=400, detail="Los vendedores e influencers deben vincular un producto a cada post")
 
@@ -305,6 +305,29 @@ async def create_post(
     }
     await db.user_posts.insert_one(post)
     return {k: v for k, v in post.items() if k != "_id"}
+
+
+@router.get("/posts")
+async def list_posts(skip: int = 0, limit: int = 30):
+    """List public posts ordered by newest first."""
+    posts = await db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"posts": posts, "total": len(posts), "has_more": len(posts) == limit}
+
+
+@router.get("/posts/{post_id}")
+async def get_post(post_id: str):
+    """Get a single post by id."""
+    post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+
+
+@router.get("/posts/{post_id}/likes")
+async def get_post_likes(post_id: str, skip: int = 0, limit: int = 50):
+    """Get users who liked a post."""
+    likes = await db.post_likes.find({"post_id": post_id}, {"_id": 0, "user_id": 1, "created_at": 1}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"likes": likes}
 
 
 @router.post("/posts/{post_id}/like")
@@ -488,6 +511,15 @@ async def toggle_bookmark(post_id: str, user: User = Depends(get_current_user)):
     return {"bookmarked": True}
 
 
+@router.post("/posts/{post_id}/save")
+async def toggle_save_alias(post_id: str, user: User = Depends(get_current_user)):
+    """
+    Backward-compatible alias used by some frontend clients.
+    Behavior matches /posts/{post_id}/bookmark.
+    """
+    return await toggle_bookmark(post_id, user)
+
+
 @router.delete("/posts/{post_id}")
 async def delete_post(post_id: str, user: User = Depends(get_current_user)):
     post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1})
@@ -514,7 +546,13 @@ async def delete_post(post_id: str, user: User = Depends(get_current_user)):
 # ── Feed ──────────────────────────────────────────────────────
 
 @router.get("/feed")
-async def get_social_feed(request: Request, skip: int = 0, limit: int = 20, country: Optional[str] = None):
+async def get_social_feed(
+    request: Request,
+    skip: int = 0,
+    limit: int = 20,
+    country: Optional[str] = None,
+    scope: str = "hybrid",
+):
     """
     Hybrid feed: scored by conversion potential, filtered by country availability.
     Score = (product_sales * 3) + (comments * 2) + (likes * 1) + boosts
@@ -524,6 +562,7 @@ async def get_social_feed(request: Request, skip: int = 0, limit: int = 20, coun
     except Exception:
         current_user = None
     base_query = {}
+    feed_scope = (scope or "hybrid").lower()
 
     # Determine user's market country
     user_country = country
@@ -545,6 +584,14 @@ async def get_social_feed(request: Request, skip: int = 0, limit: int = 20, coun
     except Exception as exc:
         logger.warning(f"[SOCIAL] Mongo unavailable for /feed, fallback to PostgreSQL: {exc}")
         return await _fallback_feed_from_postgres(skip=skip, limit=limit)
+
+    # "following" scope returns only content from followed profiles (plus own posts),
+    # ordered by publish time. This keeps Home feed aligned with social expectations.
+    if feed_scope == "following" and current_user:
+        allowed_authors = set(following_ids)
+        allowed_authors.add(current_user.user_id)
+        all_posts = [p for p in all_posts if p.get("user_id") in allowed_authors]
+        all_posts.sort(key=lambda p: p.get("created_at") or "", reverse=True)
 
     # Batch load product availability for tagged products
     product_ids = set(p.get("tagged_product", {}).get("product_id") for p in all_posts if p.get("tagged_product"))
@@ -572,35 +619,46 @@ async def get_social_feed(request: Request, skip: int = 0, limit: int = 20, coun
         sales_data = await db.orders.aggregate(sales_pipeline).to_list(500)
         sales_counts = {s["_id"]: s["sales"] for s in sales_data}
 
-    scored_posts = []
-    for post in all_posts:
-        likes = post.get("likes_count", 0)
-        comments = post.get("comments_count", 0)
-        product_sales = 0
-        product = post.get("tagged_product")
-        is_available = True
-        if product:
-            pid = product.get("product_id")
-            product_sales = sales_counts.get(pid, 0)
-            is_available = product_availability.get(pid, True)
-        score = (product_sales * 3) + (comments * 2) + (likes * 1)
-        if product:
-            score += 5 if is_available else -10  # Penalize unavailable products
-        if current_user and post.get("user_id") in following_ids:
-            score += 3
-        try:
-            age_hours = (datetime.now(timezone.utc) - datetime.fromisoformat(post.get("created_at", "").replace("Z", "+00:00"))).total_seconds() / 3600
-            if age_hours < 24:
-                score += 4
-            elif age_hours < 72:
-                score += 2
-        except:
-            pass
-        scored_posts.append((score, post, is_available))
+    if feed_scope == "following" and current_user:
+        page_posts = []
+        for post in all_posts[skip:skip + limit]:
+            product = post.get("tagged_product")
+            is_available = True
+            if product:
+                pid = product.get("product_id")
+                is_available = product_availability.get(pid, True)
+            page_posts.append((post, is_available))
+        total = len(all_posts)
+    else:
+        scored_posts = []
+        for post in all_posts:
+            likes = post.get("likes_count", 0)
+            comments = post.get("comments_count", 0)
+            product_sales = 0
+            product = post.get("tagged_product")
+            is_available = True
+            if product:
+                pid = product.get("product_id")
+                product_sales = sales_counts.get(pid, 0)
+                is_available = product_availability.get(pid, True)
+            score = (product_sales * 3) + (comments * 2) + (likes * 1)
+            if product:
+                score += 5 if is_available else -10  # Penalize unavailable products
+            if feed_scope != "global" and current_user and post.get("user_id") in following_ids:
+                score += 3
+            try:
+                age_hours = (datetime.now(timezone.utc) - datetime.fromisoformat(post.get("created_at", "").replace("Z", "+00:00"))).total_seconds() / 3600
+                if age_hours < 24:
+                    score += 4
+                elif age_hours < 72:
+                    score += 2
+            except:
+                pass
+            scored_posts.append((score, post, is_available))
 
-    scored_posts.sort(key=lambda x: x[0], reverse=True)
-    page_posts = [(p, avail) for _, p, avail in scored_posts[skip:skip + limit]]
-    total = len(scored_posts)
+        scored_posts.sort(key=lambda x: x[0], reverse=True)
+        page_posts = [(p, avail) for _, p, avail in scored_posts[skip:skip + limit]]
+        total = len(scored_posts)
 
     enriched = []
     user_cache = {}
@@ -682,7 +740,7 @@ async def get_trending_posts(request: Request, limit: int = 5):
 @router.get("/post-products/search")
 async def search_products_for_tagging(q: str = "", limit: int = 5, user: User = Depends(get_current_user)):
     query = {"status": "approved"}
-    if user.role == "producer":
+    if user.role in {"producer", "importer"}:
         query["producer_id"] = user.user_id
     if q:
         query["name"] = {"$regex": q, "$options": "i"}
@@ -702,7 +760,7 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
     if role and role != "all":
         query["role"] = role
     else:
-        query["role"] = {"$in": ["customer", "producer", "influencer"]}
+        query["role"] = {"$in": ["customer", "producer", "importer", "influencer"]}
     if search:
         query["name"] = {"$regex": search, "$options": "i"}
     try:
@@ -724,7 +782,7 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
             inf = await db.influencers.find_one({"email": u.get("email", "").lower()}, {"_id": 0, "niche": 1, "followers": 1})
             if inf:
                 extra = {"niche": inf.get("niche"), "social_followers": inf.get("followers")}
-        elif u.get("role") == "producer":
+        elif u.get("role") in {"producer", "importer"}:
             store = await db.stores.find_one({"user_id": uid}, {"_id": 0, "store_name": 1, "location": 1, "store_slug": 1})
             if store:
                 extra = {"store_name": store.get("store_name"), "store_location": store.get("location"), "store_slug": store.get("store_slug")}

@@ -969,8 +969,8 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
             </h3>
             <p className="text-xs text-white/70">
               {activeConversation && activeTab === 'messages' 
-                ? (activeConversation.other_user_type === 'producer' ? 'Productor' : 'Influencer')
-                : 'Influencers y Productores'}
+                ? (['producer', 'importer'].includes(activeConversation.other_user_type) ? (activeConversation.other_user_type === 'importer' ? 'Importador' : 'Productor') : 'Influencer')
+                : 'Influencers y Sellers'}
             </p>
           </div>
         </div>
@@ -1204,14 +1204,14 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                     onClick={() => setDirectoryType('producers')}
                     className={`px-3 py-1 text-xs rounded-full ${directoryType === 'producers' ? 'bg-white text-[#1C1C1C] shadow-sm' : 'text-[#7A7A7A]'}`}
                   >
-                    Productores
+                    Sellers
                   </button>
                 </div>
               )}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A7A]" />
                 <Input
-                  placeholder={activeTab === 'messages' ? 'Buscar chats...' : directoryType === 'influencers' ? 'Buscar influencers...' : 'Buscar productores...'}
+                  placeholder={activeTab === 'messages' ? 'Buscar chats...' : directoryType === 'influencers' ? 'Buscar influencers...' : 'Buscar sellers...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-stone-50 border-stone-200"
@@ -1253,7 +1253,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
                     <Store className="w-12 h-12 text-[#DED7CE] mb-4" />
-                    <p className="text-[#7A7A7A] text-sm">No hay productores disponibles</p>
+                    <p className="text-[#7A7A7A] text-sm">No hay sellers disponibles</p>
                   </div>
                 )
               ) : (
@@ -1277,7 +1277,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                         {/* Avatar with unread indicator */}
                         <div className="relative flex-shrink-0">
                           <div className="w-12 h-12 rounded-full bg-stone-200 flex items-center justify-center">
-                            {conv.other_user_type === 'producer' ? (
+                            {['producer', 'importer'].includes(conv.other_user_type) ? (
                               <Store className="w-6 h-6 text-[#7A7A7A]" />
                             ) : (
                               <User className="w-6 h-6 text-[#7A7A7A]" />
@@ -1312,6 +1312,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                           </div>
                           <p className="text-xs text-[#7A7A7A] mb-1">
                             {conv.other_user_role === 'producer' ? 'Productor' : 
+                             conv.other_user_role === 'importer' ? 'Importador' : 
                              conv.other_user_role === 'influencer' ? 'Influencer' : 'Usuario'}
                           </p>
                           {conv.last_message && (
@@ -1351,4 +1352,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
     </div>
   );
 }
+
+
+
 

@@ -374,6 +374,68 @@ async def remove_discount_code(user: User = Depends(get_current_user)):
     logger.info(f"[remove_discount] Delete result: deleted_count={result.deleted_count}")
     return {"message": "Discount code removed"}
 
+
+@router.post("/cart/apply-discount")
+async def apply_discount_code(code: str, user: User = Depends(get_current_user)):
+    """Apply a discount code to current cart."""
+    normalized = (code or "").strip().upper()
+    if not normalized:
+        raise HTTPException(status_code=400, detail="Discount code is required")
+
+    discount = await db.discount_codes.find_one({"code": normalized, "active": True}, {"_id": 0})
+    if not discount:
+        raise HTTPException(status_code=404, detail="Invalid discount code")
+
+    cart_items = await db.cart_items.find({"user_id": user.user_id}, {"_id": 0}).to_list(200)
+    if not cart_items:
+        raise HTTPException(status_code=400, detail="Cart is empty")
+
+    subtotal = sum((item.get("price", 0) * item.get("quantity", 0)) for item in cart_items)
+    if discount.get("min_cart_amount") and subtotal < float(discount["min_cart_amount"]):
+        raise HTTPException(status_code=400, detail="Minimum cart amount not reached for this code")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    if discount.get("start_date") and now_iso < str(discount["start_date"]):
+        raise HTTPException(status_code=400, detail="Discount code not active yet")
+    if discount.get("end_date") and now_iso > str(discount["end_date"]):
+        raise HTTPException(status_code=400, detail="Discount code expired")
+    if discount.get("usage_limit") is not None and int(discount.get("usage_count", 0)) >= int(discount["usage_limit"]):
+        raise HTTPException(status_code=400, detail="Discount usage limit reached")
+
+    # Influencer discount rule: 10% only on first completed order of customer.
+    if discount.get("influencer_id"):
+        prior_orders = await db.orders.count_documents({
+            "user_id": user.user_id,
+            "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]}
+        })
+        if prior_orders > 0:
+            raise HTTPException(status_code=400, detail="Influencer discount is only valid for your first order")
+
+    discount_amount = 0.0
+    dtype = discount.get("type")
+    dvalue = float(discount.get("value", 0))
+    if dtype == "percentage":
+        discount_amount = round(subtotal * (dvalue / 100.0), 2)
+    elif dtype == "fixed":
+        discount_amount = round(min(dvalue, subtotal), 2)
+    elif dtype == "free_shipping":
+        discount_amount = 0.0
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported discount type")
+
+    payload = {
+        "user_id": user.user_id,
+        "code_id": discount.get("code_id"),
+        "code": discount.get("code"),
+        "type": dtype,
+        "value": dvalue,
+        "discount_amount": discount_amount,
+        "applied_at": now_iso,
+        "influencer_id": discount.get("influencer_id"),
+    }
+    await db.cart_discounts.update_one({"user_id": user.user_id}, {"$set": payload}, upsert=True)
+    return {"message": "Discount code applied", "discount": payload}
+
 @router.delete("/cart/{product_id}")
 async def remove_from_cart(
     product_id: str, 

@@ -318,7 +318,7 @@ function CreatePostInline({ user, onPostCreated }) {
   const [showProductSelector, setShowProductSelector] = useState(false);
   const [taggedProduct, setTaggedProduct] = useState(null);
   const fileRef = useRef(null);
-  const canTagProducts = user?.role === 'producer' || user?.role === 'influencer' || user?.role === 'admin' || user?.role === 'super_admin';
+  const canTagProducts = user?.role === 'producer' || user?.role === 'importer' || user?.role === 'influencer' || user?.role === 'admin' || user?.role === 'super_admin';
 
   const handleFile = (e) => {
     const f = e.target.files?.[0];
@@ -790,7 +790,8 @@ export default function SocialFeed() {
     setLoading(true);
     try {
       const skip = reset ? 0 : page * LIMIT;
-      const res = await axios.get(`${API}/feed?skip=${skip}&limit=${LIMIT}`, { withCredentials: true });
+      const scope = user ? 'following' : 'hybrid';
+      const res = await axios.get(`${API}/feed?skip=${skip}&limit=${LIMIT}&scope=${scope}`, { withCredentials: true });
       if (reset) setPosts(res.data.posts || []);
       else setPosts(prev => [...prev, ...(res.data.posts || [])]);
       setHasMore(res.data.has_more || false);

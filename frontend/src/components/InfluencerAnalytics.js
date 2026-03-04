@@ -70,6 +70,10 @@ export default function InfluencerAnalytics() {
   }
 
   const { chart_data, summary, discount_code, referral_link } = analytics;
+  const effectiveRate = summary?.total_revenue > 0
+    ? ((summary.total_commission / summary.total_revenue) * 100)
+    : 0;
+  const effectiveRateLabel = `${effectiveRate.toFixed(2)}% sobre ventas`;
   
   // Copy referral link
   const copyReferralLink = () => {
@@ -173,7 +177,7 @@ export default function InfluencerAnalytics() {
           title="Comisiones"
           value={`€${summary.total_commission.toFixed(2)}`}
           color="text-green-600"
-          subtitle="15% de HispaloShop"
+          subtitle={effectiveRateLabel}
         />
       </div>
 
@@ -268,9 +272,9 @@ export default function InfluencerAnalytics() {
             <div className="bg-white rounded-lg p-4 border border-green-200">
               <p className="text-sm font-medium text-[#1C1C1C] mb-2">Cálculo de tu comisión:</p>
               <ul className="space-y-1 text-sm text-[#4A4A4A]">
-                <li>• HispaloShop cobra 18% de cada venta</li>
-                <li>• Tú recibes el 15% de esa comisión</li>
-                <li>• Ejemplo: Venta €100 → Tu comisión €2.70</li>
+                <li>• Tu comisión depende de tu tier activo (3% a 7%)</li>
+                <li>• Atribución de cliente activa durante 18 meses</li>
+                <li>• Tasa efectiva actual: {effectiveRateLabel}</li>
               </ul>
             </div>
             <div className="bg-white rounded-lg p-4 border border-green-200">
@@ -307,3 +311,5 @@ export default function InfluencerAnalytics() {
     </div>
   );
 }
+
+

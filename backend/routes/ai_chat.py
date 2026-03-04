@@ -1534,8 +1534,8 @@ Tu especialidad es ayudar a crear contenido auténtico, entretenido y efectivo p
 
 DATOS DEL INFLUENCER:
 - Nombre: {influencer.get('full_name', 'Influencer')}
-- Código de descuento: {influencer.get('discount_code', 'N/A')}
-- Comisión: {influencer.get('commission_value', 15)}%
+- Codigo de descuento: {influencer.get('discount_code', 'N/A')}
+- Comision: variable por tier activo (3% a 7%)
 - Nicho: {influencer.get('niche', 'Alimentación')}
 - Redes sociales principales: {influencer.get('social_media', {}).get('primary_platform', 'Instagram')}
 
@@ -1543,8 +1543,8 @@ SOBRE HISPALOSHOP:
 - Marketplace de productos alimenticios artesanales y certificados
 - Productos de pequeños productores y artesanos honestos
 - Categorías: aceites, snacks, conservas, dulces, especias, etc.
-- Los clientes obtienen 10% de descuento con el código del influencer (un solo uso)
-- El influencer gana 15% del beneficio por cada venta (de por vida)
+- Los clientes obtienen 10% de descuento en su primer pedido al usar el codigo
+- El influencer genera comision segun tier activo y atribucion del cliente por 18 meses
 
 DIRECTRICES PARA CREAR CONTENIDO:
 1. El contenido debe ser AUTÉNTICO y no parecer publicidad forzada
@@ -1579,4 +1579,5 @@ EJEMPLOS DE CONTENIDO QUE FUNCIONA:
     except Exception as e:
         logger.error(f"Influencer AI error: {e}")
         return {"response": "Lo siento, hubo un problema procesando tu consulta. Intenta de nuevo.", "success": False}
+
 

@@ -54,7 +54,7 @@ async def get_conversations(user: User = Depends(get_current_user)):
 @router.post("/chat/conversations")
 async def create_conversation(input: NewConversationInput, user: User = Depends(get_current_user)):
     """Start a new conversation"""
-    # Check if other user exists and is a valid type (producer or influencer)
+    # Check if other user exists
     other_user = await db.users.find_one({"user_id": input.other_user_id}, {"_id": 0})
     if not other_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -250,9 +250,9 @@ async def search_users_for_chat(query: str, user_type: str, user: User = Depends
                 "role": "influencer"
             })
     else:
-        # Influencer searching for producers
+        # Influencer searching for sellers (producer/importer)
         producers = await db.users.find({
-            "role": "producer",
+            "role": {"$in": ["producer", "importer"]},
             "approved": True,
             "name": {"$regex": query, "$options": "i"}
         }, {"_id": 0, "user_id": 1, "name": 1, "role": 1}).to_list(20)
@@ -265,4 +265,5 @@ async def search_users_for_chat(query: str, user_type: str, user: User = Depends
             })
     
     return results
+
 

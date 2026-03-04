@@ -20,6 +20,11 @@ const statusColors = {
   paused: 'bg-gray-100 text-gray-800'
 };
 
+const roleLabels = {
+  producer: 'Productor',
+  importer: 'Importador',
+};
+
 export default function AdminProducers() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -27,6 +32,7 @@ export default function AdminProducers() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [selectedProducer, setSelectedProducer] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({});
@@ -80,8 +86,9 @@ export default function AdminProducers() {
     
     const status = p.status || (p.approved ? 'approved' : 'pending');
     const matchesFilter = filter === 'all' || status === filter;
+    const matchesRole = roleFilter === 'all' || p.role === roleFilter;
     
-    return matchesSearch && matchesFilter;
+    return matchesSearch && matchesFilter && matchesRole;
   });
 
   // Detail View
@@ -115,6 +122,9 @@ export default function AdminProducers() {
               </h2>
               <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${statusColors[status]}`}>
                 {t(`adminProducers.status.${status}`)}
+              </span>
+              <span className="inline-block ml-2 px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
+                {roleLabels[selectedProducer.role] || selectedProducer.role || 'Seller'}
               </span>
             </div>
             <div className="flex gap-2">
@@ -231,9 +241,9 @@ export default function AdminProducers() {
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
-        {t('adminProducers.title')}
+        {t('adminProducers.title', 'Vendedores')}
       </h1>
-      <p className="text-text-muted mb-6">{t('adminProducers.subtitle')}</p>
+      <p className="text-text-muted mb-6">{t('adminProducers.subtitle', 'Gestion de productores e importadores por estado y pais')}</p>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
@@ -259,6 +269,16 @@ export default function AdminProducers() {
           <option value="rejected">{t('adminProducers.status.rejected')}</option>
           <option value="paused">{t('adminProducers.status.paused')}</option>
         </select>
+        <select
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+          className="px-4 py-2 rounded-lg border border-stone-200 bg-white"
+          data-testid="role-filter"
+        >
+          <option value="all">Todos los tipos</option>
+          <option value="producer">Productores</option>
+          <option value="importer">Importadores</option>
+        </select>
       </div>
 
       {/* Table */}
@@ -273,6 +293,7 @@ export default function AdminProducers() {
               <tr>
                 <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.company')}</th>
                 <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.contact')}</th>
+                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">Tipo</th>
                 <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.status')}</th>
                 <th className="text-right px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.actions')}</th>
               </tr>
@@ -289,6 +310,11 @@ export default function AdminProducers() {
                     <td className="px-6 py-4">
                       <p className="text-text-primary">{producer.email}</p>
                       <p className="text-sm text-text-muted">{producer.phone}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
+                        {roleLabels[producer.role] || producer.role || 'Seller'}
+                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColors[status]}`}>

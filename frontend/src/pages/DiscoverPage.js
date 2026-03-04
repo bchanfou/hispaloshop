@@ -1,7 +1,7 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Flame, Loader2, Clapperboard, Newspaper, Heart, Play } from 'lucide-react';
+import { Flame, Loader2, Clapperboard, Newspaper, Heart, Play, UserRound } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API } from '../utils/api';
@@ -55,23 +55,41 @@ function getList(payload) {
 export default function DiscoverPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') === 'reels' ? 'reels' : 'feeds';
+  const discoverScope = searchParams.get('scope') || '';
+  const searchQuery = (searchParams.get('search') || '').trim();
+  const profileSearchMode = discoverScope === 'profiles' && searchQuery.length > 0;
+  const textSearchMode = !profileSearchMode && searchQuery.length > 0;
 
   const [tab, setTab] = useState(initialTab);
   const [loading, setLoading] = useState(true);
   const [feeds, setFeeds] = useState([]);
   const [reels, setReels] = useState([]);
   const [trending, setTrending] = useState([]);
+  const [profiles, setProfiles] = useState([]);
 
   useEffect(() => {
+    if (profileSearchMode) return;
     setSearchParams(tab === 'reels' ? { tab: 'reels' } : {});
-  }, [tab, setSearchParams]);
+  }, [tab, setSearchParams, profileSearchMode]);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
+        if (profileSearchMode) {
+          const res = await axios.get(
+            `${API}/discover/profiles?search=${encodeURIComponent(searchQuery)}&limit=24`,
+            { withCredentials: true }
+          );
+          setProfiles(res.data?.profiles || []);
+          setFeeds([]);
+          setReels([]);
+          setTrending([]);
+          return;
+        }
+
         const [feedRes, postsRes, reelsRes, trendingRes] = await Promise.allSettled([
-          axios.get(`${API}/feed?skip=0&limit=180`, { withCredentials: true }),
+          axios.get(`${API}/feed?skip=0&limit=180&scope=global`, { withCredentials: true }),
           axios.get(`${API}/posts?skip=0&limit=180`, { withCredentials: true }),
           axios.get(`${API}/reels?limit=180`, { withCredentials: true }),
           axios.get(`${API}/feed/trending?limit=16`, { withCredentials: true }),
@@ -103,82 +121,138 @@ export default function DiscoverPage() {
         setFeeds(mergedFeeds);
         setReels(reelItems.sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at)));
         setTrending(globalTrending);
+        setProfiles([]);
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, []);
+  }, [profileSearchMode, searchQuery]);
 
-  const activeItems = useMemo(() => (tab === 'reels' ? reels : feeds), [tab, reels, feeds]);
+  const filteredFeeds = useMemo(() => {
+    if (!textSearchMode) return feeds;
+    const needle = searchQuery.toLowerCase();
+    return feeds.filter((item) => {
+      const text = `${item.caption || ''} ${item.user_name || ''}`.toLowerCase();
+      return text.includes(needle);
+    });
+  }, [feeds, textSearchMode, searchQuery]);
+
+  const filteredReels = useMemo(() => {
+    if (!textSearchMode) return reels;
+    const needle = searchQuery.toLowerCase();
+    return reels.filter((item) => {
+      const text = `${item.caption || ''} ${item.user_name || ''}`.toLowerCase();
+      return text.includes(needle);
+    });
+  }, [reels, textSearchMode, searchQuery]);
+
+  const activeItems = useMemo(
+    () => (tab === 'reels' ? filteredReels : filteredFeeds),
+    [tab, filteredReels, filteredFeeds]
+  );
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
       <Header />
       <div className="max-w-5xl mx-auto px-4 pt-5 pb-20">
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Flame className="w-4 h-4 text-orange-500" />
-            <h2 className="text-sm font-semibold text-[#1C1C1C]">Trending global</h2>
-          </div>
-          <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
-            {trending.map((item) => (
-              <Link
-                key={`${item.type}:${item.id}`}
-                to={item.user_id ? `/user/${item.user_id}` : '/discover'}
-                className="shrink-0 w-28"
-              >
-                <div className="w-28 h-40 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative">
-                  {item.type === 'reel' ? (
-                    item.thumbnail_url ? (
-                      <img src={item.thumbnail_url} alt={item.user_name} className="w-full h-full object-cover" />
+        {!profileSearchMode && (
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Flame className="w-4 h-4 text-orange-500" />
+              <h2 className="text-sm font-semibold text-[#1C1C1C]">
+                {textSearchMode ? `Resultados para "${searchQuery}"` : 'Trending global'}
+              </h2>
+            </div>
+            {!textSearchMode && <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
+              {trending.map((item) => (
+                <Link
+                  key={`${item.type}:${item.id}`}
+                  to={item.user_id ? `/user/${item.user_id}` : '/discover'}
+                  className="shrink-0 w-28"
+                >
+                  <div className="w-28 h-40 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative">
+                    {item.type === 'reel' ? (
+                      item.thumbnail_url ? (
+                        <img src={item.thumbnail_url} alt={item.user_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-stone-400"><Clapperboard className="w-5 h-5" /></div>
+                      )
+                    ) : item.media_url ? (
+                      <img src={item.media_url} alt={item.user_name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-stone-400"><Clapperboard className="w-5 h-5" /></div>
-                    )
-                  ) : item.media_url ? (
-                    <img src={item.media_url} alt={item.user_name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-stone-400"><Newspaper className="w-5 h-5" /></div>
-                  )}
-                  <div className="absolute top-1.5 left-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-black/65 text-white">
-                    {item.type === 'reel' ? 'REEL' : 'FEED'}
-                  </div>
-                  <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between text-[10px] text-white">
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-black/60">
-                      <Heart className="w-3 h-3" /> {item.likes_count}
-                    </span>
-                    {item.views_count > 0 ? (
+                      <div className="w-full h-full flex items-center justify-center text-stone-400"><Newspaper className="w-5 h-5" /></div>
+                    )}
+                    <div className="absolute top-1.5 left-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-black/65 text-white">
+                      {item.type === 'reel' ? 'REEL' : 'FEED'}
+                    </div>
+                    <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between text-[10px] text-white">
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-black/60">
-                        <Play className="w-3 h-3" /> {item.views_count}
+                        <Heart className="w-3 h-3" /> {item.likes_count}
                       </span>
-                    ) : null}
+                      {item.views_count > 0 ? (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-black/60">
+                          <Play className="w-3 h-3" /> {item.views_count}
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-                <div className="mt-1 text-[10px] text-stone-600 truncate">{item.user_name}</div>
-              </Link>
-            ))}
+                  <div className="mt-1 text-[10px] text-stone-600 truncate">{item.user_name}</div>
+                </Link>
+              ))}
+            </div>}
           </div>
-        </div>
+        )}
 
-        <div className="sticky top-[56px] md:top-[64px] z-20 bg-[#FAF7F2]/95 backdrop-blur pb-3 pt-1">
-          <div className="inline-flex p-1 rounded-full bg-white border border-stone-200">
-            <button
-              onClick={() => setTab('feeds')}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === 'feeds' ? 'bg-[#1C1C1C] text-white' : 'text-stone-600'}`}
-            >
-              Feeds
-            </button>
-            <button
-              onClick={() => setTab('reels')}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === 'reels' ? 'bg-[#1C1C1C] text-white' : 'text-stone-600'}`}
-            >
-              Reels
-            </button>
+        {!profileSearchMode && (
+          <div className="sticky top-[56px] md:top-[64px] z-20 bg-[#FAF7F2]/95 backdrop-blur pb-3 pt-1">
+            <div className="inline-flex p-1 rounded-full bg-white border border-stone-200">
+              <button
+                onClick={() => setTab('feeds')}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === 'feeds' ? 'bg-[#1C1C1C] text-white' : 'text-stone-600'}`}
+              >
+                Feeds
+              </button>
+              <button
+                onClick={() => setTab('reels')}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === 'reels' ? 'bg-[#1C1C1C] text-white' : 'text-stone-600'}`}
+              >
+                Reels
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="w-7 h-7 animate-spin text-stone-500" /></div>
+        ) : profileSearchMode ? (
+          profiles.length === 0 ? (
+            <div className="py-20 text-center text-stone-500 text-sm">Sin perfiles para "{searchQuery}"</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {profiles.map((profile) => (
+                <Link
+                  key={profile.user_id}
+                  to={`/user/${profile.user_id}`}
+                  className="bg-white rounded-2xl border border-stone-200 p-3 hover:shadow-sm transition-shadow"
+                >
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-stone-100 mb-2">
+                    {profile.profile_image ? (
+                      <img src={profile.profile_image} alt={profile.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-stone-400">
+                        <UserRound className="w-5 h-5" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-[#1C1C1C] truncate">{profile.name || 'Usuario'}</p>
+                  <p className="text-xs text-stone-500 mt-0.5 capitalize">
+                    {profile.role === 'producer' ? 'Productor' : profile.role === 'importer' ? 'Importador' : profile.role}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          )
         ) : activeItems.length === 0 ? (
           <div className="py-20 text-center text-stone-500 text-sm">Sin contenido</div>
         ) : tab === 'reels' ? (

@@ -33,7 +33,7 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 # ============================================================================
 # PAYMENT SYSTEM — Separate Charges & Transfers Architecture
 # ============================================================================
-# Money flow: Customer → Platform (full amount) → Seller transfers (82%) + Influencer scheduled (15% of 18%)
+# Money flow: Customer → Platform (full amount) → Seller transfers (82%) + Influencer scheduled (tier-based, attribution 18 months)
 # ============================================================================
 
 async def _resolve_seller_stripe(seller_id: str) -> dict:
@@ -549,6 +549,14 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                 valid = False
             if discount_code.get("min_cart_amount") and subtotal < discount_code["min_cart_amount"]:
                 valid = False
+            # Influencer coupons are first-order only for the customer using the code.
+            if valid and discount_code.get("influencer_id"):
+                prior_orders = await db.orders.count_documents({
+                    "user_id": user.user_id,
+                    "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]}
+                })
+                if prior_orders > 0:
+                    valid = False
             
             if valid:
                 # Calculate discount
@@ -601,8 +609,45 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                             }
                             if not attr_check.get("existing"):
                                 await create_attribution(db, user.user_id, influencer["influencer_id"], discount_code["code"])
-    
+
     discounted_subtotal = max(0, subtotal - discount_amount)
+
+    # 18-month attribution fallback:
+    # if customer already attributed to an influencer, commission applies on future orders
+    # even when customer does not re-enter the influencer code.
+    if not influencer_commission_data:
+        active_attr = await db.customer_influencer_attribution.find_one(
+            {"customer_id": user.user_id, "is_active": True},
+            {"_id": 0}
+        )
+        if active_attr:
+            expiry_str = active_attr.get("attribution_expiry_date")
+            is_active = True
+            if expiry_str:
+                try:
+                    expires_at = datetime.fromisoformat(expiry_str.replace("Z", "+00:00"))
+                    is_active = expires_at > datetime.now(timezone.utc)
+                except Exception:
+                    is_active = False
+
+            if is_active and active_attr.get("influencer_id"):
+                influencer = await db.influencers.find_one(
+                    {"influencer_id": active_attr["influencer_id"], "status": "active"},
+                    {"_id": 0}
+                )
+                if influencer and influencer.get("email") != user.email:
+                    from services.subscriptions import get_influencer_commission_rate
+                    influencer_tier = normalize_influencer_tier(influencer.get("current_tier", "perseo"))
+                    inf_rate = influencer.get("commission_rate", get_influencer_commission_rate(influencer_tier))
+                    commission_amount = round(discounted_subtotal * inf_rate, 2)
+                    influencer_commission_data = {
+                        "influencer_id": influencer["influencer_id"],
+                        "discount_code": active_attr.get("code_used"),
+                        "commission_amount": commission_amount,
+                        "commission_rate": inf_rate,
+                        "tier": influencer_tier,
+                        "order_value": round(discounted_subtotal, 2),
+                    }
 
     # Shipping policy calculation by producer
     producer_groups: dict[str, dict] = {}
@@ -2220,3 +2265,4 @@ async def check_and_notify_influencer_withdrawal_available(influencer_id: str, d
                 logger.error(f"[NOTIFICATION] Failed to send withdrawal notification to {email}: {e}")
     except Exception as e:
         logger.error(f"[NOTIFICATION] Error checking withdrawal for {influencer_id}: {e}")
+

@@ -71,7 +71,7 @@ async def register(input: RegisterInput):
         }
     }
     
-    if input.role == "producer":
+    if input.role in ["producer", "importer"]:
         user_data.update({
             "company_name": input.company_name,
             "phone": input.phone,
@@ -103,7 +103,7 @@ async def register(input: RegisterInput):
             "niche": input.niche,
             "status": "pending",  # pending, active, banned
             "commission_type": "percentage",
-            "commission_value": 15,  # 15% commission
+            "commission_value": 3,  # Base tier (Perseo) 3%
             "discount_code_id": None,  # Will be set when they create their code
             "total_sales_generated": 0,
             "total_commission_earned": 0,
@@ -289,6 +289,10 @@ async def login(input: LoginInput):
     
     if not verify_password(input.password, user_doc["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # Producer and importer accounts require admin approval before access.
+    if user_doc.get("role") in ["producer", "importer"] and not user_doc.get("approved", False):
+        raise HTTPException(status_code=403, detail="Your account is pending admin approval")
     
     # Progressive rehash: SHA256 → bcrypt
     if needs_rehash(user_doc["password_hash"]):

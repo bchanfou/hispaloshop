@@ -465,7 +465,7 @@ async def get_global_stats(user: User = Depends(get_current_user)):
     
     total_users = await db.users.count_documents({})
     total_customers = await db.users.count_documents({"role": "customer"})
-    total_producers = await db.users.count_documents({"role": "producer"})
+    total_producers = await db.users.count_documents({"role": {"$in": ["producer", "importer"]}})
     total_products = await db.products.count_documents({})
     total_orders = await db.orders.count_documents({})
     
@@ -606,7 +606,7 @@ async def get_user_countries(user: User = Depends(get_current_user)):
     await require_super_admin(user)
     
     pipeline = [
-        {"$match": {"role": {"$in": ["customer", "producer", "influencer"]}}},
+        {"$match": {"role": {"$in": ["customer", "producer", "importer", "influencer"]}}},
         {"$group": {
             "_id": "$country",
             "count": {"$sum": 1}
@@ -650,7 +650,7 @@ async def get_user_stats(user: User = Depends(get_current_user)):
     return {
         "by_role_month": results,
         "total_customers": await db.users.count_documents({"role": "customer"}),
-        "total_producers": await db.users.count_documents({"role": "producer"}),
+        "total_producers": await db.users.count_documents({"role": {"$in": ["producer", "importer"]}}),
         "total_influencers": await db.users.count_documents({"role": "influencer"}),
         "suspended": await db.users.count_documents({"account_status": "suspended"})
     }
@@ -736,7 +736,7 @@ async def delete_user_account(
             {"user_id": user_id},
             {"$set": {"user_email": "deleted@account.com", "user_name": "Deleted User"}}
         )
-    elif role == "producer":
+    elif role in ["producer", "importer"]:
         pending = await db.orders.count_documents({
             "items.producer_id": user_id,
             "status": {"$in": ["pending", "processing", "confirmed", "preparing"]}
@@ -744,7 +744,7 @@ async def delete_user_account(
         if pending > 0:
             raise HTTPException(
                 status_code=400,
-                detail=f"Cannot delete producer with {pending} pending orders"
+                detail=f"Cannot delete {role} with {pending} pending orders"
             )
         await db.products.update_many(
             {"producer_id": user_id},
@@ -983,7 +983,7 @@ async def get_certificates_stats_admin(user: User = Depends(get_current_user)):
 @router.put("/producer/products/{product_id}/stock")
 async def update_product_stock_producer(product_id: str, input: StockUpdateInput, user: User = Depends(get_current_user)):
     """Producer updates stock for their product"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
@@ -1041,7 +1041,7 @@ async def get_low_stock_products(user: User = Depends(get_current_user)):
 @router.get("/producer/products/low-stock")
 async def get_low_stock_products_producer(user: User = Depends(get_current_user)):
     """Get producer's products with low stock"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     products = await db.products.find(
         {
             "producer_id": user.user_id,
@@ -1060,7 +1060,7 @@ async def get_low_stock_products_producer(user: User = Depends(get_current_user)
 @router.get("/producer/products/{product_id}/countries")
 async def get_product_countries(product_id: str, user: User = Depends(get_current_user)):
     """Get country availability and pricing for a product"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     product = await db.products.find_one(
         {"product_id": product_id, "producer_id": user.user_id}, 
@@ -1085,7 +1085,7 @@ async def update_product_countries(
     user: User = Depends(get_current_user)
 ):
     """Update country availability and pricing for a product"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     product = await db.products.find_one({"product_id": product_id, "producer_id": user.user_id}, {"_id": 0})
     if not product:
@@ -1129,7 +1129,7 @@ async def add_country_to_product(
     user: User = Depends(get_current_user)
 ):
     """Add a single country to product availability"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     country_code = country_code.upper()
     if country_code not in SUPPORTED_COUNTRIES:
@@ -1171,7 +1171,7 @@ async def remove_country_from_product(
     user: User = Depends(get_current_user)
 ):
     """Remove a country from product availability"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     country_code = country_code.upper()
     
@@ -1209,7 +1209,7 @@ async def remove_country_from_product(
 @router.post("/producer/products/{product_id}/variants")
 async def create_variant(product_id: str, input: VariantCreateInput, user: User = Depends(get_current_user)):
     """Create a variant for a product (producer only)"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
@@ -1239,7 +1239,7 @@ async def create_variant(product_id: str, input: VariantCreateInput, user: User 
 @router.put("/producer/products/{product_id}/variants/{variant_id}")
 async def update_variant(product_id: str, variant_id: str, input: VariantCreateInput, user: User = Depends(get_current_user)):
     """Update a variant (producer only)"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
@@ -1268,7 +1268,7 @@ async def update_variant(product_id: str, variant_id: str, input: VariantCreateI
 @router.delete("/producer/products/{product_id}/variants/{variant_id}")
 async def delete_variant(product_id: str, variant_id: str, user: User = Depends(get_current_user)):
     """Delete a variant (producer only)"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
@@ -1294,7 +1294,7 @@ async def delete_variant(product_id: str, variant_id: str, user: User = Depends(
 @router.post("/producer/products/{product_id}/packs")
 async def create_pack(product_id: str, input: PackCreateInput, user: User = Depends(get_current_user)):
     """Create a pack for a variant (producer only)"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     if input.price < 0:
         raise HTTPException(status_code=400, detail="Price cannot be negative")
@@ -1339,7 +1339,7 @@ async def create_pack(product_id: str, input: PackCreateInput, user: User = Depe
 @router.put("/producer/products/{product_id}/packs/{pack_id}")
 async def update_pack(product_id: str, pack_id: str, input: PackUpdateInput, user: User = Depends(get_current_user)):
     """Update a pack (producer only)"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     if input.price is not None and input.price < 0:
         raise HTTPException(status_code=400, detail="Price cannot be negative")
@@ -1384,7 +1384,7 @@ async def update_pack(product_id: str, pack_id: str, input: PackUpdateInput, use
 @router.delete("/producer/products/{product_id}/packs/{pack_id}")
 async def delete_pack(product_id: str, pack_id: str, user: User = Depends(get_current_user)):
     """Delete a pack (producer only)"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
@@ -1454,3 +1454,4 @@ async def admin_update_pack(product_id: str, pack_id: str, input: PackUpdateInpu
     )
     
     return {"message": "Pack updated by admin"}
+

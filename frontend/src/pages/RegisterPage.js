@@ -81,6 +81,7 @@ export default function RegisterPage() {
   const pathRole = window.location.pathname.includes('/vender') ? 'producer' 
     : window.location.pathname.includes('/influencer') ? 'influencer' 
     : window.location.pathname.includes('/seller') ? 'producer'
+    : (window.location.pathname.includes('/importer') || window.location.pathname.includes('/importador')) ? 'importer'
     : null;
   const fixedRole = pathRole || roleParam || 'customer';
   
@@ -137,7 +138,7 @@ export default function RegisterPage() {
       errors.analytics_consent = 'You must accept the data processing terms to continue';
     }
     
-    if (formData.role === 'producer') {
+    if (formData.role === 'producer' || formData.role === 'importer') {
       if (!formData.company_name) errors.company_name = 'Company name is required';
       if (!formData.phone) errors.phone = 'Phone number is required';
       if (!formData.fiscal_address) errors.fiscal_address = 'Fiscal address is required';
@@ -195,7 +196,7 @@ export default function RegisterPage() {
       console.log('=== REGISTER SUCCESS ===');
       console.log('Response:', response.data);
       
-      if (formData.role === 'producer') {
+      if (formData.role === 'producer' || formData.role === 'importer') {
         toast.success(t('auth.producerRegistrationSuccess', 'Registration successful! Your account is pending admin approval.'));
       } else if (formData.role === 'influencer') {
         toast.success('¡Registro exitoso! Revisa tu email para verificar tu cuenta. Tu cuenta está pendiente de aprobación.');
@@ -232,7 +233,7 @@ export default function RegisterPage() {
     }
   };
 
-  const isProducer = formData.role === 'producer';
+  const isProducer = formData.role === 'producer' || formData.role === 'importer';
   const isInfluencer = formData.role === 'influencer';
 
   return (
@@ -564,7 +565,7 @@ export default function RegisterPage() {
                     <strong>{t('common.note', 'Nota')}:</strong> {t('register.influencerPendingNote', 'Las cuentas de influencer requieren aprobación del administrador. Una vez aprobada, podrás crear tu código de descuento personalizado y comenzar a ganar comisiones.')}
                   </p>
                   <ul className="text-xs md:text-sm text-purple-800 mt-2 space-y-1">
-                    <li>• <strong>15%</strong> {t('register.commissionPerSale', 'de comisión por cada venta (de por vida)')}</li>
+                    <li>• <strong>3%-7%</strong> {t('register.commissionPerSale', 'de comisión por tier (atribución 18 meses)')}</li>
                     <li>• <strong>10%</strong> {t('register.discountForFollowers', 'de descuento para tus seguidores')}</li>
                     <li>• {t('register.minFollowersReq', 'Requisito: mínimo 1.000 seguidores')}</li>
                   </ul>
@@ -740,3 +741,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

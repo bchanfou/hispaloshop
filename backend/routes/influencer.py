@@ -10,7 +10,8 @@ from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Request, Query
 
 from core.database import db
-from core.auth import get_current_user
+from core.auth import get_current_user, require_role
+from core.config import PLATFORM_COMMISSION
 from core.models import User, InfluencerApplication, CreateInfluencerCodeInput, WithdrawalRequest
 
 logger = logging.getLogger(__name__)
@@ -130,7 +131,7 @@ async def get_influencer_dashboard(user: User = Depends(get_current_user)):
         "status": influencer.get("status", "pending"),
         "discount_code": discount_code,
         "commission_type": influencer.get("commission_type", "percentage"),
-        "commission_value": influencer.get("commission_value", 10),
+        "commission_value": influencer.get("commission_value", 3),
         "platform_commission": PLATFORM_COMMISSION,  # 0.18 = 18%
         "total_sales_generated": round(influencer.get("total_sales_generated", 0), 2),
         "total_commission_earned": round(influencer.get("total_commission_earned", 0), 2),
@@ -604,107 +605,116 @@ MINIMUM_WITHDRAWAL_AMOUNT = 50  # €50 minimum for self-service withdrawal
 
 @router.post("/influencer/request-withdrawal")
 async def request_influencer_withdrawal(request: WithdrawalRequest, user: User = Depends(get_current_user)):
-    """Influencer requests withdrawal of their available balance"""
+    """Influencer requests withdrawal of their available balance."""
     influencer = await db.influencers.find_one({"email": user.email.lower()}, {"_id": 0})
     if not influencer:
         raise HTTPException(status_code=404, detail="No eres un influencer registrado")
-    
+
     if influencer.get("status") != "active":
         raise HTTPException(status_code=400, detail="Tu cuenta debe estar activa para solicitar retiros")
-    
-    if not influencer.get("stripe_account_id"):
-        raise HTTPException(status_code=400, detail="Debes conectar tu cuenta de Stripe primero")
-    
-    if not influencer.get("stripe_onboarding_complete"):
-        raise HTTPException(status_code=400, detail="Debes completar la configuración de Stripe")
-    
-    # Calculate available balance (only commissions where 15 days have passed)
+
+    payout_method = (request.method or "stripe").strip().lower()
+    if payout_method not in {"stripe", "bank_transfer"}:
+        raise HTTPException(status_code=400, detail="Metodo de retiro invalido. Usa 'stripe' o 'bank_transfer'.")
+
+    if payout_method == "stripe":
+        if not influencer.get("stripe_account_id"):
+            raise HTTPException(status_code=400, detail="Debes conectar tu cuenta de Stripe primero")
+        if not influencer.get("stripe_onboarding_complete"):
+            raise HTTPException(status_code=400, detail="Debes completar la configuracion de Stripe")
+    else:
+        if not request.bank_account_holder or not request.bank_iban:
+            raise HTTPException(status_code=400, detail="Para transferencia bancaria debes indicar titular e IBAN.")
+
     now = datetime.now(timezone.utc)
     available_commissions = await db.influencer_commissions.find({
         "influencer_id": influencer["influencer_id"],
         "commission_status": "pending"
     }, {"_id": 0}).to_list(1000)
-    
+
     available_balance = 0
     eligible_commission_ids = []
-    
     for comm in available_commissions:
         payment_date_str = comm.get("payment_available_date")
-        if payment_date_str:
-            try:
-                payment_date = datetime.fromisoformat(payment_date_str.replace('Z', '+00:00'))
-                if payment_date <= now:
-                    available_balance += comm.get("commission_amount", 0)
-                    eligible_commission_ids.append(comm["commission_id"])
-            except:
-                pass
-    
+        if not payment_date_str:
+            continue
+        try:
+            payment_date = datetime.fromisoformat(payment_date_str.replace("Z", "+00:00"))
+            if payment_date <= now:
+                available_balance += comm.get("commission_amount", 0)
+                eligible_commission_ids.append(comm["commission_id"])
+        except Exception:
+            continue
+
     available_balance = round(available_balance, 2)
-    
-    # Determine withdrawal amount
     withdrawal_amount = request.amount if request.amount else available_balance
-    withdrawal_amount = min(withdrawal_amount, available_balance)  # Can't withdraw more than available
-    
+    withdrawal_amount = min(withdrawal_amount, available_balance)
+
     if withdrawal_amount < MINIMUM_WITHDRAWAL_AMOUNT:
         raise HTTPException(
-            status_code=400, 
-            detail=f"El monto mínimo de retiro es €{MINIMUM_WITHDRAWAL_AMOUNT}. Tu saldo disponible es €{available_balance:.2f}"
+            status_code=400,
+            detail=f"El monto minimo de retiro es EUR {MINIMUM_WITHDRAWAL_AMOUNT}. Tu saldo disponible es EUR {available_balance:.2f}"
         )
-    
+
     try:
-        # Create transfer to influencer's Stripe account
-        transfer = stripe.Transfer.create(
-            amount=int(withdrawal_amount * 100),  # Convert to cents
-            currency="eur",
-            destination=influencer["stripe_account_id"],
-            metadata={
-                "influencer_id": influencer["influencer_id"],
-                "type": "influencer_self_withdrawal",
-                "requested_by": user.email
-            }
-        )
-        
-        # Create withdrawal record
+        transfer_id = None
+        withdrawal_status = "completed"
+        if payout_method == "stripe":
+            transfer = stripe.Transfer.create(
+                amount=int(withdrawal_amount * 100),
+                currency="eur",
+                destination=influencer["stripe_account_id"],
+                metadata={
+                    "influencer_id": influencer["influencer_id"],
+                    "type": "influencer_self_withdrawal",
+                    "requested_by": user.email
+                }
+            )
+            transfer_id = transfer.id
+        else:
+            withdrawal_status = "pending_bank_transfer"
+
         withdrawal_record = {
             "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
             "influencer_id": influencer["influencer_id"],
             "amount": withdrawal_amount,
-            "stripe_transfer_id": transfer.id,
-            "status": "completed",
+            "payout_method": payout_method,
+            "stripe_transfer_id": transfer_id,
+            "status": withdrawal_status,
+            "bank_account_holder": request.bank_account_holder if payout_method == "bank_transfer" else None,
+            "bank_iban": request.bank_iban if payout_method == "bank_transfer" else None,
+            "bank_bic": request.bank_bic if payout_method == "bank_transfer" else None,
             "created_at": now.isoformat(),
-            "completed_at": now.isoformat()
+            "completed_at": now.isoformat() if withdrawal_status == "completed" else None
         }
         await db.influencer_withdrawals.insert_one(withdrawal_record)
-        
-        # Update commissions to paid (proportionally if partial withdrawal)
+
         if withdrawal_amount >= available_balance:
-            # Full withdrawal - mark all eligible as paid
             await db.influencer_commissions.update_many(
                 {"commission_id": {"$in": eligible_commission_ids}},
                 {"$set": {
                     "commission_status": "paid",
                     "paid_at": now.isoformat(),
-                    "stripe_transfer_id": transfer.id
+                    "stripe_transfer_id": transfer_id
                 }}
             )
         else:
-            # Partial withdrawal - mark commissions as paid until we reach the amount
             remaining = withdrawal_amount
             for comm in available_commissions:
-                if comm["commission_id"] in eligible_commission_ids and remaining > 0:
-                    comm_amount = comm.get("commission_amount", 0)
-                    if comm_amount <= remaining:
-                        await db.influencer_commissions.update_one(
-                            {"commission_id": comm["commission_id"]},
-                            {"$set": {
-                                "commission_status": "paid",
-                                "paid_at": now.isoformat(),
-                                "stripe_transfer_id": transfer.id
-                            }}
-                        )
-                        remaining -= comm_amount
-        
-        # Update influencer's available_balance
+                if comm["commission_id"] not in eligible_commission_ids or remaining <= 0:
+                    continue
+                comm_amount = comm.get("commission_amount", 0)
+                if comm_amount <= remaining:
+                    await db.influencer_commissions.update_one(
+                        {"commission_id": comm["commission_id"]},
+                        {"$set": {
+                            "commission_status": "paid",
+                            "paid_at": now.isoformat(),
+                            "stripe_transfer_id": transfer_id
+                        }}
+                    )
+                    remaining -= comm_amount
+
         new_balance = max(0, influencer.get("available_balance", 0) - withdrawal_amount)
         await db.influencers.update_one(
             {"influencer_id": influencer["influencer_id"]},
@@ -713,15 +723,17 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
                 "updated_at": now.isoformat()
             }}
         )
-        
+
         return {
-            "message": f"¡Retiro de €{withdrawal_amount:.2f} procesado exitosamente!",
+            "message": f"Retiro de EUR {withdrawal_amount:.2f} registrado correctamente.",
             "withdrawal_id": withdrawal_record["withdrawal_id"],
-            "transfer_id": transfer.id,
+            "transfer_id": transfer_id,
+            "status": withdrawal_status,
+            "method": payout_method,
             "amount": withdrawal_amount,
             "new_balance": round(new_balance, 2)
         }
-        
+
     except stripe.error.StripeError as e:
         logger.error(f"Stripe error processing influencer withdrawal: {e}")
         raise HTTPException(status_code=500, detail=f"Error de Stripe: {str(e)}")
@@ -763,4 +775,5 @@ async def trigger_withdrawal_notification_check(user: User = Depends(get_current
 # ============================================
 # DISCOUNT CODE APPLICATION (CART)
 # ============================================
+
 
