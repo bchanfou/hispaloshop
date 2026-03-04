@@ -333,7 +333,7 @@ export default function AdminCertificates() {
   return (
     <div>
       <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary mb-2">
-        {t('certificates.management', 'Gestión de Certificados')}
+        {t('certificates.management', 'Gestion de Certificados')}
       </h1>
       <p className="text-text-muted mb-6">
         {t('certificates.reviewAndApprove', 'Revisa y aprueba los certificados de productos.')}
@@ -344,7 +344,7 @@ export default function AdminCertificates() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
           <Input
-            placeholder={t('certificates.searchPlaceholder', 'Buscar por producto o vendedor...')}
+            placeholder={t('certificates.searchPlaceholder', 'Buscar por producto o productor...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -586,3 +586,4 @@ export default function AdminCertificates() {
     </div>
   );
 }
+

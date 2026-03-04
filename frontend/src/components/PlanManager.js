@@ -55,7 +55,7 @@ export default function PlanManager() {
       <div className="flex items-center justify-between">
         <h2 className="font-heading text-lg font-bold text-text-primary">Mi Plan</h2>
         <a href="/pricing" className="text-xs text-[#2D5A27] hover:underline flex items-center gap-1">
-          Ver todos los planes <ArrowRight className="w-3 h-3" />
+          Ver detalle de comisiones <ArrowRight className="w-3 h-3" />
         </a>
       </div>
 
@@ -116,3 +116,4 @@ export default function PlanManager() {
     </div>
   );
 }
+

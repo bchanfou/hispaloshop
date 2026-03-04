@@ -603,7 +603,7 @@ export default function UserProfilePage() {
               <div className="text-center py-16">
                 <Package className="w-16 h-16 text-stone-300 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">{t('social.noProducts')}</h3>
-                <p className="text-[#7A7A7A]">Este vendedor aun no tiene productos publicados</p>
+                <p className="text-[#7A7A7A]">Este productor aun no tiene productos publicados</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -716,3 +716,4 @@ export default function UserProfilePage() {
     </div>
   );
 }
+

@@ -101,7 +101,7 @@ export default function SellerLandingPage() {
           <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
             <div className="flex items-start gap-3">
               <Store className="w-5 h-5 text-[#2D5A27] mt-0.5" />
-              <p className="text-sm text-[#444]">No hay planes de suscripcion en esta pagina informativa.</p>
+              <p className="text-sm text-[#444]">Modelo por comision por operacion, sin suscripcion mensual en este flujo.</p>
             </div>
             <div className="flex items-start gap-3">
               <FileCheck2 className="w-5 h-5 text-[#2D5A27] mt-0.5" />
@@ -149,3 +149,4 @@ export default function SellerLandingPage() {
     </div>
   );
 }
+

@@ -1,41 +1,43 @@
 import React from 'react';
-import 'flag-icons/css/flag-icons.min.css';
+
+const SIZE_MAP = {
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-xl',
+  xl: 'text-3xl',
+};
+
+function countryCodeToFlagEmoji(countryCode) {
+  if (!countryCode || countryCode.length !== 2) return '??';
+
+  const upper = countryCode.toUpperCase();
+  const first = upper.codePointAt(0);
+  const second = upper.codePointAt(1);
+
+  if (first < 65 || first > 90 || second < 65 || second > 90) return '??';
+
+  const base = 127397; // Regional indicator offset
+  return String.fromCodePoint(first + base) + String.fromCodePoint(second + base);
+}
 
 /**
- * CountryFlag - Renders a country flag using flag-icons CSS library
- * Uses ISO 3166-1 alpha-2 country codes (lowercase for flag-icons)
- * 
- * @param {string} countryCode - ISO 3166-1 alpha-2 country code (e.g., 'ES', 'US', 'GB')
- * @param {string} size - Size class: 'sm' (16px), 'md' (24px), 'lg' (32px), 'xl' (48px)
- * @param {string} className - Additional CSS classes
+ * CountryFlag - lightweight emoji-based country flag renderer.
+ * Avoids shipping the full flag-icons CSS/SVG set in the bundle.
  */
 export default function CountryFlag({ countryCode, size = 'md', className = '' }) {
   if (!countryCode) return null;
-  
-  // Convert to lowercase for flag-icons
-  const code = countryCode.toLowerCase();
-  
-  // Size mapping
-  const sizeStyles = {
-    sm: { width: '16px', height: '12px' },
-    md: { width: '24px', height: '18px' },
-    lg: { width: '32px', height: '24px' },
-    xl: { width: '48px', height: '36px' }
-  };
-  
-  const style = sizeStyles[size] || sizeStyles.md;
-  
+
+  const emoji = countryCodeToFlagEmoji(countryCode);
+  const sizeClass = SIZE_MAP[size] || SIZE_MAP.md;
+
   return (
-    <span 
-      className={`fi fi-${code} fis ${className}`}
-      style={{
-        ...style,
-        display: 'inline-block',
-        backgroundSize: 'cover',
-        borderRadius: '2px'
-      }}
+    <span
+      className={`inline-flex items-center justify-center leading-none ${sizeClass} ${className}`.trim()}
       role="img"
-      aria-label={`Flag of ${countryCode}`}
-    />
+      aria-label={`Flag of ${countryCode.toUpperCase()}`}
+      title={countryCode.toUpperCase()}
+    >
+      {emoji}
+    </span>
   );
 }

@@ -89,9 +89,9 @@
     "heroTitle": "Impulsa el Comercio Local, Transforma tu Comunidad",
     "heroDescription": "El marketplace que conecta productores locales con consumidores conscientes. Cada compra apoya a emprendedores y fortalece la economía de tu región.",
     "shopNow": "Explorar Productos",
-    "becomeSeller": "Ser Vendedor",
+    "becomeSeller": "Ser Productor",
     "becomeInfluencer": "Ser Influencer",
-    "becomeProducer": "Vender en Hispaloshop",
+    "becomeProducer": "Ser Productor",
     "whyHispaloshop": "¿Por qué Hispaloshop?",
     "certifiedQuality": "Productos Verificados",
     "certifiedQualityDesc": "Cada producto cuenta con certificados verificables. Transparencia total desde el origen hasta tu mesa.",
@@ -100,7 +100,7 @@
     "localCommerce": "Comercio Local",
     "localCommerceDesc": "Apoya a productores de tu región. Conecta directamente con quienes elaboran productos de calidad.",
     "globalReach": "Alcance Global",
-    "globalReachDesc": "Conecta con vendedores certificados de todo el mundo. Apoya la artesanía de calidad.",
+    "globalReachDesc": "Conecta con productores certificados de todo el mundo. Apoya la artesanía de calidad.",
     "exploreCategories": "Explorar Categorías",
     "featuredProducts": "Productos Destacados",
     "mission": "Nuestra Misión",
@@ -248,7 +248,7 @@
     "discountForFollowers": "de descuento para tus seguidores",
     "minFollowersReq": "Requisito: mínimo 1.000 seguidores",
     "isProducer": "Eres productor?",
-    "registerSeller": "Registrate como vendedor",
+    "registerSeller": "Registrate como productor",
     "isInfluencer": "Eres influencer?",
     "joinProgram": "Unete al programa",
     "justBuy": "Solo quieres comprar?",
@@ -599,7 +599,7 @@
     "welcome": "Bienvenido",
     "manageProductsAndSales": "Gestiona tus productos y sigue tus ventas.",
     "accountPending": "Cuenta Pendiente de Aprobación",
-    "accountPendingDesc": "Tu cuenta de vendedor está pendiente de aprobación del administrador. Puedes crear productos y certificados, pero no serán visibles para los clientes hasta que tu cuenta sea aprobada.",
+    "accountPendingDesc": "Tu cuenta de productor está pendiente de aprobación del administrador. Puedes crear productos y certificados, pero no serán visibles para los clientes hasta que tu cuenta sea aprobada.",
     "totalProducts": "Total Productos",
     "approvedProducts": "{{count}} aprobados",
     "followers": "Seguidores",
@@ -775,7 +775,7 @@
   },
   "userManagement": {
     "title": "Gestión de Usuarios",
-    "subtitle": "Administra clientes, vendedores e influencers por país",
+    "subtitle": "Administra clientes, productores e influencers por país",
     "searchPlaceholder": "Buscar por nombre o email...",
     "noUsersFound": "No se encontraron usuarios",
     "roles": {
@@ -841,7 +841,7 @@
   "contentManagement": {
     "title": "Gestión de Contenido",
     "subtitle": "Administra productos y certificados de la plataforma",
-    "searchPlaceholder": "Buscar por nombre o vendedor...",
+    "searchPlaceholder": "Buscar por nombre o productor...",
     "noProductsFound": "No se encontraron productos",
     "noCertificatesFound": "No se encontraron certificados",
     "tabs": {
@@ -985,7 +985,7 @@
         "healthDesc": "Deducir condiciones de salud basadas en compras"
       }
     },
-    "approveSellers": "Aprobar vendedores",
+    "approveSellers": "Aprobar productores",
     "reviewProducts": "Revisar productos",
     "pendingCertificates": "Certificados pendientes",
     "reportedContent": "Contenido reportado",
@@ -1177,7 +1177,7 @@
     "posts": "PUBLICACIONES",
     "liked": "ME GUSTA",
     "noProducts": "Sin productos",
-    "noProductsDesc": "Este vendedor aun no tiene productos publicados",
+    "noProductsDesc": "Este productor aun no tiene productos publicados",
     "memberSince": "Miembro desde",
     "verifiedSeller": "Vendedor verificado",
     "viewStore": "Ver tienda",
@@ -1290,7 +1290,7 @@
     "categories": "Categorías",
     "stores": "Tiendas",
     "collaborate": "Únete",
-    "becomeSeller": "Vender en Hispaloshop",
+    "becomeSeller": "Ser Productor",
     "becomeInfluencer": "Programa de Influencers",
     "sellerLogin": "Acceso Vendedores",
     "forProducers": "Para Vendedores",
@@ -1370,8 +1370,8 @@
     "storeRating": "tienda",
     "reviews": "reviews",
     "ctaTitle": "¿Eres productor local?",
-    "ctaText": "Únete a nuestra comunidad de vendedores y lleva tus productos a clientes conscientes de todo el mundo.",
-    "ctaButton": "Vender en Hispaloshop"
+    "ctaText": "Únete a nuestra comunidad de productores y lleva tus productos a clientes conscientes de todo el mundo.",
+    "ctaButton": "Ser Productor"
   },
   "countries": {
     "ES": "España",
@@ -1456,10 +1456,10 @@
     "commissionFeature1": "Incluye pasarela de pago segura (Stripe)",
     "commissionFeature2": "Certificados de producto verificables",
     "commissionFeature3": "Soporte técnico y atención al cliente",
-    "commissionFeature4": "Acceso a Hispalo AI para vendedores",
+    "commissionFeature4": "Acceso a Hispalo AI para productores",
     "howItWorksTitle": "¿Cómo empezar a vender?",
     "step1Title": "Regístrate",
-    "step1Desc": "Crea tu cuenta de vendedor con tus datos de empresa o autónomo",
+    "step1Desc": "Crea tu cuenta de productor con tus datos de empresa o autónomo",
     "step2Title": "Verificación",
     "step2Desc": "Nuestro equipo revisa tu perfil en 24-48 horas",
     "step3Title": "Sube Productos",
@@ -1467,8 +1467,8 @@
     "step4Title": "¡Empieza a vender!",
     "step4Desc": "Recibe pedidos y cobra directamente en tu cuenta",
     "ctaTitle": "¿Listo para empezar?",
-    "ctaText": "Únete a cientos de vendedores que ya confían en Hispaloshop para llevar sus productos a clientes de todo el mundo.",
-    "viewProducts": "Ver productos de otros vendedores",
+    "ctaText": "Únete a cientos de productores que ya confían en Hispaloshop para llevar sus productos a clientes de todo el mundo.",
+    "viewProducts": "Ver productos de otros productores",
     "faqTitle": "Preguntas frecuentes",
     "faq1Q": "¿Quién puede vender en Hispaloshop?",
     "faq1A": "Cualquier productor, artesano o pequeña empresa que elabore productos alimenticios de calidad. Buscamos productores honestos comprometidos con la transparencia.",
@@ -1599,11 +1599,11 @@
   },
   "adminProducers": {
     "title": "Gestión de Vendedores",
-    "subtitle": "Ver y gestionar cuentas de vendedores.",
+    "subtitle": "Ver y gestionar cuentas de productores.",
     "backToProducers": "Volver a Vendedores",
-    "searchPlaceholder": "Buscar vendedores...",
+    "searchPlaceholder": "Buscar productores...",
     "allStatuses": "Todos los Estados",
-    "noProducersFound": "No se encontraron vendedores",
+    "noProducersFound": "No se encontraron productores",
     "table": {
       "company": "Empresa",
       "contact": "Contacto",
@@ -1628,7 +1628,7 @@
       "reactivate": "Reactivar"
     },
     "messages": {
-      "loadError": "Error al cargar vendedores",
+      "loadError": "Error al cargar productores",
       "statusUpdated": "Vendedor {{status}}"
     }
   },
@@ -1903,10 +1903,10 @@
       "newI18nDesc": "Disponible en espanol, ingles y coreano. Compra y vende desde cualquier pais",
       "recipesFeature": "Recetas con compra integrada",
       "recipesFeatureDesc": "Explora recetas de la comunidad y anade los ingredientes al carrito con un click",
-      "plansTitle": "Planes para vendedores",
+      "plansTitle": "Planes para productores",
       "plansDesc": "Elige el plan que mejor se adapte a tu negocio. Empieza gratis, crece sin limites",
       "commission": "Comision",
-      "viewAllPlans": "Ver todos los planes y detalles"
+      "viewAllPlans": "Ver detalles del programa"
     }
   },
   "superadmin": {
@@ -1919,7 +1919,7 @@
     "totalOrders": "Pedidos totales",
     "platformCommission": "Comision plataforma",
     "usersByRole": "Usuarios por rol",
-    "topSellers": "Top vendedores (30d)",
+    "topSellers": "Top productores (30d)",
     "recentOrders": "Pedidos recientes",
     "recentUsers": "Usuarios recientes",
     "allOk": "Todo OK",
@@ -1994,7 +1994,7 @@
     "toShip": "Por enviar",
     "earned": "Ganado",
     "myPlan": "Mi Plan",
-    "viewAllPlans": "Ver todos los planes",
+    "viewAllPlans": "Ver detalles del programa",
     "currentPlan": "Plan actual",
     "commission": "Comision",
     "trialEnds": "Trial termina el",
@@ -2031,7 +2031,7 @@
     "title": "Vende tus productos a todo el mundo",
     "subtitle": "Unete a la comunidad de productores locales mas grande. Tu tienda online en minutos, pagos automaticos, y acceso a 18+ paises.",
     "ctaMain": "Empezar a vender gratis",
-    "viewPlans": "Ver planes de comision",
+    "viewPlans": "Ver comisiones",
     "globalReach": "Alcance global",
     "globalReachDesc": "Vende a 18+ paises desde el dia 1. Precios en moneda local automaticos.",
     "fairCommission": "Comision justa",
@@ -2112,7 +2112,7 @@
     "step4Desc": "Comision por 18 meses",
     "calculator": "Cuanto podrias ganar?",
     "monthlyGMV": "NET GMV mensual generado",
-    "yourCommission": "Tu comision mensual (Hercules 3%)",
+    "yourCommission": "Tu comision mensual (Perseo 3%)",
     "gmvNote": "NET GMV = venta total - envio - impuestos",
     "tierSystem": "Sistema de Tiers",
     "whatsIncluded": "Que incluye",
@@ -2146,7 +2146,7 @@
   },
   "feed": {
     "emptyTitle": "Tu feed esta vacio",
-    "emptyDesc": "Sigue a vendedores y creadores para ver sus publicaciones",
+    "emptyDesc": "Sigue a productores y creadores para ver sus publicaciones",
     "discoverProfiles": "Descubre perfiles",
     "likes": "me gusta",
     "comments": "comentarios",
@@ -2249,7 +2249,7 @@
     "repeat": "Repetir"
   },
   "pricing": {
-    "tagline": "Planes para vendedores",
+    "tagline": "Planes para productores",
     "title": "Elige tu plan",
     "subtitle": "Empieza gratis. Crece con herramientas. Domina tu categoria.",
     "mostPopular": "Mas popular",
@@ -2282,7 +2282,7 @@
     "noComments": "Sin comentarios aun",
     "noPosts": "Sin publicaciones",
     "noProducts": "Sin productos",
-    "noProductsDesc": "Este vendedor aun no tiene productos publicados",
+    "noProductsDesc": "Este productor aun no tiene productos publicados",
     "shareFirstPost": "Comparte tu primera publicacion",
     "sharePhotos": "Comparte fotos de tus productos favoritos con la comunidad",
     "userNoPosts": "Este usuario aun no ha compartido publicaciones",
@@ -2324,7 +2324,7 @@
     "roleInfluencer": "Influencer",
     "roleAdmin": "Admin",
     "emptyFeed": "Tu feed esta vacio",
-    "emptyFeedDesc": "Sigue a vendedores y creadores para ver sus publicaciones",
+    "emptyFeedDesc": "Sigue a productores y creadores para ver sus publicaciones",
     "discoverProfiles": "Descubre perfiles",
     "noResults": "Sin resultados",
     "errorAdd": "Error al agregar",
@@ -2491,3 +2491,4 @@
     "explorerDesc": "Seguiste a 5 tiendas"
   }
 }
+

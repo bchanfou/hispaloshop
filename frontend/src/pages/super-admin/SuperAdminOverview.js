@@ -202,7 +202,7 @@ export default function SuperAdminOverview() {
         {/* Top sellers */}
         <div className="bg-white rounded-xl border border-stone-200 p-5">
           <h2 className="text-sm font-medium text-text-primary mb-4 flex items-center gap-2">
-            <Star className="w-4 h-4 text-text-muted" /> Top vendedores (30d)
+            <Star className="w-4 h-4 text-text-muted" /> Top productores (30d)
           </h2>
           {top_sellers.length > 0 ? (
             <div className="space-y-3">
@@ -271,3 +271,4 @@ export default function SuperAdminOverview() {
     </div>
   );
 }
+

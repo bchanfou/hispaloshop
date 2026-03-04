@@ -1179,7 +1179,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A7A]" />
                 <Input
-                  placeholder={activeTab === 'influencers' ? 'Buscar influencers...' : activeTab === 'producers' ? 'Buscar vendedores...' : 'Buscar conversaciones...'}
+                  placeholder={activeTab === 'influencers' ? 'Buscar influencers...' : activeTab === 'producers' ? 'Buscar productores...' : 'Buscar conversaciones...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-stone-50 border-stone-200"
@@ -1221,7 +1221,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
                     <Store className="w-12 h-12 text-[#DED7CE] mb-4" />
-                    <p className="text-[#7A7A7A] text-sm">No hay vendedores disponibles</p>
+                    <p className="text-[#7A7A7A] text-sm">No hay productores disponibles</p>
                   </div>
                 )
               ) : (
@@ -1230,7 +1230,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
                     <MessageCircle className="w-12 h-12 text-[#DED7CE] mb-4" />
                     <p className="text-[#7A7A7A] text-sm mb-2">No tienes conversaciones</p>
-                    <p className="text-[#7A7A7A] text-xs">Selecciona un influencer o vendedor para iniciar</p>
+                    <p className="text-[#7A7A7A] text-xs">Selecciona un influencer o productor para iniciar</p>
                   </div>
                 ) : (
                   conversations.map((conv) => (
@@ -1319,3 +1319,4 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
     </div>
   );
 }
+

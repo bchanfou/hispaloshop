@@ -174,26 +174,26 @@ export default function HomePage() {
       <section className="pb-3 pt-1">
         <div className="max-w-5xl mx-auto px-4">
           <div className="mb-2 text-[11px] uppercase tracking-wider text-[#7A7A7A] font-semibold">Accesos rapidos</div>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
-            <Link to="/about" className="shrink-0 w-[260px] bg-white border border-stone-200 rounded-2xl p-4 hover:border-[#2D5A27] transition-colors">
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory">
+            <Link to="/about" className="shrink-0 w-[260px] snap-start bg-white border border-stone-200 rounded-2xl p-4 hover:border-[#2D5A27] transition-colors">
               <div className="flex items-center gap-2 text-[#1C1C1C] font-semibold text-sm">
                 <Info className="w-4 h-4 text-[#2D5A27]" /> Que es Hispaloshop?
               </div>
               <p className="mt-2 text-xs text-text-muted leading-relaxed">Marketplace social de alimentacion real: productores e importadores venden, influencers recomiendan y clientes compran con trazabilidad.</p>
             </Link>
-            <Link to="/vender/registro" className="shrink-0 w-[220px] bg-white border border-stone-200 rounded-2xl p-4 hover:border-[#2D5A27] transition-colors">
+            <Link to="/vender/registro" className="shrink-0 w-[220px] snap-start bg-white border border-stone-200 rounded-2xl p-4 hover:border-[#2D5A27] transition-colors">
               <div className="flex items-center gap-2 text-[#1C1C1C] font-semibold text-sm">
                 <Store className="w-4 h-4 text-[#2D5A27]" /> Ser Productor
               </div>
               <p className="mt-2 text-xs text-text-muted">Publica productos, genera certificado digital y QR funcional para tus lotes.</p>
             </Link>
-            <Link to="/influencers/registro" className="shrink-0 w-[240px] bg-white border border-stone-200 rounded-2xl p-4 hover:border-[#2D5A27] transition-colors">
+            <Link to="/influencers/registro" className="shrink-0 w-[240px] snap-start bg-white border border-stone-200 rounded-2xl p-4 hover:border-[#2D5A27] transition-colors">
               <div className="flex items-center gap-2 text-[#1C1C1C] font-semibold text-sm">
                 <Award className="w-4 h-4 text-[#2D5A27]" /> Ser Influencer
               </div>
               <p className="mt-2 text-xs text-text-muted">Progresa por tiers y monetiza ventas verificables con niveles activos del 3% al 7% segun GMV.</p>
             </Link>
-            <Link to="/importer/register" className="shrink-0 w-[230px] bg-white border border-stone-200 rounded-2xl p-4 hover:border-[#2D5A27] transition-colors">
+            <Link to="/importer/register" className="shrink-0 w-[230px] snap-start bg-white border border-stone-200 rounded-2xl p-4 hover:border-[#2D5A27] transition-colors">
               <div className="flex items-center gap-2 text-[#1C1C1C] font-semibold text-sm">
                 <Building2 className="w-4 h-4 text-[#2D5A27]" /> Ser Importador
               </div>
@@ -232,3 +232,4 @@ export default function HomePage() {
     </div>
   );
 }
+
