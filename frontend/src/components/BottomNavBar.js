@@ -14,7 +14,6 @@ const HIDDEN_ON_PATHS = [
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
 ];
 
-/* Quick Post Creator Panel */
 function CreatePostPanel({ user, onClose, initialFile = null }) {
   const { t } = useTranslation();
   const [text, setText] = useState('');
@@ -25,16 +24,27 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
 
   useEffect(() => {
     if (initialFile) {
-      const r = new FileReader(); r.onloadend = () => setPreview(r.result); r.readAsDataURL(initialFile);
+      const r = new FileReader();
+      r.onloadend = () => setPreview(r.result);
+      r.readAsDataURL(initialFile);
     }
   }, [initialFile]);
 
   const handleFile = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (!f.type.startsWith('image/')) { toast.error('Solo imágenes'); return; }
+    if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) {
+      toast.error('Solo imagenes o videos');
+      return;
+    }
     setFile(f);
-    const r = new FileReader(); r.onloadend = () => setPreview(r.result); r.readAsDataURL(f);
+    if (f.type.startsWith('video/')) {
+      setPreview(URL.createObjectURL(f));
+      return;
+    }
+    const r = new FileReader();
+    r.onloadend = () => setPreview(r.result);
+    r.readAsDataURL(f);
   };
 
   const submit = async () => {
@@ -42,24 +52,33 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
     setPosting(true);
     try {
       const fd = new FormData();
-      fd.append('caption', text.trim());
-      if (file) fd.append('file', file);
-      await axios.post(`${API}/posts`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
+      if (file?.type?.startsWith('video/')) {
+        fd.append('video', file);
+        fd.append('content', text.trim());
+        fd.append('cover_frame_seconds', '1');
+        await axios.post(`${API}/reels`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
+      } else {
+        fd.append('caption', text.trim());
+        if (file) fd.append('file', file);
+        await axios.post(`${API}/posts`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
+      }
       toast.success(t('social.published', 'Publicado'));
       onClose();
-    } catch (err) { toast.error(err.response?.data?.detail || 'Error al publicar'); }
-    finally { setPosting(false); }
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Error al publicar');
+    } finally {
+      setPosting(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 md:inset-auto md:bottom-[68px] md:left-1/2 md:-translate-x-1/2 z-50" data-testid="create-post-panel">
+    <div className="fixed inset-0 md:inset-auto md:bottom-[82px] md:left-1/2 md:-translate-x-1/2 z-50" data-testid="create-post-panel">
       <div className="h-full md:h-auto md:max-h-[500px] md:w-[420px] bg-white md:rounded-2xl shadow-2xl flex flex-col md:border md:border-stone-200">
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-stone-100">
           <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-full" data-testid="close-post-panel">
             <X className="w-5 h-5 text-stone-500" />
           </button>
-          <h3 className="font-heading text-sm font-semibold text-[#1C1C1C]">{t('social.newPost', 'Nueva publicación')}</h3>
+          <h3 className="font-heading text-sm font-semibold text-[#1C1C1C]">{t('social.newPost', 'Nueva publicacion')}</h3>
           <button
             onClick={submit}
             disabled={posting || (!text.trim() && !file)}
@@ -69,7 +88,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
             {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('social.publish', 'Publicar')}
           </button>
         </div>
-        {/* Body */}
+
         <div className="flex-1 overflow-y-auto p-4">
           <div className="flex gap-3">
             <div className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden border border-stone-100 shrink-0">
@@ -82,30 +101,35 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={t('social.whatThinking', '¿Qué estás pensando?')}
+              placeholder={t('social.whatThinking', 'Que estas pensando?')}
               rows={4}
               className="flex-1 resize-none bg-transparent outline-none text-sm text-[#1C1C1C] placeholder:text-[#999] leading-relaxed"
               autoFocus
               data-testid="post-text-input"
             />
           </div>
+
           {preview && (
             <div className="relative mt-3 rounded-xl overflow-hidden">
-              <img src={preview} alt="" className="w-full max-h-60 object-cover rounded-xl" />
+              {file?.type?.startsWith('video/') ? (
+                <video src={preview} controls className="w-full max-h-60 object-cover rounded-xl" />
+              ) : (
+                <img src={preview} alt="" className="w-full max-h-60 object-cover rounded-xl" />
+              )}
               <button onClick={() => { setFile(null); setPreview(null); }} className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full">
                 <X className="w-4 h-4" />
               </button>
             </div>
           )}
         </div>
-        {/* Footer */}
+
         <div className="p-3 border-t border-stone-100 flex gap-2">
           <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-stone-500 hover:bg-stone-50 hover:text-[#2D5A27] transition-colors" data-testid="post-add-image">
             <ImageIcon className="w-4 h-4" />
-            <span>{t('social.photo', 'Foto')}</span>
+            <span>Foto o video</span>
           </button>
         </div>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+        <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFile} />
       </div>
     </div>
   );
@@ -121,7 +145,7 @@ export default function BottomNavBar() {
   const [postFile, setPostFile] = useState(null);
   const galleryRef = useRef(null);
 
-  const shouldHide = HIDDEN_ON_PATHS.some(path => location.pathname.startsWith(path));
+  const shouldHide = HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path));
 
   useEffect(() => {
     const handleOpenChat = (e) => {
@@ -129,8 +153,9 @@ export default function BottomNavBar() {
       setActivePanel('chat');
     };
     const handleToggleChat = () => {
-      setActivePanel(prev => prev === 'chat' ? null : 'chat');
+      setActivePanel((prev) => (prev === 'chat' ? null : 'chat'));
     };
+
     window.addEventListener('open-chat-with-user', handleOpenChat);
     window.addEventListener('toggle-chat', handleToggleChat);
     return () => {
@@ -150,16 +175,24 @@ export default function BottomNavBar() {
   const handleGallerySelect = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (!f.type.startsWith('image/')) { toast.error('Solo imágenes'); return; }
+    if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) {
+      toast.error('Solo imagenes o videos');
+      return;
+    }
     setPostFile(f);
     setActivePanel('post');
     if (galleryRef.current) galleryRef.current.value = '';
   };
 
   const handlePostButton = () => {
-    if (!user) { navigate('/login'); return; }
-    if (activePanel === 'post') { closePanel(); return; }
-    // Open gallery directly
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (activePanel === 'post') {
+      closePanel();
+      return;
+    }
     galleryRef.current?.click();
   };
 
@@ -174,6 +207,7 @@ export default function BottomNavBar() {
 
   const profileUrl = user ? `/user/${user.user_id}` : '/login';
   const profileImage = user?.profile_image;
+
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
     { id: 'reels', icon: Clapperboard, label: 'Reels', link: '/discover?tab=reels', match: (loc) => loc.pathname === '/discover' && new URLSearchParams(loc.search).get('tab') === 'reels' },
@@ -184,111 +218,107 @@ export default function BottomNavBar() {
 
   return (
     <>
-      {/* Panel overlays */}
       {activePanel === 'chat' && (
-        <div className="fixed inset-0 md:inset-auto md:bottom-[68px] md:right-4 z-50" data-testid="chat-panel">
+        <div className="fixed inset-0 md:inset-auto md:bottom-[82px] md:right-4 z-50" data-testid="chat-panel">
           <div className="h-full md:h-[550px] md:w-[380px] bg-white md:rounded-2xl shadow-2xl flex flex-col md:border md:border-stone-200">
             <InternalChat isEmbedded={true} onClose={closePanel} initialChatUserId={initialChatUserId} />
           </div>
         </div>
       )}
+
       {activePanel === 'post' && user && (
         <CreatePostPanel user={user} onClose={closePanel} initialFile={postFile} />
       )}
 
-      {/* Hidden gallery input for + button */}
-      <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />
+      <input ref={galleryRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />
 
-      {/* Bottom Navigation Bar */}
-      <nav
-        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 safe-area-bottom"
-        data-testid="bottom-nav-bar"
-      >
-        <div className="max-w-lg mx-auto grid grid-cols-[1fr_1fr_1fr_auto_1fr_1fr] items-center h-[64px] px-1">
-          {navItems.slice(0, 3).map((item) => {
-            const Icon = item.icon;
-            const isActive = item.match ? item.match(location) : location.pathname === item.link;
-            if (item.link) {
+      <nav className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none" data-testid="bottom-nav-bar">
+        <div className="max-w-xl mx-auto px-2 sm:px-3 pointer-events-auto">
+          <div className="grid grid-cols-[1fr_1fr_1fr_auto_1fr_1fr] items-center h-[68px] px-2 rounded-2xl border border-stone-200/90 bg-white/95 shadow-[0_10px_35px_rgba(0,0,0,0.12)] backdrop-blur-md">
+            {navItems.slice(0, 3).map((item) => {
+              const Icon = item.icon;
+              const isActive = item.match ? item.match(location) : location.pathname === item.link;
+              if (item.link) {
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.link}
+                    className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
+                    data-testid={`bottom-nav-${item.id}`}
+                  >
+                    <Icon className="w-5 h-5" strokeWidth={1.8} />
+                    <span className="text-[10px] leading-none font-medium">{item.label}</span>
+                  </Link>
+                );
+              }
               return (
-                <Link
+                <button
                   key={item.id}
-                  to={item.link}
+                  onClick={item.action}
                   className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
-                  <Icon className="w-6 h-6" strokeWidth={1.5} />
+                  <Icon className="w-5 h-5" strokeWidth={1.8} />
                   <span className="text-[10px] leading-none font-medium">{item.label}</span>
-                </Link>
+                </button>
               );
-            }
-            return (
-              <button
-                key={item.id}
-                onClick={item.action}
-                className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
-                data-testid={`bottom-nav-${item.id}`}
-              >
-                <Icon className="w-6 h-6" strokeWidth={1.5} />
-                <span className="text-[10px] leading-none font-medium">{item.label}</span>
-              </button>
-            );
-          })}
+            })}
 
-          <button
-            onClick={handlePostButton}
-            className="flex flex-col items-center justify-center -mt-5 mx-2"
-            data-testid="bottom-nav-post"
-          >
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 ring-4 ring-white ${activePanel === 'post' ? 'bg-stone-700 shadow-stone-500/25' : 'bg-[#1C1C1C] shadow-stone-900/25 hover:bg-[#2A2A2A]'}`}>
-              {activePanel === 'post' ? <X className="w-7 h-7 text-white" strokeWidth={2.5} /> : <Plus className="w-7 h-7 text-white" strokeWidth={2.5} />}
-            </div>
-            <span className="text-[10px] leading-none mt-0.5 text-stone-500 font-medium">{t('bottomNav.create', 'Crear')}</span>
-          </button>
+            <button
+              onClick={handlePostButton}
+              className="flex flex-col items-center justify-center -mt-4 mx-2"
+              data-testid="bottom-nav-post"
+            >
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-95 ring-2 ring-white ${activePanel === 'post' ? 'bg-stone-700 shadow-stone-500/25' : 'bg-[#1C1C1C] shadow-stone-900/20 hover:bg-[#2A2A2A]'}`}>
+                {activePanel === 'post' ? <X className="w-5 h-5 text-white" strokeWidth={2.2} /> : <Plus className="w-5 h-5 text-white" strokeWidth={2.2} />}
+              </div>
+              <span className="text-[10px] leading-none mt-1 text-stone-500 font-medium">{t('bottomNav.create', 'Crear')}</span>
+            </button>
 
-          {navItems.slice(3).map((item) => {
-            const Icon = item.icon;
-            const isPathActive = item.match ? item.match(location) : item.link ? location.pathname.startsWith(item.link) : false;
-            const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;
+            {navItems.slice(3).map((item) => {
+              const Icon = item.icon;
+              const isPathActive = item.match ? item.match(location) : item.link ? location.pathname.startsWith(item.link) : false;
+              const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;
 
-            if (item.isProfile) {
+              if (item.isProfile) {
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.link}
+                    className="flex flex-col items-center justify-center gap-0.5 py-1"
+                    data-testid={`bottom-nav-${item.id}`}
+                  >
+                    {profileImage ? (
+                      <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${location.pathname.includes('dashboard') || location.pathname.includes('profile') ? 'border-[#2D5A27]' : 'border-stone-200'}`}>
+                        <img src={profileImage} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${location.pathname.includes('dashboard') || location.pathname.includes('profile') ? 'bg-[#2D5A27] text-white' : 'bg-stone-100 text-stone-500'}`}>
+                        <Icon className="w-4 h-4" strokeWidth={1.5} />
+                      </div>
+                    )}
+                    <span className="text-[10px] text-stone-500 leading-none font-medium">{item.label}</span>
+                  </Link>
+                );
+              }
+
               return (
-                <Link
+                <button
                   key={item.id}
-                  to={item.link}
-                  className="flex flex-col items-center justify-center gap-0.5 py-1"
+                  onClick={item.action}
+                  className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
-                  {profileImage ? (
-                    <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${location.pathname.includes('dashboard') || location.pathname.includes('profile') ? 'border-[#2D5A27]' : 'border-stone-200'}`}>
-                      <img src={profileImage} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center ${location.pathname.includes('dashboard') || location.pathname.includes('profile') ? 'bg-[#2D5A27] text-white' : 'bg-stone-100 text-stone-500'}`}>
-                      <Icon className="w-4 h-4" strokeWidth={1.5} />
-                    </div>
-                  )}
-                  <span className="text-[10px] text-stone-500 leading-none font-medium">{item.label}</span>
-                </Link>
+                  {isActive ? <X className="w-5 h-5" strokeWidth={1.8} /> : <Icon className="w-5 h-5" strokeWidth={1.8} />}
+                  <span className="text-[10px] leading-none">{item.label}</span>
+                </button>
               );
-            }
-
-            return (
-              <button
-                key={item.id}
-                onClick={item.action}
-                className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
-                data-testid={`bottom-nav-${item.id}`}
-              >
-                {isActive ? <X className="w-6 h-6" strokeWidth={1.5} /> : <Icon className="w-6 h-6" strokeWidth={1.5} />}
-                <span className="text-[10px] leading-none">{item.label}</span>
-              </button>
-            );
-          })}
+            })}
+          </div>
         </div>
       </nav>
 
-      {/* Spacer for content below nav */}
-      <div className="h-[60px]" />
+      <div className="h-[78px]" />
     </>
   );
 }

@@ -1,19 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Globe, Languages, DollarSign, Check, X, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Globe, Languages, DollarSign, Check, ChevronDown } from 'lucide-react';
 import { useLocale } from '../context/LocaleContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import CountryFlag from './CountryFlag';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from './ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +24,6 @@ import {
 } from './ui/dialog';
 import axios from 'axios';
 
-// Smart API URL
 const getApiUrl = () => {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
@@ -43,13 +34,12 @@ const getApiUrl = () => {
   return '/api';
 };
 
-// Mobile breakpoint
 const MOBILE_BREAKPOINT = 768;
 
 export default function LocaleSelector() {
-  const { 
-    country, 
-    language, 
+  const {
+    country,
+    language,
     currency,
     countries,
     languages,
@@ -62,38 +52,54 @@ export default function LocaleSelector() {
   const { t, i18n } = useTranslation();
   const { fetchCart } = useCart();
   const { user } = useAuth();
-  
-  // State for mobile detection
+
   const [isMobile, setIsMobile] = useState(false);
-  
-  // Mobile dialog states
+
   const [showCountryDialog, setShowCountryDialog] = useState(false);
   const [showLanguageDialog, setShowLanguageDialog] = useState(false);
   const [showCurrencyDialog, setShowCurrencyDialog] = useState(false);
 
-  // Country change warning states
   const [showCountryWarning, setShowCountryWarning] = useState(false);
   const [pendingCountry, setPendingCountry] = useState(null);
   const [unavailableItems, setUnavailableItems] = useState([]);
 
-  // Detect mobile on mount and resize
+  const [desktopMenu, setDesktopMenu] = useState(null);
+  const desktopRef = useRef(null);
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  useEffect(() => {
+    const onClickOutside = (event) => {
+      if (!desktopRef.current) return;
+      if (!desktopRef.current.contains(event.target)) {
+        setDesktopMenu(null);
+      }
+    };
+
+    if (desktopMenu) {
+      document.addEventListener('mousedown', onClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside);
+    };
+  }, [desktopMenu]);
+
   const handleCountryChange = async (newCountry) => {
     if (newCountry === country) {
       setShowCountryDialog(false);
+      setDesktopMenu(null);
       return;
     }
 
-    // Only validate cart if user is logged in
     if (user) {
       try {
         const response = await axios.post(
@@ -107,20 +113,20 @@ export default function LocaleSelector() {
           setUnavailableItems(response.data.unavailable_items);
           setShowCountryWarning(true);
           setShowCountryDialog(false);
-          return;
-        } else {
-          await confirmCountryChange(newCountry);
+          setDesktopMenu(null);
           return;
         }
+
+        await confirmCountryChange(newCountry);
+        return;
       } catch (error) {
         console.error('Cart validation error:', error);
-        // Fall through to simple country update
       }
     }
-    
-    // For guests or on validation error, just update the country directly
+
     await updateCountry(newCountry);
     setShowCountryDialog(false);
+    setDesktopMenu(null);
   };
 
   const confirmCountryChange = async (newCountry) => {
@@ -138,6 +144,7 @@ export default function LocaleSelector() {
       setShowCountryDialog(false);
       setPendingCountry(null);
       setUnavailableItems([]);
+      setDesktopMenu(null);
     } catch (error) {
       console.error('Error applying country change:', error);
     }
@@ -147,22 +154,23 @@ export default function LocaleSelector() {
     updateLanguage(code);
     i18n.changeLanguage(code);
     setShowLanguageDialog(false);
+    setDesktopMenu(null);
   };
 
   const handleCurrencyChange = (code) => {
     updateCurrency(code);
     setShowCurrencyDialog(false);
+    setDesktopMenu(null);
   };
 
-  // Mobile Dialog Selector - uses Dialog instead of Sheet for better UX in sidebar
-  const MobileDialogSelector = ({ 
-    isOpen, 
-    onClose, 
-    title, 
-    items, 
-    selectedValue, 
+  const MobileDialogSelector = ({
+    isOpen,
+    onClose,
+    title,
+    items,
+    selectedValue,
     onSelect,
-    renderItem 
+    renderItem,
   }) => (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-sm max-h-[80vh] bg-[#FAF7F2]">
@@ -176,8 +184,8 @@ export default function LocaleSelector() {
                 key={code}
                 onClick={() => onSelect(code)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  selectedValue === code 
-                    ? 'bg-primary/10 border border-primary' 
+                  selectedValue === code
+                    ? 'bg-primary/10 border border-primary'
                     : 'hover:bg-stone-100'
                 }`}
                 data-testid={`mobile-option-${code}`}
@@ -194,7 +202,6 @@ export default function LocaleSelector() {
     </Dialog>
   );
 
-  // Mobile trigger buttons - more touch-friendly
   const MobileTriggerButton = ({ icon: Icon, label, countryCode, onClick, testId }) => (
     <button
       onClick={onClick}
@@ -211,38 +218,36 @@ export default function LocaleSelector() {
     </button>
   );
 
-  // Desktop Dropdown
-  const DesktopDropdown = ({ trigger, label, items, selectedValue, onSelect, renderItem, testId }) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {trigger}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 bg-white border border-stone-200 shadow-lg z-[100]">
-        <DropdownMenuLabel className="font-body text-xs text-stone-500 px-2 py-1.5">
-          {label}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator className="bg-stone-200" />
-        <div className="max-h-80 overflow-y-auto">
-          {items.map(([code, data]) => (
-            <DropdownMenuItem
-              key={code}
-              onClick={() => onSelect(code)}
-              className="font-body cursor-pointer text-stone-800 hover:bg-stone-100 focus:bg-stone-100 focus:text-stone-900"
-              data-testid={`${testId}-${code}`}
-            >
-              {renderItem(code, data)}
-              {selectedValue === code && <Check className="w-4 h-4 text-primary ml-auto" />}
-            </DropdownMenuItem>
-          ))}
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+  const DesktopTrigger = ({ menu, icon: Icon, children, testId }) => (
+    <Button
+      variant="ghost"
+      size="sm"
+      className={`h-9 gap-1.5 font-body text-sm hover:bg-white/60 ${desktopMenu === menu ? 'bg-white/70' : ''}`}
+      onClick={() => setDesktopMenu((prev) => (prev === menu ? null : menu))}
+      data-testid={testId}
+      type="button"
+    >
+      <Icon className="w-4 h-4" />
+      {children}
+      <ChevronDown className={`w-4 h-4 transition-transform ${desktopMenu === menu ? 'rotate-180' : ''}`} />
+    </Button>
   );
+
+  const DesktopMenu = ({ isOpen, title, children }) => {
+    if (!isOpen) return null;
+    return (
+      <div className="absolute top-full right-0 mt-2 w-64 rounded-xl border border-stone-200 bg-white shadow-xl z-[110] overflow-hidden">
+        <div className="px-3 py-2 text-[11px] uppercase tracking-wider text-stone-500 border-b border-stone-100">
+          {title}
+        </div>
+        <div className="max-h-80 overflow-y-auto p-1">{children}</div>
+      </div>
+    );
+  };
 
   return (
     <>
       {isMobile ? (
-        // MOBILE: Use full-width buttons that open dialogs
         <div className="flex flex-col gap-2 w-full">
           <MobileTriggerButton
             icon={Globe}
@@ -264,7 +269,6 @@ export default function LocaleSelector() {
             testId="currency-selector-mobile"
           />
 
-          {/* Country Dialog */}
           <MobileDialogSelector
             isOpen={showCountryDialog}
             onClose={setShowCountryDialog}
@@ -280,7 +284,6 @@ export default function LocaleSelector() {
             )}
           />
 
-          {/* Language Dialog - No flags, just text */}
           <MobileDialogSelector
             isOpen={showLanguageDialog}
             onClose={setShowLanguageDialog}
@@ -296,7 +299,6 @@ export default function LocaleSelector() {
             )}
           />
 
-          {/* Currency Dialog */}
           <MobileDialogSelector
             isOpen={showCurrencyDialog}
             onClose={setShowCurrencyDialog}
@@ -314,88 +316,69 @@ export default function LocaleSelector() {
           />
         </div>
       ) : (
-        // DESKTOP: Use compact dropdowns
-        <div className="flex items-center gap-2">
-          <DesktopDropdown
-            trigger={
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-9 gap-1.5 font-body text-sm hover:bg-white/50"
-                data-testid="country-selector"
+        <div className="relative" ref={desktopRef}>
+          <div className="flex items-center gap-2">
+            <DesktopTrigger menu="country" icon={Globe} testId="country-selector">
+              <CountryFlag countryCode={country} size="md" />
+              <span>{country}</span>
+            </DesktopTrigger>
+
+            <DesktopTrigger menu="language" icon={Languages} testId="language-selector">
+              <span className="uppercase">{language}</span>
+            </DesktopTrigger>
+
+            <DesktopTrigger menu="currency" icon={DollarSign} testId="currency-selector">
+              <span>{currency}</span>
+            </DesktopTrigger>
+          </div>
+
+          <DesktopMenu isOpen={desktopMenu === 'country'} title={t('locale.selectCountry')}>
+            {Object.entries(countries).map(([code, data]) => (
+              <button
+                key={code}
+                onClick={() => handleCountryChange(code)}
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left text-sm ${country === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
+                data-testid={`country-option-${code}`}
               >
-                <Globe className="w-4 h-4" />
-                <CountryFlag countryCode={country} size="md" />
-                <span>{country}</span>
-              </Button>
-            }
-            label={t('locale.selectCountry')}
-            items={Object.entries(countries)}
-            selectedValue={country}
-            onSelect={handleCountryChange}
-            testId="country-option"
-            renderItem={(code, data) => (
-              <>
-                <CountryFlag countryCode={code} size="md" className="mr-2" />
+                <CountryFlag countryCode={code} size="md" />
                 <span className="flex-1">{data.name}</span>
-              </>
-            )}
-          />
+                {country === code && <Check className="w-4 h-4 text-[#2D5A27]" />}
+              </button>
+            ))}
+          </DesktopMenu>
 
-          <DesktopDropdown
-            trigger={
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-9 gap-1.5 font-body text-sm hover:bg-white/50"
-                data-testid="language-selector"
+          <DesktopMenu isOpen={desktopMenu === 'language'} title={t('locale.selectLanguage')}>
+            {Object.entries(languages).map(([code, data]) => (
+              <button
+                key={code}
+                onClick={() => handleLanguageChange(code)}
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left text-sm ${language === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
+                data-testid={`language-option-${code}`}
               >
-                <Languages className="w-4 h-4" />
-                <span className="uppercase">{language}</span>
-              </Button>
-            }
-            label={t('locale.selectLanguage')}
-            items={Object.entries(languages)}
-            selectedValue={language}
-            onSelect={handleLanguageChange}
-            testId="language-option"
-            renderItem={(code, data) => (
-              <>
-                <span className="uppercase font-medium text-xs w-8 text-[#7A7A7A]">{code}</span>
+                <span className="uppercase font-semibold text-xs w-7">{code}</span>
                 <span className="flex-1">{data.native}</span>
-              </>
-            )}
-          />
+                {language === code && <Check className="w-4 h-4 text-[#2D5A27]" />}
+              </button>
+            ))}
+          </DesktopMenu>
 
-          <DesktopDropdown
-            trigger={
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-9 gap-1.5 font-body text-sm hover:bg-white/50"
-                data-testid="currency-selector"
+          <DesktopMenu isOpen={desktopMenu === 'currency'} title={t('locale.selectCurrency')}>
+            {Object.entries(currencies).map(([code, data]) => (
+              <button
+                key={code}
+                onClick={() => handleCurrencyChange(code)}
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left text-sm ${currency === code ? 'bg-stone-100 text-stone-900' : 'hover:bg-stone-50 text-stone-700'}`}
+                data-testid={`currency-option-${code}`}
               >
-                <DollarSign className="w-4 h-4" />
-                <span>{currency}</span>
-              </Button>
-            }
-            label={t('locale.selectCurrency')}
-            items={Object.entries(currencies)}
-            selectedValue={currency}
-            onSelect={handleCurrencyChange}
-            testId="currency-option"
-            renderItem={(code, data) => (
-              <>
-                <span className="mr-2 text-lg">{data.symbol}</span>
+                <span className="text-base w-6">{data.symbol}</span>
                 <span className="flex-1">{code}</span>
-                <span className="text-xs text-[#4A4A4A] ml-2">{data.name}</span>
-              </>
-            )}
-          />
+                {currency === code && <Check className="w-4 h-4 text-[#2D5A27]" />}
+              </button>
+            ))}
+          </DesktopMenu>
         </div>
       )}
 
-      {/* Country Change Warning Modal */}
       <AlertDialog open={showCountryWarning} onOpenChange={setShowCountryWarning}>
         <AlertDialogContent className="bg-[#FAF7F2] border-[#DED7CE]">
           <AlertDialogHeader>
@@ -428,7 +411,7 @@ export default function LocaleSelector() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel 
+            <AlertDialogCancel
               onClick={() => setShowCountryWarning(false)}
               className="font-body"
             >

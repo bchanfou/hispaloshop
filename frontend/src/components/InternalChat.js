@@ -327,7 +327,7 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
         <button onClick={onBack} className="p-1 hover:bg-stone-100 rounded-full">
           <ChevronLeft className="w-5 h-5 text-[#1C1C1C]" />
         </button>
-        <span className="font-medium text-[#1C1C1C]">Perfil de Vendedor</span>
+        <span className="font-medium text-[#1C1C1C]">Perfil de Productor</span>
       </div>
       
       {/* Profile Content */}
@@ -459,7 +459,8 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
 export default function InternalChat({ userType, isEmbedded = false, onClose = null, initialChatUserId = null }) {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(isEmbedded);
-  const [activeTab, setActiveTab] = useState('influencers'); // 'influencers' | 'producers' | 'messages'
+  const [activeTab, setActiveTab] = useState('messages'); // 'messages' | 'directory'
+  const [directoryType, setDirectoryType] = useState('influencers'); // 'influencers' | 'producers'
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -894,19 +895,37 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
   };
 
   const totalUnread = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+  const normalizedSearch = searchQuery.trim().toLowerCase();
 
   // Filter by search
   const filteredInfluencers = influencers.filter(inf => 
-    !searchQuery || 
-    inf.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    inf.niche?.toLowerCase().includes(searchQuery.toLowerCase())
+    !normalizedSearch || 
+    inf.full_name?.toLowerCase().includes(normalizedSearch) ||
+    inf.niche?.toLowerCase().includes(normalizedSearch)
   );
 
   const filteredProducers = producers.filter(prod => 
-    !searchQuery || 
-    prod.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    prod.location?.toLowerCase().includes(searchQuery.toLowerCase())
+    !normalizedSearch || 
+    prod.name?.toLowerCase().includes(normalizedSearch) ||
+    prod.location?.toLowerCase().includes(normalizedSearch)
   );
+
+  const filteredConversations = [...conversations]
+    .filter((conv) =>
+      !normalizedSearch ||
+      conv.other_user_name?.toLowerCase().includes(normalizedSearch) ||
+      (typeof conv.last_message === 'string'
+        ? conv.last_message.toLowerCase().includes(normalizedSearch)
+        : conv.last_message?.content?.toLowerCase().includes(normalizedSearch))
+    )
+    .sort((a, b) => {
+      const unreadA = a.unread_count || 0;
+      const unreadB = b.unread_count || 0;
+      if ((unreadA > 0) !== (unreadB > 0)) return unreadB - unreadA;
+      const timeA = new Date(a.last_message?.created_at || a.updated_at || 0).getTime();
+      const timeB = new Date(b.last_message?.created_at || b.updated_at || 0).getTime();
+      return timeB - timeA;
+    });
 
   // If embedded mode and not open, return null
   if (isEmbedded && !isOpen) {
@@ -933,7 +952,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
             <button 
               onClick={() => {
                 setActiveConversation(null);
-                setActiveTab('influencers');
+                setActiveTab('messages');
               }}
               className="p-1 hover:bg-white/10 rounded-full"
             >
@@ -942,12 +961,16 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
           ) : null}
           <div>
             <h3 className="font-semibold text-white">
-              {activeConversation && activeTab === 'messages' ? activeConversation.other_user_name : 'Directorio'}
+              {activeConversation && activeTab === 'messages'
+                ? activeConversation.other_user_name
+                : activeTab === 'messages'
+                  ? 'Chats'
+                  : 'Directorio'}
             </h3>
             <p className="text-xs text-white/70">
               {activeConversation && activeTab === 'messages' 
-                ? (activeConversation.other_user_type === 'producer' ? 'Vendedor' : 'Influencer')
-                : 'Influencers y Vendedores'}
+                ? (activeConversation.other_user_type === 'producer' ? 'Productor' : 'Influencer')
+                : 'Influencers y Productores'}
             </p>
           </div>
         </div>
@@ -981,25 +1004,18 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
       {!activeConversation && !selectedInfluencer && !selectedProducer && (
         <div className="flex border-b border-stone-200 bg-white">
           <DirectoryTab
-            active={activeTab === 'influencers'}
-            onClick={() => setActiveTab('influencers')}
-            icon={User}
-            label="Influencers"
-            count={influencers.length}
-          />
-          <DirectoryTab
-            active={activeTab === 'producers'}
-            onClick={() => setActiveTab('producers')}
-            icon={Store}
-            label="Vendedores"
-            count={producers.length}
-          />
-          <DirectoryTab
             active={activeTab === 'messages'}
             onClick={() => setActiveTab('messages')}
             icon={MessageCircle}
             label="Chats"
             count={totalUnread}
+          />
+          <DirectoryTab
+            active={activeTab === 'directory'}
+            onClick={() => setActiveTab('directory')}
+            icon={Search}
+            label="Directorio"
+            count={influencers.length + producers.length}
           />
         </div>
       )}
@@ -1176,10 +1192,26 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
           <>
             {/* Search */}
             <div className="p-3 border-b border-stone-100 bg-white">
+              {activeTab === 'directory' && (
+                <div className="mb-2 inline-flex rounded-full border border-stone-200 bg-stone-50 p-0.5">
+                  <button
+                    onClick={() => setDirectoryType('influencers')}
+                    className={`px-3 py-1 text-xs rounded-full ${directoryType === 'influencers' ? 'bg-white text-[#1C1C1C] shadow-sm' : 'text-[#7A7A7A]'}`}
+                  >
+                    Influencers
+                  </button>
+                  <button
+                    onClick={() => setDirectoryType('producers')}
+                    className={`px-3 py-1 text-xs rounded-full ${directoryType === 'producers' ? 'bg-white text-[#1C1C1C] shadow-sm' : 'text-[#7A7A7A]'}`}
+                  >
+                    Productores
+                  </button>
+                </div>
+              )}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A7A]" />
                 <Input
-                  placeholder={activeTab === 'influencers' ? 'Buscar influencers...' : activeTab === 'producers' ? 'Buscar productores...' : 'Buscar conversaciones...'}
+                  placeholder={activeTab === 'messages' ? 'Buscar chats...' : directoryType === 'influencers' ? 'Buscar influencers...' : 'Buscar productores...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-stone-50 border-stone-200"
@@ -1188,18 +1220,18 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
             </div>
             
             <div className="flex-1 overflow-y-auto">
-              {loadingDirectory ? (
+              {activeTab === 'directory' && loadingDirectory ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-[#7A7A7A]" />
                 </div>
-              ) : activeTab === 'influencers' ? (
+              ) : activeTab === 'directory' && directoryType === 'influencers' ? (
                 /* Influencers List */
                 filteredInfluencers.length > 0 ? (
                   filteredInfluencers.map((inf) => (
                     <InfluencerCard 
                       key={inf.influencer_id} 
                       influencer={inf}
-                      onClick={() => fetchInfluencerProfile(inf.influencer_id)}
+                      onClick={() => startConversationWith(inf.user_id || inf.influencer_id)}
                     />
                   ))
                 ) : (
@@ -1208,14 +1240,14 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                     <p className="text-[#7A7A7A] text-sm">No hay influencers disponibles</p>
                   </div>
                 )
-              ) : activeTab === 'producers' ? (
+              ) : activeTab === 'directory' && directoryType === 'producers' ? (
                 /* Producers List */
                 filteredProducers.length > 0 ? (
                   filteredProducers.map((prod) => (
                     <ProducerCard 
                       key={prod.store_id} 
                       producer={prod}
-                      onClick={() => fetchProducerProfile(prod.store_id)}
+                      onClick={() => startConversationWith(prod.producer_id || prod.user_id || prod.store_id)}
                     />
                   ))
                 ) : (
@@ -1226,14 +1258,14 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                 )
               ) : (
                 /* Conversations List */
-                conversations.length === 0 ? (
+                filteredConversations.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
                     <MessageCircle className="w-12 h-12 text-[#DED7CE] mb-4" />
                     <p className="text-[#7A7A7A] text-sm mb-2">No tienes conversaciones</p>
-                    <p className="text-[#7A7A7A] text-xs">Selecciona un influencer o productor para iniciar</p>
+                    <p className="text-[#7A7A7A] text-xs">Usa Directorio para iniciar un chat</p>
                   </div>
                 ) : (
-                  conversations.map((conv) => (
+                  filteredConversations.map((conv) => (
                     <div
                       key={conv.conversation_id}
                       className="group relative flex items-center gap-3 p-4 hover:bg-stone-50 transition-colors border-b border-stone-100"
@@ -1279,7 +1311,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                             )}
                           </div>
                           <p className="text-xs text-[#7A7A7A] mb-1">
-                            {conv.other_user_role === 'producer' ? 'Vendedor' : 
+                            {conv.other_user_role === 'producer' ? 'Productor' : 
                              conv.other_user_role === 'influencer' ? 'Influencer' : 'Usuario'}
                           </p>
                           {conv.last_message && (

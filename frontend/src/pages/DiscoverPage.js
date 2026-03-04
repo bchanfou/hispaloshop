@@ -1,10 +1,7 @@
-import BackButton from '../components/BackButton';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+﻿import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { useTranslation } from 'react-i18next';
-import { Search, CalendarClock, Loader2, Clapperboard, Image as ImageIcon } from 'lucide-react';
-import { Input } from '../components/ui/input';
+import { Flame, Loader2, Clapperboard, Newspaper, Heart, Play } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API } from '../utils/api';
@@ -16,72 +13,96 @@ function toDateValue(value) {
 }
 
 function normalizePost(post) {
-  const mediaType = post.media_type || (post.is_reel ? 'video' : 'image');
-  const mediaUrl = sanitizeImageUrl(post.video_url || post.image_url || post.thumbnail_url || post.media_url);
   return {
     id: post.post_id || post.id,
-    type: post.is_reel || mediaType === 'video' ? 'reel' : 'post',
+    type: 'feed',
     created_at: post.created_at,
     user_id: post.user_id,
-    user_name: post.user_name || 'Usuario',
-    user_profile_image: sanitizeImageUrl(post.user_profile_image),
-    caption: post.caption || '',
-    media_url: mediaUrl,
-    likes_count: post.likes_count || 0,
-    comments_count: post.comments_count || 0,
+    user_name: post.user_name || post.user?.full_name || 'Usuario',
+    user_profile_image: sanitizeImageUrl(post.user_profile_image || post.user?.avatar_url),
+    caption: post.caption || post.content || '',
+    media_url: sanitizeImageUrl(post.image_url || post.media_url || post.media?.[0]?.url),
+    likes_count: post.likes_count || post.engagement?.likes_count || 0,
+    comments_count: post.comments_count || post.engagement?.comments_count || 0,
+    views_count: 0,
   };
 }
 
-export default function DiscoverPage() {
-  const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState('');
-  const [items, setItems] = useState([]);
+function normalizeReel(reel) {
+  return {
+    id: reel.id || reel.post_id,
+    type: 'reel',
+    created_at: reel.created_at,
+    user_id: reel.user_id || reel.user?.id,
+    user_name: reel.user_name || reel.user?.full_name || 'Usuario',
+    user_profile_image: sanitizeImageUrl(reel.user_profile_image || reel.user?.avatar_url),
+    caption: reel.caption || reel.content || '',
+    media_url: sanitizeImageUrl(reel.video_url || reel.media?.[0]?.url),
+    thumbnail_url: sanitizeImageUrl(reel.thumbnail_url || reel.media?.[0]?.thumbnail_url || reel.media?.[0]?.url),
+    likes_count: reel.likes_count || reel.engagement?.likes_count || 0,
+    comments_count: reel.comments_count || reel.engagement?.comments_count || 0,
+    views_count: reel.views_unique || reel.views_count_unique || reel.views_count || 0,
+  };
+}
 
-  const rawTab = searchParams.get('tab') || 'all';
-  const tab = rawTab === 'reels' ? 'reel' : rawTab;
+function getList(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.posts)) return payload.posts;
+  if (Array.isArray(payload?.items)) return payload.items;
+  return [];
+}
+
+export default function DiscoverPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'reels' ? 'reels' : 'feeds';
+
+  const [tab, setTab] = useState(initialTab);
+  const [loading, setLoading] = useState(true);
+  const [feeds, setFeeds] = useState([]);
+  const [reels, setReels] = useState([]);
+  const [trending, setTrending] = useState([]);
+
+  useEffect(() => {
+    setSearchParams(tab === 'reels' ? { tab: 'reels' } : {});
+  }, [tab, setSearchParams]);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
-        const [feedRes, postsRes, reelsRes] = await Promise.allSettled([
-          axios.get(`${API}/feed?skip=0&limit=120`, { withCredentials: true }),
-          axios.get(`${API}/posts?skip=0&limit=120`, { withCredentials: true }),
-          axios.get(`${API}/reels?limit=120`, { withCredentials: true }),
+        const [feedRes, postsRes, reelsRes, trendingRes] = await Promise.allSettled([
+          axios.get(`${API}/feed?skip=0&limit=180`, { withCredentials: true }),
+          axios.get(`${API}/posts?skip=0&limit=180`, { withCredentials: true }),
+          axios.get(`${API}/reels?limit=180`, { withCredentials: true }),
+          axios.get(`${API}/feed/trending?limit=16`, { withCredentials: true }),
         ]);
 
-        const feedPosts = feedRes.status === 'fulfilled' ? (feedRes.value.data?.posts || []) : [];
-        const directPosts = postsRes.status === 'fulfilled' ? (postsRes.value.data?.posts || postsRes.value.data || []) : [];
-        const reels = reelsRes.status === 'fulfilled' ? (reelsRes.value.data?.items || reelsRes.value.data || []) : [];
+        const feedItems = feedRes.status === 'fulfilled' ? getList(feedRes.value.data).map(normalizePost) : [];
+        const directPostItems = postsRes.status === 'fulfilled' ? getList(postsRes.value.data).map(normalizePost) : [];
+        const reelItems = reelsRes.status === 'fulfilled' ? getList(reelsRes.value.data).map(normalizeReel) : [];
+        const trendingPostItems = trendingRes.status === 'fulfilled' ? getList(trendingRes.value.data).map(normalizePost) : [];
 
-        const merged = [
-          ...feedPosts.map(normalizePost),
-          ...directPosts.map(normalizePost),
-          ...reels.map((reel) =>
-            normalizePost({
-              ...reel,
-              post_id: reel.post_id || reel.id,
-              is_reel: true,
-              video_url: reel.video_url || reel.media?.[0]?.url,
-              thumbnail_url: reel.thumbnail_url || reel.media?.[0]?.thumbnail_url,
-              user_name: reel.user_name || reel.user?.full_name,
-              user_profile_image: reel.user_profile_image || reel.user?.avatar_url,
-              caption: reel.caption || reel.content || '',
-            })
-          ),
-        ];
-
-        const uniqueMap = new Map();
-        merged.forEach((item) => {
+        const feedMap = new Map();
+        [...feedItems, ...directPostItems].forEach((item) => {
           if (!item.id) return;
-          const dedupeKey = `${item.type}:${item.id}`;
-          if (!uniqueMap.has(dedupeKey)) uniqueMap.set(dedupeKey, item);
+          if (!feedMap.has(item.id)) feedMap.set(item.id, item);
+        });
+        const mergedFeeds = Array.from(feedMap.values()).sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at));
+
+        const trendingMap = new Map();
+        [...trendingPostItems, ...reelItems].forEach((item) => {
+          if (!item.id) return;
+          const key = `${item.type}:${item.id}`;
+          if (!trendingMap.has(key)) trendingMap.set(key, item);
         });
 
-        const sorted = Array.from(uniqueMap.values()).sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at));
-        setItems(sorted);
+        const globalTrending = Array.from(trendingMap.values())
+          .sort((a, b) => ((b.likes_count + b.views_count * 2 + b.comments_count) - (a.likes_count + a.views_count * 2 + a.comments_count)))
+          .slice(0, 16);
+
+        setFeeds(mergedFeeds);
+        setReels(reelItems.sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at)));
+        setTrending(globalTrending);
       } finally {
         setLoading(false);
       }
@@ -89,121 +110,107 @@ export default function DiscoverPage() {
     load();
   }, []);
 
-  const filtered = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return items.filter((item) => {
-      const tabMatch = tab === 'all' || item.type === tab;
-      if (!tabMatch) return false;
-      if (!normalizedQuery) return true;
-      return item.user_name?.toLowerCase().includes(normalizedQuery) || item.caption?.toLowerCase().includes(normalizedQuery);
-    });
-  }, [items, tab, query]);
+  const activeItems = useMemo(() => (tab === 'reels' ? reels : feeds), [tab, reels, feeds]);
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
       <Header />
-      <div className="max-w-5xl mx-auto px-4 pt-6 pb-16">
-        <BackButton />
-
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C]">Explorar</h1>
-          <span className="text-xs text-[#7A7A7A] inline-flex items-center gap-1">
-            <CalendarClock className="w-3.5 h-3.5" /> Ordenado por fecha de subida
-          </span>
+      <div className="max-w-5xl mx-auto px-4 pt-5 pb-20">
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Flame className="w-4 h-4 text-orange-500" />
+            <h2 className="text-sm font-semibold text-[#1C1C1C]">Trending global</h2>
+          </div>
+          <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
+            {trending.map((item) => (
+              <Link
+                key={`${item.type}:${item.id}`}
+                to={item.user_id ? `/user/${item.user_id}` : '/discover'}
+                className="shrink-0 w-28"
+              >
+                <div className="w-28 h-40 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative">
+                  {item.type === 'reel' ? (
+                    item.thumbnail_url ? (
+                      <img src={item.thumbnail_url} alt={item.user_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-stone-400"><Clapperboard className="w-5 h-5" /></div>
+                    )
+                  ) : item.media_url ? (
+                    <img src={item.media_url} alt={item.user_name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-stone-400"><Newspaper className="w-5 h-5" /></div>
+                  )}
+                  <div className="absolute top-1.5 left-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-black/65 text-white">
+                    {item.type === 'reel' ? 'REEL' : 'FEED'}
+                  </div>
+                  <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between text-[10px] text-white">
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-black/60">
+                      <Heart className="w-3 h-3" /> {item.likes_count}
+                    </span>
+                    {item.views_count > 0 ? (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-black/60">
+                        <Play className="w-3 h-3" /> {item.views_count}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="mt-1 text-[10px] text-stone-600 truncate">{item.user_name}</div>
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div className="sticky top-[56px] md:top-[64px] z-20 bg-[#FAF7F2]/95 backdrop-blur pb-3 pt-1">
-          <div className="relative mb-3">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
-            <Input
-              type="text"
-              placeholder={t('search.placeholder')}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="pl-12 h-12 rounded-full border-2 border-stone-200 focus:border-[#2D5A27] text-sm bg-white"
-            />
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {[
-              { key: 'all', label: 'Todo' },
-              { key: 'reel', label: 'Reels' },
-              { key: 'post', label: 'Posts' },
-            ].map((f) => {
-              const active = (f.key === 'all' && tab === 'all') || (f.key !== 'all' && tab === f.key);
-              return (
-                <button
-                  key={f.key}
-                  onClick={() => setSearchParams(f.key === 'all' ? {} : { tab: f.key === 'reel' ? 'reels' : f.key })}
-                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    active ? 'bg-[#1C1C1C] text-white' : 'bg-white border border-stone-200 text-text-secondary'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              );
-            })}
-            <span className="shrink-0 ml-auto text-[11px] text-[#7A7A7A] self-center">{filtered.length} items</span>
+          <div className="inline-flex p-1 rounded-full bg-white border border-stone-200">
+            <button
+              onClick={() => setTab('feeds')}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === 'feeds' ? 'bg-[#1C1C1C] text-white' : 'text-stone-600'}`}
+            >
+              Feeds
+            </button>
+            <button
+              onClick={() => setTab('reels')}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === 'reels' ? 'bg-[#1C1C1C] text-white' : 'text-stone-600'}`}
+            >
+              Reels
+            </button>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-[#7A7A7A]" />
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">No hay contenido para mostrar</h3>
-            <p className="text-[#7A7A7A]">Prueba con otro filtro o busqueda</p>
+          <div className="flex justify-center py-20"><Loader2 className="w-7 h-7 animate-spin text-stone-500" /></div>
+        ) : activeItems.length === 0 ? (
+          <div className="py-20 text-center text-stone-500 text-sm">Sin contenido</div>
+        ) : tab === 'reels' ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {activeItems.map((item) => (
+              <Link key={item.id} to={item.user_id ? `/user/${item.user_id}` : '/discover'} className="block">
+                <div className="rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-[9/14] relative">
+                  {item.thumbnail_url || item.media_url ? (
+                    <img src={item.thumbnail_url || item.media_url} alt={item.user_name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-stone-400"><Clapperboard className="w-5 h-5" /></div>
+                  )}
+                  <div className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-0.5 text-[10px] text-white px-1.5 py-0.5 rounded-full bg-black/60">
+                    <Play className="w-3 h-3" /> {item.views_count || 0}
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {filtered.map((item) => (
-              <Link
-                key={item.id}
-                to={`/user/${item.user_id}`}
-                className="block bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-md transition-shadow"
-              >
-                <div className="p-3 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden">
-                    {item.user_profile_image ? (
-                      <img src={item.user_profile_image} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-stone-400 text-sm font-bold">
-                        {(item.user_name || 'U')[0].toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#1C1C1C] truncate">{item.user_name}</p>
-                    <p className="text-xs text-[#7A7A7A]">{new Date(item.created_at).toLocaleString('es-ES')}</p>
-                  </div>
-                  <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${item.type === 'reel' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                    {item.type === 'reel' ? 'REEL' : 'POST'}
-                  </span>
-                </div>
-
+            {activeItems.map((item) => (
+              <Link key={item.id} to={item.user_id ? `/user/${item.user_id}` : '/discover'} className="block bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-sm transition-shadow">
                 {item.media_url ? (
                   <div className="aspect-video bg-stone-100">
-                    {item.type === 'reel' ? (
-                      <video src={item.media_url} muted playsInline className="w-full h-full object-cover" />
-                    ) : (
-                      <img src={item.media_url} alt="" className="w-full h-full object-cover" />
-                    )}
+                    <img src={item.media_url} alt={item.user_name} className="w-full h-full object-cover" />
                   </div>
-                ) : (
-                  <div className="px-4 pb-4">
-                    <div className="rounded-xl bg-stone-50 border border-stone-100 p-3 text-xs text-[#666] flex items-center gap-2">
-                      {item.type === 'reel' ? <Clapperboard className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                      Publicacion sin media
-                    </div>
-                  </div>
-                )}
-
-                {item.caption && <p className="px-4 py-3 text-sm text-[#333] line-clamp-2">{item.caption}</p>}
-
-                <div className="px-4 pb-4 text-xs text-[#7A7A7A]">
-                  {item.likes_count} me gusta · {item.comments_count} comentarios
+                ) : null}
+                {item.caption ? <p className="px-3 py-2 text-sm text-stone-800 line-clamp-2">{item.caption}</p> : null}
+                <div className="px-3 pb-2 text-xs text-stone-500 inline-flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> {item.likes_count}</span>
+                  <span>{item.comments_count} 💬</span>
                 </div>
               </Link>
             ))}
