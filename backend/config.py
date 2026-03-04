@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -36,7 +37,8 @@ class Settings(BaseSettings):
     AFFILIATE_MIN_PAYOUT_CENTS: int = 1000
     TIER_RECALCULATION_DAY: int = 1
 
-    model_config = SettingsConfigDict(env_file=".env")
+    # Resolve env file relative to this module so scripts work from any CWD.
+    model_config = SettingsConfigDict(env_file=str(Path(__file__).with_name(".env")))
 
 
 settings = Settings()

@@ -7,15 +7,118 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import uuid
 import logging
+from sqlalchemy import select, desc
 
 from core.database import db
 from core.models import User
 from core.auth import get_current_user, get_optional_user
 from config import normalize_influencer_tier
 from services.cloudinary_storage import upload_image as cloudinary_upload
+from database import AsyncSessionLocal
+from models import Post as PgPost, User as PgUser
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+async def _fallback_feed_from_postgres(skip: int, limit: int):
+    async with AsyncSessionLocal() as session:
+        rows = (
+            await session.execute(
+                select(PgPost, PgUser)
+                .join(PgUser, PgUser.id == PgPost.user_id)
+                .where(PgPost.status == "published")
+                .order_by(desc(PgPost.created_at))
+                .offset(skip)
+                .limit(limit)
+            )
+        ).all()
+
+    posts = []
+    for post, user in rows:
+        posts.append(
+            {
+                "post_id": str(post.id),
+                "user_id": str(user.id),
+                "user_name": user.full_name or user.username or "Usuario",
+                "user_profile_image": user.avatar_url,
+                "user_role": user.role or "customer",
+                "caption": post.content or "",
+                "image_url": (post.media_urls[0] if post.media_urls else None),
+                "likes_count": post.likes_count or 0,
+                "comments_count": post.comments_count or 0,
+                "created_at": post.created_at.isoformat() if post.created_at else datetime.utcnow().isoformat(),
+                "is_liked": False,
+                "is_bookmarked": False,
+                "tagged_product": None,
+                "product_available_in_country": True,
+            }
+        )
+    return {"posts": posts, "total": len(posts), "has_more": False}
+
+
+async def _fallback_trending_from_postgres(limit: int):
+    async with AsyncSessionLocal() as session:
+        rows = (
+            await session.execute(
+                select(PgPost, PgUser)
+                .join(PgUser, PgUser.id == PgPost.user_id)
+                .where(PgPost.status == "published")
+                .order_by(desc(PgPost.likes_count), desc(PgPost.comments_count), desc(PgPost.created_at))
+                .limit(limit)
+            )
+        ).all()
+
+    posts = []
+    for post, user in rows:
+        posts.append(
+            {
+                "post_id": str(post.id),
+                "user_id": str(user.id),
+                "user_name": user.full_name or user.username or "Usuario",
+                "user_profile_image": user.avatar_url,
+                "user_role": user.role or "customer",
+                "caption": post.content or "",
+                "image_url": (post.media_urls[0] if post.media_urls else None),
+                "likes_count": post.likes_count or 0,
+                "comments_count": post.comments_count or 0,
+                "created_at": post.created_at.isoformat() if post.created_at else datetime.utcnow().isoformat(),
+                "is_liked": False,
+                "is_bookmarked": False,
+            }
+        )
+    return {"posts": posts}
+
+
+async def _fallback_discover_from_postgres(role: Optional[str], search: Optional[str], skip: int, limit: int):
+    async with AsyncSessionLocal() as session:
+        users = (
+            await session.scalars(select(PgUser).order_by(desc(PgUser.created_at)).offset(skip).limit(limit))
+        ).all()
+
+    profiles = []
+    for u in users:
+        if role and role != "all" and u.role != role:
+            continue
+        if role in (None, "all") and u.role not in {"customer", "producer", "influencer", "importer"}:
+            continue
+        name = u.full_name or u.username or "Usuario"
+        if search and search.lower() not in name.lower():
+            continue
+        profiles.append(
+            {
+                "user_id": str(u.id),
+                "name": name,
+                "profile_image": u.avatar_url,
+                "bio": u.bio or "",
+                "role": u.role,
+                "followers_count": u.followers_count or 0,
+                "posts_count": u.posts_count or 0,
+                "is_following": False,
+                "created_at": u.created_at.isoformat() if u.created_at else datetime.utcnow().isoformat(),
+            }
+        )
+    return {"profiles": profiles, "total": len(profiles)}
 
 
 # ── User Profile ─────────────────────────────────────────────
@@ -416,7 +519,10 @@ async def get_social_feed(request: Request, skip: int = 0, limit: int = 20, coun
     Hybrid feed: scored by conversion potential, filtered by country availability.
     Score = (product_sales * 3) + (comments * 2) + (likes * 1) + boosts
     """
-    current_user = await get_optional_user(request)
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
     base_query = {}
 
     # Determine user's market country
@@ -433,8 +539,12 @@ async def get_social_feed(request: Request, skip: int = 0, limit: int = 20, coun
     else:
         following_ids = set()
 
-    posts_cursor = db.user_posts.find(base_query, {"_id": 0}).sort("created_at", -1).limit(200)
-    all_posts = await posts_cursor.to_list(200)
+    try:
+        posts_cursor = db.user_posts.find(base_query, {"_id": 0}).sort("created_at", -1).limit(200)
+        all_posts = await posts_cursor.to_list(200)
+    except Exception as exc:
+        logger.warning(f"[SOCIAL] Mongo unavailable for /feed, fallback to PostgreSQL: {exc}")
+        return await _fallback_feed_from_postgres(skip=skip, limit=limit)
 
     # Batch load product availability for tagged products
     product_ids = set(p.get("tagged_product", {}).get("product_id") for p in all_posts if p.get("tagged_product"))
@@ -536,7 +646,10 @@ async def get_social_feed(request: Request, skip: int = 0, limit: int = 20, coun
 
 @router.get("/feed/trending")
 async def get_trending_posts(request: Request, limit: int = 5):
-    current_user = await get_optional_user(request)
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
     seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
     pipeline = [
         {"$match": {"created_at": {"$gte": seven_days_ago}}},
@@ -545,7 +658,11 @@ async def get_trending_posts(request: Request, limit: int = 5):
         {"$limit": limit},
         {"$project": {"_id": 0}}
     ]
-    posts = await db.user_posts.aggregate(pipeline).to_list(limit)
+    try:
+        posts = await db.user_posts.aggregate(pipeline).to_list(limit)
+    except Exception as exc:
+        logger.warning(f"[SOCIAL] Mongo unavailable for /feed/trending, fallback to PostgreSQL: {exc}")
+        return await _fallback_trending_from_postgres(limit=limit)
     enriched = []
     user_cache = {}
     for post in posts:
@@ -577,7 +694,10 @@ async def search_products_for_tagging(q: str = "", limit: int = 5, user: User = 
 
 @router.get("/discover/profiles")
 async def discover_profiles(request: Request, role: str = None, search: str = None, skip: int = 0, limit: int = 30):
-    current_user = await get_optional_user(request)
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
     query = {}
     if role and role != "all":
         query["role"] = role
@@ -585,8 +705,12 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
         query["role"] = {"$in": ["customer", "producer", "influencer"]}
     if search:
         query["name"] = {"$regex": search, "$options": "i"}
-    users = await db.users.find(query, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    total = await db.users.count_documents(query)
+    try:
+        users = await db.users.find(query, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        total = await db.users.count_documents(query)
+    except Exception as exc:
+        logger.warning(f"[SOCIAL] Mongo unavailable for /discover/profiles, fallback to PostgreSQL: {exc}")
+        return await _fallback_discover_from_postgres(role=role, search=search, skip=skip, limit=limit)
     profiles = []
     for u in users:
         uid = u.get("user_id", "")
@@ -675,14 +799,21 @@ async def create_story(
 @router.get("/stories")
 async def get_stories_feed(request: Request):
     """Get active stories grouped by user (not expired)."""
-    current_user = await get_optional_user(request)
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
     now = datetime.now(timezone.utc).isoformat()
 
     # Get all non-expired stories
-    active_stories = await db.hispalostories.find(
-        {"expires_at": {"$gt": now}},
-        {"_id": 0, "views": 0}
-    ).sort("created_at", -1).to_list(200)
+    try:
+        active_stories = await db.hispalostories.find(
+            {"expires_at": {"$gt": now}},
+            {"_id": 0, "views": 0}
+        ).sort("created_at", -1).to_list(200)
+    except Exception as exc:
+        logger.warning(f"[SOCIAL] Mongo unavailable for /stories, returning empty list: {exc}")
+        return []
 
     # Group by user
     user_stories = {}

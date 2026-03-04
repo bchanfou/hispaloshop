@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -260,7 +260,7 @@ async def edit_post(
     if not post or post.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Post not found")
     created = post.published_at or post.created_at
-    if datetime.now(timezone.utc) - created.replace(tzinfo=timezone.utc) > timedelta(hours=24):
+    if datetime.utcnow() - created > timedelta(hours=24):
         raise HTTPException(status_code=400, detail="Post edit window exceeded")
     if payload.get("content") is not None:
         post.content = payload["content"]

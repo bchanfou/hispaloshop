@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -50,7 +50,8 @@ async def create_reel(
         is_reel=True,
         video_duration_seconds=upload["duration"],
         audio_track_id=sound_id,
-        published_at=datetime.now(timezone.utc),
+        # DB columns are TIMESTAMP WITHOUT TIME ZONE, keep UTC naive values.
+        published_at=datetime.utcnow(),
     )
     db.add(post)
     current_user.reels_count = (current_user.reels_count or 0) + 1
@@ -67,7 +68,7 @@ async def create_reel(
 
     cache_entries = (await db.scalars(select(FeedCache))).all()
     for entry in cache_entries:
-        entry.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+        entry.expires_at = datetime.utcnow() - timedelta(seconds=1)
 
     await db.flush()
     await db.refresh(post, ["user"])
@@ -121,7 +122,7 @@ async def track_reel_view(
     if not post:
         raise HTTPException(status_code=404, detail="Reel not found")
 
-    recent_window = datetime.now(timezone.utc) - timedelta(hours=24)
+    recent_window = datetime.utcnow() - timedelta(hours=24)
     existing = await db.scalar(
         select(ReelView).where(
             and_(ReelView.post_id == reel_id, ReelView.viewer_id == current_user.id, ReelView.created_at >= recent_window)

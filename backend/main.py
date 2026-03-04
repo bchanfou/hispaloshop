@@ -115,6 +115,8 @@ app.include_router(legacy_certificates_router, prefix="/api", tags=["legacy-cert
 app.include_router(legacy_cron_router, prefix="/api", tags=["legacy-cron"])
 app.include_router(legacy_recipes_reviews_router, prefix="/api", tags=["legacy-recipes-reviews"])
 app.include_router(connect_router, prefix="/api", tags=["connect"])
+# Legacy compatibility for frontend routes that still hit /api/reels.
+app.include_router(reels_router, prefix="/api", tags=["legacy-reels"])
 
 
 @app.get("/health")
