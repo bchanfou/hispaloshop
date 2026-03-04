@@ -24,6 +24,15 @@ export default function Footer() {
   return (
     <footer className="bg-[#1C1C1C] text-white mt-16" data-testid="main-footer">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
+        <div className="mb-8 rounded-2xl border border-stone-800 bg-stone-900/40 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-stone-500 mb-1">Hispaloshop Network</p>
+            <p className="text-sm text-stone-300">Productores, importadores e influencers en un mismo flujo de venta.</p>
+          </div>
+          <Link to="/about" className="text-xs text-stone-300 hover:text-white underline-offset-2 hover:underline">
+            Ver como funciona
+          </Link>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand & Contact */}
           <div className="sm:col-span-2 lg:col-span-1">
@@ -76,23 +85,23 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Sellers & Influencers Links */}
+          {/* Producer / Influencer / Importer Links */}
           <div>
             <h4 className="font-heading text-base font-medium mb-4 tracking-[0.02em]">{t('footer.collaborate')}</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/become-seller" className="text-sm text-stone-400 hover:text-white transition-colors">
-                  {t('footer.becomeSeller')}
+                <Link to="/vender/registro" className="text-sm text-stone-400 hover:text-white transition-colors">
+                  Ser Productor
                 </Link>
               </li>
               <li>
-                <Link to="/become-influencer" className="text-sm text-stone-400 hover:text-white transition-colors">
-                  {t('footer.becomeInfluencer')}
+                <Link to="/influencers/registro" className="text-sm text-stone-400 hover:text-white transition-colors">
+                  Ser Influencer
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-sm text-stone-400 hover:text-white transition-colors">
-                  {t('footer.sellerLogin')}
+                <Link to="/importer/register" className="text-sm text-stone-400 hover:text-white transition-colors">
+                  Ser Importador
                 </Link>
               </li>
             </ul>

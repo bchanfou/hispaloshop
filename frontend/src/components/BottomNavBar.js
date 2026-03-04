@@ -177,7 +177,7 @@ export default function BottomNavBar() {
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
     { id: 'reels', icon: Clapperboard, label: 'Reels', link: '/discover?tab=reels', match: (loc) => loc.pathname === '/discover' && new URLSearchParams(loc.search).get('tab') === 'reels' },
-    { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover', match: (loc) => loc.pathname === '/discover' && (!new URLSearchParams(loc.search).get('tab') || new URLSearchParams(loc.search).get('tab') === 'all') },
+    { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover', match: (loc) => loc.pathname === '/discover' },
     { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
     { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, isProfile: true },
   ];

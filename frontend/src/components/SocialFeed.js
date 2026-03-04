@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { 
   Heart, MessageCircle, Share2, Send, Bookmark, BookmarkCheck,
   Loader2, Compass, UserPlus, X, Image as ImageIcon, Tag, ShoppingBag,
-  ChevronRight, Search, Trash2, MoreHorizontal, Flame, TrendingUp
+  ChevronRight, Search, Trash2, MoreHorizontal, Flame
 } from 'lucide-react';
 import { StoriesRow } from './HispaloStories';
 import { Button } from './ui/button';
@@ -106,67 +106,6 @@ function StoriesSection() {
         </div>
       )}
     </>
-  );
-}
-
-/* =========== TRENDING SECTION =========== */
-function TrendingSection({ currentUser }) {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await axios.get(`${API}/feed/trending?limit=5`, { withCredentials: true });
-        setPosts(res.data.posts || []);
-      } catch {}
-      finally { setLoading(false); }
-    })();
-  }, []);
-
-  if (loading || posts.length === 0) return null;
-
-  return (
-    <div className="mb-6" data-testid="trending-section">
-      <div className="flex items-center gap-2 mb-3">
-        <Flame className="w-4 h-4 text-orange-500" />
-        <h3 className="text-sm font-semibold text-[#7A7A7A] uppercase tracking-wider">Trending</h3>
-      </div>
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
-        {posts.map((p) => {
-          const img = getImgUrl(p.image_url);
-          const avatar = getImgUrl(p.user_profile_image);
-          return (
-            <Link to={`/user/${p.user_id}`} key={p.post_id} className="shrink-0 w-52 sm:w-56 snap-start">
-              <div className="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                {img ? (
-                  <img src={img} alt="" className="w-full h-32 object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
-                ) : (
-                  <div className="px-3 pt-3 pb-1">
-                    <p className="text-sm text-[#1C1C1C] line-clamp-3 leading-relaxed">{p.caption}</p>
-                  </div>
-                )}
-                <div className="p-2.5">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-6 h-6 rounded-full bg-stone-200 overflow-hidden shrink-0">
-                      {avatar ? <img src={avatar} alt="" className="w-full h-full object-cover" /> : (
-                        <div className="w-full h-full flex items-center justify-center text-stone-400 text-[10px] font-bold">{(p.user_name||'U')[0]}</div>
-                      )}
-                    </div>
-                    <span className="text-xs font-medium text-[#1C1C1C] truncate">{p.user_name}</span>
-                  </div>
-                  {img && p.caption && <p className="text-xs text-[#7A7A7A] line-clamp-1 mb-1">{p.caption}</p>}
-                  <div className="flex items-center gap-3 text-[11px] text-[#7A7A7A]">
-                    <span className="flex items-center gap-1"><Heart className="w-3 h-3" />{p.likes_count || 0}</span>
-                    <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" />{p.comments_count || 0}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
   );
 }
 
@@ -891,9 +830,6 @@ export default function SocialFeed() {
       <div className="mb-4">
         <StoriesRow />
       </div>
-
-      {/* Trending */}
-      <TrendingSection currentUser={user} />
 
       {/* Post creator */}
       {user && <CreatePostInline user={user} onPostCreated={handlePostCreated} />}

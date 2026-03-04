@@ -18,6 +18,7 @@ function getDashboardUrl(role) {
     case 'admin':
       return '/admin';
     case 'producer':
+    case 'importer':
       return '/producer';
     case 'influencer':
       return '/influencer/dashboard';
@@ -136,7 +137,6 @@ export default function Header() {
     { to: '/stores', icon: Store, label: t('header.stores') },
     { to: '/discover', icon: Compass, label: t('header.discover', 'Descubre') },
     { to: '/recipes', icon: ChefHat, label: t('header.recipes', 'Recetas') },
-    { to: '/certificates', icon: FileCheck, label: t('header.certificates') },
   ];
 
   return (
@@ -366,6 +366,14 @@ export default function Header() {
                     <span className="text-xs text-text-secondary">{item.label}</span>
                   </Link>
                 ))}
+                <Link
+                  to="/certificates"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex flex-col items-center gap-1 p-3 rounded-lg hover:bg-stone-50 transition-colors"
+                >
+                  <FileCheck className="w-5 h-5 text-text-secondary" strokeWidth={1.5} />
+                  <span className="text-xs text-text-secondary">{t('header.certificates')}</span>
+                </Link>
               </div>
 
               {/* Divider */}

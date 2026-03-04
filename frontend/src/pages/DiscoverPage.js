@@ -46,16 +46,19 @@ export default function DiscoverPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const [feedRes, reelsRes] = await Promise.allSettled([
+        const [feedRes, postsRes, reelsRes] = await Promise.allSettled([
           axios.get(`${API}/feed?skip=0&limit=120`, { withCredentials: true }),
+          axios.get(`${API}/posts?skip=0&limit=120`, { withCredentials: true }),
           axios.get(`${API}/reels?limit=120`, { withCredentials: true }),
         ]);
 
         const feedPosts = feedRes.status === 'fulfilled' ? (feedRes.value.data?.posts || []) : [];
+        const directPosts = postsRes.status === 'fulfilled' ? (postsRes.value.data?.posts || postsRes.value.data || []) : [];
         const reels = reelsRes.status === 'fulfilled' ? (reelsRes.value.data?.items || reelsRes.value.data || []) : [];
 
         const merged = [
           ...feedPosts.map(normalizePost),
+          ...directPosts.map(normalizePost),
           ...reels.map((reel) =>
             normalizePost({
               ...reel,
@@ -73,7 +76,8 @@ export default function DiscoverPage() {
         const uniqueMap = new Map();
         merged.forEach((item) => {
           if (!item.id) return;
-          if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
+          const dedupeKey = `${item.type}:${item.id}`;
+          if (!uniqueMap.has(dedupeKey)) uniqueMap.set(dedupeKey, item);
         });
 
         const sorted = Array.from(uniqueMap.values()).sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at));
@@ -91,10 +95,7 @@ export default function DiscoverPage() {
       const tabMatch = tab === 'all' || item.type === tab;
       if (!tabMatch) return false;
       if (!normalizedQuery) return true;
-      return (
-        item.user_name?.toLowerCase().includes(normalizedQuery) ||
-        item.caption?.toLowerCase().includes(normalizedQuery)
-      );
+      return item.user_name?.toLowerCase().includes(normalizedQuery) || item.caption?.toLowerCase().includes(normalizedQuery);
     });
   }, [items, tab, query]);
 
@@ -111,36 +112,39 @@ export default function DiscoverPage() {
           </span>
         </div>
 
-        <div className="relative mb-4">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
-          <Input
-            type="text"
-            placeholder={t('search.placeholder')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="pl-12 h-12 rounded-full border-2 border-stone-200 focus:border-[#2D5A27] text-sm"
-          />
-        </div>
+        <div className="sticky top-[56px] md:top-[64px] z-20 bg-[#FAF7F2]/95 backdrop-blur pb-3 pt-1">
+          <div className="relative mb-3">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+            <Input
+              type="text"
+              placeholder={t('search.placeholder')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="pl-12 h-12 rounded-full border-2 border-stone-200 focus:border-[#2D5A27] text-sm bg-white"
+            />
+          </div>
 
-        <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hide">
-          {[
-            { key: 'all', label: 'Todo' },
-            { key: 'reel', label: 'Reels' },
-            { key: 'post', label: 'Posts' },
-          ].map((f) => {
-            const active = (f.key === 'all' && tab === 'all') || (f.key !== 'all' && tab === f.key);
-            return (
-              <button
-                key={f.key}
-                onClick={() => setSearchParams(f.key === 'all' ? {} : { tab: f.key === 'reel' ? 'reels' : f.key })}
-                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  active ? 'bg-[#1C1C1C] text-white' : 'bg-white border border-stone-200 text-text-secondary'
-                }`}
-              >
-                {f.label}
-              </button>
-            );
-          })}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            {[
+              { key: 'all', label: 'Todo' },
+              { key: 'reel', label: 'Reels' },
+              { key: 'post', label: 'Posts' },
+            ].map((f) => {
+              const active = (f.key === 'all' && tab === 'all') || (f.key !== 'all' && tab === f.key);
+              return (
+                <button
+                  key={f.key}
+                  onClick={() => setSearchParams(f.key === 'all' ? {} : { tab: f.key === 'reel' ? 'reels' : f.key })}
+                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    active ? 'bg-[#1C1C1C] text-white' : 'bg-white border border-stone-200 text-text-secondary'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+            <span className="shrink-0 ml-auto text-[11px] text-[#7A7A7A] self-center">{filtered.length} items</span>
+          </div>
         </div>
 
         {loading ? (
@@ -150,10 +154,10 @@ export default function DiscoverPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-20">
             <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">No hay contenido para mostrar</h3>
-            <p className="text-[#7A7A7A]">Prueba con otro filtro o búsqueda</p>
+            <p className="text-[#7A7A7A]">Prueba con otro filtro o busqueda</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filtered.map((item) => (
               <Link
                 key={item.id}
@@ -191,7 +195,7 @@ export default function DiscoverPage() {
                   <div className="px-4 pb-4">
                     <div className="rounded-xl bg-stone-50 border border-stone-100 p-3 text-xs text-[#666] flex items-center gap-2">
                       {item.type === 'reel' ? <Clapperboard className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
-                      Publicación sin media
+                      Publicacion sin media
                     </div>
                   </div>
                 )}

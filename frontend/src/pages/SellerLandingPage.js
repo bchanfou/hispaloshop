@@ -4,40 +4,38 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import { Button } from '../components/ui/button';
-import { ArrowRight, Globe, CreditCard, Users, CheckCircle, Clock, Store } from 'lucide-react';
+import { ArrowRight, Globe, CreditCard, Users, CheckCircle, Clock, Store, QrCode, FileCheck2 } from 'lucide-react';
 import BackButton from '../components/BackButton';
-
-const commissionTable = [
-  { label: 'FREE', sale: 100, producer: 80, platform: 20 },
-  { label: 'PRO', sale: 100, producer: 82, platform: 18 },
-  { label: 'ELITE', sale: 100, producer: 83, platform: 17 },
-];
 
 export default function SellerLandingPage() {
   const benefits = [
-    { icon: Globe, title: 'Alcance internacional', desc: 'Publica tu catálogo y vende en mercados activos desde una sola plataforma.' },
-    { icon: CreditCard, title: 'Cobros y payouts', desc: 'Operativa con Stripe y conciliación clara de ventas y comisiones.' },
-    { icon: Users, title: 'Canal social + afiliación', desc: 'Activa ventas con contenido, perfiles e influencers dentro de Hispaloshop.' },
+    { icon: Globe, title: 'Alcance internacional', desc: 'Publica tu catalogo y vende en mercados activos desde una sola plataforma.' },
+    { icon: CreditCard, title: 'Cobros y payouts', desc: 'Checkout centralizado y flujo de pagos operativo para productores.' },
+    { icon: Users, title: 'Canal social + afiliacion', desc: 'Activa ventas con posts, reels y conversion verificada.' },
   ];
 
   const tools = [
-    'Gestión de productos, stock y pedidos',
-    'Panel de ventas por país y rendimiento',
-    'Integración con certificados y trazabilidad',
-    'Políticas de envío configurables',
-    'Soporte para pagos a cuenta conectada',
-    'Canal de comunicación con compradores',
+    'Gestion de productos, stock y pedidos',
+    'Certificado digital automatico por producto',
+    'QR funcional descargable para producto fisico',
+    'Panel operativo con ventas y rendimiento',
+    'Politicas de envio configurables',
+    'Canal de comunicacion con compradores',
   ];
+
+  const steps = ['Registro', 'Alta de catalogo', 'Activacion de pagos', 'Recepcion de pedidos'];
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
       <SEO
         title="Ser Productor en Hispaloshop"
-        description="Publica tu catálogo, vende en el marketplace y gestiona pedidos con comisiones transparentes: FREE 20%, PRO 18%, ELITE 17%."
+        description="Publica catalogo, vende en el marketplace y opera pedidos con pagos y comisiones por operacion. Plan Elite: 17%."
         url="https://www.hispaloshop.com/vender"
       />
       <Header />
-      <div className="max-w-3xl mx-auto px-4 pt-2"><BackButton /></div>
+      <div className="max-w-3xl mx-auto px-4 pt-2">
+        <BackButton />
+      </div>
 
       <section className="pt-10 pb-8 md:pt-16 md:pb-12" data-testid="seller-hero">
         <div className="max-w-3xl mx-auto px-4 text-center">
@@ -46,7 +44,7 @@ export default function SellerLandingPage() {
             Ser Productor en Hispaloshop
           </h1>
           <p className="text-base text-[#555] max-w-xl mx-auto mb-6">
-            Crea tu tienda, publica tus productos y vende con una operación unificada de catálogo, pedidos y cobros.
+            Crea tu tienda, publica productos y vende con una operacion unificada de catalogo, pedidos y cobros.
           </p>
           <div className="flex justify-center gap-3 flex-wrap">
             <Link to="/vender/registro">
@@ -79,12 +77,17 @@ export default function SellerLandingPage() {
 
       <section className="py-10 md:py-14 bg-white">
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="font-heading text-2xl md:text-3xl font-semibold text-[#1C1C1C] mb-2">Cómo empezar</h2>
-          <p className="text-sm text-[#666] mb-8"><Clock className="w-4 h-4 inline mr-1" />Alta inicial en minutos</p>
+          <h2 className="font-heading text-2xl md:text-3xl font-semibold text-[#1C1C1C] mb-2">Como empezar</h2>
+          <p className="text-sm text-[#666] mb-8">
+            <Clock className="w-4 h-4 inline mr-1" />
+            Alta inicial en minutos
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {['Registro', 'Subida de catálogo', 'Activación de pagos', 'Recepción de pedidos'].map((step, i) => (
-              <div key={i} className="text-center">
-                <div className="w-10 h-10 rounded-full bg-[#2D5A27] text-white flex items-center justify-center mx-auto text-lg font-bold mb-2">{i + 1}</div>
+            {steps.map((step, i) => (
+              <div key={step} className="text-center">
+                <div className="w-10 h-10 rounded-full bg-[#2D5A27] text-white flex items-center justify-center mx-auto text-lg font-bold mb-2">
+                  {i + 1}
+                </div>
                 <p className="text-xs text-[#444] font-medium">{step}</p>
               </div>
             ))}
@@ -93,31 +96,24 @@ export default function SellerLandingPage() {
       </section>
 
       <section className="py-10 md:py-14">
-        <div className="max-w-2xl mx-auto px-4">
-          <h2 className="font-heading text-2xl font-semibold text-[#1C1C1C] mb-6 text-center">Comisiones reales</h2>
-          <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-stone-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-text-muted font-medium">Plan</th>
-                  <th className="px-4 py-3 text-right text-text-muted font-medium">Venta (€)</th>
-                  <th className="px-4 py-3 text-right text-emerald-600 font-medium">Productor (€)</th>
-                  <th className="px-4 py-3 text-right text-text-muted font-medium">Plataforma (€)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {commissionTable.map((r) => (
-                  <tr key={r.label} className="border-t border-stone-100">
-                    <td className="px-4 py-3 font-medium text-xs">{r.label}</td>
-                    <td className="px-4 py-3 text-right">{r.sale}</td>
-                    <td className="px-4 py-3 text-right font-bold text-emerald-600">{r.producer}</td>
-                    <td className="px-4 py-3 text-right text-text-muted">{r.platform}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="px-4 py-3 bg-stone-50 text-[10px] text-text-muted">
-              Sin suscripciones mensuales en esta página informativa. Comisión aplicada por operación según plan activo.
+        <div className="max-w-3xl mx-auto px-4">
+          <h2 className="font-heading text-2xl font-semibold text-[#1C1C1C] mb-6 text-center">Condiciones activas</h2>
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <Store className="w-5 h-5 text-[#2D5A27] mt-0.5" />
+              <p className="text-sm text-[#444]">No hay planes de suscripcion en esta pagina informativa.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <FileCheck2 className="w-5 h-5 text-[#2D5A27] mt-0.5" />
+              <p className="text-sm text-[#444]">Cada producto genera certificado digital automaticamente al publicarse.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <QrCode className="w-5 h-5 text-[#2D5A27] mt-0.5" />
+              <p className="text-sm text-[#444]">QR funcional descargable para uso en etiqueta de producto fisico.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-[#2D5A27] mt-0.5" />
+              <p className="text-sm text-[#444]">Comision Elite activa en marketplace: 17% por operacion.</p>
             </div>
           </div>
         </div>
@@ -140,7 +136,7 @@ export default function SellerLandingPage() {
       <section className="py-12 md:py-16 bg-[#1C1C1C]" data-testid="seller-final-cta">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h2 className="font-heading text-2xl md:text-3xl font-semibold text-white mb-3">Activa tu perfil de productor</h2>
-          <p className="text-sm text-stone-400 mb-6">Empieza con tu catálogo y escala desde el panel de operaciones.</p>
+          <p className="text-sm text-stone-400 mb-6">Empieza con tu catalogo y escala desde el panel de operaciones.</p>
           <Link to="/vender/registro">
             <Button className="bg-white text-[#1C1C1C] hover:bg-stone-100 rounded-full px-7 h-11 text-sm">
               <Store className="w-4 h-4 mr-1.5" /> Registrarme ahora <ArrowRight className="w-4 h-4 ml-1.5" />

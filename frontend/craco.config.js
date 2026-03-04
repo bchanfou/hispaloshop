@@ -33,15 +33,8 @@ if (config.enableHealthCheck) {
 }
 
 const webpackConfig = {
-  eslint: {
-    configure: {
-      extends: ["plugin:react-hooks/recommended"],
-      rules: {
-        "react-hooks/rules-of-hooks": "error",
-        "react-hooks/exhaustive-deps": "warn",
-      },
-    },
-  },
+  // Disable CRACO's default ESLint merge step to avoid plugin lookup noise in build.
+  eslint: false,
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

@@ -584,14 +584,14 @@ export default function StoresListPage() {
       <section className="py-8 md:py-10 bg-stone-900">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 text-center">
           <h2 className="font-serif text-lg md:text-xl lg:text-2xl font-semibold text-white mb-1 md:mb-2">
-            {t('stores.ctaTitle', '¿Eres productor local?')}
+            {t('stores.ctaTitle', 'Eres productor local?')}
           </h2>
           <p className="text-white/70 mb-4 md:mb-5 text-xs md:text-sm max-w-lg mx-auto">
-            {t('stores.ctaText', 'Únete a nuestra comunidad de vendedores')}
+            {t('stores.ctaText', 'Unete a nuestra comunidad de productores')}
           </p>
-          <Link to="/become-seller">
+          <Link to="/vender/registro">
             <Button className="bg-white text-stone-900 hover:bg-stone-100 rounded-full px-5 md:px-6 h-10 md:h-11 text-sm md:text-base">
-              {t('stores.ctaButton', 'Vender en Hispaloshop')}
+              {t('stores.ctaButton', 'Ser Productor')}
             </Button>
           </Link>
         </div>
@@ -601,3 +601,4 @@ export default function StoresListPage() {
     </div>
   );
 }
+
