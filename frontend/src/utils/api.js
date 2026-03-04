@@ -8,18 +8,20 @@
  */
 
 export const getApiUrl = () => {
+  const apiPrefix = process.env.REACT_APP_API_PREFIX || '/api';
+
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
     
     // Production or preview - always use relative URL
     if (host.includes('hispaloshop.com') || host.includes('preview.emergentagent.com')) {
-      return '/api';
+      return apiPrefix;
     }
   }
   
   // Development - use environment variable
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
-  return backendUrl ? `${backendUrl}/api` : '/api';
+  return backendUrl ? `${backendUrl}${apiPrefix}` : apiPrefix;
 };
 
 // Export the API URL constant for convenience

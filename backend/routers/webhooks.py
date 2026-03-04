@@ -19,6 +19,7 @@ from services.commission_service import (
     process_payment_fees,
     process_refund,
 )
+from services.stripe_connect_service import StripeConnectService
 
 router = APIRouter()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -53,7 +54,10 @@ async def stripe_webhook(
         result = await db.execute(
             select(Order)
             # Async safety: eager-load order.items before leaving query context.
-            .options(selectinload(Order.items).selectinload(OrderItem.product))
+            .options(
+                selectinload(Order.items).selectinload(OrderItem.product),
+                selectinload(Order.items).selectinload(OrderItem.producer),
+            )
             .where(Order.stripe_payment_intent_id == payment_intent_id)
             .with_for_update()
         )
@@ -68,6 +72,11 @@ async def stripe_webhook(
             order.payment_status = "paid"
             order.paid_at = datetime.now(timezone.utc)
             await process_payment_fees(db=db, order=order)
+
+            # Transfer producer net funds to connected accounts (idempotent by order_item).
+            for item in order.items:
+                await StripeConnectService.transfer_order_item_to_producer(db=db, item=item)
+
             if marker:
                 await mark_event_processed(db=db, order=order, marker=marker)
 
@@ -114,6 +123,10 @@ async def stripe_webhook(
         account = event["data"]["object"]
         user = await db.scalar(select(User).where(User.stripe_account_id == account.get("id")))
         if user:
-            user.stripe_account_status = "active" if account.get("charges_enabled") else "pending"
+            user.stripe_account_charges_enabled = bool(account.get("charges_enabled"))
+            user.stripe_account_payouts_enabled = bool(account.get("payouts_enabled"))
+            user.connect_requirements_due = list((account.get("requirements") or {}).get("currently_due") or [])
+            user.connect_onboarding_completed = bool(user.stripe_account_charges_enabled and user.stripe_account_payouts_enabled)
+            user.stripe_account_status = "active" if user.connect_onboarding_completed else "pending"
 
     return {"received": True}

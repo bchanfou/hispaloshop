@@ -11,6 +11,7 @@ import logging
 from core.database import db
 from core.models import User
 from core.auth import get_current_user, get_optional_user
+from config import normalize_influencer_tier
 from services.cloudinary_storage import upload_image as cloudinary_upload
 
 logger = logging.getLogger(__name__)
@@ -68,7 +69,7 @@ async def get_user_profile(user_id: str, request: Request):
         )
         if inf:
             profile["niche"] = inf.get("niche") or profile.get("niche")
-            profile["tier"] = inf.get("current_tier", "HERCULES")
+            profile["tier"] = normalize_influencer_tier(inf.get("current_tier", "perseo"))
 
     if user.get("role") == "producer":
         orders = await db.orders.find(

@@ -16,18 +16,71 @@ depends_on = None
 
 
 def upgrade() -> None:
-    conversation_type = sa.Enum('support', 'transaction', 'influencer_brand', 'social', 'group_order', name='conversation_type')
-    participant_role = sa.Enum('admin', 'member', name='participant_role')
-    message_sender_type = sa.Enum('user', 'system', 'ai', name='message_sender_type')
-    message_type = sa.Enum('text', 'image', 'product', 'order', 'ai_response', name='message_type')
-    attachment_type = sa.Enum('image', 'document', name='message_attachment_type')
+    def create_enum_if_not_exists(type_name: str, labels: list[str]) -> None:
+        labels_sql = ", ".join(f"'{label}'" for label in labels)
+        op.execute(
+            f"""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_type t
+                    JOIN pg_namespace n ON n.oid = t.typnamespace
+                    WHERE t.typname = '{type_name}'
+                      AND n.nspname = current_schema()
+                ) THEN
+                    CREATE TYPE {type_name} AS ENUM ({labels_sql});
+                END IF;
+            END$$;
+            """
+        )
 
-    bind = op.get_bind()
-    conversation_type.create(bind, checkfirst=True)
-    participant_role.create(bind, checkfirst=True)
-    message_sender_type.create(bind, checkfirst=True)
-    message_type.create(bind, checkfirst=True)
-    attachment_type.create(bind, checkfirst=True)
+    create_enum_if_not_exists(
+        "conversation_type",
+        ["support", "transaction", "influencer_brand", "social", "group_order"],
+    )
+    create_enum_if_not_exists("participant_role", ["admin", "member"])
+    create_enum_if_not_exists("message_sender_type", ["user", "system", "ai"])
+    create_enum_if_not_exists("message_type", ["text", "image", "product", "order", "ai_response"])
+    create_enum_if_not_exists("message_attachment_type", ["image", "document"])
+
+    conversation_type = postgresql.ENUM(
+        "support",
+        "transaction",
+        "influencer_brand",
+        "social",
+        "group_order",
+        name="conversation_type",
+        create_type=False,
+    )
+    participant_role = postgresql.ENUM(
+        "admin",
+        "member",
+        name="participant_role",
+        create_type=False,
+    )
+    message_sender_type = postgresql.ENUM(
+        "user",
+        "system",
+        "ai",
+        name="message_sender_type",
+        create_type=False,
+    )
+    message_type = postgresql.ENUM(
+        "text",
+        "image",
+        "product",
+        "order",
+        "ai_response",
+        name="message_type",
+        create_type=False,
+    )
+    attachment_type = postgresql.ENUM(
+        "image",
+        "document",
+        name="message_attachment_type",
+        create_type=False,
+    )
 
     op.create_table(
         'conversations',

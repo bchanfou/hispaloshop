@@ -7,7 +7,7 @@ from uuid import UUID as UUIDType
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import Commission, InfluencerProfile, Order, OrderItem, Transaction
+from models import Commission, InfluencerProfile, Order, OrderItem, Product, Transaction
 from services.affiliate_service import track_conversion
 
 
@@ -53,10 +53,24 @@ async def mark_event_processed(db: AsyncSession, order: Order, marker: str) -> N
 
 
 async def process_payment_fees(db: AsyncSession, order: Order) -> None:
+    # Deterministic lock order to reduce deadlock risk.
+    sorted_items = sorted(order.items, key=lambda i: str(i.product_id))
+    locked_products: dict[UUIDType, Product] = {}
+    for item in sorted_items:
+        product = await db.scalar(select(Product).where(Product.id == item.product_id).with_for_update())
+        if not product:
+            raise ValueError(f"Product {item.product_id} not found for order {order.id}")
+        locked_products[item.product_id] = product
+
     producer_amounts: dict[UUIDType, int] = {}
-    for item in order.items:
-        if item.product and item.product.track_inventory:
-            item.product.inventory_quantity = max(0, item.product.inventory_quantity - item.quantity)
+    for item in sorted_items:
+        product = locked_products[item.product_id]
+        if product.track_inventory:
+            if product.inventory_quantity < item.quantity:
+                raise ValueError(
+                    f"Insufficient stock for {product.name}: available {product.inventory_quantity}, requested {item.quantity}"
+                )
+            product.inventory_quantity -= item.quantity
         producer_amounts[item.producer_id] = producer_amounts.get(item.producer_id, 0) + item.producer_payout_cents
 
     for producer_id, amount in producer_amounts.items():
@@ -89,7 +103,7 @@ async def process_payment_fees(db: AsyncSession, order: Order) -> None:
                 (await db.execute(select(Commission.order_item_id).where(Commission.order_id == order.id))).scalars().all()
             )
         }
-        for item in order.items:
+        for item in sorted_items:
             commission = await track_conversion(
                 db=db,
                 order_id=order.id,

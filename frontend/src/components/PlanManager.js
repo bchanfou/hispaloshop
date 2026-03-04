@@ -108,7 +108,7 @@ export default function PlanManager() {
           )}
           {plan.plan !== 'ELITE' && (
             <Button onClick={() => handleUpgrade('ELITE')} disabled={changing} variant={plan.plan === 'FREE' ? 'outline' : 'default'} className={`flex-1 rounded-xl h-10 text-sm ${plan.plan === 'PRO' ? 'bg-amber-600 hover:bg-amber-700 text-white' : ''}`} data-testid="upgrade-elite">
-              {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Crown className="w-4 h-4 mr-1" /> Upgrade a ELITE (16%)</>}
+              {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Crown className="w-4 h-4 mr-1" /> Upgrade a ELITE (17%)</>}
             </Button>
           )}
         </div>

@@ -19,6 +19,7 @@ from services.subscriptions import (
 )
 from services.auth_helpers import send_email
 from routes.predictions import calculate_predictions
+from config import normalize_influencer_tier
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -164,7 +165,7 @@ async def cron_tier_recalculation(user: User = Depends(get_current_user)):
 
     changes = []
     for inf in due_influencers:
-        old_tier = inf.get("current_tier", "HERCULES")
+        old_tier = normalize_influencer_tier(inf.get("current_tier", "perseo"))
         new_tier = await recalculate_influencer_tier(db, inf["influencer_id"])
         if new_tier != old_tier:
             changes.append({"influencer_id": inf["influencer_id"], "from": old_tier, "to": new_tier})

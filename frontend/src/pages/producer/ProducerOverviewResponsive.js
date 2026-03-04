@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -25,18 +25,31 @@ function StripeConnectSection() {
   const [stripeStatus, setStripeStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     fetchStripeStatus();
-  }, []);
+    if (searchParams.get('stripe_return') === 'true') {
+      toast.success('Stripe onboarding completado. Verificando estado...');
+      setTimeout(fetchStripeStatus, 800);
+    }
+    if (searchParams.get('stripe_refresh') === 'true') {
+      toast.info('Debes completar los datos pendientes en Stripe.');
+    }
+  }, [searchParams]);
 
   const fetchStripeStatus = async () => {
     try {
-      const response = await axios.get(`${API}/producer/stripe/status`, { withCredentials: true });
+      const response = await axios.get(`${API}/connect/status`, { withCredentials: true });
       setStripeStatus(response.data);
     } catch (error) {
       console.error('Error fetching Stripe status:', error);
-      setStripeStatus({ connected: false, status: 'unknown' });
+      setStripeStatus({
+        has_account: false,
+        onboarding_completed: false,
+        status: 'unknown',
+        requirements_due: [],
+      });
     } finally {
       setLoading(false);
     }
@@ -45,27 +58,29 @@ function StripeConnectSection() {
   const handleConnectStripe = async () => {
     setConnecting(true);
     try {
-      const response = await axios.post(
-        `${API}/producer/stripe/create-account`,
-        {},
-        { withCredentials: true, headers: { 'Origin': window.location.origin } }
-      );
-      if (response.data.url) {
-        window.location.href = response.data.url;
+      let onboardingUrl = null;
+      if (!stripeStatus?.has_account) {
+        const response = await axios.post(`${API}/connect/account`, {}, { withCredentials: true });
+        onboardingUrl = response.data?.onboarding_url || null;
+      } else if (!stripeStatus?.onboarding_completed) {
+        const response = await axios.post(`${API}/connect/refresh-link`, {}, { withCredentials: true });
+        onboardingUrl = response.data?.onboarding_url || null;
+      }
+      if (onboardingUrl) {
+        window.location.href = onboardingUrl;
+      } else {
+        await fetchStripeStatus();
       }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Error al conectar Stripe');
+    } finally {
       setConnecting(false);
     }
   };
 
   const handleViewStripeDashboard = async () => {
     try {
-      const response = await axios.post(
-        `${API}/producer/stripe/create-login-link`,
-        {},
-        { withCredentials: true }
-      );
+      const response = await axios.post(`${API}/connect/login-link`, {}, { withCredentials: true });
       if (response.data.url) {
         window.open(response.data.url, '_blank');
       }
@@ -85,7 +100,8 @@ function StripeConnectSection() {
     );
   }
 
-  const isConnected = stripeStatus?.connected;
+  const isConnected = Boolean(stripeStatus?.onboarding_completed);
+  const pendingRequirements = stripeStatus?.requirements_due || [];
 
   return (
     <div 
@@ -117,6 +133,11 @@ function StripeConnectSection() {
                 ? 'Recibirás el 82% de cada venta automáticamente.'
                 : 'Conecta Stripe para recibir pagos.'}
             </p>
+            {!isConnected && pendingRequirements.length > 0 && (
+              <p className="text-xs text-amber-700 mt-1">
+                Pendientes: {pendingRequirements.length} requisito(s) en Stripe.
+              </p>
+            )}
           </div>
         </div>
         

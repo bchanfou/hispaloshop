@@ -14,7 +14,7 @@ from core.auth import get_current_user, require_role
 
 from services.subscriptions import (
     SELLER_PLANS, INFLUENCER_TIERS, STRIPE_PUBLISHABLE_KEY,
-    get_seller_commission_rate, ensure_stripe_products,
+    get_seller_commission_rate, get_influencer_commission_rate, ensure_stripe_products,
     calculate_order_commissions, check_influencer_attribution,
     recalculate_influencer_tier, GRACE_PERIOD_DAYS,
     list_subscription_plans, has_tier_access,
@@ -22,6 +22,7 @@ from services.subscriptions import (
     record_subscription_event, get_hi_coin_balance,
     create_hi_coin_transaction, adjust_hi_coin_balance,
 )
+from config import INFLUENCER_TIER_ORDER, normalize_influencer_tier
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -144,12 +145,12 @@ async def get_seller_plans():
                 "label": "Elite",
                 "price": 108,
                 "currency": "USD",
-                "commission": "16%",
+                "commission": "17%",
                 "features": [
                     "Todo de Pro +",
-                    "Comision 16%",
+                    "Comision 17%",
                     "Prioridad en homepage",
-                    "Matching con influencers TITAN",
+                    "Matching con influencers Zeus",
                     "IA avanzada: forecast + bundles",
                     "Campanas patrocinadas internas",
                     "Account Manager dedicado",
@@ -379,9 +380,8 @@ async def get_influencer_tiers():
     """Public: get influencer tier info."""
     return {
         "tiers": [
-            {"key": "HERCULES", "label": "Hercules", "commission": "3%", "desc": "Para influencers en crecimiento"},
-            {"key": "ATENEA", "label": "Atenea", "commission": "5%", "desc": "Para influencers establecidos"},
-            {"key": "TITAN", "label": "Titan", "commission": "7%", "desc": "Para top performers"},
+            {"key": tier, "label": INFLUENCER_TIERS[tier]["name"], "commission": f"{int(INFLUENCER_TIERS[tier]['commission_rate'] * 100)}%"}
+            for tier in INFLUENCER_TIER_ORDER
         ],
         "attribution_months": 18,
         "payout_delay_days": 15,
@@ -399,27 +399,23 @@ async def get_my_tier(user: User = Depends(get_current_user)):
     if not inf:
         raise HTTPException(status_code=404, detail="No eres influencer registrado")
 
-    current_tier = inf.get("current_tier", "HERCULES")
+    current_tier = normalize_influencer_tier(inf.get("current_tier", "perseo"))
     metrics = inf.get("last_90_days_metrics", {})
 
     # Calculate progress to next tier
-    next_tier = None
     progress = {}
-    tier_order = ["HERCULES", "ATENEA", "TITAN"]
-    current_idx = tier_order.index(current_tier) if current_tier in tier_order else 0
-    if current_idx < len(tier_order) - 1:
-        next_tier_key = tier_order[current_idx + 1]
+    current_idx = INFLUENCER_TIER_ORDER.index(current_tier)
+    if current_idx < len(INFLUENCER_TIER_ORDER) - 1:
+        next_tier_key = INFLUENCER_TIER_ORDER[current_idx + 1]
         next_reqs = INFLUENCER_TIERS[next_tier_key]
         progress = {
             "next_tier": next_tier_key,
-            "customers": {"current": metrics.get("unique_customers", 0), "needed": next_reqs["min_customers"]},
-            "gmv": {"current": metrics.get("net_gmv", 0), "needed": next_reqs["min_gmv"]},
-            "repurchase": {"current": round(metrics.get("repurchase_rate", 0) * 100, 1), "needed": round(next_reqs["min_repurchase"] * 100, 1)},
+            "gmv": {"current": metrics.get("net_gmv_cents", int(round(metrics.get("net_gmv", 0) * 100))), "needed": next_reqs["min_gmv_cents"]},
         }
 
     return {
         "current_tier": current_tier,
-        "commission_rate": inf.get("commission_rate", 0.03),
+        "commission_rate": get_influencer_commission_rate(current_tier),
         "metrics": metrics,
         "progress": progress,
         "next_review_date": inf.get("next_tier_review_date"),

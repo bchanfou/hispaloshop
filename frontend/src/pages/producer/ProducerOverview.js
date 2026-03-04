@@ -58,13 +58,18 @@ function StripeConnectSection() {
   const fetchStripeStatus = async () => {
     try {
       setError(null);
-      const response = await axios.get(`${API}/producer/stripe/status`, { withCredentials: true });
+      const response = await axios.get(`${API}/connect/status`, { withCredentials: true });
       setStripeStatus(response.data);
     } catch (error) {
       console.error('Error fetching Stripe status:', error);
       setError('Unable to check Stripe status');
       // Set default status so UI still renders
-      setStripeStatus({ connected: false, status: 'unknown' });
+      setStripeStatus({
+        has_account: false,
+        onboarding_completed: false,
+        status: 'unknown',
+        requirements_due: [],
+      });
     } finally {
       setLoading(false);
     }
@@ -73,32 +78,30 @@ function StripeConnectSection() {
   const handleConnectStripe = async () => {
     setConnecting(true);
     try {
-      const response = await axios.post(
-        `${API}/producer/stripe/create-account`,
-        {},
-        { 
-          withCredentials: true,
-          headers: { 'Origin': window.location.origin }
-        }
-      );
-      
-      if (response.data.url) {
-        window.location.href = response.data.url;
+      let onboardingUrl = null;
+      if (!stripeStatus?.has_account) {
+        const response = await axios.post(`${API}/connect/account`, {}, { withCredentials: true });
+        onboardingUrl = response.data?.onboarding_url || null;
+      } else if (!stripeStatus?.onboarding_completed) {
+        const response = await axios.post(`${API}/connect/refresh-link`, {}, { withCredentials: true });
+        onboardingUrl = response.data?.onboarding_url || null;
+      }
+      if (onboardingUrl) {
+        window.location.href = onboardingUrl;
+      } else {
+        await fetchStripeStatus();
       }
     } catch (error) {
       console.error('Error connecting Stripe:', error);
       toast.error(error.response?.data?.detail || 'Failed to start Stripe onboarding');
+    } finally {
       setConnecting(false);
     }
   };
 
   const handleViewStripeDashboard = async () => {
     try {
-      const response = await axios.post(
-        `${API}/producer/stripe/create-login-link`,
-        {},
-        { withCredentials: true }
-      );
+      const response = await axios.post(`${API}/connect/login-link`, {}, { withCredentials: true });
       
       if (response.data.url) {
         window.open(response.data.url, '_blank');
@@ -120,7 +123,7 @@ function StripeConnectSection() {
     );
   }
 
-  const isConnected = stripeStatus?.connected;
+  const isConnected = Boolean(stripeStatus?.onboarding_completed);
 
   return (
     <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8" data-testid="stripe-connect-section">
@@ -147,7 +150,7 @@ function StripeConnectSection() {
                 ? 'Your account is connected. You will automatically receive 82% of each sale.'
                 : 'Connect your Stripe account to receive automatic payouts for your sales.'}
             </p>
-            {stripeStatus?.status === 'pending' && stripeStatus?.stripe_account_id && (
+            {stripeStatus?.status === 'pending' && stripeStatus?.account_id && (
               <p className="text-amber-600 text-sm mt-1">
                 Onboarding incomplete. Please complete your Stripe profile to enable payouts.
               </p>
@@ -177,7 +180,7 @@ function StripeConnectSection() {
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   {t('producer.stripeConnect.connecting')}
                 </>
-              ) : stripeStatus?.stripe_account_id ? (
+              ) : stripeStatus?.has_account ? (
                 t('producer.stripeConnect.completeSetup')
               ) : (
                 t('producer.stripeConnect.connectAccount')

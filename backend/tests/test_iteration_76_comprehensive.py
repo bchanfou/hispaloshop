@@ -444,17 +444,19 @@ class TestSubscriptions:
         print(f"✅ Producer plan: {data['plan']}, commission: {data['commission_rate']}")
     
     def test_get_influencer_tiers(self):
-        """GET /api/influencers/tiers - returns 3 tiers"""
+        """GET /api/influencers/tiers - returns 5 tiers"""
         response = requests.get(f"{BASE_URL}/api/influencers/tiers")
         assert response.status_code == 200
         data = response.json()
         assert "tiers" in data
-        assert len(data["tiers"]) == 3
+        assert len(data["tiers"]) == 5
         tier_keys = [t["key"] for t in data["tiers"]]
-        assert "HERCULES" in tier_keys
-        assert "ATENEA" in tier_keys
-        assert "TITAN" in tier_keys
-        print(f"✅ Influencer tiers returns 3 tiers: {tier_keys}")
+        assert "perseo" in tier_keys
+        assert "aquiles" in tier_keys
+        assert "hercules" in tier_keys
+        assert "apolo" in tier_keys
+        assert "zeus" in tier_keys
+        print(f"✅ Influencer tiers returns 5 tiers: {tier_keys}")
 
 
 # ============ SUPER ADMIN TESTS ============

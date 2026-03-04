@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from config import settings
 from database import get_db
-from models import AffiliateLink, Cart, CartItem, Order, OrderItem, Subscription, User
+from models import AffiliateLink, Cart, CartItem, Order, OrderItem, Product, Subscription, User
 from routers.auth import get_current_user
 from schemas import CheckoutCreateRequest, CheckoutResponse
 
@@ -39,17 +39,33 @@ async def create_checkout_session(
     if not cart or not cart.items:
         raise HTTPException(status_code=400, detail="Cart is empty")
 
+    # Deterministic lock order to reduce deadlock risk for multi-item carts.
+    sorted_items = sorted(cart.items, key=lambda i: str(i.product_id))
+    locked_products: dict[str, Product] = {}
+    for item in sorted_items:
+        product = await db.scalar(select(Product).where(Product.id == item.product_id).with_for_update())
+        if not product:
+            raise HTTPException(status_code=404, detail=f"Product not found for cart item {item.product_id}")
+        locked_products[str(item.product_id)] = product
+
     subtotal = 0
-    for item in cart.items:
-        if item.product.track_inventory and item.product.inventory_quantity < item.quantity:
-            raise HTTPException(status_code=400, detail=f"Insufficient stock for {item.product.name}")
+    for item in sorted_items:
+        product = locked_products[str(item.product_id)]
+        if product.track_inventory and product.inventory_quantity < item.quantity:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Insufficient stock for {product.name}: "
+                    f"available {product.inventory_quantity}, requested {item.quantity}"
+                ),
+            )
         subtotal += item.quantity * item.unit_price_cents
 
     shipping_cents = 0 if subtotal >= 5000 else 490
     tax_cents = int((subtotal + shipping_cents) * 0.21)
     total_cents = subtotal + shipping_cents + tax_cents
 
-    producer_ids = {item.product.producer_id for item in cart.items}
+    producer_ids = {item.product.producer_id for item in sorted_items}
     producer_subscriptions = (
         await db.scalars(select(Subscription).where(Subscription.user_id.in_(producer_ids), Subscription.status == "active"))
     ).all()
@@ -94,7 +110,7 @@ async def create_checkout_session(
     await db.flush()
 
     line_items = []
-    for item in cart.items:
+    for item in sorted_items:
         line_total = item.quantity * item.unit_price_cents
         producer_commission_bps = commission_map.get(str(item.product.producer_id), 2000)
         line_platform_fee = _calculate_platform_fee(line_total, producer_commission_bps)

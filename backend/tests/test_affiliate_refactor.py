@@ -12,7 +12,7 @@ from services.affiliate_service import build_affiliate_tracking_url, track_conve
 
 
 @pytest.mark.asyncio
-async def test_track_conversion_creates_conversion_event_per_item_without_mutating_click():
+async def test_track_conversion_creates_conversion_event_per_item_without_mutating_click(monkeypatch):
     order_id = uuid4()
     item_one = uuid4()
     item_two = uuid4()
@@ -62,6 +62,8 @@ async def test_track_conversion_creates_conversion_event_per_item_without_mutati
     db.get = AsyncMock(side_effect=[order_item_one, order_item_two])
     db.add = Mock()
     db.flush = AsyncMock()
+    recalc_mock = AsyncMock(return_value="perseo")
+    monkeypatch.setattr("services.affiliate_service.recalculate_influencer_tier", recalc_mock)
 
     first = await track_conversion(db, order_id, item_one, "AFFCODE", 1000)
     second = await track_conversion(db, order_id, item_two, "AFFCODE", 2000)
@@ -78,6 +80,7 @@ async def test_track_conversion_creates_conversion_event_per_item_without_mutati
 
     assert len(conversion_events) == 2
     assert len(commissions) == 2
+    assert recalc_mock.await_count == 2
 
 
 @pytest.mark.asyncio
@@ -134,10 +137,11 @@ async def test_approve_affiliate_request_reuses_pending_link():
 
 
 @pytest.mark.asyncio
-async def test_create_affiliate_link_uses_backend_redirect_host():
+async def test_create_affiliate_link_uses_backend_redirect_host(monkeypatch):
     influencer_id = uuid4()
     user = SimpleNamespace(id=influencer_id, role="influencer")
     payload = AffiliateLinkCreateRequest(product_id=None, custom_code="mycode")
+    monkeypatch.setattr("services.affiliate_service.settings.BACKEND_URL", "https://backend.example/")
 
     db = AsyncMock()
     db.scalar = AsyncMock(return_value=None)

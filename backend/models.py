@@ -15,6 +15,7 @@ except Exception:  # pragma: no cover - optional dependency fallback
             super().__init__(Float)
 
 from database import Base
+from config import INFLUENCER_TIER_CONFIG, normalize_influencer_tier
 
 
 class Tenant(Base):
@@ -55,6 +56,12 @@ class User(Base):
     stripe_customer_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     stripe_account_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     stripe_account_status: Mapped[str] = mapped_column(String(20), default="inactive")
+    stripe_account_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    stripe_account_created_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    stripe_account_payouts_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    stripe_account_charges_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    connect_onboarding_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    connect_requirements_due: Mapped[Optional[List[str]]] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
     updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
 
@@ -200,7 +207,7 @@ class Subscription(Base):
     user: Mapped["User"] = relationship(back_populates="subscription")
 
     def get_commission_bps(self) -> int:
-        bps_map = {"free": 2000, "pro": 1800, "elite": 1600}
+        bps_map = {"free": 2000, "pro": 1800, "elite": 1700}
         return bps_map.get(self.plan, 2000)
 
 
@@ -229,24 +236,20 @@ class InfluencerProfile(Base):
     user: Mapped["User"] = relationship(back_populates="influencer_profile")
 
     def recalculate_tier(self) -> str:
-        if self.monthly_gmv_cents >= 5_000_000 or self.followers_count >= 100_000:
+        # GMV-based ladder is the source of truth for tier progression.
+        if self.monthly_gmv_cents >= INFLUENCER_TIER_CONFIG["zeus"]["min_gmv_cents"]:
             return "zeus"
-        if self.monthly_gmv_cents >= 1_000_000 or self.followers_count >= 25_000:
+        if self.monthly_gmv_cents >= INFLUENCER_TIER_CONFIG["apolo"]["min_gmv_cents"]:
             return "apolo"
-        if self.monthly_gmv_cents >= 200_000 or self.followers_count >= 5_000:
+        if self.monthly_gmv_cents >= INFLUENCER_TIER_CONFIG["hercules"]["min_gmv_cents"]:
             return "hercules"
-        if self.monthly_gmv_cents >= 50_000 or self.followers_count >= 1_000:
+        if self.monthly_gmv_cents >= INFLUENCER_TIER_CONFIG["aquiles"]["min_gmv_cents"]:
             return "aquiles"
         return "perseo"
 
     def get_commission_bps(self) -> int:
-        return {
-            "perseo": 300,
-            "aquiles": 400,
-            "hercules": 500,
-            "apolo": 600,
-            "zeus": 700,
-        }.get(self.tier, 300)
+        tier = normalize_influencer_tier(self.tier)
+        return INFLUENCER_TIER_CONFIG[tier]["commission_bps"]
 
 
 class Cart(Base):
@@ -307,7 +310,10 @@ class Order(Base):
 
     user: Mapped["User"] = relationship(back_populates="orders")
     items: Mapped[List["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
-    b2b_quote: Mapped[Optional["B2BQuote"]] = relationship(back_populates="orders")
+    b2b_quote: Mapped[Optional["B2BQuote"]] = relationship(
+        back_populates="orders",
+        foreign_keys=[b2b_quote_id],
+    )
 
 
 class Importer(Base):
@@ -398,7 +404,10 @@ class B2BQuote(Base):
 
     importer: Mapped["Importer"] = relationship(back_populates="quotes")
     requester_producer: Mapped["User"] = relationship()
-    orders: Mapped[List["Order"]] = relationship(back_populates="b2b_quote")
+    orders: Mapped[List["Order"]] = relationship(
+        back_populates="b2b_quote",
+        foreign_keys="Order.b2b_quote_id",
+    )
 
 
 class ShippingRoute(Base):
@@ -536,6 +545,8 @@ class OrderItem(Base):
     producer_payout_cents: Mapped[int] = mapped_column(default=0)
     platform_fee_cents: Mapped[int] = mapped_column(default=0)
     affiliate_commission_cents: Mapped[int] = mapped_column(default=0)
+    producer_transfer_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    producer_payout_status: Mapped[str] = mapped_column(String(50), default="pending")
     fulfillment_status: Mapped[str] = mapped_column(String(20), default="pending")
     tracking_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     shipped_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
@@ -755,7 +766,7 @@ class Conversation(Base):
     related_order_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("orders.id"), nullable=True, index=True)
     related_product_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("products.id"), nullable=True, index=True)
     is_active: Mapped[bool] = mapped_column(default=True, index=True)
-    metadata: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    metadata_json: Mapped[Dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
     created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
     updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now(), index=True)
 
@@ -795,7 +806,7 @@ class Message(Base):
         default="text",
     )
     reply_to_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("messages.id"), nullable=True)
-    metadata: Mapped[Dict[str, Any]] = mapped_column(JSONB, default=dict)
+    metadata_json: Mapped[Dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
     created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
     updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
     edited_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)

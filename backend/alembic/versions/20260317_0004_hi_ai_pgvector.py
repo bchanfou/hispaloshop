@@ -8,6 +8,7 @@ Create Date: 2026-03-17
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.exc import DBAPIError
 
 
 revision = "20260317_0004"
@@ -17,7 +18,16 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+    # Run extension creation outside the migration transaction so a missing
+    # pgvector package does not abort subsequent DDL statements.
+    with op.get_context().autocommit_block():
+        try:
+            op.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+        except DBAPIError as exc:
+            # Local/CI environments may not have pgvector installed.
+            # Embeddings in this project are stored as float arrays, so migration can continue.
+            if "extension \"vector\" is not available" not in str(exc):
+                raise
 
     op.create_table(
         "product_embeddings",

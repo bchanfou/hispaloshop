@@ -2,13 +2,15 @@ from datetime import datetime, timedelta, timezone
 import random
 import string
 from uuid import UUID
+import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from config import settings
+from config import INFLUENCER_TIER_CONFIG, INFLUENCER_TIER_ORDER, normalize_influencer_tier, settings
 from database import get_db
 from models import AffiliateLink, AffiliateLinkRequest, Commission, InfluencerProfile, Payout, Product, User
 from routers.auth import get_current_user
@@ -18,13 +20,12 @@ from services.affiliate_service import build_affiliate_tracking_url
 router = APIRouter(prefix="/influencer")
 
 TIER_META = {
-    "perseo": {"name": "Perseo", "badge": "🥉", "rate": "3%"},
-    "aquiles": {"name": "Aquiles", "badge": "🥈", "rate": "4%"},
-    "hercules": {"name": "Hércules", "badge": "🥇", "rate": "5%"},
-    "apolo": {"name": "Apolo", "badge": "💎", "rate": "6%"},
-    "zeus": {"name": "Zeus", "badge": "👑", "rate": "7%"},
+    "perseo": {"name": "Perseo", "badge": "bronze", "rate": "3%"},
+    "aquiles": {"name": "Aquiles", "badge": "silver", "rate": "4%"},
+    "hercules": {"name": "Hercules", "badge": "gold", "rate": "5%"},
+    "apolo": {"name": "Apolo", "badge": "diamond", "rate": "6%"},
+    "zeus": {"name": "Zeus", "badge": "crown", "rate": "7%"},
 }
-
 
 def require_influencer(user: User):
     if user.role != "influencer":
@@ -61,31 +62,26 @@ async def get_dashboard(current_user: User = Depends(get_current_user), db: Asyn
     )
     conversion_rate = round((month_orders / month_clicks) * 100, 2) if month_clicks else 0
 
+    current_tier = normalize_influencer_tier(profile.tier)
+    profile.tier = current_tier
     next_tier = None
-    tier_order = ["perseo", "aquiles", "hercules", "apolo", "zeus"]
-    current_idx = tier_order.index(profile.tier) if profile.tier in tier_order else 0
-    if current_idx < len(tier_order) - 1:
-        target = tier_order[current_idx + 1]
-        thresholds = {
-            "aquiles": (50_000, 1_000),
-            "hercules": (200_000, 5_000),
-            "apolo": (1_000_000, 25_000),
-            "zeus": (5_000_000, 100_000),
-        }
-        gmv, followers = thresholds[target]
+    current_idx = INFLUENCER_TIER_ORDER.index(current_tier)
+    if current_idx < len(INFLUENCER_TIER_ORDER) - 1:
+        target = INFLUENCER_TIER_ORDER[current_idx + 1]
+        target_cfg = INFLUENCER_TIER_CONFIG[target]
         next_tier = {
-            "name": TIER_META[target]["name"],
-            "commission_rate": TIER_META[target]["rate"],
-            "gmv_needed_cents": max(0, gmv - profile.monthly_gmv_cents),
-            "followers_needed": max(0, followers - profile.followers_count),
+            "key": target,
+            "name": target_cfg["name"],
+            "commission_rate": f"{target_cfg['commission_bps'] // 100}%",
+            "gmv_needed_cents": max(0, target_cfg["min_gmv_cents"] - profile.total_gmv_cents),
         }
 
     return InfluencerDashboardResponse(
         profile={
-            "tier": profile.tier,
-            "tier_name": TIER_META.get(profile.tier, TIER_META["perseo"])["name"],
-            "tier_badge": TIER_META.get(profile.tier, TIER_META["perseo"])["badge"],
-            "commission_rate": TIER_META.get(profile.tier, TIER_META["perseo"])["rate"],
+            "tier": current_tier,
+            "tier_name": TIER_META.get(current_tier, TIER_META["perseo"])["name"],
+            "tier_badge": TIER_META.get(current_tier, TIER_META["perseo"])["badge"],
+            "commission_rate": TIER_META.get(current_tier, TIER_META["perseo"])["rate"],
             "followers_count": profile.followers_count,
             "niche": profile.niche or [],
             "is_verified": profile.is_verified,
@@ -151,12 +147,6 @@ async def create_affiliate_link(
     db: AsyncSession = Depends(get_db),
 ):
     require_influencer(current_user)
-    code = payload.custom_code.upper() if payload.custom_code else _random_code()
-    while await db.scalar(select(AffiliateLink).where(func.lower(AffiliateLink.code) == code.lower())):
-        if payload.custom_code:
-            raise HTTPException(status_code=400, detail="Code already exists")
-        code = _random_code()
-
     product = None
     if payload.product_id:
         product = await db.get(Product, payload.product_id)
@@ -165,26 +155,47 @@ async def create_affiliate_link(
         if not product.is_affiliate_enabled:
             raise HTTPException(status_code=400, detail="Affiliate disabled for this product")
 
-    link = AffiliateLink(
-        influencer_id=current_user.id,
-        product_id=payload.product_id,
-        code=code,
-        tracking_url=build_affiliate_tracking_url(code),
-        status="active" if not product else "pending",
-    )
-    db.add(link)
-    await db.flush()
+    # Keep custom-code validation explicit and user-friendly.
+    if payload.custom_code:
+        normalized = payload.custom_code.upper()
+        exists = await db.scalar(select(AffiliateLink).where(func.lower(AffiliateLink.code) == normalized.lower()))
+        if exists:
+            raise HTTPException(status_code=400, detail="Code already exists")
+        code_candidates = [normalized]
+    else:
+        code_candidates = [secrets.token_urlsafe(8)[:12].upper() for _ in range(5)]
 
-    if product:
-        db.add(
-            AffiliateLinkRequest(
-                product_id=product.id,
-                influencer_id=current_user.id,
-                producer_id=product.producer_id,
-                status="pending",
-            )
+    last_error = None
+    for code in code_candidates:
+        link = AffiliateLink(
+            influencer_id=current_user.id,
+            product_id=payload.product_id,
+            code=code,
+            tracking_url=build_affiliate_tracking_url(code),
+            status="active" if not product else "pending",
         )
-    return link
+        db.add(link)
+        try:
+            await db.flush()
+        except IntegrityError as exc:
+            await db.rollback()
+            last_error = exc
+            if payload.custom_code:
+                raise HTTPException(status_code=400, detail="Code already exists") from exc
+            continue
+
+        if product:
+            db.add(
+                AffiliateLinkRequest(
+                    product_id=product.id,
+                    influencer_id=current_user.id,
+                    producer_id=product.producer_id,
+                    status="pending",
+                )
+            )
+        return link
+
+    raise HTTPException(status_code=500, detail="Could not generate unique affiliate code") from last_error
 
 
 @router.post("/affiliate-links/{link_id}/deactivate")
@@ -311,3 +322,4 @@ async def request_payout(
         paid_at=payout.paid_at,
         commissions_count=len(commissions),
     )
+

@@ -22,6 +22,7 @@ from core.config import PLATFORM_COMMISSION, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_S
 from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
 from services.ledger import write_ledger_event
+from config import normalize_influencer_tier
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -52,7 +53,7 @@ async def _resolve_seller_stripe(seller_id: str) -> dict:
 async def execute_seller_transfers(order: dict):
     """
     Execute Stripe transfers to each seller after payment is confirmed.
-    Uses dynamic commission rates based on seller plan (FREE=20%, PRO=18%, ELITE=16%).
+    Uses dynamic commission rates based on seller plan (FREE=20%, PRO=18%, ELITE=17%).
     """
     from services.subscriptions import calculate_order_commissions, get_seller_commission_rate
 
@@ -195,7 +196,7 @@ async def schedule_influencer_payout(order: dict, total_platform_fee: float):
         "payout_id": f"payout_{uuid.uuid4().hex[:12]}",
         "influencer_id": influencer_id,
         "influencer_stripe_account_id": stripe_account_id,
-        "influencer_tier": inf_doc.get("current_tier", "HERCULES"),
+        "influencer_tier": normalize_influencer_tier(inf_doc.get("current_tier", "perseo")),
         "influencer_rate": inf_rate,
         "order_id": order_id,
         "amount": influencer_amount,
@@ -585,7 +586,8 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                             {"influencer_id": attr_check["influencer_id"], "status": "active"}, {"_id": 0}
                         )
                         if influencer and influencer.get("email") != user.email:
-                            inf_rate = influencer.get("commission_rate", get_influencer_commission_rate(influencer.get("current_tier", "HERCULES")))
+                            influencer_tier = normalize_influencer_tier(influencer.get("current_tier", "perseo"))
+                            inf_rate = influencer.get("commission_rate", get_influencer_commission_rate(influencer_tier))
                             net_order_value = subtotal - discount_amount
                             commission_amount = round(net_order_value * inf_rate, 2)
                             influencer_commission_data = {
@@ -593,7 +595,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                                 "discount_code": discount_code["code"],
                                 "commission_amount": commission_amount,
                                 "commission_rate": inf_rate,
-                                "tier": influencer.get("current_tier", "HERCULES"),
+                                "tier": influencer_tier,
                                 "order_value": round(net_order_value, 2),
                             }
                             if not attr_check.get("existing"):

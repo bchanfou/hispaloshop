@@ -51,13 +51,21 @@ async def get_recipes(q: Optional[str] = None, tag: Optional[str] = None, diffic
         query["tags"] = tag
     if difficulty:
         query["difficulty"] = difficulty
-    recipes = await db.recipes.find(query, {"_id": 0}).sort("likes_count", -1).limit(limit).to_list(limit)
-    return recipes
+    try:
+        recipes = await db.recipes.find(query, {"_id": 0}).sort("likes_count", -1).limit(limit).to_list(limit)
+        return recipes
+    except Exception as exc:
+        logger.warning(f"[RECIPES] Falling back to empty list due to data source error: {exc}")
+        return []
 
 @router.get("/recipes/{recipe_id}")
 async def get_recipe(recipe_id: str):
     """Get a single recipe with ingredient-product mapping."""
-    recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0})
+    try:
+        recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0})
+    except Exception as exc:
+        logger.warning(f"[RECIPES] Data source error for recipe {recipe_id}: {exc}")
+        recipe = None
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
     

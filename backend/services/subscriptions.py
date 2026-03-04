@@ -9,6 +9,8 @@ from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
+from config import INFLUENCER_TIER_CONFIG, INFLUENCER_TIER_ORDER, normalize_influencer_tier
+
 logger = logging.getLogger(__name__)
 
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
@@ -19,13 +21,18 @@ STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 SELLER_PLANS = {
     "FREE":  {"price_monthly_usd": 0,   "commission_rate": 0.20, "label": "Free",  "stripe_price_id": None},
     "PRO":   {"price_monthly_usd": 54,  "commission_rate": 0.18, "label": "Pro",   "stripe_price_id": None},
-    "ELITE": {"price_monthly_usd": 108, "commission_rate": 0.16, "label": "Elite", "stripe_price_id": None},
+    "ELITE": {"price_monthly_usd": 108, "commission_rate": 0.17, "label": "Elite", "stripe_price_id": None},
 }
 
 INFLUENCER_TIERS = {
-    "HERCULES": {"commission_rate": 0.03, "min_customers": 15, "min_gmv": 5000,  "min_repurchase": 0.0},
-    "ATENEA":   {"commission_rate": 0.05, "min_customers": 40, "min_gmv": 12000, "min_repurchase": 0.25},
-    "TITAN":    {"commission_rate": 0.07, "min_customers": 80, "min_gmv": 25000, "min_repurchase": 0.35},
+    tier: {
+        "commission_rate": cfg["commission_rate"],
+        "commission_bps": cfg["commission_bps"],
+        "name": cfg["name"],
+        "min_gmv": cfg["min_gmv_cents"] / 100,
+        "min_gmv_cents": cfg["min_gmv_cents"],
+    }
+    for tier, cfg in INFLUENCER_TIER_CONFIG.items()
 }
 
 ATTRIBUTION_LOCK_MONTHS = 18
@@ -280,7 +287,8 @@ def get_seller_commission_rate(plan: str) -> float:
 
 def get_influencer_commission_rate(tier: str) -> float:
     """Get commission rate for an influencer tier."""
-    return INFLUENCER_TIERS.get(tier, INFLUENCER_TIERS["HERCULES"])["commission_rate"]
+    normalized = normalize_influencer_tier(tier)
+    return INFLUENCER_TIERS[normalized]["commission_rate"]
 
 
 async def calculate_order_commissions(db, order: dict) -> dict:
@@ -316,7 +324,7 @@ async def calculate_order_commissions(db, order: dict) -> dict:
         influencer_tier = None
         if influencer_id:
             inf_doc = await db.influencers.find_one({"influencer_id": influencer_id}, {"_id": 0, "current_tier": 1})
-            influencer_tier = (inf_doc or {}).get("current_tier", "HERCULES")
+            influencer_tier = normalize_influencer_tier((inf_doc or {}).get("current_tier", "perseo"))
             influencer_rate = get_influencer_commission_rate(influencer_tier)
 
         platform_gross = round(seller_gmv * platform_rate, 2)
@@ -406,7 +414,7 @@ async def create_attribution(db, customer_id: str, influencer_id: str, code_used
 
 
 async def recalculate_influencer_tier(db, influencer_id: str) -> str:
-    """Recalculate influencer tier based on last 90 days metrics."""
+    """Recalculate influencer tier based on last 90 days GMV."""
     now = datetime.now(timezone.utc)
     ninety_days_ago = (now - timedelta(days=90)).isoformat()
 
@@ -418,7 +426,7 @@ async def recalculate_influencer_tier(db, influencer_id: str) -> str:
     customer_ids = [a["customer_id"] for a in attributions]
 
     if not customer_ids:
-        return "HERCULES"
+        return "perseo"
 
     # Count unique customers with orders in last 90 days
     pipeline = [
@@ -440,13 +448,11 @@ async def recalculate_influencer_tier(db, influencer_id: str) -> str:
     repeat_buyers = sum(1 for c in customer_metrics if c["order_count"] >= 2)
     repurchase_rate = repeat_buyers / unique_customers if unique_customers > 0 else 0
 
-    # Determine tier
-    new_tier = "HERCULES"
-    for tier_name in ["TITAN", "ATENEA", "HERCULES"]:
-        t = INFLUENCER_TIERS[tier_name]
-        if (unique_customers >= t["min_customers"] and
-            net_gmv >= t["min_gmv"] and
-            repurchase_rate >= t["min_repurchase"]):
+    # Determine tier from GMV-only ladder to stay aligned with product spec.
+    net_gmv_cents = int(round(net_gmv * 100))
+    new_tier = "perseo"
+    for tier_name in reversed(INFLUENCER_TIER_ORDER):
+        if net_gmv_cents >= INFLUENCER_TIERS[tier_name]["min_gmv_cents"]:
             new_tier = tier_name
             break
 
@@ -459,6 +465,7 @@ async def recalculate_influencer_tier(db, influencer_id: str) -> str:
             "last_90_days_metrics": {
                 "unique_customers": unique_customers,
                 "net_gmv": round(net_gmv, 2),
+                "net_gmv_cents": net_gmv_cents,
                 "repurchase_rate": round(repurchase_rate, 4),
             },
             "next_tier_review_date": (now + timedelta(days=90)).isoformat(),

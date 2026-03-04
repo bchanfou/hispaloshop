@@ -146,7 +146,7 @@ async def create_conversation(payload: ConversationCreateRequest, current_user: 
         type=payload.type,
         related_order_id=payload.related_order_id,
         related_product_id=payload.related_product_id,
-        metadata=payload.metadata or {},
+        metadata_json=payload.metadata or {},
     )
     db.add(conversation)
     await db.flush()
@@ -191,7 +191,7 @@ async def post_message(conversation_id: UUID, payload: MessageCreateRequest, cur
         content=payload.content,
         message_type=payload.message_type,
         reply_to_id=payload.reply_to_id,
-        metadata=payload.metadata or {},
+        metadata_json=payload.metadata or {},
     )
     db.add(message)
     await db.flush()
@@ -346,7 +346,7 @@ async def websocket_chat(websocket: WebSocket):
                         content=data.get("content", ""),
                         message_type=data.get("message_type", "text"),
                         reply_to_id=UUID(data["reply_to"]) if data.get("reply_to") else None,
-                        metadata=data.get("metadata") or {},
+                        metadata_json=data.get("metadata") or {},
                     )
                     db.add(message)
                     await db.commit()

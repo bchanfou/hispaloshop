@@ -29,14 +29,14 @@ class DummyProduct:
 def test_commission_map_and_fee_aggregation():
     producer_a = uuid4()
     producer_b = uuid4()
-    commission = _commission_by_producer([DummySubscription(producer_a, 1600), DummySubscription(producer_b, 2000)])
+    commission = _commission_by_producer([DummySubscription(producer_a, 1700), DummySubscription(producer_b, 2000)])
 
     line_a = _calculate_platform_fee(3000, commission[str(producer_a)])
     line_b = _calculate_platform_fee(2000, commission[str(producer_b)])
 
-    assert commission[str(producer_a)] == 1600
+    assert commission[str(producer_a)] == 1700
     assert commission[str(producer_b)] == 2000
-    assert line_a + line_b == 880
+    assert line_a + line_b == 910
 
 
 def test_slug_suffix_generation():

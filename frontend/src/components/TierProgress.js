@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TrendingUp, Users, DollarSign, RefreshCw, Loader2, Award, Zap, Crown } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, RefreshCw, Loader2, Award, Shield, Sparkles, Crown } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 import { API } from '../utils/api';
@@ -40,10 +40,14 @@ export default function TierProgress() {
   if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-text-muted" /></div>;
   if (!data) return null;
 
-  const tierIcons = { HERCULES: Award, ATENEA: Zap, TITAN: Crown };
-  const tierColors = { HERCULES: '#6b7280', ATENEA: '#2D5A27', TITAN: '#d97706' };
+  const tierIcons = { perseo: Award, aquiles: Shield, hercules: Sparkles, apolo: TrendingUp, zeus: Crown };
+  const tierColors = { perseo: '#6b7280', aquiles: '#2D5A27', hercules: '#2563eb', apolo: '#d97706', zeus: '#7c3aed' };
   const Icon = tierIcons[data.current_tier] || Award;
   const color = tierColors[data.current_tier] || '#6b7280';
+  const tierLabels = { perseo: 'Perseo', aquiles: 'Aquiles', hercules: 'Hercules', apolo: 'Apolo', zeus: 'Zeus' };
+  const nextTierLabel = tierLabels[data.progress?.next_tier] || data.progress?.next_tier;
+  const gmvCurrentEuros = Math.round((data.progress?.gmv?.current || 0) / 100);
+  const gmvNeededEuros = Math.round((data.progress?.gmv?.needed || 0) / 100);
 
   return (
     <div className="space-y-4" data-testid="tier-progress">
@@ -61,7 +65,7 @@ export default function TierProgress() {
             <Icon className="w-6 h-6" style={{ color }} />
           </div>
           <div>
-            <span className="font-heading text-xl font-bold" style={{ color }}>{data.current_tier}</span>
+            <span className="font-heading text-xl font-bold" style={{ color }}>{tierLabels[data.current_tier] || data.current_tier}</span>
             <p className="text-sm text-text-muted">Comision: {(data.commission_rate * 100).toFixed(0)}% por venta</p>
           </div>
         </div>
@@ -89,25 +93,13 @@ export default function TierProgress() {
         {data.progress?.next_tier && (
           <div>
             <p className="text-xs text-text-muted mb-3 uppercase tracking-wider">
-              Progreso hacia {data.progress.next_tier}
+              Progreso hacia {nextTierLabel}
             </p>
             <div className="space-y-3">
               <ProgressBar
-                label="Clientes referidos"
-                current={data.progress.customers.current}
-                target={data.progress.customers.needed}
-                color={color}
-              />
-              <ProgressBar
-                label="Ventas generadas"
-                current={data.progress.gmv.current}
-                target={data.progress.gmv.needed}
-                color={color}
-              />
-              <ProgressBar
-                label="Clientes que repiten"
-                current={data.progress.repurchase.current}
-                target={data.progress.repurchase.needed}
+                label="GMV acumulado (EUR)"
+                current={gmvCurrentEuros}
+                target={gmvNeededEuros}
                 color={color}
               />
             </div>

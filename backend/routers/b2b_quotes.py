@@ -16,7 +16,7 @@ router = APIRouter(prefix="/b2b/quotes", tags=["b2b_quotes"])
 
 
 async def _create_b2b_conversation(db: AsyncSession, user_ids: list[UUID], quote_id: UUID) -> None:
-    conversation = Conversation(type="b2b_negotiation", metadata={"quote_id": str(quote_id)})
+    conversation = Conversation(type="b2b_negotiation", metadata_json={"quote_id": str(quote_id)})
     db.add(conversation)
     await db.flush()
     for uid in user_ids:

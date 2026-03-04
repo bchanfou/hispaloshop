@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import logging
 from typing import Optional
 from uuid import UUID
 import uuid
@@ -6,11 +7,12 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import settings
+from config import normalize_influencer_tier, settings
 from models import AffiliateEvent, AffiliateLink, Commission, InfluencerProfile, OrderItem, Payout, User
 
 
 BOT_HINTS = ("bot", "spider", "crawler", "headless", "preview")
+logger = logging.getLogger(__name__)
 
 
 def is_bot_user_agent(user_agent: str | None) -> bool:
@@ -156,6 +158,9 @@ async def track_conversion(
     if order_item:
         order_item.affiliate_commission_cents = commission_cents
 
+    # Keep tier progression in sync with freshly updated GMV/referral metrics.
+    await recalculate_influencer_tier(db, link.influencer_id)
+
     await db.flush()
     return commission
 
@@ -165,10 +170,13 @@ async def recalculate_influencer_tier(db: AsyncSession, influencer_id: UUID) -> 
     if not profile:
         return "perseo"
 
+    profile.tier = normalize_influencer_tier(profile.tier)
     new_tier = profile.recalculate_tier()
     if new_tier != profile.tier:
+        old_tier = profile.tier
         profile.tier = new_tier
         profile.tier_updated_at = datetime.now(timezone.utc)
+        logger.info("Influencer %s upgraded tier %s -> %s", influencer_id, old_tier, new_tier)
     await db.flush()
     return profile.tier
 

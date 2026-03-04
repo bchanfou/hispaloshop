@@ -17,7 +17,9 @@ from routers.products import _map_product
 from schemas import ChatCloseRequest, ChatHistoryResponse, ChatMessageCreateRequest, ChatMessageResponse, ChatSessionCreateRequest, ChatSessionResponse
 
 router = APIRouter(prefix="/chat")
-client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY or None, organization=settings.OPENAI_ORG_ID or None)
+client: AsyncOpenAI | None = None
+if settings.OPENAI_API_KEY:
+    client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY, organization=settings.OPENAI_ORG_ID or None)
 
 
 def _require_pro(user: User) -> None:
@@ -48,7 +50,7 @@ async def send_message(
 
     db.add(ChatMessage(session_id=session.id, role="user", content=payload.content))
     response_text = ""
-    if settings.OPENAI_API_KEY:
+    if settings.OPENAI_API_KEY and client is not None:
         history = [{"role": msg.role, "content": msg.content} for msg in session.messages[-6:] if msg.role in {"user", "assistant"}]
         completion = await client.chat.completions.create(
             model="gpt-4o-mini",

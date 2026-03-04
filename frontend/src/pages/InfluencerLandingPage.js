@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import { Button } from '../components/ui/button';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Sparkles, DollarSign, Users, TrendingUp, Award, Zap, Crown, CheckCircle, Share2 } from 'lucide-react';
+import { ArrowRight, Sparkles, DollarSign, Users, TrendingUp, Award, Shield, Crown, CheckCircle, Share2 } from 'lucide-react';
 import BackButton from '../components/BackButton';
 
 function EarningsCalculator() {
@@ -39,9 +39,11 @@ export default function InfluencerLandingPage() {
   const { t } = useTranslation();
 
   const tiers = [
-    { key: 'HERCULES', icon: Award, label: 'Hercules', rate: '3%', desc: t('influencerLanding.tier1Desc', 'For growing influencers'), color: 'text-stone-500 bg-stone-50 border-stone-200', reqs: t('influencerLanding.tier1Reqs', '15+ customers, $5k+ GMV') },
-    { key: 'ATENEA', icon: Zap, label: 'Atenea', rate: '5%', desc: t('influencerLanding.tier2Desc', 'For established influencers'), color: 'text-[#2D5A27] bg-emerald-50 border-emerald-200', reqs: t('influencerLanding.tier2Reqs', '40+ customers, $12k+ GMV') },
-    { key: 'TITAN', icon: Crown, label: 'Titan', rate: '7%', desc: t('influencerLanding.tier3Desc', 'For top performers'), color: 'text-amber-600 bg-amber-50 border-amber-200', reqs: t('influencerLanding.tier3Reqs', '80+ customers, $25k+ GMV') },
+    { key: 'PERSEO', icon: Award, label: 'Perseo', rate: '3%', desc: t('influencerLanding.tier1Desc', 'Entry level for new influencers'), color: 'text-stone-500 bg-stone-50 border-stone-200', reqs: t('influencerLanding.tier1Reqs', '0-499 EUR GMV') },
+    { key: 'AQUILES', icon: Shield, label: 'Aquiles', rate: '4%', desc: t('influencerLanding.tier2Desc', 'Early growth milestone'), color: 'text-[#2D5A27] bg-emerald-50 border-emerald-200', reqs: t('influencerLanding.tier2Reqs', '500+ EUR GMV') },
+    { key: 'HERCULES', icon: Sparkles, label: 'Hercules', rate: '5%', desc: t('influencerLanding.tier3Desc', 'Consistent performer'), color: 'text-blue-600 bg-blue-50 border-blue-200', reqs: t('influencerLanding.tier3Reqs', '2,000+ EUR GMV') },
+    { key: 'APOLO', icon: TrendingUp, label: 'Apolo', rate: '6%', desc: t('influencerLanding.tier4Desc', 'Advanced partner'), color: 'text-amber-700 bg-amber-50 border-amber-200', reqs: t('influencerLanding.tier4Reqs', '7,500+ EUR GMV') },
+    { key: 'ZEUS', icon: Crown, label: 'Zeus', rate: '7%', desc: t('influencerLanding.tier5Desc', 'Elite tier'), color: 'text-purple-700 bg-purple-50 border-purple-200', reqs: t('influencerLanding.tier5Reqs', '20,000+ EUR GMV') },
   ];
   return (
     <div className="min-h-screen bg-[#FAF7F2]">

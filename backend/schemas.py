@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, ConfigDict
+from pydantic import AliasChoices, BaseModel, EmailStr, Field, HttpUrl, ConfigDict
 
 
 class RegisterRequest(BaseModel):
@@ -38,7 +38,11 @@ class SubscriptionResponse(BaseModel):
 
 
 class InfluencerProfileResponse(BaseModel):
-    tier: str
+    tier: Literal["perseo", "aquiles", "hercules", "apolo", "zeus"]
+    tier_name: Optional[str] = None
+    tier_percentage: Optional[int] = None
+    next_tier: Optional[Literal["perseo", "aquiles", "hercules", "apolo", "zeus"]] = None
+    next_tier_gmv_required_cents: Optional[int] = None
     total_earnings_cents: int
     followers_count: int
     model_config = ConfigDict(from_attributes=True)
@@ -323,12 +327,29 @@ class AffiliateLinkListResponse(BaseModel):
     total: int
 
 
+class InfluencerDashboardProfile(BaseModel):
+    tier: Literal["perseo", "aquiles", "hercules", "apolo", "zeus"]
+    tier_name: str
+    tier_badge: str
+    commission_rate: str
+    followers_count: int
+    niche: List[str] = Field(default_factory=list)
+    is_verified: bool
+
+
+class InfluencerDashboardNextTier(BaseModel):
+    key: Literal["perseo", "aquiles", "hercules", "apolo", "zeus"]
+    name: str
+    commission_rate: str
+    gmv_needed_cents: int
+
+
 class InfluencerDashboardResponse(BaseModel):
-    profile: dict
+    profile: InfluencerDashboardProfile
     earnings: dict
     this_month: dict
     trend: dict
-    next_tier: Optional[dict]
+    next_tier: Optional[InfluencerDashboardNextTier] = None
 
 
 class CommissionResponse(BaseModel):
@@ -632,8 +653,23 @@ class HashtagResponse(BaseModel):
     posts_count: int
     is_followed_by_me: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ConnectAccountResponse(BaseModel):
+    account_id: str
+    status: bool
+    onboarding_url: Optional[str] = None
+
+
+class ConnectStatusResponse(BaseModel):
+    has_account: bool
+    account_id: Optional[str] = None
+    status: str
+    charges_enabled: Optional[bool] = None
+    payouts_enabled: Optional[bool] = None
+    requirements_due: Optional[List[str]] = None
+    onboarding_completed: bool = False
 
 
 class HashtagDetailResponse(HashtagResponse):
@@ -667,8 +703,7 @@ class StoryResponse(BaseModel):
     expires_at: datetime
     is_viewed_by_me: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class StoryFeedResponse(BaseModel):
@@ -692,8 +727,7 @@ class SavedCollectionResponse(BaseModel):
     is_private: bool
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class MessageAttachmentCreate(BaseModel):
@@ -711,7 +745,11 @@ class MessageResponse(BaseModel):
     content: str
     message_type: str
     reply_to_id: Optional[UUID] = None
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        validation_alias=AliasChoices("metadata_json", "metadata"),
+        serialization_alias="metadata",
+    )
     created_at: datetime
     edited_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
@@ -738,7 +776,11 @@ class ConversationResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     is_active: bool
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        validation_alias=AliasChoices("metadata_json", "metadata"),
+        serialization_alias="metadata",
+    )
     model_config = ConfigDict(from_attributes=True)
 
 

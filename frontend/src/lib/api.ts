@@ -1,5 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
+const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '/api/v1';
+const API_FALLBACK_PREFIX = process.env.NEXT_PUBLIC_API_FALLBACK_PREFIX || '/api';
 export interface CartItemCreateRequest {
   product_id: string;
   quantity: number;
@@ -45,10 +46,12 @@ export interface ShippingAddress {
 
 class ApiClient {
   private baseUrl: string;
+  private fallbackBaseUrl: string | null;
   private token: string | null;
 
   constructor() {
-    this.baseUrl = `${API_URL}/api/v1`;
+    this.baseUrl = `${API_URL}${API_PREFIX}`;
+    this.fallbackBaseUrl = API_FALLBACK_PREFIX !== API_PREFIX ? `${API_URL}${API_FALLBACK_PREFIX}` : null;
     this.token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   }
 
@@ -70,7 +73,15 @@ class ApiClient {
       ...((options.headers as Record<string, string>) || {}),
     };
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, { ...options, headers });
+    const doRequest = async (baseUrl: string) =>
+      fetch(`${baseUrl}${endpoint}`, { ...options, headers });
+
+    let response = await doRequest(this.baseUrl);
+
+    // Temporary bridge while legacy /api and /api/v1 coexist.
+    if (response.status === 404 && this.fallbackBaseUrl) {
+      response = await doRequest(this.fallbackBaseUrl);
+    }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Unknown error' }));

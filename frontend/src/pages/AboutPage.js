@@ -145,7 +145,7 @@ export default function AboutPage() {
             {[
               { name: 'Free', commission: '20%', price: '$0', highlight: false },
               { name: 'Pro', commission: '18%', price: '$54/mo', highlight: true },
-              { name: 'Elite', commission: '16%', price: '$108/mo', highlight: false },
+              { name: 'Elite', commission: '17%', price: '$108/mo', highlight: false },
             ].map((plan, i) => (
               <div key={i} className={`rounded-2xl border p-5 text-center ${plan.highlight ? 'border-[#2D5A27] bg-[#2D5A27]/5 ring-1 ring-[#2D5A27]/20' : 'border-stone-200 bg-white'}`}>
                 <h3 className="font-heading text-lg font-bold text-[#1C1C1C] mb-1">{plan.name}</h3>

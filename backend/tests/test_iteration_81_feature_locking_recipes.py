@@ -75,9 +75,9 @@ class TestSellerPlansAPI:
         pro_plan = next(p for p in plans if p["key"] == "PRO")
         assert pro_plan["commission"] == "18%"
         
-        # Verify ELITE plan has 16% commission
+        # Verify ELITE plan has 17% commission
         elite_plan = next(p for p in plans if p["key"] == "ELITE")
-        assert elite_plan["commission"] == "16%"
+        assert elite_plan["commission"] == "17%"
         
         print(f"✓ Seller plans: {plan_keys}")
     
@@ -105,7 +105,6 @@ class TestSellerPlansAPI:
         if data.get("plan_status") == "trialing" and data.get("trial_ends_at"):
             print(f"  Trial ends: {data['trial_ends_at']}")
         
-        return data
     
     def test_get_my_plan_unauthenticated(self):
         """GET /api/sellers/me/plan - Should return 401 when not authenticated"""
@@ -152,7 +151,6 @@ class TestRecipesAPI:
             assert "title" in recipe
             print(f"  First recipe: {recipe.get('title', 'N/A')}")
         
-        return data
     
     def test_create_recipe(self, auth_session):
         """POST /api/recipes - Create a new recipe"""
@@ -191,8 +189,6 @@ class TestRecipesAPI:
         
         print(f"✓ Created recipe: {data['recipe_id']}")
         
-        # Store for later tests
-        return data["recipe_id"]
     
     def test_get_recipe_by_id(self, auth_session):
         """GET /api/recipes/{recipe_id} - Get recipe details with enriched ingredients"""
@@ -232,7 +228,6 @@ class TestRecipesAPI:
         
         print(f"✓ GET /api/recipes/{recipe_id} returned recipe with {len(ingredients)} ingredients")
         
-        return recipe_id
     
     def test_get_nonexistent_recipe(self):
         """GET /api/recipes/{invalid_id} - Should return 404"""
@@ -360,9 +355,11 @@ class TestInfluencerTiers:
         
         assert "tiers" in data
         tier_keys = [t["key"] for t in data["tiers"]]
-        assert "HERCULES" in tier_keys
-        assert "ATENEA" in tier_keys
-        assert "TITAN" in tier_keys
+        assert "perseo" in tier_keys
+        assert "aquiles" in tier_keys
+        assert "hercules" in tier_keys
+        assert "apolo" in tier_keys
+        assert "zeus" in tier_keys
         
         print(f"✓ Influencer tiers: {tier_keys}")
 

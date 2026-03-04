@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 const commissionTable = [
   { label: 'FREE (20%)', sale: 100, seller: 80, platform: 20 },
   { label: 'PRO (18%)', sale: 100, seller: 82, platform: 18 },
-  { label: 'ELITE (16%)', sale: 100, seller: 84, platform: 16 },
+  { label: 'ELITE (17%)', sale: 100, seller: 83, platform: 17 },
 ];
 
 export default function SellerLandingPage() {
@@ -35,7 +35,7 @@ export default function SellerLandingPage() {
     <div className="min-h-screen bg-[#FAF7F2]">
       <SEO 
         title="Sell on Hispaloshop — Global Food Marketplace for Producers" 
-        description="Start selling your products to 18+ countries. Commission from 16%. Automatic payments via Stripe. Free to start."
+        description="Start selling your products to 18+ countries. Commission from 17%. Automatic payments via Stripe. Free to start."
         url="https://www.hispaloshop.com/vender"
       />
       <Header />
@@ -153,7 +153,7 @@ export default function SellerLandingPage() {
             {[
               { key: 'FREE', price: 0, label: 'Free', commission: '20%', features: [t('sellerLanding.publishProducts'), t('sellerLanding.basicDashboard'), t('sellerLanding.emailSupport')], cta: t('sellerLanding.startFree'), color: '' },
               { key: 'PRO', price: 54, label: 'Pro', commission: '18%', recommended: true, features: [t('sellerLanding.allFromFree'), t('sellerLanding.commission18'), t('sellerLanding.advancedAnalytics'), t('sellerLanding.aiPricing'), t('sellerLanding.matchInfluencers'), t('sellerLanding.prioritySupport')], cta: t('sellerLanding.freeTrial'), color: 'border-[#2D5A27] shadow-lg scale-[1.02]' },
-              { key: 'ELITE', price: 108, label: 'Elite', commission: '16%', features: [t('sellerLanding.allFromPro'), t('sellerLanding.commission16'), t('sellerLanding.homepagePriority'), t('sellerLanding.aiForecast'), t('sellerLanding.accountManager'), t('sellerLanding.badgeElite')], cta: t('sellerLanding.freeTrial'), color: '' },
+              { key: 'ELITE', price: 108, label: 'Elite', commission: '17%', features: [t('sellerLanding.allFromPro'), t('sellerLanding.commission16'), t('sellerLanding.homepagePriority'), t('sellerLanding.aiForecast'), t('sellerLanding.accountManager'), t('sellerLanding.badgeElite')], cta: t('sellerLanding.freeTrial'), color: '' },
             ].map(plan => (
               <div key={plan.key} className={`relative bg-white rounded-2xl border-2 p-5 flex flex-col ${plan.color || 'border-stone-200'}`}>
                 {plan.recommended && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2D5A27] text-white text-xs font-semibold px-4 py-1 rounded-full">{t('sellerLanding.recommended')}</div>}

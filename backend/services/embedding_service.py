@@ -17,10 +17,12 @@ class EmbeddingService:
     DIMENSIONS = 1536
 
     def __init__(self) -> None:
-        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY or None, organization=settings.OPENAI_ORG_ID or None)
+        self.client: AsyncOpenAI | None = None
+        if settings.OPENAI_API_KEY:
+            self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY, organization=settings.OPENAI_ORG_ID or None)
 
     async def generate_embedding(self, text: str) -> List[float]:
-        if not settings.OPENAI_API_KEY:
+        if not settings.OPENAI_API_KEY or self.client is None:
             return [0.0] * self.DIMENSIONS
 
         response = await self.client.embeddings.create(model=self.MODEL, input=text[:8000])

@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -9,6 +9,7 @@ class Settings(BaseSettings):
 
     STRIPE_SECRET_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_CONNECT_WEBHOOK_SECRET: str = ""
     STRIPE_PRICE_PRO: str = ""
     STRIPE_PRICE_ELITE: str = ""
     STRIPE_PUBLISHABLE_KEY: str = ""
@@ -35,8 +36,35 @@ class Settings(BaseSettings):
     AFFILIATE_MIN_PAYOUT_CENTS: int = 1000
     TIER_RECALCULATION_DAY: int = 1
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()
+
+# Canonical influencer tier ladder for both modern and legacy APIs.
+# Amounts are expressed in cents where applicable.
+INFLUENCER_TIER_CONFIG = {
+    "perseo": {"min_gmv_cents": 0, "commission_bps": 300, "name": "Perseo", "commission_rate": 0.03},
+    "aquiles": {"min_gmv_cents": 50_000, "commission_bps": 400, "name": "Aquiles", "commission_rate": 0.04},
+    "hercules": {"min_gmv_cents": 200_000, "commission_bps": 500, "name": "Hercules", "commission_rate": 0.05},
+    "apolo": {"min_gmv_cents": 750_000, "commission_bps": 600, "name": "Apolo", "commission_rate": 0.06},
+    "zeus": {"min_gmv_cents": 2_000_000, "commission_bps": 700, "name": "Zeus", "commission_rate": 0.07},
+}
+
+INFLUENCER_TIER_ORDER = ["perseo", "aquiles", "hercules", "apolo", "zeus"]
+
+# Backward-compatible aliases from older 3-tier naming.
+INFLUENCER_TIER_ALIASES = {
+    "atenea": "hercules",  # legacy 5% tier
+    "titan": "zeus",       # legacy 7% tier
+    "HERCULES": "perseo",
+    "ATENEA": "hercules",
+    "TITAN": "zeus",
+}
+
+
+def normalize_influencer_tier(tier: str | None) -> str:
+    if not tier:
+        return "perseo"
+    normalized = INFLUENCER_TIER_ALIASES.get(tier, tier).lower()
+    return normalized if normalized in INFLUENCER_TIER_CONFIG else "perseo"
