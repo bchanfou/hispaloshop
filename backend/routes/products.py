@@ -4,9 +4,12 @@ Product routes: CRUD, search, variants, filtering.
 import uuid
 import logging
 import asyncio
+import io
+import base64
 from typing import Optional, List
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends, Request, Query
+import qrcode
 
 from core.database import db
 from core.auth import get_current_user, get_optional_user, require_role
@@ -287,9 +290,9 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
 
 @router.post("/products")
 async def create_product(input: ProductInput, user: User = Depends(get_current_user)):
-    await require_role(user, ["producer", "admin"])
-    if user.role == "producer" and not user.approved:
-        raise HTTPException(status_code=403, detail="Producer account not approved")
+    await require_role(user, ["producer", "importer", "admin"])
+    if user.role in ("producer", "importer") and not user.approved:
+        raise HTTPException(status_code=403, detail="Seller account not approved")
     product_id = f"prod_{uuid.uuid4().hex[:12]}"
     slug = input.name.lower().replace(' ', '-')
     
@@ -353,7 +356,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
     await db.products.insert_one(product)
     product.pop("_id", None)
     
-    # Auto-create certificate for the product
+    # Auto-create certificate + functional QR for physical packaging use
     try:
         cert_id = f"cert_{uuid.uuid4().hex[:12]}"
         cert_number = f"HSP-{datetime.now(timezone.utc).strftime('%Y')}-{uuid.uuid4().hex[:6].upper()}"
@@ -365,12 +368,23 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         if any(k in cat_slug for k in ["fruta", "fruit", "verdura"]):
             requirements.extend(["food_safety", "origin_traceability"])
         
+        qr_url = f"https://www.hispaloshop.com/certificate/{product_id}"
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(qr_url)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        qr_buffer = io.BytesIO()
+        qr_img.save(qr_buffer, format="PNG")
+        qr_base64 = base64.b64encode(qr_buffer.getvalue()).decode()
+
         cert = {
             "certificate_id": cert_id, "certificate_number": cert_number,
             "product_id": product_id, "product_name": product["name"],
             "seller_id": user.user_id,
             "certificate_type": "food_safety" if "food_safety" in requirements else "origin",
             "data": {"origin_country": product.get("country_origin", ""), "compliance_requirements": requirements, "target_markets": markets},
+            "qr_url": qr_url,
+            "qr_code": qr_base64,
             "approved": False, "status": "pending_review",
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
@@ -408,11 +422,11 @@ async def translate_product_to_all_bg(product_id: str, source_lang: str):
 
 @router.put("/products/{product_id}")
 async def update_product(product_id: str, input: ProductInput, user: User = Depends(get_current_user)):
-    await require_role(user, ["producer", "admin"])
+    await require_role(user, ["producer", "importer", "admin"])
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    if user.role == "producer" and product["producer_id"] != user.user_id:
+    if user.role in ("producer", "importer") and product["producer_id"] != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
     # Clear translations if content changed (will be re-translated on demand)
@@ -531,11 +545,11 @@ async def get_product_variants(product_id: str):
 
 @router.delete("/products/{product_id}")
 async def delete_product(product_id: str, user: User = Depends(get_current_user)):
-    await require_role(user, ["admin", "super_admin", "producer"])
+    await require_role(user, ["admin", "super_admin", "producer", "importer"])
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "producer_id": 1})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    if user.role == "producer" and product.get("producer_id") != user.user_id:
+    if user.role in ("producer", "importer") and product.get("producer_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not your product")
     
     # Delete product and ALL related data (zero residue)

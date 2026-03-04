@@ -30,14 +30,14 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 @router.get("/producer/products")
 async def get_producer_products(user: User = Depends(get_current_user)):
     """Get products for logged-in producer"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     products = await db.products.find({"producer_id": user.user_id}, {"_id": 0}).to_list(100)
     return products
 
 @router.get("/producer/certificates")
 async def get_producer_certificates(user: User = Depends(get_current_user)):
     """Get certificates for producer's products"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     products = await db.products.find({"producer_id": user.user_id}, {"product_id": 1}).to_list(100)
     product_ids = [p["product_id"] for p in products]
     certificates = await db.certificates.find({"product_id": {"$in": product_ids}}, {"_id": 0}).to_list(100)
@@ -46,7 +46,7 @@ async def get_producer_certificates(user: User = Depends(get_current_user)):
 @router.get("/producer/orders")
 async def get_producer_orders(user: User = Depends(get_current_user)):
     """Get orders containing producer's products"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     orders = await db.orders.find({}, {"_id": 0}).to_list(500)
     producer_orders = []
     for order in orders:
@@ -71,7 +71,7 @@ async def get_producer_orders(user: User = Depends(get_current_user)):
 @router.get("/producer/profile")
 async def get_producer_profile(user: User = Depends(get_current_user)):
     """Get producer profile including addresses"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     producer = await db.users.find_one(
         {"user_id": user.user_id},
         {"_id": 0, "password_hash": 0}
@@ -82,7 +82,7 @@ async def get_producer_profile(user: User = Depends(get_current_user)):
 @router.put("/producer/addresses")
 async def update_producer_addresses(input: ProducerAddressInput, user: User = Depends(get_current_user)):
     """Update producer office and warehouse addresses"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     update_data = {}
     if input.office_address is not None:
@@ -99,7 +99,7 @@ async def update_producer_addresses(input: ProducerAddressInput, user: User = De
 
 @router.get("/producer/shipping/policy")
 async def get_shipping_policy(user: User = Depends(get_current_user)):
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     user_doc = await db.users.find_one(
         {"user_id": user.user_id},
         {
@@ -121,7 +121,7 @@ async def get_shipping_policy(user: User = Depends(get_current_user)):
 
 @router.put("/producer/shipping/policy")
 async def update_shipping_policy(input: ShippingPolicyInput, user: User = Depends(get_current_user)):
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     await db.users.update_one(
         {"user_id": user.user_id},
         {
@@ -144,7 +144,7 @@ async def update_shipping_policy(input: ShippingPolicyInput, user: User = Depend
 @router.get("/producer/payments")
 async def get_producer_payments(user: User = Depends(get_current_user)):
     """Get comprehensive payment/earnings summary for producer"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     # Get ALL orders that contain this producer's items (any paid status)
     all_orders = await db.orders.find(
@@ -252,7 +252,7 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
 @router.get("/producer/stats")
 async def get_producer_stats(user: User = Depends(get_current_user)):
     """Get producer dashboard statistics"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     total_products = await db.products.count_documents({"producer_id": user.user_id})
     approved_products = await db.products.count_documents({"producer_id": user.user_id, "approved": True})
@@ -297,7 +297,7 @@ async def get_producer_stats(user: User = Depends(get_current_user)):
 @router.get("/producer/health-score")
 async def get_producer_health_score(user: User = Depends(get_current_user)):
     """Calculate seller health score based on sales, followers, and reviews"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     # Initialize scores
     sales_score = 0
@@ -501,7 +501,7 @@ async def get_producer_health_score(user: User = Depends(get_current_user)):
 @router.get("/producer/follower-stats")
 async def get_producer_follower_stats(user: User = Depends(get_current_user), days: int = 30):
     """Get follower statistics for producer's store over time"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"store_id": 1})
     if not store:
@@ -551,7 +551,7 @@ async def get_producer_follower_stats(user: User = Depends(get_current_user), da
 @router.post("/producer/stripe/create-account")
 async def create_stripe_connect_account(request: Request, user: User = Depends(get_current_user)):
     """Create a Stripe Connect Express account for the producer"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     # Country name to ISO 3166-1 alpha-2 code mapping
     COUNTRY_TO_ISO = {
@@ -671,7 +671,7 @@ async def create_stripe_connect_account(request: Request, user: User = Depends(g
 @router.get("/producer/stripe/status")
 async def get_stripe_connect_status(user: User = Depends(get_current_user)):
     """Get the Stripe Connect status for the producer"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
     stripe_account_id = user_doc.get("stripe_account_id")
@@ -724,7 +724,7 @@ async def get_stripe_connect_status(user: User = Depends(get_current_user)):
 @router.post("/producer/stripe/create-login-link")
 async def create_stripe_login_link(user: User = Depends(get_current_user)):
     """Create a login link to the Stripe Express dashboard"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
     stripe_account_id = user_doc.get("stripe_account_id")

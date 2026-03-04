@@ -1510,7 +1510,7 @@ async def get_order(order_id: str, user: User = Depends(get_current_user)):
 @router.put("/orders/{order_id}/status")
 async def update_order_status(order_id: str, update: OrderStatusUpdate, user: User = Depends(get_current_user)):
     """Update order status with tracking info and send email notification"""
-    await require_role(user, ["admin", "producer"])
+    await require_role(user, ["admin", "producer", "importer"])
     
     # Get the order
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})

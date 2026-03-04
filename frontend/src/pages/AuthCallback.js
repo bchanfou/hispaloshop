@@ -47,8 +47,8 @@ export default function AuthCallback() {
         // Navigate based on role
         if (userData.role === 'admin') {
           navigate('/admin/dashboard', { replace: true, state: { user: userData } });
-        } else if (userData.role === 'producer') {
-          navigate('/producer/dashboard', { replace: true, state: { user: userData } });
+        } else if (userData.role === 'producer' || userData.role === 'importer') {
+          navigate('/producer', { replace: true, state: { user: userData } });
         } else {
           navigate('/dashboard', { replace: true, state: { user: userData } });
         }

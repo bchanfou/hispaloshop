@@ -31,10 +31,6 @@ import UserProfilePage from './pages/UserProfilePage';
 import DiscoverPage from './pages/DiscoverPage';
 import ImporterLandingPage from './pages/ImporterLandingPage';
 import ImporterRegisterPage from './pages/importer/ImporterRegisterPage';
-import ImporterDashboardPage from './pages/importer/ImporterDashboardPage';
-import ImporterCatalogPage from './pages/importer/ImporterCatalogPage';
-import ImporterBrandsPage from './pages/importer/ImporterBrandsPage';
-import ImporterQuotesPage from './pages/importer/ImporterQuotesPage';
 import B2BMarketplacePage from './pages/b2b/B2BMarketplacePage';
 import B2BQuotesHistoryPage from './pages/b2b/B2BQuotesHistoryPage';
 
@@ -157,10 +153,10 @@ function AppRouter() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/importer/register" element={<ImporterRegisterPage />} />
-      <Route path="/importer/dashboard" element={<ImporterDashboardPage />} />
-      <Route path="/importer/catalog" element={<ImporterCatalogPage />} />
-      <Route path="/importer/brands" element={<ImporterBrandsPage />} />
-      <Route path="/importer/quotes" element={<ImporterQuotesPage />} />
+      <Route path="/importer/dashboard" element={<Navigate to="/producer" replace />} />
+      <Route path="/importer/catalog" element={<Navigate to="/producer/products" replace />} />
+      <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
+      <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
       <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
       <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
 

@@ -65,8 +65,8 @@ def _http_error_from_integrity_error(exc: IntegrityError) -> HTTPException:
 
 
 def require_producer(user):
-    if user.role != "producer":
-        raise HTTPException(status_code=403, detail="Producer role required")
+    if user.role not in {"producer", "importer"}:
+        raise HTTPException(status_code=403, detail="Producer or importer role required")
 
 
 @router.post("/products")

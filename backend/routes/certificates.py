@@ -3,12 +3,16 @@ Certificate management and Translation endpoints.
 Extracted from server.py.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks
+from fastapi.responses import Response
 from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 import asyncio
 import os
 import logging
+import qrcode
+import io
+import base64
 
 from core.database import db
 from core.models import User, CertificateInput, TranslateProductInput, TranslateCertificateInput
@@ -84,7 +88,7 @@ async def get_certificate(product_id: str, lang: Optional[str] = None):
 
 @router.post("/certificates")
 async def create_certificate(input: CertificateInput, user: User = Depends(get_current_user)):
-    await require_role(user, ["producer", "admin"])
+    await require_role(user, ["producer", "importer", "admin"])
     product = await db.products.find_one({"product_id": input.product_id}, {"_id": 0})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -120,7 +124,7 @@ async def create_certificate(input: CertificateInput, user: User = Depends(get_c
 @router.post("/certificates/auto-generate")
 async def auto_generate_certificate(request: Request, user: User = Depends(get_current_user)):
     """Auto-generate a certificate when creating/publishing a product."""
-    await require_role(user, ["producer", "admin"])
+    await require_role(user, ["producer", "importer", "admin"])
     body = await request.json()
     product_id = body.get("product_id")
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
@@ -159,6 +163,39 @@ async def auto_generate_certificate(request: Request, user: User = Depends(get_c
     await db.products.update_one({"product_id": product_id}, {"$set": {"certificate_id": certificate_id}})
     logger.info(f"[CERT] Auto-generated {cert_number} for {product_id}")
     return {"certificate_id": certificate_id, "certificate_number": cert_number, "requirements": requirements, "status": "auto_generated"}
+
+
+@router.get("/certificates/{certificate_id}/qr")
+async def download_certificate_qr(certificate_id: str):
+    """Download certificate QR as PNG for printing on physical products."""
+    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0, "qr_code": 1, "product_id": 1})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+
+    qr_base64 = cert.get("qr_code")
+    if not qr_base64:
+        # Backfill QR when old certificates don't have it yet
+        product_id = cert.get("product_id")
+        qr_url = f"https://www.hispaloshop.com/certificate/{product_id}"
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(qr_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffer = io.BytesIO()
+        img.save(buffer, format="PNG")
+        png_bytes = buffer.getvalue()
+        await db.certificates.update_one(
+            {"certificate_id": certificate_id},
+            {"$set": {"qr_code": base64.b64encode(png_bytes).decode(), "qr_url": qr_url}},
+        )
+    else:
+        png_bytes = base64.b64decode(qr_base64)
+
+    return Response(
+        content=png_bytes,
+        media_type="image/png",
+        headers={"Content-Disposition": f'attachment; filename="certificate-{certificate_id}-qr.png"'},
+    )
 
 
 async def translate_certificate_to_all(certificate_id: str, source_lang: str):

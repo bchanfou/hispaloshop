@@ -13,7 +13,7 @@ export function ProducerPlanProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.role === 'producer') {
+    if (user?.role === 'producer' || user?.role === 'importer') {
       fetchPlan();
     } else {
       setLoading(false);

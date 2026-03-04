@@ -45,7 +45,7 @@ export default function LoginPage() {
         navigate('/admin');
       } else if (role === 'super_admin') {
         navigate('/super-admin');
-      } else if (role === 'producer') {
+      } else if (role === 'producer' || role === 'importer') {
         navigate('/producer');
       } else if (role === 'influencer') {
         navigate('/influencer');

@@ -32,7 +32,7 @@ export default function ProducerLayout() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (user?.role === 'producer') {
+    if (user?.role === 'producer' || user?.role === 'importer') {
       fetchBadges();
     }
   }, [user]);
@@ -84,14 +84,14 @@ export default function ProducerLayout() {
   }
 
   // Access denied
-  if (!user || user.role !== 'producer') {
+  if (!user || !['producer', 'importer'].includes(user.role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="text-center">
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="w-8 h-8 text-red-500" />
           </div>
-          <p className="text-text-secondary mb-4">Acceso denegado. Se requiere cuenta de vendedor.</p>
+          <p className="text-text-secondary mb-4">Acceso denegado. Se requiere cuenta de productor o importador.</p>
           <button 
             onClick={() => navigate('/login')} 
             className="text-ds-accent hover:underline font-medium"
@@ -119,7 +119,7 @@ export default function ProducerLayout() {
         </button>
         
         <h1 className="font-heading text-base font-semibold text-text-primary">
-          Panel Vendedor
+          Panel Productor
         </h1>
         
         <LanguageSwitcher variant="minimal" />
@@ -195,7 +195,9 @@ export default function ProducerLayout() {
               <p className="text-sm font-medium text-text-primary truncate">
                 {user.company_name || user.name}
               </p>
-              <p className="text-xs text-text-muted">Vendedor</p>
+              <p className="text-xs text-text-muted">
+                {user.role === 'importer' ? 'Importador' : 'Productor'}
+              </p>
             </div>
             <button
               onClick={handleLogout}

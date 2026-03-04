@@ -22,7 +22,7 @@ router = APIRouter()
 @router.post("/upload/product-image")
 async def upload_product_image(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     """Upload a product image to Cloudinary. Returns public CDN URL."""
-    await require_role(user, ["producer", "admin"])
+    await require_role(user, ["producer", "importer", "admin"])
     
     allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
     if file.content_type not in allowed_types:
