@@ -28,6 +28,13 @@ from routers.b2b_quotes import router as b2b_quotes_router
 from routers.b2b_logistics import router as b2b_logistics_router
 from routers.subscriptions import router as subscriptions_router
 
+from routes.auth import router as legacy_auth_router
+from routes.config import router as legacy_config_router
+from routes.feed import router as legacy_feed_router
+from routes.products import router as legacy_products_router
+from routes.social import router as legacy_social_router
+from routes.stores import router as legacy_stores_router
+
 
 app = FastAPI(
     title="Hispaloshop API",
@@ -74,6 +81,14 @@ app.include_router(importers_router, prefix="/api/v1", tags=["importers"])
 app.include_router(b2b_quotes_router, prefix="/api/v1", tags=["b2b-quotes"])
 app.include_router(b2b_logistics_router, prefix="/api/v1", tags=["b2b-logistics"])
 app.include_router(subscriptions_router, prefix="/api/v1", tags=["subscriptions"])
+
+# Backward-compatible API routes used by the current frontend bundle (/api/*)
+app.include_router(legacy_auth_router, prefix="/api", tags=["legacy-auth"])
+app.include_router(legacy_config_router, prefix="/api", tags=["legacy-config"])
+app.include_router(legacy_feed_router, prefix="/api", tags=["legacy-feed"])
+app.include_router(legacy_products_router, prefix="/api", tags=["legacy-products"])
+app.include_router(legacy_social_router, prefix="/api", tags=["legacy-social"])
+app.include_router(legacy_stores_router, prefix="/api", tags=["legacy-stores"])
 
 
 @app.get("/health")

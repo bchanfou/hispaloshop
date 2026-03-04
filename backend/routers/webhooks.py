@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
+import logging
 
 import stripe
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -8,11 +9,20 @@ from sqlalchemy.orm import selectinload
 
 from config import settings
 from database import get_db
-from models import Commission, Order, OrderItem, Transaction, User
-from services.affiliate_service import track_conversion
+from models import Order, OrderItem, User
+from services.commission_service import (
+    build_payment_event_marker,
+    build_refund_event_marker,
+    get_total_refunded_cents,
+    is_event_already_processed,
+    mark_event_processed,
+    process_payment_fees,
+    process_refund,
+)
 
 router = APIRouter()
 stripe.api_key = settings.STRIPE_SECRET_KEY
+logger = logging.getLogger(__name__)
 
 
 @router.post("/webhooks/stripe")
@@ -39,117 +49,66 @@ async def stripe_webhook(
     elif event["type"] == "payment_intent.succeeded":
         payment_intent = event["data"]["object"]
         payment_intent_id = payment_intent.get("id")
+        event_id = event.get("id", "")
         result = await db.execute(
             select(Order)
+            # Async safety: eager-load order.items before leaving query context.
             .options(selectinload(Order.items).selectinload(OrderItem.product))
             .where(Order.stripe_payment_intent_id == payment_intent_id)
+            .with_for_update()
         )
         order = result.scalar_one_or_none()
         if order and order.payment_status != "paid":
+            marker = build_payment_event_marker(event_id) if event_id else ""
+            if marker and await is_event_already_processed(db, order.id, marker):
+                logger.info("Skipping duplicate payment_intent.succeeded event %s for order %s", event_id, order.id)
+                return {"received": True}
+
             order.status = "paid"
             order.payment_status = "paid"
             order.paid_at = datetime.now(timezone.utc)
-
-            producer_amounts: dict = {}
-            for item in order.items:
-                if item.product.track_inventory:
-                    item.product.inventory_quantity = max(0, item.product.inventory_quantity - item.quantity)
-                producer_amounts[item.producer_id] = producer_amounts.get(item.producer_id, 0) + item.producer_payout_cents
-
-            for producer_id, amount in producer_amounts.items():
-                db.add(
-                    Transaction(
-                        order_id=order.id,
-                        user_id=producer_id,
-                        type="sale",
-                        amount_cents=amount,
-                        status="completed",
-                        completed_at=datetime.now(timezone.utc),
-                    )
-                )
-
-            db.add(
-                Transaction(
-                    order_id=order.id,
-                    user_id=order.user_id,
-                    type="fee",
-                    amount_cents=order.platform_fee_cents,
-                    status="completed",
-                    completed_at=datetime.now(timezone.utc),
-                )
-            )
-
-            if order.affiliate_code:
-                existing_commission_items = {
-                    commission_item_id
-                    for commission_item_id in (
-                        (
-                            await db.execute(
-                                select(Commission.order_item_id).where(Commission.order_id == order.id)
-                            )
-                        ).scalars().all()
-                    )
-                }
-                for item in order.items:
-                    commission = await track_conversion(
-                        db=db,
-                        order_id=order.id,
-                        order_item_id=item.id,
-                        cookie_code=order.affiliate_code,
-                        sale_amount_cents=item.total_cents,
-                    )
-                    if not commission:
-                        continue
-
-                    payout_ref = f"affiliate_commission:{item.id}"
-                    existing_commission_tx = await db.scalar(
-                        select(Transaction).where(
-                            Transaction.order_id == order.id,
-                            Transaction.type == "commission",
-                            Transaction.description == payout_ref,
-                        )
-                    )
-                    if existing_commission_tx or item.id in existing_commission_items:
-                        continue
-
-                    db.add(
-                        Transaction(
-                            order_id=order.id,
-                            user_id=commission.influencer_id,
-                            type="commission",
-                            amount_cents=commission.commission_cents,
-                            status="completed",
-                            completed_at=datetime.now(timezone.utc),
-                            description=payout_ref,
-                        )
-                    )
-
-            approval_cutoff = datetime.now(timezone.utc) - timedelta(days=30)
-            stale_pending = (
-                await db.execute(
-                    select(Commission).where(Commission.status == "pending", Commission.created_at <= approval_cutoff)
-                )
-            ).scalars().all()
-            for pending_commission in stale_pending:
-                pending_commission.status = "approved"
-                pending_commission.approved_at = datetime.now(timezone.utc)
+            await process_payment_fees(db=db, order=order)
+            if marker:
+                await mark_event_processed(db=db, order=order, marker=marker)
 
     elif event["type"] == "charge.refunded":
         charge = event["data"]["object"]
-        order = await db.scalar(select(Order).where(Order.stripe_payment_intent_id == charge.get("payment_intent")))
-        if order:
-            order.status = "refunded"
-            order.payment_status = "refunded"
-            db.add(
-                Transaction(
-                    order_id=order.id,
-                    user_id=order.user_id,
-                    type="refund",
-                    amount_cents=-order.total_cents,
-                    status="completed",
-                    completed_at=datetime.now(timezone.utc),
-                )
+        payment_intent_id = charge.get("payment_intent")
+        total_refunded_stripe = int(charge.get("amount_refunded") or 0)
+        event_id = event.get("id", "")
+        result = await db.execute(
+            select(Order)
+            # Async safety: eager-load order.items to avoid lazy-load failures.
+            .options(selectinload(Order.items))
+            .where(Order.stripe_payment_intent_id == payment_intent_id)
+            .with_for_update()
+        )
+        order = result.scalar_one_or_none()
+        if not order:
+            logger.error("Order not found for refund payment_intent=%s", payment_intent_id)
+            return {"received": True}
+
+        marker = build_refund_event_marker(event_id) if event_id else ""
+        if marker and await is_event_already_processed(db, order.id, marker):
+            logger.info("Skipping duplicate charge.refunded event %s for order %s", event_id, order.id)
+            return {"received": True}
+
+        prev_refunded = await get_total_refunded_cents(db, order.id)
+        delta = total_refunded_stripe - prev_refunded
+        if delta <= 0:
+            logger.info(
+                "Refund already applied for order %s (stripe_total=%s, prev_refunded=%s)",
+                order.id,
+                total_refunded_stripe,
+                prev_refunded,
             )
+            if marker:
+                await mark_event_processed(db=db, order=order, marker=marker)
+            return {"received": True}
+
+        await process_refund(db=db, order=order, amount_to_refund_cents=delta, event_id=event_id)
+        if marker:
+            await mark_event_processed(db=db, order=order, marker=marker)
 
     elif event["type"] == "account.updated":
         account = event["data"]["object"]
