@@ -1,3 +1,5 @@
+﻿from __future__ import annotations
+
 from datetime import datetime, timezone
 import logging
 
@@ -21,6 +23,7 @@ from services.commission_service import (
 )
 from services.stripe_connect_service import StripeConnectService
 
+
 router = APIRouter()
 stripe.api_key = settings.STRIPE_SECRET_KEY
 logger = logging.getLogger(__name__)
@@ -38,23 +41,15 @@ async def stripe_webhook(
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Invalid webhook: {exc}")
 
-    if event["type"] == "checkout.session.completed":
-        session = event["data"]["object"]
-        order_id = session.get("metadata", {}).get("order_id")
-        if order_id:
-            order = await db.get(Order, order_id)
-            if order:
-                order.stripe_checkout_session_id = session.get("id")
-                order.stripe_payment_intent_id = session.get("payment_intent")
-
-    elif event["type"] == "payment_intent.succeeded":
+    if event["type"] == "payment_intent.succeeded":
         payment_intent = event["data"]["object"]
         payment_intent_id = payment_intent.get("id")
         event_id = event.get("id", "")
+
         result = await db.execute(
             select(Order)
-            # Async safety: eager-load order.items before leaving query context.
             .options(
+                # Async safety: eager-load order.items before leaving query context.
                 selectinload(Order.items).selectinload(OrderItem.product),
                 selectinload(Order.items).selectinload(OrderItem.producer),
             )
@@ -62,6 +57,7 @@ async def stripe_webhook(
             .with_for_update()
         )
         order = result.scalar_one_or_none()
+
         if order and order.payment_status != "paid":
             marker = build_payment_event_marker(event_id) if event_id else ""
             if marker and await is_event_already_processed(db, order.id, marker):
@@ -85,10 +81,13 @@ async def stripe_webhook(
         payment_intent_id = charge.get("payment_intent")
         total_refunded_stripe = int(charge.get("amount_refunded") or 0)
         event_id = event.get("id", "")
+
         result = await db.execute(
             select(Order)
-            # Async safety: eager-load order.items to avoid lazy-load failures.
-            .options(selectinload(Order.items))
+            .options(
+                # Async safety: eager-load order.items to avoid lazy-load failures.
+                selectinload(Order.items)
+            )
             .where(Order.stripe_payment_intent_id == payment_intent_id)
             .with_for_update()
         )
@@ -126,7 +125,9 @@ async def stripe_webhook(
             user.stripe_account_charges_enabled = bool(account.get("charges_enabled"))
             user.stripe_account_payouts_enabled = bool(account.get("payouts_enabled"))
             user.connect_requirements_due = list((account.get("requirements") or {}).get("currently_due") or [])
-            user.connect_onboarding_completed = bool(user.stripe_account_charges_enabled and user.stripe_account_payouts_enabled)
+            user.connect_onboarding_completed = bool(
+                user.stripe_account_charges_enabled and user.stripe_account_payouts_enabled
+            )
             user.stripe_account_status = "active" if user.connect_onboarding_completed else "pending"
 
     return {"received": True}
