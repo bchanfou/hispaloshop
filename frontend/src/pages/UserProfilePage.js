@@ -17,6 +17,8 @@ import { API } from '../utils/api';
 import PostViewer from '../components/PostViewer';
 import { StoriesRow } from '../components/HispaloStories';
 import BadgeGrid from '../components/BadgeGrid';
+import { demoUsers, demoPosts, demoProducts } from '../data/demoData';
+import { DEMO_MODE } from '../config/featureFlags';
 
 function CreatePostModal({ onClose, onPostCreated }) {
   const { t } = useTranslation();
@@ -142,8 +144,17 @@ export default function UserProfilePage() {
   useEffect(() => {
     if (activeTab === 'products' && (profile?.role === 'producer' || profile?.role === 'importer')) {
       axios.get(`${API}/products?seller_id=${userId}`, { withCredentials: true })
-        .then(res => { setSellerProducts(res.data?.products || res.data || []); })
-        .catch(() => {});
+        .then(res => {
+          const data = res.data?.products || res.data || [];
+          if (Array.isArray(data) && data.length > 0) {
+            setSellerProducts(data);
+          } else {
+            setSellerProducts(DEMO_MODE ? demoProducts.filter((p) => p.seller_id === userId) : []);
+          }
+        })
+        .catch(() => {
+          setSellerProducts(DEMO_MODE ? demoProducts.filter((p) => p.seller_id === userId) : []);
+        });
     }
     if (activeTab === 'saved' && isOwnProfile && currentUser) {
       axios.get(`${API}/users/${userId}/posts?bookmarked=true`, { withCredentials: true })
@@ -162,7 +173,12 @@ export default function UserProfilePage() {
       setIsFollowing(res.data.is_following || false);
       
       const postsRes = await axios.get(`${API}/users/${userId}/posts`);
-      setPosts(postsRes.data || []);
+      const remotePosts = postsRes.data || [];
+      if (Array.isArray(remotePosts) && remotePosts.length > 0) {
+        setPosts(remotePosts);
+      } else {
+        setPosts(DEMO_MODE ? demoPosts.filter((p) => p.user_id === userId) : []);
+      }
 
       // Fetch badges
       const badgesRes = await axios.get(`${API}/users/${userId}/badges`);
@@ -174,7 +190,13 @@ export default function UserProfilePage() {
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
-      if (err.response?.status === 404) {
+      const fallback = DEMO_MODE ? demoUsers.find((u) => u.user_id === userId || u.id === userId) : null;
+      if (fallback) {
+        setProfile(fallback);
+        setFollowersCount(fallback.followers_count || 0);
+        setFollowingCount(fallback.following_count || 0);
+        setPosts(demoPosts.filter((p) => p.user_id === fallback.user_id));
+      } else if (err.response?.status === 404) {
         setProfile({
           user_id: userId, name: 'Usuario', bio: '', followers_count: 0, following_count: 0, posts_count: 0
         });

@@ -87,6 +87,9 @@ export function LocaleProvider({ children }) {
       console.log('[LocaleContext] Fetching locale config from:', `${getApiUrl()}/config/locale`);
       const response = await axios.get(`${getApiUrl()}/config/locale`);
       const config = response.data;
+      const configCountries = config?.countries && typeof config.countries === 'object' ? config.countries : {};
+      const configLanguages = config?.languages && typeof config.languages === 'object' ? config.languages : {};
+      const configCurrencies = config?.currencies && typeof config.currencies === 'object' ? config.currencies : {};
       
       console.log('[LocaleContext] Config received:', {
         languagesCount: Object.keys(config.languages || {}).length,
@@ -95,9 +98,9 @@ export function LocaleProvider({ children }) {
         languages: Object.keys(config.languages || {}),
       });
       
-      setCountries(config.countries || {});
-      setLanguages(config.languages || {});
-      setCurrencies(config.currencies || {});
+      setCountries({ ...FALLBACK_COUNTRIES, ...configCountries });
+      setLanguages({ ...FALLBACK_LANGUAGES, ...configLanguages });
+      setCurrencies({ ...FALLBACK_CURRENCIES, ...configCurrencies });
       
       // For guests: Check localStorage first, then use config defaults
       const savedCountry = localStorage.getItem('hispaloshop_country');
@@ -114,7 +117,7 @@ export function LocaleProvider({ children }) {
       
       // For language: Check saved first, then keep current (which may be auto-detected)
       const savedLang = localStorage.getItem('hispaloshop_language');
-      if (savedLang && Object.keys(config.languages || {}).includes(savedLang)) {
+      if (savedLang && Object.keys({ ...FALLBACK_LANGUAGES, ...configLanguages }).includes(savedLang)) {
         setLanguage(savedLang);
         if (i18n.language !== savedLang) {
           i18n.changeLanguage(savedLang);

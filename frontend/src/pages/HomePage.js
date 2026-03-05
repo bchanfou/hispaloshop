@@ -14,6 +14,8 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
+import { demoProducts } from '../data/demoData';
+import { DEMO_MODE } from '../config/featureFlags';
 import SEO from '../components/SEO';
 
 function BestSellers({ products, t }) {
@@ -172,8 +174,36 @@ export default function HomePage() {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`${API}/products?approved_only=true`).then((r) => setFeatured((r.data.products || r.data || []).slice(0, 15))).catch(() => {}),
-      axios.get(`${API}/feed/best-sellers?limit=8`).then((r) => setBestSellers(r.data || [])).catch(() => {}),
+      axios.get(`${API}/products?approved_only=true`).then((r) => {
+        const data = (r.data.products || r.data || []).slice(0, 15);
+        setFeatured(data.length > 0 ? data : (DEMO_MODE ? demoProducts.slice(0, 15) : []));
+      }).catch(() => {
+        setFeatured(DEMO_MODE ? demoProducts.slice(0, 15) : []);
+      }),
+      axios.get(`${API}/feed/best-sellers?limit=8`).then((r) => {
+        const data = r.data || [];
+        if (Array.isArray(data) && data.length > 0) {
+          setBestSellers(data);
+          return;
+        }
+        const fallback = (DEMO_MODE ? demoProducts.slice(0, 8) : []).map((p) => ({
+          product_id: p.product_id,
+          name: p.name,
+          images: p.images,
+          price: p.price,
+          total_sold: p.total_sold || 0,
+        }));
+        setBestSellers(fallback);
+      }).catch(() => {
+        const fallback = (DEMO_MODE ? demoProducts.slice(0, 8) : []).map((p) => ({
+          product_id: p.product_id,
+          name: p.name,
+          images: p.images,
+          price: p.price,
+          total_sold: p.total_sold || 0,
+        }));
+        setBestSellers(fallback);
+      }),
     ]);
   }, []);
 
@@ -192,7 +222,7 @@ export default function HomePage() {
       label: 'Ser Influencer',
       href: '/influencers/registro',
       desc: 'Progresa por tiers y monetiza ventas verificables con niveles activos del 3% al 7% según GMV.',
-      cta: 'Crear perfil influencer',
+      cta: 'Crear perfil de influencer',
     },
     {
       id: 'producer',
@@ -200,15 +230,15 @@ export default function HomePage() {
       label: 'Ser Productor',
       href: '/vender/registro',
       desc: 'Publica productos, genera certificado digital y QR funcional para tus lotes.',
-      cta: 'Crear perfil productor',
+      cta: 'Crear perfil de productor',
     },
     {
       id: 'importer',
       icon: Building2,
       label: 'Ser Importador',
       href: '/importador',
-      desc: 'Mismo alcance que Productor: catálogo, ventas y certificados digitales con QR por producto.',
-      cta: 'Crear perfil importador',
+      desc: 'Mismo alcance que un productor: catálogo, ventas y certificados digitales con QR por producto.',
+      cta: 'Crear perfil de importador',
     },
   ];
 
@@ -228,7 +258,7 @@ export default function HomePage() {
       <section className="pt-4 pb-3 md:pt-6 md:pb-5" data-testid="hero-section">
         <div className="max-w-5xl mx-auto px-4">
           <div className="mb-3 flex items-center justify-between">
-            <h1 className="font-heading text-xl md:text-2xl text-[#1C1C1C] font-semibold">Descubre producto real</h1>
+            <h1 className="font-heading text-xl md:text-2xl text-[#1C1C1C] font-semibold">Descubre productos reales</h1>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
             {[
@@ -266,7 +296,7 @@ export default function HomePage() {
 
       <section className="pb-3 pt-1">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          <div className="flex md:grid md:grid-cols-4 gap-2 overflow-x-auto md:overflow-visible scrollbar-hide pb-1">
             {infoCards.map((item) => {
               const Icon = item.icon;
               const isActive = activeInfoCard === item.id;
@@ -276,10 +306,10 @@ export default function HomePage() {
                   type="button"
                   onClick={() => setActiveInfoCard((prev) => (prev === item.id ? null : item.id))}
                   aria-label={item.label}
-                  className={`shrink-0 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-[#1C1C1C] text-white border-[#1C1C1C]' : 'bg-white text-[#1C1C1C] border-stone-200 hover:border-[#2D5A27]'}`}
+                  className={`shrink-0 min-w-[155px] md:min-w-0 inline-flex items-center justify-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-[#1C1C1C] text-white border-[#1C1C1C]' : 'bg-white text-[#1C1C1C] border-stone-200 hover:border-[#2D5A27]'}`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#2D5A27]'}`} />
-                  <span className="hidden sm:inline">{item.label}</span>
+                  <span className="inline text-xs sm:text-sm leading-none whitespace-nowrap">{item.label}</span>
                 </button>
               );
             })}
@@ -287,12 +317,12 @@ export default function HomePage() {
 
           {activeInfo && (
             <div className="mt-3 rounded-2xl border border-stone-200 bg-white p-4 animate-in fade-in-50 duration-200">
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-xs md:text-sm text-text-muted max-w-2xl">{activeInfo.desc}</p>
-                <Link
-                  to={activeInfo.href}
-                  className="shrink-0 inline-flex items-center gap-1 text-xs md:text-sm font-medium text-[#2D5A27] hover:underline"
-                >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[#1C1C1C] mb-1">{activeInfo.label}</p>
+                  <p className="text-xs md:text-sm text-text-muted max-w-2xl">{activeInfo.desc}</p>
+                </div>
+                <Link to={activeInfo.href} className="shrink-0 inline-flex items-center gap-1 text-xs md:text-sm font-medium text-[#2D5A27] hover:underline">
                   {activeInfo.cta} <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -314,11 +344,8 @@ export default function HomePage() {
               {user ? t('home.yourFeed') : t('home.feed')}
             </h2>
             <div className="flex items-center gap-2">
-              <Link to="/discover?tab=reels" className="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">
-                Reels
-              </Link>
               <Link to="/discover?tab=feeds" className="text-xs px-2.5 py-1 rounded-full bg-stone-100 text-stone-700 font-medium">
-                Feeds
+                Explorar
               </Link>
             </div>
           </div>

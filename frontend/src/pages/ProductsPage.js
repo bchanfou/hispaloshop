@@ -13,6 +13,8 @@ import { Filter, Search, ChevronDown, X, SlidersHorizontal, Truck } from 'lucide
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
+import { demoProducts } from '../data/demoData';
+import { DEMO_MODE } from '../config/featureFlags';
 
 const FALLBACK_CATEGORIES = [
   { category_id: 'cat-aceites', slug: 'aceite-condimentos', display_name: 'Aceites', name: 'Aceites', children: [] },
@@ -24,6 +26,36 @@ const FALLBACK_CATEGORIES = [
   { category_id: 'cat-organico', slug: 'organico', display_name: 'Organico', name: 'Organico', children: [] },
   { category_id: 'cat-suplementos', slug: 'suplementos', display_name: 'Suplementos', name: 'Suplementos', children: [] },
 ];
+
+const CATEGORY_VISUALS = [
+  { slug: 'aceite-condimentos', label: 'Aceites', image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'carnes-huevos', label: 'Carnes', image: 'https://images.unsplash.com/photo-1603048719539-9ecb4ddac7b1?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'lacteos', label: 'Lacteos', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'conservas', label: 'Conservas', image: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'frutos-secos-snacks', label: 'Snacks', image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'quesos', label: 'Quesos', image: 'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'cafe-infusiones', label: 'Cafe', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'panaderia', label: 'Panaderia', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'frutas-verduras', label: 'Frutas', image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'bebidas', label: 'Bebidas', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'salsas-condimentos', label: 'Salsas', image: 'https://images.unsplash.com/photo-1472476443507-c7a5948772fc?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'congelados', label: 'Congelados', image: 'https://images.unsplash.com/photo-1604242692760-2f7b0c26856d?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'organico', label: 'Organico', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'suplementos', label: 'Suplementos', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=220&q=80' },
+];
+
+const mergeCategories = (remote = []) => {
+  const bySlug = new Map();
+  [...FALLBACK_CATEGORIES, ...remote].forEach((cat) => {
+    if (!cat?.slug) return;
+    bySlug.set(cat.slug, {
+      ...cat,
+      display_name: cat.display_name || cat.name || cat.slug,
+      children: Array.isArray(cat.children) ? cat.children : [],
+    });
+  });
+  return Array.from(bySlug.values());
+};
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,10 +98,10 @@ export default function ProductsPage() {
     try {
       const response = await axios.get(`${API}/categories/tree?lang=${currentLang}`);
       const data = Array.isArray(response.data) ? response.data : [];
-      setCategories(data.length > 0 ? data : FALLBACK_CATEGORIES);
+      setCategories(mergeCategories(data));
     } catch (error) {
       console.error('Error fetching categories:', error);
-      setCategories(FALLBACK_CATEGORIES);
+      setCategories(mergeCategories([]));
     }
   };
 
@@ -88,12 +120,34 @@ export default function ProductsPage() {
       if (filters.sort && filters.sort !== 'relevance') params.append('sort', filters.sort);
       if (filters.freeShipping) params.append('free_shipping', 'true');
       const response = await axios.get(`${API}/products?${params.toString()}`);
-      setProducts(response.data);
+      const data = response.data?.products || response.data || [];
+      setProducts(Array.isArray(data) && data.length ? data : (DEMO_MODE ? applyDemoFilters() : []));
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProducts(DEMO_MODE ? applyDemoFilters() : []);
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyDemoFilters = () => {
+    if (!DEMO_MODE) return [];
+    let list = [...demoProducts];
+    if (filters.category) list = list.filter((p) => p.category === filters.category);
+    if (filters.search) {
+      const needle = filters.search.toLowerCase();
+      list = list.filter((p) => `${p.name} ${p.description || ''}`.toLowerCase().includes(needle));
+    }
+    if (filters.minPrice) list = list.filter((p) => Number(p.price || 0) >= Number(filters.minPrice));
+    if (filters.maxPrice) list = list.filter((p) => Number(p.price || 0) <= Number(filters.maxPrice));
+    if (filters.freeShipping) list = list.filter((p) => !p.shipping_cost || p.shipping_cost === 0);
+
+    if (filters.sort === 'price_asc') list.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+    if (filters.sort === 'price_desc') list.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+    if (filters.sort === 'rating') list.sort((a, b) => Number(b.average_rating || 0) - Number(a.average_rating || 0));
+    if (filters.sort === 'newest') list.sort((a, b) => String(b.product_id).localeCompare(String(a.product_id)));
+
+    return list;
   };
 
   const handleCertificationToggle = (cert) => {
@@ -467,6 +521,27 @@ export default function ProductsPage() {
         <div className="hidden lg:block"><TopFiltersBar /></div>
 
         {/* Active Filter Tags */}
+        <div className="mb-4">
+          <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
+            {CATEGORY_VISUALS.map((cat) => {
+              const active = filters.category === cat.slug;
+              return (
+                <button
+                  key={cat.slug}
+                  onClick={() => setFilters((prev) => ({ ...prev, category: active ? '' : cat.slug }))}
+                  className={`shrink-0 w-20 rounded-xl overflow-hidden border transition-all ${active ? 'border-[#2D5A27] ring-2 ring-[#2D5A27]/20' : 'border-stone-200 hover:border-stone-300'}`}
+                  data-testid={`visual-category-${cat.slug}`}
+                >
+                  <div className="h-12 bg-stone-100">
+                    <img src={cat.image} alt={cat.label} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="px-1.5 py-1 text-[10px] font-medium text-stone-700 truncate">{cat.label}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2 mb-4">
             {filters.freeShipping && (

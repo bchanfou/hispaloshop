@@ -6,6 +6,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API } from '../utils/api';
 import { sanitizeImageUrl } from '../utils/helpers';
+import { demoPosts, demoReels, demoUsers } from '../data/demoData';
+import { DEMO_MODE } from '../config/featureFlags';
 
 function toDateValue(value) {
   const date = new Date(value || 0);
@@ -82,7 +84,22 @@ export default function DiscoverPage() {
             `${API}/discover/profiles?search=${encodeURIComponent(searchQuery)}&limit=24`,
             { withCredentials: true }
           );
-          setProfiles(res.data?.profiles || []);
+          const remoteProfiles = res.data?.profiles || [];
+          if (remoteProfiles.length > 0) {
+            setProfiles(remoteProfiles);
+          } else {
+            const needle = searchQuery.toLowerCase();
+            setProfiles(
+              (DEMO_MODE ? demoUsers : [])
+                .filter((u) => `${u.name || ''} ${u.username || ''}`.toLowerCase().includes(needle))
+                .map((u) => ({
+                  user_id: u.user_id,
+                  name: u.name,
+                  role: u.role,
+                  profile_image: u.profile_image,
+                }))
+            );
+          }
           setFeeds([]);
           setReels([]);
           setTrending([]);
@@ -119,10 +136,40 @@ export default function DiscoverPage() {
           .sort((a, b) => ((b.likes_count + b.views_count * 2 + b.comments_count) - (a.likes_count + a.views_count * 2 + a.comments_count)))
           .slice(0, 16);
 
-        setFeeds(mergedFeeds);
-        setReels(reelItems.sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at)));
-        setTrending(globalTrending);
+        const demoFeed = DEMO_MODE ? demoPosts.map(normalizePost) : [];
+        const demoReel = DEMO_MODE ? demoReels.map(normalizeReel) : [];
+        const safeFeeds = mergedFeeds.length > 0 ? mergedFeeds : demoFeed;
+        const safeReels = reelItems.length > 0 ? reelItems : demoReel;
+        const safeTrending = globalTrending.length > 0
+          ? globalTrending
+          : [...demoFeed, ...demoReel]
+              .sort((a, b) => ((b.likes_count + b.views_count * 2 + b.comments_count) - (a.likes_count + a.views_count * 2 + a.comments_count)))
+              .slice(0, 16);
+
+        setFeeds(safeFeeds);
+        setReels(safeReels.sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at)));
+        setTrending(safeTrending);
         setProfiles([]);
+      } catch (error) {
+        if (profileSearchMode) {
+          const needle = searchQuery.toLowerCase();
+          setProfiles(
+            (DEMO_MODE ? demoUsers : [])
+              .filter((u) => `${u.name || ''} ${u.username || ''}`.toLowerCase().includes(needle))
+              .map((u) => ({
+                user_id: u.user_id,
+                name: u.name,
+                role: u.role,
+                profile_image: u.profile_image,
+              }))
+          );
+        } else {
+          const demoFeed = DEMO_MODE ? demoPosts.map(normalizePost) : [];
+          const demoReel = DEMO_MODE ? demoReels.map(normalizeReel) : [];
+          setFeeds(demoFeed);
+          setReels(demoReel.sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at)));
+          setTrending([...demoFeed, ...demoReel].slice(0, 16));
+        }
       } finally {
         setLoading(false);
       }

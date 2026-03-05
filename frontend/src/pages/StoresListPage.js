@@ -9,6 +9,8 @@ import { Input } from '../components/ui/input';
 import { Store, Search, MapPin, Star, Map, Grid3X3, ChevronDown, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
+import { demoStores } from '../data/demoData';
+import { DEMO_MODE } from '../config/featureFlags';
 
 const FALLBACK_REGIONS = {
   ES: {
@@ -200,12 +202,26 @@ export default function StoresListPage() {
       
       const url = `${API}/stores${params.toString() ? '?' + params.toString() : ''}`;
       const response = await axios.get(url);
-      setStores(response.data || []);
+      const data = response.data || [];
+      if (Array.isArray(data) && data.length > 0) {
+        setStores(data);
+      } else {
+        setStores(DEMO_MODE ? getDemoStoresByGeo() : []);
+      }
     } catch (error) {
       console.error('Error fetching stores:', error);
+      setStores(DEMO_MODE ? getDemoStoresByGeo() : []);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getDemoStoresByGeo = () => {
+    return demoStores.filter((store) => {
+      if (selectedCountry && store.country !== selectedCountry) return false;
+      if (selectedRegion && store.region !== selectedRegion) return false;
+      return true;
+    });
   };
 
   const clearFilters = () => {

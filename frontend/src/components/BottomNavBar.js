@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2, Clapperboard } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -226,7 +226,6 @@ export default function BottomNavBar() {
 
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
-    { id: 'reels', icon: Clapperboard, label: 'Reels', link: '/discover?tab=reels', match: (loc) => loc.pathname === '/discover' && new URLSearchParams(loc.search).get('tab') === 'reels' },
     { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover?tab=feeds', match: (loc) => loc.pathname === '/discover' && (new URLSearchParams(loc.search).get('tab') !== 'reels') },
     { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
     { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, isProfile: true },
@@ -250,8 +249,8 @@ export default function BottomNavBar() {
 
       <nav className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none md:hidden" data-testid="bottom-nav-bar">
         <div className="max-w-xl mx-auto px-2 sm:px-3 pointer-events-auto">
-          <div className="grid grid-cols-[1fr_1fr_1fr_auto_1fr_1fr] items-center h-[68px] px-2 rounded-2xl border border-stone-200/90 bg-white/95 shadow-[0_10px_35px_rgba(0,0,0,0.12)] backdrop-blur-md">
-            {navItems.slice(0, 3).map((item) => {
+          <div className="grid grid-cols-[1fr_1fr_auto_1fr_1fr] items-center h-[68px] px-2 rounded-2xl border border-stone-200/90 bg-white/95 shadow-[0_10px_35px_rgba(0,0,0,0.12)] backdrop-blur-md">
+            {navItems.slice(0, 2).map((item) => {
               const Icon = item.icon;
               const isActive = item.match ? item.match(location) : location.pathname === item.link;
               if (item.link) {
@@ -293,7 +292,7 @@ export default function BottomNavBar() {
               </div>
             </button>
 
-            {navItems.slice(3).map((item) => {
+            {navItems.slice(2).map((item) => {
               const Icon = item.icon;
               const isPathActive = item.match ? item.match(location) : item.link ? location.pathname.startsWith(item.link) : false;
               const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;

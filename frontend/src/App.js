@@ -32,7 +32,6 @@ const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const ImporterLandingPage = lazy(() => import('./pages/ImporterLandingPage'));
-const ImporterRegisterPage = lazy(() => import('./pages/importer/ImporterRegisterPage'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
@@ -183,7 +182,7 @@ function AppRouter() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/importer/register" element={<ImporterRegisterPage />} />
+          <Route path="/importer/register" element={<RegisterPage />} />
           <Route path="/importer/dashboard" element={<Navigate to="/producer" replace />} />
           <Route path="/importer/catalog" element={<Navigate to="/producer/products" replace />} />
           <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />

@@ -2,6 +2,19 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Demo Mode
+
+You can enable or disable all frontend demo fallback data with one variable:
+
+`REACT_APP_DEMO_MODE=true` or `REACT_APP_DEMO_MODE=false`
+
+Example (Windows PowerShell):
+
+```powershell
+$env:REACT_APP_DEMO_MODE="true"
+npm start
+```
+
 ## Available Scripts
 
 In the project directory, you can run:

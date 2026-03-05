@@ -14,6 +14,8 @@ import { useAuth } from '../context/AuthContext';
 
 import { API } from '../utils/api';
 import { sanitizeImageUrl } from '../utils/helpers';
+import { demoPosts } from '../data/demoData';
+import { DEMO_MODE } from '../config/featureFlags';
 
 // Normalize image URLs — ensure /api prefix for local uploads
 function getImgUrl(url) {
@@ -798,10 +800,26 @@ export default function SocialFeed() {
       const skip = reset ? 0 : page * LIMIT;
       const scope = user ? 'following' : 'hybrid';
       const res = await axios.get(`${API}/feed?skip=${skip}&limit=${LIMIT}&scope=${scope}`, { withCredentials: true });
-      if (reset) setPosts(res.data.posts || []);
-      else setPosts(prev => [...prev, ...(res.data.posts || [])]);
-      setHasMore(res.data.has_more || false);
-    } catch (err) { console.error('Feed error:', err); }
+      const items = res.data.posts || [];
+      if (reset) {
+        if (items.length > 0) {
+          setPosts(items);
+          setHasMore(res.data.has_more || false);
+        } else {
+          setPosts(DEMO_MODE ? demoPosts.map((p) => ({ ...p, is_liked: false, is_bookmarked: false })) : []);
+          setHasMore(false);
+        }
+      } else {
+        setPosts(prev => [...prev, ...items]);
+        setHasMore(res.data.has_more || false);
+      }
+    } catch (err) {
+      console.error('Feed error:', err);
+      if (reset) {
+        setPosts(DEMO_MODE ? demoPosts.map((p) => ({ ...p, is_liked: false, is_bookmarked: false })) : []);
+        setHasMore(false);
+      }
+    }
     finally { setLoading(false); }
   }, [page]);
 

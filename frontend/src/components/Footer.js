@@ -11,26 +11,25 @@ import {
 } from './ui/dialog';
 
 export default function Footer() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { language, languages, updateLanguage } = useLocale();
   const [showLanguageDialog, setShowLanguageDialog] = useState(false);
 
-  const handleLanguageChange = (code) => {
-    updateLanguage(code);
-    i18n.changeLanguage(code);
+  const handleLanguageChange = async (code) => {
+    await updateLanguage(code);
     setShowLanguageDialog(false);
   };
   
   return (
-    <footer className="bg-[#1C1C1C] text-white mt-16" data-testid="main-footer">
+    <footer className="bg-[#171717] text-white mt-14" data-testid="main-footer">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
-        <div className="mb-8 rounded-2xl border border-stone-800 bg-stone-900/40 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="mb-10 rounded-2xl border border-stone-700/80 bg-gradient-to-r from-stone-900/70 to-stone-800/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-wider text-stone-500 mb-1">Hispaloshop Network</p>
-            <p className="text-sm text-stone-300">Productores, importadores e influencers en un mismo flujo de venta.</p>
+            <p className="text-[11px] uppercase tracking-wider text-stone-400 mb-1">Red Hispaloshop</p>
+            <p className="text-sm text-stone-200">Productores, importadores e influencers en un mismo flujo de venta.</p>
           </div>
-          <Link to="/about" className="text-xs text-stone-300 hover:text-white underline-offset-2 hover:underline">
-            Ver como funciona
+          <Link to="/about" className="text-xs text-stone-200 hover:text-white underline-offset-2 hover:underline">
+            Ver cómo funciona
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -40,10 +39,10 @@ export default function Footer() {
               <img src="/logo.png" alt="Hispaloshop" className="w-8 h-8 object-contain invert" />
               <h3 className="font-heading text-xl font-semibold tracking-[0.02em]">Hispaloshop</h3>
             </div>
-            <p className="text-sm text-stone-400 leading-relaxed mb-4">
+            <p className="text-sm text-stone-300 leading-relaxed mb-4">
               {t('footer.description')}
             </p>
-            <div className="space-y-2 text-sm text-stone-400">
+            <div className="space-y-2 text-sm text-stone-300">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span>{t('footer.address')}</span>
@@ -65,20 +64,20 @@ export default function Footer() {
 
           {/* Shop Links */}
           <div>
-            <h4 className="font-heading text-base font-medium mb-4 tracking-[0.02em]">{t('footer.shop')}</h4>
+            <h4 className="font-heading text-[13px] uppercase tracking-wider text-stone-400 mb-4">{t('footer.shop')}</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/products" className="text-sm text-stone-400 hover:text-white transition-colors">
+                <Link to="/products" className="text-sm text-stone-300 hover:text-white transition-colors">
                   {t('footer.allProducts')}
                 </Link>
               </li>
               <li>
-                <Link to="/stores" className="text-sm text-stone-400 hover:text-white transition-colors">
+                <Link to="/stores" className="text-sm text-stone-300 hover:text-white transition-colors">
                   {t('footer.stores', 'Tiendas')}
                 </Link>
               </li>
               <li>
-                <Link to="/certificates" className="text-sm text-stone-400 hover:text-white transition-colors">
+                <Link to="/certificates" className="text-sm text-stone-300 hover:text-white transition-colors">
                   {t('header.certificates', 'Certificados')}
                 </Link>
               </li>
@@ -87,20 +86,20 @@ export default function Footer() {
 
           {/* Producer / Influencer / Importer Links */}
           <div>
-            <h4 className="font-heading text-base font-medium mb-4 tracking-[0.02em]">{t('footer.collaborate')}</h4>
+            <h4 className="font-heading text-[13px] uppercase tracking-wider text-stone-400 mb-4">{t('footer.collaborate')}</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/vender/registro" className="text-sm text-stone-400 hover:text-white transition-colors">
+                <Link to="/vender/registro" className="text-sm text-stone-300 hover:text-white transition-colors">
                   Ser Productor
                 </Link>
               </li>
               <li>
-                <Link to="/influencers/registro" className="text-sm text-stone-400 hover:text-white transition-colors">
+                <Link to="/influencers/registro" className="text-sm text-stone-300 hover:text-white transition-colors">
                   Ser Influencer
                 </Link>
               </li>
               <li>
-                <Link to="/importador" className="text-sm text-stone-400 hover:text-white transition-colors">
+                <Link to="/importador" className="text-sm text-stone-300 hover:text-white transition-colors">
                   Ser Importador
                 </Link>
               </li>
@@ -109,8 +108,8 @@ export default function Footer() {
 
           {/* Hours & Social */}
           <div>
-            <h4 className="font-heading text-base font-medium mb-4 tracking-[0.02em]">{t('footer.workingHours')}</h4>
-            <div className="space-y-1 text-sm text-stone-400 mb-6">
+            <h4 className="font-heading text-[13px] uppercase tracking-wider text-stone-400 mb-4">{t('footer.workingHours')}</h4>
+            <div className="space-y-1 text-sm text-stone-300 mb-6">
               <div className="flex items-start gap-2">
                 <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <div>
@@ -121,12 +120,12 @@ export default function Footer() {
               </div>
             </div>
             
-            <h4 className="font-heading text-base font-medium mb-3 tracking-[0.02em]">{t('footer.followUs')}</h4>
+            <h4 className="font-heading text-[13px] uppercase tracking-wider text-stone-400 mb-3">{t('footer.followUs')}</h4>
             <a 
               href="https://instagram.com/hispaloshop" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-stone-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-stone-300 hover:text-white transition-colors"
             >
               <Instagram className="w-5 h-5" />
               <span>@hispaloshop</span>
@@ -186,12 +185,12 @@ export default function Footer() {
         </Dialog>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-stone-500">{t('footer.copyright')}</p>
-          <div className="flex gap-4 text-xs text-stone-500">
-            <Link to="/terms" className="hover:text-white transition-colors">{t('footer.terms')}</Link>
-            <Link to="/privacy" className="hover:text-white transition-colors">{t('footer.privacy')}</Link>
-            <Link to="/help" className="hover:text-white transition-colors">{t('footer.help')}</Link>
+        <div className="mt-12 pt-6 border-t border-stone-800/90 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-stone-400">{t('footer.copyright')}</p>
+          <div className="flex gap-2 text-xs">
+            <Link to="/terms" className="px-2.5 py-1 rounded-full bg-stone-800/70 text-stone-300 hover:text-white transition-colors">{t('footer.terms')}</Link>
+            <Link to="/privacy" className="px-2.5 py-1 rounded-full bg-stone-800/70 text-stone-300 hover:text-white transition-colors">{t('footer.privacy')}</Link>
+            <Link to="/help" className="px-2.5 py-1 rounded-full bg-stone-800/70 text-stone-300 hover:text-white transition-colors">{t('footer.help')}</Link>
           </div>
         </div>
       </div>

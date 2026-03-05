@@ -40,7 +40,7 @@ export default function LocaleSelector({ compact = false }) {
     updateCurrency,
   } = useLocale();
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { fetchCart } = useCart();
   const { user } = useAuth();
 
@@ -141,15 +141,14 @@ export default function LocaleSelector({ compact = false }) {
     }
   };
 
-  const handleLanguageChange = (code) => {
-    updateLanguage(code);
-    i18n.changeLanguage(code);
+  const handleLanguageChange = async (code) => {
+    await updateLanguage(code);
     setShowLanguageDialog(false);
     setDesktopMenu(null);
   };
 
-  const handleCurrencyChange = (code) => {
-    updateCurrency(code);
+  const handleCurrencyChange = async (code) => {
+    await updateCurrency(code);
     setShowCurrencyDialog(false);
     setDesktopMenu(null);
   };
@@ -314,35 +313,38 @@ export default function LocaleSelector({ compact = false }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`h-9 w-9 px-0 justify-center hover:bg-white/60 ${desktopMenu === 'country' ? 'bg-white/70' : ''}`}
+                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 ${desktopMenu === 'country' ? 'bg-white/70' : ''}`}
                   onClick={() => setDesktopMenu((prev) => (prev === 'country' ? null : 'country'))}
                   data-testid="country-selector"
                   type="button"
                   aria-label={t('locale.selectCountry')}
                 >
                   <CountryFlag countryCode={country} size="md" />
+                  <span className="text-[11px] font-semibold text-stone-700">{country}</span>
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`h-9 w-9 px-0 justify-center hover:bg-white/60 ${desktopMenu === 'language' ? 'bg-white/70' : ''}`}
+                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 ${desktopMenu === 'language' ? 'bg-white/70' : ''}`}
                   onClick={() => setDesktopMenu((prev) => (prev === 'language' ? null : 'language'))}
                   data-testid="language-selector"
                   type="button"
                   aria-label={t('locale.selectLanguage')}
                 >
                   <Languages className="w-4 h-4" />
+                  <span className="text-[11px] font-semibold text-stone-700 uppercase">{language}</span>
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`h-9 w-9 px-0 justify-center hover:bg-white/60 ${desktopMenu === 'currency' ? 'bg-white/70' : ''}`}
+                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 ${desktopMenu === 'currency' ? 'bg-white/70' : ''}`}
                   onClick={() => setDesktopMenu((prev) => (prev === 'currency' ? null : 'currency'))}
                   data-testid="currency-selector"
                   type="button"
                   aria-label={t('locale.selectCurrency')}
                 >
                   <DollarSign className="w-4 h-4" />
+                  <span className="text-[11px] font-semibold text-stone-700">{currency}</span>
                 </Button>
               </>
             ) : (

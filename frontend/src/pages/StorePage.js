@@ -17,6 +17,8 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 
 import { API } from '../utils/api';
+import { demoStores, demoProducts, demoReviews, demoCertificates } from '../data/demoData';
+import { DEMO_MODE } from '../config/featureFlags';
 
 // Tab Button Component
 function TabButton({ active, onClick, icon: Icon, label, count }) {
@@ -126,9 +128,16 @@ export default function StorePage() {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/store/${storeSlug}`);
-      setStore(response.data);
+      if (response.data) {
+        setStore(response.data);
+      } else {
+        const fallback = DEMO_MODE ? demoStores.find((s) => s.slug === storeSlug) : null;
+        setStore(fallback || null);
+      }
     } catch (error) {
       console.error('Error fetching store:', error);
+      const fallback = DEMO_MODE ? demoStores.find((s) => s.slug === storeSlug) : null;
+      setStore(fallback || null);
     } finally {
       setLoading(false);
     }
@@ -161,25 +170,65 @@ export default function StorePage() {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${API}/store/${storeSlug}/products?sort=${productSort}&limit=50`);
-      setProducts(response.data.products || []);
-      setProductTotal(response.data.total || 0);
-    } catch (error) { console.error('Error fetching products:', error); }
+      const items = response.data.products || [];
+      if (items.length > 0) {
+        setProducts(items);
+        setProductTotal(response.data.total || items.length);
+      } else {
+        const fallbackProducts = DEMO_MODE ? demoProducts.filter((p) => p.store_slug === storeSlug || p.seller_id === store?.seller_id) : [];
+        setProducts(fallbackProducts);
+        setProductTotal(fallbackProducts.length);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      const fallbackProducts = DEMO_MODE ? demoProducts.filter((p) => p.store_slug === storeSlug || p.seller_id === store?.seller_id) : [];
+      setProducts(fallbackProducts);
+      setProductTotal(fallbackProducts.length);
+    }
   };
 
   const fetchReviews = async () => {
     try {
       const response = await axios.get(`${API}/store/${storeSlug}/reviews?limit=50`);
-      setReviews(response.data.reviews || []);
-      setReviewsTotal(response.data.total || 0);
-      setAvgRating(response.data.average_rating || 0);
-    } catch (error) { console.error('Error fetching reviews:', error); }
+      const items = response.data.reviews || [];
+      if (items.length > 0) {
+        setReviews(items);
+        setReviewsTotal(response.data.total || items.length);
+        setAvgRating(response.data.average_rating || 0);
+      } else {
+        const fallbackReviews = DEMO_MODE ? demoReviews.filter((r) => r.store_slug === storeSlug) : [];
+        setReviews(fallbackReviews);
+        setReviewsTotal(fallbackReviews.length);
+        const avg = fallbackReviews.length ? fallbackReviews.reduce((acc, r) => acc + Number(r.rating || 0), 0) / fallbackReviews.length : 0;
+        setAvgRating(avg);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      const fallbackReviews = DEMO_MODE ? demoReviews.filter((r) => r.store_slug === storeSlug) : [];
+      setReviews(fallbackReviews);
+      setReviewsTotal(fallbackReviews.length);
+      const avg = fallbackReviews.length ? fallbackReviews.reduce((acc, r) => acc + Number(r.rating || 0), 0) / fallbackReviews.length : 0;
+      setAvgRating(avg);
+    }
   };
 
   const fetchCertificates = async () => {
     try {
       const response = await axios.get(`${API}/store/${storeSlug}/certificates`);
-      setCertificates(response.data || []);
-    } catch (error) { console.error('Error fetching certificates:', error); }
+      const items = response.data || [];
+      if (Array.isArray(items) && items.length > 0) {
+        setCertificates(items);
+      } else {
+        const storeProducts = DEMO_MODE ? demoProducts.filter((p) => p.store_slug === storeSlug || p.seller_id === store?.seller_id) : [];
+        const ids = new Set(storeProducts.map((p) => p.product_id));
+        setCertificates(DEMO_MODE ? demoCertificates.filter((c) => ids.has(c.product_id)) : []);
+      }
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+      const storeProducts = DEMO_MODE ? demoProducts.filter((p) => p.store_slug === storeSlug || p.seller_id === store?.seller_id) : [];
+      const ids = new Set(storeProducts.map((p) => p.product_id));
+      setCertificates(DEMO_MODE ? demoCertificates.filter((c) => ids.has(c.product_id)) : []);
+    }
   };
 
   if (loading) {
