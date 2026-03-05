@@ -35,6 +35,9 @@ const ImporterLandingPage = lazy(() => import('./pages/ImporterLandingPage'));
 const ImporterRegisterPage = lazy(() => import('./pages/importer/ImporterRegisterPage'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const HelpPage = lazy(() => import('./pages/HelpPage'));
 
 // Lazy admin / super-admin pages
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
@@ -103,6 +106,27 @@ function RouteLoader() {
   );
 }
 
+function LegacyOrdersRedirect() {
+  const { user } = useAuth();
+
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'admin') return <Navigate to="/admin/orders" replace />;
+  if (user.role === 'producer' || user.role === 'importer') return <Navigate to="/producer/orders" replace />;
+  if (user.role === 'influencer') return <Navigate to="/influencer/dashboard" replace />;
+  return <Navigate to="/dashboard/orders" replace />;
+}
+
+function LegacyProfileRedirect() {
+  const { user } = useAuth();
+
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'producer' || user.role === 'importer') return <Navigate to="/producer/profile" replace />;
+  if (user.role === 'influencer') return <Navigate to="/influencer/dashboard" replace />;
+  if (user.role === 'admin') return <Navigate to="/admin" replace />;
+  if (user.role === 'super_admin') return <Navigate to="/super-admin" replace />;
+  return <Navigate to="/dashboard/profile" replace />;
+}
+
 function AppRouter() {
   const location = useLocation();
   const { user } = useAuth();
@@ -147,6 +171,8 @@ function AppRouter() {
           <Route path="/user/:userId" element={<UserProfilePage />} />
           <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/importador" element={<ImporterLandingPage />} />
+          <Route path="/importer" element={<ImporterLandingPage />} />
+          <Route path="/influencer" element={<Navigate to="/influencer/dashboard" replace />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/seller/login" element={<LoginPage />} />
           <Route path="/influencer/login" element={<LoginPage />} />
@@ -164,6 +190,11 @@ function AppRouter() {
           <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
           <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
           <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
+          <Route path="/orders" element={<LegacyOrdersRedirect />} />
+          <Route path="/profile" element={<LegacyProfileRedirect />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/help" element={<HelpPage />} />
 
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
@@ -178,6 +209,7 @@ function AppRouter() {
             <Route path="reviews" element={<AdminReviews />} />
             <Route path="influencers" element={<AdminInfluencers />} />
           </Route>
+          <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
 
           <Route path="/super-admin" element={<SuperAdminLayout />}>
             <Route index element={<SuperAdminOverviewPage />} />
@@ -239,6 +271,7 @@ function AppRouter() {
               </InfluencerLayoutResponsive>
             }
           />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
     </>

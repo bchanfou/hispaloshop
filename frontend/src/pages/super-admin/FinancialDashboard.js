@@ -14,7 +14,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const REGION_COLORS = { US: '#3b82f6', EU: '#10b981', KR: '#f59e0b', Other: '#6b7280' };
 const EVENT_LABELS = {
   order_paid: 'Pago recibido',
-  seller_transfer: 'Transfer a seller',
+  seller_transfer: 'Transferencia a productor',
   influencer_scheduled: 'Influencer programado',
   influencer_paid: 'Influencer pagado',
   refund: 'Reembolso',
@@ -321,7 +321,7 @@ export default function FinancialDashboard() {
             >
               <option value="all">Todos</option>
               <option value="order_paid">Pagos</option>
-              <option value="seller_transfer">Transfers</option>
+              <option value="seller_transfer">Transferencias</option>
               <option value="influencer_scheduled">Influencer prog.</option>
               <option value="influencer_paid">Influencer pagado</option>
               <option value="refund">Reembolsos</option>
@@ -381,8 +381,8 @@ export default function FinancialDashboard() {
                       <tr className="bg-stone-50/50">
                         <td colSpan={8} className="px-4 py-3">
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                            <div><span className="text-text-muted">Seller:</span> <span className="text-text-secondary">{e.seller_id || '-'}</span></div>
-                            <div><span className="text-text-muted">Seller Net:</span> <span className="text-text-secondary">{e.seller_net?.toFixed(2)} {e.currency}</span></div>
+                            <div><span className="text-text-muted">Productor:</span> <span className="text-text-secondary">{e.seller_id || '-'}</span></div>
+                            <div><span className="text-text-muted">Neto productor:</span> <span className="text-text-secondary">{e.seller_net?.toFixed(2)} {e.currency}</span></div>
                             <div><span className="text-text-muted">Platform Fee:</span> <span className="text-text-secondary">{e.platform_fee?.toFixed(2)} {e.currency}</span></div>
                             <div><span className="text-text-muted">Platform Net:</span> <span className="text-text-secondary">{e.platform_net?.toFixed(2)} {e.currency}</span></div>
                             <div><span className="text-text-muted">Tax Type:</span> <span className="text-text-secondary">{e.product_tax_type}</span></div>

@@ -166,7 +166,7 @@ export default function ProducerPayments() {
   const handleOpenStripeDashboard = async () => {
     setOpeningDashboard(true);
     try {
-      const response = await axios.post(`${API}/connect/login-link`, {}, { withCredentials: true });
+      const response = await axios.post(`${API}/producer/stripe/create-login-link`, {}, { withCredentials: true });
       if (response.data.url) {
         window.open(response.data.url, '_blank');
       }
@@ -279,8 +279,8 @@ export default function ProducerPayments() {
           <Button
             onClick={async () => {
               try {
-                const res = await axios.post(`${API}/connect/account`, {}, { withCredentials: true });
-                if (res.data.onboarding_url) window.location.href = res.data.onboarding_url;
+                const res = await axios.post(`${API}/producer/stripe/create-account`, {}, { withCredentials: true });
+                if (res.data.url) window.location.href = res.data.url;
                 else toast.success('Cuenta de Stripe ya creada');
               } catch (e) {
                 toast.error(e.response?.data?.detail || 'Error');

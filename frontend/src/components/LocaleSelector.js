@@ -23,20 +23,11 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import axios from 'axios';
-
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host.includes('hispaloshop.com') || host.includes('preview.emergentagent.com')) {
-      return '/api';
-    }
-  }
-  return '/api';
-};
+import { getApiUrl } from '../utils/api';
 
 const MOBILE_BREAKPOINT = 768;
 
-export default function LocaleSelector() {
+export default function LocaleSelector({ compact = false }) {
   const {
     country,
     language,
@@ -222,13 +213,13 @@ export default function LocaleSelector() {
     <Button
       variant="ghost"
       size="sm"
-      className={`h-9 gap-1.5 font-body text-sm hover:bg-white/60 ${desktopMenu === menu ? 'bg-white/70' : ''}`}
+      className={`h-9 ${compact ? 'w-9 px-0 justify-center' : 'gap-1.5'} font-body text-sm hover:bg-white/60 ${desktopMenu === menu ? 'bg-white/70' : ''}`}
       onClick={() => setDesktopMenu((prev) => (prev === menu ? null : menu))}
       data-testid={testId}
       type="button"
     >
       <Icon className="w-4 h-4" />
-      {children}
+      {!compact && children}
       <ChevronDown className={`w-4 h-4 transition-transform ${desktopMenu === menu ? 'rotate-180' : ''}`} />
     </Button>
   );
@@ -318,18 +309,58 @@ export default function LocaleSelector() {
       ) : (
         <div className="relative" ref={desktopRef}>
           <div className="flex items-center gap-2">
-            <DesktopTrigger menu="country" icon={Globe} testId="country-selector">
-              <CountryFlag countryCode={country} size="md" />
-              <span>{country}</span>
-            </DesktopTrigger>
+            {compact ? (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-9 w-9 px-0 justify-center hover:bg-white/60 ${desktopMenu === 'country' ? 'bg-white/70' : ''}`}
+                  onClick={() => setDesktopMenu((prev) => (prev === 'country' ? null : 'country'))}
+                  data-testid="country-selector"
+                  type="button"
+                  aria-label={t('locale.selectCountry')}
+                >
+                  <CountryFlag countryCode={country} size="md" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-9 w-9 px-0 justify-center hover:bg-white/60 ${desktopMenu === 'language' ? 'bg-white/70' : ''}`}
+                  onClick={() => setDesktopMenu((prev) => (prev === 'language' ? null : 'language'))}
+                  data-testid="language-selector"
+                  type="button"
+                  aria-label={t('locale.selectLanguage')}
+                >
+                  <Languages className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-9 w-9 px-0 justify-center hover:bg-white/60 ${desktopMenu === 'currency' ? 'bg-white/70' : ''}`}
+                  onClick={() => setDesktopMenu((prev) => (prev === 'currency' ? null : 'currency'))}
+                  data-testid="currency-selector"
+                  type="button"
+                  aria-label={t('locale.selectCurrency')}
+                >
+                  <DollarSign className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <DesktopTrigger menu="country" icon={Globe} testId="country-selector">
+                  <CountryFlag countryCode={country} size="md" />
+                  <span>{country}</span>
+                </DesktopTrigger>
 
-            <DesktopTrigger menu="language" icon={Languages} testId="language-selector">
-              <span className="uppercase">{language}</span>
-            </DesktopTrigger>
+                <DesktopTrigger menu="language" icon={Languages} testId="language-selector">
+                  <span className="uppercase">{language}</span>
+                </DesktopTrigger>
 
-            <DesktopTrigger menu="currency" icon={DollarSign} testId="currency-selector">
-              <span>{currency}</span>
-            </DesktopTrigger>
+                <DesktopTrigger menu="currency" icon={DollarSign} testId="currency-selector">
+                  <span>{currency}</span>
+                </DesktopTrigger>
+              </>
+            )}
           </div>
 
           <DesktopMenu isOpen={desktopMenu === 'country'} title={t('locale.selectCountry')}>

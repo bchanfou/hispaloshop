@@ -9,8 +9,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API } from '../../utils/api';
 
 function FollowedStoreCard({ store, onUnfollow }) {
   const { t } = useTranslation();

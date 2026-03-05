@@ -4,10 +4,15 @@ Extracted from server.py.
 """
 import os
 import logging
+import uuid
 from typing import Optional
 from datetime import datetime, timezone
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+except Exception:
+    LlmChat = None
+    UserMessage = None
 from core.database import db
 
 logger = logging.getLogger(__name__)
@@ -19,6 +24,10 @@ async def infer_user_signals_from_chat(user_id: str, user_message: str, assistan
     NEVER stores raw chat text - only normalized tags with confidence scores.
     Runs as background task to not block chat responses.
     """
+    if not EMERGENT_LLM_KEY or LlmChat is None or UserMessage is None:
+        # Degraded mode: keep API available even if LLM integration is unavailable.
+        return
+
     try:
         # Check if user has analytics consent
         user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "consent": 1})

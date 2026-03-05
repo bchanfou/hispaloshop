@@ -108,7 +108,7 @@ export default function AboutPage() {
         <BackButton />
 
         <section className="text-center mb-12" data-testid="about-hero">
-          <p className="text-xs font-semibold text-[#2D5A27] uppercase tracking-widest mb-3">Que es Hispaloshop</p>
+          <p className="text-xs font-semibold text-[#2D5A27] uppercase tracking-widest mb-3">Qué es Hispaloshop</p>
           <h1 className="font-heading text-3xl md:text-4xl font-semibold text-[#1C1C1C] mb-4">
             Marketplace social para producto real
           </h1>

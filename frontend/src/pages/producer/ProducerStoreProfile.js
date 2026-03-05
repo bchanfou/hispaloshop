@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
+import { API, resolveApiAssetUrl } from '../../utils/api';
 import { 
   Store, Image, Upload, X, Loader2, Save, Eye, MapPin, 
   Phone, Mail, Globe, Clock, Instagram, Facebook, Trash2
@@ -43,7 +43,7 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
         { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
       );
       
-      const imageUrl = response.data.url.startsWith('http') ? response.data.url : `${process.env.REACT_APP_BACKEND_URL}${response.data.url}`;
+      const imageUrl = resolveApiAssetUrl(response.data.url);
       onChange(imageUrl);
       toast.success('Imagen subida');
     } catch (error) {
@@ -117,7 +117,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
         { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
       );
       
-      const imageUrl = response.data.url.startsWith('http') ? response.data.url : `${process.env.REACT_APP_BACKEND_URL}${response.data.url}`;
+      const imageUrl = resolveApiAssetUrl(response.data.url);
       onChange([...images, imageUrl]);
       toast.success('Imagen añadida a la galería');
     } catch (error) {

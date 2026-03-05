@@ -48,7 +48,7 @@ export default function LoginPage() {
       } else if (role === 'producer' || role === 'importer') {
         navigate('/producer');
       } else if (role === 'influencer') {
-        navigate('/influencer');
+        navigate('/influencer/dashboard');
       } else {
         navigate('/dashboard');
       }

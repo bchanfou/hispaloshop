@@ -11,8 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API } from '../../utils/api';
 
 // Color palette
 const COLORS = {

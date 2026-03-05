@@ -15,7 +15,7 @@ import TierProgress from '../../components/TierProgress';
 import { useTranslation } from 'react-i18next';
 import { API } from '../../utils/api';
 
-const MINIMUM_WITHDRAWAL = 50; // â‚¬50 minimum
+const MINIMUM_WITHDRAWAL = 50; // €50 minimum
 
 // Withdrawal Component
 function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSuccess }) {
@@ -38,7 +38,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
 
   const handleWithdraw = async () => {
     if (availableToWithdraw < MINIMUM_WITHDRAWAL) {
-      toast.error(`El mÃ­nimo de retiro es â‚¬${MINIMUM_WITHDRAWAL}. Tienes â‚¬${availableToWithdraw.toFixed(2)} disponibles.`);
+      toast.error(`El mínimo de retiro es €${MINIMUM_WITHDRAWAL}. Tienes €${availableToWithdraw.toFixed(2)} disponibles.`);
       return;
     }
     
@@ -70,8 +70,8 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
           {/* Available to withdraw */}
           <div className="text-center p-4 bg-white rounded-lg border border-green-200">
             <p className="text-sm text-[#7A7A7A] mb-1">Disponible para retirar</p>
-            <p className="text-3xl font-bold text-green-600">â‚¬{availableToWithdraw.toFixed(2)}</p>
-            <p className="text-xs text-[#7A7A7A] mt-1">MÃ­nimo: â‚¬{MINIMUM_WITHDRAWAL}</p>
+            <p className="text-3xl font-bold text-green-600">€{availableToWithdraw.toFixed(2)}</p>
+            <p className="text-xs text-[#7A7A7A] mt-1">Mínimo: €{MINIMUM_WITHDRAWAL}</p>
           </div>
 
           {/* Withdraw button */}
@@ -84,7 +84,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
           ) : availableToWithdraw < MINIMUM_WITHDRAWAL ? (
             <div className="text-center p-3 bg-stone-50 rounded-lg border border-stone-200">
               <p className="text-sm text-[#7A7A7A]">
-                Necesitas â‚¬{(MINIMUM_WITHDRAWAL - availableToWithdraw).toFixed(2)} mÃ¡s para alcanzar el mÃ­nimo de retiro
+                Necesitas €{(MINIMUM_WITHDRAWAL - availableToWithdraw).toFixed(2)} más para alcanzar el mínimo de retiro
               </p>
             </div>
           ) : (
@@ -101,7 +101,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
               ) : (
                 <>
                   <ArrowUpRight className="w-4 h-4 mr-2" />
-                  Retirar â‚¬{availableToWithdraw.toFixed(2)}
+                  Retirar €{availableToWithdraw.toFixed(2)}
                 </>
               )}
             </Button>
@@ -125,7 +125,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
                 <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 bg-white rounded border">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-500" />
-                    <span className="text-sm font-medium">â‚¬{wd.amount.toFixed(2)}</span>
+                    <span className="text-sm font-medium">€{wd.amount.toFixed(2)}</span>
                   </div>
                   <span className="text-xs text-[#7A7A7A]">
                     {new Date(wd.created_at).toLocaleDateString('es-ES')}
@@ -148,16 +148,16 @@ function EmailVerificationBanner({ user, onVerified }) {
 
   const handleVerify = async () => {
     if (!code || code.length !== 6) {
-      toast.error('Introduce el cÃ³digo de 6 dÃ­gitos');
+      toast.error('Introduce el código de 6 dígitos');
       return;
     }
     setVerifying(true);
     try {
       await axios.post(`${API}/auth/verify-email?code=${code}`, {}, { withCredentials: true });
-      toast.success('Â¡Email verificado!');
+      toast.success('¡Email verificado!');
       onVerified();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'CÃ³digo invÃ¡lido');
+      toast.error(error.response?.data?.detail || 'Código inválido');
     } finally {
       setVerifying(false);
     }
@@ -167,9 +167,9 @@ function EmailVerificationBanner({ user, onVerified }) {
     setResending(true);
     try {
       await axios.post(`${API}/auth/resend-verification`, {}, { withCredentials: true });
-      toast.success('CÃ³digo enviado a tu email');
+      toast.success('Código enviado a tu email');
     } catch (error) {
-      toast.error('Error al enviar cÃ³digo');
+      toast.error('Error al enviar código');
     } finally {
       setResending(false);
     }
@@ -182,8 +182,8 @@ function EmailVerificationBanner({ user, onVerified }) {
         <div className="flex-1">
           <h3 className="font-semibold text-amber-900 mb-2">Verifica tu email</h3>
           <p className="text-amber-800 text-sm mb-4">
-            Hemos enviado un cÃ³digo de 6 dÃ­gitos a <strong>{user?.email}</strong>. 
-            IntrodÃºcelo aquÃ­ para activar tu cuenta.
+            Hemos enviado un código de 6 dígitos a <strong>{user?.email}</strong>. 
+            Introdúcelo aquí para activar tu cuenta.
           </p>
           <div className="flex items-center gap-3">
             <Input
@@ -197,7 +197,7 @@ function EmailVerificationBanner({ user, onVerified }) {
               {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
             </Button>
             <Button variant="ghost" onClick={handleResend} disabled={resending}>
-              {resending ? 'Enviando...' : 'Reenviar cÃ³digo'}
+              {resending ? 'Enviando...' : 'Reenviar código'}
             </Button>
           </div>
         </div>
@@ -213,7 +213,7 @@ function CreateCodeCard({ onCodeCreated }) {
 
   const handleCreate = async () => {
     if (!code || code.length < 3) {
-      toast.error('El cÃ³digo debe tener al menos 3 caracteres');
+      toast.error('El código debe tener al menos 3 caracteres');
       return;
     }
     setCreating(true);
@@ -222,7 +222,7 @@ function CreateCodeCard({ onCodeCreated }) {
       toast.success(res.data.message);
       onCodeCreated(res.data.code);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al crear cÃ³digo');
+      toast.error(error.response?.data?.detail || 'Error al crear código');
     } finally {
       setCreating(false);
     }
@@ -233,12 +233,12 @@ function CreateCodeCard({ onCodeCreated }) {
       <CardHeader>
         <CardTitle className="font-display text-lg flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-purple-500" />
-          Crea tu cÃ³digo de descuento
+          Crea tu código de descuento
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-[#7A7A7A] mb-4">
-          Elige un cÃ³digo personalizado que tus seguidores usarÃ¡n para obtener el 10% de descuento.
+          Elige un código personalizado que tus seguidores usarán para obtener el 10% de descuento.
         </p>
         <div className="flex items-center gap-3">
           <Input
@@ -249,11 +249,11 @@ function CreateCodeCard({ onCodeCreated }) {
             maxLength={20}
           />
           <Button onClick={handleCreate} disabled={creating || code.length < 3}>
-            {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear cÃ³digo'}
+            {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear código'}
           </Button>
         </div>
         <p className="text-xs text-[#7A7A7A] mt-2">
-          Solo letras y nÃºmeros, entre 3-20 caracteres
+          Solo letras y números, entre 3-20 caracteres
         </p>
       </CardContent>
     </Card>
@@ -326,7 +326,7 @@ export default function InfluencerDashboard() {
     if (dashboard?.discount_code) {
       navigator.clipboard.writeText(dashboard.discount_code);
       setCopied(true);
-      toast.success(t('influencer.codeCopied', 'Â¡CÃ³digo copiado!'));
+      toast.success(t('influencer.codeCopied', '¡Código copiado!'));
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -424,7 +424,7 @@ export default function InfluencerDashboard() {
         {/* Tier Progress */}
         <TierProgress />
 
-        {/* === CODE HERO â€” The main thing influencers need === */}
+        {/* === CODE HERO - The main thing influencers need === */}
         {dashboard.discount_code && (
           <div className="bg-white rounded-2xl border-2 border-amber-200 p-6 text-center mb-6" data-testid="code-hero">
             <p className="text-xs text-amber-600 uppercase tracking-widest mb-2">Tu codigo</p>
@@ -454,11 +454,11 @@ export default function InfluencerDashboard() {
         {/* === 2 Big Earnings Circles === */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-white rounded-2xl border border-emerald-200 p-6 text-center" data-testid="total-earned">
-            <p className="text-3xl md:text-4xl font-bold text-emerald-600">â‚¬{dashboard.total_commission_earned?.toFixed(0) || 0}</p>
+            <p className="text-3xl md:text-4xl font-bold text-emerald-600">€{dashboard.total_commission_earned?.toFixed(0) || 0}</p>
             <p className="text-xs text-text-muted mt-2">Total ganado</p>
           </div>
           <div className="bg-white rounded-2xl border border-amber-200 p-6 text-center" data-testid="available-withdraw">
-            <p className="text-3xl md:text-4xl font-bold text-amber-600">â‚¬{dashboard.available_balance?.toFixed(0) || 0}</p>
+            <p className="text-3xl md:text-4xl font-bold text-amber-600">€{dashboard.available_balance?.toFixed(0) || 0}</p>
             <p className="text-xs text-text-muted mt-2">Disponible</p>
             {(dashboard.available_balance || 0) >= 50 && (
               <Button size="sm" className="mt-3 bg-amber-600 hover:bg-amber-700 text-white rounded-full text-xs px-4">
@@ -476,7 +476,7 @@ export default function InfluencerDashboard() {
                 <div>
                   <p className="text-xs md:text-sm text-text-muted">{t('influencer.totalSales')}</p>
                   <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
-                    â‚¬{dashboard.total_sales_generated.toFixed(0)}
+                    €{dashboard.total_sales_generated.toFixed(0)}
                   </p>
                 </div>
                 <div className="h-10 w-10 md:h-12 md:w-12 bg-green-50 rounded-full flex items-center justify-center">
@@ -492,7 +492,7 @@ export default function InfluencerDashboard() {
                 <div>
                   <p className="text-xs md:text-sm text-text-muted">{t('influencer.totalEarned')}</p>
                   <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
-                    â‚¬{dashboard.total_commission_earned.toFixed(0)}
+                    €{dashboard.total_commission_earned.toFixed(0)}
                   </p>
                 </div>
                 <div className="h-10 w-10 md:h-12 md:w-12 bg-blue-50 rounded-full flex items-center justify-center">
@@ -508,7 +508,7 @@ export default function InfluencerDashboard() {
                 <div>
                   <p className="text-xs md:text-sm text-text-muted">{t('influencer.availableBalance')}</p>
                   <p className="text-xl md:text-2xl font-heading font-medium text-green-600">
-                    â‚¬{dashboard.available_balance.toFixed(0)}
+                    €{dashboard.available_balance.toFixed(0)}
                   </p>
                 </div>
                 <div className="h-10 w-10 md:h-12 md:w-12 bg-orange-50 rounded-full flex items-center justify-center">
@@ -526,7 +526,7 @@ export default function InfluencerDashboard() {
                   <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
                     {dashboard.commission_type === 'percentage' 
                       ? `${dashboard.commission_value}%` 
-                      : `â‚¬${dashboard.commission_value}`}
+                      : `€${dashboard.commission_value}`}
                   </p>
                 </div>
                 <div className="h-10 w-10 md:h-12 md:w-12 bg-purple-50 rounded-full flex items-center justify-center">
@@ -646,15 +646,15 @@ export default function InfluencerDashboard() {
               <div className="space-y-4">
                 {/* How commission works explanation */}
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-4">
-                  <p className="text-xs font-medium text-purple-800 mb-2">ðŸ’¡ {t('influencer.howCommissionWorks')}</p>
+                  <p className="text-xs font-medium text-purple-800 mb-2">Info · {t('influencer.howCommissionWorks')}</p>
                   <p className="text-xs text-purple-700">
                     {t('influencer.commissionExplanation', { percent: dashboard.commission_value })}
                   </p>
                   <div className="mt-2 text-xs text-purple-600 bg-purple-100 rounded p-2">
                     <p className="font-medium">{t('influencer.example')}:</p>
-                    <p>- {t('influencer.sale')}: ï¿½100</p>
-                    <p>- {t('influencer.sellerReceives')}: ï¿½82</p>
-                    <p>- {t('influencer.platformFee')}: ï¿½18</p>
+                    <p>- {t('influencer.sale')}: €100</p>
+                    <p>- {t('influencer.sellerReceives')}: €82</p>
+                    <p>- {t('influencer.platformFee')}: €18</p>
                     <p>- <strong>{t('influencer.yourCommission')}: &euro;{influencerExample}</strong> ({tierPercent}% de &euro;18)</p>
                   </div>
                 </div>
@@ -670,7 +670,7 @@ export default function InfluencerDashboard() {
                 <div className="flex justify-between items-center py-2">
                   <span className="text-[#7A7A7A] font-body">{t('influencer.available')}</span>
                   <span className="font-medium text-green-600">
-                    â‚¬{dashboard.available_balance.toFixed(2)}
+                    €{dashboard.available_balance.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -692,14 +692,14 @@ export default function InfluencerDashboard() {
                 {/* Available to withdraw */}
                 <div className="text-center p-4 bg-white rounded-lg border border-green-200">
                   <p className="text-sm text-[#7A7A7A] mb-1">{t('influencer.availableToWithdraw')}</p>
-                  <p className="text-2xl font-bold text-green-600">â‚¬{dashboard.payment_schedule.available_to_withdraw.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-green-600">€{dashboard.payment_schedule.available_to_withdraw.toFixed(2)}</p>
                   <p className="text-xs text-green-700 mt-1">{t('influencer.alreadyPassed15Days')}</p>
                 </div>
                 
                 {/* Available soon */}
                 <div className="text-center p-4 bg-white rounded-lg border border-amber-200">
                   <p className="text-sm text-[#7A7A7A] mb-1">{t('influencer.availableSoon')}</p>
-                  <p className="text-2xl font-bold text-amber-600">â‚¬{dashboard.payment_schedule.available_soon.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-amber-600">€{dashboard.payment_schedule.available_soon.toFixed(2)}</p>
                   <p className="text-xs text-amber-700 mt-1">{t('influencer.inNext7Days')}</p>
                 </div>
                 
@@ -726,7 +726,7 @@ export default function InfluencerDashboard() {
               
               <div className="mt-4 p-3 bg-white rounded-lg border border-stone-200">
                 <p className="text-sm text-[#7A7A7A]">
-                  <strong>â„¹ï¸ {t('influencer.paymentPolicy')}:</strong> {t('influencer.paymentPolicyDesc')}
+                  <strong>Info · {t('influencer.paymentPolicy')}:</strong> {t('influencer.paymentPolicyDesc')}
                 </p>
               </div>
             </CardContent>
@@ -773,9 +773,9 @@ export default function InfluencerDashboard() {
                       return (
                         <tr key={comm.commission_id} className="border-b border-[#F5F1EB]">
                           <td className="py-3 px-4 font-mono text-sm">{comm.order_id}</td>
-                          <td className="py-3 px-4">â‚¬{comm.order_total.toFixed(2)}</td>
+                          <td className="py-3 px-4">€{comm.order_total.toFixed(2)}</td>
                           <td className="py-3 px-4 font-medium text-green-600">
-                            â‚¬{comm.commission_amount.toFixed(2)}
+                            €{comm.commission_amount.toFixed(2)}
                           </td>
                           <td className="py-3 px-4">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${

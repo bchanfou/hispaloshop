@@ -9,7 +9,7 @@ import {
   Flame, TrendingUp, Award,
   Building2,
   Droplets, Cookie, Milk, Apple, Beef, Snowflake, Coffee, CakeSlice,
-  Wine, Salad, Soup, Cherry, Croissant,
+  Wine, Salad, Soup, Cherry, Croissant, Pill,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -181,17 +181,17 @@ export default function HomePage() {
     {
       id: 'about',
       icon: Info,
-      label: 'Que es Hispaloshop?',
+      label: '¿Qué es Hispaloshop?',
       href: '/about',
-      desc: 'Marketplace social de alimentacion real: productores e importadores venden, influencers recomiendan y clientes compran con trazabilidad.',
-      cta: 'Ver como funciona',
+      desc: 'Marketplace social de alimentación real: productores e importadores venden, influencers recomiendan y clientes compran con trazabilidad.',
+      cta: 'Ver cómo funciona',
     },
     {
       id: 'influencer',
       icon: Award,
       label: 'Ser Influencer',
       href: '/influencers/registro',
-      desc: 'Progresa por tiers y monetiza ventas verificables con niveles activos del 3% al 7% segun GMV.',
+      desc: 'Progresa por tiers y monetiza ventas verificables con niveles activos del 3% al 7% según GMV.',
       cta: 'Crear perfil influencer',
     },
     {
@@ -206,8 +206,8 @@ export default function HomePage() {
       id: 'importer',
       icon: Building2,
       label: 'Ser Importador',
-      href: '/importer/register',
-      desc: 'Mismo alcance que Productor: catalogo, ventas y certificados digitales con QR por producto.',
+      href: '/importador',
+      desc: 'Mismo alcance que Productor: catálogo, ventas y certificados digitales con QR por producto.',
       cta: 'Crear perfil importador',
     },
   ];
@@ -229,9 +229,6 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4">
           <div className="mb-3 flex items-center justify-between">
             <h1 className="font-heading text-xl md:text-2xl text-[#1C1C1C] font-semibold">Descubre producto real</h1>
-            <Link to="/discover" className="text-xs text-[#2D5A27] hover:underline flex items-center gap-1">
-              Explorar feed <ChevronRight className="w-3 h-3" />
-            </Link>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
             {[
@@ -248,6 +245,7 @@ export default function HomePage() {
               { icon: Soup, label: t('home.sauces', 'Sauces'), cat: 'salsas-condimentos', bg: 'bg-rose-50', color: 'text-rose-600' },
               { icon: Snowflake, label: t('home.frozen'), cat: 'congelados', bg: 'bg-cyan-50', color: 'text-cyan-700' },
               { icon: Salad, label: t('home.organic', 'Organic'), cat: 'organico', bg: 'bg-green-50', color: 'text-green-600' },
+              { icon: Pill, label: 'Suplementos', cat: 'suplementos', bg: 'bg-indigo-50', color: 'text-indigo-600' },
             ].map((c) => {
               const Icon = c.icon;
               const href = `/products?category=${c.cat}`;
@@ -268,7 +266,6 @@ export default function HomePage() {
 
       <section className="pb-3 pt-1">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="mb-2 text-[11px] uppercase tracking-wider text-[#7A7A7A] font-semibold">Accesos rapidos</div>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
             {infoCards.map((item) => {
               const Icon = item.icon;
@@ -278,22 +275,20 @@ export default function HomePage() {
                   key={item.id}
                   type="button"
                   onClick={() => setActiveInfoCard((prev) => (prev === item.id ? null : item.id))}
-                  className={`shrink-0 inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-[#1C1C1C] text-white border-[#1C1C1C]' : 'bg-white text-[#1C1C1C] border-stone-200 hover:border-[#2D5A27]'}`}
+                  aria-label={item.label}
+                  className={`shrink-0 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition-colors ${isActive ? 'bg-[#1C1C1C] text-white border-[#1C1C1C]' : 'bg-white text-[#1C1C1C] border-stone-200 hover:border-[#2D5A27]'}`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#2D5A27]'}`} />
-                  {item.label}
+                  <span className="hidden sm:inline">{item.label}</span>
                 </button>
               );
             })}
           </div>
 
           {activeInfo && (
-            <div className="mt-3 rounded-2xl border border-stone-200 bg-white p-4 md:p-5 animate-in fade-in-50 duration-200">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="font-semibold text-[#1C1C1C] text-sm md:text-base">{activeInfo.label}</h3>
-                  <p className="text-xs md:text-sm text-text-muted mt-1.5 max-w-2xl">{activeInfo.desc}</p>
-                </div>
+            <div className="mt-3 rounded-2xl border border-stone-200 bg-white p-4 animate-in fade-in-50 duration-200">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-xs md:text-sm text-text-muted max-w-2xl">{activeInfo.desc}</p>
                 <Link
                   to={activeInfo.href}
                   className="shrink-0 inline-flex items-center gap-1 text-xs md:text-sm font-medium text-[#2D5A27] hover:underline"
@@ -322,8 +317,8 @@ export default function HomePage() {
               <Link to="/discover?tab=reels" className="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">
                 Reels
               </Link>
-              <Link to="/discover" className="text-xs text-[#2D5A27] hover:underline flex items-center gap-0.5">
-                Explorar todo <ChevronRight className="w-3 h-3" />
+              <Link to="/discover?tab=feeds" className="text-xs px-2.5 py-1 rounded-full bg-stone-100 text-stone-700 font-medium">
+                Feeds
               </Link>
             </div>
           </div>

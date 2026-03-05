@@ -1883,19 +1883,26 @@ async def send_order_status_email(order: dict, new_status: str, tracking_number:
 
 async def send_new_order_email_to_producer(producer_id: str, order: dict, producer_items: list):
     """Send email notification to producer when they receive a new order"""
+    from services.subscriptions import get_seller_commission_rate
     
     # Get producer info
-    producer = await db.users.find_one({"user_id": producer_id}, {"_id": 0, "email": 1, "name": 1, "company_name": 1, "preferred_language": 1})
+    producer = await db.users.find_one(
+        {"user_id": producer_id},
+        {"_id": 0, "email": 1, "name": 1, "company_name": 1, "preferred_language": 1, "subscription": 1},
+    )
     if not producer or not producer.get("email"):
         logger.warning(f"[EMAIL] Producer {producer_id} not found or no email")
         return
     
     producer_name = producer.get("company_name") or producer.get("name", "Vendedor")
     producer_lang = producer.get("preferred_language", "es")
+    seller_plan = str((producer.get("subscription") or {}).get("plan", "FREE")).upper()
+    commission_rate = get_seller_commission_rate(seller_plan)
+    commission_percent = int(round(commission_rate * 100))
     
     # Calculate total for this producer
     producer_total = sum(item.get("price", 0) * item.get("quantity", 1) for item in producer_items)
-    commission = producer_total * 0.12  # 12% platform commission
+    commission = producer_total * commission_rate
     net_earnings = producer_total - commission
     
     # Build items list HTML
@@ -1945,7 +1952,7 @@ async def send_new_order_email_to_producer(producer_id: str, order: dict, produc
             "price": "Precio",
             "total": "Total",
             "subtotal": "Subtotal",
-            "commission": "Comisión plataforma (12%)",
+            "commission": f"Comisión plataforma ({commission_percent}%)",
             "net_earnings": "Tu ganancia neta",
             "ship_to": "Enviar a",
             "action_needed": "⚡ Acción Requerida",
@@ -1965,7 +1972,7 @@ async def send_new_order_email_to_producer(producer_id: str, order: dict, produc
             "price": "Price",
             "total": "Total",
             "subtotal": "Subtotal",
-            "commission": "Platform commission (12%)",
+            "commission": f"Platform commission ({commission_percent}%)",
             "net_earnings": "Your net earnings",
             "ship_to": "Ship to",
             "action_needed": "⚡ Action Required",

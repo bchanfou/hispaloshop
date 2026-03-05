@@ -13,6 +13,20 @@ const HIDDEN_ON_PATHS = [
   '/signup', '/vender/registro', '/vender/login', '/influencers/registro', '/influencers/login',
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
 ];
+const HIDDEN_ON_PREFIXES = [
+  '/admin',
+  '/super-admin',
+  '/dashboard',
+  '/producer',
+  '/importer',
+  '/seller',
+  '/customer',
+  '/influencer/dashboard',
+  '/influencer/profile',
+  '/influencer/tiers',
+  '/influencer/discount',
+  '/influencer/payouts',
+];
 
 function CreatePostPanel({ user, onClose, initialFile = null }) {
   const { t } = useTranslation();
@@ -34,7 +48,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
     const f = e.target.files?.[0];
     if (!f) return;
     if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) {
-      toast.error('Solo imagenes o videos');
+      toast.error('Solo imágenes o vídeos');
       return;
     }
     setFile(f);
@@ -78,7 +92,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
           <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-full" data-testid="close-post-panel">
             <X className="w-5 h-5 text-stone-500" />
           </button>
-          <h3 className="font-heading text-sm font-semibold text-[#1C1C1C]">{t('social.newPost', 'Nueva publicacion')}</h3>
+            <h3 className="font-heading text-sm font-semibold text-[#1C1C1C]">{t('social.newPost', 'Nueva publicación')}</h3>
           <button
             onClick={submit}
             disabled={posting || (!text.trim() && !file)}
@@ -101,7 +115,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={t('social.whatThinking', 'Que estas pensando?')}
+              placeholder={t('social.whatThinking', '¿Qué estás pensando?')}
               rows={4}
               className="flex-1 resize-none bg-transparent outline-none text-sm text-[#1C1C1C] placeholder:text-[#999] leading-relaxed"
               autoFocus
@@ -145,7 +159,9 @@ export default function BottomNavBar() {
   const [postFile, setPostFile] = useState(null);
   const galleryRef = useRef(null);
 
-  const shouldHide = HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path));
+  const shouldHide =
+    HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path)) ||
+    HIDDEN_ON_PREFIXES.some((prefix) => location.pathname === prefix || location.pathname.startsWith(`${prefix}/`));
 
   useEffect(() => {
     const handleOpenChat = (e) => {
@@ -176,7 +192,7 @@ export default function BottomNavBar() {
     const f = e.target.files?.[0];
     if (!f) return;
     if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) {
-      toast.error('Solo imagenes o videos');
+      toast.error('Solo imágenes o vídeos');
       return;
     }
     setPostFile(f);
@@ -211,7 +227,7 @@ export default function BottomNavBar() {
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
     { id: 'reels', icon: Clapperboard, label: 'Reels', link: '/discover?tab=reels', match: (loc) => loc.pathname === '/discover' && new URLSearchParams(loc.search).get('tab') === 'reels' },
-    { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover', match: (loc) => loc.pathname === '/discover' },
+    { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover?tab=feeds', match: (loc) => loc.pathname === '/discover' && (new URLSearchParams(loc.search).get('tab') !== 'reels') },
     { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
     { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, isProfile: true },
   ];
@@ -232,7 +248,7 @@ export default function BottomNavBar() {
 
       <input ref={galleryRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />
 
-      <nav className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none" data-testid="bottom-nav-bar">
+      <nav className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none md:hidden" data-testid="bottom-nav-bar">
         <div className="max-w-xl mx-auto px-2 sm:px-3 pointer-events-auto">
           <div className="grid grid-cols-[1fr_1fr_1fr_auto_1fr_1fr] items-center h-[68px] px-2 rounded-2xl border border-stone-200/90 bg-white/95 shadow-[0_10px_35px_rgba(0,0,0,0.12)] backdrop-blur-md">
             {navItems.slice(0, 3).map((item) => {
@@ -243,11 +259,12 @@ export default function BottomNavBar() {
                   <Link
                     key={item.id}
                     to={item.link}
-                    className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
+                    aria-label={item.label}
+                    className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
                     data-testid={`bottom-nav-${item.id}`}
                   >
                     <Icon className="w-5 h-5" strokeWidth={1.8} />
-                    <span className="text-[10px] leading-none font-medium">{item.label}</span>
+                    <span className="sr-only">{item.label}</span>
                   </Link>
                 );
               }
@@ -255,24 +272,25 @@ export default function BottomNavBar() {
                 <button
                   key={item.id}
                   onClick={item.action}
-                  className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
+                  aria-label={item.label}
+                  className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
                   <Icon className="w-5 h-5" strokeWidth={1.8} />
-                  <span className="text-[10px] leading-none font-medium">{item.label}</span>
+                  <span className="sr-only">{item.label}</span>
                 </button>
               );
             })}
 
             <button
               onClick={handlePostButton}
-              className="flex flex-col items-center justify-center -mt-2 mx-1.5"
+              aria-label={t('bottomNav.create', 'Crear')}
+              className="flex items-center justify-center -mt-2 mx-1.5"
               data-testid="bottom-nav-post"
             >
               <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 ring-1 ring-white ${activePanel === 'post' ? 'bg-stone-700 shadow-stone-500/20' : 'bg-[#1C1C1C] shadow-stone-900/15 hover:bg-[#2A2A2A]'}`}>
                 {activePanel === 'post' ? <X className="w-4.5 h-4.5 text-white" strokeWidth={2.2} /> : <Plus className="w-4.5 h-4.5 text-white" strokeWidth={2.2} />}
               </div>
-              <span className="text-[10px] leading-none mt-1 text-stone-500 font-medium">{t('bottomNav.create', 'Crear')}</span>
             </button>
 
             {navItems.slice(3).map((item) => {
@@ -285,7 +303,8 @@ export default function BottomNavBar() {
                   <Link
                     key={item.id}
                     to={item.link}
-                    className="flex flex-col items-center justify-center gap-0.5 py-1"
+                    aria-label={item.label}
+                    className="flex items-center justify-center py-1"
                     data-testid={`bottom-nav-${item.id}`}
                   >
                     {profileImage ? (
@@ -297,7 +316,7 @@ export default function BottomNavBar() {
                         <Icon className="w-4 h-4" strokeWidth={1.5} />
                       </div>
                     )}
-                    <span className="text-[10px] text-stone-500 leading-none font-medium">{item.label}</span>
+                    <span className="sr-only">{item.label}</span>
                   </Link>
                 );
               }
@@ -306,11 +325,12 @@ export default function BottomNavBar() {
                 <button
                   key={item.id}
                   onClick={item.action}
-                  className={`flex flex-col items-center justify-center gap-0.5 py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
+                  aria-label={item.label}
+                  className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
                   {isActive ? <X className="w-5 h-5" strokeWidth={1.8} /> : <Icon className="w-5 h-5" strokeWidth={1.8} />}
-                  <span className="text-[10px] leading-none">{item.label}</span>
+                  <span className="sr-only">{item.label}</span>
                 </button>
               );
             })}
@@ -318,7 +338,7 @@ export default function BottomNavBar() {
         </div>
       </nav>
 
-      <div className="h-[78px]" />
+      <div className="h-[78px] md:hidden" />
     </>
   );
 }

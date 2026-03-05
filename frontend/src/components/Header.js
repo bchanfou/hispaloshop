@@ -108,7 +108,7 @@ export default function Header() {
 
           <div className="ml-auto flex items-center gap-1 md:gap-2" ref={menuRef}>
             <div className="hidden md:block">
-              <LocaleSelector />
+              <LocaleSelector compact />
             </div>
 
             <button
@@ -205,3 +205,4 @@ export default function Header() {
     </header>
   );
 }
+

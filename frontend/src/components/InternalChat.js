@@ -970,7 +970,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
             <p className="text-xs text-white/70">
               {activeConversation && activeTab === 'messages' 
                 ? (['producer', 'importer'].includes(activeConversation.other_user_type) ? (activeConversation.other_user_type === 'importer' ? 'Importador' : 'Productor') : 'Influencer')
-                : 'Influencers y Sellers'}
+                : 'Influencers y Productores/Importadores'}
             </p>
           </div>
         </div>
@@ -1204,14 +1204,14 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                     onClick={() => setDirectoryType('producers')}
                     className={`px-3 py-1 text-xs rounded-full ${directoryType === 'producers' ? 'bg-white text-[#1C1C1C] shadow-sm' : 'text-[#7A7A7A]'}`}
                   >
-                    Sellers
+                    Productores/Import.
                   </button>
                 </div>
               )}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A7A]" />
                 <Input
-                  placeholder={activeTab === 'messages' ? 'Buscar chats...' : directoryType === 'influencers' ? 'Buscar influencers...' : 'Buscar sellers...'}
+                  placeholder={activeTab === 'messages' ? 'Buscar chats...' : directoryType === 'influencers' ? 'Buscar influencers...' : 'Buscar productores o importadores...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-stone-50 border-stone-200"
@@ -1253,7 +1253,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
                     <Store className="w-12 h-12 text-[#DED7CE] mb-4" />
-                    <p className="text-[#7A7A7A] text-sm">No hay sellers disponibles</p>
+                    <p className="text-[#7A7A7A] text-sm">No hay productores o importadores disponibles</p>
                   </div>
                 )
               ) : (

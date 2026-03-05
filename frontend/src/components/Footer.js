@@ -100,7 +100,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/importer/register" className="text-sm text-stone-400 hover:text-white transition-colors">
+                <Link to="/importador" className="text-sm text-stone-400 hover:text-white transition-colors">
                   Ser Importador
                 </Link>
               </li>
@@ -198,3 +198,4 @@ export default function Footer() {
     </footer>
   );
 }
+

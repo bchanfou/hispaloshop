@@ -10,6 +10,34 @@ import { Store, Search, MapPin, Star, Map, Grid3X3, ChevronDown, X } from 'lucid
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
 
+const FALLBACK_REGIONS = {
+  ES: {
+    name: 'Espana',
+    regions: [
+      { code: 'CT', name: 'Cataluna' },
+      { code: 'MD', name: 'Madrid' },
+      { code: 'AN', name: 'Andalucia' },
+      { code: 'VC', name: 'Comunidad Valenciana' },
+      { code: 'GA', name: 'Galicia' },
+    ],
+  },
+  US: {
+    name: 'United States',
+    regions: [
+      { code: 'CA', name: 'California' },
+      { code: 'NY', name: 'New York' },
+      { code: 'TX', name: 'Texas' },
+    ],
+  },
+  KR: {
+    name: 'South Korea',
+    regions: [
+      { code: 'SEOUL', name: 'Seoul' },
+      { code: 'BUSAN', name: 'Busan' },
+    ],
+  },
+};
+
 // Google Maps embed component (no API key needed)
 function GoogleMapEmbed({ stores, selectedStore, countryName, regionName }) {
   let query;
@@ -57,7 +85,7 @@ function StoreCard({ store, isHighlighted }) {
   const getStoreType = () => {
     if (store.store_type === 'producer') return { label: t('stores.producer', 'Productor') };
     if (store.store_type === 'importer') return { label: t('stores.importer', 'Importador') };
-    return { label: t('stores.seller', 'Vendedor') };
+    return { label: t('stores.seller', 'Productor') };
   };
   
   const storeType = getStoreType();
@@ -155,9 +183,11 @@ export default function StoresListPage() {
   const fetchRegions = async () => {
     try {
       const response = await axios.get(`${API}/config/regions`);
-      setRegions(response.data || {});
+      const data = response.data || {};
+      setRegions(Object.keys(data).length ? data : FALLBACK_REGIONS);
     } catch (error) {
       console.error('Error fetching regions:', error);
+      setRegions(FALLBACK_REGIONS);
     }
   };
 

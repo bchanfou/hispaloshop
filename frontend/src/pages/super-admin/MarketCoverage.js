@@ -57,7 +57,7 @@ export default function MarketCoverage() {
           <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary" data-testid="coverage-title">
             Cobertura por Mercado
           </h1>
-          <p className="text-sm text-text-muted mt-0.5">Control multi-market: productos, sellers y SLA por pais</p>
+          <p className="text-sm text-text-muted mt-0.5">Control multi-market: productos, productores/importadores y SLA por pais</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchData(); }}>
           <RefreshCw className="w-4 h-4" />
@@ -79,7 +79,7 @@ export default function MarketCoverage() {
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <Users className="w-5 h-5 text-purple-500 mb-2" />
           <p className="text-2xl font-bold text-text-primary">{totalSellers}</p>
-          <p className="text-xs text-text-muted">Sellers activos</p>
+          <p className="text-xs text-text-muted">Productores activos</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <Clock className="w-5 h-5 text-amber-500 mb-2" />
@@ -128,7 +128,7 @@ export default function MarketCoverage() {
               <tr className="text-text-muted text-xs">
                 <th className="text-left px-4 py-2.5 font-medium">Pais</th>
                 <th className="text-right px-3 py-2.5 font-medium">Productos</th>
-                <th className="text-right px-3 py-2.5 font-medium">Sellers</th>
+                <th className="text-right px-3 py-2.5 font-medium">Productores</th>
                 <th className="text-right px-3 py-2.5 font-medium">Stock</th>
                 <th className="text-right px-3 py-2.5 font-medium">SLA</th>
                 <th className="text-right px-3 py-2.5 font-medium">Sin stock</th>

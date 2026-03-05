@@ -135,12 +135,12 @@ export default function UserProfilePage() {
   // Auto-set default tab based on role
   useEffect(() => {
     if (profile && activeTab === null) {
-      setActiveTab(profile.role === 'producer' ? 'products' : 'posts');
+      setActiveTab(profile.role === 'producer' || profile.role === 'importer' ? 'products' : 'posts');
     }
   }, [profile, activeTab]);
 
   useEffect(() => {
-    if (activeTab === 'products' && profile?.role === 'producer') {
+    if (activeTab === 'products' && (profile?.role === 'producer' || profile?.role === 'importer')) {
       axios.get(`${API}/products?seller_id=${userId}`, { withCredentials: true })
         .then(res => { setSellerProducts(res.data?.products || res.data || []); })
         .catch(() => {});
@@ -309,9 +309,15 @@ export default function UserProfilePage() {
                 {profile?.role && profile.role !== 'customer' && (
                   <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                     profile.role === 'influencer' ? 'bg-purple-100 text-purple-700' :
-                    profile.role === 'producer' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'
+                    profile.role === 'producer' || profile.role === 'importer' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'
                   }`}>
-                    {profile.role === 'influencer' ? t('social.roleInfluencer') : profile.role === 'producer' ? t('social.roleSeller') : profile.role}
+                    {profile.role === 'influencer'
+                      ? t('social.roleInfluencer')
+                      : profile.role === 'producer'
+                        ? t('social.roleSeller')
+                        : profile.role === 'importer'
+                          ? 'Importador'
+                          : profile.role}
                   </span>
                 )}
                 
@@ -540,7 +546,7 @@ export default function UserProfilePage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-center">
             {/* Products tab for sellers */}
-            {profile?.role === 'producer' && (
+            {(profile?.role === 'producer' || profile?.role === 'importer') && (
               <button
                 onClick={() => setActiveTab('products')}
                 className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
@@ -603,7 +609,7 @@ export default function UserProfilePage() {
               <div className="text-center py-16">
                 <Package className="w-16 h-16 text-stone-300 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">{t('social.noProducts')}</h3>
-                <p className="text-[#7A7A7A]">Este productor aun no tiene productos publicados</p>
+                <p className="text-[#7A7A7A]">Este perfil aun no tiene productos publicados</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">

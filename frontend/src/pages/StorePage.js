@@ -330,7 +330,7 @@ export default function StorePage() {
                 {/* Desktop: Type Badge + Follow */}
                 <div className="hidden md:flex items-center gap-3 mt-4">
                   <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium capitalize">
-                    {store.store_type === 'producer' ? t('store.seller', 'Vendedor') : store.store_type}
+                    {store.store_type === 'producer' ? t('store.seller', 'Productor') : store.store_type === 'importer' ? 'Importador' : store.store_type}
                   </span>
                   <Button
                     onClick={handleFollowToggle}

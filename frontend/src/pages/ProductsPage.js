@@ -14,6 +14,17 @@ import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
 
+const FALLBACK_CATEGORIES = [
+  { category_id: 'cat-aceites', slug: 'aceite-condimentos', display_name: 'Aceites', name: 'Aceites', children: [] },
+  { category_id: 'cat-carnes', slug: 'carnes-huevos', display_name: 'Carnes', name: 'Carnes', children: [] },
+  { category_id: 'cat-lacteos', slug: 'lacteos', display_name: 'Lacteos', name: 'Lacteos', children: [] },
+  { category_id: 'cat-conservas', slug: 'conservas', display_name: 'Conservas', name: 'Conservas', children: [] },
+  { category_id: 'cat-snacks', slug: 'frutos-secos-snacks', display_name: 'Snacks', name: 'Snacks', children: [] },
+  { category_id: 'cat-bebidas', slug: 'bebidas', display_name: 'Bebidas', name: 'Bebidas', children: [] },
+  { category_id: 'cat-organico', slug: 'organico', display_name: 'Organico', name: 'Organico', children: [] },
+  { category_id: 'cat-suplementos', slug: 'suplementos', display_name: 'Suplementos', name: 'Suplementos', children: [] },
+];
+
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { country, language, currency } = useLocale();
@@ -54,9 +65,11 @@ export default function ProductsPage() {
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${API}/categories/tree?lang=${currentLang}`);
-      setCategories(response.data);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setCategories(data.length > 0 ? data : FALLBACK_CATEGORIES);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setCategories(FALLBACK_CATEGORIES);
     }
   };
 

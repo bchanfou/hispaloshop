@@ -68,9 +68,10 @@ export default function DiscoverPage() {
   const [profiles, setProfiles] = useState([]);
 
   useEffect(() => {
-    if (profileSearchMode) return;
+    // Keep search params intact while using profile/text search.
+    if (profileSearchMode || textSearchMode) return;
     setSearchParams(tab === 'reels' ? { tab: 'reels' } : {});
-  }, [tab, setSearchParams, profileSearchMode]);
+  }, [tab, setSearchParams, profileSearchMode, textSearchMode]);
 
   useEffect(() => {
     const load = async () => {

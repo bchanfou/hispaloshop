@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useChatContext } from '@/context/chat/ChatProvider';
-
-const API = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001/api/v1';
+import { API } from '@/utils/api';
 
 export function useChatRealtime() {
   const { ws, reload, connected } = useChatContext();

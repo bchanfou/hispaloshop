@@ -24,6 +24,18 @@ export const getApiUrl = () => {
   return backendUrl ? `${backendUrl}${apiPrefix}` : apiPrefix;
 };
 
+export const resolveApiAssetUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  if (/^https?:\/\//i.test(url)) return url;
+
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
+  }
+
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+  return backendUrl ? `${backendUrl}${url.startsWith('/') ? '' : '/'}${url}` : url;
+};
+
 // Export the API URL constant for convenience
 export const API = getApiUrl();
 

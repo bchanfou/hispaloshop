@@ -608,14 +608,8 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     setRecommendedProducts([]);
     setHasShownGreeting(false);
     
-    // Clear backend session if exists
-    if (sessionId) {
-      try {
-        await axios.delete(`${API}/chat/session/${sessionId}`, { withCredentials: true });
-      } catch (error) {
-        console.error('Error clearing session:', error);
-      }
-    }
+    // No server endpoint exists to delete chat sessions in legacy API.
+    // We reset locally and keep subsequent requests in a fresh session context.
     
     // Show fresh greeting
     const greetings = {

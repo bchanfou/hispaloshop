@@ -1,19 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import { getApiUrl } from '../utils/api';
 
 const CartContext = createContext();
-
-// Smart API URL: Use relative URL for production, env var for development
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host.includes('hispaloshop.com') || host.includes('preview.emergentagent.com')) {
-      return '/api';
-    }
-  }
-  return '/api';
-};
 
 const API = getApiUrl();
 

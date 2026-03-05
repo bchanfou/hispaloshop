@@ -359,7 +359,7 @@ function CreatePostInline({ user, onPostCreated }) {
         </Link>
         <div className="flex-1 min-w-0">
           <textarea value={text} onChange={(e) => setText(e.target.value)} onFocus={() => setFocused(true)}
-            placeholder="¿Que estas pensando?" rows={focused ? 3 : 1}
+            placeholder="¿Qué estás pensando?" rows={focused ? 3 : 1}
             className="w-full resize-none bg-transparent outline-none text-sm text-[#1C1C1C] placeholder:text-[#999] leading-relaxed"
             data-testid="create-post-text" />
           {preview && (
@@ -631,7 +631,13 @@ function PostCard({ post, currentUser, onDelete }) {
     finally { setLoadingComment(false); }
   };
 
-  const roleBadge = { influencer: { l: t('social.roleInfluencer'), c: 'bg-purple-100 text-purple-600' }, producer: { l: t('social.roleSeller'), c: 'bg-emerald-100 text-emerald-600' }, super_admin: { l: t('social.roleAdmin'), c: 'bg-amber-100 text-amber-600' }, admin: { l: t('social.roleAdmin'), c: 'bg-amber-100 text-amber-600' } }[post.user_role];
+  const roleBadge = {
+    influencer: { l: t('social.roleInfluencer'), c: 'bg-purple-100 text-purple-600' },
+    producer: { l: t('social.roleSeller'), c: 'bg-emerald-100 text-emerald-600' },
+    importer: { l: 'Importador', c: 'bg-emerald-100 text-emerald-600' },
+    super_admin: { l: t('social.roleAdmin'), c: 'bg-amber-100 text-amber-600' },
+    admin: { l: t('social.roleAdmin'), c: 'bg-amber-100 text-amber-600' }
+  }[post.user_role];
   const isTextOnly = !post.image_url;
 
   return (

@@ -46,7 +46,7 @@ export default function AdminLayoutResponsive() {
   // All navigation items
   const allNavItems = [
     { to: '/admin', icon: LayoutDashboard, label: t('admin.overview', 'Overview'), shortLabel: 'Inicio', end: true },
-    { to: '/admin/producers', icon: Users, label: t('admin.producers', 'Sellers'), shortLabel: 'Vendedores', badge: badges.producers },
+    { to: '/admin/producers', icon: Users, label: t('admin.producers', 'Producers'), shortLabel: 'Productores', badge: badges.producers },
     { to: '/admin/products', icon: Package, label: t('admin.products', 'Products'), shortLabel: 'Productos', badge: badges.products },
     { to: '/admin/orders', icon: ShoppingBag, label: t('admin.ordersPayments', 'Orders'), shortLabel: 'Pedidos' },
     { to: '/admin/certificates', icon: FileCheck, label: t('admin.certificates', 'Certificates'), shortLabel: 'Cert.', badge: badges.certificates },

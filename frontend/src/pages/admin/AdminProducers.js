@@ -124,7 +124,7 @@ export default function AdminProducers() {
                 {t(`adminProducers.status.${status}`)}
               </span>
               <span className="inline-block ml-2 px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
-                {roleLabels[selectedProducer.role] || selectedProducer.role || 'Seller'}
+                {roleLabels[selectedProducer.role] || selectedProducer.role || 'Productor'}
               </span>
             </div>
             <div className="flex gap-2">
@@ -241,7 +241,7 @@ export default function AdminProducers() {
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
-        {t('adminProducers.title', 'Vendedores')}
+        {t('adminProducers.title', 'Productores e Importadores')}
       </h1>
       <p className="text-text-muted mb-6">{t('adminProducers.subtitle', 'Gestion de productores e importadores por estado y pais')}</p>
 
@@ -313,7 +313,7 @@ export default function AdminProducers() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
-                        {roleLabels[producer.role] || producer.role || 'Seller'}
+                        {roleLabels[producer.role] || producer.role || 'Productor'}
                       </span>
                     </td>
                     <td className="px-6 py-4">

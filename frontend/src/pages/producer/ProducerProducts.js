@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { Plus, Edit, ArrowLeft, Eye, CheckCircle, Clock, XCircle, Upload, X, Image as ImageIcon, Loader2, Package, AlertTriangle, Layers, Globe, Trash2, List, Apple, Award, ChevronDown } from 'lucide-react';
 import VariantPackManager from './VariantPackManager';
-import { API } from '../../utils/api';
+import { API, resolveApiAssetUrl } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
 
 
@@ -70,7 +70,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
           });
 
           // Add the URL to images array
-          const imageUrl = response.data.url.startsWith('http') ? response.data.url : `${process.env.REACT_APP_BACKEND_URL}${response.data.url}`;
+          const imageUrl = resolveApiAssetUrl(response.data.url);
           setImages(prev => {
             const normalizedPrev = Array.isArray(prev) ? prev.filter(img => img && typeof img === 'string' && img.trim()) : [];
             return [...normalizedPrev, imageUrl];

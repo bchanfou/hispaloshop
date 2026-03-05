@@ -1,19 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '../utils/api';
 
 const AuthContext = createContext();
-
-// API URL with /api prefix - used for all API calls
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    // Production or preview - use relative URL
-    if (host.includes('hispaloshop.com') || host.includes('preview.emergentagent.com')) {
-      return '/api';
-    }
-  }
-  return '/api';
-};
 
 const API = getApiUrl();
 

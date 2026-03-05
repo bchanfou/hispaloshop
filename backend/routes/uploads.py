@@ -19,6 +19,33 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+@router.post("/upload")
+async def upload_generic_file(file: UploadFile = File(...), user: User = Depends(get_current_user)):
+    """
+    Generic upload endpoint used by certificate and admin flows.
+    Supports PDF/image files and returns a public URL.
+    """
+    await require_role(user, ["producer", "importer", "admin", "super_admin"])
+
+    allowed_types = [
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+    ]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Allowed: PDF, JPEG, PNG, WebP")
+
+    content = await file.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Maximum 10MB")
+
+    folder = "documents" if file.content_type == "application/pdf" else "misc"
+    result = await cloudinary_upload(content, folder=folder, filename=f"{user.user_id}_{uuid.uuid4().hex[:8]}")
+    logger.info(f"[CLOUDINARY] Generic file uploaded by {user.user_id}: {result['url']}")
+    return {"url": result["url"], "filename": result.get("public_id", "")}
+
+
 @router.post("/upload/product-image")
 async def upload_product_image(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     """Upload a product image to Cloudinary. Returns public CDN URL."""

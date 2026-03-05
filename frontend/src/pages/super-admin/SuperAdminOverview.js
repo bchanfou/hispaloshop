@@ -103,7 +103,7 @@ export default function SuperAdminOverview() {
             <UserCheck className="w-5 h-5 text-white" />
           </div>
           <p className="text-sm font-semibold">{pending.sellers > 0 ? `${pending.sellers} pendientes` : 'Todo OK'}</p>
-          <p className="text-[10px] text-text-muted">Vendedores</p>
+          <p className="text-[10px] text-text-muted">Productores/Importadores</p>
         </Link>
         <Link to="/super-admin/content" className={`rounded-2xl p-5 text-center transition-all hover:scale-[1.02] ${pending.flagged_posts > 0 ? 'bg-red-50 border-2 border-red-300' : pending.products > 0 ? 'bg-amber-50 border-2 border-amber-300' : 'bg-stone-50 border border-stone-200'}`}>
           <div className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${pending.flagged_posts > 0 ? 'bg-red-500' : pending.products > 0 ? 'bg-amber-500' : 'bg-stone-300'}`}>

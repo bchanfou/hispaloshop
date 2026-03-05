@@ -58,8 +58,16 @@ function StripeConnectSection() {
   const fetchStripeStatus = async () => {
     try {
       setError(null);
-      const response = await axios.get(`${API}/connect/status`, { withCredentials: true });
-      setStripeStatus(response.data);
+      const response = await axios.get(`${API}/producer/stripe/status`, { withCredentials: true });
+      setStripeStatus({
+        has_account: Boolean(response.data?.stripe_account_id),
+        account_id: response.data?.stripe_account_id || null,
+        status: response.data?.status || 'not_connected',
+        charges_enabled: Boolean(response.data?.charges_enabled),
+        payouts_enabled: Boolean(response.data?.payouts_enabled),
+        onboarding_completed: Boolean(response.data?.connected),
+        requirements_due: [],
+      });
     } catch (error) {
       console.error('Error fetching Stripe status:', error);
       setError('Unable to check Stripe status');
@@ -78,14 +86,8 @@ function StripeConnectSection() {
   const handleConnectStripe = async () => {
     setConnecting(true);
     try {
-      let onboardingUrl = null;
-      if (!stripeStatus?.has_account) {
-        const response = await axios.post(`${API}/connect/account`, {}, { withCredentials: true });
-        onboardingUrl = response.data?.onboarding_url || null;
-      } else if (!stripeStatus?.onboarding_completed) {
-        const response = await axios.post(`${API}/connect/refresh-link`, {}, { withCredentials: true });
-        onboardingUrl = response.data?.onboarding_url || null;
-      }
+      const response = await axios.post(`${API}/producer/stripe/create-account`, {}, { withCredentials: true });
+      const onboardingUrl = response.data?.url || null;
       if (onboardingUrl) {
         window.location.href = onboardingUrl;
       } else {
@@ -101,7 +103,7 @@ function StripeConnectSection() {
 
   const handleViewStripeDashboard = async () => {
     try {
-      const response = await axios.post(`${API}/connect/login-link`, {}, { withCredentials: true });
+      const response = await axios.post(`${API}/producer/stripe/create-login-link`, {}, { withCredentials: true });
       
       if (response.data.url) {
         window.open(response.data.url, '_blank');

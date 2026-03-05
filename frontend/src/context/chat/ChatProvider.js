@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
+import { API } from '@/utils/api';
 
-const API = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001/api/v1';
 const ChatContext = createContext(null);
 
 export function ChatProvider({ children }) {
@@ -22,9 +22,11 @@ export function ChatProvider({ children }) {
   }, []);
 
   const connect = useCallback(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('session_token') || localStorage.getItem('token') || localStorage.getItem('accessToken');
     if (!token) return;
-    const wsBase = API.replace(/^http/, 'ws').replace('/api/v1', '');
+    const wsBase = API.startsWith('http')
+      ? API.replace(/^http/, 'ws').replace('/api', '')
+      : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
     const ws = new WebSocket(`${wsBase}/api/v1/chat/ws/chat?token=${token}`);
     wsRef.current = ws;
 

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+import logging
 
 from routers.auth import router as auth_router
 from routers.categories import router as categories_router
@@ -46,6 +47,24 @@ from routes.uploads import router as legacy_uploads_router
 from routes.certificates import router as legacy_certificates_router
 from routes.cron import router as legacy_cron_router
 from routes.recipes_reviews import router as legacy_recipes_reviews_router
+from routes.admin import router as legacy_admin_router
+from routes.admin_dashboard import router as legacy_admin_dashboard_router
+from routes.badges import router as legacy_badges_router
+from routes.conversations import router as legacy_conversations_router
+from routes.directory import router as legacy_directory_router
+from routes.insights import router as legacy_insights_router
+from routes.internal_chat import router as legacy_internal_chat_router
+from routes.predictions import router as legacy_predictions_router
+from routes.producer import router as legacy_producer_router
+from routes.push_notifications import router as legacy_push_notifications_router
+
+logger = logging.getLogger(__name__)
+
+try:
+    from routes.ai_chat import router as legacy_ai_chat_router
+except Exception as exc:
+    logger.warning("Legacy AI router disabled: %s", exc)
+    legacy_ai_chat_router = None
 
 
 app = FastAPI(
@@ -114,6 +133,18 @@ app.include_router(legacy_uploads_router, prefix="/api", tags=["legacy-uploads"]
 app.include_router(legacy_certificates_router, prefix="/api", tags=["legacy-certificates"])
 app.include_router(legacy_cron_router, prefix="/api", tags=["legacy-cron"])
 app.include_router(legacy_recipes_reviews_router, prefix="/api", tags=["legacy-recipes-reviews"])
+app.include_router(legacy_admin_router, prefix="/api", tags=["legacy-admin"])
+app.include_router(legacy_admin_dashboard_router, prefix="/api", tags=["legacy-admin-dashboard"])
+if legacy_ai_chat_router is not None:
+    app.include_router(legacy_ai_chat_router, prefix="/api", tags=["legacy-ai-chat"])
+app.include_router(legacy_badges_router, prefix="/api", tags=["legacy-badges"])
+app.include_router(legacy_conversations_router, prefix="/api", tags=["legacy-conversations"])
+app.include_router(legacy_directory_router, prefix="/api", tags=["legacy-directory"])
+app.include_router(legacy_insights_router, prefix="/api", tags=["legacy-insights"])
+app.include_router(legacy_internal_chat_router, prefix="/api", tags=["legacy-internal-chat"])
+app.include_router(legacy_predictions_router, prefix="/api", tags=["legacy-predictions"])
+app.include_router(legacy_producer_router, prefix="/api", tags=["legacy-producer"])
+app.include_router(legacy_push_notifications_router, prefix="/api", tags=["legacy-push"])
 app.include_router(connect_router, prefix="/api", tags=["connect"])
 # Legacy compatibility for frontend routes that still hit /api/reels.
 app.include_router(reels_router, prefix="/api", tags=["legacy-reels"])

@@ -1,0 +1,42 @@
+import React from 'react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import BackButton from '../components/BackButton';
+import SEO from '../components/SEO';
+
+export default function PrivacyPage() {
+  return (
+    <div className="min-h-screen bg-[#FAF7F2]">
+      <SEO
+        title="Politica de Privacidad - Hispaloshop"
+        description="Como recopilamos, usamos y protegemos tus datos en Hispaloshop."
+        url="https://www.hispaloshop.com/privacy"
+      />
+      <Header />
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <BackButton />
+        <section className="bg-white border border-stone-200 rounded-2xl p-6 md:p-8 mt-3">
+          <h1 className="font-heading text-2xl md:text-3xl font-semibold text-[#1C1C1C] mb-4">
+            Politica de Privacidad
+          </h1>
+          <div className="space-y-4 text-sm text-[#4A4A4A] leading-relaxed">
+            <p>
+              Tratamos datos de cuenta, actividad y transacciones para operar el marketplace, procesar pedidos
+              y mejorar la experiencia.
+            </p>
+            <p>
+              Puedes solicitar acceso, correccion o eliminacion de datos segun la normativa de proteccion de
+              datos aplicable.
+            </p>
+            <p>
+              Aplicamos medidas tecnicas y organizativas para proteger tu informacion y limitar accesos no
+              autorizados.
+            </p>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+

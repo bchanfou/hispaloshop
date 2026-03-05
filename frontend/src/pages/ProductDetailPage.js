@@ -140,8 +140,10 @@ export default function ProductDetailPage() {
 
   const fetchStoreInfo = async (storeId) => {
     try {
-      const response = await axios.get(`${API}/store/id/${storeId}`);
-      setStoreInfo(response.data);
+      const response = await axios.get(`${API}/stores?seller_id=${storeId}`);
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        setStoreInfo(response.data[0]);
+      }
     } catch (error) {
       console.log('Store not found by ID');
     }
@@ -915,7 +917,7 @@ export default function ProductDetailPage() {
                       </div>
                       <div>
                         <h4 className="font-semibold text-stone-900">{product.producer_name || 'Hispaloshop'}</h4>
-                        <p className="text-xs text-stone-500">{t('productDetail.verifiedSeller', 'Vendedor verificado')}</p>
+                        <p className="text-xs text-stone-500">{t('productDetail.verifiedSeller', 'Productor verificado')}</p>
                       </div>
                     </div>
                   </div>

@@ -12,8 +12,16 @@ export default function ProducerConnectPage() {
 
   const loadStatus = async () => {
     try {
-      const res = await axios.get(`${API}/connect/status`, { withCredentials: true });
-      setStatus(res.data);
+      const res = await axios.get(`${API}/producer/stripe/status`, { withCredentials: true });
+      setStatus({
+        has_account: Boolean(res.data?.stripe_account_id),
+        account_id: res.data?.stripe_account_id || null,
+        status: res.data?.status || 'not_connected',
+        payouts_enabled: Boolean(res.data?.payouts_enabled),
+        charges_enabled: Boolean(res.data?.charges_enabled),
+        onboarding_completed: Boolean(res.data?.connected),
+        requirements_due: [],
+      });
     } catch (error) {
       toast.error('No se pudo obtener el estado de Stripe Connect');
     } finally {
@@ -29,13 +37,8 @@ export default function ProducerConnectPage() {
     setSubmitting(true);
     try {
       let onboardingUrl = null;
-      if (!status?.has_account) {
-        const res = await axios.post(`${API}/connect/account`, {}, { withCredentials: true });
-        onboardingUrl = res.data?.onboarding_url || null;
-      } else {
-        const res = await axios.post(`${API}/connect/refresh-link`, {}, { withCredentials: true });
-        onboardingUrl = res.data?.onboarding_url || null;
-      }
+      const res = await axios.post(`${API}/producer/stripe/create-account`, {}, { withCredentials: true });
+      onboardingUrl = res.data?.url || null;
       if (onboardingUrl) {
         window.location.href = onboardingUrl;
       } else {
@@ -98,4 +101,3 @@ export default function ProducerConnectPage() {
     </div>
   );
 }
-

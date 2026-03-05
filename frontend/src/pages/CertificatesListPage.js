@@ -8,8 +8,7 @@ import axios from 'axios';
 import { Shield, Search, X, FileCheck, ChevronRight } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { useLocale } from '../context/LocaleContext';
-
-const API = process.env.REACT_APP_BACKEND_URL;
+import { API } from '../utils/api';
 
 export default function CertificatesListPage() {
   const { t } = useLocale();
@@ -19,7 +18,7 @@ export default function CertificatesListPage() {
   const [selectedCert, setSelectedCert] = useState('');
 
   useEffect(() => {
-    axios.get(`${API}/api/certificates/products`).then(r => {
+    axios.get(`${API}/certificates/products`).then(r => {
       setProducts(r.data?.products || []);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);

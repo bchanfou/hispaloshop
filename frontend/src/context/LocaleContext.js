@@ -4,19 +4,29 @@ import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
 import { translations, defaultLanguage, supportedLanguages } from '../locales';
 import { convertPrice, formatCurrency, getExchangeRate } from '../utils/currency';
+import { getApiUrl } from '../utils/api';
 import i18n from '../locales/i18n';
 
 const LocaleContext = createContext();
 
-// Smart API URL: Use relative URL for production, env var for development
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host.includes('hispaloshop.com') || host.includes('preview.emergentagent.com')) {
-      return '/api';
-    }
-  }
-  return '/api';
+const FALLBACK_COUNTRIES = {
+  ES: { name: 'España', flag: '🇪🇸', currency: 'EUR' },
+  US: { name: 'United States', flag: '🇺🇸', currency: 'USD' },
+  KR: { name: 'South Korea', flag: '🇰🇷', currency: 'KRW' },
+  GB: { name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP' },
+};
+
+const FALLBACK_LANGUAGES = {
+  es: { name: 'Spanish', native: 'Español' },
+  en: { name: 'English', native: 'English' },
+  ko: { name: 'Korean', native: '한국어' },
+};
+
+const FALLBACK_CURRENCIES = {
+  EUR: { symbol: '€', name: 'Euro' },
+  USD: { symbol: '$', name: 'US Dollar' },
+  KRW: { symbol: '₩', name: 'Korean Won' },
+  GBP: { symbol: '£', name: 'British Pound' },
 };
 
 export function LocaleProvider({ children }) {
@@ -116,6 +126,16 @@ export function LocaleProvider({ children }) {
     } catch (error) {
       console.error('[LocaleContext] ERROR fetching locale config:', error);
       console.error('[LocaleContext] Error details:', error.response?.data || error.message);
+
+      // Fallback locale config so selectors always work even if backend config endpoint fails.
+      setCountries(FALLBACK_COUNTRIES);
+      setLanguages(FALLBACK_LANGUAGES);
+      setCurrencies(FALLBACK_CURRENCIES);
+
+      const savedCountry = localStorage.getItem('hispaloshop_country');
+      const savedCurrency = localStorage.getItem('hispaloshop_currency');
+      if (!savedCountry) setCountry('ES');
+      if (!savedCurrency) setCurrency('EUR');
     } finally {
       setLoading(false);
     }
