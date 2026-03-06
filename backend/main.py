@@ -57,6 +57,7 @@ from routes.internal_chat import router as legacy_internal_chat_router
 from routes.predictions import router as legacy_predictions_router
 from routes.producer import router as legacy_producer_router
 from routes.push_notifications import router as legacy_push_notifications_router
+from routes.producer_registration import router as producer_registration_router
 
 logger = logging.getLogger(__name__)
 
@@ -146,6 +147,7 @@ app.include_router(legacy_predictions_router, prefix="/api", tags=["legacy-predi
 app.include_router(legacy_producer_router, prefix="/api", tags=["legacy-producer"])
 app.include_router(legacy_push_notifications_router, prefix="/api", tags=["legacy-push"])
 app.include_router(connect_router, prefix="/api", tags=["connect"])
+app.include_router(producer_registration_router, prefix="/api", tags=["producer-registration"])
 
 
 @app.get("/health")

@@ -28,6 +28,7 @@ import { usePushNotifications } from './hooks/usePushNotifications';
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const SellerLandingPage = lazy(() => import('./pages/SellerLandingPage'));
+const ProductorLandingPage = lazy(() => import('./pages/ProductorLandingPage'));
 const InfluencerLandingPage = lazy(() => import('./pages/InfluencerLandingPage'));
 const RecipesPage = lazy(() => import('./pages/RecipesPage'));
 const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
@@ -177,8 +178,9 @@ function AppRouter() {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/vender" element={<SellerLandingPage />} />
-              <Route path="/productor" element={<SellerLandingPage />} />
-              <Route path="/info/productor" element={<SellerLandingPage />} />
+              <Route path="/productor" element={<ProductorLandingPage />} />
+              <Route path="/info/productor" element={<ProductorLandingPage />} />
+              <Route path="/registro/productor" element={<Navigate to="/register?role=producer" replace />} />
               <Route path="/vender/registro" element={<RegisterPage />} />
               <Route path="/vender/login" element={<LoginPage />} />
               <Route path="/vender/planes" element={<Navigate to="/vender/registro" replace />} />
