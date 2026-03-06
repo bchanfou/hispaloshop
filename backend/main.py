@@ -146,8 +146,6 @@ app.include_router(legacy_predictions_router, prefix="/api", tags=["legacy-predi
 app.include_router(legacy_producer_router, prefix="/api", tags=["legacy-producer"])
 app.include_router(legacy_push_notifications_router, prefix="/api", tags=["legacy-push"])
 app.include_router(connect_router, prefix="/api", tags=["connect"])
-# Legacy compatibility for frontend routes that still hit /api/reels.
-app.include_router(reels_router, prefix="/api", tags=["legacy-reels"])
 
 
 @app.get("/health")

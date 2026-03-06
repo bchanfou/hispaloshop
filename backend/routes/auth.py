@@ -270,7 +270,7 @@ async def get_verification_status(user: User = Depends(get_current_user)):
     return {"email_verified": user_doc.get("email_verified", False)}
 
 @router.post("/auth/login")
-async def login(input: LoginInput):
+async def login(input: LoginInput, request: Request):
     identifier = input.email.strip().lower()
     
     # Determine if identifier is email or username
@@ -322,14 +322,15 @@ async def login(input: LoginInput):
         "session_token": session_token
     })
     
+    is_secure_cookie = request.url.scheme == "https"
     response.set_cookie(
         key="session_token",
         value=session_token,
         max_age=7 * 24 * 60 * 60,  # 7 days
         path="/",
-        samesite="none",
+        samesite="none" if is_secure_cookie else "lax",
         httponly=False,
-        secure=True
+        secure=is_secure_cookie
     )
     
     return response
@@ -516,13 +517,14 @@ async def auth_session(request: Request, response: Response):
     })
     
     # Set httpOnly cookie
+    is_secure_cookie = request.url.scheme == "https"
     response.set_cookie(
         key="session_token",
         value=session_token,
         max_age=7 * 24 * 60 * 60,  # 7 days
         httponly=True,
-        secure=True,
-        samesite="none",
+        secure=is_secure_cookie,
+        samesite="none" if is_secure_cookie else "lax",
         path="/"
     )
     

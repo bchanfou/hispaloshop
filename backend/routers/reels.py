@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import FeedCache, Follow, Hashtag, Post, PostHashtag, ReelView, User
-from routers.auth import get_current_user
+from routers.auth import get_current_user, get_optional_user
 from schemas import ReelResponse, ReelViewTrackRequest
 from services.hashtag_service import HashtagService
 from services.video_service import VideoService
@@ -81,12 +81,14 @@ async def get_reels(
     limit: int = Query(10, ge=1, le=30),
     source: str = Query("for_you", pattern="^(for_you|following|trending)$"),
     hashtag: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
 ):
     stmt = select(Post).where(and_(Post.status == "published", Post.is_reel.is_(True)))
 
     if source == "following":
+        if not current_user:
+            return {"items": [], "next_cursor": None, "has_more": False}
         following = select(Follow.following_id).where(Follow.follower_id == current_user.id)
         stmt = stmt.where(Post.user_id.in_(following)).order_by(desc(Post.created_at))
     elif source == "trending":
@@ -97,8 +99,9 @@ async def get_reels(
     if hashtag:
         stmt = stmt.join(PostHashtag, PostHashtag.post_id == Post.id).join(Hashtag, Hashtag.id == PostHashtag.hashtag_id).where(Hashtag.name == hashtag.lower())
 
-    seen_subq = select(ReelView.post_id).where(ReelView.viewer_id == current_user.id)
-    stmt = stmt.where(~Post.id.in_(seen_subq))
+    if current_user:
+        seen_subq = select(ReelView.post_id).where(ReelView.viewer_id == current_user.id)
+        stmt = stmt.where(~Post.id.in_(seen_subq))
 
     if cursor:
         cursor_post = await db.get(Post, cursor)
@@ -106,7 +109,8 @@ async def get_reels(
             stmt = stmt.where(Post.created_at < cursor_post.created_at)
 
     posts = (await db.scalars(stmt.limit(limit))).all()
-    items = [await _to_reel_response(post, current_user.id, db) for post in posts]
+    viewer_id = current_user.id if current_user else None
+    items = [await _to_reel_response(post, viewer_id, db) for post in posts]
     next_cursor = str(posts[-1].id) if len(posts) == limit else None
     return {"items": items, "next_cursor": next_cursor, "has_more": next_cursor is not None}
 
@@ -161,18 +165,27 @@ async def track_reel_view(
 
 
 @router.get("/reels/{reel_id}", response_model=ReelResponse)
-async def get_reel(reel_id: UUID, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_reel(
+    reel_id: UUID,
+    current_user: Optional[User] = Depends(get_optional_user),
+    db: AsyncSession = Depends(get_db),
+):
     post = await db.scalar(select(Post).where(and_(Post.id == reel_id, Post.is_reel.is_(True), Post.status == "published")))
     if not post:
         raise HTTPException(status_code=404, detail="Reel not found")
-    return await _to_reel_response(post, current_user.id, db)
+    viewer_id = current_user.id if current_user else None
+    return await _to_reel_response(post, viewer_id, db)
 
 
-async def _to_reel_response(post: Post, viewer_id: UUID, db: AsyncSession) -> ReelResponse:
+async def _to_reel_response(post: Post, viewer_id: Optional[UUID], db: AsyncSession) -> ReelResponse:
     await db.refresh(post, ["user"])
-    is_followed = (
-        await db.scalar(select(Follow.id).where(and_(Follow.follower_id == viewer_id, Follow.following_id == post.user_id)).limit(1))
-    ) is not None
+    is_followed = False
+    if viewer_id is not None:
+        is_followed = (
+            await db.scalar(
+                select(Follow.id).where(and_(Follow.follower_id == viewer_id, Follow.following_id == post.user_id)).limit(1)
+            )
+        ) is not None
     hashtags = (
         await db.scalars(select(Hashtag.name).join(PostHashtag, PostHashtag.hashtag_id == Hashtag.id).where(PostHashtag.post_id == post.id))
     ).all()

@@ -123,6 +123,78 @@ async def _fallback_discover_from_postgres(role: Optional[str], search: Optional
 
 # ── User Profile ─────────────────────────────────────────────
 
+@router.get("/reels")
+async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
+    """
+    Legacy reels endpoint used by the current frontend (/api/reels).
+    Reads from Mongo social collections and never requires authentication.
+    """
+    current_user = await get_optional_user(request) if request is not None else None
+    try:
+        reels = await db.reels.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    except Exception:
+        reels = []
+
+    if not reels:
+        reels = await db.user_posts.find(
+            {
+                "$or": [
+                    {"is_reel": True},
+                    {"media_type": "video"},
+                    {"video_url": {"$exists": True}},
+                ]
+            },
+            {"_id": 0},
+        ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+
+    items = []
+    for reel in reels:
+        user_id = reel.get("user_id")
+        user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0}) if user_id else None
+        media_url = reel.get("video_url") or reel.get("media_url") or (reel.get("media") or [{}])[0].get("url")
+        thumb_url = reel.get("thumbnail_url") or (reel.get("media") or [{}])[0].get("thumbnail_url") or media_url
+
+        is_followed = False
+        if current_user and user_id:
+            is_followed = (
+                await db.user_follows.find_one(
+                    {"follower_id": current_user.user_id, "following_id": user_id},
+                    {"_id": 0},
+                )
+                is not None
+            )
+
+        items.append(
+            {
+                "id": reel.get("id") or reel.get("post_id") or reel.get("reel_id"),
+                "post_id": reel.get("post_id") or reel.get("id") or reel.get("reel_id"),
+                "user_id": user_id,
+                "user_name": reel.get("user_name") or (user_doc or {}).get("name") or "Usuario",
+                "user_profile_image": reel.get("user_profile_image") or (user_doc or {}).get("profile_image"),
+                "caption": reel.get("caption") or reel.get("content") or "",
+                "video_url": media_url,
+                "thumbnail_url": thumb_url,
+                "likes_count": reel.get("likes_count", 0),
+                "comments_count": reel.get("comments_count", 0),
+                "views_count": reel.get("views_count", 0),
+                "created_at": reel.get("created_at") or datetime.now(timezone.utc).isoformat(),
+                "user": {
+                    "id": user_id,
+                    "full_name": reel.get("user_name") or (user_doc or {}).get("name") or "Usuario",
+                    "avatar_url": reel.get("user_profile_image") or (user_doc or {}).get("profile_image"),
+                    "is_followed_by_me": is_followed,
+                },
+                "media": [{"url": media_url, "thumbnail_url": thumb_url}] if media_url else [],
+                "engagement": {
+                    "likes_count": reel.get("likes_count", 0),
+                    "comments_count": reel.get("comments_count", 0),
+                },
+            }
+        )
+
+    return {"items": items, "has_more": len(items) == limit}
+
+
 @router.get("/users/{user_id}/profile")
 async def get_user_profile(user_id: str, request: Request):
     """Get public user profile — enhanced with seller stats for producers."""
