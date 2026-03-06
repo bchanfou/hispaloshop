@@ -260,7 +260,7 @@ class Category(BaseModel):
 
 class Product(BaseModel):
     product_id: str
-    producer_id: str
+    producer_id: str  # ID del seller (producer, importer o admin)
     producer_name: str
     category_id: str
     name: str
@@ -283,6 +283,12 @@ class Product(BaseModel):
     country_currency: Optional[Dict[str, str]] = None
     source_language: Optional[str] = "es"
     translated_fields: Optional[Dict[str, Dict[str, Any]]] = None
+    # Multi-seller support
+    seller_type: str = "producer"  # "producer", "importer", "admin"
+    origin_country: Optional[str] = None  # Para productos importados
+    import_batch: Optional[str] = None    # Batch de importación
+    import_date: Optional[str] = None     # Fecha de importación
+    customs_info: Optional[Dict[str, Any]] = None  # Info de aduanas
 
 
 class Pack(BaseModel):
@@ -426,7 +432,7 @@ class RejectCertificateInput(BaseModel):
 
 class StoreProfile(BaseModel):
     store_id: str
-    producer_id: str
+    producer_id: str  # ID del owner (producer, importer o admin)
     slug: str
     name: str
     tagline: Optional[str] = None
@@ -443,7 +449,8 @@ class StoreProfile(BaseModel):
     map_image: Optional[str] = None
     coverage_area: Optional[str] = None
     delivery_time: Optional[str] = None
-    store_type: str = "producer"
+    store_type: str = "producer"  # "producer", "importer", "admin"
+    owner_type: str = "producer"  # "producer", "importer", "admin"
     verified: bool = False
     contact_email: Optional[str] = None
     contact_phone: Optional[str] = None
@@ -457,6 +464,7 @@ class StoreProfile(BaseModel):
     review_count: int = 0
     created_at: str
     updated_at: str
+    specialization: Optional[str] = None  # Especialización para importers
 
 
 class StoreProfileUpdate(BaseModel):

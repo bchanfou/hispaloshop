@@ -304,6 +304,13 @@ export default function StorePage() {
                       <MapPin className="w-3 h-3" />{store.location}
                     </p>
                   )}
+                  {/* Owner Type Badge - Mobile */}
+                  {(store.owner_type === 'importer' || store.store_type === 'importer') && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium mt-1">
+                      <Globe className="w-3 h-3" />
+                      Importador
+                    </span>
+                  )}
                 </div>
               </div>
               
@@ -377,9 +384,20 @@ export default function StorePage() {
                 
                 {/* Desktop: Type Badge + Follow */}
                 <div className="hidden md:flex items-center gap-3 mt-4">
-                  <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium capitalize">
-                    {store.store_type === 'producer' ? t('store.seller', 'Productor') : store.store_type === 'importer' ? 'Importador' : store.store_type}
-                  </span>
+                  {/* Owner Type Badge */}
+                  {(store.owner_type === 'importer' || store.store_type === 'importer') ? (
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-1">
+                      <Globe className="w-3.5 h-3.5" />
+                      Importador
+                      {store.specialization && (
+                        <span className="text-blue-600">• {store.specialization}</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                      {store.store_type === 'producer' ? t('store.seller', 'Productor') : store.store_type}
+                    </span>
+                  )}
                   <Button
                     onClick={handleFollowToggle}
                     disabled={followLoading}

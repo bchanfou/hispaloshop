@@ -63,6 +63,7 @@ from routes.producer import router as legacy_producer_router
 from routes.push_notifications import router as legacy_push_notifications_router
 from routes.producer_registration import router as producer_registration_router
 from routes.importer_registration import router as importer_registration_router
+from routes.importer import router as legacy_importer_router
 
 logger = logging.getLogger(__name__)
 
@@ -130,6 +131,7 @@ app.include_router(legacy_insights_router, prefix="/api", tags=["insights"])
 app.include_router(legacy_internal_chat_router, prefix="/api", tags=["internal-chat"])
 app.include_router(legacy_predictions_router, prefix="/api", tags=["predictions"])
 app.include_router(legacy_producer_router, prefix="/api", tags=["producer"])
+app.include_router(legacy_importer_router, prefix="/api", tags=["importer"])
 app.include_router(legacy_push_notifications_router, prefix="/api", tags=["push"])
 app.include_router(producer_registration_router, prefix="/api", tags=["producer-registration"])
 app.include_router(importer_registration_router, prefix="/api", tags=["importer-registration"])

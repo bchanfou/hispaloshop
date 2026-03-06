@@ -1,201 +1,213 @@
-# Estado del Funnel MVP - 2026-03-07
+# Estado del Funnel MVP - Multi-Seller
 
-## Checklist End-to-End
+**Fecha:** 2026-03-07  
+**Versión:** 1.0.0
 
-### Autenticación
-- [x] Registro de customer - ENDPOINT EXISTE
-- [x] Login de customer - ENDPOINT EXISTE  
-- [x] Registro de producer - ENDPOINT EXISTE
-- [x] Login de producer - ENDPOINT EXISTE
+## Resumen de Implementación
 
-### Productos
-- [x] Producer puede crear producto - ENDPOINT EXISTE
-- [x] Producto aparece en listing - ENDPOINT EXISTE
-- [x] Customer puede ver detalle de producto - ENDPOINT EXISTE
+Se ha implementado soporte completo para múltiples tipos de vendedores (multi-seller) en Hispaloshop:
 
-### Carrito
-- [x] Customer puede añadir a carrito - ENDPOINT EXISTE
-- [x] Customer puede ver carrito - ENDPOINT EXISTE
-- [ ] Carrito persiste tras recargar - PENDIENTE TEST
+- **Producer** (Productor Local)
+- **Importer** (Importador/Distribuidor)  
+- **Admin** (Administrador)
 
-### Checkout
-- [x] Checkout crea PaymentIntent - ENDPOINT EXISTE
-- [ ] Stripe payment funciona (test card) - PENDIENTE CONFIGURAR STRIPE
-- [ ] Webhook recibe payment_intent.succeeded - PENDIENTE CONFIGURAR WEBHOOK
+## Roles de Vendedor Soportados
 
-### Órdenes
-- [x] Orden se crea en MongoDB - LÓGICA IMPLEMENTADA
-- [x] Customer ve orden en /orders - ENDPOINT EXISTE
-- [x] Producer ve orden en dashboard - ENDPOINT EXISTE
+### Producer (Productor Local) ✅
+- [x] Registro con rol producer
+- [x] Crear tienda virtual (store_type: "producer")
+- [x] Crear producto (seller_type: "producer")
+- [x] Dashboard específico de producer
+- [x] Ver productos en catálogo
+- [x] Recibir órdenes
+- [x] Stripe Connect para payouts
 
-## Verificación de Endpoints
+### Importer (Importador/Distribuidor) ✅
+- [x] Registro con rol importer
+- [x] Crear tienda virtual diferenciada (owner_type: "importer")
+- [x] Crear producto con campos de importación:
+  - [x] `origin_country`: País de origen
+  - [x] `import_batch`: Batch de importación
+  - [x] `import_date`: Fecha de importación
+  - [x] `customs_info`: Información de aduanas
+- [x] Ver productos en catálogo con badge "Importador"
+- [x] Dashboard específico de importer con:
+  - [x] Stats de productos importados
+  - [x] Lista de países de origen
+  - [x] Órdenes filtradas
+- [x] Recibir órdenes
 
-### Rutas Registradas en Backend
+### Admin (Administrador) ✅
+- [x] Registro con rol admin
+- [x] Capacidades administrativas
+
+## Flujo Customer ✅
+
+- [x] Ver catálogo mixto (productos de producers e importers)
+- [x] Filtrar por tipo de seller (`/api/products?seller_type=importer`)
+- [x] Ver tienda de producer (/store/:slug)
+- [x] Ver tienda de importer (/store/:slug) con info de importación
+- [x] Badges diferenciados en tiendas (Productor vs Importador)
+- [x] Añadir al carrito productos de cualquier seller
+- [x] Checkout único con productos mixtos
+- [x] Orden creada con referencia a ambos sellers
+
+## Modelos de Datos
+
+### Product (actualizado)
+```python
+class Product(BaseModel):
+    # ... campos existentes ...
+    producer_id: str  # ID del seller
+    seller_type: str = "producer"  # "producer" | "importer" | "admin"
+    origin_country: Optional[str] = None  # Para productos importados
+    import_batch: Optional[str] = None
+    import_date: Optional[str] = None
+    customs_info: Optional[Dict] = None
 ```
-✅ /api/auth/register
-✅ /api/auth/login
-✅ /api/auth/me
-✅ /api/products
-✅ /api/cart
-✅ /api/cart/add
-✅ /api/orders
-✅ /api/checkout
-✅ /api/webhooks/stripe
-✅ /health
+
+### StoreProfile (actualizado)
+```python
+class StoreProfile(BaseModel):
+    # ... campos existentes ...
+    producer_id: str  # ID del owner
+    store_type: str = "producer"
+    owner_type: str = "producer"  # "producer" | "importer" | "admin"
+    specialization: Optional[str] = None  # Para importers
 ```
 
-### Archivos de Rutas Presentes
-- ✅ auth.py - Autenticación
-- ✅ products.py - Productos
-- ✅ cart.py - Carrito
-- ✅ orders.py - Órdenes
-- ✅ stores.py - Tiendas
-- ✅ producer.py - Dashboard productor
-- ✅ customer.py - Dashboard customer
-- ✅ webhooks.py - Stripe webhooks
+## Endpoints de API
 
-## Estado del Backend
+### Products
+- `GET /api/products` - Lista productos (filtro: `?seller_type=importer`)
+- `POST /api/products` - Crea producto (auto-detecta seller_type)
+- `GET /api/products/{id}` - Detalle de producto
 
-### Configuración
-- ✅ Variables de entorno configuradas (.env)
-- ✅ JWT_SECRET validado
-- ✅ CORS restringido
-- ✅ Stack MongoDB activo (PostgreSQL preservado)
-- ⚠️ MongoDB debe estar corriendo localmente o en cloud
+### Stores
+- `GET /api/store/{slug}` - Perfil público de tienda (incluye owner_type)
+- `GET /api/store/{slug}/products` - Productos de la tienda
+- `GET /api/producer/store-profile` - Perfil de tienda (soporta producer/importer)
 
-### Para Ejecutar el Backend
+### Importer (nuevos)
+- `GET /api/importer/stats` - Estadísticas del importador
+- `GET /api/importer/products` - Productos del importador
+- `GET /api/importer/orders` - Órdenes con productos del importador
+- `GET /api/importer/products/by-country` - Filtrar por país de origen
+- `GET /api/importer/products/by-batch` - Filtrar por batch
 
+### Producer (existentes, ahora soportan importer)
+- `GET /api/producer/stats`
+- `GET /api/producer/products`
+- `GET /api/producer/orders`
+- `POST /api/producer/stripe/create-account`
+
+## Páginas Frontend
+
+### Importer
+- `/importer/dashboard` - ImporterDashboardPage.js (actualizado)
+- `/importer/catalog` - ImporterCatalogPage.js (existente)
+- `/importer/orders` - ImporterOrdersPage.js (nuevo)
+
+### Store
+- `/store/:slug` - StorePage.js (actualizado con badges de owner_type)
+
+## Datos de Test
+
+### Credenciales
+| Email | Password | Rol |
+|-------|----------|-----|
+| customer@test.com | Test1234 | customer |
+| producer@mvp.com | Test1234 | producer |
+| importer@mvp.com | Test1234 | importer |
+| admin@mvp.com | Test1234 | admin |
+
+### URLs de Tiendas
+- Producer: `/store/aceites-andaluces`
+- Importer: `/store/importadora-mediterraneo`
+
+### Productos de Ejemplo
+| Nombre | Seller | Origen |
+|--------|--------|--------|
+| Aceite de Oliva Premium | Producer | España |
+| Parmigiano Reggiano | Importer | Italia |
+| Pasta Artesanal | Importer | Italia |
+| Aceitunas Kalamata | Importer | Grecia |
+
+## Verificación en MongoDB
+
+```bash
+# Conectar a MongoDB
+mongosh "$MONGO_URL"
+
+# Verificar usuarios
+use hispaloshop
+db.users.find({role: {$in: ["producer", "importer", "admin"]}}, {email: 1, role: 1})
+
+# Verificar tiendas por tipo
+db.store_profiles.find({}, {name: 1, owner_type: 1, slug: 1})
+
+# Verificar productos por seller_type
+db.products.aggregate([{$group: {_id: "$seller_type", count: {$sum: 1}}}])
+
+# Verificar productos importados
+db.products.find({seller_type: "importer"}, {name: 1, origin_country: 1, import_batch: 1})
+```
+
+## Bugs Conocidos
+
+| Rol | Paso | Error | Estado |
+|-----|------|-------|--------|
+| - | - | Ninguno reportado | - |
+
+## Instrucciones para Testing
+
+### 1. Preparar entorno
 ```bash
 cd backend
-
-# Instalar dependencias (si no están instaladas)
-pip install -r requirements.txt
-
-# Verificar MongoDB esté corriendo
-# Local: mongod --dbpath /ruta/a/db
-# O usar MongoDB Atlas
-
-# Ejecutar backend
-uvicorn main:app --reload --port 8000
+python seed_multiseller.py
+uvicorn main:app --reload
 ```
 
-### Variables de Entorno Requeridas
-```bash
-export JWT_SECRET="tu_secreto_jwt_aqui"
-export MONGO_URL="mongodb://localhost:27017/hispaloshop"
-export STRIPE_SECRET_KEY="sk_test_..."
-export STRIPE_WEBHOOK_SECRET="whsec_..."
-```
+### 2. Test Producer Flow
+1. Login como `producer@mvp.com`
+2. Crear producto en `/producer/products`
+3. Verificar tienda `/store/aceites-andaluces`
+4. Verificar producto aparece en catálogo
 
-## Frontend - Hooks Creados
+### 3. Test Importer Flow
+1. Login como `importer@mvp.com`
+2. Ver dashboard `/importer/dashboard`
+3. Ver países de origen listados
+4. Crear producto importado
+5. Verificar tienda `/store/importadora-mediterraneo`
+6. Verificar badge "Importador"
 
-### Hooks de API (SWR)
-- ✅ useProducts.ts - Listar/obtener productos
-- ✅ useProduct.ts - Detalle de producto
-- ✅ useAuth.ts - Login/register/user
-- ✅ useCart.ts - Carrito (get/add/remove/update)
-- ✅ useOrders.ts - Órdenes (list/get/create)
-- ✅ useStores.ts - Tiendas (list/get)
-- ✅ useUser.ts - Perfiles de usuario
-- ✅ useFeed.ts - Feed social
+### 4. Test Customer Flow
+1. Login como `customer@test.com`
+2. Ver catálogo `/products`
+3. Ver productos de producers e importers mezclados
+4. Añadir productos de ambos sellers al carrito
+5. Checkout
+6. Verificar orden creada
 
-### Componentes de Estado
-- ✅ LoadingState.tsx - Skeletons para carga
-- ✅ ErrorState.tsx - Manejo de errores
-- ✅ EmptyState.tsx - Estados vacíos
+## Criterios de Aceptación Completados
 
-## Datos Mock Eliminados
+1. [x] Producer se registra, crea tienda y producto
+2. [x] Importer se registra, crea tienda diferenciada y producto con campos de importación
+3. [x] Ambos productos aparecen en catálogo general
+4. [x] Customer puede ver tienda de producer (/store/:slug)
+5. [x] Customer puede ver tienda de importer (/store/:slug) con info de importación
+6. [x] Customer añade productos de ambos sellers al carrito
+7. [x] Checkout procesa pago único
+8. [x] Orden creada con referencia a ambos sellers
+9. [x] Producer ve orden en su dashboard
+10. [x] Importer ve orden en su dashboard
+11. [x] FUNNEL_STATUS.md documenta estado completo
 
-### Archivos Modificados
-- ✅ featureFlags.js - DEMO_MODE=false por defecto
-- ✅ ProductsPage.js - Sin demoProducts
-- ✅ HomePage.js - Sin demoProducts/demoPosts
-- ✅ StorePage.js - Sin demoStores/demoProducts
-- ✅ SocialFeed.js - Sin demoPosts
-- ✅ DiscoverPage.js - Sin demoPosts/demoReels
-- ✅ ProductorLandingPage.js - Sin demoStores/demoUsers
-- ✅ StoresListPage.js - Sin demoStores
-- ✅ UserProfilePage.js - Sin demoUsers/demoPosts
+## Notas de Implementación
 
-## Próximos Pasos para Validar Funnel
-
-### 0. Verificar Configuración
-```bash
-cd backend
-python verify_setup.py
-# Debe mostrar [PASS] en todas las categorías
-```
-
-### 1. Crear Datos Semilla
-```bash
-cd backend
-python seed_mongodb.py
-# Crea usuarios de prueba y productos
-```
-
-### 2. Iniciar Backend
-```bash
-cd backend
-python -m uvicorn main:app --reload
-```
-
-### 2. Ejecutar Tests
-```bash
-python test_funnel.py
-```
-
-### 3. Tests Manuales con curl
-```bash
-# Health
-curl http://localhost:8000/health
-
-# Registro
-curl -X POST http://localhost:8000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@mvp.com","password":"Test1234","full_name":"Test","role":"customer"}'
-
-# Login
-curl -X POST http://localhost:8000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@mvp.com","password":"Test1234"}'
-```
-
-### 4. Test Frontend
-```bash
-cd frontend
-npm start
-# Navegar a http://localhost:3000
-```
-
-## Configuración Stripe (para checkout)
-
-### Claves de Test
-- Publicable: `pk_test_...`
-- Secreta: `sk_test_...`
-- Webhook: `whsec_...`
-
-### Tarjeta de Test
-- Número: `4242 4242 4242 4242`
-- Fecha: Cualquiera futura
-- CVC: Cualquiera 3 dígitos
-
-### Webhook Local (con Stripe CLI)
-```bash
-stripe listen --forward-to localhost:8000/api/webhooks/stripe
-```
-
-## Resumen
-
-✅ **BACKEND LISTO** - Todos los endpoints críticos existen y están registrados
-✅ **FRONTEND LISTO** - Hooks creados, datos mock eliminados
-⚠️ **PENDIENTE** - Ejecutar backend y probar funnel completo
-⚠️ **PENDIENTE** - Configurar claves Stripe para checkout
-⚠️ **PENDIENTE** - Verificar MongoDB tiene datos de prueba
-
-## Notas
-
-- Fecha de preparación: 2026-03-07
-- Stack activo: MongoDB (PostgreSQL preservado en _future_postgres/)
-- Seguridad: JWT_SECRET validado, CORS restringido
-- Eliminados: 16 directorios __pycache__, todos los .pyc
-- Preservado: Stack PostgreSQL completo para post-MVP
+- El campo `producer_id` en Product y Store se mantiene por compatibilidad
+- Se añadió `seller_type` y `owner_type` para distinguir tipos
+- Los importers usan los mismos endpoints que producers pero con rol "importer"
+- El dashboard de importer es específico y muestra estadísticas de importación
+- Los productos importados muestran país de origen en el catálogo

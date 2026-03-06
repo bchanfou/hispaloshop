@@ -114,6 +114,11 @@ async def get_store_by_slug(slug: str):
     if producer:
         store["producer_name"] = producer.get("name", store["name"])
         store["producer_verified"] = producer.get("approved", False)
+        store["owner_role"] = producer.get("role", "producer")
+    
+    # Ensure owner_type is set (backward compatibility)
+    if "owner_type" not in store:
+        store["owner_type"] = store.get("store_type", "producer")
     
     # Calculate rating from product reviews
     products = await db.products.find(
@@ -235,7 +240,11 @@ async def get_store_certificates(slug: str):
 @router.get("/producer/store-profile")
 async def get_my_store_profile(user: User = Depends(get_current_user)):
     """Get current producer's store profile"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
+    
+    # Determine owner type from user role
+    owner_type = user.role if user.role in ["producer", "importer", "admin"] else "producer"
+    store_type = owner_type  # store_type matches owner_type
     
     store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"_id": 0})
     if not store:
@@ -265,7 +274,8 @@ async def get_my_store_profile(user: User = Depends(get_current_user)):
             "map_image": None,
             "coverage_area": None,
             "delivery_time": None,
-            "store_type": "producer",
+            "store_type": store_type,
+            "owner_type": owner_type,
             "verified": user.approved,
             "contact_email": user.email,
             "contact_phone": user.phone,
@@ -288,7 +298,7 @@ async def get_my_store_profile(user: User = Depends(get_current_user)):
 @router.put("/producer/store-profile")
 async def update_my_store_profile(input: StoreProfileUpdate, user: User = Depends(get_current_user)):
     """Update current producer's store profile"""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     
     # Get existing profile or create one
     store = await db.store_profiles.find_one({"producer_id": user.user_id})

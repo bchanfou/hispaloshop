@@ -33,6 +33,7 @@ async def get_products(
     certifications: Optional[str] = None,
     approved_only: bool = True,
     seller_id: Optional[str] = None,
+    seller_type: Optional[str] = None,  # Filter by seller type: producer, importer, admin
     featured_only: bool = False,
     lang: Optional[str] = None,
     search: Optional[str] = None,
@@ -56,6 +57,9 @@ async def get_products(
     
     if seller_id:
         query["producer_id"] = seller_id
+    
+    if seller_type:
+        query["seller_type"] = seller_type
     
     if featured_only:
         query["featured"] = True
@@ -315,6 +319,9 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
                 pack_dict["discount_percentage"] = discount_pct
             packs_data.append(pack_dict)
     
+    # Determine seller type from user role
+    seller_type = user.role if user.role in ["producer", "importer", "admin"] else "producer"
+    
     product = {
         "product_id": product_id,
         "producer_id": user.user_id,
@@ -352,6 +359,9 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         "packs": packs_data,
         "vat_rate": input.vat_rate,
         "vat_included": input.vat_included,
+        # Multi-seller fields
+        "seller_type": seller_type,
+        "origin_country": input.country_origin if seller_type == "importer" else None,
     }
     await db.products.insert_one(product)
     product.pop("_id", None)
