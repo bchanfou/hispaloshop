@@ -14,111 +14,52 @@ from core.models import User
 from core.auth import get_current_user, get_optional_user
 from config import normalize_influencer_tier
 from services.cloudinary_storage import upload_image as cloudinary_upload
-from database import AsyncSessionLocal
-from models import Post as PgPost, User as PgUser
+# NOTE: PostgreSQL fallback disabled - using MongoDB only for MVP
+# from database import AsyncSessionLocal
+# from models import Post as PgPost, User as PgUser
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
 async def _fallback_feed_from_postgres(skip: int, limit: int):
-    async with AsyncSessionLocal() as session:
-        rows = (
-            await session.execute(
-                select(PgPost, PgUser)
-                .join(PgUser, PgUser.id == PgPost.user_id)
-                .where(PgPost.status == "published")
-                .order_by(desc(PgPost.created_at))
-                .offset(skip)
-                .limit(limit)
-            )
-        ).all()
+    # PostgreSQL fallback disabled for MVP - return empty
+    return []
 
-    posts = []
-    for post, user in rows:
-        posts.append(
-            {
-                "post_id": str(post.id),
-                "user_id": str(user.id),
-                "user_name": user.full_name or user.username or "Usuario",
-                "user_profile_image": user.avatar_url,
-                "user_role": user.role or "customer",
-                "caption": post.content or "",
-                "image_url": (post.media_urls[0] if post.media_urls else None),
-                "likes_count": post.likes_count or 0,
-                "comments_count": post.comments_count or 0,
-                "created_at": post.created_at.isoformat() if post.created_at else datetime.utcnow().isoformat(),
-                "is_liked": False,
-                "is_bookmarked": False,
-                "tagged_product": None,
-                "product_available_in_country": True,
-            }
-        )
-    return {"posts": posts, "total": len(posts), "has_more": False}
+
+# ── User Profile ─────────────────────────────────────────────
 
 
 async def _fallback_trending_from_postgres(limit: int):
-    async with AsyncSessionLocal() as session:
-        rows = (
-            await session.execute(
-                select(PgPost, PgUser)
-                .join(PgUser, PgUser.id == PgPost.user_id)
-                .where(PgPost.status == "published")
-                .order_by(desc(PgPost.likes_count), desc(PgPost.comments_count), desc(PgPost.created_at))
-                .limit(limit)
-            )
-        ).all()
-
-    posts = []
-    for post, user in rows:
-        posts.append(
-            {
-                "post_id": str(post.id),
-                "user_id": str(user.id),
-                "user_name": user.full_name or user.username or "Usuario",
-                "user_profile_image": user.avatar_url,
-                "user_role": user.role or "customer",
-                "caption": post.content or "",
-                "image_url": (post.media_urls[0] if post.media_urls else None),
-                "likes_count": post.likes_count or 0,
-                "comments_count": post.comments_count or 0,
-                "created_at": post.created_at.isoformat() if post.created_at else datetime.utcnow().isoformat(),
-                "is_liked": False,
-                "is_bookmarked": False,
-            }
-        )
-    return {"posts": posts}
+    # PostgreSQL fallback disabled for MVP - return empty
+    return {"posts": []}
+    # async with AsyncSessionLocal() as session:
+    #     rows = (
+    #         await session.execute(
+    #             select(PgPost, PgUser)
+    #             .join(PgUser, PgUser.id == PgPost.user_id)
+    #             .where(PgPost.status == "published")
+    #             .order_by(desc(PgPost.likes_count), desc(PgPost.comments_count), desc(PgPost.created_at))
+    #             .limit(limit)
+    #         )
+    #     ).all()
+    # posts = []
+    # for post, user in rows:
+    #     posts.append(...)
+    # return {"posts": posts}
 
 
 async def _fallback_discover_from_postgres(role: Optional[str], search: Optional[str], skip: int, limit: int):
-    async with AsyncSessionLocal() as session:
-        users = (
-            await session.scalars(select(PgUser).order_by(desc(PgUser.created_at)).offset(skip).limit(limit))
-        ).all()
-
-    profiles = []
-    for u in users:
-        if role and role != "all" and u.role != role:
-            continue
-        if role in (None, "all") and u.role not in {"customer", "producer", "influencer", "importer"}:
-            continue
-        name = u.full_name or u.username or "Usuario"
-        if search and search.lower() not in name.lower():
-            continue
-        profiles.append(
-            {
-                "user_id": str(u.id),
-                "name": name,
-                "profile_image": u.avatar_url,
-                "bio": u.bio or "",
-                "role": u.role,
-                "followers_count": u.followers_count or 0,
-                "posts_count": u.posts_count or 0,
-                "is_following": False,
-                "created_at": u.created_at.isoformat() if u.created_at else datetime.utcnow().isoformat(),
-            }
-        )
-    return {"profiles": profiles, "total": len(profiles)}
+    # PostgreSQL fallback disabled for MVP - return empty
+    return {"profiles": [], "total": 0}
+    # async with AsyncSessionLocal() as session:
+    #     users = (
+    #         await session.scalars(select(PgUser).order_by(desc(PgUser.created_at)).offset(skip).limit(limit))
+    #     ).all()
+    # profiles = []
+    # for u in users:
+    #     ...
+    # return {"profiles": profiles, "total": len(profiles)}
 
 
 # ── User Profile ─────────────────────────────────────────────

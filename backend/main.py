@@ -33,32 +33,7 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import logging
 
-from routers.auth import router as auth_router
-from routers.categories import router as categories_router
-from routers.products import router as products_router
-from routers.producer import router as producer_router
-from routers.cart import router as cart_router
-from routers.checkout import router as checkout_router
-from routers.orders import router as orders_router
-from routers.webhooks import router as webhooks_router
-from routers.affiliate_public import router as affiliate_public_router
-from routers.influencer import router as influencer_router
-from routers.matching import router as matching_router
-from routers.chat import router as chat_router
-from routers.recommendations import router as recommendations_router
-from routers.posts import router as posts_router
-from routers.interactions import router as interactions_router
-from routers.follows import router as follows_router
-from routers.reels import router as reels_router
-from routers.hashtags import router as hashtags_router
-from routers.stories import router as stories_router
-from routers.collections import router as collections_router
-from routers.realtime_chat import router as realtime_chat_router
-from routers.importers import router as importers_router
-from routers.b2b_quotes import router as b2b_quotes_router
-from routers.b2b_logistics import router as b2b_logistics_router
-from routers.connect import router as connect_router
-
+# === STACK MONGODB (LEGACY - ACTIVO) ===
 from routes.auth import router as legacy_auth_router
 from routes.config import router as legacy_config_router
 from routes.feed import router as legacy_feed_router
@@ -126,64 +101,36 @@ app.add_middleware(
     max_age=600,
 )
 
-# API v1 Routes
-app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
-app.include_router(categories_router, prefix="/api/v1", tags=["categories"])
-app.include_router(products_router, prefix="/api/v1", tags=["products"])
-app.include_router(producer_router, prefix="/api/v1", tags=["producer"])
-app.include_router(cart_router, prefix="/api/v1", tags=["cart"])
-app.include_router(checkout_router, prefix="/api/v1", tags=["checkout"])
-app.include_router(orders_router, prefix="/api/v1", tags=["orders"])
-app.include_router(webhooks_router, prefix="/api/v1", tags=["webhooks"])
-app.include_router(affiliate_public_router, prefix="/api/v1", tags=["affiliate"])
-app.include_router(influencer_router, prefix="/api/v1", tags=["influencer"])
-app.include_router(matching_router, prefix="/api/v1", tags=["matching"])
-app.include_router(chat_router, prefix="/api/v1", tags=["chat"])
-app.include_router(recommendations_router, prefix="/api/v1", tags=["recommendations"])
-app.include_router(posts_router, prefix="/api/v1", tags=["posts"])
-app.include_router(interactions_router, prefix="/api/v1", tags=["interactions"])
-app.include_router(follows_router, prefix="/api/v1", tags=["follows"])
-app.include_router(reels_router, prefix="/api/v1", tags=["reels"])
-app.include_router(hashtags_router, prefix="/api/v1", tags=["hashtags"])
-app.include_router(stories_router, prefix="/api/v1", tags=["stories"])
-app.include_router(collections_router, prefix="/api/v1", tags=["collections"])
-app.include_router(realtime_chat_router, prefix="/api/v1", tags=["realtime-chat"])
-app.include_router(importers_router, prefix="/api/v1", tags=["importers"])
-app.include_router(b2b_quotes_router, prefix="/api/v1", tags=["b2b-quotes"])
-app.include_router(b2b_logistics_router, prefix="/api/v1", tags=["b2b-logistics"])
-app.include_router(connect_router, prefix="/api/v1", tags=["connect"])
-
-# Backward-compatible API routes used by the current frontend bundle (/api/*)
-app.include_router(legacy_auth_router, prefix="/api", tags=["legacy-auth"])
-app.include_router(legacy_config_router, prefix="/api", tags=["legacy-config"])
-app.include_router(legacy_feed_router, prefix="/api", tags=["legacy-feed"])
-app.include_router(legacy_products_router, prefix="/api", tags=["legacy-products"])
-app.include_router(legacy_social_router, prefix="/api", tags=["legacy-social"])
-app.include_router(legacy_stores_router, prefix="/api", tags=["legacy-stores"])
-app.include_router(legacy_cart_router, prefix="/api", tags=["legacy-cart"])
-app.include_router(legacy_orders_router, prefix="/api", tags=["legacy-orders"])
-app.include_router(legacy_influencer_router, prefix="/api", tags=["legacy-influencer"])
-app.include_router(legacy_subscriptions_router, prefix="/api", tags=["legacy-subscriptions"])
-app.include_router(legacy_customer_router, prefix="/api", tags=["legacy-customer"])
-app.include_router(legacy_wishlist_router, prefix="/api", tags=["legacy-wishlist"])
-app.include_router(legacy_notifications_router, prefix="/api", tags=["legacy-notifications"])
-app.include_router(legacy_uploads_router, prefix="/api", tags=["legacy-uploads"])
-app.include_router(legacy_certificates_router, prefix="/api", tags=["legacy-certificates"])
-app.include_router(legacy_cron_router, prefix="/api", tags=["legacy-cron"])
-app.include_router(legacy_recipes_reviews_router, prefix="/api", tags=["legacy-recipes-reviews"])
-app.include_router(legacy_admin_router, prefix="/api", tags=["legacy-admin"])
-app.include_router(legacy_admin_dashboard_router, prefix="/api", tags=["legacy-admin-dashboard"])
+# === API Routes - Stack MongoDB (Funcional) ===
+app.include_router(legacy_auth_router, prefix="/api", tags=["auth"])
+app.include_router(legacy_config_router, prefix="/api", tags=["config"])
+app.include_router(legacy_feed_router, prefix="/api", tags=["feed"])
+app.include_router(legacy_products_router, prefix="/api", tags=["products"])
+app.include_router(legacy_social_router, prefix="/api", tags=["social"])
+app.include_router(legacy_stores_router, prefix="/api", tags=["stores"])
+app.include_router(legacy_cart_router, prefix="/api", tags=["cart"])
+app.include_router(legacy_orders_router, prefix="/api", tags=["orders"])
+app.include_router(legacy_influencer_router, prefix="/api", tags=["influencer"])
+app.include_router(legacy_subscriptions_router, prefix="/api", tags=["subscriptions"])
+app.include_router(legacy_customer_router, prefix="/api", tags=["customer"])
+app.include_router(legacy_wishlist_router, prefix="/api", tags=["wishlist"])
+app.include_router(legacy_notifications_router, prefix="/api", tags=["notifications"])
+app.include_router(legacy_uploads_router, prefix="/api", tags=["uploads"])
+app.include_router(legacy_certificates_router, prefix="/api", tags=["certificates"])
+app.include_router(legacy_cron_router, prefix="/api", tags=["cron"])
+app.include_router(legacy_recipes_reviews_router, prefix="/api", tags=["recipes-reviews"])
+app.include_router(legacy_admin_router, prefix="/api", tags=["admin"])
+app.include_router(legacy_admin_dashboard_router, prefix="/api", tags=["admin-dashboard"])
 if legacy_ai_chat_router is not None:
-    app.include_router(legacy_ai_chat_router, prefix="/api", tags=["legacy-ai-chat"])
-app.include_router(legacy_badges_router, prefix="/api", tags=["legacy-badges"])
-app.include_router(legacy_conversations_router, prefix="/api", tags=["legacy-conversations"])
-app.include_router(legacy_directory_router, prefix="/api", tags=["legacy-directory"])
-app.include_router(legacy_insights_router, prefix="/api", tags=["legacy-insights"])
-app.include_router(legacy_internal_chat_router, prefix="/api", tags=["legacy-internal-chat"])
-app.include_router(legacy_predictions_router, prefix="/api", tags=["legacy-predictions"])
-app.include_router(legacy_producer_router, prefix="/api", tags=["legacy-producer"])
-app.include_router(legacy_push_notifications_router, prefix="/api", tags=["legacy-push"])
-app.include_router(connect_router, prefix="/api", tags=["connect"])
+    app.include_router(legacy_ai_chat_router, prefix="/api", tags=["ai-chat"])
+app.include_router(legacy_badges_router, prefix="/api", tags=["badges"])
+app.include_router(legacy_conversations_router, prefix="/api", tags=["conversations"])
+app.include_router(legacy_directory_router, prefix="/api", tags=["directory"])
+app.include_router(legacy_insights_router, prefix="/api", tags=["insights"])
+app.include_router(legacy_internal_chat_router, prefix="/api", tags=["internal-chat"])
+app.include_router(legacy_predictions_router, prefix="/api", tags=["predictions"])
+app.include_router(legacy_producer_router, prefix="/api", tags=["producer"])
+app.include_router(legacy_push_notifications_router, prefix="/api", tags=["push"])
 app.include_router(producer_registration_router, prefix="/api", tags=["producer-registration"])
 app.include_router(importer_registration_router, prefix="/api", tags=["importer-registration"])
 
