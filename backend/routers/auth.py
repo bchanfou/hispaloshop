@@ -25,6 +25,12 @@ router = APIRouter(prefix="/auth")
 security = HTTPBearer(auto_error=False)
 
 
+def _normalize_user_role(role: str) -> str:
+    if role in {"buyer", "customer"}:
+        return "customer"
+    return role
+
+
 async def get_current_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -78,7 +84,7 @@ async def register(payload: RegisterRequest, request: Request, db: AsyncSession 
         email=payload.email,
         hashed_password=get_password_hash(payload.password),
         full_name=payload.full_name,
-        role=payload.role,
+        role=_normalize_user_role(payload.role),
         tenant_id=tenant.id,
     )
     db.add(user)

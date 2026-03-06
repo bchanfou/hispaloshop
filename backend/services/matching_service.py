@@ -49,12 +49,16 @@ class MatchingService:
             if score["overall_score"] < min_score:
                 continue
             stmt = pg_insert(MatchingScore).values(
-                producer_id=producer_id,
-                influencer_id=influencer.id,
-                overall_score=score["overall_score"],
-                score_breakdown=score["breakdown"],
-                reasons=score["reasons"],
-                match_type="product_influencer",
+                [
+                    {
+                        "producer_id": producer_id,
+                        "influencer_id": influencer.id,
+                        "overall_score": score["overall_score"],
+                        "score_breakdown": score["breakdown"],
+                        "reasons": score["reasons"],
+                        "match_type": "product_influencer",
+                    }
+                ]
             )
             await db.execute(
                 stmt.on_conflict_do_update(

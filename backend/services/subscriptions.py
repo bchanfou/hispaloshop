@@ -372,12 +372,17 @@ async def check_influencer_attribution(db, customer_id: str, influencer_code: st
 
         # Check if attribution has expired
         expiry = existing.get("attribution_expiry_date", "")
-        if expiry and datetime.fromisoformat(expiry.replace("Z", "+00:00")) > datetime.now(timezone.utc):
-            return {
-                "allowed": False,
-                "error": "Ya tienes un codigo de referido activo. No puedes usar otro hasta que expire.",
-                "locked_until": expiry,
-            }
+        if expiry:
+            try:
+                expiry_dt = datetime.fromisoformat(expiry.replace("Z", "+00:00"))
+            except ValueError:
+                expiry_dt = None
+            if expiry_dt and expiry_dt > datetime.now(timezone.utc):
+                return {
+                    "allowed": False,
+                    "error": "Ya tienes un codigo de referido activo. No puedes usar otro hasta que expire.",
+                    "locked_until": expiry,
+                }
         # Expired — allow new code
 
     # Look up the influencer code

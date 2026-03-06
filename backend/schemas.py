@@ -9,7 +9,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     full_name: str = Field(..., min_length=2, max_length=100)
-    role: str = Field(..., pattern="^(buyer|producer|influencer|importer)$")
+    role: str = Field(..., pattern="^(customer|buyer|producer|influencer|importer)$")
 
 
 class LoginRequest(BaseModel):
@@ -85,8 +85,8 @@ class CategoryBase(BaseModel):
     id: UUID
     name: str
     slug: str
-    description: Optional[str]
-    image_url: Optional[str]
+    description: Optional[str] = None
+    image_url: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 
