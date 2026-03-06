@@ -31,6 +31,22 @@ export const trackPageVisit = async (page, country = null) => {
   }
 };
 
+export const trackMarketingEvent = (eventName, params = {}) => {
+  try {
+    if (typeof window === 'undefined') return;
+
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, params);
+    }
+
+    if (typeof window.fbq === 'function') {
+      window.fbq('trackCustom', eventName, params);
+    }
+  } catch (error) {
+    console.debug('Marketing event tracking failed:', error);
+  }
+};
+
 // Hook for tracking on component mount
 export const usePageTracking = (page) => {
   const { useEffect } = require('react');
@@ -40,4 +56,4 @@ export const usePageTracking = (page) => {
   }, [page]);
 };
 
-export default { trackPageVisit, usePageTracking };
+export default { trackPageVisit, trackMarketingEvent, usePageTracking };

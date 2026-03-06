@@ -14,9 +14,11 @@ export default function SEO({
   product = null,
   noindex = false,
   lang = 'es',
+  structuredData = [],
 }) {
   const fullTitle = title.includes('Hispaloshop') ? title : `${title} | Hispaloshop`;
   const canonical = url || (typeof window !== 'undefined' ? window.location.href : 'https://www.hispaloshop.com');
+  const extraStructuredData = Array.isArray(structuredData) ? structuredData : [structuredData];
 
   return (
     <Helmet>
@@ -100,6 +102,10 @@ export default function SEO({
           ]
         })}</script>
       )}
+
+      {extraStructuredData.map((item, index) => (
+        item ? <script key={index} type="application/ld+json">{JSON.stringify(item)}</script> : null
+      ))}
     </Helmet>
   );
 }

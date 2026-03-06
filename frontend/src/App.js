@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import '@/App.css';
 import './locales/i18n';
 import { trackPageVisit } from './utils/analytics';
@@ -163,137 +164,150 @@ function AppRouter() {
       <PageTransitionLoader />
       <ScrollToTop />
       <Suspense fallback={<RouteLoader />}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/vender" element={<SellerLandingPage />} />
-          <Route path="/vender/registro" element={<RegisterPage />} />
-          <Route path="/vender/login" element={<LoginPage />} />
-          <Route path="/vender/planes" element={<Navigate to="/vender/registro" replace />} />
-          <Route path="/influencers" element={<InfluencerLandingPage />} />
-          <Route path="/influencers/registro" element={<RegisterPage />} />
-          <Route path="/influencers/login" element={<LoginPage />} />
-          <Route path="/signup" element={<RegisterPage />} />
-          <Route path="/recipes" element={<RecipesPage />} />
-          <Route path="/recipes/create" element={<CreateRecipePage />} />
-          <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/products/:productId" element={<ProductDetailPage />} />
-          <Route path="/store/:storeSlug" element={<StorePage />} />
-          <Route path="/certificate/:productId" element={<CertificatePage />} />
-          <Route path="/certificates" element={<CertificatesListPage />} />
-          <Route path="/become-influencer" element={<Navigate to="/influencers/registro" replace />} />
-          <Route path="/become-seller" element={<Navigate to="/vender/registro" replace />} />
-          <Route path="/stores" element={<StoresListPage />} />
-          <Route path="/user/:userId" element={<UserProfilePage />} />
-          <Route path="/discover" element={<DiscoverPage />} />
-          <Route path="/importador" element={<ImporterLandingPage />} />
-          <Route path="/importer" element={<ImporterLandingPage />} />
-          <Route path="/influencer" element={<Navigate to="/influencer/dashboard" replace />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/seller/login" element={<LoginPage />} />
-          <Route path="/influencer/login" element={<LoginPage />} />
-          <Route path="/auth/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/seller/register" element={<RegisterPage />} />
-          <Route path="/influencer/register" element={<RegisterPage />} />
-          <Route path="/auth/register" element={<RegisterPage />} />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/importer/register" element={<RegisterPage />} />
-          <Route path="/importer/dashboard" element={<Navigate to="/producer" replace />} />
-          <Route path="/importer/catalog" element={<Navigate to="/producer/products" replace />} />
-          <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
-          <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
-          <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
-          <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
-          <Route path="/orders" element={<LegacyOrdersRedirect />} />
-          <Route path="/profile" element={<LegacyProfileRedirect />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/help" element={<HelpPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.24, ease: 'easeOut' }}
+          >
+            <Routes location={location}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/vender" element={<SellerLandingPage />} />
+              <Route path="/productor" element={<SellerLandingPage />} />
+              <Route path="/info/productor" element={<SellerLandingPage />} />
+              <Route path="/vender/registro" element={<RegisterPage />} />
+              <Route path="/vender/login" element={<LoginPage />} />
+              <Route path="/vender/planes" element={<Navigate to="/vender/registro" replace />} />
+              <Route path="/influencers" element={<InfluencerLandingPage />} />
+              <Route path="/influencer" element={<InfluencerLandingPage />} />
+              <Route path="/influencers/registro" element={<RegisterPage />} />
+              <Route path="/influencers/login" element={<LoginPage />} />
+              <Route path="/signup" element={<RegisterPage />} />
+              <Route path="/recipes" element={<RecipesPage />} />
+              <Route path="/recipes/create" element={<CreateRecipePage />} />
+              <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/productos" element={<Navigate to="/products" replace />} />
+              <Route path="/products/:productId" element={<ProductDetailPage />} />
+              <Route path="/store/:storeSlug" element={<StorePage />} />
+              <Route path="/certificate/:productId" element={<CertificatePage />} />
+              <Route path="/certificates" element={<CertificatesListPage />} />
+              <Route path="/become-influencer" element={<Navigate to="/influencers/registro" replace />} />
+              <Route path="/become-seller" element={<Navigate to="/vender/registro" replace />} />
+              <Route path="/stores" element={<StoresListPage />} />
+              <Route path="/user/:userId" element={<UserProfilePage />} />
+              <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/importador" element={<ImporterLandingPage />} />
+              <Route path="/importer" element={<ImporterLandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/seller/login" element={<LoginPage />} />
+              <Route path="/influencer/login" element={<LoginPage />} />
+              <Route path="/auth/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/seller/register" element={<RegisterPage />} />
+              <Route path="/influencer/register" element={<RegisterPage />} />
+              <Route path="/auth/register" element={<RegisterPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/importer/register" element={<RegisterPage />} />
+              <Route path="/importer/dashboard" element={<Navigate to="/producer" replace />} />
+              <Route path="/importer/catalog" element={<Navigate to="/producer/products" replace />} />
+              <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
+              <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
+              <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
+              <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
+              <Route path="/orders" element={<LegacyOrdersRedirect />} />
+              <Route path="/profile" element={<LegacyProfileRedirect />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/help" element={<HelpPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
 
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminOverview />} />
-            <Route path="producers" element={<AdminProducers />} />
-            <Route path="products" element={<AdminProducts />} />
-            <Route path="certificates" element={<AdminCertificates />} />
-            <Route path="orders" element={<AdminOrders />} />
-            <Route path="discount-codes" element={<AdminDiscountCodes />} />
-            <Route path="reviews" element={<AdminReviews />} />
-            <Route path="influencers" element={<AdminInfluencers />} />
-          </Route>
-          <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminOverview />} />
+                <Route path="producers" element={<AdminProducers />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="certificates" element={<AdminCertificates />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="discount-codes" element={<AdminDiscountCodes />} />
+                <Route path="reviews" element={<AdminReviews />} />
+                <Route path="influencers" element={<AdminInfluencers />} />
+              </Route>
+              <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
 
-          <Route path="/super-admin" element={<SuperAdminLayout />}>
-            <Route index element={<SuperAdminOverviewPage />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="content" element={<ContentManagement />} />
-            <Route path="insights" element={<InsightsDashboard />} />
-            <Route path="finance" element={<FinancialDashboard />} />
-            <Route path="markets" element={<MarketCoverage />} />
-            <Route path="analytics" element={<AdminOverview />} />
-            <Route path="admins" element={<AdminManagement />} />
-          </Route>
+              <Route path="/super-admin" element={<SuperAdminLayout />}>
+                <Route index element={<SuperAdminOverviewPage />} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="content" element={<ContentManagement />} />
+                <Route path="insights" element={<InsightsDashboard />} />
+                <Route path="finance" element={<FinancialDashboard />} />
+                <Route path="markets" element={<MarketCoverage />} />
+                <Route path="analytics" element={<AdminOverview />} />
+                <Route path="admins" element={<AdminManagement />} />
+              </Route>
 
-          <Route path="/producer" element={<ProducerLayout />}>
-            <Route index element={<ProducerOverview />} />
-            <Route path="products" element={<ProducerProducts />} />
-            <Route path="products/:productId/countries" element={<ProductCountryManagement />} />
-            <Route path="certificates" element={<ProducerCertificates />} />
-            <Route path="orders" element={<ProducerOrders />} />
-            <Route path="payments" element={<ProducerPayments />} />
-            <Route path="profile" element={<ProducerProfile />} />
-            <Route path="store" element={<ProducerStoreProfile />} />
-            <Route path="shipping" element={<ProducerShippingPolicy />} />
-            <Route path="connect" element={<ProducerConnectPage />} />
-            <Route path="connect/success" element={<ProducerConnectSuccess />} />
-            <Route path="connect/refresh" element={<ProducerConnectRefresh />} />
-          </Route>
+              <Route path="/producer" element={<ProducerLayout />}>
+                <Route index element={<ProducerOverview />} />
+                <Route path="products" element={<ProducerProducts />} />
+                <Route path="products/:productId/countries" element={<ProductCountryManagement />} />
+                <Route path="certificates" element={<ProducerCertificates />} />
+                <Route path="orders" element={<ProducerOrders />} />
+                <Route path="payments" element={<ProducerPayments />} />
+                <Route path="profile" element={<ProducerProfile />} />
+                <Route path="store" element={<ProducerStoreProfile />} />
+                <Route path="shipping" element={<ProducerShippingPolicy />} />
+                <Route path="connect" element={<ProducerConnectPage />} />
+                <Route path="connect/success" element={<ProducerConnectSuccess />} />
+                <Route path="connect/refresh" element={<ProducerConnectRefresh />} />
+              </Route>
 
-          <Route path="/dashboard" element={<CustomerLayout />}>
-            <Route index element={<CustomerOverview />} />
-            <Route path="orders" element={<CustomerOrders />} />
-            <Route path="followed-stores" element={<CustomerFollowedStores />} />
-            <Route path="wishlist" element={<WishlistPage />} />
-            <Route path="profile" element={<CustomerProfile />} />
-            <Route path="ai-preferences" element={<CustomerAIPreferences />} />
-            <Route path="predictions" element={<HispaloPredictions />} />
-          </Route>
+              <Route path="/dashboard" element={<CustomerLayout />}>
+                <Route index element={<CustomerOverview />} />
+                <Route path="orders" element={<CustomerOrders />} />
+                <Route path="followed-stores" element={<CustomerFollowedStores />} />
+                <Route path="wishlist" element={<WishlistPage />} />
+                <Route path="profile" element={<CustomerProfile />} />
+                <Route path="ai-preferences" element={<CustomerAIPreferences />} />
+                <Route path="predictions" element={<HispaloPredictions />} />
+              </Route>
 
-          <Route path="/customer" element={<CustomerLayout />}>
-            <Route index element={<CustomerOverview />} />
-            <Route path="orders" element={<CustomerOrders />} />
-            <Route path="saved" element={<CustomerFollowedStores />} />
-            <Route path="wishlist" element={<WishlistPage />} />
-            <Route path="profile" element={<CustomerProfile />} />
-          </Route>
+              <Route path="/customer" element={<CustomerLayout />}>
+                <Route index element={<CustomerOverview />} />
+                <Route path="orders" element={<CustomerOrders />} />
+                <Route path="saved" element={<CustomerFollowedStores />} />
+                <Route path="wishlist" element={<WishlistPage />} />
+                <Route path="profile" element={<CustomerProfile />} />
+              </Route>
 
-          <Route
-            path="/influencer/dashboard"
-            element={
-              <InfluencerLayoutResponsive>
-                <InfluencerDashboard />
-              </InfluencerLayoutResponsive>
-            }
-          />
-          <Route
-            path="/influencer/stripe-connect"
-            element={
-              <InfluencerLayoutResponsive>
-                <InfluencerDashboard />
-              </InfluencerLayoutResponsive>
-            }
-          />
+              <Route
+                path="/influencer/dashboard"
+                element={(
+                  <InfluencerLayoutResponsive>
+                    <InfluencerDashboard />
+                  </InfluencerLayoutResponsive>
+                )}
+              />
+              <Route
+                path="/influencer/stripe-connect"
+                element={(
+                  <InfluencerLayoutResponsive>
+                    <InfluencerDashboard />
+                  </InfluencerLayoutResponsive>
+                )}
+              />
 
-          <Route path="/auth/*" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+              <Route path="/auth/*" element={<Navigate to="/login" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </motion.div>
+        </AnimatePresence>
       </Suspense>
     </>
   );
