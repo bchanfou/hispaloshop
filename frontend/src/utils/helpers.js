@@ -122,7 +122,7 @@ export const getIngredientEmoji = (ingredient) => {
     'potato': '🥔',
     'cucumber': '🥒',
     'eggplant': '🍆',
-    'pepper': '🫑',
+    'bell pepper': '??',
     'spinach': '🥬',
     
     // Proteins

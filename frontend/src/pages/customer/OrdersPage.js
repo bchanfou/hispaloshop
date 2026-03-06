@@ -5,12 +5,15 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 const API = API_BASE_URL;
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchOrders();
   }, []);
+
   const fetchOrders = async () => {
     try {
       const response = await axios.get(`${API}/orders`, { withCredentials: true });
@@ -21,6 +24,7 @@ export default function OrdersPage() {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -39,21 +43,33 @@ export default function OrdersPage() {
                     <p className="font-bold text-text-primary" data-testid="order-id">Order #{order.order_id}</p>
                     <p className="text-sm text-text-muted" data-testid="order-date">{new Date(order.created_at).toLocaleDateString()}</p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    order.status === 'paid' ? 'bg-green-100 text-green-800' :
-                    order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                    order.status === 'completed' ? 'bg-primary/10 text-primary' :
-                    'bg-stone-100 text-stone-800'
-                  }`} data-testid="order-status">                    {order.status}
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      order.status === 'paid'
+                        ? 'bg-green-100 text-green-800'
+                        : order.status === 'shipped'
+                          ? 'bg-blue-100 text-blue-800'
+                          : order.status === 'completed'
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-stone-100 text-stone-800'
+                    }`}
+                    data-testid="order-status"
+                  >
+                    {order.status}
                   </span>
                 </div>
+
                 <div className="space-y-2">
                   {order.line_items?.map((item, idx) => (
                     <p key={idx} className="text-text-secondary text-sm" data-testid={`order-item-${idx}`}>
                       {item.product_name} x {item.quantity}
                     </p>
                   ))}
-                <p className="font-bold text-primary mt-4" data-testid="order-total">Total: ${order.total_amount.toFixed(2)}</p>
+                </div>
+
+                <p className="font-bold text-primary mt-4" data-testid="order-total">
+                  Total: ${order.total_amount.toFixed(2)}
+                </p>
               </div>
             ))}
           </div>

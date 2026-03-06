@@ -228,7 +228,7 @@ export default function UserProfilePage() {
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
-      try { await navigator.share({ title: `Perfil de ${profile?.name}`, url }); } catch {}
+      try { await navigator.share({ title: `Perfil de ${profile?.name}`, url }); } catch { /* ignore */ }
     } else {
       await navigator.clipboard.writeText(url);
       toast.success(t('social.linkCopied'));

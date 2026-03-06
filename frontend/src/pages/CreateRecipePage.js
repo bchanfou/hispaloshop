@@ -48,7 +48,7 @@ function ProductSearchModal({ onSelect, onClose }) {
       try {
         const res = await axios.get(`${API}/products?search=${query}&limit=10`);
         setResults(res.data || []);
-      } catch { }
+      } catch { /* ignore */ }
       finally { setLoading(false); }
     }, 300);
     return () => clearTimeout(timer);

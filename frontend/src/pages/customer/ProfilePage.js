@@ -11,16 +11,19 @@ import { toast } from 'sonner';
 const API = API_BASE_URL;
 const dietOptions = ['vegan', 'halal', 'kosher', 'gluten-free', 'sugar-free'];
 const allergenOptions = ['nuts', 'dairy', 'eggs', 'soy', 'wheat', 'shellfish'];
+
 export default function ProfilePage() {
   const [preferences, setPreferences] = useState({
     diet_preferences: [],
     allergens: [],
-    goals: ''
+    goals: '',
   });
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchPreferences();
   }, []);
+
   const fetchPreferences = async () => {
     try {
       const response = await axios.get(`${API}/preferences`, { withCredentials: true });
@@ -31,26 +34,40 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
+
   const handleSave = async () => {
+    try {
       await axios.post(`${API}/preferences`, preferences, { withCredentials: true });
       toast.success('Preferences saved!');
+    } catch (error) {
       toast.error('Failed to save preferences');
+    }
+  };
+
   const toggleDiet = (diet) => {
     setPreferences((prev) => ({
       ...prev,
       diet_preferences: prev.diet_preferences.includes(diet)
         ? prev.diet_preferences.filter((d) => d !== diet)
-        : [...prev.diet_preferences, diet]
+        : [...prev.diet_preferences, diet],
     }));
+  };
+
   const toggleAllergen = (allergen) => {
+    setPreferences((prev) => ({
+      ...prev,
       allergens: prev.allergens.includes(allergen)
         ? prev.allergens.filter((a) => a !== allergen)
-        : [...prev.allergens, allergen]
+        : [...prev.allergens, allergen],
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="font-heading text-4xl font-bold text-text-primary mb-8" data-testid="profile-title">My Profile</h1>
+
         {loading ? (
           <p className="text-text-muted" data-testid="profile-loading">Loading preferences...</p>
         ) : (
@@ -71,14 +88,25 @@ export default function ProfilePage() {
                 ))}
               </div>
             </div>
+
+            <div>
               <Label className="font-medium text-text-primary mb-4 block">Allergens to Avoid</Label>
+              <div className="space-y-3">
                 {allergenOptions.map((allergen) => (
                   <div key={allergen} className="flex items-center space-x-2">
+                    <Checkbox
                       id={allergen}
                       checked={preferences.allergens.includes(allergen)}
                       onCheckedChange={() => toggleAllergen(allergen)}
                       data-testid={`allergen-${allergen}`}
+                    />
                     <label htmlFor={allergen} className="text-text-secondary capitalize cursor-pointer">{allergen}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
               <Label htmlFor="goals" className="font-medium text-text-primary mb-3 block">Goals</Label>
               <textarea
                 id="goals"
@@ -89,6 +117,8 @@ export default function ProfilePage() {
                 placeholder="What are your dietary goals?"
                 data-testid="goals-input"
               />
+            </div>
+
             <Button
               onClick={handleSave}
               className="w-full bg-primary hover:bg-primary-hover text-white rounded-full"

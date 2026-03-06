@@ -17,7 +17,7 @@ const STATUS_CONFIG = {
 
 const CONFIDENCE_LABELS = { high: 'Alta', medium: 'Media', low: 'Baja' };
 
-function PredictionCard({ prediction, onReorder }) {
+function PredictionCard({ prediction, onReorder, t }) {
   const config = STATUS_CONFIG[prediction.status] || STATUS_CONFIG.upcoming;
   const StatusIcon = config.icon;
   const daysAbs = Math.abs(prediction.days_until_next);
@@ -210,6 +210,7 @@ export default function HispaloPredictions() {
             key={p.product_id} 
             prediction={p} 
             onReorder={handleReorder}
+            t={t}
           />
         ))}
       </div>

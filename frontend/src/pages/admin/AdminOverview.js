@@ -110,7 +110,7 @@ function SalesChart({ data }) {
   );
 }
 
-function OrdersChart({ data }) {
+function OrdersChart({ data, t }) {
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart data={data}>
@@ -331,7 +331,7 @@ export default function AdminOverview() {
           </div>
           <div>
             <h3 className="text-sm font-medium text-text-secondary mb-4">{t('admin.ordersAndVisits')}</h3>
-            <OrdersChart data={chartData} />
+            <OrdersChart data={chartData} t={t} />
           </div>
         </div>
       </div>

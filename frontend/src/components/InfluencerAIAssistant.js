@@ -180,7 +180,7 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={t('influencerAI.inputPlaceholder', 'Describe what content you need...')}
+            placeholder="Describe what content you need..."
             className="flex-1 px-4 py-2 border border-stone-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
             disabled={loading}
           />

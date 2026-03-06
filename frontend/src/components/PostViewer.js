@@ -83,7 +83,7 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
     try {
       const res = await axios.get(`${API}/posts/${post.post_id}/comments`);
       setComments(res.data || []);
-    } catch { }
+    } catch { /* ignore */ }
     finally { setLoadingComments(false); }
   };
 
@@ -136,7 +136,7 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
   const handleShare = async () => {
     const url = `${window.location.origin}/user/${post.user_id}`;
     if (navigator.share) {
-      try { await navigator.share({ title: post.caption || 'Hispaloshop', url }); } catch { }
+      try { await navigator.share({ title: post.caption || 'Hispaloshop', url }); } catch { /* ignore */ }
     } else {
       await navigator.clipboard.writeText(url);
       toast.success(t('social.linkCopied'));

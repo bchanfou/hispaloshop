@@ -132,7 +132,7 @@ function ProductSelector({ onSelect, onCancel }) {
 
   useEffect(() => {
     (async () => {
-      try { const res = await axios.get(`${API}/post-products/search?limit=5`, { withCredentials: true }); setResults(res.data || []); } catch {}
+      try { const res = await axios.get(`${API}/post-products/search?limit=5`, { withCredentials: true }); setResults(res.data || []); } catch { /* ignore */ }
     })();
   }, []);
 
@@ -145,7 +145,7 @@ function ProductSelector({ onSelect, onCancel }) {
       </div>
       <div className="max-h-40 overflow-y-auto">
         {loading && <div className="p-3 text-center"><Loader2 className="w-4 h-4 animate-spin mx-auto text-[#7A7A7A]" /></div>}
-        {!loading && results.length === 0 && <p className="p-3 text-xs text-[#7A7A7A] text-center">{t('social.noResults')}</p>}
+        {!loading && results.length === 0 && <p className="p-3 text-xs text-[#7A7A7A] text-center">No results</p>}
         {results.map((p) => (
           <button key={p.product_id} onClick={() => onSelect(p)} className="flex items-center gap-3 w-full px-3 py-2 hover:bg-stone-50 transition-colors text-left" data-testid={`product-option-${p.product_id}`}>
             <div className="w-10 h-10 rounded-lg bg-stone-100 overflow-hidden shrink-0">
@@ -601,7 +601,7 @@ function PostCard({ post, currentUser, onDelete }) {
     const text = post.caption ? `${post.caption.slice(0, 100)} - Hispaloshop` : 'Mira esto en Hispaloshop';
     
     if (navigator.share) {
-      try { await navigator.share({ title: text, url }); } catch {}
+      try { await navigator.share({ title: text, url }); } catch { /* ignore */ }
     } else {
       // Desktop: show share options
       const waUrl = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
@@ -618,7 +618,7 @@ function PostCard({ post, currentUser, onDelete }) {
   };
 
   const loadComments = async () => {
-    try { const res = await axios.get(`${API}/posts/${post.post_id}/comments`); setComments(res.data || []); } catch {}
+    try { const res = await axios.get(`${API}/posts/${post.post_id}/comments`); setComments(res.data || []); } catch { /* ignore */ }
   };
   const toggleComments = () => { if (!showComments) loadComments(); setShowComments(!showComments); };
 

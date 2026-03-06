@@ -7,6 +7,7 @@ import {
   Package, Clock, CheckCircle, AlertTriangle, Warehouse
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import { useTranslation } from 'react-i18next';
 import { API } from '../../utils/api';
 
 const COUNTRIES = {
@@ -124,6 +125,7 @@ function MarketRow({ market, onChange, onRemove }) {
 }
 
 export default function ProductCountryManagement() {
+  const { t } = useTranslation();
   const { productId } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);

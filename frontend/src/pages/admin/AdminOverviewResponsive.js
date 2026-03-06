@@ -144,7 +144,7 @@ function SalesChart({ data, isMobile }) {
 }
 
 // Orders Chart Component
-function OrdersChart({ data, isMobile }) {
+function OrdersChart({ data, isMobile, t }) {
   return (
     <ResponsiveContainer width="100%" height={isMobile ? 180 : 250}>
       <BarChart data={data}>
@@ -438,7 +438,7 @@ export default function AdminOverviewResponsive() {
             <h3 className="text-xs md:text-sm font-medium text-text-secondary mb-3">
               {t('admin.ordersAndVisits')}
             </h3>
-            <OrdersChart data={chartData} isMobile={isMobile} />
+            <OrdersChart data={chartData} isMobile={isMobile} t={t} />
           </div>
         </div>
       </div>

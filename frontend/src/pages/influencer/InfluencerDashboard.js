@@ -367,6 +367,9 @@ export default function InfluencerDashboard() {
     );
   }
 
+  const tierPercent = dashboard.commission_type === 'percentage' ? Number(dashboard.commission_value || 0) : 0;
+  const influencerExample = ((18 * tierPercent) / 100).toFixed(2);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-4 md:py-8">
