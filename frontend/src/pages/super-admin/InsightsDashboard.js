@@ -265,7 +265,13 @@ export default function InsightsDashboard() {
 // TAB 1: Global Overview
 // ============================================================================
 function GlobalOverviewTab({ data }) {
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="bg-white rounded-xl border border-[#E6DFD6] p-8 text-center">
+        <p className="text-sm text-[#7A7A7A]">No hay datos globales disponibles.</p>
+      </div>
+    );
+  }
 
   const consentData = [
     { name: 'With Consent', value: data.consent_coverage.users_with_consent, color: '#38A169' },
@@ -394,7 +400,13 @@ function GlobalOverviewTab({ data }) {
 // TAB 2: Country Intelligence
 // ============================================================================
 function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSelectCountry }) {
-  if (!globalData) return null;
+  if (!globalData) {
+    return (
+      <div className="bg-white rounded-xl border border-[#E6DFD6] p-8 text-center">
+        <p className="text-sm text-[#7A7A7A]">No hay datos de países para mostrar.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -541,7 +553,13 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
 // TAB 3: AI Performance
 // ============================================================================
 function AIPerformanceTab({ data }) {
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="bg-white rounded-xl border border-[#E6DFD6] p-8 text-center">
+        <p className="text-sm text-[#7A7A7A]">No hay métricas de IA disponibles.</p>
+      </div>
+    );
+  }
 
   const actionData = Object.entries(data.action_usage)
     .filter(([_, v]) => v > 0)
@@ -616,7 +634,13 @@ function AIPerformanceTab({ data }) {
 // TAB 4: Trends & Strategy
 // ============================================================================
 function TrendsTab({ data }) {
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="bg-white rounded-xl border border-[#E6DFD6] p-8 text-center">
+        <p className="text-sm text-[#7A7A7A]">No hay tendencias disponibles.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -746,7 +770,13 @@ function ComplianceTab({ data, config }) {
     }
   }, [activeSubTab]);
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="bg-white rounded-xl border border-[#E6DFD6] p-8 text-center">
+        <p className="text-sm text-[#7A7A7A]">No hay datos de compliance disponibles.</p>
+      </div>
+    );
+  }
 
   const riskColor = {
     green: 'bg-green-100 text-green-800 border-green-200',

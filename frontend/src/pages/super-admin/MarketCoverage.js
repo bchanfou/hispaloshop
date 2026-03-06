@@ -20,12 +20,16 @@ export default function MarketCoverage() {
   const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const fetchData = async () => {
     try {
+      setError(false);
       const res = await axios.get(`${API}/admin/market-coverage`, { withCredentials: true });
       setData(res.data);
     } catch {
+      setData(null);
+      setError(true);
       toast.error('Error cargando cobertura');
     } finally {
       setLoading(false);
@@ -35,7 +39,23 @@ export default function MarketCoverage() {
   useEffect(() => { fetchData(); }, []);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-text-muted" /></div>;
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="bg-white rounded-xl border border-stone-200 p-6 text-center">
+        <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-3" />
+        <h2 className="text-lg font-semibold text-text-primary mb-1">
+          {error ? 'No se pudo cargar la cobertura de mercado' : 'Sin datos de cobertura'}
+        </h2>
+        <p className="text-sm text-text-muted mb-4">
+          {error ? 'Intenta nuevamente cuando el backend esté disponible.' : 'No hay métricas por país todavía.'}
+        </p>
+        <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchData(); }}>
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Reintentar
+        </Button>
+      </div>
+    );
+  }
 
   const { coverage, products_without_inventory } = data;
   const totalProducts = coverage.reduce((s, c) => s + c.active_products, 0);

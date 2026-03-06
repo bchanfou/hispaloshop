@@ -305,20 +305,35 @@ export default function DiscoverPage() {
           <div className="py-20 text-center text-stone-500 text-sm">Sin contenido</div>
         ) : tab === 'reels' ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {activeItems.map((item) => (
-              <Link key={item.id} to={item.user_id ? `/user/${item.user_id}` : '/discover'} className="block">
-                <div className="rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-[9/14] relative">
-                  {item.thumbnail_url || item.media_url ? (
-                    <img src={item.thumbnail_url || item.media_url} alt={item.user_name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-stone-400"><Clapperboard className="w-5 h-5" /></div>
-                  )}
-                  <div className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-0.5 text-[10px] text-white px-1.5 py-0.5 rounded-full bg-black/60">
-                    <Play className="w-3 h-3" /> {item.views_count || 0}
+            {activeItems.map((item) => {
+              const profileHref = item.user_id ? `/user/${item.user_id}` : '/discover';
+              return (
+                <div key={item.id} className="block">
+                  <div className="rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-[9/14] relative">
+                    {item.media_url ? (
+                      <video
+                        src={item.media_url}
+                        className="w-full h-full object-cover"
+                        controls
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
+                    ) : item.thumbnail_url ? (
+                      <img src={item.thumbnail_url} alt={item.user_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-stone-400"><Clapperboard className="w-5 h-5" /></div>
+                    )}
+                    <div className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-0.5 text-[10px] text-white px-1.5 py-0.5 rounded-full bg-black/60">
+                      <Play className="w-3 h-3" /> {item.views_count || 0}
+                    </div>
                   </div>
+                  <Link to={profileHref} className="mt-1 block text-[11px] text-stone-600 truncate hover:text-stone-800">
+                    {item.user_name}
+                  </Link>
                 </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

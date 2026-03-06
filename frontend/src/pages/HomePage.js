@@ -6,9 +6,9 @@ import Footer from '../components/Footer';
 import SocialFeed from '../components/SocialFeed';
 import {
   ShoppingBag, Store, ChevronRight, Info,
-  Flame, TrendingUp, Award,
+  Flame, Award,
   Building2,
-  Droplets, Cookie, Milk, Apple, Beef, Snowflake, Coffee, CakeSlice,
+  Droplets, Cookie, Milk, Apple, Snowflake, Coffee, CakeSlice,
   Wine, Salad, Soup, Cherry, Croissant, Pill,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -17,53 +17,6 @@ import { API } from '../utils/api';
 import { demoProducts } from '../data/demoData';
 import { DEMO_MODE } from '../config/featureFlags';
 import SEO from '../components/SEO';
-
-function BestSellers({ products, t }) {
-  if (!products || products.length === 0) return null;
-  return (
-    <section className="pb-6" data-testid="best-sellers-section">
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-semibold text-[#7A7A7A] uppercase tracking-wider flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5" /> {t('home.bestSellers')}
-          </h2>
-          <Link to="/products" className="text-xs text-[#2D5A27] hover:underline flex items-center gap-0.5">
-            {t('home.viewAll')} <ChevronRight className="w-3 h-3" />
-          </Link>
-        </div>
-        <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
-          {products.map((p) => (
-            <Link
-              key={p.product_id}
-              to={`/products/${p.product_id}`}
-              className="shrink-0 w-32 group"
-              data-testid={`bestseller-${p.product_id}`}
-            >
-              <div className="w-32 h-32 rounded-xl bg-stone-100 overflow-hidden border border-stone-200 group-hover:border-[#2D5A27] transition-colors">
-                {p.images?.[0] ? (
-                  <img
-                    src={p.images[0].startsWith('http') ? p.images[0] : p.images[0].startsWith('/uploads/') ? `/api${p.images[0]}` : p.images[0]}
-                    alt={p.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-stone-300">
-                    <ShoppingBag className="w-8 h-8" />
-                  </div>
-                )}
-              </div>
-              <p className="text-xs font-medium text-[#1C1C1C] mt-1.5 truncate">{p.name}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-[#2D5A27] font-semibold">{p.price?.toFixed(2)} €</span>
-                {p.total_sold > 0 && <span className="text-[10px] text-[#7A7A7A]">{p.total_sold} {t('home.sold', 'sold')}</span>}
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function FeaturedProducts({ products, t }) {
   if (!products || products.length === 0) return null;
@@ -167,44 +120,17 @@ function FollowedReelsStrip({ user }) {
 
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);
-  const [bestSellers, setBestSellers] = useState([]);
   const [activeInfoCard, setActiveInfoCard] = useState(null);
   const { user } = useAuth();
   const { t } = useTranslation();
 
   useEffect(() => {
-    Promise.all([
-      axios.get(`${API}/products?approved_only=true`).then((r) => {
-        const data = (r.data.products || r.data || []).slice(0, 15);
-        setFeatured(data.length > 0 ? data : (DEMO_MODE ? demoProducts.slice(0, 15) : []));
-      }).catch(() => {
-        setFeatured(DEMO_MODE ? demoProducts.slice(0, 15) : []);
-      }),
-      axios.get(`${API}/feed/best-sellers?limit=8`).then((r) => {
-        const data = r.data || [];
-        if (Array.isArray(data) && data.length > 0) {
-          setBestSellers(data);
-          return;
-        }
-        const fallback = (DEMO_MODE ? demoProducts.slice(0, 8) : []).map((p) => ({
-          product_id: p.product_id,
-          name: p.name,
-          images: p.images,
-          price: p.price,
-          total_sold: p.total_sold || 0,
-        }));
-        setBestSellers(fallback);
-      }).catch(() => {
-        const fallback = (DEMO_MODE ? demoProducts.slice(0, 8) : []).map((p) => ({
-          product_id: p.product_id,
-          name: p.name,
-          images: p.images,
-          price: p.price,
-          total_sold: p.total_sold || 0,
-        }));
-        setBestSellers(fallback);
-      }),
-    ]);
+    axios.get(`${API}/products?approved_only=true`).then((r) => {
+      const data = (r.data.products || r.data || []).slice(0, 15);
+      setFeatured(data.length > 0 ? data : (DEMO_MODE ? demoProducts.slice(0, 15) : []));
+    }).catch(() => {
+      setFeatured(DEMO_MODE ? demoProducts.slice(0, 15) : []);
+    });
   }, []);
 
   const infoCards = [
@@ -263,7 +189,6 @@ export default function HomePage() {
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
             {[
               { icon: Droplets, label: t('home.oils'), cat: 'aceite-condimentos', bg: 'bg-emerald-50', color: 'text-emerald-700' },
-              { icon: Beef, label: t('home.meat'), cat: 'carnes-huevos', bg: 'bg-red-50', color: 'text-red-700' },
               { icon: Milk, label: t('home.dairy'), cat: 'lacteos', bg: 'bg-blue-50', color: 'text-blue-700' },
               { icon: Apple, label: t('home.preserves'), cat: 'conservas', bg: 'bg-green-50', color: 'text-green-700' },
               { icon: Cookie, label: t('home.snacks'), cat: 'frutos-secos-snacks', bg: 'bg-orange-50', color: 'text-orange-700' },
@@ -352,8 +277,6 @@ export default function HomePage() {
           <SocialFeed />
         </div>
       </section>
-
-      <BestSellers products={bestSellers} t={t} />
       <Footer />
     </div>
   );

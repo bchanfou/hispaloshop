@@ -35,7 +35,25 @@ export default function RecipeDetailPage() {
   };
 
   if (loading) return <div className="min-h-screen bg-[#FAF7F2]"><Header /><div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div></div>;
-  if (!recipe) return null;
+  if (!recipe) {
+    return (
+      <div className="min-h-screen bg-[#FAF7F2]">
+        <Header />
+        <div className="max-w-2xl mx-auto px-4 pt-6 pb-16">
+          <BackButton />
+          <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center">
+            <ChefHat className="w-10 h-10 text-stone-400 mx-auto mb-3" />
+            <h1 className="font-heading text-xl text-[#1C1C1C] mb-2">{t('recipes.notFound', 'Recipe not found')}</h1>
+            <p className="text-sm text-text-muted mb-4">{t('recipes.tryAnother', 'Try another recipe from our catalog.')}</p>
+            <Link to="/recipes" className="inline-flex items-center justify-center rounded-full bg-[#1C1C1C] text-white px-5 py-2.5 text-sm hover:bg-[#2A2A2A]">
+              {t('recipes.backToList', 'Go to recipes')}
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">

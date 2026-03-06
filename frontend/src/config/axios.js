@@ -24,7 +24,7 @@ const getApiBaseUrl = () => {
     
     // LOCALHOST - use env var for backend
     if (host === 'localhost' || host === '127.0.0.1') {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
       if (backendUrl) {
         return backendUrl;  // Just the base URL, components add /api
       }

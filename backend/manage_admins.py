@@ -23,7 +23,7 @@ def create_admin(email: str, password: str, name: str, is_super: bool = False):
     # Verificar si el email ya existe
     existing = db.users.find_one({"email": email})
     if existing:
-        print(f"❌ ERROR: El email {email} ya está registrado")
+        print(f"ERROR: El email {email} ya está registrado")
         print(f"   Rol actual: {existing.get('role')}")
         client.close()
         return False
@@ -44,7 +44,7 @@ def create_admin(email: str, password: str, name: str, is_super: bool = False):
     }
     
     db.users.insert_one(user_data)
-    print(f"✅ {'Super Admin' if is_super else 'Admin'} creado exitosamente")
+    print(f"OK: {'Super Admin' if is_super else 'Admin'} creado exitosamente")
     print(f"   Email: {email}")
     print(f"   Nombre: {name}")
     print(f"   User ID: {user_id}")
@@ -62,22 +62,22 @@ def delete_admin(email: str):
     # Buscar usuario
     user = db.users.find_one({"email": email})
     if not user:
-        print(f"❌ ERROR: No se encontró usuario con email {email}")
+        print(f"ERROR: No se encontró usuario con email {email}")
         client.close()
         return False
     
     if user.get("role") != "admin":
-        print(f"⚠️ ADVERTENCIA: El usuario {email} no es administrador")
+        print(f"ADVERTENCIA: El usuario {email} no es administrador")
         print(f"   Rol actual: {user.get('role')}")
         confirm = input("¿Eliminar de todos modos? (si/no): ")
         if confirm.lower() != "si":
-            print("❌ Operación cancelada")
+            print("ERROR: Operación cancelada")
             client.close()
             return False
     
     # Proteger el admin principal
     if email == "admin@hispaloshop.com":
-        print("❌ ERROR: No se puede eliminar el administrador principal")
+        print("ERROR: No se puede eliminar el administrador principal")
         client.close()
         return False
     
@@ -85,12 +85,12 @@ def delete_admin(email: str):
     result = db.users.delete_one({"email": email})
     
     if result.deleted_count > 0:
-        print(f"✅ Usuario {email} eliminado exitosamente")
+        print(f"OK: Usuario {email} eliminado exitosamente")
         # Limpiar sesiones
         db.user_sessions.delete_many({"user_id": user["user_id"]})
         print(f"   Sesiones eliminadas")
     else:
-        print(f"❌ ERROR: No se pudo eliminar el usuario")
+        print(f"ERROR: No se pudo eliminar el usuario")
     
     client.close()
     return True
@@ -102,7 +102,7 @@ def list_admins():
     
     admins = db.users.find({"role": "admin"}, {"_id": 0, "email": 1, "name": 1, "user_id": 1, "created_at": 1})
     
-    print("\n📋 Lista de Administradores:")
+    print("\nLista de Administradores:")
     print("-" * 80)
     
     count = 0
@@ -116,7 +116,7 @@ def list_admins():
     if count == 0:
         print("   No se encontraron administradores")
     else:
-        print(f"\n📊 Total: {count} administrador(es)")
+        print(f"\nTotal: {count} administrador(es)")
     
     client.close()
 
@@ -127,12 +127,12 @@ def promote_to_admin(email: str):
     
     user = db.users.find_one({"email": email})
     if not user:
-        print(f"❌ ERROR: No se encontró usuario con email {email}")
+        print(f"ERROR: No se encontró usuario con email {email}")
         client.close()
         return False
     
     if user.get("role") == "admin":
-        print(f"ℹ️ El usuario {email} ya es administrador")
+        print(f"INFO: El usuario {email} ya es administrador")
         client.close()
         return True
     
@@ -142,7 +142,7 @@ def promote_to_admin(email: str):
         {"$set": {"role": "admin", "updated_at": datetime.now(timezone.utc).isoformat()}}
     )
     
-    print(f"✅ Usuario {email} promovido a administrador")
+    print(f"OK: Usuario {email} promovido a administrador")
     print(f"   Rol anterior: {user.get('role')}")
     print(f"   Rol nuevo: admin")
     
@@ -152,7 +152,7 @@ def promote_to_admin(email: str):
 # Menú interactivo
 if __name__ == "__main__":
     print("=" * 80)
-    print("🔧 GESTIÓN DE ADMINISTRADORES - HISPALOSHOP")
+    print("GESTIÓN DE ADMINISTRADORES - HISPALOSHOP")
     print("=" * 80)
     
     while True:
@@ -177,7 +177,7 @@ if __name__ == "__main__":
             if email and password and name:
                 create_admin(email, password, name)
             else:
-                print("❌ Todos los campos son obligatorios")
+                print("ERROR: Todos los campos son obligatorios")
         
         elif choice == "3":
             print("\n--- Eliminar Administrador ---")
@@ -186,7 +186,7 @@ if __name__ == "__main__":
             if email:
                 delete_admin(email)
             else:
-                print("❌ Email es obligatorio")
+                print("ERROR: Email es obligatorio")
         
         elif choice == "4":
             print("\n--- Promover Usuario a Admin ---")
@@ -195,11 +195,11 @@ if __name__ == "__main__":
             if email:
                 promote_to_admin(email)
             else:
-                print("❌ Email es obligatorio")
+                print("ERROR: Email es obligatorio")
         
         elif choice == "5":
-            print("\n👋 ¡Hasta luego!")
+            print("\nHasta luego!")
             break
         
         else:
-            print("❌ Opción inválida")
+            print("ERROR: Opción inválida")

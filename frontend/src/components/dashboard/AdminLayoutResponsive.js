@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import { 
@@ -88,8 +88,7 @@ export default function AdminLayoutResponsive() {
 
   // Redirect super_admin to their dedicated dashboard
   if (user?.role === 'super_admin') {
-    navigate('/super-admin');
-    return null;
+    return <Navigate to="/super-admin" replace />;
   }
 
   // Access denied

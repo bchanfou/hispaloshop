@@ -19,8 +19,8 @@ export const getApiUrl = () => {
     }
   }
   
-  // Development - use environment variable
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+  // Development - use environment variable (fallback to local backend)
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
   return backendUrl ? `${backendUrl}${apiPrefix}` : apiPrefix;
 };
 

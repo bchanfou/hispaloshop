@@ -53,12 +53,16 @@ export default function SuperAdminOverview() {
   const { t } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const fetchData = async () => {
     try {
+      setError(false);
       const res = await axios.get(`${API}/superadmin/overview`, { withCredentials: true });
       setData(res.data);
     } catch (err) {
+      setData(null);
+      setError(true);
       toast.error('Error cargando datos');
     } finally {
       setLoading(false);
@@ -68,7 +72,23 @@ export default function SuperAdminOverview() {
   useEffect(() => { fetchData(); }, []);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div>;
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="bg-white rounded-xl border border-stone-200 p-6 text-center">
+        <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-3" />
+        <h2 className="text-lg font-semibold text-text-primary mb-1">
+          {error ? 'No se pudo cargar el overview' : 'Sin datos disponibles'}
+        </h2>
+        <p className="text-sm text-text-muted mb-4">
+          {error ? 'Revisa la conexión con el backend e inténtalo de nuevo.' : 'No hay métricas para mostrar todavía.'}
+        </p>
+        <Button variant="outline" size="sm" onClick={() => { setLoading(true); fetchData(); }}>
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Reintentar
+        </Button>
+      </div>
+    );
+  }
 
   const { users, revenue, orders, pending, visits, top_sellers, recent_orders, recent_users } = data;
   const totalPending = pending.sellers + pending.products + pending.certificates + pending.flagged_posts;

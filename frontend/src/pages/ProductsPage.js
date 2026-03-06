@@ -9,7 +9,11 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Filter, Search, ChevronDown, X, SlidersHorizontal, Truck } from 'lucide-react';
+import {
+  Search, ChevronDown, X, SlidersHorizontal, Truck,
+  Droplets, Milk, Apple, Cookie, CakeSlice, Coffee,
+  Croissant, Cherry, Wine, Soup, Snowflake, Salad, Pill,
+} from 'lucide-react';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
@@ -18,7 +22,6 @@ import { DEMO_MODE } from '../config/featureFlags';
 
 const FALLBACK_CATEGORIES = [
   { category_id: 'cat-aceites', slug: 'aceite-condimentos', display_name: 'Aceites', name: 'Aceites', children: [] },
-  { category_id: 'cat-carnes', slug: 'carnes-huevos', display_name: 'Carnes', name: 'Carnes', children: [] },
   { category_id: 'cat-lacteos', slug: 'lacteos', display_name: 'Lacteos', name: 'Lacteos', children: [] },
   { category_id: 'cat-conservas', slug: 'conservas', display_name: 'Conservas', name: 'Conservas', children: [] },
   { category_id: 'cat-snacks', slug: 'frutos-secos-snacks', display_name: 'Snacks', name: 'Snacks', children: [] },
@@ -28,26 +31,26 @@ const FALLBACK_CATEGORIES = [
 ];
 
 const CATEGORY_VISUALS = [
-  { slug: 'aceite-condimentos', label: 'Aceites', image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'carnes-huevos', label: 'Carnes', image: 'https://images.unsplash.com/photo-1603048719539-9ecb4ddac7b1?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'lacteos', label: 'Lacteos', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'conservas', label: 'Conservas', image: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'frutos-secos-snacks', label: 'Snacks', image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'quesos', label: 'Quesos', image: 'https://images.unsplash.com/photo-1452195100486-9cc805987862?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'cafe-infusiones', label: 'Cafe', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'panaderia', label: 'Panaderia', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'frutas-verduras', label: 'Frutas', image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'bebidas', label: 'Bebidas', image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'salsas-condimentos', label: 'Salsas', image: 'https://images.unsplash.com/photo-1472476443507-c7a5948772fc?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'congelados', label: 'Congelados', image: 'https://images.unsplash.com/photo-1604242692760-2f7b0c26856d?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'organico', label: 'Organico', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=220&q=80' },
-  { slug: 'suplementos', label: 'Suplementos', image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=220&q=80' },
+  { slug: 'aceite-condimentos', label: 'Aceites', icon: Droplets, bg: 'bg-emerald-50', color: 'text-emerald-700' },
+  { slug: 'lacteos', label: 'Lacteos', icon: Milk, bg: 'bg-blue-50', color: 'text-blue-700' },
+  { slug: 'conservas', label: 'Conservas', icon: Apple, bg: 'bg-green-50', color: 'text-green-700' },
+  { slug: 'frutos-secos-snacks', label: 'Snacks', icon: Cookie, bg: 'bg-orange-50', color: 'text-orange-700' },
+  { slug: 'quesos', label: 'Quesos', icon: CakeSlice, bg: 'bg-yellow-50', color: 'text-yellow-700' },
+  { slug: 'cafe-infusiones', label: 'Cafe', icon: Coffee, bg: 'bg-amber-50', color: 'text-amber-700' },
+  { slug: 'panaderia', label: 'Panaderia', icon: Croissant, bg: 'bg-amber-50', color: 'text-amber-600' },
+  { slug: 'frutas-verduras', label: 'Frutas', icon: Cherry, bg: 'bg-lime-50', color: 'text-lime-700' },
+  { slug: 'bebidas', label: 'Bebidas', icon: Wine, bg: 'bg-purple-50', color: 'text-purple-700' },
+  { slug: 'salsas-condimentos', label: 'Salsas', icon: Soup, bg: 'bg-rose-50', color: 'text-rose-600' },
+  { slug: 'congelados', label: 'Congelados', icon: Snowflake, bg: 'bg-cyan-50', color: 'text-cyan-700' },
+  { slug: 'organico', label: 'Organico', icon: Salad, bg: 'bg-green-50', color: 'text-green-600' },
+  { slug: 'suplementos', label: 'Suplementos', icon: Pill, bg: 'bg-indigo-50', color: 'text-indigo-600' },
 ];
 
 const mergeCategories = (remote = []) => {
   const bySlug = new Map();
   [...FALLBACK_CATEGORIES, ...remote].forEach((cat) => {
     if (!cat?.slug) return;
+    if (cat.slug === 'carnes-huevos') return;
     bySlug.set(cat.slug, {
       ...cat,
       display_name: cat.display_name || cat.name || cat.slug,
@@ -83,6 +86,11 @@ export default function ProductsPage() {
 
   useEffect(() => { fetchCategories(); }, [currentLang]);
   useEffect(() => { fetchProducts(); }, [filters, country, currentLang]);
+  useEffect(() => {
+    if (filters.category === 'carnes-huevos') {
+      setFilters((prev) => ({ ...prev, category: '' }));
+    }
+  }, [filters.category]);
 
   // Lock body scroll when mobile filters open
   useEffect(() => {
@@ -258,37 +266,10 @@ export default function ProductsPage() {
     { value: 'newest', label: t('products.sort.newest', 'Mas Recientes') },
   ];
 
-  // Category dropdown component (shared between desktop and mobile)
-  const CategorySelect = ({ className = '' }) => (
-    <div className={`relative ${className}`}>
-      <select
-        className="w-full appearance-none border border-stone-200 rounded-xl px-3 py-2.5 pr-8 text-sm focus:ring-2 focus:ring-[#2D5A27]/20 focus:border-[#2D5A27] transition-all outline-none bg-white"
-        value={filters.category}
-        onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-        data-testid="category-filter"
-      >
-        <option value="">{t('products.allCategories')}</option>
-        {categories.map((cat) => (
-          <optgroup key={cat.category_id} label={cat.display_name || cat.name}>
-            <option value={cat.slug}>{cat.display_name || cat.name}</option>
-            {(cat.children || []).map((sub) => (
-              <option key={sub.category_id} value={sub.slug}>
-                {sub.display_name || sub.name}
-              </option>
-            ))}
-          </optgroup>
-        ))}
-      </select>
-      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
-    </div>
-  );
-
   // Desktop Top Filters Bar
   const TopFiltersBar = () => (
     <div className="bg-white rounded-2xl border border-stone-200 p-4 mb-6" data-testid="filters-bar">
       <div className="flex flex-wrap items-center gap-3">
-        <CategorySelect className="min-w-[180px]" />
-
         {/* Country */}
         <div className="relative">
           <select
@@ -376,12 +357,6 @@ export default function ProductsPage() {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-          {/* Category */}
-          <div>
-            <Label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2 block">{t('products.category')}</Label>
-            <CategorySelect />
-          </div>
-
           {/* Free Shipping */}
           <button
             onClick={() => setFilters({ ...filters, freeShipping: !filters.freeShipping })}
@@ -525,6 +500,7 @@ export default function ProductsPage() {
           <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
             {CATEGORY_VISUALS.map((cat) => {
               const active = filters.category === cat.slug;
+              const Icon = cat.icon;
               return (
                 <button
                   key={cat.slug}
@@ -532,8 +508,8 @@ export default function ProductsPage() {
                   className={`shrink-0 w-20 rounded-xl overflow-hidden border transition-all ${active ? 'border-[#2D5A27] ring-2 ring-[#2D5A27]/20' : 'border-stone-200 hover:border-stone-300'}`}
                   data-testid={`visual-category-${cat.slug}`}
                 >
-                  <div className="h-12 bg-stone-100">
-                    <img src={cat.image} alt={cat.label} className="w-full h-full object-cover" />
+                  <div className={`h-12 flex items-center justify-center ${cat.bg}`}>
+                    <Icon className={`w-5 h-5 ${cat.color}`} strokeWidth={1.5} />
                   </div>
                   <div className="px-1.5 py-1 text-[10px] font-medium text-stone-700 truncate">{cat.label}</div>
                 </button>
