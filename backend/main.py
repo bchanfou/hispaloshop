@@ -1,3 +1,32 @@
+import os
+import sys
+
+# === VALIDACIÓN FAIL-FAST DE VARIABLES CRÍTICAS ===
+REQUIRED_ENV_VARS = [
+    "JWT_SECRET",
+    "MONGO_URL",
+    "STRIPE_SECRET_KEY",
+]
+
+OPTIONAL_ENV_VARS = [
+    "STRIPE_WEBHOOK_SECRET",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+    "REDIS_URL",
+]
+
+missing = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
+if missing:
+    print(f"FATAL: Missing required environment variables: {', '.join(missing)}")
+    print("Set them before starting the application.")
+    sys.exit(1)
+
+# Warnings para opcionales
+for var in OPTIONAL_ENV_VARS:
+    if not os.getenv(var):
+        print(f"WARNING: Optional {var} not set. Some features may be disabled.")
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -78,16 +107,23 @@ Path("uploads").mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # CORS Configuration
+allowed_origins = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:5173,https://hispaloshop.com,https://www.hispaloshop.com"
+).split(",")
+
+# En producción, rechazar wildcard origins
+if os.getenv("ENV") == "production":
+    if "*" in allowed_origins:
+        raise ValueError("Wildcard '*' not allowed in ALLOWED_ORIGINS in production")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://hispaloshop.com",
-        "https://www.hispaloshop.com",
-    ],
+    allow_origins=[origin.strip() for origin in allowed_origins],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
+    max_age=600,
 )
 
 # API v1 Routes

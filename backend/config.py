@@ -1,12 +1,26 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
+from pydantic import Field, validator
+import os
 
 
 class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+asyncpg://user:pass@localhost/hispaloshop"
 
-    JWT_SECRET: str = "your-secret-key-change-in-production"
+    JWT_SECRET: str = Field(
+        default=None,
+        env="JWT_SECRET"
+    )
     JWT_ALGORITHM: str = "HS256"
+    
+    @validator('JWT_SECRET', pre=True, always=True)
+    def validate_jwt_secret(cls, v):
+        if not v or v == "your-secret-key-change-in-production":
+            raise ValueError(
+                "JWT_SECRET must be set in environment variables. "
+                "Generate with: openssl rand -hex 32"
+            )
+        return v
 
     STRIPE_SECRET_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
