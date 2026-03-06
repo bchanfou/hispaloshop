@@ -52,7 +52,10 @@ class Settings(BaseSettings):
     TIER_RECALCULATION_DAY: int = 1
 
     # Resolve env file relative to this module so scripts work from any CWD.
-    model_config = SettingsConfigDict(env_file=str(Path(__file__).with_name(".env")))
+    model_config = SettingsConfigDict(
+        env_file=str(Path(__file__).with_name(".env")),
+        extra='ignore'  # Allow extra env vars for backwards compatibility
+    )
 
 
 settings = Settings()
