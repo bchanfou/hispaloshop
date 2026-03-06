@@ -86,7 +86,7 @@ export default function Footer() {
 
           {/* Producer / Influencer / Importer Links */}
           <div>
-            <h4 className="font-heading text-[13px] uppercase tracking-wider text-stone-400 mb-4">{t('footer.collaborate')}</h4>
+            <h4 className="font-heading text-[13px] uppercase tracking-wider text-stone-400 mb-4">Unete</h4>
             <ul className="space-y-2">
               <li>
                 <Link to="/vender/registro" className="text-sm text-stone-300 hover:text-white transition-colors">

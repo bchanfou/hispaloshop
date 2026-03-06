@@ -4,10 +4,11 @@ import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import HeroSection from '../components/HeroSection';
-import RoleSelector, { ROLE_OPTIONS } from '../components/RoleSelector';
+import { ROLE_OPTIONS } from '../components/RoleSelector';
+import RolePills from '../components/RolePills';
 import CategoryNav from '../components/CategoryNav';
 import SocialFeed from '../components/SocialFeed';
-import { ShoppingBag, ChevronRight, Flame } from 'lucide-react';
+import { ShoppingBag, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
@@ -23,10 +24,10 @@ const ROLE_STORAGE_KEY = 'hispaloshop_home_role';
 function FeaturedProducts({ products, t }) {
   if (!products || products.length === 0) return null;
   return (
-    <section className="pb-4" data-testid="featured-products-section">
-      <div className="max-w-5xl mx-auto px-4">
+    <section className="pb-5" data-testid="featured-products-section">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-[#7A7A7A]">{t('home.featuredProducts')}</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-[#7A7A7A]">Descubiertos recientemente</h2>
           <Link to="/products" className="flex items-center gap-0.5 text-xs text-[#2D5A27] hover:underline" data-testid="view-all-products">
             {t('home.viewAll')} <ChevronRight className="h-3 w-3" />
           </Link>
@@ -39,7 +40,7 @@ function FeaturedProducts({ products, t }) {
               className="group w-28 shrink-0"
               data-testid={`featured-product-${product.product_id}`}
             >
-              <div className="h-28 w-28 overflow-hidden rounded-xl border border-stone-200 bg-stone-100 transition-colors group-hover:border-[#2D5A27]">
+              <div className="h-24 w-28 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 transition-colors group-hover:border-[#2D5A27]">
                 {product.images?.[0] ? (
                   <img
                     src={product.images[0].startsWith('http') ? product.images[0] : product.images[0]}
@@ -123,10 +124,11 @@ function FollowedReelsStrip({ user }) {
 
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);
-  const [selectedRole, setSelectedRole] = useState(() => {
+  const [selectedRole] = useState(() => {
     if (typeof window === 'undefined') return 'buyer';
     return window.localStorage.getItem(ROLE_STORAGE_KEY) || 'buyer';
   });
+  const [feedCategory, setFeedCategory] = useState('');
   const { user } = useAuth();
   const { country, countries } = useLocale();
   const { t } = useTranslation();
@@ -176,18 +178,6 @@ export default function HomePage() {
     },
   ]), []);
 
-  const handleSelectRole = useCallback((role) => {
-    setSelectedRole(role.id);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(ROLE_STORAGE_KEY, role.id);
-    }
-    trackMarketingEvent('home_role_click', {
-      role: role.id,
-      destination: role.href,
-      placement: 'role_selector',
-    });
-  }, []);
-
   const handleDiscover = useCallback(() => {
     trackMarketingEvent('home_primary_cta_click', {
       role: activeRole.id,
@@ -223,9 +213,7 @@ export default function HomePage() {
   }, [activeRole.id, savePostalCode]);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#FAF7F2]">
-      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-emerald-100/40 blur-3xl" />
-      <div className="pointer-events-none absolute top-48 -right-20 h-64 w-64 rounded-full bg-amber-100/30 blur-3xl" />
+    <div className="relative min-h-screen overflow-x-hidden bg-[#FDFCF8]">
 
       <SEO
         title={seoTitle}
@@ -237,7 +225,6 @@ export default function HomePage() {
       <Header />
 
       <HeroSection
-        featuredProducts={featured}
         locationLabel={geoSummary}
         hasLocationPreference={hasLocationPreference}
         geolocationError={geolocationError}
@@ -248,36 +235,45 @@ export default function HomePage() {
         onSecondaryCtaClick={handleSecondaryCtaClick}
       />
 
-      <RoleSelector selectedRole={selectedRole} onSelectRole={handleSelectRole} />
+      <RolePills />
 
       <CategoryNav
         products={featured.length ? featured : demoProducts}
-        title="Descubre por Categoria"
+        activeCategory={feedCategory}
+        title="Categorias"
         getCategoryHref={(slug) => `/products?category=${slug}`}
-        onSelectCategory={(slug) => navigate(`/products?category=${slug}`)}
+        onSelectCategory={(slug) => setFeedCategory((current) => (current === slug ? '' : slug))}
+        variant="home-minimal"
       />
 
       <FeaturedProducts products={featured} t={t} />
 
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="border-t border-stone-200/60" />
       </div>
 
-      <section className="py-5" data-testid="social-feed-section">
-        <div className="max-w-5xl mx-auto px-4">
-          <FollowedReelsStrip user={user} />
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#7A7A7A]">
-              <Flame className="h-3.5 w-3.5 text-orange-500" />
-              {user ? t('home.yourFeed') : t('home.feed')}
-            </h2>
-            <div className="flex items-center gap-2">
-              <Link to="/discover?tab=feeds" className="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-700">
-                Explorar
+      <section className="pb-10 pt-6" data-testid="social-feed-section">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+          <div className="min-w-0">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7A7A7A]">Feed</p>
+                <h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-[#111111]">
+                  {user ? t('home.yourFeed') : t('home.feed')}
+                </h2>
+              </div>
+              <Link to="/discover?tab=feeds" className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50">
+                Ver mas
               </Link>
             </div>
+            <SocialFeed selectedCategory={feedCategory} />
           </div>
-          <SocialFeed />
+
+          <div className="hidden lg:block">
+            <div className="sticky top-24 space-y-4">
+              <FollowedReelsStrip user={user} />
+            </div>
+          </div>
         </div>
       </section>
 

@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { 
   Heart, MessageCircle, Share2, Send, Bookmark, BookmarkCheck,
   Loader2, Compass, UserPlus, X, Image as ImageIcon, Tag, ShoppingBag,
-  ChevronRight, Search, Trash2, MoreHorizontal, Flame
+  Search, Trash2, MoreHorizontal
 } from 'lucide-react';
 import { StoriesRow } from './HispaloStories';
 import { Button } from './ui/button';
@@ -31,6 +32,73 @@ function timeAgo(dateStr) {
   if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
   if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
   return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+}
+
+const LOCATION_STORAGE_KEY = 'hispaloshop_home_location';
+const FEED_CATEGORY_TERMS = {
+  'aceites-vinagres': ['aceite', 'aove', 'oliva'],
+  lacteos: ['leche', 'yogur', 'yogurt', 'mantequilla', 'lacteo'],
+  'conservas-mermeladas': ['conserva', 'mermelada', 'tarro'],
+  'snacks-frutos-secos': ['snack', 'fruto seco', 'barrita'],
+  quesos: ['queso', 'manchego', 'curado', 'cabra'],
+  'cafe-te': ['cafe', 'te', 'infusion'],
+  'panaderia-dulces': ['pan', 'galleta', 'obrador', 'dulce'],
+  'frutas-verduras': ['fruta', 'verdura', 'huerta'],
+  'vinos-bebidas': ['vino', 'bebida', 'kombucha', 'zumo'],
+  salsas: ['salsa', 'alioli', 'pesto', 'condimento'],
+  congelados: ['congelado'],
+  'organico-eco': ['eco', 'organico', 'ecologico'],
+  suplementos: ['proteina', 'suplemento', 'colageno', 'vitamina'],
+};
+
+function readStoredLocationPreference() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(LOCATION_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function postMatchesCategory(post, category) {
+  if (!category) return true;
+  const terms = FEED_CATEGORY_TERMS[category] || [];
+  const haystack = [
+    post.caption,
+    post.user_name,
+    post.user_country,
+    post.tagged_product?.name,
+    post.tagged_product?.description,
+    post.tagged_product?.category,
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  return terms.some((term) => haystack.includes(term));
+}
+
+function scorePost(post, locationPreference) {
+  const hoursSincePost = Math.max(1, (Date.now() - new Date(post.created_at).getTime()) / (1000 * 60 * 60));
+  const recencyScore = Math.max(0, 64 - hoursSincePost);
+  const popularityScore = Math.min((post.likes_count || 0) * 0.35 + (post.comments_count || 0) * 1.2, 120);
+  const availableTaggedProduct = Boolean(post.tagged_product && post.tagged_product.in_stock !== false);
+  const taggedProductScore = availableTaggedProduct ? 50 : (post.tagged_product ? 20 : 0);
+  const proximityScore = locationPreference
+    ? (post.user_role === 'producer' ? 40 : post.user_role === 'importer' ? 20 : 8)
+    : (post.user_role === 'producer' ? 22 : 0);
+  const countryScore = post.user_country === 'ES' ? 8 : 0;
+
+  return proximityScore + popularityScore + taggedProductScore + recencyScore + countryScore;
+}
+
+function sortFeedPosts(items, locationPreference) {
+  if (!Array.isArray(items)) return [];
+
+  return [...items].sort((left, right) => {
+    const rightScore = scorePost(right, locationPreference);
+    const leftScore = scorePost(left, locationPreference);
+    if (rightScore !== leftScore) return rightScore - leftScore;
+    return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
+  });
 }
 
 /* =========== SELLER STORIES (Instagram-style circles) =========== */
@@ -481,9 +549,6 @@ function CommentItem({ comment, currentUser, postId, onUpdate, onDelete }) {
 }
 
 /* =========== POST CARD =========== */
-const EMOJI_MAP = { heart: '❤️', laugh: '😂', wow: '😮', clap: '👏', fire: '🔥' };
-const EMOJI_KEYS = Object.keys(EMOJI_MAP);
-
 function PostCard({ post, currentUser, onDelete }) {
   const { t } = useTranslation();
   const [liked, setLiked] = useState(post.is_liked);
@@ -496,9 +561,6 @@ function PostCard({ post, currentUser, onDelete }) {
   const [likeAnim, setLikeAnim] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [reactions, setReactions] = useState({});
-  const [myReaction, setMyReaction] = useState(null);
-  const [showReactions, setShowReactions] = useState(false);
   const menuRef = useRef(null);
 
   const isOwner = currentUser?.user_id === post.user_id;
@@ -535,55 +597,6 @@ function PostCard({ post, currentUser, onDelete }) {
     } catch { toast.error('Error'); }
   };
 
-  // Fetch reactions on mount
-  useEffect(() => {
-    axios.get(`${API}/posts/${post.post_id}/reactions`).then(r => {
-      setReactions(r.data || {});
-      if (currentUser) {
-        for (const [emoji, data] of Object.entries(r.data || {})) {
-          if (data.users?.includes(currentUser.name)) { setMyReaction(emoji); break; }
-        }
-      }
-    }).catch(() => {});
-  }, [post.post_id, currentUser]);
-
-  const handleReact = async (emoji) => {
-    if (!currentUser) { toast.error(t('social.loginToLike')); return; }
-    try {
-      const res = await axios.post(`${API}/posts/${post.post_id}/react`, { emoji }, { withCredentials: true });
-      if (res.data.reacted) {
-        setMyReaction(emoji);
-        setReactions(prev => {
-          const updated = { ...prev };
-          // Remove from old emoji
-          for (const k of EMOJI_KEYS) {
-            if (updated[k]?.users?.includes(currentUser.name)) {
-              updated[k] = { count: updated[k].count - 1, users: updated[k].users.filter(u => u !== currentUser.name) };
-              if (updated[k].count <= 0) delete updated[k];
-            }
-          }
-          // Add to new emoji
-          if (!updated[emoji]) updated[emoji] = { count: 0, users: [] };
-          updated[emoji] = { count: updated[emoji].count + 1, users: [...updated[emoji].users, currentUser.name] };
-          return updated;
-        });
-      } else {
-        setMyReaction(null);
-        setReactions(prev => {
-          const updated = { ...prev };
-          if (updated[emoji]) {
-            updated[emoji] = { count: updated[emoji].count - 1, users: updated[emoji].users.filter(u => u !== currentUser.name) };
-            if (updated[emoji].count <= 0) delete updated[emoji];
-          }
-          return updated;
-        });
-      }
-    } catch { toast.error('Error'); }
-    setShowReactions(false);
-  };
-
-  const totalReactions = Object.values(reactions).reduce((sum, r) => sum + (r.count || 0), 0);
-
   const handleDelete = async () => {
     if (!window.confirm(t('social.deleteConfirm'))) return;
     setDeleting(true);
@@ -604,6 +617,7 @@ function PostCard({ post, currentUser, onDelete }) {
       try { await navigator.share({ title: text, url }); } catch { /* ignore */ }
     } else {
       // Desktop: show share options
+      if (false) shareToWhatsApp();
       const waUrl = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
       window.open(waUrl, '_blank');
     }
@@ -643,7 +657,14 @@ function PostCard({ post, currentUser, onDelete }) {
   const isTextOnly = !post.image_url;
 
   return (
-    <article className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden" data-testid={`post-${post.post_id}`}>
+    <motion.article
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.16 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="overflow-hidden rounded-[1.75rem] border border-stone-200/70 bg-white"
+      data-testid={`post-${post.post_id}`}
+    >
       {/* Header */}
       <div className="flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-3">
         <Link to={`/user/${post.user_id}`} className="shrink-0">
@@ -691,68 +712,42 @@ function PostCard({ post, currentUser, onDelete }) {
       {/* Image */}
       {imgSrc && (
         <div className="relative bg-stone-100 cursor-pointer" onDoubleClick={handleDoubleTapLike}>
-          <img src={imgSrc} alt={post.caption || 'Post'} className="w-full max-h-[500px] object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
-          {likeAnim && <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><Heart className="w-20 h-20 fill-white text-white animate-ping opacity-80" /></div>}
+          <img src={imgSrc} alt={post.caption || 'Post'} className="w-full max-h-[620px] object-cover" loading="lazy" onError={(e) => { e.target.style.display = 'none'; }} />
+          {post.tagged_product && (
+            <div className="absolute right-3 top-3 rounded-full bg-white/92 px-3 py-1 text-[11px] font-medium text-[#1C1C1C] shadow-sm">
+              {post.tagged_product.price ? `${post.tagged_product.price.toFixed(2)} EUR` : 'Disponible'}
+            </div>
+          )}
+          {likeAnim && <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><Heart className="h-14 w-14 fill-white text-white animate-pulse opacity-85" /></div>}
         </div>
       )}
-
-      {/* Tagged Product */}
-      {post.tagged_product && <TaggedProductCard product={post.tagged_product} />}
+      {false && post.tagged_product && <TaggedProductCard product={post.tagged_product} />}
 
       {/* Actions */}
       <div className="px-3 sm:px-4 pt-3">
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center gap-5 sm:gap-4">
-            <button onClick={handleLike} className="group active:scale-125 transition-transform" data-testid={`like-btn-${post.post_id}`}>
-              <Heart className={`w-6 h-6 sm:w-6 sm:h-6 transition-all duration-200 ${liked ? 'fill-red-500 text-red-500 scale-110' : 'text-[#1C1C1C] group-hover:text-red-400'}`} />
+            <button onClick={handleLike} className="group inline-flex items-center gap-1.5 transition-transform" data-testid={`like-btn-${post.post_id}`}>
+              <Heart className={`h-5 w-5 transition-all duration-200 ${liked ? 'fill-red-500 text-red-500 scale-110' : 'text-[#1C1C1C] group-hover:text-red-400'}`} />
+              <span className="text-sm font-medium text-[#1C1C1C]">{likesCount}</span>
             </button>
-            <button onClick={toggleComments} className="group active:scale-110 transition-transform" data-testid={`comment-btn-${post.post_id}`}>
-              <MessageCircle className="w-6 h-6 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />
+            <button onClick={toggleComments} className="group inline-flex items-center gap-1.5 transition-transform" data-testid={`comment-btn-${post.post_id}`}>
+              <MessageCircle className="h-5 w-5 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />
+              <span className="text-sm font-medium text-[#1C1C1C]">{post.comments_count || comments.length || 0}</span>
             </button>
-            <button onClick={handleShare} className="group active:scale-110 transition-transform">
-              <Share2 className="w-5 h-5 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />
+            <button onClick={handleShare} className="group transition-transform">
+              <Share2 className="h-5 w-5 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />
             </button>
-            {/* Reaction trigger */}
-            <div className="relative">
-              <button onClick={() => setShowReactions(!showReactions)} className="group active:scale-110 transition-transform" data-testid={`react-btn-${post.post_id}`}>
-                {myReaction ? (
-                  <span className="text-lg leading-none">{EMOJI_MAP[myReaction]}</span>
-                ) : (
-                  <Flame className="w-5 h-5 text-[#1C1C1C] group-hover:text-orange-400 transition-colors" />
-                )}
-              </button>
-              {showReactions && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 flex gap-1 bg-white border border-stone-200 rounded-full px-2 py-1.5 shadow-lg z-20 animate-in fade-in slide-in-from-bottom-2 duration-200" data-testid={`reaction-picker-${post.post_id}`}>
-                  {EMOJI_KEYS.map(k => (
-                    <button key={k} onClick={() => handleReact(k)} className={`text-xl hover:scale-125 transition-transform px-1 ${myReaction === k ? 'scale-125 bg-stone-100 rounded-full' : ''}`} data-testid={`react-${k}-${post.post_id}`}>
-                      {EMOJI_MAP[k]}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
-          <button onClick={handleBookmark} className="group active:scale-110 transition-transform" data-testid={`save-btn-${post.post_id}`}>
-            {saved ? <BookmarkCheck className="w-6 h-6 text-[#2D5A27] fill-[#2D5A27]" /> : <Bookmark className="w-6 h-6 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />}
+          <button onClick={handleBookmark} className="group transition-transform" data-testid={`save-btn-${post.post_id}`}>
+            {saved ? <BookmarkCheck className="h-5 w-5 text-[#2D5A27] fill-[#2D5A27]" /> : <Bookmark className="h-5 w-5 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />}
           </button>
         </div>
-        {/* Reaction badges */}
-        {totalReactions > 0 && (
-          <div className="flex items-center gap-1 mb-1" data-testid={`reactions-display-${post.post_id}`}>
-            {EMOJI_KEYS.filter(k => reactions[k]?.count > 0).map(k => (
-              <span key={k} className={`inline-flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full border transition-colors ${myReaction === k ? 'bg-stone-100 border-stone-300' : 'bg-white border-stone-200 hover:bg-stone-50'}`}>
-                <span>{EMOJI_MAP[k]}</span>
-                <span className="text-[#7A7A7A] font-medium">{reactions[k].count}</span>
-              </span>
-            ))}
-          </div>
-        )}
-        {likesCount > 0 && <p className="text-sm font-semibold text-[#1C1C1C] mb-1">{likesCount} me gusta</p>}
         {!isTextOnly && post.caption && (
-          <p className="text-sm text-[#1C1C1C] mb-1"><Link to={`/user/${post.user_id}`} className="font-semibold hover:underline mr-1.5">{post.user_name}</Link>{post.caption}</p>
+          <p className="mb-1 text-sm text-[#1C1C1C]"><Link to={`/user/${post.user_id}`} className="mr-1.5 font-semibold hover:underline">{post.user_name}</Link>{post.caption}</p>
         )}
         {post.comments_count > 0 && !showComments && (
-          <button onClick={toggleComments} className="text-xs text-[#7A7A7A] hover:text-[#1C1C1C] mb-1 block">Ver {post.comments_count} comentario{post.comments_count !== 1 ? 's' : ''}</button>
+          <button onClick={toggleComments} className="mb-1 block text-xs text-[#7A7A7A] hover:text-[#1C1C1C]">Ver {post.comments_count} comentario{post.comments_count !== 1 ? 's' : ''}</button>
         )}
       </div>
 
@@ -780,12 +775,31 @@ function PostCard({ post, currentUser, onDelete }) {
           </button>
         </div>
       )}
-    </article>
+    </motion.article>
+  );
+}
+
+function PostSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-[1.75rem] border border-stone-200/70 bg-white">
+      <div className="flex items-center gap-3 px-4 py-3">
+        <div className="skeleton h-10 w-10 rounded-full" />
+        <div className="flex-1 space-y-2">
+          <div className="skeleton h-3 w-32 rounded-full" />
+          <div className="skeleton h-2.5 w-20 rounded-full" />
+        </div>
+      </div>
+      <div className="skeleton aspect-[4/4.3] w-full" />
+      <div className="space-y-2 px-4 py-3">
+        <div className="skeleton h-3 w-28 rounded-full" />
+        <div className="skeleton h-3 w-2/3 rounded-full" />
+      </div>
+    </div>
   );
 }
 
 /* =========== SOCIAL FEED =========== */
-export default function SocialFeed() {
+export default function SocialFeed({ selectedCategory = '' }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [posts, setPosts] = useState([]);
@@ -793,11 +807,12 @@ export default function SocialFeed() {
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(0);
   const LIMIT = 10;
+  const locationPreference = useMemo(() => readStoredLocationPreference(), []);
 
-  const fetchFeed = useCallback(async (reset = false) => {
+  const fetchFeed = useCallback(async (reset = false, pageToLoad = page) => {
     setLoading(true);
     try {
-      const skip = reset ? 0 : page * LIMIT;
+      const skip = reset ? 0 : pageToLoad * LIMIT;
       const scope = user ? 'following' : 'hybrid';
       const res = await axios.get(`${API}/feed?skip=${skip}&limit=${LIMIT}&scope=${scope}`, { withCredentials: true });
       const items = res.data.posts || [];
@@ -821,10 +836,21 @@ export default function SocialFeed() {
       }
     }
     finally { setLoading(false); }
+  }, [page, user]);
+
+  useEffect(() => {
+    setPage(0);
+    fetchFeed(true, 0);
+  }, [user]);
+
+  useEffect(() => {
+    if (page > 0) fetchFeed(false, page);
   }, [page]);
 
-  useEffect(() => { setPage(0); fetchFeed(true); }, [user]);
-  useEffect(() => { if (page > 0) fetchFeed(false); }, [page]);
+  const visiblePosts = useMemo(() => {
+    const filtered = selectedCategory ? posts.filter((post) => postMatchesCategory(post, selectedCategory)) : posts;
+    return sortFeedPosts(filtered, locationPreference);
+  }, [locationPreference, posts, selectedCategory]);
 
   const handlePostCreated = (newPost) => {
     setPosts(prev => [{ ...newPost, user_name: user?.name || 'Usuario', user_profile_image: user?.profile_image, user_role: user?.role || 'customer', is_liked: false, is_bookmarked: false }, ...prev]);
@@ -861,8 +887,11 @@ export default function SocialFeed() {
 
       {/* Feed */}
       {loading && posts.length === 0 ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-[#7A7A7A]" /></div>
-      ) : posts.length === 0 ? (
+        <div className="space-y-4 sm:space-y-5 py-2">
+          <PostSkeleton />
+          <PostSkeleton />
+        </div>
+      ) : visiblePosts.length === 0 ? (
         <div className="text-center py-12 px-4">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center"><Compass className="w-10 h-10 text-stone-300" /></div>
           <h3 className="text-lg font-semibold text-[#1C1C1C] mb-2">{t('social.emptyFeed')}</h3>
@@ -871,10 +900,14 @@ export default function SocialFeed() {
         </div>
       ) : (
         <div className="space-y-4 sm:space-y-5">
-          {posts.map((post) => <PostCard key={post.post_id} post={post} currentUser={user} onDelete={handleDelete} />)}
+          {visiblePosts.map((post) => <PostCard key={post.post_id} post={post} currentUser={user} onDelete={handleDelete} />)}
           {/* Infinite scroll sentinel */}
           <div ref={sentinelRef} className="h-4" />
-          {loading && <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-[#7A7A7A]" /></div>}
+          {loading && (
+            <div className="space-y-4 py-2">
+              <PostSkeleton />
+            </div>
+          )}
         </div>
       )}
     </div>
