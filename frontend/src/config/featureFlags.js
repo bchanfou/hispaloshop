@@ -3,5 +3,5 @@ const parseBoolean = (value, fallback = false) => {
   return String(value).toLowerCase() === "true";
 };
 
-export const DEMO_MODE = parseBoolean(process.env.REACT_APP_DEMO_MODE, true);
+export const DEMO_MODE = parseBoolean(process.env.REACT_APP_DEMO_MODE, false);
 

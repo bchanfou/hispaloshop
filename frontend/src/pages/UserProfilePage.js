@@ -17,8 +17,7 @@ import { API } from '../utils/api';
 import PostViewer from '../components/PostViewer';
 import { StoriesRow } from '../components/HispaloStories';
 import BadgeGrid from '../components/BadgeGrid';
-import { demoUsers, demoPosts, demoProducts } from '../data/demoData';
-import { DEMO_MODE } from '../config/featureFlags';
+
 
 function CreatePostModal({ onClose, onPostCreated }) {
   const { t } = useTranslation();
@@ -149,11 +148,11 @@ export default function UserProfilePage() {
           if (Array.isArray(data) && data.length > 0) {
             setSellerProducts(data);
           } else {
-            setSellerProducts(DEMO_MODE ? demoProducts.filter((p) => p.seller_id === userId) : []);
+            setSellerProducts([]);
           }
         })
         .catch(() => {
-          setSellerProducts(DEMO_MODE ? demoProducts.filter((p) => p.seller_id === userId) : []);
+          setSellerProducts([]);
         });
     }
     if (activeTab === 'saved' && isOwnProfile && currentUser) {
@@ -177,7 +176,7 @@ export default function UserProfilePage() {
       if (Array.isArray(remotePosts) && remotePosts.length > 0) {
         setPosts(remotePosts);
       } else {
-        setPosts(DEMO_MODE ? demoPosts.filter((p) => p.user_id === userId) : []);
+        setPosts([]);
       }
 
       // Fetch badges
@@ -190,13 +189,7 @@ export default function UserProfilePage() {
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
-      const fallback = DEMO_MODE ? demoUsers.find((u) => u.user_id === userId || u.id === userId) : null;
-      if (fallback) {
-        setProfile(fallback);
-        setFollowersCount(fallback.followers_count || 0);
-        setFollowingCount(fallback.following_count || 0);
-        setPosts(demoPosts.filter((p) => p.user_id === fallback.user_id));
-      } else if (err.response?.status === 404) {
+      if (err.response?.status === 404) {
         setProfile({
           user_id: userId, name: 'Usuario', bio: '', followers_count: 0, following_count: 0, posts_count: 0
         });

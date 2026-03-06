@@ -23,7 +23,7 @@ import SEO from '../components/SEO';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { demoStores, demoUsers } from '../data/demoData';
+
 import { API } from '../utils/api';
 
 const HOW_IT_WORKS = [
@@ -62,12 +62,7 @@ const TOOLING = [
 ];
 const PRODUCTOR_VIDEO_URL = process.env.REACT_APP_PRODUCER_VIDEO_URL || 'https://www.youtube-nocookie.com/embed/M7lc1UVf-VE?rel=0';
 
-const producerNames = Array.from(
-  new Set([
-    ...demoUsers.filter((user) => user.role === 'producer').map((user) => user.name),
-    ...demoStores.filter((store) => store.store_type === 'producer').map((store) => store.name),
-  ]),
-).slice(0, 6);
+const producerNames = ['Cooperativa La Huerta Viva', 'Bodega Sierra Azul', 'Mediterranean Import Hub'];
 
 const formatEuro = (value) =>
   new Intl.NumberFormat('es-ES', {

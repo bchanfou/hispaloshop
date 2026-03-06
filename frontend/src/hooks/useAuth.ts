@@ -1,74 +1,83 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import useSWR from 'swr';
 import { api } from '@/lib/api';
+import { useCallback } from 'react';
 
-interface User {
+export interface User {
   id: string;
   email: string;
   full_name: string;
-  role: string;
+  role: 'customer' | 'producer' | 'influencer' | 'admin' | 'importer';
   avatar_url?: string;
+  is_active?: boolean;
 }
 
-interface RegisterData {
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
   email: string;
   password: string;
   full_name: string;
   role: string;
+  country?: string;
 }
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
-  logout: () => void;
-  updateProfile: (data: Partial<User>) => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      api
-        .getMe()
-        .then(setUser)
-        .catch(() => localStorage.removeItem('token'))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+// Hook para login (mutación)
+export function useLogin() {
+  const login = useCallback(async (credentials: LoginCredentials) => {
+    const response = await api.login(credentials.email, credentials.password);
+    if (response?.access_token) {
+      api.setToken(response.access_token);
     }
+    return response;
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const data = await api.login(email, password);
-    setUser(data.user);
-  };
-
-  const register = async (data: RegisterData) => {
-    await api.register(data);
-    await login(data.email, data.password);
-  };
-
-  const logout = () => {
-    api.clearToken();
-    setUser(null);
-  };
-
-  const updateProfile = async (data: Partial<User>) => {
-    const updated = await api.updateMe(data);
-    setUser(updated);
-  };
-
-  return <AuthContext.Provider value={{ user, loading, login, logout, register, updateProfile }}>{children}</AuthContext.Provider>;
+  return { login };
 }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
-};
+// Hook para registro (mutación)
+export function useRegister() {
+  const register = useCallback(async (data: RegisterData) => {
+    const response = await api.register(data);
+    if (response?.access_token) {
+      api.setToken(response.access_token);
+    }
+    return response;
+  }, []);
+
+  return { register };
+}
+
+// Hook para obtener usuario actual
+export function useCurrentUser() {
+  const { data, error, isLoading, mutate } = useSWR(
+    'auth/me',
+    () => api.getMe(),
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const logout = useCallback(() => {
+    api.clearToken();
+    mutate(undefined, false);
+    window.location.href = '/login';
+  }, [mutate]);
+
+  return {
+    user: data,
+    isLoading,
+    error,
+    mutate,
+    logout,
+  };
+}
+
+// Hook para verificar si está autenticado
+export function useIsAuthenticated() {
+  const { user, isLoading } = useCurrentUser();
+  return { isAuthenticated: !!user, isLoading };
+}

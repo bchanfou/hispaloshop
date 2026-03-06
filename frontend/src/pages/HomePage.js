@@ -7,8 +7,7 @@ import { HelpCircle, Users, Store, Globe, ShoppingBag, ChevronRight, Heart, Mess
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
-import { demoProducts, demoPosts } from '../data/demoData';
-import { DEMO_MODE } from '../config/featureFlags';
+
 import SEO from '../components/SEO';
 import { CATEGORY_CONFIG } from '../config/categories';
 
@@ -205,7 +204,7 @@ function SocialFeedInfinite({ user }) {
         // const res = await axios.get(`${API}/feed?type=following&page=1&limit=10`);
         
         // Por ahora usamos demo posts mezclados
-        const initialPosts = DEMO_MODE ? demoPosts.slice(0, 3) : [];
+        const initialPosts = [];
         setPosts(initialPosts);
         setHasMore(initialPosts.length === 3);
       } catch (err) {
@@ -227,7 +226,7 @@ function SocialFeedInfinite({ user }) {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // En producción: const res = await axios.get(`${API}/feed?type=following&page=${page + 1}&limit=10`);
-      const newPosts = DEMO_MODE ? demoPosts.map((p, i) => ({...p, id: `${p.id}-${page}-${i}`})) : [];
+      const newPosts = [];
       
       if (newPosts.length === 0) {
         setHasMore(false);
@@ -312,9 +311,9 @@ export default function HomePage() {
   useEffect(() => {
     axios.get(`${API}/products?approved_only=true`).then((response) => {
       const data = (response.data.products || response.data || []).slice(0, 15);
-      setFeatured(data.length > 0 ? data : (DEMO_MODE ? demoProducts.slice(0, 15) : []));
+      setFeatured(Array.isArray(data) ? data : []);
     }).catch(() => {
-      setFeatured(DEMO_MODE ? demoProducts.slice(0, 15) : []);
+      setFeatured([]);
     });
   }, []);
 

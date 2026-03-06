@@ -15,8 +15,7 @@ import { useAuth } from '../context/AuthContext';
 
 import { API } from '../utils/api';
 import { sanitizeImageUrl } from '../utils/helpers';
-import { demoPosts } from '../data/demoData';
-import { DEMO_MODE } from '../config/featureFlags';
+
 
 // Normalize image URLs — ensure /api prefix for local uploads
 function getImgUrl(url) {
@@ -821,7 +820,7 @@ export default function SocialFeed({ selectedCategory = '' }) {
           setPosts(items);
           setHasMore(res.data.has_more || false);
         } else {
-          setPosts(DEMO_MODE ? demoPosts.map((p) => ({ ...p, is_liked: false, is_bookmarked: false })) : []);
+          setPosts([]);
           setHasMore(false);
         }
       } else {
@@ -831,7 +830,7 @@ export default function SocialFeed({ selectedCategory = '' }) {
     } catch (err) {
       console.error('Feed error:', err);
       if (reset) {
-        setPosts(DEMO_MODE ? demoPosts.map((p) => ({ ...p, is_liked: false, is_bookmarked: false })) : []);
+        setPosts([]);
         setHasMore(false);
       }
     }

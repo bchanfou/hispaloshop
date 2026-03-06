@@ -16,8 +16,7 @@ import {
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
-import { demoProducts } from '../data/demoData';
-import { DEMO_MODE } from '../config/featureFlags';
+
 import { getCategoryLabel, productMatchesCategory } from '../config/categories';
 
 const certificationIds = ['halal', 'kosher', 'vegan', 'gluten-free', 'sugar-free', 'organic'];
@@ -86,31 +85,13 @@ export default function ProductsPage() {
 
       const response = await axios.get(`${API}/products?${params.toString()}`);
       const data = response.data?.products || response.data || [];
-      setRawProducts(Array.isArray(data) && data.length ? data : (DEMO_MODE ? applyDemoFilters() : []));
+      setRawProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching products:', error);
-      setRawProducts(DEMO_MODE ? applyDemoFilters() : []);
+      setRawProducts([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const applyDemoFilters = () => {
-    let list = [...demoProducts];
-    if (filters.search) {
-      const needle = filters.search.toLowerCase();
-      list = list.filter((product) => `${product.name} ${product.description || ''}`.toLowerCase().includes(needle));
-    }
-    if (filters.minPrice) list = list.filter((product) => Number(product.price || 0) >= Number(filters.minPrice));
-    if (filters.maxPrice) list = list.filter((product) => Number(product.price || 0) <= Number(filters.maxPrice));
-    if (filters.freeShipping) list = list.filter((product) => !product.shipping_cost || product.shipping_cost === 0);
-
-    if (filters.sort === 'price_asc') list.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-    if (filters.sort === 'price_desc') list.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-    if (filters.sort === 'rating') list.sort((a, b) => Number(b.average_rating || 0) - Number(a.average_rating || 0));
-    if (filters.sort === 'newest') list.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
-
-    return list;
   };
 
   const products = useMemo(() => {
@@ -400,7 +381,7 @@ export default function ProductsPage() {
         </div>
 
         <CategoryNav
-          products={rawProducts.length ? rawProducts : demoProducts}
+          products={rawProducts}
           activeCategory={filters.category}
           onSelectCategory={setCategoryFilter}
           title="Descubre por Categoria"
