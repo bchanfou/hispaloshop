@@ -11,7 +11,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import {
   Search, ChevronDown, X, SlidersHorizontal, Truck,
-  Droplets, Milk, Apple, Cookie, CakeSlice, Coffee,
+  Droplets, Milk, Cookie, CakeSlice, Coffee,
   Croissant, Cherry, Wine, Soup, Snowflake, Salad, Pill,
 } from 'lucide-react';
 import { useLocale } from '../context/LocaleContext';
@@ -33,7 +33,7 @@ const FALLBACK_CATEGORIES = [
 const CATEGORY_VISUALS = [
   { slug: 'aceite-condimentos', label: 'Aceites', icon: Droplets, bg: 'bg-emerald-50', color: 'text-emerald-700' },
   { slug: 'lacteos', label: 'Lacteos', icon: Milk, bg: 'bg-blue-50', color: 'text-blue-700' },
-  { slug: 'conservas', label: 'Conservas', icon: Apple, bg: 'bg-green-50', color: 'text-green-700' },
+  { slug: 'conservas', label: 'Conservas', icon: Soup, bg: 'bg-amber-50', color: 'text-amber-700' },
   { slug: 'frutos-secos-snacks', label: 'Snacks', icon: Cookie, bg: 'bg-orange-50', color: 'text-orange-700' },
   { slug: 'quesos', label: 'Quesos', icon: CakeSlice, bg: 'bg-yellow-50', color: 'text-yellow-700' },
   { slug: 'cafe-infusiones', label: 'Cafe', icon: Coffee, bg: 'bg-amber-50', color: 'text-amber-700' },

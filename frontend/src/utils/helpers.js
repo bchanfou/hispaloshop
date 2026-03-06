@@ -3,151 +3,144 @@
  */
 
 /**
- * Sanitize image URLs — fix malformed URLs and normalize paths.
- * Handles: missing protocol colon (https// → https://), relative paths, placeholder URLs.
+ * Sanitize image URLs and normalize known asset patterns.
  */
 export const sanitizeImageUrl = (url) => {
   if (!url || typeof url !== 'string') return null;
-  // Fix missing colon: https// → https://
-  if (url.startsWith('https//')) return 'https://' + url.slice(7);
-  if (url.startsWith('http//')) return 'http://' + url.slice(6);
-  // Full URLs are fine
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  // Protocol-relative URLs
-  if (url.startsWith('//')) return 'https:' + url;
-  // Local upload paths
-  if (url.startsWith('/uploads/')) return '/api' + url;
-  // Anything else — return as-is
-  return url;
+
+  let normalized = url.trim();
+  if (!normalized) return null;
+
+  if (normalized.startsWith('data:image/')) return normalized;
+
+  const embeddedAbsolute = normalized.match(/(https?:\/\/[^\s"'<>]+)/i);
+  if (
+    embeddedAbsolute &&
+    !normalized.startsWith('http://') &&
+    !normalized.startsWith('https://')
+  ) {
+    normalized = embeddedAbsolute[1];
+  }
+
+  if (normalized.startsWith('https//')) normalized = `https://${normalized.slice(7)}`;
+  if (normalized.startsWith('http//')) normalized = `http://${normalized.slice(6)}`;
+  if (/^res\.cloudinary\.com\//i.test(normalized)) normalized = `https://${normalized}`;
+
+  if (normalized.startsWith('//')) return `https:${normalized}`;
+  if (normalized.startsWith('http://') || normalized.startsWith('https://')) return normalized;
+  if (normalized.startsWith('/api/uploads/')) return normalized;
+  if (normalized.startsWith('/uploads/')) return `/api${normalized}`;
+  if (normalized.startsWith('uploads/')) return `/api/${normalized}`;
+  if (normalized.startsWith('/images/')) return normalized;
+  if (normalized.startsWith('images/')) return `/${normalized}`;
+
+  return normalized;
 };
 
 // Country code to flag emoji mapping
 export const getCountryFlag = (countryCode) => {
   const countryFlags = {
-    'ES': '🇪🇸',
-    'FR': '🇫🇷',
-    'DE': '🇩🇪',
-    'IT': '🇮🇹',
-    'PT': '🇵🇹',
-    'US': '🇺🇸',
-    'GB': '🇬🇧',
-    'MX': '🇲🇽',
-    'MA': '🇲🇦', // Morocco
-    'GR': '🇬🇷', // Greece
-    'TR': '🇹🇷', // Turkey
-    'EG': '🇪🇬', // Egypt
-    'TN': '🇹🇳', // Tunisia
-    'JP': '🇯🇵',
-    'CN': '🇨🇳',
-    'IN': '🇮🇳',
-    'BR': '🇧🇷',
-    'AR': '🇦🇷',
-    'CL': '🇨🇱',
-    'PE': '🇵🇪',
-    'AU': '🇦🇺',
-    'NZ': '🇳🇿',
+    ES: '\u{1F1EA}\u{1F1F8}',
+    FR: '\u{1F1EB}\u{1F1F7}',
+    DE: '\u{1F1E9}\u{1F1EA}',
+    IT: '\u{1F1EE}\u{1F1F9}',
+    PT: '\u{1F1F5}\u{1F1F9}',
+    US: '\u{1F1FA}\u{1F1F8}',
+    GB: '\u{1F1EC}\u{1F1E7}',
+    MX: '\u{1F1F2}\u{1F1FD}',
+    MA: '\u{1F1F2}\u{1F1E6}',
+    GR: '\u{1F1EC}\u{1F1F7}',
+    TR: '\u{1F1F9}\u{1F1F7}',
+    EG: '\u{1F1EA}\u{1F1EC}',
+    TN: '\u{1F1F9}\u{1F1F3}',
+    JP: '\u{1F1EF}\u{1F1F5}',
+    CN: '\u{1F1E8}\u{1F1F3}',
+    IN: '\u{1F1EE}\u{1F1F3}',
+    BR: '\u{1F1E7}\u{1F1F7}',
+    AR: '\u{1F1E6}\u{1F1F7}',
+    CL: '\u{1F1E8}\u{1F1F1}',
+    PE: '\u{1F1F5}\u{1F1EA}',
+    AU: '\u{1F1E6}\u{1F1FA}',
+    NZ: '\u{1F1F3}\u{1F1FF}',
   };
-  
-  return countryFlags[countryCode] || '🌍';
+
+  return countryFlags[countryCode] || '\u{1F30D}';
 };
 
-// Ingredient to emoji mapping (common food ingredients)
+// Ingredient to emoji mapping
 export const getIngredientEmoji = (ingredient) => {
   const normalizedIngredient = ingredient.toLowerCase().trim();
-  
+
   const emojiMap = {
-    // Oils
-    'olive oil': '🫒',
-    'oil': '🫒',
-    'sunflower oil': '🌻',
-    'coconut oil': '🥥',
-    
-    // Herbs & Spices
-    'rosemary': '🌿',
-    'thyme': '🌿',
-    'basil': '🌿',
-    'oregano': '🌿',
-    'parsley': '🌿',
-    'mint': '🌿',
-    'sage': '🌿',
-    'bay leaf': '🍃',
-    'pepper': '🌶️',
-    'chili': '🌶️',
-    'paprika': '🌶️',
-    'garlic': '🧄',
-    'onion': '🧅',
-    
-    // Salts & Minerals
-    'salt': '🧂',
-    'sea salt': '🧂',
-    
-    // Nuts & Seeds
-    'almond': '🌰',
-    'walnut': '🌰',
-    'hazelnut': '🌰',
-    'pistachio': '🥜',
-    'peanut': '🥜',
-    'sesame': '🌾',
-    
-    // Fruits
-    'lemon': '🍋',
-    'orange': '🍊',
-    'apple': '🍎',
-    'tomato': '🍅',
-    'olive': '🫒',
-    'grape': '🍇',
-    'fig': '🌰',
-    'date': '🌴',
-    
-    // Grains & Flours
-    'wheat': '🌾',
-    'flour': '🌾',
-    'rice': '🍚',
-    'corn': '🌽',
-    'oat': '🌾',
-    'barley': '🌾',
-    
-    // Dairy
-    'milk': '🥛',
-    'cheese': '🧀',
-    'butter': '🧈',
-    'cream': '🥛',
-    
-    // Sweeteners
-    'honey': '🍯',
-    'sugar': '🍬',
-    
-    // Vegetables
-    'carrot': '🥕',
-    'potato': '🥔',
-    'cucumber': '🥒',
-    'eggplant': '🍆',
-    'bell pepper': '??',
-    'spinach': '🥬',
-    
-    // Proteins
-    'egg': '🥚',
-    'chicken': '🍗',
-    'beef': '🥩',
-    'fish': '🐟',
-    'tuna': '🐟',
-    'salmon': '🐟',
-    'shrimp': '🦐',
-    
-    // Others
-    'vinegar': '🧴',
-    'wine': '🍷',
-    'yeast': '🍞',
-    'water': '💧',
+    'olive oil': '\u{1FAD2}',
+    oil: '\u{1FAD2}',
+    'sunflower oil': '\u{1F33B}',
+    'coconut oil': '\u{1F965}',
+    rosemary: '\u{1F33F}',
+    thyme: '\u{1F33F}',
+    basil: '\u{1F33F}',
+    oregano: '\u{1F33F}',
+    parsley: '\u{1F33F}',
+    mint: '\u{1F33F}',
+    sage: '\u{1F33F}',
+    'bay leaf': '\u{1F343}',
+    pepper: '\u{1F336}\u{FE0F}',
+    chili: '\u{1F336}\u{FE0F}',
+    paprika: '\u{1F336}\u{FE0F}',
+    garlic: '\u{1F9C4}',
+    onion: '\u{1F9C5}',
+    salt: '\u{1F9C2}',
+    'sea salt': '\u{1F9C2}',
+    almond: '\u{1F330}',
+    walnut: '\u{1F330}',
+    hazelnut: '\u{1F330}',
+    pistachio: '\u{1F95C}',
+    peanut: '\u{1F95C}',
+    sesame: '\u{1F33E}',
+    lemon: '\u{1F34B}',
+    orange: '\u{1F34A}',
+    apple: '\u{1F34E}',
+    tomato: '\u{1F345}',
+    olive: '\u{1FAD2}',
+    grape: '\u{1F347}',
+    fig: '\u{1F330}',
+    date: '\u{1F334}',
+    wheat: '\u{1F33E}',
+    flour: '\u{1F33E}',
+    rice: '\u{1F35A}',
+    corn: '\u{1F33D}',
+    oat: '\u{1F33E}',
+    barley: '\u{1F33E}',
+    milk: '\u{1F95B}',
+    cheese: '\u{1F9C0}',
+    butter: '\u{1F9C8}',
+    cream: '\u{1F95B}',
+    honey: '\u{1F36F}',
+    sugar: '\u{1F36C}',
+    carrot: '\u{1F955}',
+    potato: '\u{1F954}',
+    cucumber: '\u{1F952}',
+    eggplant: '\u{1F346}',
+    'bell pepper': '\u{1FAD1}',
+    spinach: '\u{1F96C}',
+    egg: '\u{1F95A}',
+    chicken: '\u{1F357}',
+    beef: '\u{1F969}',
+    fish: '\u{1F41F}',
+    tuna: '\u{1F41F}',
+    salmon: '\u{1F41F}',
+    shrimp: '\u{1F990}',
+    vinegar: '\u{1F9F4}',
+    wine: '\u{1F377}',
+    yeast: '\u{1F35E}',
+    water: '\u{1F4A7}',
   };
-  
-  // Try to match the ingredient
+
   for (const [key, emoji] of Object.entries(emojiMap)) {
     if (normalizedIngredient.includes(key)) {
       return emoji;
     }
   }
-  
-  // Default emoji for unknown ingredients
-  return '🥘';
+
+  return '\u{1F958}';
 };
