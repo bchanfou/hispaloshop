@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -8,15 +7,15 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Mail, Lock, AtSign } from 'lucide-react';
+import { ArrowLeft, Lock, AtSign } from 'lucide-react';
+import { getAuthErrorMessage } from '../lib/authApi';
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { setUser } = useAuth();
-  const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'google'
+  const { login } = useAuth();
+  const [loginMethod, setLoginMethod] = useState('email');
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
@@ -25,22 +24,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${API}/auth/login`,
-        { email: formData.email.trim(), password: formData.password },
-        { withCredentials: true }
-      );
-      
-      // Backend sets the cookie automatically
-      // Just update the user state
-      setUser(response.data.user);
-      
+      const response = await login({
+        email: formData.email.trim(),
+        password: formData.password,
+      });
+
       toast.success(t('auth.loginSuccess'));
-      
-      // Wait a moment for cookie to propagate
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const role = response.data.user.role;
+
+      const role = response?.user?.role;
       if (role === 'admin') {
         navigate('/admin');
       } else if (role === 'super_admin') {
@@ -53,23 +44,22 @@ export default function LoginPage() {
         navigate('/dashboard');
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('auth.loginError'));
+      toast.error(getAuthErrorMessage(error, t('auth.loginError')));
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    const redirectUrl = window.location.origin + '/dashboard';
+    const redirectUrl = `${window.location.origin}/dashboard`;
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Mobile Header - Simple back button */}
       <div className="md:hidden sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-stone-200 safe-area-top">
         <div className="flex items-center h-14 px-4">
-          <button 
+          <button
             onClick={() => navigate('/')}
             className="p-2 -ml-2 text-text-primary hover:bg-stone-100 rounded-full transition-colors"
             data-testid="mobile-back-btn"
@@ -77,21 +67,18 @@ export default function LoginPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="flex-1 text-center text-sm font-medium text-text-primary pr-8">
-            {t('auth.login', 'Iniciar Sesión')}
+            {t('auth.login', 'Iniciar sesion')}
           </h1>
         </div>
       </div>
 
-      {/* Desktop Header */}
       <div className="hidden md:block">
         <Header />
       </div>
 
-      {/* Main Content - Centered vertically on mobile */}
       <div className="flex-1 flex items-center justify-center px-4 py-6 md:py-12">
         <div className="w-full max-w-md">
           <div className="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm" data-testid="login-form">
-            {/* Title - Smaller on mobile */}
             <div className="flex items-center justify-center gap-2 mb-1 md:mb-2">
               <img src="/logo.png" alt="Hispaloshop" className="w-8 h-8 object-contain" />
               <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary" data-testid="login-title">
@@ -99,12 +86,12 @@ export default function LoginPage() {
               </h1>
             </div>
             <p className="text-sm md:text-base text-text-secondary text-center mb-6 md:mb-8">
-              {t('auth.signInToAccount', 'Inicia sesión para acceder a tu cuenta')}
+              {t('auth.signInToAccount', 'Inicia sesion para acceder a tu cuenta')}
             </p>
 
-            {/* Login Method Toggle - Touch-friendly on mobile */}
             <div className="flex gap-2 mb-5 md:mb-6">
               <button
+                type="button"
                 onClick={() => setLoginMethod('email')}
                 className={`flex-1 py-3 md:py-2 rounded-xl md:rounded-lg font-medium transition-colors text-sm md:text-base ${
                   loginMethod === 'email'
@@ -116,6 +103,7 @@ export default function LoginPage() {
                 {t('auth.email')}
               </button>
               <button
+                type="button"
                 onClick={() => setLoginMethod('google')}
                 className={`flex-1 py-3 md:py-2 rounded-xl md:rounded-lg font-medium transition-colors text-sm md:text-base ${
                   loginMethod === 'google'
@@ -131,7 +119,9 @@ export default function LoginPage() {
             {loginMethod === 'email' ? (
               <form onSubmit={handleEmailLogin} className="space-y-4">
                 <div>
-                  <Label htmlFor="email" className="text-sm font-medium">{t('auth.emailOrUsername', 'Email o @usuario')}</Label>
+                  <Label htmlFor="email" className="text-sm font-medium">
+                    {t('auth.emailOrUsername', 'Email o @usuario')}
+                  </Label>
                   <div className="relative mt-2">
                     <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted md:hidden" />
                     <Input
@@ -148,7 +138,9 @@ export default function LoginPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="password" className="text-sm font-medium">{t('auth.password')}</Label>
+                  <Label htmlFor="password" className="text-sm font-medium">
+                    {t('auth.password')}
+                  </Label>
                   <div className="relative mt-2">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted md:hidden" />
                     <Input
@@ -158,15 +150,12 @@ export default function LoginPage() {
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                       className="pl-10 md:pl-3 h-12 md:h-10 text-base md:text-sm rounded-xl md:rounded-lg"
-                      placeholder="••••••••"
+                      placeholder="********"
                       data-testid="password-input"
                     />
                   </div>
                   <div className="mt-2 text-right">
-                    <Link 
-                      to="/forgot-password" 
-                      className="text-sm text-text-muted hover:text-text-primary transition-colors"
-                    >
+                    <Link to="/forgot-password" className="text-sm text-text-muted hover:text-text-primary transition-colors">
                       {t('auth.forgotPassword')}
                     </Link>
                   </div>
@@ -178,11 +167,12 @@ export default function LoginPage() {
                   className="w-full bg-stone-900 hover:bg-stone-800 text-white rounded-full h-12 md:h-11 text-base md:text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300 active:scale-[0.98]"
                   data-testid="email-login-button"
                 >
-                  {loading ? t('common.loading') : t('auth.login')}
+                  {loading ? t('common.loading', 'Cargando...') : t('auth.login')}
                 </Button>
               </form>
             ) : (
               <Button
+                type="button"
                 onClick={handleGoogleLogin}
                 className="w-full bg-white hover:bg-stone-50 text-text-primary border border-stone-200 rounded-full h-12 md:h-11 text-base md:text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
                 data-testid="google-login-button"
@@ -197,7 +187,6 @@ export default function LoginPage() {
               </Button>
             )}
 
-            {/* Links - More touch-friendly on mobile */}
             <div className="mt-6 md:mt-8 text-center">
               <p className="text-sm text-text-muted">
                 {t('auth.noAccount')}{' '}
@@ -208,19 +197,18 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-4 md:mt-6 text-center">
-              <Link 
-                to="/register?role=producer" 
-                className="inline-block text-sm text-primary hover:text-primary-hover py-2 px-4 rounded-lg hover:bg-primary/5 transition-colors" 
+              <Link
+                to="/register?role=producer"
+                className="inline-block text-sm text-primary hover:text-primary-hover py-2 px-4 rounded-lg hover:bg-primary/5 transition-colors"
                 data-testid="producer-signup-link"
               >
-                {t('auth.areYouProducer', '¿Eres productor? Regístrate aquí')}
+                {t('auth.areYouProducer', 'Eres productor? Registrate aqui')}
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer - Hidden on mobile */}
       <div className="hidden md:block">
         <Footer />
       </div>

@@ -1,6 +1,8 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '/api/v1';
-const API_FALLBACK_PREFIX = process.env.NEXT_PUBLIC_API_FALLBACK_PREFIX || '/api';
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+const API_PREFIX = process.env.REACT_APP_API_PREFIX || '/api';
+const API_FALLBACK_PREFIX = process.env.REACT_APP_API_FALLBACK_PREFIX || '/api/v1';
+const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504, 520]);
+const RETRY_DELAYS_MS = [400, 900];
 export interface CartItemCreateRequest {
   product_id: string;
   quantity: number;
@@ -74,13 +76,38 @@ class ApiClient {
     };
 
     const doRequest = async (baseUrl: string) =>
-      fetch(`${baseUrl}${endpoint}`, { ...options, headers });
+      fetch(`${baseUrl}${endpoint}`, {
+        ...options,
+        headers,
+        credentials: 'include',
+      });
 
-    let response = await doRequest(this.baseUrl);
+    let response: Response | null = null;
+    let lastError: Error | null = null;
 
-    // Temporary bridge while legacy /api and /api/v1 coexist.
-    if (response.status === 404 && this.fallbackBaseUrl) {
-      response = await doRequest(this.fallbackBaseUrl);
+    for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
+      try {
+        response = await doRequest(this.baseUrl);
+
+        if (response.status === 404 && this.fallbackBaseUrl) {
+          response = await doRequest(this.fallbackBaseUrl);
+        }
+
+        if (!RETRYABLE_STATUSES.has(response.status) || attempt === RETRY_DELAYS_MS.length) {
+          break;
+        }
+      } catch (error) {
+        lastError = error as Error;
+        if (attempt === RETRY_DELAYS_MS.length) {
+          throw error;
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS_MS[attempt]));
+    }
+
+    if (!response) {
+      throw lastError || new Error('Network request failed');
     }
 
     if (!response.ok) {
@@ -94,7 +121,9 @@ class ApiClient {
 
   async login(email: string, password: string) {
     const data = await this.request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-    this.setToken(data.access_token);
+    if (data?.access_token) {
+      this.setToken(data.access_token);
+    }
     return data;
   }
 

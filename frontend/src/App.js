@@ -1,10 +1,9 @@
-import React, { useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import '@/App.css';
 import './locales/i18n';
 import { trackPageVisit } from './utils/analytics';
 
-// Eager pages for faster first paint on core auth/landing flows
 import HomePage from './pages/HomePage';
 import CartPage from './pages/CartPage';
 import CheckoutSuccessPage from './pages/CheckoutSuccessPage';
@@ -14,8 +13,17 @@ import AuthCallback from './pages/AuthCallback';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import BottomNavBar from './components/BottomNavBar';
+import ScrollToTop from './components/ScrollToTop';
+import AppErrorBoundary from './components/AppErrorBoundary';
+import { Toaster } from './components/ui/sonner';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
+import { LocaleProvider } from './context/LocaleContext';
+import { HelmetProvider } from 'react-helmet-async';
+import { ChatProvider } from './context/chat/ChatProvider';
+import { usePushNotifications } from './hooks/usePushNotifications';
 
-// Lazy public pages
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const SellerLandingPage = lazy(() => import('./pages/SellerLandingPage'));
@@ -38,7 +46,6 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const HelpPage = lazy(() => import('./pages/HelpPage'));
 
-// Lazy admin / super-admin pages
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
 const SuperAdminLayout = lazy(() => import('./components/dashboard/SuperAdminLayoutResponsive'));
 const AdminOverview = lazy(() => import('./pages/admin/AdminOverviewResponsive'));
@@ -57,7 +64,6 @@ const FinancialDashboard = lazy(() => import('./pages/super-admin/FinancialDashb
 const MarketCoverage = lazy(() => import('./pages/super-admin/MarketCoverage'));
 const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdminOverview'));
 
-// Lazy producer / customer / influencer pages
 const ProducerLayout = lazy(() => import('./components/dashboard/ProducerLayoutResponsive'));
 const ProducerOverview = lazy(() => import('./pages/producer/ProducerOverviewResponsive'));
 const ProducerProducts = lazy(() => import('./pages/producer/ProducerProducts'));
@@ -84,19 +90,6 @@ const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
 const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDashboard'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 
-// Components
-import BottomNavBar from './components/BottomNavBar';
-import ScrollToTop from './components/ScrollToTop';
-import { Toaster } from './components/ui/sonner';
-
-// Context
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
-import { LocaleProvider } from './context/LocaleContext';
-import { HelmetProvider } from 'react-helmet-async';
-import { ChatProvider } from './context/chat/ChatProvider';
-import { usePushNotifications } from './hooks/usePushNotifications';
-
 function RouteLoader() {
   return (
     <div className="min-h-[40vh] flex items-center justify-center">
@@ -105,9 +98,33 @@ function RouteLoader() {
   );
 }
 
-function LegacyOrdersRedirect() {
-  const { user } = useAuth();
+function PageTransitionLoader() {
+  const location = useLocation();
+  const [visible, setVisible] = useState(false);
 
+  useEffect(() => {
+    setVisible(true);
+    const timer = window.setTimeout(() => setVisible(false), 350);
+    return () => window.clearTimeout(timer);
+  }, [location.pathname, location.search, location.hash]);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-x-0 top-0 z-[100] pointer-events-none">
+      <div className="h-1 w-full overflow-hidden bg-stone-200/60">
+        <div className="h-full w-1/3 bg-stone-900 animate-[pulse_0.9s_ease-in-out_infinite]" />
+      </div>
+    </div>
+  );
+}
+
+function LegacyOrdersRedirect() {
+  const { user, loading } = useAuth();
+
+  if (loading) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'admin') return <Navigate to="/admin/orders" replace />;
   if (user.role === 'producer' || user.role === 'importer') return <Navigate to="/producer/orders" replace />;
@@ -116,8 +133,9 @@ function LegacyOrdersRedirect() {
 }
 
 function LegacyProfileRedirect() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
+  if (loading) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'producer' || user.role === 'importer') return <Navigate to="/producer/profile" replace />;
   if (user.role === 'influencer') return <Navigate to="/influencer/dashboard" replace />;
@@ -142,6 +160,7 @@ function AppRouter() {
 
   return (
     <>
+      <PageTransitionLoader />
       <ScrollToTop />
       <Suspense fallback={<RouteLoader />}>
         <Routes>
@@ -175,9 +194,11 @@ function AppRouter() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/seller/login" element={<LoginPage />} />
           <Route path="/influencer/login" element={<LoginPage />} />
+          <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/seller/register" element={<RegisterPage />} />
           <Route path="/influencer/register" element={<RegisterPage />} />
+          <Route path="/auth/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -194,7 +215,6 @@ function AppRouter() {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/help" element={<HelpPage />} />
-
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
 
@@ -270,6 +290,8 @@ function AppRouter() {
               </InfluencerLayoutResponsive>
             }
           />
+
+          <Route path="/auth/*" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
@@ -281,17 +303,19 @@ function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>
-        <AuthProvider>
-          <LocaleProvider>
-            <CartProvider>
-              <ChatProvider>
-                <AppRouter />
-                <BottomNavBar />
-                <Toaster position="top-center" />
-              </ChatProvider>
-            </CartProvider>
-          </LocaleProvider>
-        </AuthProvider>
+        <AppErrorBoundary>
+          <AuthProvider>
+            <LocaleProvider>
+              <CartProvider>
+                <ChatProvider>
+                  <AppRouter />
+                  <BottomNavBar />
+                  <Toaster position="top-center" />
+                </ChatProvider>
+              </CartProvider>
+            </LocaleProvider>
+          </AuthProvider>
+        </AppErrorBoundary>
       </BrowserRouter>
     </HelmetProvider>
   );
