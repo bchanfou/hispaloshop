@@ -12,7 +12,7 @@ const DEFAULT_FILTER_SETTINGS = {
 
 const MAX_HISTORY_STEPS = 10;
 
-export function useImageEditor(contentType, aspectRatio = '1:1') => {
+export function useImageEditor(contentType, aspectRatio = '1:1') {
   const canvasRef = useRef(null);
   const [images, setImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
