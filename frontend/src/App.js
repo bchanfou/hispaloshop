@@ -94,6 +94,12 @@ const ReelsContainer = lazy(() => import('./components/reels/ReelsContainer'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
+
+// Landing pages
+const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
+const InfluencerLanding = lazy(() => import('./pages/landings/InfluencerLanding'));
+const ProductorLanding = lazy(() => import('./pages/landings/ProductorLanding'));
+const ImportadorLanding = lazy(() => import('./pages/landings/ImportadorLanding'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
 const ConsumerDashboard = lazy(() => import('./pages/dashboard/consumer'));
 const InfluencerDashboardNew = lazy(() => import('./pages/dashboard/influencer'));
@@ -218,7 +224,10 @@ function AppRouter() {
               <Route path="/stores" element={<StoresListPage />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/discover" element={<DiscoverPage />} />
-              <Route path="/importador" element={<ImporterLandingPage />} />
+              <Route path="/que-es" element={<QueEsPage />} />
+              <Route path="/influencer" element={<InfluencerLanding />} />
+              <Route path="/productor" element={<ProductorLanding />} />
+              <Route path="/importador" element={<ImportadorLanding />} />
               <Route path="/importer" element={<ImporterLandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/seller/login" element={<LoginPage />} />
