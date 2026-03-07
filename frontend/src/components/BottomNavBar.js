@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../utils/api';
 import InternalChat from './InternalChat';
+import ContentTypeSelector from './creator/ContentTypeSelector';
+import AdvancedEditor from './creator/editor/AdvancedEditor';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
@@ -28,6 +30,7 @@ const HIDDEN_ON_PREFIXES = [
   '/influencer/payouts',
 ];
 
+// Editor simple legacy para fallback rápido
 function CreatePostPanel({ user, onClose, initialFile = null }) {
   const { t } = useTranslation();
   const [text, setText] = useState('');
@@ -158,6 +161,12 @@ export default function BottomNavBar() {
   const [initialChatUserId, setInitialChatUserId] = useState(null);
   const [postFile, setPostFile] = useState(null);
   const galleryRef = useRef(null);
+  
+  // Estados para el nuevo editor avanzado
+  const [showContentTypeSelector, setShowContentTypeSelector] = useState(false);
+  const [selectedContentType, setSelectedContentType] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
 
   const shouldHide =
     HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path)) ||
@@ -189,14 +198,18 @@ export default function BottomNavBar() {
   };
 
   const handleGallerySelect = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) {
-      toast.error('Solo imágenes o vídeos');
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    // Validar tipos
+    const invalidFiles = files.filter(f => !f.type.startsWith('image/') && !f.type.startsWith('video/'));
+    if (invalidFiles.length > 0) {
+      toast.error('Solo se permiten imágenes o vídeos');
       return;
     }
-    setPostFile(f);
-    setActivePanel('post');
+    
+    setSelectedFiles(files);
+    setShowContentTypeSelector(true);
     if (galleryRef.current) galleryRef.current.value = '';
   };
 
@@ -209,7 +222,62 @@ export default function BottomNavBar() {
       closePanel();
       return;
     }
-    galleryRef.current?.click();
+    // Abrir selector directamente, sin pasar por el panel legacy
+    setShowContentTypeSelector(true);
+  };
+
+  const handleContentTypeSelect = (contentType) => {
+    setSelectedContentType(contentType.id);
+    setShowContentTypeSelector(false);
+    setShowAdvancedEditor(true);
+  };
+
+  const handleEditorClose = () => {
+    setShowAdvancedEditor(false);
+    setSelectedContentType(null);
+    setSelectedFiles([]);
+    closePanel();
+  };
+
+  const handlePublish = async (publishData) => {
+    try {
+      // Convertir base64 a blob
+      const base64Response = await fetch(publishData.imageData);
+      const blob = await base64Response.blob();
+      const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
+
+      const fd = new FormData();
+      
+      if (publishData.contentType === 'reel') {
+        // Para reels, necesitaríamos el video original
+        // Por ahora, subimos como post
+        fd.append('video', selectedFiles[0]);
+        fd.append('content', publishData.caption);
+        fd.append('cover_frame_seconds', '1');
+        await axios.post(`${API}/reels`, fd, { 
+          withCredentials: true, 
+          headers: { 'Content-Type': 'multipart/form-data' } 
+        });
+      } else {
+        fd.append('caption', publishData.caption);
+        fd.append('file', file);
+        await axios.post(`${API}/posts`, fd, { 
+          withCredentials: true, 
+          headers: { 'Content-Type': 'multipart/form-data' } 
+        });
+      }
+      
+      toast.success(t('social.published', '¡Publicado con éxito!'));
+      handleEditorClose();
+      
+      // Recargar feed si estamos en home
+      if (location.pathname === '/') {
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error('Error publishing:', err);
+      toast.error(err.response?.data?.detail || 'Error al publicar');
+    }
   };
 
   const togglePanel = (panel) => {
@@ -233,6 +301,26 @@ export default function BottomNavBar() {
 
   return (
     <>
+      {/* Content Type Selector */}
+      <ContentTypeSelector
+        isOpen={showContentTypeSelector}
+        onClose={() => {
+          setShowContentTypeSelector(false);
+          setSelectedFiles([]);
+        }}
+        onSelect={handleContentTypeSelect}
+      />
+
+      {/* Advanced Editor */}
+      {showAdvancedEditor && selectedContentType && (
+        <AdvancedEditor
+          contentType={selectedContentType}
+          files={selectedFiles}
+          onClose={handleEditorClose}
+          onPublish={handlePublish}
+        />
+      )}
+
       {activePanel === 'chat' && (
         <div className="fixed inset-0 md:inset-auto md:bottom-[82px] md:right-4 z-50" data-testid="chat-panel">
           <div className="h-full md:h-[550px] md:w-[380px] bg-white md:rounded-2xl shadow-2xl flex flex-col md:border md:border-stone-200">
@@ -241,11 +329,11 @@ export default function BottomNavBar() {
         </div>
       )}
 
-      {activePanel === 'post' && user && (
+      {activePanel === 'post' && user && !showAdvancedEditor && (
         <CreatePostPanel user={user} onClose={closePanel} initialFile={postFile} />
       )}
 
-      <input ref={galleryRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />
+      <input ref={galleryRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />
 
       <nav className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none md:hidden" data-testid="bottom-nav-bar">
         <div className="max-w-xl mx-auto px-2 sm:px-3 pointer-events-auto">
@@ -287,8 +375,8 @@ export default function BottomNavBar() {
               className="flex items-center justify-center -mt-2 mx-1.5"
               data-testid="bottom-nav-post"
             >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 ring-1 ring-white ${activePanel === 'post' ? 'bg-stone-700 shadow-stone-500/20' : 'bg-[#1C1C1C] shadow-stone-900/15 hover:bg-[#2A2A2A]'}`}>
-                {activePanel === 'post' ? <X className="w-4.5 h-4.5 text-white" strokeWidth={2.2} /> : <Plus className="w-4.5 h-4.5 text-white" strokeWidth={2.2} />}
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 ring-1 ring-white ${activePanel === 'post' || showAdvancedEditor ? 'bg-stone-700 shadow-stone-500/20' : 'bg-[#1C1C1C] shadow-stone-900/15 hover:bg-[#2A2A2A]'}`}>
+                {activePanel === 'post' || showAdvancedEditor ? <X className="w-4.5 h-4.5 text-white" strokeWidth={2.2} /> : <Plus className="w-4.5 h-4.5 text-white" strokeWidth={2.2} />}
               </div>
             </button>
 
