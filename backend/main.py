@@ -50,6 +50,7 @@ from routes.push_notifications import router as legacy_push_notifications_router
 from routes.producer_registration import router as producer_registration_router
 from routes.importer_registration import router as importer_registration_router
 from routes.importer import router as legacy_importer_router
+from routes.ai import router as ai_router
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +149,9 @@ app.include_router(legacy_importer_router, prefix="/api", tags=["importer"])
 app.include_router(legacy_push_notifications_router, prefix="/api", tags=["push"])
 app.include_router(producer_registration_router, prefix="/api", tags=["producer-registration"])
 app.include_router(importer_registration_router, prefix="/api", tags=["importer-registration"])
+
+# AI Routes (Fase 1)
+app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
 
 
 @app.get("/health")

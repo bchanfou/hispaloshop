@@ -84,6 +84,12 @@ class Settings(BaseSettings):
     EMERGENT_LLM_KEY: Optional[str] = Field(default=None)
     
     # ============================================
+    # OPENAI (para embeddings y recomendaciones)
+    # ============================================
+    OPENAI_API_KEY: Optional[str] = Field(default=None)
+    OPENAI_ORG_ID: Optional[str] = Field(default=None)
+    
+    # ============================================
     # VALIDADORES
     # ============================================
     
@@ -154,3 +160,5 @@ EMAIL_FROM = settings.EMAIL_FROM
 FRONTEND_URL = settings.FRONTEND_URL
 PLATFORM_COMMISSION = settings.PLATFORM_COMMISSION
 EMERGENT_LLM_KEY = settings.EMERGENT_LLM_KEY
+OPENAI_API_KEY = settings.OPENAI_API_KEY
+OPENAI_ORG_ID = settings.OPENAI_ORG_ID

@@ -776,3 +776,107 @@ class PageVisitRequest(BaseModel):
     page: str
     country: Optional[str] = None
     referrer: Optional[str] = None
+
+
+# ═══════════════════════════════════════════════════════════
+# AI / RECOMMENDATIONS MODELS (Fase 1)
+# ═══════════════════════════════════════════════════════════
+
+class AIRecommendationCache(BaseModel):
+    """Cache de recomendaciones generadas por IA para un usuario"""
+    user_id: str
+    tenant_id: str
+    
+    # Recomendaciones cacheadas
+    product_ids: List[str] = []
+    post_ids: List[str] = []
+    
+    # Metadata del calculo
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: Optional[datetime] = None  # TTL: 1 hora para FREE, 15 min para PRO
+    cache_version: int = 1
+    
+    # Por que se recomendo cada producto (explicabilidad)
+    reasons: Dict[str, str] = Field(default_factory=dict)
+    # Ej: {"prod_123": "Porque compraste AOVE similar", "prod_456": "Tendencia en tu zona"}
+    
+    # Score de confianza general (0-100)
+    confidence_score: float = 0.0
+    
+    # Si se uso cache o se genero fresh
+    used_cached: bool = False
+
+
+class ProductEmbedding(BaseModel):
+    """Embedding vectorial de un producto para busqueda semantica"""
+    product_id: str
+    tenant_id: str
+    
+    # Vector de 1536 dimensiones
+    embedding: List[float]
+    
+    # Texto que genero el embedding (para debugging)
+    source_text: str = ""
+    
+    # Tags extraidos por IA
+    ai_tags: List[str] = []
+    
+    # Score de trending (0-100, calculado por IA)
+    trending_score: float = 50.0
+    
+    # Ultima actualizacion
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class UserEmbedding(BaseModel):
+    """Perfil vectorial de preferencias de usuario"""
+    user_id: str
+    tenant_id: str
+    
+    embedding: List[float]
+    
+    # Componentes del perfil
+    diet_preferences: List[str] = []
+    allergy_restrictions: List[str] = []
+    health_goals: List[str] = []
+    favorite_categories: List[str] = []
+    
+    # Historial de interacciones ponderado
+    interaction_weights: Dict[str, float] = Field(default_factory=dict)
+    # Ej: {"category_organic": 0.8, "price_premium": 0.6}
+    
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class AIQueryLog(BaseModel):
+    """Logging de queries a IA para analisis y mejora"""
+    user_id: Optional[str] = None  # None si es usuario no logueado
+    query_type: str  # "feed_recommendation", "semantic_search", "ask_ai"
+    query_text: Optional[str] = None  # Para busquedas semanticas
+    
+    # Resultados
+    results_count: int = 0
+    top_result_ids: List[str] = []
+    response_time_ms: int = 0
+    
+    # Feedback implicito (clicks posteriores)
+    clicked_results: List[str] = []
+    
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class AIRecommendationResponse(BaseModel):
+    """Respuesta estructurada del motor de recomendaciones"""
+    products: List[Dict[str, Any]] = []
+    posts: List[Dict[str, Any]] = []
+    reasons: Dict[str, str] = Field(default_factory=dict)
+    confidence_score: float = 0.0
+    used_cached: bool = False
+    refresh_available_at: Optional[str] = None
+
+
+class SemanticSearchResult(BaseModel):
+    """Resultado de busqueda semantica"""
+    product_id: str
+    similarity_score: float
+    product_data: Optional[Dict[str, Any]] = None
