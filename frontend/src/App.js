@@ -94,6 +94,11 @@ const ReelsContainer = lazy(() => import('./components/reels/ReelsContainer'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
+const DashboardPage = lazy(() => import('./pages/dashboard'));
+const ConsumerDashboard = lazy(() => import('./pages/dashboard/consumer'));
+const InfluencerDashboardNew = lazy(() => import('./pages/dashboard/influencer'));
+const ProducerDashboardNew = lazy(() => import('./pages/dashboard/producer'));
+const ImporterDashboardNew = lazy(() => import('./pages/dashboard/importer'));
 
 function RouteLoader() {
   return (
@@ -311,6 +316,11 @@ function AppRouter() {
               <Route path="/reels" element={<ReelsContainer />} />
               <Route path="/chat" element={<ChatContainer />} />
               <Route path="/profile/:userId" element={<ProfilePage />} />
+              <Route path="/dashboard/new" element={<DashboardPage />} />
+              <Route path="/dashboard/consumer" element={<ConsumerDashboard />} />
+              <Route path="/dashboard/influencer/new" element={<InfluencerDashboardNew />} />
+              <Route path="/dashboard/producer/new" element={<ProducerDashboardNew />} />
+              <Route path="/dashboard/importer/new" element={<ImporterDashboardNew />} />
               <Route path="/chat" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
