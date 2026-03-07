@@ -93,6 +93,7 @@ const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDash
 const ReelsContainer = lazy(() => import('./components/reels/ReelsContainer'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
+const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 
 function RouteLoader() {
   return (
@@ -308,7 +309,8 @@ function AppRouter() {
               />
 
               <Route path="/reels" element={<ReelsContainer />} />
-<Route path="/chat" element={<ChatContainer />} />
+              <Route path="/chat" element={<ChatContainer />} />
+              <Route path="/profile/:userId" element={<ProfilePage />} />
               <Route path="/chat" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
