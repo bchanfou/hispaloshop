@@ -41,6 +41,7 @@ const CertificatesListPage = lazy(() => import('./pages/CertificatesListPage'));
 const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ImporterLandingPage = lazy(() => import('./pages/ImporterLandingPage'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
@@ -224,6 +225,7 @@ function AppRouter() {
               <Route path="/stores" element={<StoresListPage />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/que-es" element={<QueEsPage />} />
               <Route path="/influencer" element={<InfluencerLanding />} />
               <Route path="/productor" element={<ProductorLanding />} />

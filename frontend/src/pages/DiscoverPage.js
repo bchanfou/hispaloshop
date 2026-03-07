@@ -1,359 +1,421 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
-import { Flame, Loader2, Clapperboard, Newspaper, Heart, Play, UserRound } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { API } from '../utils/api';
-import { sanitizeImageUrl } from '../utils/helpers';
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+  Search, SlidersHorizontal, Sparkles, TrendingUp, MapPin, 
+  Droplets, Milk, Beef, Croissant, CupSoda, Baby, Dog, 
+  Cherry, Leaf, WheatOff, Gift, Flame, ChevronRight, 
+  Mic, X, Filter, ArrowRight, Store, Star
+} from 'lucide-react';
+import { CATEGORIES } from '../components/feed/CategoryPills';
 
+// Mock data
+const TRENDING_HASHTAGS = [
+  { tag: 'AOVE', count: 12500, growth: 45 },
+  { tag: 'QuesoArtesano', count: 8900, growth: 23 },
+  { tag: 'SinGluten', count: 6700, growth: 67 },
+  { tag: 'DesayunoSaludable', count: 5400, growth: 12 },
+  { tag: 'Mediterraneo', count: 4300, growth: 34 },
+  { tag: 'ParaRegalar', count: 3200, growth: 89 },
+  { tag: 'EcoFriendly', count: 2800, growth: 56 },
+  { tag: 'Keto', count: 2100, growth: 78 },
+];
 
-function toDateValue(value) {
-  const date = new Date(value || 0);
-  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
-}
+const HI_RECOMMENDATIONS = [
+  { id: 1, name: 'Queso Curado DOP', producer: 'Quesería La Antigua', price: 18.50, image: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300', reason: 'Marida con el vino que viste ayer' },
+  { id: 2, name: 'Aceite Premium EVOO', producer: 'Cortijo Andaluz', price: 24.90, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300', reason: 'Basado en tu historial de compras' },
+  { id: 3, name: 'Pack Desayuno', producer: 'Miel del Sur', price: 32.00, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=300', reason: 'Para tu cena de hoy' },
+];
 
-function normalizePost(post) {
-  return {
-    id: post.post_id || post.id,
-    type: 'feed',
-    created_at: post.created_at,
-    user_id: post.user_id,
-    user_name: post.user_name || post.user?.full_name || 'Usuario',
-    user_profile_image: sanitizeImageUrl(post.user_profile_image || post.user?.avatar_url),
-    caption: post.caption || post.content || '',
-    media_url: sanitizeImageUrl(post.image_url || post.media_url || post.media?.[0]?.url),
-    likes_count: post.likes_count || post.engagement?.likes_count || 0,
-    comments_count: post.comments_count || post.engagement?.comments_count || 0,
-    views_count: 0,
+const FEATURED_PRODUCERS = [
+  { id: 1, name: 'Cortijo Andaluz', location: 'Córdoba', rating: 4.9, image: 'https://images.unsplash.com/photo-1548685913-fe6678babe8d?w=200', products: 23 },
+  { id: 2, name: 'Quesería La Antigua', location: 'Valladolid', rating: 4.8, image: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=200', products: 15 },
+  { id: 3, name: 'Miel del Sur', location: 'Granada', rating: 4.9, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=200', products: 12 },
+  { id: 4, name: 'Embutidos Selectos', location: 'Salamanca', rating: 4.7, image: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=200', products: 18 },
+];
+
+const RECENT_SEARCHES = [
+  'Miel ecológica',
+  'Queso curado',
+  'Aceite para regalar',
+];
+
+const POPULAR_SEARCHES = [
+  'Aceite de oliva virgen extra',
+  'Queso para lacto-intolerantes',
+  'Pack regalo Navidad',
+  'Productores cerca de Madrid',
+];
+
+const DiscoverPage = () => {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({});
+  const scrollRef = useRef(null);
+
+  const handleSearch = (query) => {
+    if (query.trim()) {
+      navigate(`/products?search=${encodeURIComponent(query)}`);
+    }
   };
-}
 
-function normalizeReel(reel) {
-  return {
-    id: reel.id || reel.post_id,
-    type: 'reel',
-    created_at: reel.created_at,
-    user_id: reel.user_id || reel.user?.id,
-    user_name: reel.user_name || reel.user?.full_name || 'Usuario',
-    user_profile_image: sanitizeImageUrl(reel.user_profile_image || reel.user?.avatar_url),
-    caption: reel.caption || reel.content || '',
-    media_url: sanitizeImageUrl(reel.video_url || reel.media?.[0]?.url),
-    thumbnail_url: sanitizeImageUrl(reel.thumbnail_url || reel.media?.[0]?.thumbnail_url || reel.media?.[0]?.url),
-    likes_count: reel.likes_count || reel.engagement?.likes_count || 0,
-    comments_count: reel.comments_count || reel.engagement?.comments_count || 0,
-    views_count: reel.views_unique || reel.views_count_unique || reel.views_count || 0,
+  const handleCategoryClick = (categoryId) => {
+    navigate(`/category/${categoryId}`);
   };
-}
-
-function getList(payload) {
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.posts)) return payload.posts;
-  if (Array.isArray(payload?.items)) return payload.items;
-  return [];
-}
-
-export default function DiscoverPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') === 'reels' ? 'reels' : 'feeds';
-  const discoverScope = searchParams.get('scope') || '';
-  const searchQuery = (searchParams.get('search') || '').trim();
-  const profileSearchMode = discoverScope === 'profiles' && searchQuery.length > 0;
-  const textSearchMode = !profileSearchMode && searchQuery.length > 0;
-
-  const [tab, setTab] = useState(initialTab);
-  const [loading, setLoading] = useState(true);
-  const [feeds, setFeeds] = useState([]);
-  const [reels, setReels] = useState([]);
-  const [trending, setTrending] = useState([]);
-  const [profiles, setProfiles] = useState([]);
-
-  useEffect(() => {
-    // Keep search params intact while using profile/text search.
-    if (profileSearchMode || textSearchMode) return;
-    setSearchParams(tab === 'reels' ? { tab: 'reels' } : {});
-  }, [tab, setSearchParams, profileSearchMode, textSearchMode]);
-
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        if (profileSearchMode) {
-          const res = await axios.get(
-            `${API}/discover/profiles?search=${encodeURIComponent(searchQuery)}&limit=24`,
-            { withCredentials: true }
-          );
-          const remoteProfiles = res.data?.profiles || [];
-          if (remoteProfiles.length > 0) {
-            setProfiles(remoteProfiles);
-          } else {
-            const needle = searchQuery.toLowerCase();
-            setProfiles(
-              []
-                .filter((u) => `${u.name || ''} ${u.username || ''}`.toLowerCase().includes(needle))
-                .map((u) => ({
-                  user_id: u.user_id,
-                  name: u.name,
-                  role: u.role,
-                  profile_image: u.profile_image,
-                }))
-            );
-          }
-          setFeeds([]);
-          setReels([]);
-          setTrending([]);
-          return;
-        }
-
-        const [feedRes, postsRes, reelsRes, trendingRes] = await Promise.allSettled([
-          axios.get(`${API}/feed?skip=0&limit=180&scope=global`, { withCredentials: true }),
-          axios.get(`${API}/posts?skip=0&limit=180`, { withCredentials: true }),
-          axios.get(`${API}/reels?limit=180`, { withCredentials: true }),
-          axios.get(`${API}/feed/trending?limit=16`, { withCredentials: true }),
-        ]);
-
-        const feedItems = feedRes.status === 'fulfilled' ? getList(feedRes.value.data).map(normalizePost) : [];
-        const directPostItems = postsRes.status === 'fulfilled' ? getList(postsRes.value.data).map(normalizePost) : [];
-        const reelItems = reelsRes.status === 'fulfilled' ? getList(reelsRes.value.data).map(normalizeReel) : [];
-        const trendingPostItems = trendingRes.status === 'fulfilled' ? getList(trendingRes.value.data).map(normalizePost) : [];
-
-        const feedMap = new Map();
-        [...feedItems, ...directPostItems].forEach((item) => {
-          if (!item.id) return;
-          if (!feedMap.has(item.id)) feedMap.set(item.id, item);
-        });
-        const mergedFeeds = Array.from(feedMap.values()).sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at));
-
-        const trendingMap = new Map();
-        [...trendingPostItems, ...reelItems].forEach((item) => {
-          if (!item.id) return;
-          const key = `${item.type}:${item.id}`;
-          if (!trendingMap.has(key)) trendingMap.set(key, item);
-        });
-
-        const globalTrending = Array.from(trendingMap.values())
-          .sort((a, b) => ((b.likes_count + b.views_count * 2 + b.comments_count) - (a.likes_count + a.views_count * 2 + a.comments_count)))
-          .slice(0, 16);
-
-        const demoFeed = [];
-        const demoReel = [];
-        const safeFeeds = mergedFeeds.length > 0 ? mergedFeeds : demoFeed;
-        const safeReels = reelItems.length > 0 ? reelItems : demoReel;
-        const safeTrending = globalTrending.length > 0
-          ? globalTrending
-          : [...demoFeed, ...demoReel]
-              .sort((a, b) => ((b.likes_count + b.views_count * 2 + b.comments_count) - (a.likes_count + a.views_count * 2 + a.comments_count)))
-              .slice(0, 16);
-
-        setFeeds(safeFeeds);
-        setReels(safeReels.sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at)));
-        setTrending(safeTrending);
-        setProfiles([]);
-      } catch (error) {
-        if (profileSearchMode) {
-          const needle = searchQuery.toLowerCase();
-          setProfiles(
-            []
-              .filter((u) => `${u.name || ''} ${u.username || ''}`.toLowerCase().includes(needle))
-              .map((u) => ({
-                user_id: u.user_id,
-                name: u.name,
-                role: u.role,
-                profile_image: u.profile_image,
-              }))
-          );
-        } else {
-          const demoFeed = [];
-          const demoReel = [];
-          setFeeds(demoFeed);
-          setReels(demoReel.sort((a, b) => toDateValue(b.created_at) - toDateValue(a.created_at)));
-          setTrending([...demoFeed, ...demoReel].slice(0, 16));
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [profileSearchMode, searchQuery]);
-
-  const filteredFeeds = useMemo(() => {
-    if (!textSearchMode) return feeds;
-    const needle = searchQuery.toLowerCase();
-    return feeds.filter((item) => {
-      const text = `${item.caption || ''} ${item.user_name || ''}`.toLowerCase();
-      return text.includes(needle);
-    });
-  }, [feeds, textSearchMode, searchQuery]);
-
-  const filteredReels = useMemo(() => {
-    if (!textSearchMode) return reels;
-    const needle = searchQuery.toLowerCase();
-    return reels.filter((item) => {
-      const text = `${item.caption || ''} ${item.user_name || ''}`.toLowerCase();
-      return text.includes(needle);
-    });
-  }, [reels, textSearchMode, searchQuery]);
-
-  const activeItems = useMemo(
-    () => (tab === 'reels' ? filteredReels : filteredFeeds),
-    [tab, filteredReels, filteredFeeds]
-  );
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
-      <Header />
-      <div className="max-w-5xl mx-auto px-4 pt-5 pb-20">
-        {!profileSearchMode && (
-          <div className="mb-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Flame className="w-4 h-4 text-orange-500" />
-              <h2 className="text-sm font-semibold text-[#1C1C1C]">
-                {textSearchMode ? `Resultados para "${searchQuery}"` : 'Trending global'}
-              </h2>
-            </div>
-            {!textSearchMode && <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
-              {trending.map((item) => (
-                <Link
-                  key={`${item.type}:${item.id}`}
-                  to={item.user_id ? `/user/${item.user_id}` : '/discover'}
-                  className="shrink-0 w-28"
-                >
-                  <div className="w-28 h-40 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative">
-                    {item.type === 'reel' ? (
-                      item.thumbnail_url ? (
-                        <img src={item.thumbnail_url} alt={item.user_name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-stone-400"><Clapperboard className="w-5 h-5" /></div>
-                      )
-                    ) : item.media_url ? (
-                      <img src={item.media_url} alt={item.user_name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-stone-400"><Newspaper className="w-5 h-5" /></div>
-                    )}
-                    <div className="absolute top-1.5 left-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-black/65 text-white">
-                      {item.type === 'reel' ? 'REEL' : 'FEED'}
-                    </div>
-                    <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between text-[10px] text-white">
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-black/60">
-                        <Heart className="w-3 h-3" /> {item.likes_count}
-                      </span>
-                      {item.views_count > 0 ? (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-black/60">
-                          <Play className="w-3 h-3" /> {item.views_count}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className="mt-1 text-[10px] text-stone-600 truncate">{item.user_name}</div>
-                </Link>
-              ))}
-            </div>}
-          </div>
-        )}
-
-        {!profileSearchMode && (
-          <div className="sticky top-[56px] md:top-[64px] z-20 bg-[#FAF7F2]/95 backdrop-blur pb-3 pt-1">
-            <div className="inline-flex p-1 rounded-full bg-white border border-stone-200">
-              <button
-                onClick={() => setTab('feeds')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === 'feeds' ? 'bg-[#1C1C1C] text-white' : 'text-stone-600'}`}
+    <div className="min-h-screen bg-[#F5F1E8] pb-24">
+      {/* Sticky Search Header */}
+      <div className="sticky top-0 z-50 bg-white shadow-sm">
+        <div className="max-w-lg mx-auto px-4 py-3">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280]" />
+            <input
+              type="text"
+              placeholder="¿Qué buscas?"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
+              className="w-full pl-12 pr-12 py-3 bg-gray-100 rounded-full text-[#1A1A1A] placeholder:text-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+            />
+            <button 
+              onClick={() => setShowFilters(true)}
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+            >
+              <SlidersHorizontal className="w-5 h-5 text-[#6B7280]" />
+            </button>
+            
+            {/* Search Suggestions Dropdown */}
+            {isSearchFocused && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl overflow-hidden"
               >
-                Feeds
-              </button>
-              <button
-                onClick={() => setTab('reels')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${tab === 'reels' ? 'bg-[#1C1C1C] text-white' : 'text-stone-600'}`}
-              >
-                Reels
-              </button>
-            </div>
-          </div>
-        )}
-
-        {loading ? (
-          <div className="flex justify-center py-20"><Loader2 className="w-7 h-7 animate-spin text-stone-500" /></div>
-        ) : profileSearchMode ? (
-          profiles.length === 0 ? (
-            <div className="py-20 text-center text-stone-500 text-sm">Sin perfiles para "{searchQuery}"</div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {profiles.map((profile) => (
-                <Link
-                  key={profile.user_id}
-                  to={`/user/${profile.user_id}`}
-                  className="bg-white rounded-2xl border border-stone-200 p-3 hover:shadow-sm transition-shadow"
-                >
-                  <div className="w-14 h-14 rounded-full overflow-hidden bg-stone-100 mb-2">
-                    {profile.profile_image ? (
-                      <img src={profile.profile_image} alt={profile.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-stone-400">
-                        <UserRound className="w-5 h-5" />
-                      </div>
-                    )}
+                {searchQuery ? (
+                  <div className="p-4">
+                    <p className="text-sm text-[#6B7280] mb-2">Sugerencias</p>
+                    {POPULAR_SEARCHES.filter(s => s.toLowerCase().includes(searchQuery.toLowerCase())).map((suggestion, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSearch(suggestion)}
+                        className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg text-left"
+                      >
+                        <Search className="w-4 h-4 text-[#6B7280]" />
+                        <span className="text-[#1A1A1A]">{suggestion}</span>
+                      </button>
+                    ))}
                   </div>
-                  <p className="text-sm font-medium text-[#1C1C1C] truncate">{profile.name || 'Usuario'}</p>
-                  <p className="text-xs text-stone-500 mt-0.5 capitalize">
-                    {profile.role === 'producer' ? 'Productor' : profile.role === 'importer' ? 'Importador' : profile.role}
-                  </p>
-                </Link>
-              ))}
-            </div>
-          )
-        ) : activeItems.length === 0 ? (
-          <div className="py-20 text-center text-stone-500 text-sm">Sin contenido</div>
-        ) : tab === 'reels' ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {activeItems.map((item) => {
-              const profileHref = item.user_id ? `/user/${item.user_id}` : '/discover';
+                ) : (
+                  <div className="p-4">
+                    <p className="text-sm text-[#6B7280] mb-2">Búsquedas recientes</p>
+                    {RECENT_SEARCHES.map((search, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSearch(search)}
+                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Search className="w-4 h-4 text-[#6B7280]" />
+                          <span className="text-[#1A1A1A]">{search}</span>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-[#6B7280]" />
+                      </button>
+                    ))}
+                    <hr className="my-3" />
+                    <p className="text-sm text-[#6B7280] mb-2">Búsquedas populares</p>
+                    {POPULAR_SEARCHES.map((search, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleSearch(search)}
+                        className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg text-left"
+                      >
+                        <TrendingUp className="w-4 h-4 text-[#E6A532]" />
+                        <span className="text-[#1A1A1A]">{search}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-8">
+        {/* Category Grid */}
+        <section>
+          <h2 className="text-lg font-bold text-[#1A1A1A] mb-4">Explorar categorías</h2>
+          <div className="grid grid-cols-3 gap-3">
+            {CATEGORIES.filter(c => c.id !== 'para-ti').map((category, index) => {
+              const Icon = category.icon;
               return (
-                <div key={item.id} className="block">
-                  <div className="rounded-xl overflow-hidden border border-stone-200 bg-stone-100 aspect-[9/14] relative">
-                    {item.media_url ? (
-                      <video
-                        src={item.media_url}
-                        className="w-full h-full object-cover"
-                        controls
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
-                    ) : item.thumbnail_url ? (
-                      <img src={item.thumbnail_url} alt={item.user_name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-stone-400"><Clapperboard className="w-5 h-5" /></div>
-                    )}
-                    <div className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-0.5 text-[10px] text-white px-1.5 py-0.5 rounded-full bg-black/60">
-                      <Play className="w-3 h-3" /> {item.views_count || 0}
-                    </div>
+                <motion.button
+                  key={category.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  onClick={() => handleCategoryClick(category.id)}
+                  className="relative aspect-square rounded-2xl overflow-hidden group"
+                  style={{ backgroundColor: category.bgColor }}
+                >
+                  {/* Background pattern */}
+                  <div className="absolute inset-0 opacity-10">
+                    <Icon className="w-full h-full" style={{ color: category.color }} />
                   </div>
-                  <Link to={profileHref} className="mt-1 block text-[11px] text-stone-600 truncate hover:text-stone-800">
-                    {item.user_name}
-                  </Link>
-                </div>
+                  
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
+                    <div 
+                      className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
+                      style={{ backgroundColor: `${category.color}20` }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: category.color }} />
+                    </div>
+                    <span className="text-xs font-medium text-[#1A1A1A] text-center leading-tight">
+                      {category.label}
+                    </span>
+                  </div>
+
+                  {/* Product count badge */}
+                  <span className="absolute bottom-2 right-2 text-[10px] font-medium text-[#6B7280] bg-white/80 px-1.5 py-0.5 rounded-full">
+                    {Math.floor(Math.random() * 200) + 50}
+                  </span>
+
+                  {category.badge && (
+                    <span className={`absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                      category.badge === 'Hot' ? 'bg-red-500 text-white' : 'bg-[#2D5A3D] text-white'
+                    }`}>
+                      {category.badge}
+                    </span>
+                  )}
+                </motion.button>
               );
             })}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {activeItems.map((item) => (
-              <Link key={item.id} to={item.user_id ? `/user/${item.user_id}` : '/discover'} className="block bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-sm transition-shadow">
-                {item.media_url ? (
-                  <div className="aspect-video bg-stone-100">
-                    <img src={item.media_url} alt={item.user_name} className="w-full h-full object-cover" />
-                  </div>
-                ) : null}
-                {item.caption ? <p className="px-3 py-2 text-sm text-stone-800 line-clamp-2">{item.caption}</p> : null}
-                <div className="px-3 pb-2 text-xs text-stone-500 inline-flex items-center gap-3">
-                  <span className="inline-flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> {item.likes_count}</span>
-                  <span>{item.comments_count} 💬</span>
-                </div>
-              </Link>
+        </section>
+
+        {/* Trending Topics */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-[#1A1A1A]">Tendencias</h2>
+            <button className="text-sm text-[#2D5A3D] font-medium">Ver todas</button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {TRENDING_HASHTAGS.map((hashtag, index) => (
+              <motion.button
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() => handleSearch(hashtag.tag)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-[#2D5A3D] text-white rounded-full text-sm font-medium hover:bg-[#234a31] transition-colors"
+              >
+                #{hashtag.tag}
+                {hashtag.growth > 50 && (
+                  <Flame className="w-3.5 h-3.5 text-[#E6A532]" />
+                )}
+              </motion.button>
             ))}
           </div>
-        )}
+        </section>
+
+        {/* HI AI Recommendations */}
+        <section className="bg-gradient-to-r from-[#2D5A3D]/5 to-[#E6A532]/5 rounded-2xl p-4 border border-[#2D5A3D]/10">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-full bg-[#2D5A3D] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-[#1A1A1A]">Recomendado para ti</h2>
+              <p className="text-xs text-[#6B7280]">Basado en tu historial</p>
+            </div>
+          </div>
+          
+          <p className="text-sm text-[#1A1A1A] mb-4 italic">
+            "Maridan con el vino que viste ayer"
+          </p>
+
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+            {HI_RECOMMENDATIONS.map((product) => (
+              <motion.button
+                key={product.id}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate(`/products/${product.id}`)}
+                className="flex-shrink-0 w-32 bg-white rounded-xl overflow-hidden shadow-sm"
+              >
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-24 object-cover"
+                />
+                <div className="p-2">
+                  <p className="text-xs font-medium text-[#1A1A1A] truncate">{product.name}</p>
+                  <p className="text-xs text-[#6B7280] truncate">{product.producer}</p>
+                  <p className="text-sm font-bold text-[#2D5A3D]">€{product.price.toFixed(2)}</p>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+
+          <button 
+            onClick={() => navigate('/chat')}
+            className="w-full mt-3 py-2 bg-[#2D5A3D] text-white rounded-lg text-sm font-medium hover:bg-[#234a31] transition-colors"
+          >
+            🤖 Preguntar a HI
+          </button>
+        </section>
+
+        {/* Featured Producers */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-[#1A1A1A]">Productores del mes</h2>
+            <button 
+              onClick={() => navigate('/stores')}
+              className="text-sm text-[#2D5A3D] font-medium"
+            >
+              Ver mapa
+            </button>
+          </div>
+          
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+            {FEATURED_PRODUCERS.map((producer) => (
+              <motion.button
+                key={producer.id}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate(`/store/${producer.id}`)}
+                className="flex-shrink-0 w-36 bg-white rounded-2xl p-3 shadow-sm text-center"
+              >
+                <img
+                  src={producer.image}
+                  alt={producer.name}
+                  className="w-16 h-16 rounded-full mx-auto mb-2 object-cover"
+                />
+                <p className="text-sm font-semibold text-[#1A1A1A] truncate">{producer.name}</p>
+                <div className="flex items-center justify-center gap-1 text-xs text-[#6B7280] mb-1">
+                  <MapPin className="w-3 h-3" />
+                  {producer.location}
+                </div>
+                <div className="flex items-center justify-center gap-1 text-xs">
+                  <Star className="w-3 h-3 fill-[#E6A532] text-[#E6A532]" />
+                  <span className="font-medium text-[#1A1A1A]">{producer.rating}</span>
+                  <span className="text-[#6B7280]">• {producer.products} prod.</span>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        </section>
+
+        {/* Quick Actions */}
+        <section className="grid grid-cols-2 gap-3">
+          <button 
+            onClick={() => navigate('/products')}
+            className="p-4 bg-white rounded-2xl text-left shadow-sm hover:shadow-md transition-shadow"
+          >
+            <Store className="w-6 h-6 text-[#2D5A3D] mb-2" />
+            <p className="font-medium text-[#1A1A1A]">Ver todo el catálogo</p>
+            <p className="text-xs text-[#6B7280]">1,234 productos</p>
+          </button>
+          <button 
+            onClick={() => navigate('/discover?filter=nearby')}
+            className="p-4 bg-white rounded-2xl text-left shadow-sm hover:shadow-md transition-shadow"
+          >
+            <MapPin className="w-6 h-6 text-[#16A34A] mb-2" />
+            <p className="font-medium text-[#1A1A1A]">Productores cerca</p>
+            <p className="text-xs text-[#6B7280]">23 en tu zona</p>
+          </button>
+        </section>
       </div>
-      <Footer />
+
+      {/* Filter Modal */}
+      {showFilters && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            className="w-full max-w-lg mx-auto bg-white rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-[#1A1A1A]">Filtrar resultados</h3>
+              <button onClick={() => setShowFilters(false)}>
+                <X className="w-6 h-6 text-[#1A1A1A]" />
+              </button>
+            </div>
+
+            {/* Filter sections */}
+            <div className="space-y-6">
+              <div>
+                <h4 className="font-medium text-[#1A1A1A] mb-3">Categorías</h4>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.filter(c => c.id !== 'para-ti').map(cat => (
+                    <button
+                      key={cat.id}
+                      className="px-3 py-1.5 border border-gray-200 rounded-full text-sm text-[#1A1A1A] hover:border-[#2D5A3D] hover:text-[#2D5A3D] transition-colors"
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-[#1A1A1A] mb-3">Precio</h4>
+                <div className="flex gap-2">
+                  {['€0-10', '€10-25', '€25-50', '€50+'].map(range => (
+                    <button
+                      key={range}
+                      className="flex-1 py-2 border border-gray-200 rounded-lg text-sm text-[#1A1A1A] hover:border-[#2D5A3D] hover:bg-[#2D5A3D]/5 transition-colors"
+                    >
+                      {range}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-[#1A1A1A] mb-3">Características</h4>
+                <div className="space-y-2">
+                  {['Envío gratis', 'Producto BIO', 'De mi zona', 'Con descuento'].map(feature => (
+                    <label key={feature} className="flex items-center gap-3">
+                      <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-[#2D5A3D] focus:ring-[#2D5A3D]" />
+                      <span className="text-[#1A1A1A]">{feature}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-[#1A1A1A] mb-3">Ordenar por</h4>
+                <div className="space-y-2">
+                  {['Relevancia', 'Precio: menor a mayor', 'Precio: mayor a menor', 'Más vendidos', 'Mejor valorados'].map((sort, i) => (
+                    <label key={sort} className="flex items-center gap-3">
+                      <input 
+                        type="radio" 
+                        name="sort" 
+                        defaultChecked={i === 0}
+                        className="w-5 h-5 text-[#2D5A3D] focus:ring-[#2D5A3D]" 
+                      />
+                      <span className="text-[#1A1A1A]">{sort}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setShowFilters(false)}
+              className="w-full mt-6 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
+            >
+              Ver 234 resultados
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default DiscoverPage;

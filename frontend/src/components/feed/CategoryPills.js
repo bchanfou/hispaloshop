@@ -1,34 +1,23 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { 
-  Droplets, 
-  Package, 
-  Milk, 
-  Beef, 
-  Croissant, 
-  Wine,
-  Coffee,
-  Baby,
-  Dog,
-  Cookie,
-  Leaf,
-  Wheat
-} from 'lucide-react';
+import { Sparkles, Droplets, Milk, Beef, Croissant, CupSoda, Baby, Dog, Cherry, Leaf, WheatOff, Gift, Flame, MapPin, Sparkle } from 'lucide-react';
 
 const CATEGORIES = [
-  { id: 'aceites', label: 'Aceites', icon: Droplets, color: '#16A34A', bgColor: '#DCFCE7' },
-  { id: 'conservas', label: 'Conservas', icon: Package, color: '#B45309', bgColor: '#FEF3C7' },
-  { id: 'quesos', label: 'Quesos', icon: Milk, color: '#B45309', bgColor: '#FEF3C7' },
-  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: '#BE123C', bgColor: '#FFE4E6' },
-  { id: 'panaderia', label: 'Panadería', icon: Croissant, color: '#C2410C', bgColor: '#FFF7ED' },
-  { id: 'bebidas', label: 'Bebidas', icon: Wine, color: '#9333EA', bgColor: '#F3E8FF' },
-  { id: 'cafe', label: 'Café', icon: Coffee, color: '#374151', bgColor: '#F3F4F6' },
-  { id: 'bebes', label: 'Bebés', icon: Baby, color: '#DB2777', bgColor: '#FCE7F3' },
-  { id: 'mascotas', label: 'Mascotas', icon: Dog, color: '#059669', bgColor: '#D1FAE5' },
-  { id: 'snacks', label: 'Snacks', icon: Cookie, color: '#EA580C', bgColor: '#FFF7ED' },
-  { id: 'organico', label: 'Orgánico', icon: Leaf, color: '#16A34A', bgColor: '#DCFCE7' },
-  { id: 'singluten', label: 'Sin gluten', icon: Wheat, color: '#CA8A04', bgColor: '#FEF9C3' },
+  { id: 'para-ti', label: 'Para ti', icon: Sparkles, color: '#FFFFFF', bgColor: '#2D5A3D', textColor: '#FFFFFF', isSpecial: true },
+  { id: 'aceites', label: 'Aceites', icon: Droplets, color: '#2D5A3D', bgColor: '#F5F1E8', textColor: '#1A1A1A' },
+  { id: 'quesos', label: 'Quesos', icon: Milk, color: '#D97706', bgColor: '#FEF3C7', textColor: '#1A1A1A' },
+  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: '#DC2626', bgColor: '#FEE2E2', textColor: '#1A1A1A' },
+  { id: 'panaderia', label: 'Panadería', icon: Croissant, color: '#D97706', bgColor: '#FEF3C7', textColor: '#1A1A1A' },
+  { id: 'bebidas', label: 'Bebidas', icon: CupSoda, color: '#2563EB', bgColor: '#DBEAFE', textColor: '#1A1A1A' },
+  { id: 'bebes', label: 'Bebés', icon: Baby, color: '#DB2777', bgColor: '#FCE7F3', textColor: '#1A1A1A' },
+  { id: 'mascotas', label: 'Mascotas', icon: Dog, color: '#4F46E5', bgColor: '#E0E7FF', textColor: '#1A1A1A' },
+  { id: 'snacks', label: 'Snacks', icon: Cherry, color: '#D97706', bgColor: '#FEF3C7', textColor: '#1A1A1A' },
+  { id: 'organico', label: 'Orgánico', icon: Leaf, color: '#16A34A', bgColor: '#DCFCE7', textColor: '#1A1A1A' },
+  { id: 'singluten', label: 'Sin gluten', icon: WheatOff, color: '#9333EA', bgColor: '#F3E8FF', textColor: '#1A1A1A' },
+  { id: 'packs', label: 'Packs', icon: Gift, color: '#E6A532', bgColor: '#F5F1E8', textColor: '#1A1A1A' },
+  { id: 'novedades', label: 'Novedades', icon: Sparkle, color: '#2D5A3D', bgColor: '#F5F1E8', textColor: '#1A1A1A', badge: 'Nuevo' },
+  { id: 'trending', label: 'Trending', icon: Flame, color: '#DC2626', bgColor: '#FEE2E2', textColor: '#1A1A1A', badge: 'Hot' },
+  { id: 'locales', label: 'Locales', icon: MapPin, color: '#16A34A', bgColor: '#DCFCE7', textColor: '#1A1A1A' },
 ];
 
 function CategoryPills({ selectedCategory, onSelect }) {
@@ -44,27 +33,16 @@ function CategoryPills({ selectedCategory, onSelect }) {
     }
   };
 
-  const canScrollLeft = scrollRef.current?.scrollLeft > 0;
-  const canScrollRight = scrollRef.current 
-    ? scrollRef.current.scrollLeft < scrollRef.current.scrollWidth - scrollRef.current.clientWidth
-    : true;
-
   return (
-    <div className="relative bg-white py-4">
-      {/* Left Arrow */}
-      <button
-        onClick={() => scroll('left')}
-        className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#1A1A1A] text-white flex items-center justify-center shadow-lg transition-opacity ${
-          canScrollLeft ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
+    <div className="relative bg-white py-3">
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
       {/* Categories */}
       <div 
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto px-6 scrollbar-hide scroll-smooth"
+        className="flex gap-3 overflow-x-auto px-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {CATEGORIES.map((category) => {
@@ -76,26 +54,39 @@ function CategoryPills({ selectedCategory, onSelect }) {
               key={category.id}
               onClick={() => onSelect(category.id)}
               whileTap={{ scale: 0.95 }}
-              className="flex flex-col items-center gap-2 flex-shrink-0"
+              className={`flex flex-col items-center gap-1.5 flex-shrink-0 snap-start ${
+                isSelected ? 'scale-105' : ''
+              }`}
             >
               <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
-                  isSelected ? 'ring-2 ring-offset-2' : ''
+                className={`relative w-[72px] h-[72px] md:w-20 md:h-20 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+                  isSelected ? 'ring-2 ring-offset-2' : 'hover:scale-105 hover:shadow-md'
                 }`}
                 style={{
-                  backgroundColor: category.bgColor,
-                  ringColor: isSelected ? category.color : 'transparent'
+                  backgroundColor: isSelected ? '#2D5A3D' : category.bgColor,
+                  ringColor: isSelected ? '#E6A532' : 'transparent'
                 }}
               >
                 <Icon 
-                  className="w-7 h-7" 
-                  style={{ color: category.color }}
+                  className="w-7 h-7 md:w-8 md:h-8" 
+                  style={{ color: isSelected ? '#FFFFFF' : category.color }}
                   strokeWidth={1.5}
                 />
+                
+                {/* Badge */}
+                {category.badge && (
+                  <span className={`absolute -top-1 -right-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    category.badge === 'Hot' ? 'bg-red-500 text-white' : 'bg-[#2D5A3D] text-white'
+                  }`}>
+                    {category.badge}
+                  </span>
+                )}
               </div>
+              
               <span 
-                className="text-sm font-medium whitespace-nowrap"
-                style={{ color: isSelected ? category.color : '#1A1A1A' }}
+                className={`text-xs md:text-sm font-medium whitespace-nowrap ${
+                  isSelected ? 'text-[#2D5A3D]' : 'text-[#1A1A1A]'
+                }`}
               >
                 {category.label}
               </span>
@@ -104,17 +95,9 @@ function CategoryPills({ selectedCategory, onSelect }) {
         })}
       </div>
 
-      {/* Right Arrow */}
-      <button
-        onClick={() => scroll('right')}
-        className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-[#6B7280] text-white flex items-center justify-center shadow-lg transition-opacity ${
-          canScrollRight ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
     </div>
   );
 }
 
 export default CategoryPills;
+export { CATEGORIES };
