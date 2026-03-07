@@ -173,6 +173,23 @@ app.include_router(b2b_router, prefix="/api/b2b", tags=["B2B"])
 from routes.chat_b2b import router as chat_b2b_router
 app.include_router(chat_b2b_router, prefix="/api/chat", tags=["Chat B2B"])
 
+# FASE 5: Superadmin Enterprise + Chat Real-Time + Notificaciones
+# Superadmin Routes
+from routes.superadmin.dashboard import router as superadmin_dashboard_router
+from routes.superadmin.audit import router as superadmin_audit_router
+from routes.superadmin.moderation import router as superadmin_moderation_router
+app.include_router(superadmin_dashboard_router, prefix="/api", tags=["Superadmin Dashboard"])
+app.include_router(superadmin_audit_router, prefix="/api", tags=["Superadmin Audit"])
+app.include_router(superadmin_moderation_router, prefix="/api", tags=["Superadmin Moderation"])
+
+# Notifications Routes (Fase 5)
+from routes.notifications import router as notifications_v2_router
+app.include_router(notifications_v2_router, prefix="/api/v2/notifications", tags=["Notifications V2"])
+
+# WebSocket Routes (Fase 5)
+from routes.websocket_chat import router as websocket_router
+app.include_router(websocket_router)
+
 
 @app.get("/health")
 async def health():
@@ -224,4 +241,7 @@ async def startup_event():
     print(f"Database: MongoDB ({settings.DB_NAME})")
     print(f"CORS Origins: {len(origins)} configured")
     print(f"Security: Rate limiting + Security headers active")
+    print(f"Features: AI Recommendations + Affiliate Engine + Social Feed")
+    print(f"         Checkout Split + B2B Importer + Superadmin Enterprise")
+    print(f"         Chat Real-Time + Notifications Omnichannel")
     print(f"{'='*50}\n")

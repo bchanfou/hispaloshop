@@ -1,63 +1,197 @@
 """
-User notifications: list, mark read, mark all read, create helper.
-Extracted from server.py.
+Notifications Endpoints
+Fase 5: Centro de notificaciones y preferencias
 """
-from fastapi import APIRouter, Depends
-from datetime import datetime, timezone
-import uuid
+from fastapi import APIRouter, Depends, Query
+from typing import Optional, List
 
-from core.database import db
-from core.models import User
-from core.auth import get_current_user
+from backend.services.notifications.dispatcher_service import notification_dispatcher
+from backend.routes.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(prefix="/notifications", tags=["notifications"])
 
 
-async def create_notification(user_id: str, notif_type: str, title: str, message: str, link: str = ""):
-    """Create a notification for a user."""
-    await db.user_notifications.insert_one({
-        "notification_id": str(uuid.uuid4()),
-        "user_id": user_id,
-        "type": notif_type,
-        "title": title,
-        "message": message,
-        "link": link,
-        "read": False,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    })
-
-
-@router.get("/user/notifications")
-async def get_user_notifications(user: User = Depends(get_current_user), limit: int = 20):
-    """Get user notifications"""
-    notifications = await db.user_notifications.find(
-        {"user_id": user.user_id},
-        {"_id": 0}
-    ).sort("created_at", -1).limit(limit).to_list(limit)
-
-    unread_count = await db.user_notifications.count_documents({
-        "user_id": user.user_id,
-        "read": False
-    })
-
-    return {"notifications": notifications, "unread_count": unread_count}
-
-
-@router.put("/user/notifications/{notification_id}/read")
-async def mark_notification_read(notification_id: str, user: User = Depends(get_current_user)):
-    """Mark a notification as read"""
-    await db.user_notifications.update_one(
-        {"notification_id": notification_id, "user_id": user.user_id},
-        {"$set": {"read": True}}
+@router.get("/")
+async def get_notifications(
+    unread_only: bool = Query(False),
+    page: int = Query(1, ge=1),
+    limit: int = Query(50, ge=1, le=100),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Obtener notificaciones del usuario
+    """
+    return await notification_dispatcher.get_notifications(
+        user_id=str(current_user["_id"]),
+        unread_only=unread_only,
+        page=page,
+        limit=limit
     )
-    return {"message": "Notification marked as read"}
 
 
-@router.put("/user/notifications/read-all")
-async def mark_all_notifications_read(user: User = Depends(get_current_user)):
-    """Mark all notifications as read"""
-    await db.user_notifications.update_many(
-        {"user_id": user.user_id, "read": False},
-        {"$set": {"read": True}}
+@router.get("/unread-count")
+async def get_unread_count(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Obtener conteo de notificaciones no leídas
+    """
+    result = await notification_dispatcher.get_notifications(
+        user_id=str(current_user["_id"]),
+        unread_only=True,
+        page=1,
+        limit=1
     )
-    return {"message": "All notifications marked as read"}
+    return {"unread_count": result["unread"]}
+
+
+@router.post("/{notification_id}/read")
+async def mark_as_read(
+    notification_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Marcar notificación como leída
+    """
+    await notification_dispatcher.mark_as_read(
+        notification_id=notification_id,
+        user_id=str(current_user["_id"])
+    )
+    return {"status": "marked_as_read"}
+
+
+@router.post("/mark-all-read")
+async def mark_all_read(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Marcar todas las notificaciones como leídas
+    """
+    from backend.core.database import db
+    from datetime import datetime
+    from bson import ObjectId
+    
+    await db.notifications.update_many(
+        {
+            "user_id": str(current_user["_id"]),
+            "read_at": None
+        },
+        {"$set": {"read_at": datetime.utcnow()}}
+    )
+    
+    return {"status": "all_marked_as_read"}
+
+
+@router.post("/push-token")
+async def register_push_token(
+    token: str,
+    platform: str,  # ios, android, web
+    device_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Registrar token de notificaciones push
+    """
+    await notification_dispatcher.register_push_token(
+        user_id=str(current_user["_id"]),
+        token=token,
+        platform=platform,
+        device_id=device_id
+    )
+    return {"status": "token_registered"}
+
+
+@router.delete("/push-token")
+async def unregister_push_token(
+    token: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Desregistrar token de notificaciones push
+    """
+    await notification_dispatcher.unregister_push_token(
+        user_id=str(current_user["_id"]),
+        token=token
+    )
+    return {"status": "token_unregistered"}
+
+
+@router.get("/preferences")
+async def get_notification_preferences(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Obtener preferencias de notificación
+    """
+    from backend.core.database import db
+    
+    prefs = await db.user_notification_preferences.find_one({
+        "user_id": str(current_user["_id"])
+    })
+    
+    if not prefs:
+        return {
+            "master_push_enabled": True,
+            "master_email_enabled": True,
+            "master_sms_enabled": False,
+            "quiet_hours_start": "22:00",
+            "quiet_hours_end": "08:00",
+            "quiet_hours_timezone": "Europe/Madrid",
+            "push_tokens": []
+        }
+    
+    prefs["_id"] = str(prefs["_id"])
+    return prefs
+
+
+@router.put("/preferences")
+async def update_notification_preferences(
+    preferences: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Actualizar preferencias de notificación
+    """
+    from backend.core.database import db
+    from datetime import datetime
+    
+    preferences["user_id"] = str(current_user["_id"])
+    preferences["updated_at"] = datetime.utcnow()
+    
+    await db.user_notification_preferences.update_one(
+        {"user_id": str(current_user["_id"])},
+        {"$set": preferences},
+        upsert=True
+    )
+    
+    return {"status": "preferences_updated"}
+
+
+# Admin endpoint para enviar notificaciones
+@router.post("/admin/send")
+async def admin_send_notification(
+    user_id: str,
+    title: str,
+    body: str,
+    notification_type: str = "system",
+    channels: List[str] = ["in_app"],
+    priority: str = "normal",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Enviar notificación (solo admin/superadmin)
+    """
+    if current_user.get("role") not in ["admin", "superadmin"]:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    notification_id = await notification_dispatcher.send_notification(
+        user_id=user_id,
+        title=title,
+        body=body,
+        notification_type=notification_type,
+        channels=channels,
+        priority=priority
+    )
+    
+    return {"notification_id": notification_id, "status": "sent"}
