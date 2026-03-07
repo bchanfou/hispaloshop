@@ -51,6 +51,7 @@ from routes.producer_registration import router as producer_registration_router
 from routes.importer_registration import router as importer_registration_router
 from routes.importer import router as legacy_importer_router
 from routes.ai import router as ai_router
+from routes.affiliates import router as affiliates_router
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +153,9 @@ app.include_router(importer_registration_router, prefix="/api", tags=["importer-
 
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
+
+# Affiliate Routes (Fase 2)
+app.include_router(affiliates_router, prefix="/api/affiliates", tags=["Affiliates"])
 
 
 @app.get("/health")

@@ -4,7 +4,7 @@ Single source of truth — imported by server.py and all route modules.
 """
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 # ── User & Auth ──────────────────────────────────────────────
@@ -880,3 +880,153 @@ class SemanticSearchResult(BaseModel):
     product_id: str
     similarity_score: float
     product_data: Optional[Dict[str, Any]] = None
+
+
+# ═══════════════════════════════════════════════════════════
+# AFFILIATE ENGINE MODELS (Fase 2)
+# ═══════════════════════════════════════════════════════════
+
+class AffiliateClick(BaseModel):
+    """Registro de cada click en link de afiliado"""
+    click_id: str  # UUID unico para este click
+    affiliate_code: str  # Codigo del influencer (ej: "MARIA2024")
+    influencer_id: str   # ObjectId del influencer
+    
+    # Contexto del click
+    ip_address: str
+    user_agent: str
+    referrer: Optional[str] = None  # De donde vino (Instagram, etc.)
+    
+    # Que se estaba viendo
+    product_id: Optional[str] = None  # Si fue click directo a producto
+    post_id: Optional[str] = None     # Si vino de un post
+    
+    # Cookie/tracking
+    cookie_set_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(days=30))
+    
+    # Conversion (se actualiza si ocurre)
+    converted: bool = False
+    conversion_at: Optional[datetime] = None
+    order_id: Optional[str] = None
+    conversion_value_cents: Optional[int] = None
+    commission_cents: Optional[int] = None
+    commission_tier: Optional[str] = None  # hydra, nemea, atlas, olympus, hercules
+    
+    # Atribucion
+    attribution_model: str = "last_click"  # first_click, last_click, linear
+    
+    # Geolocalizacion (para analytics)
+    country: Optional[str] = None
+    city: Optional[str] = None
+    
+    # Flags anti-fraude
+    is_suspicious: bool = False  # Si detectamos patron raro
+    suspicion_reason: Optional[str] = None
+
+
+class CommissionRecord(BaseModel):
+    """Registro inmutable de cada comision generada"""
+    order_id: str
+    order_number: str
+    
+    # Quien genero la venta
+    influencer_id: str
+    affiliate_code: str
+    
+    # Detalles de la venta
+    product_id: str
+    product_name: str
+    seller_id: str  # Productor/importador que vendio
+    
+    # Finanzas
+    sale_value_cents: int      # Valor total de la venta
+    commission_rate: float     # 0.03, 0.04, 0.05, 0.06, 0.07
+    commission_cents: int      # sale_value * commission_rate
+    
+    # Estado del pago
+    status: str = "pending"    # pending, approved, paid, disputed, refunded
+    paid_at: Optional[datetime] = None
+    payout_method: Optional[str] = None  # stripe_transfer, paypal, bank
+    payout_reference: Optional[str] = None  # ID de transferencia
+    
+    # Tracking de cambios
+    status_history: List[Dict] = Field(default_factory=list)
+    # [{"from": "pending", "to": "approved", "by": "system", "at": ISODate, "reason": "..."}]
+    
+    # Periodo de contabilidad
+    period_year: int
+    period_month: int  # Para reportes mensuales
+    
+    tenant_id: str
+
+
+class InfluencerTierHistory(BaseModel):
+    """Historial de cambios de tier del influencer"""
+    influencer_id: str
+    tenant_id: str
+    
+    from_tier: str   # hydra, nemea, atlas, olympus, hercules
+    to_tier: str
+    reason: str      # "gmv_threshold", "manual_review", "penalty"
+    
+    # Metricas en momento del cambio
+    gmv_at_change: int
+    conversions_at_change: int
+    followers_at_change: int
+    
+    changed_at: datetime = Field(default_factory=datetime.utcnow)
+    changed_by: Optional[str] = None  # "system" o admin_id
+
+
+class PayoutBatch(BaseModel):
+    """Lote de pagos a influencers (para procesamiento masivo)"""
+    tenant_id: str
+    period_year: int
+    period_month: int
+    
+    status: str = "draft"  # draft, processing, completed, failed
+    
+    # Resumen
+    total_influencers: int
+    total_commissions_cents: int
+    total_payouts_cents: int  # Despues de retenciones/tasas
+    
+    # Detalle
+    payouts: List[Dict] = Field(default_factory=list)
+    # [{
+    #   "influencer_id": "...",
+    #   "commission_ids": ["...", "..."],
+    #   "total_cents": 5000,
+    #   "method": "stripe_transfer",
+    #   "status": "pending|completed|failed",
+    #   "transfer_id": "tr_..."
+    # }]
+    
+    processed_at: Optional[datetime] = None
+    processed_by: Optional[str] = None
+    
+    # Reporte generado
+    report_url: Optional[str] = None  # URL a archivo generado
+
+
+class InfluencerStats(BaseModel):
+    """Estadisticas acumuladas de influencer (para queries rapidas)"""
+    influencer_id: str
+    tenant_id: str
+    
+    # Totales lifetime
+    total_clicks: int = 0
+    total_conversions: int = 0
+    total_gmv_generated_cents: int = 0
+    total_commission_earned_cents: int = 0
+    total_commission_paid_cents: int = 0
+    
+    # Por periodo (ultimos 30 dias)
+    clicks_30d: int = 0
+    conversions_30d: int = 0
+    gmv_30d_cents: int = 0
+    commission_30d_cents: int = 0
+    
+    # Metadata
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
