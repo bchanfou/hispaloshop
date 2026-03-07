@@ -87,6 +87,24 @@ export default function CustomerLayoutResponsive() {
     );
   }
 
+  // Redirect non-customers to their appropriate dashboards
+  if (user.role === 'producer' || user.role === 'importer') {
+    navigate('/producer', { replace: true });
+    return null;
+  }
+  if (user.role === 'admin') {
+    navigate('/admin', { replace: true });
+    return null;
+  }
+  if (user.role === 'super_admin') {
+    navigate('/super-admin', { replace: true });
+    return null;
+  }
+  if (user.role === 'influencer') {
+    navigate('/influencer/dashboard', { replace: true });
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* ===== MOBILE HEADER ===== */}

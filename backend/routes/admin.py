@@ -1455,3 +1455,180 @@ async def admin_update_pack(product_id: str, pack_id: str, input: PackUpdateInpu
     
     return {"message": "Pack updated by admin"}
 
+
+# =====================================================
+# ADMIN DASHBOARD ENDPOINTS
+# =====================================================
+
+@router.get("/admin/users")
+async def admin_list_users(
+    role: Optional[str] = None,
+    approved: Optional[bool] = None,
+    user: User = Depends(get_current_user)
+):
+    """List users for admin dashboard"""
+    await require_role(user, ["admin", "super_admin"])
+    
+    query = {}
+    if role:
+        query["role"] = role
+    if approved is not None:
+        query["approved"] = approved
+    
+    users = await db.users.find(
+        query,
+        {"_id": 0, "password_hash": 0}
+    ).sort("created_at", -1).to_list(500)
+    
+    return users
+
+
+@router.get("/admin/products")
+async def admin_list_products(
+    status: Optional[str] = None,
+    seller_type: Optional[str] = None,
+    user: User = Depends(get_current_user)
+):
+    """List products for admin dashboard"""
+    await require_role(user, ["admin", "super_admin"])
+    
+    query = {}
+    if status:
+        query["status"] = status
+    if seller_type:
+        query["seller_type"] = seller_type
+    
+    products = await db.products.find(
+        query,
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(500)
+    
+    return products
+
+
+@router.get("/admin/orders")
+async def admin_list_orders(
+    status: Optional[str] = None,
+    limit: int = 100,
+    user: User = Depends(get_current_user)
+):
+    """List orders for admin dashboard"""
+    await require_role(user, ["admin", "super_admin"])
+    
+    query = {}
+    if status:
+        query["status"] = status
+    
+    orders = await db.orders.find(
+        query,
+        {"_id": 0}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    return orders
+
+
+@router.put("/admin/products/{product_id}/approve")
+async def admin_approve_product(product_id: str, user: User = Depends(get_current_user)):
+    """Approve a product (admin only)"""
+    await require_role(user, ["admin", "super_admin"])
+    
+    product = await db.products.find_one({"product_id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    await db.products.update_one(
+        {"product_id": product_id},
+        {"$set": {"approved": True, "status": "active"}}
+    )
+    
+    # Log activity
+    await db.admin_activity.insert_one({
+        "activity_id": str(uuid.uuid4()),
+        "admin_id": user.user_id,
+        "action": "product_approved",
+        "target_type": "product",
+        "target_id": product_id,
+        "details": f"Approved product: {product.get('name')}",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"message": "Product approved"}
+
+
+@router.put("/admin/products/{product_id}/reject")
+async def admin_reject_product(
+    product_id: str, 
+    reason: Optional[str] = None,
+    user: User = Depends(get_current_user)
+):
+    """Reject a product (admin only)"""
+    await require_role(user, ["admin", "super_admin"])
+    
+    product = await db.products.find_one({"product_id": product_id})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    await db.products.update_one(
+        {"product_id": product_id},
+        {"$set": {"approved": False, "status": "rejected", "rejection_reason": reason}}
+    )
+    
+    # Log activity
+    await db.admin_activity.insert_one({
+        "activity_id": str(uuid.uuid4()),
+        "admin_id": user.user_id,
+        "action": "product_rejected",
+        "target_type": "product",
+        "target_id": product_id,
+        "details": f"Rejected product: {product.get('name')}. Reason: {reason}",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"message": "Product rejected"}
+
+
+@router.get("/admin/stats")
+async def admin_dashboard_stats(user: User = Depends(get_current_user)):
+    """Get stats for admin dashboard"""
+    await require_role(user, ["admin", "super_admin"])
+    
+    # User counts
+    total_users = await db.users.count_documents({})
+    total_customers = await db.users.count_documents({"role": "customer"})
+    total_producers = await db.users.count_documents({"role": "producer"})
+    total_importers = await db.users.count_documents({"role": "importer"})
+    
+    # Product counts
+    total_products = await db.products.count_documents({})
+    pending_products = await db.products.count_documents({
+        "$or": [{"approved": False}, {"status": "pending"}]
+    })
+    
+    # Order stats
+    today = datetime.now(timezone.utc).isoformat()[:10]
+    total_orders_today = await db.orders.count_documents({
+        "created_at": {"$gte": today}
+    })
+    
+    # Revenue today
+    pipeline = [
+        {"$match": {"created_at": {"$gte": today}}},
+        {"$group": {"_id": None, "total": {"$sum": "$total_amount"}}}
+    ]
+    revenue_result = await db.orders.aggregate(pipeline).to_list(1)
+    revenue_today = revenue_result[0]["total"] if revenue_result else 0
+    
+    return {
+        "total_users": total_users,
+        "total_customers": total_customers,
+        "total_producers": total_producers,
+        "total_importers": total_importers,
+        "total_products": total_products,
+        "pending_products": pending_products,
+        "total_orders_today": total_orders_today,
+        "revenue_today": revenue_today,
+        "pending_moderation": {
+            "products": pending_products,
+            "users": await db.users.count_documents({"approved": False})
+        }
+    }

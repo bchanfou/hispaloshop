@@ -81,7 +81,7 @@ const ProducerConnectRefresh = lazy(() => import('./pages/producer/ProducerConne
 const ProducerShippingPolicy = lazy(() => import('./pages/producer/ProducerShippingPolicy'));
 
 const CustomerLayout = lazy(() => import('./components/dashboard/CustomerLayoutResponsive'));
-const CustomerOverview = lazy(() => import('./pages/customer/CustomerOverview'));
+const CustomerOverview = lazy(() => import('./pages/customer/Dashboard'));
 const CustomerOrders = lazy(() => import('./pages/customer/CustomerOrders'));
 const CustomerProfile = lazy(() => import('./pages/customer/CustomerProfile'));
 const CustomerAIPreferences = lazy(() => import('./pages/customer/CustomerAIPreferences'));
