@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { useCart } from './context/CartContext';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import '@/App.css';
@@ -24,6 +25,9 @@ import { LocaleProvider } from './context/LocaleContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { ChatProvider } from './context/chat/ChatProvider';
 import { usePushNotifications } from './hooks/usePushNotifications';
+
+// Cart components
+import MiniCart from './components/cart/MiniCart';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
@@ -95,6 +99,10 @@ const ReelsContainer = lazy(() => import('./components/reels/ReelsContainer'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
+
+// Checkout
+const CheckoutPage = lazy(() => import('./pages/checkout/CheckoutPage'));
+const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
 
 // Landing pages
 const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
@@ -171,6 +179,7 @@ function LegacyProfileRedirect() {
 function AppRouter() {
   const location = useLocation();
   const { user } = useAuth();
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   usePushNotifications(user);
 
@@ -344,6 +353,8 @@ function AppRouter() {
               <Route path="/dashboard/influencer/new" element={<InfluencerDashboardNew />} />
               <Route path="/dashboard/producer/new" element={<ProducerDashboardNew />} />
               <Route path="/dashboard/importer/new" element={<ImporterDashboardNew />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/checkout/success" element={<CheckoutSuccess />} />
               <Route path="/chat" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
@@ -351,6 +362,9 @@ function AppRouter() {
           </motion.div>
         </AnimatePresence>
       </Suspense>
+      
+      {/* Mini Cart Drawer */}
+      <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 }
