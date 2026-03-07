@@ -1,13 +1,15 @@
 # Cuentas de Prueba - Quick Start
 
-## Credenciales Listas para Usar
+## Credenciales Listas para Usar (6 cuentas)
 
-| Email | Password | Rol | Estado |
-|-------|----------|-----|--------|
-| `consumer@test.com` | Test1234 | Customer | ✅ Lista |
-| `producer@test.com` | Test1234 | Producer | ✅ Lista |
-| `influencer@test.com` | Test1234 | Influencer | ✅ Lista |
-| `importer@test.com` | Test1234 | Importer | ✅ Lista |
+| Email | Password | Rol | Capacidades |
+|-------|----------|-----|-------------|
+| `consumer@test.com` | Test1234 | **Customer** | Comprar, posts, stories |
+| `producer@test.com` | Test1234 | **Producer** | Vender, gestionar pedidos |
+| `influencer@test.com` | Test1234 | **Influencer** | Afiliados, contenido |
+| `importer@test.com` | Test1234 | **Importer** | **B2B + Vender + Contenido** |
+| `admin@test.com` | Test1234 | **Admin** | Gestionar plataforma |
+| `superadmin@test.com` | Test1234 | **SuperAdmin** | Control total |
 
 ---
 
@@ -25,91 +27,84 @@ cd backend
 python test_accounts_api.py
 ```
 
-Esto creará las 4 cuentas automáticamente a través de la API.
-
 ---
 
-## Opción 2: Crear Manualmente
-
-### 1. Registrarse en la app
-Ve a: `http://localhost:3000/register/new`
-
-### 2. Seleccionar rol y completar datos
-
-**Consumer:**
-- Email: `consumer@test.com`
-- Password: `Test1234`
-- Nombre: `María Consumidora`
-- País: España
-- ✅ Aceptar términos
-
-**Producer:**
-- Email: `producer@test.com`
-- Password: `Test1234`
-- Nombre: `Cooperativa La Huerta Viva`
-- Empresa: `La Huerta Viva S.Coop.`
-- CIF: `ESF43002123`
-- Tel: `+34 977 123 456`
-- Dirección: `Camino Viejo de Reus km 5, 43201 Reus`
-- Contacto: `Antonio Martínez`
-
-**Influencer:**
-- Email: `influencer@test.com`
-- Password: `Test1234`
-- Nombre: `Nora Real Food`
-- Instagram: `@norarealfood`
-- TikTok: `@norarealfood`
-
-**Importer:**
-- Email: `importer@test.com`
-- Password: `Test1234`
-- Nombre: `Gourmet Importaciones SL`
-- Empresa: `Gourmet Importaciones y Distribuciones SL`
-- CIF: `ESB87654321`
-- Tel: `+34 915 678 901`
-- Dirección: `Paseo de la Castellana 150, 28046 Madrid`
-- Contacto: `Carlos Rodríguez`
-
-### 3. Aprobar cuentas (Producer, Influencer, Importer)
-
-Las cuentas de Customer se aprueban automáticamente.
-
-Para las demás, usa MongoDB Compass o la consola:
+## Opción 2: Aprobación Rápida en MongoDB
 
 ```javascript
-// Conectar a MongoDB Atlas
-// Base de datos: hispaloshop
-// Colección: users
+// En MongoDB Compass o shell
+// Conectar a: mongodb+srv://hispaloshop:...@cluster0...mongodb.net/hispaloshop
 
-// Aprobar todas las cuentas de prueba
 db.users.updateMany(
   { email: { $in: [
     "producer@test.com",
     "influencer@test.com", 
-    "importer@test.com"
+    "importer@test.com",
+    "admin@test.com",
+    "superadmin@test.com"
   ]}},
   { $set: { approved: true, email_verified: true }}
-)
-
-// Verificar usuarios creados
-db.users.find(
-  { email: { $regex: "@test.com" }},
-  { email: 1, role: 1, approved: 1 }
 )
 ```
 
 ---
 
-## Opción 3: Script Directo a MongoDB
+## Opción 3: Crear Manualmente
 
-Si tienes acceso directo a MongoDB:
+Ve a: `http://localhost:3000/register/new`
 
-```bash
-cd backend
-python test_accounts.py
-```
+### Datos por rol:
 
-Nota: Este script requiere que puedas conectar a MongoDB Atlas desde tu máquina.
+**Consumer:**
+- Email: `consumer@test.com`, Password: `Test1234`
+- Nombre: `María Consumidora`, País: España
+
+**Producer:**
+- Email: `producer@test.com`, Password: `Test1234`
+- Nombre: `Cooperativa La Huerta Viva`
+- Empresa: `La Huerta Viva S.Coop.`, CIF: `ESF43002123`
+- Tel: `+34 977 123 456`, Contacto: `Antonio Martínez`
+
+**Influencer:**
+- Email: `influencer@test.com`, Password: `Test1234`
+- Nombre: `Nora Real Food`
+- Instagram: `@norarealfood`, TikTok: `@norarealfood`
+
+**Importer** (Importador + Vendedor):
+- Email: `importer@test.com`, Password: `Test1234`
+- Nombre: `Gourmet Importaciones SL`
+- Empresa: `Gourmet Importaciones y Distribuciones SL`
+- CIF: `ESB87654321`, Tel: `+34 915 678 901`
+- Contacto: `Carlos Rodríguez`
+
+**Admin:**
+- Email: `admin@test.com`, Password: `Test1234`
+- Nombre: `Admin Hispaloshop`
+
+**SuperAdmin:**
+- Email: `superadmin@test.com`, Password: `Test1234`
+- Nombre: `Super Admin`
+
+---
+
+## Matriz de Capacidades
+
+| Funcionalidad | Consumer | Producer | Influencer | Importer | Admin | SuperAdmin |
+|--------------|----------|----------|------------|----------|-------|------------|
+| **Feed/Social** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Comprar** | ✅ | - | ✅ | ✅ | - | - |
+| **Vender (B2C)** | - | ✅ | ✅ | ✅ | - | - |
+| **Importar (B2B)** | - | - | - | ✅ | - | - |
+| **Crear posts/stories** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Afiliados** | - | - | ✅ | - | - | - |
+| **Gestión usuarios** | - | - | - | - | ✅ | ✅ |
+| **Config sistema** | - | - | - | - | - | ✅ |
+
+### Nota especial - Importer:
+El rol **Importer** es el más completo para empresas que:
+1. **Importan** productos de otros países (B2B)
+2. **Venden** productos directamente a consumidores (B2C)
+3. **Crean contenido** (posts, stories) para marketing
 
 ---
 
@@ -117,75 +112,74 @@ Nota: Este script requiere que puedas conectar a MongoDB Atlas desde tu máquina
 
 Después de crear las cuentas, prueba:
 
-1. **Login en frontend**
-   - Ir a `/login`
-   - Usar cualquiera de las credenciales
+```bash
+# Login con cada cuenta
+curl -X POST http://localhost:8000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"consumer@test.com","password":"Test1234"}'
+```
 
-2. **Probar funcionalidades por rol:**
-
-   | Funcionalidad | Consumer | Producer | Influencer | Importer |
-   |--------------|----------|----------|------------|----------|
-   | Feed/Social | ✅ | ✅ | ✅ | ✅ |
-   | Comprar | ✅ | - | ✅ | - |
-   | Vender productos | - | ✅ | - | - |
-   | Crear posts/stories | ✅ | ✅ | ✅ | - |
-   | Dashboard analytics | - | ✅ | ✅ | ✅ |
-   | Chat HI AI | ✅ | ✅ | ✅ | ✅ |
-   | Afiliados/Comisiones | - | - | ✅ | - |
-   | B2B Quotes | - | - | - | ✅ |
+O simplemente ve a `/login` en el frontend y prueba cada cuenta.
 
 ---
 
 ## Solución de Problemas
 
 ### "Backend no conectado"
-- Verifica que el backend esté corriendo en `localhost:8000`
-- Revisa que no haya errores en la consola del backend
-
-### "MongoDB connection error"
-- Verifica tu archivo `.env` tiene las credenciales correctas de MongoDB Atlas
-- Asegúrate de que tu IP esté en la lista blanca de MongoDB Atlas
+```bash
+cd backend
+python -m app.main  # Iniciar backend
+```
 
 ### "Usuario ya existe"
-- Las cuentas ya fueron creadas previamente
-- Puedes usarlas directamente o borrarlas y recrearlas:
 ```javascript
+// Borrar todas las cuentas de prueba
 db.users.deleteMany({ email: { $regex: "@test.com" }})
 ```
 
 ### "Cuenta pendiente de aprobación"
-- Producer, Influencer e Importer requieren aprobación manual
-- Usa el panel de admin o modifica directamente en MongoDB
+Las cuentas de Producer, Influencer, Importer, Admin y SuperAdmin requieren aprobación.
+
+Solución rápida:
+```javascript
+db.users.updateMany(
+  { email: { $regex: "@test.com" }},
+  { $set: { approved: true, email_verified: true }}
+)
+```
 
 ---
 
 ## Datos de Contacto para Cuentas
 
-Si necesitas crear más cuentas, estos son los datos válidos:
+### Direcciones (España)
+- `Calle Mayor 123, 28013 Madrid`
+- `Camino Viejo de Reus km 5, 43201 Reus`
+- `Paseo de la Castellana 150, 28046 Madrid`
 
-### Direcciones de prueba (España)
-- Calle Mayor 123, 28013 Madrid
-- Calle Serrano 45, 28006 Madrid
-- Avenida Diagonal 200, 08018 Barcelona
+### CIFs válidos
+- `ESF43002123` (Productor)
+- `ESB87654321` (Importador)
 
-### CIFs de prueba válidos
-- ESF43002123 (Productor)
-- ESB87654321 (Importador)
-- ESX12345678 (Otro)
-
-### Teléfonos válidos
-- +34 612 345 678 (Móvil)
-- +34 915 678 901 (Fijo Madrid)
-- +34 977 123 456 (Fijo Tarragona)
+### Teléfonos
+- `+34 612 345 678` (Consumer)
+- `+34 977 123 456` (Producer)
+- `+34 915 678 901` (Importer)
 
 ---
 
-## Archivos Creados
+## Archivos
 
-- `backend/test_accounts.py` - Script directo a MongoDB
-- `backend/test_accounts_api.py` - Script via API
+- `backend/test_accounts.py` - Script MongoDB (6 cuentas)
+- `backend/test_accounts_api.py` - Script API (6 cuentas)
 - `TEST_ACCOUNTS_README.md` - Documentación completa
-- `TEST_ACCOUNTS_QUICKSTART.md` - Este archivo
+- `TEST_ACCOUNTS_QUICKSTART.md` - Esta guía
+
+---
+
+## Seguridad
+
+⚠️ **Solo para desarrollo.** Nunca usar en producción.
 
 ---
 
@@ -195,4 +189,4 @@ Si necesitas crear más cuentas, estos son los datos válidos:
 1. Backend corriendo: `python -m app.main`
 2. Frontend corriendo: `npm start` (en /frontend)
 3. MongoDB Atlas accesible
-4. Variables de entorno configuradas en `.env`
+4. Variables de entorno en `.env` correctas

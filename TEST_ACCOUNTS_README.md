@@ -2,16 +2,18 @@
 
 ## Resumen
 
-Este documento describe las 4 cuentas de prueba creadas para probar todas las funcionalidades de la plataforma.
+6 cuentas de prueba listas para usar con todos los perfiles de la plataforma.
 
 ## Credenciales de Acceso
 
 | Email | Contraseña | Rol | Estado |
 |-------|------------|-----|--------|
-| `consumer@test.com` | Test1234 | Customer | Aprobado |
-| `producer@test.com` | Test1234 | Producer | Aprobado |
-| `influencer@test.com` | Test1234 | Influencer | Aprobado |
-| `importer@test.com` | Test1234 | Importer | Aprobado |
+| `consumer@test.com` | Test1234 | **Customer** | ✅ Lista |
+| `producer@test.com` | Test1234 | **Producer** | ✅ Lista |
+| `influencer@test.com` | Test1234 | **Influencer** | ✅ Lista |
+| `importer@test.com` | Test1234 | **Importer** | ✅ Lista |
+| `admin@test.com` | Test1234 | **Admin** | ✅ Lista |
+| `superadmin@test.com` | Test1234 | **SuperAdmin** | ✅ Lista |
 
 ---
 
@@ -56,6 +58,7 @@ Este documento describe las 4 cuentas de prueba creadas para probar todas las fu
 - [ ] Chat con HI AI
 - [ ] Historial de pedidos
 - [ ] Recetas favoritas
+- [ ] **Crear posts y stories**
 
 ---
 
@@ -103,6 +106,7 @@ Este documento describe las 4 cuentas de prueba creadas para probar todas las fu
 - [ ] Retirar fondos
 - [ ] Estadísticas de ventas
 - [ ] Certificados digitales
+- [ ] **Crear posts y stories**
 
 ---
 
@@ -155,9 +159,11 @@ Este documento describe las 4 cuentas de prueba creadas para probar todas las fu
 
 ---
 
-## 4. Importer (Importador) 🌐
+## 4. Importer (Importador + Vendedor) 🌐
 
-**Perfil:** Gourmet Importaciones SL - Distribución internacional
+**Perfil:** Gourmet Importaciones SL - Distribución internacional + Venta local
+
+> **Nota:** El importador tiene capacidades duales: puede importar/exportar (B2B) **Y** vender productos directamente al consumidor (B2C).
 
 ### Datos de la cuenta:
 - **Email:** importer@test.com
@@ -180,11 +186,19 @@ Este documento describe las 4 cuentas de prueba creadas para probar todas las fu
 }
 ```
 
+### Capacidades de Vendedor (B2C):
+- Productos publicados: 18
+- Ventas totales: 850
+- Revenue: €18,500
+- Rating: 4.7/5
+
 ### Contactos:
 - **Comercial:** Carlos Rodríguez - carlos@gourmetimport.es
 - **Calidad:** Ana López - ana@gourmetimport.es
 
 ### Funcionalidades a probar:
+
+**B2B (Importador):**
 - [ ] Dashboard B2B
 - [ ] Búsqueda de productores
 - [ ] Solicitar cotizaciones
@@ -196,6 +210,95 @@ Este documento describe las 4 cuentas de prueba creadas para probar todas las fu
 - [ ] Documentación de exportación
 - [ ] Tracking de envíos
 - [ ] Market coverage
+
+**B2C (Vendedor):**
+- [ ] Publicar productos
+- [ ] Gestionar inventario
+- [ ] Procesar pedidos
+- [ ] Configurar envíos
+- [ ] Retirar fondos
+- [ ] **Crear posts y stories**
+
+---
+
+## 5. Admin 🛡️
+
+**Perfil:** Administrador de Plataforma - Gestión operativa
+
+### Datos de la cuenta:
+- **Email:** admin@test.com
+- **Password:** Test1234
+- **Nombre:** Admin Hispaloshop
+- **País:** España (ES)
+- **Ubicación:** Madrid, España
+- **Teléfono:** +34 915 000 001
+
+### Permisos:
+```json
+{
+  "can_manage_producers": true,
+  "can_manage_products": true,
+  "can_manage_orders": true,
+  "can_manage_influencers": true,
+  "can_view_analytics": true,
+  "can_manage_content": true,
+  "can_manage_support": true
+}
+```
+
+### Funcionalidades a probar:
+- [ ] Panel de administración
+- [ ] Aprobar/rechazar productores
+- [ ] Aprobar/rechazar influencers
+- [ ] Moderar productos
+- [ ] Ver todos los pedidos
+- [ ] Gestión de certificados
+- [ ] Soporte al cliente
+- [ ] Reportes y analytics
+- [ ] Gestión de contenido
+
+---
+
+## 6. SuperAdmin 👑
+
+**Perfil:** Super Administrador - Control total del sistema
+
+### Datos de la cuenta:
+- **Email:** superadmin@test.com
+- **Password:** Test1234
+- **Nombre:** Super Admin
+- **País:** España (ES)
+- **Ubicación:** Madrid, España
+- **Teléfono:** +34 915 000 000
+
+### Permisos:
+```json
+{
+  "can_manage_producers": true,
+  "can_manage_products": true,
+  "can_manage_orders": true,
+  "can_manage_influencers": true,
+  "can_view_analytics": true,
+  "can_manage_content": true,
+  "can_manage_support": true,
+  "can_manage_admins": true,
+  "can_manage_finance": true,
+  "can_manage_settings": true,
+  "can_view_audit_logs": true
+}
+```
+
+### Funcionalidades a probar:
+- [ ] Todo lo que puede hacer Admin
+- [ ] Crear/eliminar admins
+- [ ] Configuración de plataforma
+- [ ] Gestión financiera global
+- [ ] Auditoría de logs
+- [ ] Configuración de comisiones
+- [ ] Gestión de roles y permisos
+- [ ] Supervisión de transacciones
+- [ ] Configuración de pagos
+- [ ] Gestión de la plataforma
 
 ---
 
@@ -217,62 +320,125 @@ python test_accounts_api.py
 1. Ir a `/register/new`
 2. Seleccionar rol
 3. Completar formulario con datos de arriba
-4. Para Producer/Influencer/Importer: aprobar desde admin
+4. Para Producer/Influencer/Importer/Admin/SuperAdmin: aprobar desde superadmin
 
 ---
 
-## Notas Importantes
+## Matriz de Capacidades
 
-### Aprobaciones necesarias:
-- **Customer:** Auto-aprobado
-- **Producer:** Requiere aprobación admin
-- **Influencer:** Requiere aprobación admin  
-- **Importer:** Requiere aprobación admin
+| Funcionalidad | Consumer | Producer | Influencer | Importer | Admin | SuperAdmin |
+|--------------|----------|----------|------------|----------|-------|------------|
+| **Feed/Social** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Comprar** | ✅ | - | ✅ | ✅ | - | - |
+| **Vender (B2C)** | - | ✅ | ✅ | ✅ | - | - |
+| **Importar (B2B)** | - | - | - | ✅ | - | - |
+| **Crear posts** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Crear stories** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Afiliados** | - | - | ✅ | - | - | - |
+| **Dashboard** | Básico | Producer | Influencer | B2B+B2C | Admin | SuperAdmin |
+| **Gestión usuarios** | - | - | - | - | ✅ | ✅ |
+| **Config sistema** | - | - | - | - | - | ✅ |
+| **Finanzas** | - | Propias | Comisiones | Propias | - | Global |
 
-Para aprobar, usar cuenta admin o modificar directamente en MongoDB:
+### Notas especiales:
+- **Importer:** Es el único rol con capacidades B2B (importación) + B2C (venta directa)
+- **Influencer:** Puede vender productos a través de links de afiliado
+- **Admin:** No puede crear/eliminar otros admins (solo SuperAdmin)
+- **SuperAdmin:** Acceso total, incluyendo configuración del sistema
+
+---
+
+## Aprobaciones Necesarias
+
+| Rol | Auto-aprobado | Requiere aprobación |
+|-----|---------------|---------------------|
+| Customer | ✅ | - |
+| Producer | - | ✅ Admin/SuperAdmin |
+| Influencer | - | ✅ Admin/SuperAdmin |
+| Importer | - | ✅ Admin/SuperAdmin |
+| Admin | - | ✅ SuperAdmin |
+| SuperAdmin | - | ✅ (crear manual en DB) |
+
+### Para aprobar usuarios via MongoDB:
+
 ```javascript
-db.users.updateOne(
-  { email: "producer@test.com" },
+// Aprobar todos los usuarios de prueba
+db.users.updateMany(
+  { email: { $in: [
+    "producer@test.com",
+    "influencer@test.com", 
+    "importer@test.com",
+    "admin@test.com",
+    "superadmin@test.com"
+  ]}},
   { $set: { approved: true, email_verified: true } }
+)
+
+// Verificar usuarios creados
+db.users.find(
+  { email: { $regex: "@test.com" }},
+  { email: 1, role: 1, approved: 1 }
 )
 ```
 
-### Datos adicionales:
-Todas las cuentas tienen:
-- Email verificado: ✅
-- Avatar de perfil
-- Datos de contacto completos
-- Configuración de consentimiento GDPR
+---
 
-### Seguridad:
-⚠️ **IMPORTANTE:** Estas cuentas son solo para desarrollo/testing. Nunca usar en producción.
+## Datos de Contacto para Cuentas
+
+### Direcciones de prueba (España)
+- Calle Mayor 123, 28013 Madrid
+- Calle Serrano 45, 28006 Madrid
+- Avenida Diagonal 200, 08018 Barcelona
+
+### CIFs de prueba válidos
+- ESF43002123 (Productor)
+- ESB87654321 (Importador)
+- ESX12345678 (Otro)
+
+### Teléfonos válidos
+- +34 612 345 678 (Móvil)
+- +34 915 678 901 (Fijo Madrid)
+- +34 977 123 456 (Fijo Tarragona)
 
 ---
 
-## Funcionalidades por Rol - Checklist
+## Solución de Problemas
 
-| Funcionalidad | Consumer | Producer | Influencer | Importer |
-|---------------|----------|----------|------------|----------|
-| Feed/Social | ✅ | ✅ | ✅ | ✅ |
-| Comprar | ✅ | ❌ | ✅ | ❌ |
-| Vender | ❌ | ✅ | ✅ | ❌ |
-| Importar | ❌ | ❌ | ❌ | ✅ |
-| Crear posts | ✅ | ✅ | ✅ | ❌ |
-| Crear stories | ✅ | ✅ | ✅ | ❌ |
-| Dashboard analytics | ❌ | ✅ | ✅ | ✅ |
-| Chat HI AI | ✅ | ✅ | ✅ | ✅ |
-| Wishlist | ✅ | ❌ | ❌ | ❌ |
-| Pedidos | ✅ | ✅ | ❌ | ✅ |
-| Reviews | ✅ | ❌ | ✅ | ❌ |
-| Afiliados | ❌ | ❌ | ✅ | ❌ |
-| B2B Quotes | ❌ | ❌ | ❌ | ✅ |
+### "Backend no conectado"
+- Verifica que el backend esté corriendo en `localhost:8000`
+- Revisa que no haya errores en la consola del backend
+
+### "MongoDB connection error"
+- Verifica tu archivo `.env` tiene las credenciales correctas de MongoDB Atlas
+- Asegúrate de que tu IP esté en la lista blanca de MongoDB Atlas
+
+### "Usuario ya existe"
+- Las cuentas ya fueron creadas previamente
+- Puedes usarlas directamente o borrarlas y recrearlas:
+```javascript
+db.users.deleteMany({ email: { $regex: "@test.com" }})
+```
+
+### "Cuenta pendiente de aprobación"
+- Producer, Influencer, Importer, Admin y SuperAdmin requieren aprobación
+- Usa el panel de superadmin o modifica directamente en MongoDB
 
 ---
 
-## Soporte
+## Archivos Creados
 
-Si tienes problemas con las cuentas de prueba:
-1. Verificar que el backend esté corriendo
-2. Comprobar conexión a MongoDB
-3. Revisar logs del backend
-4. Verificar que las variables de entorno estén configuradas
+- `backend/test_accounts.py` - Script directo a MongoDB (6 cuentas)
+- `backend/test_accounts_api.py` - Script via API (6 cuentas)
+- `TEST_ACCOUNTS_README.md` - Documentación completa (este archivo)
+- `TEST_ACCOUNTS_QUICKSTART.md` - Guía rápida
+
+---
+
+## Seguridad
+
+⚠️ **IMPORTANTE:** Estas cuentas son solo para desarrollo/testing:
+- Emails: `@test.com` (dominio de prueba)
+- Passwords: `Test1234` (simple, predecible)
+- Datos: Ficticios, no reales
+
+**Nunca usar en producción.**

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Script para crear/actualizar cuentas de prueba para todos los perfiles.
+Incluye: Consumer, Producer, Influencer, Importer, Admin, SuperAdmin
 Ejecutar: python test_accounts.py
 """
 import asyncio
@@ -42,7 +43,7 @@ MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 DB_NAME = os.getenv("DB_NAME", "hispaloshop")
 
 # ============================================
-# CUENTAS DE PRUEBA - 4 PERFILES COMPLETOS
+# CUENTAS DE PRUEBA - 6 PERFILES COMPLETOS
 # ============================================
 
 TEST_ACCOUNTS = [
@@ -62,13 +63,11 @@ TEST_ACCOUNTS = [
         "location": "Madrid, Espana",
         "phone": "+34 612 345 678",
         "created_at": datetime.now(timezone.utc).isoformat(),
-        # Datos de preferencias
         "preferences": {
             "diet_preferences": ["mediterranea", "organica"],
             "allergens": ["gluten"],
             "goals": "Descubrir productores locales"
         },
-        # Direcciones de envio
         "shipping_addresses": [
             {
                 "address_id": "addr_001",
@@ -82,13 +81,11 @@ TEST_ACCOUNTS = [
                 "is_default": True
             }
         ],
-        # Consentimientos
         "consent": {
             "analytics_consent": True,
             "consent_version": "1.0",
             "consent_date": datetime.now(timezone.utc).isoformat()
         },
-        # Stats
         "orders_count": 12,
         "total_spent": 456.80,
         "following_count": 8,
@@ -106,7 +103,6 @@ TEST_ACCOUNTS = [
         "country": "ES",
         "email_verified": True,
         "approved": True,
-        # Datos de empresa
         "company_name": "La Huerta Viva S.Coop.",
         "company_description": "Cooperativa de agricultores dedicada al cultivo ecologico de productos mediterraneos desde 1985.",
         "phone": "+34 977 123 456",
@@ -114,7 +110,6 @@ TEST_ACCOUNTS = [
         "contact_person": "Antonio Martinez",
         "fiscal_address": "Camino Viejo de Reus km 5, 43201 Reus, Tarragona",
         "vat_cif": "ESF43002123",
-        # Bio y perfil
         "bio": "Productores locales de aceite, conservas y vegetales certificados. Agricultura ecologica y sostenible.",
         "avatar_url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=200",
         "cover_image": "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1200",
@@ -125,20 +120,17 @@ TEST_ACCOUNTS = [
             "facebook": "LaHuertaViva"
         },
         "created_at": datetime.now(timezone.utc).isoformat(),
-        # Stats del productor
         "products_count": 24,
         "total_sales": 1250,
         "total_revenue": 28500.50,
         "rating": 4.8,
         "reviews_count": 156,
         "followers_count": 89,
-        # Configuracion de envio
         "shipping_config": {
             "free_shipping_threshold": 50.0,
             "default_shipping_cost": 4.95,
             "shipping_time": "24-48h"
         },
-        # Metodos de pago
         "payment_methods": {
             "stripe_connected": True,
             "stripe_account_id": "acct_test_123456789",
@@ -157,7 +149,6 @@ TEST_ACCOUNTS = [
         "country": "ES",
         "email_verified": True,
         "approved": True,
-        # Perfil de influencer
         "bio": "Foodie & Content Creator. Recomendaciones honestas de productos artesanales. #RealFood #ProductoLocal",
         "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
         "cover_image": "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=1200",
@@ -171,22 +162,18 @@ TEST_ACCOUNTS = [
             "twitter": "@norarealfood"
         },
         "created_at": datetime.now(timezone.utc).isoformat(),
-        # Stats de influencer
         "followers_count": 12500,
         "following_count": 450,
         "posts_count": 234,
         "total_likes": 45600,
         "engagement_rate": 4.5,
-        # Configuracion de monetizacion
         "monetization": {
             "commission_rate": 8.5,
             "total_earnings": 2450.00,
             "pending_payout": 320.50,
             "affiliate_code": "NORA15"
         },
-        # Nicho/categorias
         "niche_categories": ["gastronomia", "salud", "sostenibilidad"],
-        # Datos de payout
         "payout_info": {
             "method": "bank_transfer",
             "account_holder": "Nora Garcia Martinez",
@@ -195,7 +182,7 @@ TEST_ACCOUNTS = [
         },
     },
     
-    # ---------- 4. IMPORTER (Importador/B2B) ----------
+    # ---------- 4. IMPORTER (Importador + Vendedor) ----------
     {
         "user_id": "test_importer_001",
         "email": "importer@test.com",
@@ -232,10 +219,28 @@ TEST_ACCOUNTS = [
             "import_volume": "medio",
             "certifications": ["BRC", "IFS", "ORGANIC_EU"],
         },
-        # Stats
+        # Capacidades de vendedor (igual que producer)
+        "products_count": 18,
+        "total_sales": 850,
+        "total_revenue": 18500.00,
+        "rating": 4.7,
+        "reviews_count": 98,
+        "followers_count": 45,
         "connected_producers": 12,
         "active_quotes": 5,
         "total_imported_value": 125000.00,
+        # Configuracion de envio
+        "shipping_config": {
+            "free_shipping_threshold": 100.0,
+            "default_shipping_cost": 9.95,
+            "shipping_time": "48-72h"
+        },
+        # Metodos de pago
+        "payment_methods": {
+            "stripe_connected": True,
+            "stripe_account_id": "acct_test_importer_789",
+            "paypal_email": "pagos@gourmetimport.es"
+        },
         # Configuracion B2B
         "b2b_config": {
             "min_order_value": 5000.0,
@@ -259,6 +264,78 @@ TEST_ACCOUNTS = [
             }
         ],
     },
+    
+    # ---------- 5. ADMIN ----------
+    {
+        "user_id": "test_admin_001",
+        "email": "admin@test.com",
+        "password": "Test1234",
+        "name": "Admin Hispaloshop",
+        "full_name": "Administrador Plataforma",
+        "role": "admin",
+        "country": "ES",
+        "email_verified": True,
+        "approved": True,
+        "bio": "Administrador de la plataforma Hispaloshop. Gestion de productores, productos y contenido.",
+        "avatar_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200",
+        "location": "Madrid, Espana",
+        "phone": "+34 915 000 001",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        # Permisos de admin
+        "admin_permissions": {
+            "can_manage_producers": True,
+            "can_manage_products": True,
+            "can_manage_orders": True,
+            "can_manage_influencers": True,
+            "can_view_analytics": True,
+            "can_manage_content": True,
+            "can_manage_support": True,
+        },
+        # Stats
+        "managed_producers": 45,
+        "approved_products": 1234,
+        "resolved_tickets": 89,
+    },
+    
+    # ---------- 6. SUPERADMIN ----------
+    {
+        "user_id": "test_superadmin_001",
+        "email": "superadmin@test.com",
+        "password": "Test1234",
+        "name": "Super Admin",
+        "full_name": "Super Administrador Sistema",
+        "role": "super_admin",
+        "country": "ES",
+        "email_verified": True,
+        "approved": True,
+        "bio": "Super Administrador del sistema. Acceso total a todas las funcionalidades y configuraciones.",
+        "avatar_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+        "location": "Madrid, Espana",
+        "phone": "+34 915 000 000",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        # Permisos de superadmin (todos)
+        "admin_permissions": {
+            "can_manage_producers": True,
+            "can_manage_products": True,
+            "can_manage_orders": True,
+            "can_manage_influencers": True,
+            "can_view_analytics": True,
+            "can_manage_content": True,
+            "can_manage_support": True,
+            "can_manage_admins": True,
+            "can_manage_finance": True,
+            "can_manage_settings": True,
+            "can_view_audit_logs": True,
+        },
+        # Stats
+        "platform_stats": {
+            "total_users": 12500,
+            "total_producers": 145,
+            "total_products": 3456,
+            "total_orders": 8900,
+            "platform_revenue": 456000.00,
+        },
+    },
 ]
 
 
@@ -276,7 +353,7 @@ async def setup_test_accounts():
     print(f"\nConectando a: {MONGO_URL}")
     print(f"Base de datos: {DB_NAME}\n")
     
-    client = AsyncIOMotorClient(MONGO_URL)
+    client = AsyncIOMotorClient(MONGO_URL, tlsAllowInvalidCertificates=True)
     db = client[DB_NAME]
     
     try:
@@ -339,12 +416,22 @@ async def setup_test_accounts():
         print("| producer@test.com              | Test1234         | Producer     |")
         print("| influencer@test.com            | Test1234         | Influencer   |")
         print("| importer@test.com              | Test1234         | Importer     |")
+        print("| admin@test.com                 | Test1234         | Admin        |")
+        print("| superadmin@test.com            | Test1234         | SuperAdmin   |")
         print("+--------------------------------+------------------+--------------+")
         print()
         print("Todos los usuarios tienen:")
         print("  - Email verificado: SI")
         print("  - Cuenta aprobada: SI")
         print("  - Datos de perfil completos")
+        print()
+        print("ROLES Y CAPACIDADES:")
+        print("  - Consumer: Comprar, crear posts/stories")
+        print("  - Producer: Vender productos, gestionar pedidos")
+        print("  - Influencer: Afiliados, crear contenido, analytics")
+        print("  - Importer: B2B + Vender productos + Crear contenido")
+        print("  - Admin: Gestionar productores, productos, pedidos")
+        print("  - SuperAdmin: Acceso total al sistema")
         print()
         
     except Exception as e:
