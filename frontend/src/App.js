@@ -100,6 +100,13 @@ const InfluencerDashboardNew = lazy(() => import('./pages/dashboard/influencer')
 const ProducerDashboardNew = lazy(() => import('./pages/dashboard/producer'));
 const ImporterDashboardNew = lazy(() => import('./pages/dashboard/importer'));
 
+// Registration flows
+const RoleSelector = lazy(() => import('./pages/register/RoleSelector'));
+const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
+const InfluencerRegister = lazy(() => import('./pages/register/influencer'));
+const ProducerRegister = lazy(() => import('./pages/register/producer'));
+const ImporterRegister = lazy(() => import('./pages/register/importer'));
+
 function RouteLoader() {
   return (
     <div className="min-h-[40vh] flex items-center justify-center">
@@ -218,6 +225,11 @@ function AppRouter() {
               <Route path="/influencer/login" element={<LoginPage />} />
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/register/new" element={<RoleSelector />} />
+              <Route path="/register/consumer" element={<ConsumerRegister />} />
+              <Route path="/register/influencer" element={<InfluencerRegister />} />
+              <Route path="/register/producer" element={<ProducerRegister />} />
+              <Route path="/register/importer" element={<ImporterRegister />} />
               <Route path="/seller/register" element={<RegisterPage />} />
               <Route path="/influencer/register" element={<RegisterPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />
