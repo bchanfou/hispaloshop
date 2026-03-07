@@ -1,37 +1,23 @@
-import os
-import sys
-
-# === VALIDACIÓN FAIL-FAST DE VARIABLES CRÍTICAS ===
-REQUIRED_ENV_VARS = [
-    "JWT_SECRET",
-    "MONGO_URL",
-    "STRIPE_SECRET_KEY",
-]
-
-OPTIONAL_ENV_VARS = [
-    "STRIPE_WEBHOOK_SECRET",
-    "CLOUDINARY_CLOUD_NAME",
-    "CLOUDINARY_API_KEY",
-    "CLOUDINARY_API_SECRET",
-    "REDIS_URL",
-]
-
-missing = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
-if missing:
-    print(f"FATAL: Missing required environment variables: {', '.join(missing)}")
-    print("Set them before starting the application.")
-    sys.exit(1)
-
-# Warnings para opcionales
-for var in OPTIONAL_ENV_VARS:
-    if not os.getenv(var):
-        print(f"WARNING: Optional {var} not set. Some features may be disabled.")
-
+"""
+Hispaloshop API - Stack MongoDB (Activo)
+Fase 0: Seguridad reforzada, PostgreSQL congelado en _future_postgres/
+"""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import logging
+
+# === IMPORTAR NUEVO SISTEMA DE CONFIGURACION ===
+# La validacion de variables criticas ocurre aqui
+from core.config import settings
+
+# === MIDDLEWARE DE SEGURIDAD ===
+from middleware.security import (
+    SecurityHeadersMiddleware,
+    RateLimitMiddleware,
+    RequestLoggingMiddleware
+)
 
 # === STACK MONGODB (LEGACY - ACTIVO) ===
 from routes.auth import router as legacy_auth_router
@@ -76,33 +62,60 @@ except Exception as exc:
 
 app = FastAPI(
     title="Hispaloshop API",
-    version="1.0.0"
+    version="1.0.0",
+    debug=settings.DEBUG,
+    docs_url="/docs" if settings.ENV != "production" else None,
+    redoc_url="/redoc" if settings.ENV != "production" else None,
 )
+
 # Ensure static uploads path exists in local/dev startup.
 Path("uploads").mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# CORS Configuration
-allowed_origins = os.getenv(
-    "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:5173,https://hispaloshop.com,https://www.hispaloshop.com"
-).split(",")
+# ============================================
+# MIDDLEWARE DE SEGURIDAD - FASE 0
+# ============================================
 
-# En producción, rechazar wildcard origins
-if os.getenv("ENV") == "production":
-    if "*" in allowed_origins:
+# 1. CORS Configuration - RESTRICTIVO
+origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(",") if origin.strip()]
+
+# En produccion, rechazar wildcard origins
+if settings.ENV == "production":
+    if "*" in origins:
         raise ValueError("Wildcard '*' not allowed in ALLOWED_ORIGINS in production")
+    print(f"[SECURITY] CORS origins (production): {origins}")
+else:
+    print(f"[SECURITY] CORS origins (development): {origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[origin.strip() for origin in allowed_origins],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
-    max_age=600,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "X-Requested-With",
+        "Accept",
+        "Origin",
+        "X-CSRF-Token"
+    ],
+    max_age=600,  # 10 minutos cache preflight
 )
 
-# === API Routes - Stack MongoDB (Funcional) ===
+# 2. Security Headers Middleware
+app.add_middleware(SecurityHeadersMiddleware)
+
+# 3. Rate Limiting Middleware (100 req/min, burst 20)
+app.add_middleware(RateLimitMiddleware, requests_per_minute=100, burst_size=20)
+
+# 4. Request Logging (solo en desarrollo)
+if settings.ENV == "development":
+    app.add_middleware(RequestLoggingMiddleware)
+
+# ============================================
+# API Routes - Stack MongoDB (Funcional)
+# ============================================
 app.include_router(legacy_auth_router, prefix="/api", tags=["auth"])
 app.include_router(legacy_config_router, prefix="/api", tags=["config"])
 app.include_router(legacy_feed_router, prefix="/api", tags=["feed"])
@@ -139,15 +152,52 @@ app.include_router(importer_registration_router, prefix="/api", tags=["importer-
 
 @app.get("/health")
 async def health():
+    """Health check basico"""
     return {
         "status": "ok",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "environment": settings.ENV,
+        "database": "mongodb"
     }
 
 
 @app.get("/api/health")
 async def legacy_health():
+    """Health check legacy"""
     return {
         "status": "ok",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "environment": settings.ENV,
+        "database": "mongodb"
     }
+
+
+@app.get("/api/security/headers")
+async def security_headers_check():
+    """
+    Endpoint para verificar configuracion de seguridad.
+    Util para debugging en desarrollo.
+    """
+    return {
+        "cors_origins": origins,
+        "environment": settings.ENV,
+        "security_features": {
+            "cors_restrictive": "*" not in origins,
+            "rate_limiting": True,
+            "security_headers": True,
+            "jwt_validation": True,
+        }
+    }
+
+
+# Startup event para validar configuracion
+@app.on_event("startup")
+async def startup_event():
+    """Validaciones adicionales en startup"""
+    print(f"\n{'='*50}")
+    print(f"[STARTUP] Hispaloshop API v1.0.0")
+    print(f"Environment: {settings.ENV}")
+    print(f"Database: MongoDB ({settings.DB_NAME})")
+    print(f"CORS Origins: {len(origins)} configured")
+    print(f"Security: Rate limiting + Security headers active")
+    print(f"{'='*50}\n")
