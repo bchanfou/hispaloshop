@@ -73,6 +73,7 @@ const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdmin
 
 const ProducerLayout = lazy(() => import('./components/dashboard/ProducerLayoutResponsive'));
 const ProducerOverview = lazy(() => import('./pages/producer/ProducerOverviewResponsive'));
+const StoriesPage = lazy(() => import('./pages/stories/StoriesPage'));
 const ProducerProducts = lazy(() => import('./pages/producer/ProducerProducts'));
 const ProducerCertificates = lazy(() => import('./pages/producer/ProducerCertificates'));
 const ProducerOrders = lazy(() => import('./pages/producer/ProducerOrders'));
@@ -354,6 +355,7 @@ function AppRouter() {
               <Route path="/dashboard/producer/new" element={<ProducerDashboardNew />} />
               <Route path="/dashboard/importer/new" element={<ImporterDashboardNew />} />
               <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/stories/*" element={<StoriesPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccess />} />
               <Route path="/chat" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
