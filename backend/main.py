@@ -157,6 +157,22 @@ app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
 # Affiliate Routes (Fase 2)
 app.include_router(affiliates_router, prefix="/api/affiliates", tags=["Affiliates"])
 
+# Social Routes (Fase 3)
+from routes.posts import router as posts_router
+app.include_router(posts_router, prefix="/api/posts", tags=["Posts"])
+
+# Checkout Routes (Fase 4)
+from routes.checkout import router as checkout_router
+app.include_router(checkout_router, prefix="/api/checkout", tags=["Checkout"])
+
+# B2B Routes (Fase 4)
+from routes.b2b import router as b2b_router
+app.include_router(b2b_router, prefix="/api/b2b", tags=["B2B"])
+
+# Chat B2B Routes (Fase 4)
+from routes.chat_b2b import router as chat_b2b_router
+app.include_router(chat_b2b_router, prefix="/api/chat", tags=["Chat B2B"])
+
 
 @app.get("/health")
 async def health():

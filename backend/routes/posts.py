@@ -1,0 +1,411 @@
+"""
+Endpoints de Social Feed.
+Fase 3: Social Feed
+"""
+from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import Optional, List
+from datetime import datetime
+
+from services.feed_algorithm import feed_algorithm
+from core.database import get_db
+from core.auth import get_current_user
+
+router = APIRouter(prefix="/posts", tags=["Posts"])
+
+
+@router.get("/feed")
+async def get_feed(
+    type: str = Query("for_you"),
+    page: int = 1,
+    limit: int = Query(20, le=50),
+    current_user = Depends(get_current_user)
+):
+    """Feed social personalizado"""
+    feed_items = await feed_algorithm.generate_feed(
+        user_id=current_user.user_id,
+        tenant_id=getattr(current_user, 'country', None) or "ES",
+        page=page,
+        limit=limit,
+        feed_type=type
+    )
+    
+    posts = []
+    for item in feed_items:
+        post = item["post"]
+        post["score_reason"] = item.get("reason", "Personalizado")
+        post["id"] = str(post.pop("_id", ""))
+        posts.append(post)
+    
+    # Loguear views
+    for post in posts:
+        await feed_algorithm.log_interaction(
+            user_id=current_user.user_id,
+            tenant_id=getattr(current_user, 'country', None) or "ES",
+            action_type="view_post",
+            post_id=post.get("id")
+        )
+    
+    return {
+        "success": True,
+        "data": {
+            "posts": posts,
+            "meta": {"page": page, "limit": limit, "type": type, "has_more": len(posts) == limit}
+        }
+    }
+
+
+@router.post("")
+async def create_post(
+    type: str = "product_showcase",
+    content: str = "",
+    media: List[dict] = [],
+    tagged_products: List[dict] = [],
+    hashtags: List[str] = [],
+    current_user = Depends(get_current_user)
+):
+    """Crear nuevo post"""
+    db = get_db()
+    from bson.objectid import ObjectId
+    
+    # Validar tagged_products
+    for tp in tagged_products:
+        pid = tp.get("product_id")
+        try:
+            product = await db.products.find_one({"_id": ObjectId(pid) if isinstance(pid, str) else pid})
+        except:
+            product = None
+        
+        if not product:
+            raise HTTPException(status_code=400, detail=f"Product {pid} not found")
+        
+        # Si es influencer, añadir affiliate_code
+        if current_user.role == "influencer":
+            user = await db.users.find_one({"user_id": current_user.user_id})
+            affiliate_code = user.get("influencer_data", {}).get("affiliate_code") if user else None
+            tp["affiliate_code"] = affiliate_code
+        
+        # Denormalizar
+        tp["product_name"] = product.get("name")
+        tp["product_price_cents"] = product.get("price_cents", 0)
+        if tp["product_price_cents"] == 0 and product.get("price"):
+            tp["product_price_cents"] = int(product["price"] * 100)
+        tp["product_image"] = product.get("images", [{}])[0].get("url") if product.get("images") else None
+    
+    # Score inicial
+    initial_score = 50
+    if tagged_products:
+        initial_score += 20
+    
+    post_doc = {
+        "tenant_id": getattr(current_user, 'country', None) or "ES",
+        "author_id": current_user.user_id,
+        "author_type": current_user.role,
+        "author_name": getattr(current_user, 'name', 'Unknown'),
+        "author_avatar": getattr(current_user, 'picture', None),
+        "type": type,
+        "content": content,
+        "media": media,
+        "tagged_products": tagged_products,
+        "hashtags": hashtags,
+        "likes_count": 0,
+        "comments_count": 0,
+        "shares_count": 0,
+        "saves_count": 0,
+        "views_count": 0,
+        "liked_by": [],
+        "saved_by": [],
+        "feed_priority_score": initial_score,
+        "is_featured": False,
+        "is_viral": False,
+        "status": "published",
+        "published_at": datetime.utcnow(),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    result = await db.posts.insert_one(post_doc)
+    post_doc["id"] = str(result.inserted_id)
+    
+    return {"success": True, "data": post_doc}
+
+
+@router.get("/{post_id}")
+async def get_post_detail(
+    post_id: str,
+    current_user = Depends(get_current_user)
+):
+    """Detalle de post con comentarios"""
+    db = get_db()
+    from bson.objectid import ObjectId
+    
+    try:
+        post = await db.posts.find_one({"_id": ObjectId(post_id)})
+    except:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Comentarios
+    comments = await db.comments.find({
+        "post_id": post_id,
+        "status": "active",
+        "parent_id": None
+    }).sort("created_at", -1).limit(50).to_list(length=50)
+    
+    # Replies
+    for comment in comments:
+        replies = await db.comments.find({
+            "parent_id": str(comment.get("_id")),
+            "status": "active"
+        }).sort("created_at", 1).limit(10).to_list(length=10)
+        for r in replies:
+            r["id"] = str(r.pop("_id", ""))
+        comment["replies"] = replies
+        comment["id"] = str(comment.pop("_id", ""))
+    
+    # Check si user ha dado like/save
+    user_id = current_user.user_id
+    post["user_has_liked"] = user_id in post.get("liked_by", [])
+    post["user_has_saved"] = user_id in post.get("saved_by", [])
+    post["id"] = str(post.pop("_id", ""))
+    
+    # Incrementar views
+    await db.posts.update_one({"_id": ObjectId(post_id)}, {"$inc": {"views_count": 1}})
+    
+    return {"success": True, "data": {"post": post, "comments": comments}}
+
+
+@router.post("/{post_id}/like")
+async def like_post(
+    post_id: str,
+    current_user = Depends(get_current_user)
+):
+    """Like/unlike post"""
+    db = get_db()
+    from bson.objectid import ObjectId
+    
+    try:
+        post = await db.posts.find_one({"_id": ObjectId(post_id)})
+    except:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    user_id = current_user.user_id
+    liked_by = post.get("liked_by", [])
+    
+    if user_id in liked_by:
+        # Unlike
+        await db.posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$pull": {"liked_by": user_id}, "$inc": {"likes_count": -1}}
+        )
+        action = "unliked"
+    else:
+        # Like
+        await db.posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$push": {"liked_by": user_id}, "$inc": {"likes_count": 1}, "$set": {"last_engagement_at": datetime.utcnow()}}
+        )
+        action = "liked"
+        
+        await feed_algorithm.log_interaction(
+            user_id=user_id,
+            tenant_id=getattr(current_user, 'country', None) or "ES",
+            action_type="like_post",
+            post_id=post_id
+        )
+    
+    return {"success": True, "action": action}
+
+
+@router.post("/{post_id}/save")
+async def save_post(
+    post_id: str,
+    current_user = Depends(get_current_user)
+):
+    """Guardar post"""
+    db = get_db()
+    from bson.objectid import ObjectId
+    
+    try:
+        post = await db.posts.find_one({"_id": ObjectId(post_id)})
+    except:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    user_id = current_user.user_id
+    saved_by = post.get("saved_by", [])
+    
+    if user_id in saved_by:
+        # Unsave
+        await db.posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$pull": {"saved_by": user_id}, "$inc": {"saves_count": -1}}
+        )
+        await db.collections.update_one(
+            {"user_id": user_id},
+            {"$pull": {"items": {"type": "post", "id": post_id}}}
+        )
+        action = "unsaved"
+    else:
+        # Save
+        await db.posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$push": {"saved_by": user_id}, "$inc": {"saves_count": 1}}
+        )
+        await db.collections.update_one(
+            {"user_id": user_id, "name": "Guardados"},
+            {
+                "$push": {"items": {"type": "post", "id": post_id, "saved_at": datetime.utcnow()}},
+                "$setOnInsert": {"created_at": datetime.utcnow(), "tenant_id": getattr(current_user, 'country', None) or "ES"}
+            },
+            upsert=True
+        )
+        action = "saved"
+        
+        await feed_algorithm.log_interaction(
+            user_id=user_id,
+            tenant_id=getattr(current_user, 'country', None) or "ES",
+            action_type="save_post",
+            post_id=post_id
+        )
+    
+    return {"success": True, "action": action}
+
+
+@router.post("/{post_id}/comments")
+async def add_comment(
+    post_id: str,
+    content: str,
+    parent_id: Optional[str] = None,
+    current_user = Depends(get_current_user)
+):
+    """Añadir comentario"""
+    db = get_db()
+    from bson.objectid import ObjectId
+    
+    try:
+        post = await db.posts.find_one({"_id": ObjectId(post_id)})
+    except:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Detectar pregunta sobre producto
+    tagged_product_question = None
+    for tp in post.get("tagged_products", []):
+        if tp.get("product_name", "").lower() in content.lower():
+            tagged_product_question = tp.get("product_id")
+            break
+    
+    comment_doc = {
+        "post_id": post_id,
+        "tenant_id": getattr(current_user, 'country', None) or "ES",
+        "author_id": current_user.user_id,
+        "author_name": getattr(current_user, 'name', 'Unknown'),
+        "author_avatar": getattr(current_user, 'picture', None),
+        "author_type": current_user.role,
+        "content": content,
+        "parent_id": parent_id,
+        "tagged_product_question": tagged_product_question,
+        "likes_count": 0,
+        "liked_by": [],
+        "is_pinned": False,
+        "status": "active",
+        "created_at": datetime.utcnow()
+    }
+    
+    result = await db.comments.insert_one(comment_doc)
+    
+    # Incrementar contador
+    await db.posts.update_one({"_id": ObjectId(post_id)}, {"$inc": {"comments_count": 1}})
+    
+    await feed_algorithm.log_interaction(
+        user_id=current_user.user_id,
+        tenant_id=getattr(current_user, 'country', None) or "ES",
+        action_type="comment_post",
+        post_id=post_id
+    )
+    
+    comment_doc["id"] = str(result.inserted_id)
+    return {"success": True, "data": comment_doc}
+
+
+@router.post("/users/{target_user_id}/follow")
+async def follow_user(
+    target_user_id: str,
+    current_user = Depends(get_current_user)
+):
+    """Seguir/dejar de seguir usuario"""
+    db = get_db()
+    
+    if target_user_id == current_user.user_id:
+        raise HTTPException(status_code=400, detail="Cannot follow yourself")
+    
+    target = await db.users.find_one({"user_id": target_user_id})
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    existing = await db.follows.find_one({
+        "follower_id": current_user.user_id,
+        "following_id": target_user_id
+    })
+    
+    if existing:
+        # Unfollow
+        await db.follows.delete_one({"_id": existing.get("_id")})
+        return {"success": True, "action": "unfollowed"}
+    
+    # Follow
+    follow_doc = {
+        "tenant_id": getattr(current_user, 'country', None) or "ES",
+        "follower_id": current_user.user_id,
+        "following_id": target_user_id,
+        "follow_type": target.get("role", "user"),
+        "notifications_enabled": True,
+        "created_at": datetime.utcnow()
+    }
+    await db.follows.insert_one(follow_doc)
+    
+    return {"success": True, "action": "followed"}
+
+
+@router.get("/users/{target_user_id}/posts")
+async def get_user_posts(
+    target_user_id: str,
+    page: int = 1,
+    limit: int = 20
+):
+    """Posts de un usuario"""
+    db = get_db()
+    
+    posts = await db.posts.find({
+        "author_id": target_user_id,
+        "status": "published"
+    }).sort("published_at", -1).skip((page - 1) * limit).limit(limit).to_list(length=limit)
+    
+    for p in posts:
+        p["id"] = str(p.pop("_id", ""))
+    
+    return {"success": True, "data": posts, "meta": {"page": page, "limit": limit}}
+
+
+@router.post("/admin/mark-viral")
+async def admin_mark_viral(
+    current_user = Depends(get_current_user)
+):
+    """Admin: Marca posts virales"""
+    if current_user.role not in ["admin", "superadmin"]:
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    result = await feed_algorithm.mark_viral_posts(
+        tenant_id=getattr(current_user, 'country', None) or "ES"
+    )
+    
+    return {"success": True, "data": result}

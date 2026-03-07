@@ -1030,3 +1030,417 @@ class InfluencerStats(BaseModel):
     
     # Metadata
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# ═══════════════════════════════════════════════════════════
+# SOCIAL FEED MODELS (Fase 3)
+# ═══════════════════════════════════════════════════════════
+
+class Post(BaseModel):
+    """Post del feed social - el corazon del engagement"""
+    tenant_id: str
+    
+    # Autor
+    author_id: str
+    author_type: str  # consumer, producer, importer, influencer
+    author_name: str  # Denormalizado para performance
+    author_avatar: Optional[str] = None
+    
+    # Contenido
+    type: str = "product_showcase"  # product_showcase, recipe, review, lifestyle, reel, story
+    content: str  # Texto del post
+    
+    # Media
+    media: List[Dict] = Field(default_factory=list)
+    # [{"type": "image|video", "url": "...", "thumbnail_url": "...", "duration_seconds": 15, "order": 0}]
+    
+    # PRODUCTOS TAGGEADOS - CHECKOUT IN-FEED
+    tagged_products: List[Dict] = Field(default_factory=list)
+    # [{
+    #   "product_id": "prod_123",
+    #   "product_name": "AOVE Premium",
+    #   "product_price_cents": 1899,
+    #   "product_image": "https://...",
+    #   "position": {"x": 45, "y": 30},
+    #   "caption": "El que uso siempre",
+    #   "affiliate_code": "MARIA2024",
+    #   "quick_buy": {"enabled": True, "variants": [...], "default_quantity": 1, "max_quantity": 5}
+    # }]
+    
+    # Engagement
+    likes_count: int = 0
+    comments_count: int = 0
+    shares_count: int = 0
+    saves_count: int = 0
+    views_count: int = 0
+    
+    # Quien ha interactuado
+    liked_by: List[str] = Field(default_factory=list)
+    saved_by: List[str] = Field(default_factory=list)
+    
+    # Algoritmo de feed
+    feed_priority_score: float = 0.0
+    is_featured: bool = False
+    is_viral: bool = False
+    
+    # Hashtags
+    hashtags: List[str] = Field(default_factory=list)
+    mentions: List[str] = Field(default_factory=list)
+    
+    # Review especifica
+    reviewed_product_id: Optional[str] = None
+    rating: Optional[int] = None  # 1-5
+    
+    # Story (24h)
+    is_story: bool = False
+    expires_at: Optional[datetime] = None
+    
+    # Estado
+    status: str = "published"  # draft, published, archived, reported
+    reported_by: List[str] = Field(default_factory=list)
+    report_reason: Optional[str] = None
+    
+    # Timestamps
+    published_at: datetime = Field(default_factory=datetime.utcnow)
+    last_engagement_at: Optional[datetime] = None
+
+
+class Comment(BaseModel):
+    """Comentario en post"""
+    post_id: str
+    tenant_id: str
+    
+    author_id: str
+    author_name: str
+    author_avatar: Optional[str] = None
+    author_type: str = "consumer"
+    
+    content: str
+    parent_id: Optional[str] = None  # Para replies
+    
+    # Engagement
+    likes_count: int = 0
+    liked_by: List[str] = Field(default_factory=list)
+    
+    # Si es pregunta sobre producto
+    tagged_product_question: Optional[str] = None
+    
+    is_pinned: bool = False
+    status: str = "active"  # active, deleted, reported
+    
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Follow(BaseModel):
+    """Relacion de follow entre usuarios"""
+    tenant_id: str
+    follower_id: str
+    following_id: str
+    follow_type: str = "user"  # user, producer, importer, influencer
+    notifications_enabled: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class FeedInteraction(BaseModel):
+    """Log de interacciones para entrenar algoritmo"""
+    tenant_id: str
+    user_id: str
+    action_type: str  # view_post, like_post, comment_post, share_post, save_post, click_product_tag, quick_buy_from_post, view_product_from_post, follow_from_post, dwell_time
+    post_id: Optional[str] = None
+    product_id: Optional[str] = None
+    dwell_time_seconds: Optional[float] = None
+    session_id: str = ""
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Collection(BaseModel):
+    """Colecciones/guardados de usuarios"""
+    tenant_id: str
+    user_id: str
+    name: str
+    description: Optional[str] = None
+    is_private: bool = False
+    items: List[Dict] = Field(default_factory=list)
+    # [{"type": "product|post", "id": "...", "saved_at": datetime, "note": "..."}]
+    cover_image: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# ═══════════════════════════════════════════════════════════
+# CART & CHECKOUT MODELS (Fase 4)
+# ═══════════════════════════════════════════════════════════
+
+class Cart(BaseModel):
+    """Carrito de compras persistente"""
+    user_id: str
+    tenant_id: str
+    status: str = "active"  # active, converted, abandoned
+    affiliate_code: Optional[str] = None  # Código de afiliado si aplica
+    coupon_code: Optional[str] = None
+    discount_cents: int = 0
+    items: List[Dict] = Field(default_factory=list)
+    # [{
+    #   "product_id": "...",
+    #   "product_name": "...",
+    #   "product_image": "...",
+    #   "seller_id": "...",
+    #   "seller_type": "producer",
+    #   "quantity": 2,
+    #   "unit_price_cents": 1000,
+    #   "total_price_cents": 2000,
+    #   "variant_id": null,
+    #   "added_from_post_id": null,
+    #   "added_at": datetime
+    # }]
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(days=7))
+
+
+class Order(BaseModel):
+    """Orden de compra completa"""
+    order_id: str  # Número de orden legible (HSP-2024-001234)
+    user_id: str
+    tenant_id: str
+    
+    # Estado
+    status: str = "pending_payment"  # pending_payment, paid, processing, shipped, delivered, cancelled, refunded
+    
+    # Items
+    items: List[Dict] = Field(default_factory=list)
+    # [{
+    #   "product_id": "...",
+    #   "product_name": "...",
+    #   "seller_id": "...",
+    #   "quantity": 2,
+    #   "unit_price_cents": 1000,
+    #   "total_price_cents": 2000,
+    #   "affiliate_code": "..."  # Por item si aplica
+    # }]
+    
+    # Totales
+    subtotal_cents: int = 0
+    shipping_cents: int = 0
+    tax_cents: int = 0
+    discount_cents: int = 0
+    total_cents: int = 0
+    
+    # Split de pagos
+    platform_fee_cents: int = 0  # Comisión de Hispaloshop
+    affiliate_fee_cents: int = 0  # Comisión de afiliado
+    producer_payout_cents: int = 0  # Lo que recibe el productor
+    affiliate_code: Optional[str] = None
+    
+    # Stripe
+    stripe_payment_intent_id: Optional[str] = None
+    stripe_transfer_group: Optional[str] = None
+    stripe_transfers: List[Dict] = Field(default_factory=list)  # Registro de transfers
+    
+    # Dirección de envío
+    shipping_address: Dict = Field(default_factory=dict)
+    # {
+    #   "full_name": "...",
+    #   "street": "...",
+    #   "city": "...",
+    #   "postal_code": "...",
+    #   "country": "ES",
+    #   "phone": "..."
+    # }
+    
+    # Metadata
+    cart_id: Optional[str] = None  # Referencia al carrito original
+    notes: Optional[str] = None  # Notas del cliente
+    
+    # Timestamps
+    paid_at: Optional[datetime] = None
+    shipped_at: Optional[datetime] = None
+    delivered_at: Optional[datetime] = None
+    cancelled_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class OrderTransfer(BaseModel):
+    """Transfer de Stripe Connect a productor"""
+    order_id: str
+    seller_id: str
+    seller_stripe_account_id: str
+    amount_cents: int
+    currency: str = "eur"
+    stripe_transfer_id: Optional[str] = None
+    status: str = "pending"  # pending, completed, failed
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# ═══════════════════════════════════════════════════════════
+# B2B IMPORTER MODELS (Fase 4)
+# ═══════════════════════════════════════════════════════════
+
+class B2BProfile(BaseModel):
+    """Perfil B2B de importador"""
+    user_id: str
+    tenant_id: str
+    
+    # Información de empresa
+    company_name: str
+    company_vat: Optional[str] = None
+    business_type: str = "importer"  # importer, distributor, wholesaler, retailer
+    
+    # Preferencias de importación
+    import_countries: List[str] = Field(default_factory=list)  # ['ES', 'FR', 'IT']
+    categories_of_interest: List[str] = Field(default_factory=list)
+    annual_volume_estimate: str = "medium"  # small, medium, large
+    moq_preference_cents: int = 0  # Minimum Order Quantity preferido
+    
+    # Verificación
+    verified_importer: bool = False
+    verification_documents: List[Dict] = Field(default_factory=list)
+    # [{"type": "vat_certificate", "url": "...", "verified_at": datetime}]
+    
+    # Búsqueda
+    search_keywords: List[str] = Field(default_factory=list)
+    
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class B2BCatalogPrice(BaseModel):
+    """Precio mayorista B2B por producto"""
+    product_id: str
+    seller_id: str
+    tenant_id: str
+    
+    min_quantity: int = 1  # MOQ
+    unit_price_cents: int  # Precio mayorista
+    max_quantity: Optional[int] = None  # NULL = sin límite superior
+    
+    is_active: bool = True
+    valid_from: datetime = Field(default_factory=datetime.utcnow)
+    valid_until: Optional[datetime] = None
+    
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class B2BDiscoveryMatch(BaseModel):
+    """Match entre importador y productor"""
+    importer_id: str
+    producer_id: str
+    tenant_id: str
+    
+    match_score: float = 0.0  # 0.00 a 1.00
+    match_reasons: List[str] = Field(default_factory=list)  # ['category_match', 'country_match', 'volume_match']
+    
+    status: str = "suggested"  # suggested, contacted, negotiating, deal, rejected
+    
+    # Contacto
+    first_contact_at: Optional[datetime] = None
+    last_contact_at: Optional[datetime] = None
+    contact_count: int = 0
+    
+    # Notas
+    importer_notes: Optional[str] = None
+    producer_notes: Optional[str] = None
+    
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class B2BLead(BaseModel):
+    """Lead B2B generado cuando un importador contacta a un productor"""
+    match_id: str
+    importer_id: str
+    producer_id: str
+    
+    # Producto de interés (opcional)
+    product_id: Optional[str] = None
+    
+    # Mensaje inicial
+    initial_message: str
+    expected_volume: Optional[str] = None  # "500 units/month"
+    target_price_cents: Optional[int] = None
+    
+    # Estado
+    status: str = "new"  # new, qualified, proposal, negotiation, won, lost
+    priority: str = "medium"  # low, medium, high
+    
+    # Asignación
+    assigned_to: Optional[str] = None  # Vendedor del productor
+    
+    # Timeline
+    contacted_at: datetime = Field(default_factory=datetime.utcnow)
+    qualified_at: Optional[datetime] = None
+    proposal_sent_at: Optional[datetime] = None
+    closed_at: Optional[datetime] = None
+    
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# ═══════════════════════════════════════════════════════════
+# CHAT B2B MODELS (Fase 4)
+# ═══════════════════════════════════════════════════════════
+
+class ChatConversation(BaseModel):
+    """Conversación de chat B2B"""
+    conversation_id: str
+    
+    # Participantes
+    importer_id: str
+    producer_id: str
+    tenant_id: str
+    
+    # Contexto
+    related_product_id: Optional[str] = None  # Si es sobre producto específico
+    related_lead_id: Optional[str] = None  # Si viene de un lead
+    
+    # Estado
+    status: str = "active"  # active, archived, blocked
+    
+    # Última actividad
+    last_message_at: Optional[datetime] = None
+    last_message_preview: Optional[str] = None
+    unread_count_importer: int = 0
+    unread_count_producer: int = 0
+    
+    # Metadata
+    initiated_by: str  # importer_id o producer_id
+    
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class ChatMessage(BaseModel):
+    """Mensaje de chat"""
+    conversation_id: str
+    message_id: str
+    
+    sender_id: str
+    sender_type: str  # importer, producer, system
+    
+    content: str
+    
+    # Adjuntos
+    attachments: List[Dict] = Field(default_factory=list)
+    # [{"type": "image|file", "url": "...", "name": "...", "size": 12345}]
+    
+    # Estado
+    read_at: Optional[datetime] = None
+    read_by: List[str] = Field(default_factory=list)  # IDs de usuarios que leyeron
+    
+    # Metadata del sistema
+    is_system_message: bool = False
+    system_message_type: Optional[str] = None  # 'lead_created', 'status_changed', etc.
+    
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class ChatNotification(BaseModel):
+    """Notificación de chat para email/push"""
+    user_id: str
+    conversation_id: str
+    message_id: str
+    
+    notified_at: datetime = Field(default_factory=datetime.utcnow)
+    read_at: Optional[datetime] = None
+    email_sent: bool = False
+    push_sent: bool = False
