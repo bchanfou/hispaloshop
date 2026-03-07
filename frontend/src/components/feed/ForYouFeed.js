@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, UserPlus } from 'lucide-react';
 import ReelCard from './ReelCard';
@@ -141,6 +142,7 @@ function ReelGrid({ reels, onOpenFullscreen }) {
 
 function ForYouFeed() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
@@ -218,9 +220,7 @@ function ForYouFeed() {
   }, [loadMore, hasMore]);
 
   const handleOpenFullscreen = (reel) => {
-    setFullscreenReel(reel);
-    // Aquí se navegaría a la ruta del reel
-    window.history.pushState(null, '', `/reel/${reel.id}`);
+    navigate(`/reels?id=${reel.id}`);
   };
 
   if (loading) {

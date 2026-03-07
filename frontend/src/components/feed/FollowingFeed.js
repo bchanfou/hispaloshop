@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import PostCard from './PostCard';
 import ReelCard from './ReelCard';
@@ -67,6 +68,7 @@ const MOCK_REELS = [
 
 function FollowingFeed() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
@@ -171,7 +173,11 @@ function FollowingFeed() {
               />
               <span className="text-sm font-semibold">{item.user.name}</span>
             </div>
-            <ReelCard reel={item} isInFeed={true} />
+            <ReelCard 
+              reel={item} 
+              isInFeed={true} 
+              onOpenFullscreen={() => navigate(`/reels?id=${item.id}`)}
+            />
           </div>
         )
       ))}

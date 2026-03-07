@@ -90,6 +90,7 @@ const HispaloPredictions = lazy(() => import('./pages/customer/HispaloPrediction
 const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
 
 const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDashboard'));
+const ReelsContainer = lazy(() => import('./components/reels/ReelsContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 
 function RouteLoader() {
@@ -305,6 +306,8 @@ function AppRouter() {
                 )}
               />
 
+              <Route path="/reels" element={<ReelsContainer />} />
+              <Route path="/chat" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
