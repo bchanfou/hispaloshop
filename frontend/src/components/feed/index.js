@@ -1,6 +1,8 @@
 export { default as FeedContainer } from './FeedContainer';
 export { default as TabToggle } from './TabToggle';
 export { default as CategoryPills } from './CategoryPills';
+export { default as LandingNavPills } from './LandingNavPills';
+export { default as MiniCategoryPills } from './MiniCategoryPills';
 export { default as FollowingFeed } from './FollowingFeed';
 export { default as ForYouFeed } from './ForYouFeed';
 export { default as PostCard } from './PostCard';

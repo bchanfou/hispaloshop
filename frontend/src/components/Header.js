@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Search, ShoppingCart, X, Package, Store, FileCheck, ChefHat, LayoutDashboard } from 'lucide-react';
+import { Menu, Search, ShoppingCart, X, LayoutDashboard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -64,11 +64,8 @@ export default function Header() {
   };
 
   const menuItems = [
-    { to: '/recipes', icon: ChefHat, label: 'Recetas' },
     { to: user ? getDashboardUrl(user.role) : '/login', icon: LayoutDashboard, label: 'Panel' },
-    { to: '/products', icon: Package, label: 'Productos' },
-    { to: '/stores', icon: Store, label: 'Tiendas' },
-    { to: '/certificates', icon: FileCheck, label: 'Certificados' },
+    { to: '/discover', icon: Search, label: 'Explorar' },
   ];
 
   return (

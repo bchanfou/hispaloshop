@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import TabToggle from './TabToggle';
 import CategoryPills from './CategoryPills';
+import LandingNavPills from './LandingNavPills';
 import FollowingFeed from './FollowingFeed';
 import ForYouFeed from './ForYouFeed';
 import StoriesCarousel from '../stories/StoriesCarousel';
@@ -73,11 +74,8 @@ function FeedContainer() {
       {/* Toggle Siguiendo/Para ti */}
       <TabToggle activeTab={activeTab} onChange={setActiveTab} />
 
-      {/* Categorías */}
-      <CategoryPills
-        selectedCategory={selectedCategory}
-        onSelect={setSelectedCategory}
-      />
+      {/* Navegación a landings */}
+      <LandingNavPills />
 
       {/* Stories */}
       <StoriesCarousel

@@ -3,11 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Search, SlidersHorizontal, Sparkles, TrendingUp, MapPin, 
-  Droplets, Milk, Beef, Croissant, CupSoda, Baby, Dog, 
-  Cherry, Leaf, WheatOff, Gift, Flame, ChevronRight, 
-  Mic, X, Filter, ArrowRight, Store, Star
+  Store, Package, ChefHat, FileCheck, Grid3X3, Flame,
+  ArrowRight, Star, X, Droplets, Cookie, Beef, Croissant, 
+  CupSoda, Baby, Dog, Cherry, Leaf, WheatOff, Gift
 } from 'lucide-react';
-import { CATEGORIES } from '../components/feed/CategoryPills';
+
+// Navigation tabs for main sections
+const MAIN_SECTIONS = [
+  { id: 'todo', label: 'Todo', icon: Grid3X3 },
+  { id: 'tiendas', label: 'Tiendas', icon: Store },
+  { id: 'productos', label: 'Productos', icon: Package },
+  { id: 'recetas', label: 'Recetas', icon: ChefHat },
+  { id: 'certificados', label: 'Certificados', icon: FileCheck },
+];
+
+// Minimalist categories - horizontal scroll
+const CATEGORIES_MINI = [
+  { id: 'aceites', label: 'Aceites', icon: Droplets, color: '#2D5A3D', count: 234 },
+  { id: 'quesos', label: 'Quesos', icon: Cookie, color: '#E6A532', count: 189 },
+  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: '#DC2626', count: 156 },
+  { id: 'panaderia', label: 'Panadería', icon: Croissant, color: '#D97706', count: 98 },
+  { id: 'bebidas', label: 'Bebidas', icon: CupSoda, color: '#0891B2', count: 145 },
+  { id: 'bebes', label: 'Bebés', icon: Baby, color: '#EC4899', count: 67 },
+  { id: 'mascotas', label: 'Mascotas', icon: Dog, color: '#7C3AED', count: 89 },
+  { id: 'snacks', label: 'Snacks', icon: Cherry, color: '#EA580C', count: 112 },
+  { id: 'organico', label: 'Orgánico', icon: Leaf, color: '#16A34A', count: 78 },
+  { id: 'singluten', label: 'Sin gluten', icon: WheatOff, color: '#65A30D', count: 45 },
+  { id: 'packs', label: 'Packs', icon: Gift, color: '#0891B2', count: 34 },
+  { id: 'trending', label: 'Trending', icon: Flame, color: '#DC2626', count: 56 },
+];
 
 // Mock data
 const TRENDING_HASHTAGS = [
@@ -16,44 +40,40 @@ const TRENDING_HASHTAGS = [
   { tag: 'SinGluten', count: 6700, growth: 67 },
   { tag: 'DesayunoSaludable', count: 5400, growth: 12 },
   { tag: 'Mediterraneo', count: 4300, growth: 34 },
-  { tag: 'ParaRegalar', count: 3200, growth: 89 },
-  { tag: 'EcoFriendly', count: 2800, growth: 56 },
-  { tag: 'Keto', count: 2100, growth: 78 },
-];
-
-const HI_RECOMMENDATIONS = [
-  { id: 1, name: 'Queso Curado DOP', producer: 'Quesería La Antigua', price: 18.50, image: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300', reason: 'Marida con el vino que viste ayer' },
-  { id: 2, name: 'Aceite Premium EVOO', producer: 'Cortijo Andaluz', price: 24.90, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300', reason: 'Basado en tu historial de compras' },
-  { id: 3, name: 'Pack Desayuno', producer: 'Miel del Sur', price: 32.00, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=300', reason: 'Para tu cena de hoy' },
 ];
 
 const FEATURED_PRODUCERS = [
   { id: 1, name: 'Cortijo Andaluz', location: 'Córdoba', rating: 4.9, image: 'https://images.unsplash.com/photo-1548685913-fe6678babe8d?w=200', products: 23 },
   { id: 2, name: 'Quesería La Antigua', location: 'Valladolid', rating: 4.8, image: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=200', products: 15 },
   { id: 3, name: 'Miel del Sur', location: 'Granada', rating: 4.9, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=200', products: 12 },
-  { id: 4, name: 'Embutidos Selectos', location: 'Salamanca', rating: 4.7, image: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=200', products: 18 },
 ];
 
-const RECENT_SEARCHES = [
-  'Miel ecológica',
-  'Queso curado',
-  'Aceite para regalar',
+const RECENT_PRODUCTS = [
+  { id: 1, name: 'Aceite EVOO Premium', producer: 'Cortijo Andaluz', price: 24.90, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300' },
+  { id: 2, name: 'Queso Curado DOP', producer: 'Quesería La Antigua', price: 18.50, image: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300' },
+  { id: 3, name: 'Miel Ecológica', producer: 'Miel del Sur', price: 12.90, image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=300' },
+  { id: 4, name: 'Pack Desayuno', producer: 'Varios', price: 32.00, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300' },
 ];
 
-const POPULAR_SEARCHES = [
-  'Aceite de oliva virgen extra',
-  'Queso para lacto-intolerantes',
-  'Pack regalo Navidad',
-  'Productores cerca de Madrid',
+const RECIPES = [
+  { id: 1, name: 'Tarta de queso', author: 'María L.', time: '45 min', image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=300' },
+  { id: 2, name: 'Gazpacho andaluz', author: 'Cortijo A.', time: '15 min', image: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=300' },
+  { id: 3, name: 'Croquetas caseras', author: 'La Antigua', time: '60 min', image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300' },
+];
+
+const CERTIFICATES = [
+  { id: 1, name: 'DOP Queso Manchego', count: 45 },
+  { id: 2, name: 'Ecológico Europeo', count: 123 },
+  { id: 3, name: 'IGP Aceite Baena', count: 67 },
+  { id: 4, name: 'Artesano Alimentario', count: 89 },
 ];
 
 const DiscoverPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [activeTab, setActiveTab] = useState('todo');
   const [showFilters, setShowFilters] = useState(false);
-  const [activeFilters, setActiveFilters] = useState({});
-  const scrollRef = useRef(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleSearch = (query) => {
     if (query.trim()) {
@@ -62,12 +82,21 @@ const DiscoverPage = () => {
   };
 
   const handleCategoryClick = (categoryId) => {
+    setSelectedCategory(categoryId === selectedCategory ? null : categoryId);
     navigate(`/category/${categoryId}`);
+  };
+
+  const handleSectionClick = (sectionId) => {
+    if (sectionId === 'tiendas') navigate('/stores');
+    else if (sectionId === 'productos') navigate('/products');
+    else if (sectionId === 'recetas') navigate('/recipes');
+    else if (sectionId === 'certificados') navigate('/certificates');
+    else setActiveTab(sectionId);
   };
 
   return (
     <div className="min-h-screen bg-[#F5F1E8] pb-24">
-      {/* Sticky Search Header */}
+      {/* Sticky Header with Search */}
       <div className="sticky top-0 z-50 bg-white shadow-sm">
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="relative">
@@ -77,8 +106,6 @@ const DiscoverPage = () => {
               placeholder="¿Qué buscas?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
               className="w-full pl-12 pr-12 py-3 bg-gray-100 rounded-full text-[#1A1A1A] placeholder:text-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
             />
@@ -88,246 +115,246 @@ const DiscoverPage = () => {
             >
               <SlidersHorizontal className="w-5 h-5 text-[#6B7280]" />
             </button>
-            
-            {/* Search Suggestions Dropdown */}
-            {isSearchFocused && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl overflow-hidden"
-              >
-                {searchQuery ? (
-                  <div className="p-4">
-                    <p className="text-sm text-[#6B7280] mb-2">Sugerencias</p>
-                    {POPULAR_SEARCHES.filter(s => s.toLowerCase().includes(searchQuery.toLowerCase())).map((suggestion, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSearch(suggestion)}
-                        className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg text-left"
-                      >
-                        <Search className="w-4 h-4 text-[#6B7280]" />
-                        <span className="text-[#1A1A1A]">{suggestion}</span>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-4">
-                    <p className="text-sm text-[#6B7280] mb-2">Búsquedas recientes</p>
-                    {RECENT_SEARCHES.map((search, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSearch(search)}
-                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Search className="w-4 h-4 text-[#6B7280]" />
-                          <span className="text-[#1A1A1A]">{search}</span>
-                        </div>
-                        <ArrowRight className="w-4 h-4 text-[#6B7280]" />
-                      </button>
-                    ))}
-                    <hr className="my-3" />
-                    <p className="text-sm text-[#6B7280] mb-2">Búsquedas populares</p>
-                    {POPULAR_SEARCHES.map((search, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSearch(search)}
-                        className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg text-left"
-                      >
-                        <TrendingUp className="w-4 h-4 text-[#E6A532]" />
-                        <span className="text-[#1A1A1A]">{search}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            )}
+          </div>
+        </div>
+
+        {/* Main Sections Tabs - Horizontal Scroll */}
+        <div className="border-t border-stone-100">
+          <div className="flex overflow-x-auto px-4 py-2 gap-2 scrollbar-hide">
+            {MAIN_SECTIONS.map((section) => {
+              const Icon = section.icon;
+              const isActive = activeTab === section.id;
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => handleSectionClick(section.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all ${
+                    isActive 
+                      ? 'bg-[#2D5A3D] text-white' 
+                      : 'bg-stone-100 text-[#1A1A1A] hover:bg-stone-200'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="text-sm font-medium">{section.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Categories Mini Pills - Horizontal Scroll */}
+        <div className="border-t border-stone-100 bg-white/50 backdrop-blur">
+          <div className="flex overflow-x-auto px-4 py-2 gap-2 scrollbar-hide">
+            {CATEGORIES_MINI.map((cat) => {
+              const Icon = cat.icon;
+              const isSelected = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryClick(cat.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap transition-all ${
+                    isSelected 
+                      ? 'border-[#2D5A3D] bg-[#2D5A3D] text-white' 
+                      : 'border-stone-200 bg-white text-[#1A1A1A] hover:border-[#2D5A3D]'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" style={{ color: isSelected ? 'white' : cat.color }} />
+                  <span className="text-xs font-medium">{cat.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
+      {/* Content based on active tab */}
       <div className="max-w-lg mx-auto px-4 py-6 space-y-8">
-        {/* Category Grid */}
-        <section>
-          <h2 className="text-lg font-bold text-[#1A1A1A] mb-4">Explorar categorías</h2>
-          <div className="grid grid-cols-3 gap-3">
-            {CATEGORIES.filter(c => c.id !== 'para-ti').map((category, index) => {
-              const Icon = category.icon;
-              return (
+        
+        {/* TODO Tab - Show everything */}
+        {(activeTab === 'todo' || activeTab === 'productos') && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-[#1A1A1A]">Productos destacados</h2>
+              <button 
+                onClick={() => navigate('/products')}
+                className="text-sm text-[#2D5A3D] font-medium flex items-center gap-1"
+              >
+                Ver todo <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {RECENT_PRODUCTS.map((product) => (
                 <motion.button
-                  key={category.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => handleCategoryClick(category.id)}
-                  className="relative aspect-square rounded-2xl overflow-hidden group"
-                  style={{ backgroundColor: category.bgColor }}
+                  key={product.id}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate(`/products/${product.id}`)}
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm"
                 >
-                  {/* Background pattern */}
-                  <div className="absolute inset-0 opacity-10">
-                    <Icon className="w-full h-full" style={{ color: category.color }} />
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-32 object-cover"
+                  />
+                  <div className="p-3">
+                    <p className="text-sm font-medium text-[#1A1A1A] truncate">{product.name}</p>
+                    <p className="text-xs text-[#6B7280] truncate">{product.producer}</p>
+                    <p className="text-base font-bold text-[#2D5A3D] mt-1">€{product.price.toFixed(2)}</p>
                   </div>
-                  
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
-                    <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
-                      style={{ backgroundColor: `${category.color}20` }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: category.color }} />
-                    </div>
-                    <span className="text-xs font-medium text-[#1A1A1A] text-center leading-tight">
-                      {category.label}
-                    </span>
-                  </div>
-
-                  {/* Product count badge */}
-                  <span className="absolute bottom-2 right-2 text-[10px] font-medium text-[#6B7280] bg-white/80 px-1.5 py-0.5 rounded-full">
-                    {Math.floor(Math.random() * 200) + 50}
-                  </span>
-
-                  {category.badge && (
-                    <span className={`absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                      category.badge === 'Hot' ? 'bg-red-500 text-white' : 'bg-[#2D5A3D] text-white'
-                    }`}>
-                      {category.badge}
-                    </span>
-                  )}
                 </motion.button>
-              );
-            })}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Trending Topics */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-[#1A1A1A]">Tendencias</h2>
-            <button className="text-sm text-[#2D5A3D] font-medium">Ver todas</button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {TRENDING_HASHTAGS.map((hashtag, index) => (
-              <motion.button
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => handleSearch(hashtag.tag)}
-                className="flex items-center gap-1.5 px-4 py-2 bg-[#2D5A3D] text-white rounded-full text-sm font-medium hover:bg-[#234a31] transition-colors"
-              >
-                #{hashtag.tag}
-                {hashtag.growth > 50 && (
-                  <Flame className="w-3.5 h-3.5 text-[#E6A532]" />
-                )}
-              </motion.button>
-            ))}
-          </div>
-        </section>
-
-        {/* HI AI Recommendations */}
-        <section className="bg-gradient-to-r from-[#2D5A3D]/5 to-[#E6A532]/5 rounded-2xl p-4 border border-[#2D5A3D]/10">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-[#2D5A3D] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
+        {(activeTab === 'todo') && (
+          <section>
+            <h2 className="text-lg font-bold text-[#1A1A1A] mb-4">Tendencias</h2>
+            <div className="flex flex-wrap gap-2">
+              {TRENDING_HASHTAGS.map((hashtag, index) => (
+                <motion.button
+                  key={index}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleSearch(hashtag.tag)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-stone-200 rounded-full text-sm text-[#1A1A1A] hover:border-[#2D5A3D] hover:text-[#2D5A3D] transition-colors"
+                >
+                  #{hashtag.tag}
+                  {hashtag.growth > 50 && (
+                    <Flame className="w-3.5 h-3.5 text-[#DC2626]" />
+                  )}
+                </motion.button>
+              ))}
             </div>
-            <div>
-              <h2 className="font-semibold text-[#1A1A1A]">Recomendado para ti</h2>
-              <p className="text-xs text-[#6B7280]">Basado en tu historial</p>
-            </div>
-          </div>
-          
-          <p className="text-sm text-[#1A1A1A] mb-4 italic">
-            "Maridan con el vino que viste ayer"
-          </p>
+          </section>
+        )}
 
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-            {HI_RECOMMENDATIONS.map((product) => (
-              <motion.button
-                key={product.id}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate(`/products/${product.id}`)}
-                className="flex-shrink-0 w-32 bg-white rounded-xl overflow-hidden shadow-sm"
+        {/* TIENDAS Tab */}
+        {(activeTab === 'todo' || activeTab === 'tiendas') && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-[#1A1A1A]">Tiendas destacadas</h2>
+              <button 
+                onClick={() => navigate('/stores')}
+                className="text-sm text-[#2D5A3D] font-medium flex items-center gap-1"
               >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-24 object-cover"
-                />
-                <div className="p-2">
-                  <p className="text-xs font-medium text-[#1A1A1A] truncate">{product.name}</p>
-                  <p className="text-xs text-[#6B7280] truncate">{product.producer}</p>
-                  <p className="text-sm font-bold text-[#2D5A3D]">€{product.price.toFixed(2)}</p>
-                </div>
-              </motion.button>
-            ))}
-          </div>
+                Ver mapa <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              {FEATURED_PRODUCERS.map((producer) => (
+                <motion.button
+                  key={producer.id}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate(`/store/${producer.id}`)}
+                  className="flex-shrink-0 w-40 bg-white rounded-2xl p-3 shadow-sm text-center"
+                >
+                  <img
+                    src={producer.image}
+                    alt={producer.name}
+                    className="w-16 h-16 rounded-full mx-auto mb-2 object-cover"
+                  />
+                  <p className="text-sm font-semibold text-[#1A1A1A] truncate">{producer.name}</p>
+                  <div className="flex items-center justify-center gap-1 text-xs text-[#6B7280]">
+                    <MapPin className="w-3 h-3" />
+                    {producer.location}
+                  </div>
+                  <div className="flex items-center justify-center gap-1 text-xs mt-1">
+                    <Star className="w-3 h-3 fill-[#E6A532] text-[#E6A532]" />
+                    <span className="font-medium">{producer.rating}</span>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </section>
+        )}
 
-          <button 
-            onClick={() => navigate('/chat')}
-            className="w-full mt-3 py-2 bg-[#2D5A3D] text-white rounded-lg text-sm font-medium hover:bg-[#234a31] transition-colors"
-          >
-            🤖 Preguntar a HI
-          </button>
-        </section>
+        {/* RECETAS Tab */}
+        {(activeTab === 'todo' || activeTab === 'recetas') && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-[#1A1A1A]">Recetas populares</h2>
+              <button 
+                onClick={() => navigate('/recipes')}
+                className="text-sm text-[#2D5A3D] font-medium flex items-center gap-1"
+              >
+                Ver todas <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              {RECIPES.map((recipe) => (
+                <motion.button
+                  key={recipe.id}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate(`/recipes/${recipe.id}`)}
+                  className="w-full flex items-center gap-4 bg-white rounded-2xl p-3 shadow-sm"
+                >
+                  <img
+                    src={recipe.image}
+                    alt={recipe.name}
+                    className="w-20 h-20 rounded-xl object-cover"
+                  />
+                  <div className="flex-1 text-left">
+                    <p className="font-medium text-[#1A1A1A]">{recipe.name}</p>
+                    <p className="text-sm text-[#6B7280]">Por {recipe.author}</p>
+                    <p className="text-xs text-[#2D5A3D] mt-1">⏱ {recipe.time}</p>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </section>
+        )}
 
-        {/* Featured Producers */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-[#1A1A1A]">Productores del mes</h2>
+        {/* CERTIFICADOS Tab */}
+        {(activeTab === 'todo' || activeTab === 'certificados') && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-[#1A1A1A]">Certificados oficiales</h2>
+              <button 
+                onClick={() => navigate('/certificates')}
+                className="text-sm text-[#2D5A3D] font-medium flex items-center gap-1"
+              >
+                Ver todos <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {CERTIFICATES.map((cert) => (
+                <motion.button
+                  key={cert.id}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate('/certificates')}
+                  className="bg-white rounded-xl p-4 text-left shadow-sm"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#2D5A3D]/10 flex items-center justify-center mb-2">
+                    <FileCheck className="w-5 h-5 text-[#2D5A3D]" />
+                  </div>
+                  <p className="text-sm font-medium text-[#1A1A1A]">{cert.name}</p>
+                  <p className="text-xs text-[#6B7280]">{cert.count} productos</p>
+                </motion.button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* HI AI Section */}
+        {activeTab === 'todo' && (
+          <section className="bg-gradient-to-r from-[#2D5A3D]/5 to-[#E6A532]/5 rounded-2xl p-5 border border-[#2D5A3D]/10">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-[#2D5A3D] flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-[#1A1A1A]">¿Necesitas ayuda?</h2>
+                <p className="text-xs text-[#6B7280]">Pregunta a nuestra IA</p>
+              </div>
+            </div>
             <button 
-              onClick={() => navigate('/stores')}
-              className="text-sm text-[#2D5A3D] font-medium"
+              onClick={() => navigate('/chat')}
+              className="w-full py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
             >
-              Ver mapa
+              🤖 Hablar con HI
             </button>
-          </div>
-          
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-            {FEATURED_PRODUCERS.map((producer) => (
-              <motion.button
-                key={producer.id}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate(`/store/${producer.id}`)}
-                className="flex-shrink-0 w-36 bg-white rounded-2xl p-3 shadow-sm text-center"
-              >
-                <img
-                  src={producer.image}
-                  alt={producer.name}
-                  className="w-16 h-16 rounded-full mx-auto mb-2 object-cover"
-                />
-                <p className="text-sm font-semibold text-[#1A1A1A] truncate">{producer.name}</p>
-                <div className="flex items-center justify-center gap-1 text-xs text-[#6B7280] mb-1">
-                  <MapPin className="w-3 h-3" />
-                  {producer.location}
-                </div>
-                <div className="flex items-center justify-center gap-1 text-xs">
-                  <Star className="w-3 h-3 fill-[#E6A532] text-[#E6A532]" />
-                  <span className="font-medium text-[#1A1A1A]">{producer.rating}</span>
-                  <span className="text-[#6B7280]">• {producer.products} prod.</span>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        </section>
-
-        {/* Quick Actions */}
-        <section className="grid grid-cols-2 gap-3">
-          <button 
-            onClick={() => navigate('/products')}
-            className="p-4 bg-white rounded-2xl text-left shadow-sm hover:shadow-md transition-shadow"
-          >
-            <Store className="w-6 h-6 text-[#2D5A3D] mb-2" />
-            <p className="font-medium text-[#1A1A1A]">Ver todo el catálogo</p>
-            <p className="text-xs text-[#6B7280]">1,234 productos</p>
-          </button>
-          <button 
-            onClick={() => navigate('/discover?filter=nearby')}
-            className="p-4 bg-white rounded-2xl text-left shadow-sm hover:shadow-md transition-shadow"
-          >
-            <MapPin className="w-6 h-6 text-[#16A34A] mb-2" />
-            <p className="font-medium text-[#1A1A1A]">Productores cerca</p>
-            <p className="text-xs text-[#6B7280]">23 en tu zona</p>
-          </button>
-        </section>
+          </section>
+        )}
       </div>
 
       {/* Filter Modal */}
@@ -345,12 +372,11 @@ const DiscoverPage = () => {
               </button>
             </div>
 
-            {/* Filter sections */}
             <div className="space-y-6">
               <div>
                 <h4 className="font-medium text-[#1A1A1A] mb-3">Categorías</h4>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.filter(c => c.id !== 'para-ti').map(cat => (
+                  {CATEGORIES_MINI.map(cat => (
                     <button
                       key={cat.id}
                       className="px-3 py-1.5 border border-gray-200 rounded-full text-sm text-[#1A1A1A] hover:border-[#2D5A3D] hover:text-[#2D5A3D] transition-colors"
@@ -375,42 +401,13 @@ const DiscoverPage = () => {
                 </div>
               </div>
 
-              <div>
-                <h4 className="font-medium text-[#1A1A1A] mb-3">Características</h4>
-                <div className="space-y-2">
-                  {['Envío gratis', 'Producto BIO', 'De mi zona', 'Con descuento'].map(feature => (
-                    <label key={feature} className="flex items-center gap-3">
-                      <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-[#2D5A3D] focus:ring-[#2D5A3D]" />
-                      <span className="text-[#1A1A1A]">{feature}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium text-[#1A1A1A] mb-3">Ordenar por</h4>
-                <div className="space-y-2">
-                  {['Relevancia', 'Precio: menor a mayor', 'Precio: mayor a menor', 'Más vendidos', 'Mejor valorados'].map((sort, i) => (
-                    <label key={sort} className="flex items-center gap-3">
-                      <input 
-                        type="radio" 
-                        name="sort" 
-                        defaultChecked={i === 0}
-                        className="w-5 h-5 text-[#2D5A3D] focus:ring-[#2D5A3D]" 
-                      />
-                      <span className="text-[#1A1A1A]">{sort}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <button 
+                onClick={() => setShowFilters(false)}
+                className="w-full py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
+              >
+                Aplicar filtros
+              </button>
             </div>
-
-            <button 
-              onClick={() => setShowFilters(false)}
-              className="w-full mt-6 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
-            >
-              Ver 234 resultados
-            </button>
           </motion.div>
         </div>
       )}
