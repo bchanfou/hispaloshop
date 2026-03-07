@@ -19,12 +19,16 @@ import BottomNavBar from './components/BottomNavBar';
 import ScrollToTop from './components/ScrollToTop';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { Toaster } from './components/ui/sonner';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider as LegacyAuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { ChatProvider } from './context/chat/ChatProvider';
 import { usePushNotifications } from './hooks/usePushNotifications';
+
+// Nuevos providers P12
+import { QueryProvider } from './providers/QueryProvider';
+import { RealtimeProvider } from './providers/RealtimeProvider';
 
 // Cart components
 import MiniCart from './components/cart/MiniCart';
