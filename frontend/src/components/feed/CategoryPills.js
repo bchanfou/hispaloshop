@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, Droplets, Package, Cheese, Beef, Croissant, Coffee, Baby, Dog, Nut, Leaf, Wheat } from 'lucide-react';
+import { Sparkles, Droplets, Package, Cookie, Beef, Croissant, Coffee, Baby, Dog, Nut, Leaf, Wheat } from 'lucide-react';
 
 const CATEGORIES = [
   { id: 'foryou', label: 'Para ti', icon: Sparkles, color: '#2D5A3D' },
   { id: 'aceites', label: 'Aceites', icon: Droplets, color: '#E6A532' },
   { id: 'conservas', label: 'Conservas', icon: Package, color: '#DC2626' },
-  { id: 'quesos', label: 'Quesos', icon: Cheese, color: '#F59E0B' },
+  { id: 'quesos', label: 'Quesos', icon: Cookie, color: '#F59E0B' },
   { id: 'embutidos', label: 'Embutidos', icon: Beef, color: '#991B1B' },
   { id: 'panaderia', label: 'Panadería', icon: Croissant, color: '#D97706' },
   { id: 'bebidas', label: 'Bebidas', icon: Coffee, color: '#7C3AED' },
