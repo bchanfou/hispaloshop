@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 
 import { API } from '../utils/api';
+import { getDefaultRoute, getDashboardLabel } from '../lib/navigation';
 import PostViewer from '../components/PostViewer';
 import { StoriesRow } from '../components/HispaloStories';
 import BadgeGrid from '../components/BadgeGrid';
@@ -128,6 +129,8 @@ export default function UserProfilePage() {
   const avatarInputRef = useRef(null);
 
   const isOwnProfile = currentUser?.user_id === userId;
+  const dashboardUrl = currentUser ? getDefaultRoute(currentUser, currentUser.onboarding_completed) : '/login';
+  const dashboardLabel = currentUser ? getDashboardLabel(currentUser.role) : 'Panel';
 
   useEffect(() => {
     fetchProfile();
@@ -368,14 +371,26 @@ export default function UserProfilePage() {
                 )}
 
                 {isOwnProfile && (
-                  <Button
-                    onClick={() => setShowCreatePost(true)}
-                    className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white"
-                    data-testid="create-post-btn"
-                  >
-                    <Camera className="w-4 h-4 mr-2" />
-                    {t('social.newPost')}
-                  </Button>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                    <Link to={dashboardUrl}>
+                      <Button
+                        variant="outline"
+                        className="border-stone-300 bg-white text-[#1C1C1C] hover:bg-stone-50"
+                        data-testid="profile-dashboard-btn"
+                      >
+                        <Settings className="w-4 h-4 mr-2" />
+                        {dashboardLabel}
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={() => setShowCreatePost(true)}
+                      className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white"
+                      data-testid="create-post-btn"
+                    >
+                      <Camera className="w-4 h-4 mr-2" />
+                      {t('social.newPost')}
+                    </Button>
+                  </div>
                 )}
 
                 <Button

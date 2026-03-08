@@ -1,31 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Search, ShoppingCart, X, LayoutDashboard } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Menu, Search, ShoppingCart, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import LocaleSelector from './LocaleSelector';
 
-function getDashboardUrl(role) {
-  switch (role) {
-    case 'super_admin':
-      return '/super-admin';
-    case 'admin':
-      return '/admin';
-    case 'producer':
-    case 'importer':
-      return '/producer';
-    case 'influencer':
-      return '/influencer/dashboard';
-    default:
-      return '/dashboard';
-  }
-}
-
 export default function Header() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { getTotalItems } = useCart();
@@ -62,12 +44,6 @@ export default function Header() {
 
     setMobileSearchOpen(false);
   };
-
-  const menuItems = [
-    { to: user ? getDashboardUrl(user.role) : '/login', icon: LayoutDashboard, label: 'Panel' },
-    { to: '/discover', icon: Search, label: 'Explorar' },
-  ];
-
   return (
     <header className="sticky top-0 z-50 bg-[#FAF7F2]/95 backdrop-blur border-b border-stone-200" data-testid="main-header">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6">
@@ -104,10 +80,6 @@ export default function Header() {
           </form>
 
           <div className="ml-auto flex items-center gap-1 md:gap-2" ref={menuRef}>
-            <div className="hidden md:block">
-              <LocaleSelector compact />
-            </div>
-
             <button
               type="button"
               onClick={() => setMobileSearchOpen((p) => !p)}
@@ -152,20 +124,7 @@ export default function Header() {
 
             {menuOpen && (
               <div className="absolute right-0 top-[56px] md:top-[64px] w-72 rounded-2xl border border-stone-200 bg-white shadow-xl overflow-hidden z-[120]" data-testid="hamburger-menu-panel">
-                <div className="p-2">
-                  {menuItems.map((item) => (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-stone-50 text-sm text-stone-700"
-                    >
-                      <item.icon className="w-4 h-4 text-[#2D5A27]" />
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-                <div className="border-t border-stone-100 p-3 md:hidden">
+                <div className="p-3">
                   <LocaleSelector />
                 </div>
               </div>

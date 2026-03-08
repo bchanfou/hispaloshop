@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../utils/api';
+import { getDefaultRoute } from '../lib/navigation';
 import InternalChat from './InternalChat';
 import ContentTypeSelector from './creator/ContentTypeSelector';
 import AdvancedEditor from './creator/editor/AdvancedEditor';
@@ -290,13 +291,14 @@ export default function BottomNavBar() {
   };
 
   const profileUrl = user ? `/user/${user.user_id}` : '/login';
+  const dashboardUrl = user ? getDefaultRoute(user, user.onboarding_completed) : '/login';
   const profileImage = user?.profile_image;
 
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
     { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover?tab=feeds', match: (loc) => loc.pathname === '/discover' && (new URLSearchParams(loc.search).get('tab') !== 'reels') },
     { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
-    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, isProfile: true },
+    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, dashboardLink: dashboardUrl, isProfile: true },
   ];
 
   return (
@@ -335,7 +337,7 @@ export default function BottomNavBar() {
 
       <input ref={galleryRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />
 
-      <nav className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none md:hidden" data-testid="bottom-nav-bar">
+      <nav className="fixed bottom-2 md:bottom-5 left-0 right-0 z-40 pointer-events-none" data-testid="bottom-nav-bar">
         <div className="max-w-xl mx-auto px-2 sm:px-3 pointer-events-auto">
           <div className="grid grid-cols-[1fr_1fr_auto_1fr_1fr] items-center h-[68px] px-2 rounded-2xl border border-stone-200/90 bg-white/95 shadow-[0_10px_35px_rgba(0,0,0,0.12)] backdrop-blur-md">
             {navItems.slice(0, 2).map((item) => {
@@ -386,25 +388,48 @@ export default function BottomNavBar() {
               const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;
 
               if (item.isProfile) {
+                const isOwnProfileRoute = item.link && location.pathname === item.link;
+                const isDashboardRoute = item.dashboardLink
+                  ? location.pathname === item.dashboardLink || location.pathname.startsWith(`${item.dashboardLink}/`)
+                  : false;
+                const showActiveProfile = isOwnProfileRoute || isDashboardRoute;
+
                 return (
-                  <Link
+                  <div
                     key={item.id}
-                    to={item.link}
                     aria-label={item.label}
                     className="flex items-center justify-center py-1"
                     data-testid={`bottom-nav-${item.id}`}
                   >
-                    {profileImage ? (
-                      <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${location.pathname.includes('dashboard') || location.pathname.includes('profile') ? 'border-[#2D5A27]' : 'border-stone-200'}`}>
-                        <img src={profileImage} alt="" className="w-full h-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${location.pathname.includes('dashboard') || location.pathname.includes('profile') ? 'bg-[#2D5A27] text-white' : 'bg-stone-100 text-stone-500'}`}>
-                        <Icon className="w-4 h-4" strokeWidth={1.5} />
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1.5 rounded-full bg-stone-50/90 px-1.5 py-1">
+                      <Link
+                        to={item.link}
+                        className="flex items-center justify-center"
+                        aria-label={item.label}
+                      >
+                        {profileImage ? (
+                          <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${showActiveProfile ? 'border-[#2D5A27]' : 'border-stone-200'}`}>
+                            <img src={profileImage} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center ${showActiveProfile ? 'bg-[#2D5A27] text-white' : 'bg-stone-100 text-stone-500'}`}>
+                            <Icon className="w-4 h-4" strokeWidth={1.5} />
+                          </div>
+                        )}
+                      </Link>
+                      {user && (
+                        <Link
+                          to={item.dashboardLink}
+                          className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${isDashboardRoute ? 'bg-[#2D5A27] text-white' : 'bg-white text-stone-500 border border-stone-200 hover:text-[#2D5A27]'}`}
+                          aria-label={t('bottomNav.dashboard', 'Panel')}
+                          data-testid="bottom-nav-dashboard"
+                        >
+                          <LayoutDashboard className="w-4 h-4" strokeWidth={1.8} />
+                        </Link>
+                      )}
+                    </div>
                     <span className="sr-only">{item.label}</span>
-                  </Link>
+                  </div>
                 );
               }
 
