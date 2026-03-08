@@ -38,9 +38,20 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    const redirectUrl = `${window.location.origin}/dashboard`;
-    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  const handleGoogleLogin = async () => {
+    try {
+      // Use our own Google OAuth endpoint
+      const response = await fetch('/api/auth/google/url');
+      const data = await response.json();
+      if (data.auth_url) {
+        window.location.href = data.auth_url;
+      } else {
+        toast.error('Error al iniciar sesión con Google');
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      toast.error('Error al conectar con Google');
+    }
   };
 
   return (

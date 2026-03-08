@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TabToggle from './TabToggle';
 import CategoryPills from './CategoryPills';
 import LandingNavPills from './LandingNavPills';
@@ -14,37 +14,11 @@ function FeedContainer() {
   });
   const [selectedCategory, setSelectedCategory] = useState('foryou');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
 
   // Persistir tab seleccionado
   useEffect(() => {
     localStorage.setItem('feedTab', activeTab);
   }, [activeTab]);
-
-  // Swipe detection nativo
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchMove = (e) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50; // mínimo swipe
-
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0 && activeTab === 'following') {
-        // Swipe left: Siguiendo -> Para ti
-        setActiveTab('foryou');
-      } else if (diff < 0 && activeTab === 'foryou') {
-        // Swipe right: Para ti -> Siguiendo
-        setActiveTab('following');
-      }
-    }
-  };
 
   // Pull to refresh
   const handleRefresh = useCallback(async () => {
@@ -65,12 +39,7 @@ function FeedContainer() {
   };
 
   return (
-    <div 
-      className="min-h-screen bg-[#FAFAFA]"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Toggle Siguiendo/Para ti */}
       <TabToggle activeTab={activeTab} onChange={setActiveTab} />
 

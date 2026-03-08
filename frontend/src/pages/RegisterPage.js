@@ -560,9 +560,19 @@ export default function RegisterPage() {
 
                 <Button
                   type="button"
-                  onClick={() => {
-                    const redirectUrl = `${window.location.origin}/dashboard`;
-                    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/auth/google/url');
+                      const data = await response.json();
+                      if (data.auth_url) {
+                        window.location.href = data.auth_url;
+                      } else {
+                        alert('Error al conectar con Google');
+                      }
+                    } catch (error) {
+                      console.error('Google auth error:', error);
+                      alert('Error al conectar con Google');
+                    }
                   }}
                   className="w-full mt-4 bg-white hover:bg-stone-50 text-text-primary border border-stone-200 rounded-full h-12 md:h-11 text-base md:text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2 md:gap-3 active:scale-[0.98]"
                   data-testid="google-register-button"

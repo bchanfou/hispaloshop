@@ -17,8 +17,8 @@ const getApiBaseUrl = () => {
       return '';  // Empty base, components will add /api
     }
     
-    // PREVIEW - preview.emergentagent.com - MUST use relative URL  
-    if (host.includes('preview.emergentagent.com')) {
+    // STAGING - preview environments
+    if (host.includes('preview.')) {
       return '';  // Empty base, components will add /api
     }
     
@@ -49,14 +49,19 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 // Request interceptor - ensure all requests go to correct URL
 axios.interceptors.request.use(
   (config) => {
-    // If URL starts with http and contains external domain, block it
+    // All requests should use relative URLs or configured baseURL
     if (config.url && config.url.startsWith('http')) {
+      // External requests are allowed only if explicitly configured
       const url = new URL(config.url);
-      if (url.hostname.includes('emergent.host') || url.hostname.includes('admin-insights')) {
-        console.error('[API] BLOCKED external request to:', config.url);
-        // Rewrite to relative URL
-        config.url = url.pathname;
-        config.baseURL = '';
+      const allowedDomains = [
+        'localhost',
+        '127.0.0.1',
+        'hispaloshop.com',
+        'hispaloshop-api.up.railway.app'
+      ];
+      const isAllowed = allowedDomains.some(domain => url.hostname.includes(domain));
+      if (!isAllowed) {
+        console.warn('[API] External request to non-allowed domain:', config.url);
       }
     }
     return config;

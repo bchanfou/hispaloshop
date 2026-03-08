@@ -212,24 +212,10 @@
             }
         </style>
         
-        <script src="https://assets.emergent.sh/scripts/emergent-main.js" onerror="console.log('Analytics script blocked or unavailable')"></script>
-        
+        <!-- Analytics and monitoring scripts can be added here -->
         <script>
-            // Only load visual edit scripts when inside an iframe
-            if (window.self !== window.top) {
-                var debugMonitorScript = document.createElement('script');
-                debugMonitorScript.src = 'https://assets.emergent.sh/scripts/debug-monitor.js';
-                document.head.appendChild(debugMonitorScript);
-
-                window.tailwind = window.tailwind || {};
-                tailwind.config = {
-                    corePlugins: { preflight: false },
-                };
-
-                var tailwindScript = document.createElement('script');
-                tailwindScript.src = 'https://cdn.tailwindcss.com';
-                document.head.appendChild(tailwindScript);
-            }
+            // Disable visual editing mode - production only
+            window.__DISABLE_VISUAL_EDITS__ = true;
         </script>
     </head>
     <body>

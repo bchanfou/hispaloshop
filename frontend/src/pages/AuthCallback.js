@@ -5,12 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import { useRef } from 'react';
 import { API } from '../utils/api';
 
-
-
 export default function AuthCallback() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setUser } = useAuth();
+  const { checkAuth } = useAuth();
   const hasProcessed = useRef(false);
   const [error, setError] = useState(null);
 
@@ -21,37 +19,34 @@ export default function AuthCallback() {
 
     const processAuth = async () => {
       try {
-        // Extract session_id from URL fragment
-        const hash = location.hash;
-        const params = new URLSearchParams(hash.substring(1));
-        const sessionId = params.get('session_id');
+        // Check for token in URL (from our Google OAuth callback)
+        const params = new URLSearchParams(location.search);
+        const token = params.get('token');
 
-        if (!sessionId) {
-          setError('No session ID found');
+        if (token) {
+          // Our own Google OAuth flow - token is already set in cookie by backend
+          // Just need to fetch current user
+          await checkAuth();
+          navigate('/dashboard', { replace: true });
           return;
         }
 
-        // Call backend to exchange session_id
-        const response = await axios.get(`${API}/auth/session`, {
-          headers: { 'X-Session-ID': sessionId },
-          withCredentials: true
-        });
+        // Legacy: Extract session_id from URL fragment (old Emergent auth)
+        const hash = location.hash;
+        const hashParams = new URLSearchParams(hash.substring(1));
+        const sessionId = hashParams.get('session_id');
 
-        // Set user and navigate
-        const userData = response.data.user;
-        setUser(userData);
-
-        // Set cookie
-        document.cookie = `session_token=${response.data.session_token}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=none; secure`;
-
-        // Navigate based on role
-        if (userData.role === 'admin') {
-          navigate('/admin', { replace: true, state: { user: userData } });
-        } else if (userData.role === 'producer' || userData.role === 'importer') {
-          navigate('/producer', { replace: true, state: { user: userData } });
-        } else {
-          navigate('/dashboard', { replace: true, state: { user: userData } });
+        if (sessionId) {
+          // Legacy Emergent auth - show error as we're moving away from it
+          setError('Sistema de autenticación actualizado. Por favor inicia sesión nuevamente.');
+          setTimeout(() => navigate('/login', { replace: true }), 3000);
+          return;
         }
+
+        // No token or session found - check if user is already authenticated
+        await checkAuth();
+        navigate('/dashboard', { replace: true });
+
       } catch (error) {
         console.error('Auth error:', error);
         setError('Authentication failed');
@@ -60,7 +55,7 @@ export default function AuthCallback() {
     };
 
     processAuth();
-  }, [location.hash, navigate, setUser]);
+  }, [location, navigate, checkAuth]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center" data-testid="auth-callback-page">

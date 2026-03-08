@@ -3,7 +3,7 @@
  * Centralized function to get the correct API URL based on environment
  * 
  * - Production (hispaloshop.com): Uses relative /api
- * - Preview (preview.emergentagent.com): Uses relative /api  
+ * - Staging/Preview: Uses relative /api
  * - Development (localhost): Uses REACT_APP_BACKEND_URL
  */
 
@@ -13,8 +13,8 @@ export const getApiUrl = () => {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
     
-    // Production or preview - always use relative URL
-    if (host.includes('hispaloshop.com') || host.includes('preview.emergentagent.com')) {
+    // Production, staging, or preview - always use relative URL
+    if (host.includes('hispaloshop.com') || host.includes('preview.')) {
       return apiPrefix;
     }
   }

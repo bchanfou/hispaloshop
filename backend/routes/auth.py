@@ -2,7 +2,7 @@
 Auth routes: register, login, logout, verify-email, password reset, session.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request, Response
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from typing import Optional
 from datetime import datetime, timezone, timedelta
 import uuid
@@ -616,3 +616,157 @@ async def logout(request: Request):
     if session_token:
         await db.user_sessions.delete_one({"session_token": session_token})
     return {"message": "Logged out"}
+
+
+# ============================================================================
+# GOOGLE OAUTH - Sistema propio (sin Emergent)
+# ============================================================================
+
+@router.get("/auth/google/url")
+async def get_google_auth_url(request: Request):
+    """Get Google OAuth URL for self-managed authentication"""
+    client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    if not client_id:
+        raise HTTPException(status_code=500, detail="Google OAuth not configured")
+    
+    # Use environment variable for frontend URL or build from request
+    frontend_url = os.environ.get('FRONTEND_URL', str(request.base_url).rstrip('/'))
+    redirect_uri = f"{frontend_url}/auth/google/callback"
+    
+    # Google OAuth parameters
+    scope = "openid email profile"
+    state = uuid.uuid4().hex  # CSRF protection
+    
+    # Store state in session/cache for validation (simplified - use Redis in production)
+    auth_url = (
+        f"https://accounts.google.com/o/oauth2/v2/auth"
+        f"?client_id={client_id}"
+        f"&redirect_uri={redirect_uri}"
+        f"&response_type=code"
+        f"&scope={scope}"
+        f"&state={state}"
+        f"&access_type=offline"
+        f"&prompt=consent"
+    )
+    
+    return {"auth_url": auth_url, "state": state}
+
+
+@router.get("/auth/google/callback")
+async def google_auth_callback(
+    request: Request,
+    response: Response,
+    code: str = None,
+    state: str = None,
+    error: str = None
+):
+    """Handle Google OAuth callback"""
+    if error:
+        raise HTTPException(status_code=400, detail=f"Google auth error: {error}")
+    
+    if not code:
+        raise HTTPException(status_code=400, detail="No authorization code provided")
+    
+    client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
+    
+    if not client_id or not client_secret:
+        raise HTTPException(status_code=500, detail="Google OAuth not configured")
+    
+    # Exchange code for tokens
+    frontend_url = os.environ.get('FRONTEND_URL', str(request.base_url).rstrip('/'))
+    redirect_uri = f"{frontend_url}/auth/google/callback"
+    
+    import httpx
+    async with httpx.AsyncClient() as client:
+        # Exchange authorization code for access token
+        token_response = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code": code,
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": redirect_uri,
+                "grant_type": "authorization_code"
+            }
+        )
+    
+    if token_response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
+    
+    tokens = token_response.json()
+    access_token = tokens.get("access_token")
+    
+    # Get user info from Google
+    async with httpx.AsyncClient() as client:
+        userinfo_response = await client.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
+    
+    if userinfo_response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to get user info from Google")
+    
+    google_user = userinfo_response.json()
+    
+    # Check if user exists
+    user_doc = await db.users.find_one({"email": google_user["email"]}, {"_id": 0})
+    
+    if not user_doc:
+        # Create new user
+        user_id = f"user_{uuid.uuid4().hex[:12]}"
+        user_doc = {
+            "user_id": user_id,
+            "email": google_user["email"],
+            "name": google_user.get("name", google_user["email"].split("@")[0]),
+            "picture": google_user.get("picture"),
+            "role": "customer",
+            "email_verified": google_user.get("verified_email", True),
+            "approved": True,
+            "auth_provider": "google",
+            "analytics_consent": {
+                "version": "1.0",
+                "granted": True,
+                "date": datetime.now(timezone.utc).isoformat()
+            },
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.users.insert_one(user_doc)
+        logger.info(f"[GOOGLE_AUTH] New user created: {google_user['email']}")
+    else:
+        user_id = user_doc["user_id"]
+        # Update Google picture if changed
+        if google_user.get("picture") and google_user["picture"] != user_doc.get("picture"):
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {"picture": google_user["picture"], "updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            user_doc["picture"] = google_user["picture"]
+        logger.info(f"[GOOGLE_AUTH] Existing user logged in: {google_user['email']}")
+    
+    # Create session
+    session_token = f"session_{uuid.uuid4().hex}"
+    
+    await db.user_sessions.insert_one({
+        "user_id": user_id,
+        "session_token": session_token,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Set cookie
+    is_secure_cookie = request.url.scheme == "https"
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        max_age=7 * 24 * 60 * 60,
+        path="/",
+        samesite="none" if is_secure_cookie else "lax",
+        httponly=False,
+        secure=is_secure_cookie
+    )
+    
+    # Redirect to frontend with success
+    frontend_redirect = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+    return RedirectResponse(url=f"{frontend_redirect}/auth/callback?token={session_token}")
