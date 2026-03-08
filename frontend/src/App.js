@@ -382,7 +382,7 @@ function App() {
     <HelmetProvider>
       <BrowserRouter>
         <AppErrorBoundary>
-          <AuthProvider>
+          <LegacyAuthProvider>
             <LocaleProvider>
               <CartProvider>
                 <ChatProvider>
@@ -392,7 +392,7 @@ function App() {
                 </ChatProvider>
               </CartProvider>
             </LocaleProvider>
-          </AuthProvider>
+          </LegacyAuthProvider>
         </AppErrorBoundary>
       </BrowserRouter>
     </HelmetProvider>
