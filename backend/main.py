@@ -200,9 +200,7 @@ async def health():
     """Health check basico"""
     return {
         "status": "ok",
-        "version": "1.0.0",
-        "environment": settings.ENV,
-        "database": "mongodb"
+        "version": "1.0.0"
     }
 
 
@@ -211,27 +209,7 @@ async def legacy_health():
     """Health check legacy"""
     return {
         "status": "ok",
-        "version": "1.0.0",
-        "environment": settings.ENV,
-        "database": "mongodb"
-    }
-
-
-@app.get("/api/security/headers")
-async def security_headers_check():
-    """
-    Endpoint para verificar configuracion de seguridad.
-    Util para debugging en desarrollo.
-    """
-    return {
-        "cors_origins": origins,
-        "environment": settings.ENV,
-        "security_features": {
-            "cors_restrictive": "*" not in origins,
-            "rate_limiting": True,
-            "security_headers": True,
-            "jwt_validation": True,
-        }
+        "version": "1.0.0"
     }
 
 

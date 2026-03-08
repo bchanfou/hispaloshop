@@ -8,6 +8,7 @@ from datetime import datetime, timezone, timedelta
 import uuid
 import logging
 import os
+import re
 
 from core.database import db
 from core.models import User, RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput
@@ -35,14 +36,14 @@ async def register(input: RegisterInput):
     
     existing = await db.users.find_one({"email": input.email}, {"_id": 0})
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        return {"message": "Registration successful. Please check your email to verify your account."}
     
     # Username validation
     username = input.username
     if username:
-        username = username.strip().lower().replace(" ", "_")
-        if len(username) < 3:
-            raise HTTPException(status_code=400, detail="Username must be at least 3 characters")
+        username = username.strip().lower()
+        if not re.match(r"^[a-z0-9_]{3,20}$", username):
+            raise HTTPException(status_code=400, detail="Invalid username. Use 3-20 lowercase letters, numbers, or underscores.")
         existing_username = await db.users.find_one({"username": username}, {"_id": 0})
         if existing_username:
             raise HTTPException(status_code=400, detail="Username already taken")
@@ -166,6 +167,10 @@ async def register(input: RegisterInput):
         # If email fails, we should still allow registration but warn the user
         logger.error(f"[REGISTRATION] Failed to send verification email to {input.email}")
         # Don't block registration, but user won't get email
+        return {
+            "message": "Registration successful, but failed to send verification email. Please try resending it later.",
+            "user_id": user_id
+        }
     
     return {
         "message": "Registration successful. Please check your email to verify your account.",
@@ -329,7 +334,7 @@ async def login(input: LoginInput, request: Request):
         max_age=7 * 24 * 60 * 60,  # 7 days
         path="/",
         samesite="none" if is_secure_cookie else "lax",
-        httponly=False,
+        httponly=True,
         secure=is_secure_cookie
     )
     
@@ -600,7 +605,7 @@ async def refresh_token(request: Request, response: Response):
         max_age=7 * 24 * 60 * 60,  # 7 days
         path="/",
         samesite="none" if is_secure_cookie else "lax",
-        httponly=False,
+        httponly=True,
         secure=is_secure_cookie
     )
     
@@ -638,18 +643,17 @@ async def get_google_auth_url(request: Request):
     state = uuid.uuid4().hex  # CSRF protection
     
     # Store state in session/cache for validation (simplified - use Redis in production)
-    auth_url = (
-        f"https://accounts.google.com/o/oauth2/v2/auth"
-        f"?client_id={client_id}"
-        f"&redirect_uri={redirect_uri}"
-        f"&response_type=code"
-        f"&scope={scope}"
-        f"&state={state}"
-        f"&access_type=offline"
-        f"&prompt=consent"
+    # For now, we will store it in a short-lived cookie
+    response = JSONResponse(content={"auth_url": auth_url, "state": state})
+    response.set_cookie(
+        key="oauth_state",
+        value=state,
+        max_age=600,  # 10 minutes
+        httponly=True,
+        secure=True,
+        samesite="lax"
     )
-    
-    return {"auth_url": auth_url, "state": state}
+    return response
 
 
 @router.get("/auth/google/callback")
@@ -661,6 +665,10 @@ async def google_auth_callback(
     error: str = None
 ):
     """Handle Google OAuth callback"""
+    stored_state = request.cookies.get("oauth_state")
+    if not state or state != stored_state:
+        raise HTTPException(status_code=400, detail="Invalid state parameter")
+
     if error:
         raise HTTPException(status_code=400, detail=f"Google auth error: {error}")
     

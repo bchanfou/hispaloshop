@@ -267,10 +267,10 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
     # If language is requested, use the translation service
     if lang and lang in SUPPORTED_LANGUAGES:
         product = await TranslationService.get_product_in_language(product_id, lang)
-        if not product:
+        if not product or not product.get("approved"):
             raise HTTPException(status_code=404, detail="Product not found")
     else:
-        product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+        product = await db.products.find_one({"product_id": product_id, "approved": True}, {"_id": 0})
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
     
@@ -428,7 +428,7 @@ async def translate_product_to_all_bg(product_id: str, source_lang: str):
             except Exception as e:
                 logger.error(f"Error translating product {product_id} to {target_lang}: {e}")
     except Exception as e:
-        logger.error(f"Background product translation failed: {e}")
+        logger.error(f"Background product translation failed for product {product_id}: {e}")
 
 @router.put("/products/{product_id}")
 async def update_product(product_id: str, input: ProductInput, user: User = Depends(get_current_user)):
