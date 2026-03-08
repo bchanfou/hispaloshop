@@ -135,6 +135,7 @@ module.exports = {
         'slide-down': 'slideDown 0.3s ease-out',
         'fade-in': 'fadeIn 0.2s ease-out',
         'ripple': 'ripple 0.6s linear',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         slideUp: {

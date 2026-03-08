@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
-const NavbarLanding = ({ variant = 'light' }) => {
+const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   
@@ -14,7 +14,23 @@ const NavbarLanding = ({ variant = 'light' }) => {
     { label: 'Descubrir', href: '/discover' },
     { label: 'Ser Influencer', href: '/influencer' },
     { label: 'Ser Vendedor', href: '/productor' },
+    ...extraLinks,
   ];
+
+  const handleNav = (href) => {
+    if (href.startsWith('#')) {
+      const targetId = href.slice(1);
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      setIsOpen(false);
+      return;
+    }
+
+    navigate(href);
+    setIsOpen(false);
+  };
 
   return (
     <nav className={`${bgColor} sticky top-0 z-50 border-b border-gray-100`}>
@@ -33,7 +49,7 @@ const NavbarLanding = ({ variant = 'light' }) => {
             {navLinks.map((link) => (
               <button
                 key={link.label}
-                onClick={() => navigate(link.href)}
+                onClick={() => handleNav(link.href)}
                 className={`text-sm font-medium ${textColor} hover:opacity-70 transition-opacity`}
               >
                 {link.label}
@@ -74,7 +90,7 @@ const NavbarLanding = ({ variant = 'light' }) => {
             {navLinks.map((link) => (
               <button
                 key={link.label}
-                onClick={() => { navigate(link.href); setIsOpen(false); }}
+                onClick={() => handleNav(link.href)}
                 className="block w-full text-left py-2 text-[#1A1A1A] font-medium"
               >
                 {link.label}
