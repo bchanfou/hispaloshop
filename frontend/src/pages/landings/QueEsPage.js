@@ -27,6 +27,7 @@ import {
   Compass,
 } from 'lucide-react';
 import SEOHead from '../../components/landings/SEOHead';
+import LandingSectionNav from '../../components/landings/LandingSectionNav';
 import NavbarLanding from '../../components/landings/NavbarLanding';
 import FooterLanding from '../../components/landings/FooterLanding';
 import FeatureGrid from '../../components/landings/FeatureGrid';
@@ -194,8 +195,9 @@ const QueEsPage = () => {
       />
 
       <NavbarLanding extraLinks={multimarketNav} />
+      <LandingSectionNav />
 
-      <section className="bg-[#F5F1E8] pt-12 pb-20">
+      <section className="bg-[#F5F1E8] pt-10 sm:pt-12 pb-16 sm:pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
@@ -205,7 +207,7 @@ const QueEsPage = () => {
               <p className="text-lg text-[#6B7280] mb-8 leading-relaxed">
                 Descubre productos artesanales de personas reales. Compra directo y conoce la historia detras de cada sabor.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4">
                 <button
                   onClick={() => navigate('/register/new')}
                   className="flex items-center gap-2 px-6 py-3 bg-[#2D5A3D] text-white rounded-full font-medium hover:bg-[#234a31] transition-colors"
@@ -388,9 +390,9 @@ const QueEsPage = () => {
                 </div>
               </div>
 
-              <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+              <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm border border-white/15">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10 gap-4">
-                  <span className="text-sm font-medium text-gray-300">Tu ubicacion:</span>
+                  <span className="text-sm font-medium text-gray-200">Tu ubicacion:</span>
                   <span className="flex items-center gap-2 bg-[#2D5A3D]/30 px-3 py-1 rounded-full text-[#B7E0BF] text-sm">
                     <MapPin className="w-4 h-4" />
                     {detectedMarket?.name || 'Espana'}
@@ -401,7 +403,7 @@ const QueEsPage = () => {
                   {MARKET_FOLLOWING.map((producer) => (
                     <div
                       key={producer.name}
-                      className={`flex items-center justify-between gap-3 p-3 bg-white/5 rounded-lg ${producer.dimmed ? 'opacity-55' : ''}`}
+                      className={`flex items-center justify-between gap-3 p-3 bg-white/10 rounded-lg ${producer.dimmed ? 'opacity-70' : ''}`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${producer.avatarClass}`}>
@@ -409,7 +411,7 @@ const QueEsPage = () => {
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium truncate">{producer.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{producer.location}</p>
+                          <p className="text-xs text-gray-300 truncate">{producer.location}</p>
                         </div>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded whitespace-nowrap ${producer.statusClass}`}>
@@ -497,7 +499,7 @@ const QueEsPage = () => {
           <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-4">Descubre por categoria</h2>
           <p className="text-center text-[#6B7280] mb-12">Sin productos frescos ni alcohol. Calidad que dura.</p>
 
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
             {CATEGORIES.map((cat, index) => {
               const Icon = cat.icon;
 

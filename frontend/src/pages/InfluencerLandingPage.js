@@ -21,6 +21,7 @@ import {
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
 import SEO from '../components/SEO';
+import LandingSectionNav from '../components/landings/LandingSectionNav';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Slider } from '../components/ui/slider';
@@ -160,27 +161,28 @@ export default function InfluencerLandingPage() {
         url="https://www.hispaloshop.com/influencer"
       />
       <Header />
+      <LandingSectionNav />
 
       <main>
-        <section className="relative min-h-[760px] bg-gradient-to-br from-gray-900 via-black to-gray-950 text-white overflow-hidden flex items-center">
+        <section className="relative min-h-[680px] sm:min-h-[760px] bg-gradient-to-br from-gray-900 via-black to-gray-950 text-white overflow-hidden flex items-center">
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-20 left-20 h-72 w-72 rounded-full bg-pink-500 blur-3xl animate-pulse" />
             <div className="absolute bottom-20 right-20 h-72 w-72 rounded-full bg-purple-500 blur-3xl animate-pulse [animation-delay:1s]" />
           </div>
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 w-full">
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
               <div>
-                <motion.span {...fadeUp} className="inline-flex items-center px-4 py-2 rounded-full bg-pink-500/20 text-pink-300 text-sm font-medium mb-6 border border-pink-500/30"><TrendingUp className="w-4 h-4 mr-2" />1,240 influencers ya ganando</motion.span>
-                <motion.h1 {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="font-heading text-5xl lg:text-7xl font-bold leading-tight mb-6">Tu opinion vale<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">dinero real</span></motion.h1>
-                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="text-xl text-gray-300 mb-8 leading-relaxed max-w-lg">Gana entre <span className="text-white font-bold">EUR 100 y EUR 2,000</span> al mes recomendando productos artesanales que si comprarias. Sin inversion, sin stock, con total libertad creativa.</motion.p>
+                <motion.span {...fadeUp} className="inline-flex items-center px-4 py-2 rounded-full bg-pink-500/20 text-pink-200 text-sm font-medium mb-6 border border-pink-400/30"><TrendingUp className="w-4 h-4 mr-2" />1,240 influencers ya ganando</motion.span>
+                <motion.h1 {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="font-heading text-4xl sm:text-5xl lg:text-7xl font-bold leading-[0.95] mb-6 text-white">Tu opinion vale<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-fuchsia-300 to-purple-200 drop-shadow-[0_8px_28px_rgba(236,72,153,0.35)]">dinero real</span></motion.h1>
+                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="text-lg sm:text-xl text-gray-200 mb-8 leading-relaxed max-w-lg">Gana entre <span className="text-white font-bold">EUR 100 y EUR 2,000</span> al mes recomendando productos artesanales que si comprarias. Sin inversion, sin stock, con total libertad creativa.</motion.p>
                 <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.15 }} className="flex flex-wrap gap-6 md:gap-8 mb-10">
-                  <div><p className="text-3xl font-bold text-white">3%-7%</p><p className="text-sm text-gray-400">Comision por venta</p></div>
-                  <div><p className="text-3xl font-bold text-white">&lt;48h</p><p className="text-sm text-gray-400">Respuesta de aprobacion</p></div>
-                  <div><p className="text-3xl font-bold text-white">0 EUR</p><p className="text-sm text-gray-400">Coste de inscripcion</p></div>
+                  <div><p className="text-3xl font-bold text-white">3%-7%</p><p className="text-sm text-gray-300">Comision por venta</p></div>
+                  <div><p className="text-3xl font-bold text-white">&lt;48h</p><p className="text-sm text-gray-300">Respuesta de aprobacion</p></div>
+                  <div><p className="text-3xl font-bold text-white">0 EUR</p><p className="text-sm text-gray-300">Coste de inscripcion</p></div>
                 </motion.div>
-                <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.2 }} className="flex flex-col sm:flex-row gap-4">
-                  <button onClick={scrollToCalculator} className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg hover:shadow-pink-500/25 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"><Calculator className="w-5 h-5" />Calcular mis ganancias</button>
-                  <button onClick={scrollToApplication} className="px-8 py-4 rounded-full font-semibold text-lg border-2 border-white/30 text-white hover:bg-white/10 transition-all">Solicitar mi cuenta</button>
+                <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.2 }} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <button onClick={scrollToCalculator} className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 sm:px-8 py-4 rounded-full font-semibold text-base sm:text-lg hover:shadow-lg hover:shadow-pink-500/25 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"><Calculator className="w-5 h-5" />Calcular mis ganancias</button>
+                  <button onClick={scrollToApplication} className="px-6 sm:px-8 py-4 rounded-full font-semibold text-base sm:text-lg border-2 border-white/50 text-white hover:bg-white/10 transition-all">Solicitar mi cuenta</button>
                 </motion.div>
               </div>
               <motion.div {...fadeUp} transition={{ duration: 0.65, delay: 0.2 }} className="relative hidden lg:block h-[600px]">
@@ -193,18 +195,18 @@ export default function InfluencerLandingPage() {
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"><ChevronDown className="w-6 h-6 text-white/50" /></div>
         </section>
 
-        <section ref={calculatorRef} id="calculadora" className="py-24 bg-white">
+        <section ref={calculatorRef} id="calculadora" className="py-16 sm:py-24 bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} className="text-center mb-12"><h2 className="font-heading text-4xl font-bold text-gray-900 mb-4">Calcula cuanto podrias ganar</h2><p className="text-gray-600">Ajusta los parametros y descubre tu potencial</p></motion.div>
-            <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="bg-gray-50 rounded-3xl p-8 lg:p-12 shadow-xl">
+            <motion.div {...fadeUp} className="text-center mb-12"><h2 className="font-heading text-4xl font-bold text-gray-900 mb-4">Calcula cuanto podrias ganar</h2><p className="text-gray-700">Ajusta los parametros y descubre tu potencial</p></motion.div>
+            <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="bg-gray-50 rounded-3xl p-5 sm:p-8 lg:p-12 shadow-xl">
               <div className="space-y-8 mb-10">
-                <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-700">Cuantos seguidores tienes?</Label><span className="font-bold text-pink-600 text-lg">{new Intl.NumberFormat('es-ES').format(calculator.followers)}</span></div><Slider value={followers} min={1000} max={500000} step={1000} onValueChange={setFollowers} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-pink-500 [&_[role=slider]]:bg-pink-500 [&_.bg-primary]:bg-pink-500" /><div className="flex justify-between text-xs text-gray-400 mt-2"><span>1K</span><span>500K</span></div></div>
-                <div><Label className="font-medium text-gray-700 mb-3 block">Que tan activo eres?</Label><div className="grid md:grid-cols-3 gap-4">{ACTIVITY_OPTIONS.map((option) => <button key={option.id} type="button" onClick={() => setActivity(option.id)} className={`p-4 rounded-xl border-2 text-center transition-all ${activity === option.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-300'}`}><p className="font-semibold text-gray-700">{option.label}</p><p className="text-xs text-gray-500 mt-1">{option.description}</p></button>)}</div></div>
-                <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-700">Tu nivel de comision</Label><span className="font-bold text-purple-600 text-lg">{calculator.commission}%</span></div><Slider value={commission} min={3} max={7} step={0.5} onValueChange={setCommission} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-purple-500 [&_[role=slider]]:bg-purple-500 [&_.bg-primary]:bg-gradient-to-r [&_.bg-primary]:from-green-400 [&_.bg-primary]:via-yellow-400 [&_.bg-primary]:to-purple-500" /><div className="grid grid-cols-5 gap-2 text-[11px] text-gray-400 mt-2"><span>Perseo 3%</span><span>Aquiles 4%</span><span>Hercules 5%</span><span>Apolo 6%</span><span className="text-right">Zeus 7%</span></div><p className="text-xs text-gray-500 mt-2">Subes de nivel automaticamente segun tu GMV mensual.</p></div>
+                <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-800">Cuantos seguidores tienes?</Label><span className="font-bold text-pink-600 text-lg">{new Intl.NumberFormat('es-ES').format(calculator.followers)}</span></div><Slider value={followers} min={1000} max={500000} step={1000} onValueChange={setFollowers} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-pink-500 [&_[role=slider]]:bg-pink-500 [&_.bg-primary]:bg-pink-500" /><div className="flex justify-between text-xs text-gray-500 mt-2"><span>1K</span><span>500K</span></div></div>
+                <div><Label className="font-medium text-gray-800 mb-3 block">Que tan activo eres?</Label><div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{ACTIVITY_OPTIONS.map((option) => <button key={option.id} type="button" onClick={() => setActivity(option.id)} className={`p-4 rounded-xl border-2 text-center transition-all ${activity === option.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-300'}`}><p className="font-semibold text-gray-800">{option.label}</p><p className="text-xs text-gray-600 mt-1">{option.description}</p></button>)}</div></div>
+                <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-800">Tu nivel de comision</Label><span className="font-bold text-purple-600 text-lg">{calculator.commission}%</span></div><Slider value={commission} min={3} max={7} step={0.5} onValueChange={setCommission} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-purple-500 [&_[role=slider]]:bg-purple-500 [&_.bg-primary]:bg-gradient-to-r [&_.bg-primary]:from-green-400 [&_.bg-primary]:via-yellow-400 [&_.bg-primary]:to-purple-500" /><div className="grid grid-cols-5 gap-2 text-[11px] text-gray-500 mt-2"><span>Perseo 3%</span><span>Aquiles 4%</span><span>Hercules 5%</span><span>Apolo 6%</span><span className="text-right">Zeus 7%</span></div><p className="text-xs text-gray-600 mt-2">Subes de nivel automaticamente segun tu GMV mensual.</p></div>
                 <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl"><div className="flex items-center gap-3"><ShoppingBag className="w-5 h-5 text-blue-600" /><span className="text-gray-700">Ticket medio estimado</span></div><span className="font-bold text-blue-600">EUR 50</span></div>
               </div>
-              <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 text-white text-center relative overflow-hidden"><div className="absolute top-0 right-0 w-32 h-32 bg-pink-500 rounded-full blur-3xl opacity-30" /><p className="text-gray-400 mb-2">Podrias ganar estimado</p><div className="flex items-baseline justify-center gap-2 mb-4 flex-wrap"><span className="text-4xl lg:text-5xl font-bold">{formatCurrency(calculator.earningsMin)}</span><span className="text-gray-400">-</span><span className="text-4xl lg:text-5xl font-bold">{formatCurrency(calculator.earningsMax)}</span><span className="text-gray-400 text-xl">/mes</span></div><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm border-t border-white/10 pt-6"><div><p className="font-bold text-lg">{calculator.ordersMin}-{calculator.ordersMax}</p><p className="text-gray-400">Pedidos estimados/mes</p></div><div><p className="font-bold text-lg text-green-400">{calculator.conversionLabel}</p><p className="text-gray-400">Conversion esperada</p></div><div><p className="font-bold text-lg">{formatCurrency(calculator.gmvAverage)}</p><p className="text-gray-400">GMV generado</p></div></div></div>
-              <p className="text-xs text-gray-500 text-center mt-4">Estimacion basada en conversion del 2-4% segun actividad y ticket promedio de EUR 50.</p>
+              <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 sm:p-8 text-white text-center relative overflow-hidden"><div className="absolute top-0 right-0 w-32 h-32 bg-pink-500 rounded-full blur-3xl opacity-30" /><p className="text-gray-300 mb-2">Podrias ganar estimado</p><div className="flex items-baseline justify-center gap-2 mb-4 flex-wrap"><span className="text-3xl sm:text-4xl lg:text-5xl font-bold">{formatCurrency(calculator.earningsMin)}</span><span className="text-gray-300">-</span><span className="text-3xl sm:text-4xl lg:text-5xl font-bold">{formatCurrency(calculator.earningsMax)}</span><span className="text-gray-300 text-lg sm:text-xl">/mes</span></div><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm border-t border-white/10 pt-6"><div><p className="font-bold text-lg">{calculator.ordersMin}-{calculator.ordersMax}</p><p className="text-gray-300">Pedidos estimados/mes</p></div><div><p className="font-bold text-lg text-green-400">{calculator.conversionLabel}</p><p className="text-gray-300">Conversion esperada</p></div><div><p className="font-bold text-lg">{formatCurrency(calculator.gmvAverage)}</p><p className="text-gray-300">GMV generado</p></div></div></div>
+              <p className="text-xs text-gray-600 text-center mt-4">Estimacion basada en conversion del 2-4% segun actividad y ticket promedio de EUR 50.</p>
             </motion.div>
           </div>
         </section>
@@ -233,7 +235,7 @@ export default function InfluencerLandingPage() {
               <div><h2 className="font-heading text-4xl font-bold text-gray-900 mb-2">Subes de Perseo a Zeus segun lo que vendes</h2><p className="text-gray-600">Cuanto mas generas, mas ganas. Automatico.</p></div>
               <button onClick={scrollToApplication} className="text-pink-600 font-semibold hover:text-pink-700 flex items-center gap-1">Quiero entrar al programa <ArrowRight className="w-4 h-4" /></button>
             </motion.div>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {LEVELS.map((level, index) => {
                 const Icon = level.icon;
                 return (
@@ -242,8 +244,8 @@ export default function InfluencerLandingPage() {
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${level.iconBg}`}><Icon className={`w-6 h-6 ${level.iconColor}`} /></div>
                     <h3 className="font-bold text-gray-900 mb-1">{level.name}</h3>
                     <p className={`text-2xl font-bold mb-2 ${level.name === 'ZEUS' ? 'text-purple-600' : 'text-gray-900'}`}>{level.rate}%</p>
-                    <p className="text-xs text-gray-500 mb-3">{level.description}</p>
-                    <div className={`pt-3 border-t ${level.border.replace('border-2 ', '')}`}><p className="text-xs text-gray-400">{level.requirement}</p></div>
+                    <p className="text-xs text-gray-600 mb-3">{level.description}</p>
+                    <div className={`pt-3 border-t ${level.border.replace('border-2 ', '')}`}><p className="text-xs text-gray-500">{level.requirement}</p></div>
                   </motion.article>
                 );
               })}
@@ -254,16 +256,16 @@ export default function InfluencerLandingPage() {
         <section className="py-24 bg-gray-900 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-pink-400 mb-2">1,240</p><p className="text-gray-400 text-sm">Influencers activos moviendo producto real</p></div>
-              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-purple-400 mb-2">EUR 50</p><p className="text-gray-400 text-sm">Ticket promedio usado en la estimacion</p></div>
-              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-green-400 mb-2">4.8/5</p><p className="text-gray-400 text-sm">Satisfaccion media del programa interno</p></div>
+              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-pink-300 mb-2">1,240</p><p className="text-gray-300 text-sm">Influencers activos moviendo producto real</p></div>
+              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-purple-300 mb-2">EUR 50</p><p className="text-gray-300 text-sm">Ticket promedio usado en la estimacion</p></div>
+              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-green-300 mb-2">4.8/5</p><p className="text-gray-300 text-sm">Satisfaccion media del programa interno</p></div>
             </motion.div>
             <div className="grid md:grid-cols-2 gap-8">
               {TESTIMONIALS.map((item, index) => (
-                <motion.article key={item.handle} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55, delay: index * 0.08 }} className="bg-white/5 rounded-2xl p-8 border border-white/10">
-                  <div className="flex items-center gap-4 mb-4"><img src={item.image} className="w-12 h-12 rounded-full object-cover" alt={item.name} /><div><p className="font-semibold">{item.name}</p><p className="text-sm text-gray-400">{item.handle}</p></div></div>
-                  <p className="text-gray-300 mb-4">{item.quote}</p>
-                  <div className="flex items-center gap-2 text-sm flex-wrap"><span className={`px-2 py-1 rounded ${index === 0 ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'}`}>{item.tag}</span><span className="text-gray-500">{item.followers}</span></div>
+                <motion.article key={item.handle} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55, delay: index * 0.08 }} className="bg-white/10 rounded-2xl p-6 sm:p-8 border border-white/15">
+                  <div className="flex items-center gap-4 mb-4"><img src={item.image} className="w-12 h-12 rounded-full object-cover" alt={item.name} /><div><p className="font-semibold">{item.name}</p><p className="text-sm text-gray-300">{item.handle}</p></div></div>
+                  <p className="text-gray-200 mb-4">{item.quote}</p>
+                  <div className="flex items-center gap-2 text-sm flex-wrap"><span className={`px-2 py-1 rounded ${index === 0 ? 'bg-green-500/20 text-green-300' : 'bg-purple-500/20 text-purple-300'}`}>{item.tag}</span><span className="text-gray-300">{item.followers}</span></div>
                   <p className="text-pink-400 font-bold mt-4">{item.result}</p>
                 </motion.article>
               ))}
