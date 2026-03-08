@@ -634,24 +634,35 @@ async def get_google_auth_url(request: Request):
     if not client_id:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     
-    # Use environment variable for frontend URL or build from request
-    frontend_url = os.environ.get('FRONTEND_URL', str(request.base_url).rstrip('/'))
-    redirect_uri = f"{frontend_url}/auth/google/callback"
+    # Use environment variable for backend URL or build from request
+    backend_url = os.environ.get('AUTH_BACKEND_URL', str(request.base_url).rstrip('/'))
+    redirect_uri = f"{backend_url}/api/auth/google/callback"
     
     # Google OAuth parameters
     scope = "openid email profile"
     state = uuid.uuid4().hex  # CSRF protection
     
-    # Store state in session/cache for validation (simplified - use Redis in production)
-    # For now, we will store it in a short-lived cookie
+    auth_url = (
+        f"https://accounts.google.com/o/oauth2/v2/auth"
+        f"?client_id={client_id}"
+        f"&redirect_uri={redirect_uri}"
+        f"&response_type=code"
+        f"&scope={scope}"
+        f"&state={state}"
+        f"&access_type=offline"
+        f"&prompt=consent"
+    )
+    
+    # Store state in a short-lived, secure cookie
+    is_secure_cookie = request.url.scheme == "https"
     response = JSONResponse(content={"auth_url": auth_url, "state": state})
     response.set_cookie(
         key="oauth_state",
         value=state,
         max_age=600,  # 10 minutes
         httponly=True,
-        secure=True,
-        samesite="lax"
+        secure=is_secure_cookie,
+        samesite="lax" if not is_secure_cookie else "none"
     )
     return response
 
@@ -682,8 +693,8 @@ async def google_auth_callback(
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     
     # Exchange code for tokens
-    frontend_url = os.environ.get('FRONTEND_URL', str(request.base_url).rstrip('/'))
-    redirect_uri = f"{frontend_url}/auth/google/callback"
+    backend_url = os.environ.get('AUTH_BACKEND_URL', str(request.base_url).rstrip('/'))
+    redirect_uri = f"{backend_url}/api/auth/google/callback"
     
     import httpx
     async with httpx.AsyncClient() as client:

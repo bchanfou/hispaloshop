@@ -1,5 +1,5 @@
 aiohappyeyeballs==2.6.1
-aiohttp==3.9.2
+aiohttp
 aiosignal==1.4.0
 annotated-types==0.7.0
 anyio==4.12.1
@@ -73,7 +73,7 @@ pluggy==1.6.0
 propcache==0.4.1
 proto-plus==1.27.0
 protobuf==5.29.5
-py-vapid==1.9.4
+py-vapid
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pycodestyle==2.14.0
