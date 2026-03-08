@@ -127,6 +127,9 @@ const InfluencerRegister = lazy(() => import('./pages/register/influencer'));
 const ProducerRegister = lazy(() => import('./pages/register/producer'));
 const ImporterRegister = lazy(() => import('./pages/register/importer'));
 
+// Onboarding
+const OnboardingPage = lazy(() => import('./pages/onboarding/OnboardingPage'));
+
 function RouteLoader() {
   return (
     <div className="min-h-[40vh] flex items-center justify-center">
@@ -360,6 +363,7 @@ function AppRouter() {
               <Route path="/dashboard/importer/new" element={<ImporterDashboardNew />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/stories/*" element={<StoriesPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccess />} />
               <Route path="/chat" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />

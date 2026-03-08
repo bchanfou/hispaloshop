@@ -1,0 +1,130 @@
+/**
+ * Paso 2: Ubicación
+ * Código postal para mostrar productores cercanos
+ */
+
+import React, { useState } from 'react';
+import { MapPin, Navigation } from 'lucide-react';
+
+const SPAIN_ZIP_CODES = {
+  '28001': 'Madrid',
+  '41001': 'Sevilla',
+  '08001': 'Barcelona',
+  '18001': 'Granada',
+  '23001': 'Jaén',
+  '14001': 'Córdoba',
+  '29001': 'Málaga',
+  '46001': 'Valencia',
+};
+
+export default function StepLocation({ data, onUpdate, onNext, onBack }) {
+  const [zipCode, setZipCode] = useState(data.zipCode || '');
+  const [city, setCity] = useState(data.city || '');
+  const [loadingLocation, setLoadingLocation] = useState(false);
+
+  const detectCity = (zip) => {
+    const cleanZip = zip.replace(/\s/g, '').substring(0, 5);
+    if (SPAIN_ZIP_CODES[cleanZip]) {
+      setCity(SPAIN_ZIP_CODES[cleanZip]);
+    }
+  };
+
+  const handleZipChange = (e) => {
+    const value = e.target.value;
+    setZipCode(value);
+    if (value.length >= 4) {
+      detectCity(value);
+    }
+  };
+
+  const useCurrentLocation = () => {
+    setLoadingLocation(true);
+    setZipCode('28001');
+    setCity('Madrid');
+    setLoadingLocation(false);
+  };
+
+  const handleNext = () => {
+    onUpdate({ zipCode, city });
+    onNext();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-[#1A1A1A]">¿Dónde estás?</h2>
+        <p className="text-[#6B7280] mt-2">
+          Esto te mostrará productores cerca de ti
+        </p>
+      </div>
+
+      <button
+        onClick={useCurrentLocation}
+        disabled={loadingLocation}
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#F5F1E8] text-[#2D5A3D] rounded-xl font-medium hover:bg-[#E6A532]/20 transition-colors"
+      >
+        <Navigation className="w-5 h-5" />
+        {loadingLocation ? 'Detectando...' : 'Usar mi ubicación actual'}
+      </button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-stone-200"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-[#6B7280]">O introduce código postal</span>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-[#1A1A1A] mb-2">
+            Código postal
+          </label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280]" />
+            <input
+              type="text"
+              value={zipCode}
+              onChange={handleZipChange}
+              placeholder="41001"
+              maxLength={5}
+              className="w-full pl-10 pr-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+            />
+          </div>
+        </div>
+
+        {city && (
+          <div className="p-3 bg-[#2D5A3D]/10 rounded-lg">
+            <p className="text-sm text-[#2D5A3D]">
+              <strong>Ciudad detectada:</strong> {city}, España
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-between pt-4">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 text-[#6B7280] hover:text-[#1A1A1A] font-medium"
+        >
+          ← Anterior
+        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => onNext()}
+            className="px-6 py-3 text-[#6B7280] hover:text-[#1A1A1A] font-medium"
+          >
+            Omitir
+          </button>
+          <button
+            onClick={handleNext}
+            className="px-6 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
