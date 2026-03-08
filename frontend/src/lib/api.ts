@@ -54,24 +54,24 @@ class ApiClient {
   constructor() {
     this.baseUrl = `${API_URL}${API_PREFIX}`;
     this.fallbackBaseUrl = API_FALLBACK_PREFIX !== API_PREFIX ? `${API_URL}${API_FALLBACK_PREFIX}` : null;
-    this.token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    // Cookie-based auth - token is sent automatically via cookies
+    this.token = null;
   }
 
   setToken(token: string) {
+    // Token is now managed via cookies by the backend
     this.token = token;
-    localStorage.setItem('token', token);
   }
 
   clearToken() {
     this.token = null;
-    localStorage.removeItem('token');
   }
 
   async request(endpoint: string, options: RequestInit = {}) {
     const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
     const headers: Record<string, string> = {
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-      ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      // Cookie-based auth - session_token is sent automatically via cookies
       ...((options.headers as Record<string, string>) || {}),
     };
 
