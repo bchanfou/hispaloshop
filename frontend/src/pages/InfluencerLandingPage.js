@@ -1,262 +1,145 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
-  BadgeEuro,
+  Award,
   BarChart3,
+  Calculator,
   CheckCircle2,
-  CircleHelp,
-  Gift,
-  Instagram,
+  ChevronDown,
+  Crown,
+  Handshake,
+  Link2,
   MessageCircle,
+  ShoppingBag,
   Sparkles,
   Star,
   TrendingUp,
-  Users,
+  Zap,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Header from '../components/Header';
-import Footer from '../components/Footer';
 import SEO from '../components/SEO';
-import BackButton from '../components/BackButton';
-import InfluencerTierLadder from '../components/influencer/InfluencerTierLadder';
-import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Slider } from '../components/ui/slider';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../components/ui/carousel';
+import { Textarea } from '../components/ui/textarea';
 import { toast } from 'sonner';
 import { API } from '../utils/api';
 
-const FOLLOWER_MARKS = [
-  { value: 0, label: '1k' },
-  { value: 25, label: '10k' },
-  { value: 50, label: '25k' },
-  { value: 75, label: '50k' },
-  { value: 100, label: '100k+' },
+const ACTIVITY_OPTIONS = [
+  { id: 'casual', label: 'Casual', description: '1-2 recomendaciones/semana', conversion: { min: 0.005, max: 0.015 }, multiplier: 0.5 },
+  { id: 'regular', label: 'Regular', description: '3-4 publicaciones activas', conversion: { min: 0.015, max: 0.025 }, multiplier: 1 },
+  { id: 'muy-activo', label: 'Muy activo', description: 'Contenido constante, UGC', conversion: { min: 0.025, max: 0.04 }, multiplier: 1.8 },
 ];
 
-const ACTIVITY_LEVELS = [
-  { id: 'casual', label: 'Casual', multiplier: 0.5, posts: '1-2 recomendaciones por semana' },
-  { id: 'regular', label: 'Regular', multiplier: 1, posts: '3-4 publicaciones y stories activas' },
-  { id: 'muy-activo', label: 'Muy activo', multiplier: 1.6, posts: 'Contenido constante, UGC y respuestas' },
-];
-
-const TIERS = [
-  { name: 'Perseo', rate: '3%', salesLabel: 'Empiezas cobrando 3%', requirement: 'Hasta EUR 499 en ventas mensuales', accent: 'linear-gradient(135deg, #78716c, #44403c)' },
-  { name: 'Aquiles', rate: '4%', salesLabel: 'Primer salto de comision', requirement: 'A partir de EUR 500 en ventas mensuales', accent: 'linear-gradient(135deg, #166534, #15803d)' },
-  { name: 'Hercules', rate: '5%', salesLabel: 'Ritmo estable y rentable', requirement: 'A partir de EUR 2,000 en ventas mensuales', accent: 'linear-gradient(135deg, #1d4ed8, #2563eb)' },
-  { name: 'Apolo', rate: '6%', salesLabel: 'Partner avanzado', requirement: 'A partir de EUR 7,500 en ventas mensuales', accent: 'linear-gradient(135deg, #b45309, #f59e0b)' },
-  { name: 'Zeus', rate: '7%', salesLabel: 'Nivel elite de la red', requirement: 'A partir de EUR 20,000 en ventas mensuales', accent: 'linear-gradient(135deg, #7c3aed, #4f46e5)' },
+const LEVELS = [
+  { name: 'PERSEO', rate: 3, description: 'Empiezas cobrando 3%', requirement: 'Hasta EUR 499/mes', border: 'border-stone-200', bg: 'bg-stone-50', iconBg: 'bg-stone-200', iconColor: 'text-stone-600', icon: Zap },
+  { name: 'AQUILES', rate: 4, description: 'Primer salto de comision', requirement: 'Desde EUR 500/mes', border: 'border-blue-200', bg: 'bg-blue-50', iconBg: 'bg-blue-200', iconColor: 'text-blue-600', icon: TrendingUp },
+  { name: 'HERCULES', rate: 5, description: 'Ritmo estable', requirement: 'Desde EUR 2,000/mes', border: 'border-green-200', bg: 'bg-green-50', iconBg: 'bg-green-200', iconColor: 'text-green-600', icon: Award },
+  { name: 'APOLO', rate: 6, description: 'Partner avanzado', requirement: 'Desde EUR 7,500/mes', border: 'border-orange-200', bg: 'bg-orange-50', iconBg: 'bg-orange-200', iconColor: 'text-orange-600', icon: Crown },
+  { name: 'ZEUS', rate: 7, description: 'Nivel elite', requirement: 'Desde EUR 20,000/mes', border: 'border-purple-300', bg: 'bg-gradient-to-br from-purple-50 to-pink-50', iconBg: 'bg-gradient-to-br from-purple-400 to-pink-400', iconColor: 'text-white', icon: Star, featured: true },
 ];
 
 const TESTIMONIALS = [
-  { name: 'Maria', handle: '@mariacocina', followers: '12.4k', quote: 'En 3 meses he sacado un extra con productos que ya encajaban con mis recetas.', result: 'EUR 640/mes', tag: 'Instagram recetas' },
-  { name: 'Carlos', handle: '@vinosconcarlos', followers: '8.1k', quote: 'Marco productos, comparto la historia y el dashboard me dice exactamente que entra.', result: 'EUR 410/mes', tag: 'Catas y vino' },
-  { name: 'Lucia', handle: '@luciafoodjournal', followers: '31k', quote: 'Lo mejor es que no gestiono stock ni envios. Solo selecciono lo que recomendaria de verdad.', result: 'EUR 1,280/mes', tag: 'TikTok comida' },
-  { name: 'Sergio', handle: '@sergiotapea', followers: '5.3k', quote: 'Pensaba que con pocos seguidores no daba. El programa esta hecho justo para microinfluencers.', result: 'EUR 230/mes', tag: 'Planes locales' },
-  { name: 'Ana', handle: '@anayqueso', followers: '18.7k', quote: 'Mis seguidores valoran que sean productos artesanales. La conversion sale mucho mejor que con links genericos.', result: 'EUR 890/mes', tag: 'Especialista gourmet' },
+  { name: 'Maria', handle: '@mariacocina', followers: '12.4K seguidores', quote: 'En 3 meses he sacado un extra con productos que ya encajaban con mis recetas. HI AI Creativo me desbloquea ideas.', tag: 'Instagram recetas', result: 'EUR 640/mes', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face' },
+  { name: 'Carlos', handle: '@vinosconcarlos', followers: '8.1K seguidores', quote: 'Comparto historias, veo ventas en tiempo real y he abierto colaboraciones directas con bodegas.', tag: 'Catas y vino', result: 'EUR 410/mes', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face' },
+];
+
+const TOOLS = [
+  { title: 'Links automaticos con tracking', description: 'Cada clic y venta queda atribuido de forma clara en cualquier canal.', icon: Link2, color: 'text-pink-500', bg: 'bg-gray-50' },
+  { title: 'Dashboard en tiempo real', description: 'Pedidos, conversion y comision actualizados al instante.', icon: BarChart3, color: 'text-purple-500', bg: 'bg-gray-50' },
+  { title: 'HI AI Creativo', description: 'Ideas para stories, reels, posts y blogs entrenadas para gastronomia.', icon: Sparkles, color: 'text-purple-500', bg: 'bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100' },
+  { title: 'Soporte prioritario WhatsApp', description: 'Respuesta rapida para dudas de enlaces, productos o cobros.', icon: MessageCircle, color: 'text-green-500', bg: 'bg-gray-50' },
 ];
 
 const FAQS = [
-  { question: 'Necesito muchos seguidores?', answer: 'No. Aceptamos micro-influencers desde 1.000 seguidores si la audiencia encaja con alimentacion, recetas, vino, gourmet o lifestyle con foco real en producto.' },
-  { question: 'Tengo que comprar los productos?', answer: 'No es obligatorio. Aun asi, recomendar productos que has probado suele mejorar la conversion y la confianza de tu audiencia.' },
-  { question: 'Como se que no me enganan con las ventas?', answer: 'Tienes tracking por enlace, clicks, ventas atribuidas y comision acumulada. El panel se actualiza en tiempo real y deja trazabilidad por pedido.' },
-  { question: 'Cuanto tardan en pagar?', answer: 'La comision se consolida automaticamente y la transferencia se procesa de forma periodica una vez validada la venta.' },
+  { question: 'Necesito muchos seguidores?', answer: 'No. Aceptamos desde 1,000 seguidores si tu engagement es real y tu nicho encaja.' },
+  { question: 'Tengo que comprar los productos?', answer: 'No es obligatorio, aunque probarlos suele mejorar credibilidad y conversion.' },
+  { question: 'Como se que no me enganan con las ventas?', answer: 'Tienes dashboard en tiempo real con clics, conversiones, pedidos y comision trazada.' },
+  { question: 'Cuanto tardan en pagar?', answer: '15 dias desde la venta. Despues puedes retirar por Stripe o transferencia bancaria.' },
+  { question: 'Puedo promocionar la plataforma en si?', answer: 'Si. Tambien puedes abrir colaboraciones directas con productores e importadores.' },
 ];
 
-const HERO_CARDS = [
-  { name: 'Clara', product: '/images/demo/aceite-reserva.svg', note: 'Reel de brunch + aceite premium' },
-  { name: 'Diego', product: '/images/demo/queso-curado.svg', note: 'Story tasting de queso curado' },
-  { name: 'Nuria', product: '/images/demo/vino-reserva.svg', note: 'Maridaje con vino artesano' },
-  { name: 'Pablo', product: '/images/demo/pasta-artesanal.svg', note: 'Receta express con pasta artesana' },
-  { name: 'Elena', product: '/images/demo/omega-premium.svg', note: 'Review honesta de producto gourmet' },
-  { name: 'Marta', product: '/images/demo/aceite-reserva.svg', note: 'UGC de cocina diaria' },
-];
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
+  transition: { duration: 0.55 },
+};
 
-const formatEuro = (value) =>
+const formatCurrency = (value) =>
   new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
 
-const getFollowersFromSlider = (value) => {
-  const v = Number(value);
-  if (v <= 25) return Math.round(1000 + (v / 25) * 9000);
-  if (v <= 50) return Math.round(10000 + ((v - 25) / 25) * 15000);
-  if (v <= 75) return Math.round(25000 + ((v - 50) / 25) * 25000);
-  return Math.round(50000 + ((v - 75) / 25) * 50000);
-};
+function FloatingCard({ className, children }) {
+  return <div className={`absolute rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-md shadow-[0_30px_90px_-45px_rgba(0,0,0,0.6)] ${className}`}>{children}</div>;
+}
 
-const getTierRate = (estimatedSales) => {
-  if (estimatedSales >= 20000) return 0.07;
-  if (estimatedSales >= 7500) return 0.06;
-  if (estimatedSales >= 2000) return 0.05;
-  if (estimatedSales >= 500) return 0.04;
-  return 0.03;
-};
-
-function EarningsCalculator({ compact = false }) {
-  const [followersSlider, setFollowersSlider] = useState([38]);
+export default function InfluencerLandingPage() {
+  const calculatorRef = useRef(null);
+  const formRef = useRef(null);
+  const [followers, setFollowers] = useState([17800]);
+  const [commission, setCommission] = useState([4]);
   const [activity, setActivity] = useState('regular');
-
-  const activeLevel = ACTIVITY_LEVELS.find((level) => level.id === activity) || ACTIVITY_LEVELS[1];
-
-  const calculation = useMemo(() => {
-    const followers = getFollowersFromSlider(followersSlider[0]);
-    const engagedAudience = followers * 0.18;
-    const monthlyClicks = engagedAudience * activeLevel.multiplier * 0.38;
-    const estimatedOrders = Math.max(1, monthlyClicks * 0.02);
-    const averageTicket = 35;
-    const monthlySales = estimatedOrders * averageTicket;
-    const commissionRate = getTierRate(monthlySales);
-    const baseCommission = monthlySales * commissionRate;
-
-    return {
-      followers,
-      estimatedOrders: Math.round(estimatedOrders),
-      monthlySales,
-      commissionRate,
-      min: Math.round(baseCommission * 0.82),
-      max: Math.round(baseCommission * 1.28),
-      averageTicket,
-    };
-  }, [followersSlider, activeLevel]);
-
-  return (
-    <div className={`rounded-[32px] border border-stone-200 bg-white ${compact ? 'p-5' : 'p-6 md:p-8'} shadow-[0_30px_120px_-60px_rgba(28,28,28,0.55)]`} data-testid="earnings-calculator">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">Calculadora</p>
-          <h3 className="mt-2 font-heading text-2xl font-semibold text-[#1C1C1C]">Cuanto podria ganar tu audiencia contigo</h3>
-        </div>
-        <div className="rounded-full bg-stone-900 px-3 py-1 text-xs font-semibold text-white">2% conversion</div>
-      </div>
-
-      <div className="mt-8 space-y-7">
-        <div>
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <Label className="text-sm font-medium text-stone-700">Cuantos seguidores tienes?</Label>
-            <span className="text-sm font-semibold text-stone-900">{new Intl.NumberFormat('es-ES').format(calculation.followers)}</span>
-          </div>
-          <Slider value={followersSlider} min={0} max={100} step={1} onValueChange={setFollowersSlider} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-stone-900 [&_[role=slider]]:bg-stone-900 [&_.bg-primary]:bg-stone-900" />
-          <div className="mt-3 flex justify-between text-xs text-stone-400">
-            {FOLLOWER_MARKS.map((mark) => (
-              <span key={mark.value}>{mark.label}</span>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <Label className="mb-3 block text-sm font-medium text-stone-700">Que tan activo eres?</Label>
-          <div className="grid gap-3 md:grid-cols-3">
-            {ACTIVITY_LEVELS.map((level) => (
-              <button key={level.id} type="button" onClick={() => setActivity(level.id)} className={`rounded-2xl border p-4 text-left transition-all ${activity === level.id ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-stone-300'}`}>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-semibold">{level.label}</span>
-                  {activity === level.id && <CheckCircle2 className="h-4 w-4" />}
-                </div>
-                <p className={`mt-2 text-xs ${activity === level.id ? 'text-stone-300' : 'text-stone-500'}`}>{level.posts}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-[28px] bg-[linear-gradient(135deg,#111827,#1f2937_55%,#b45309)] p-6 text-white">
-          <p className="text-sm text-stone-300">Podrias ganar estimado</p>
-          <div className="mt-2 flex flex-wrap items-end gap-x-3 gap-y-2">
-            <span className="font-heading text-4xl font-semibold">{formatEuro(calculation.min)} - {formatEuro(calculation.max)}</span>
-            <span className="pb-1 text-sm text-stone-300">/ mes</span>
-          </div>
-          <div className="mt-4 grid gap-3 rounded-2xl bg-white/8 p-4 text-sm md:grid-cols-3">
-            <div>
-              <p className="text-stone-400">Pedidos estimados</p>
-              <p className="mt-1 font-semibold text-white">{calculation.estimatedOrders}/mes</p>
-            </div>
-            <div>
-              <p className="text-stone-400">Nivel probable</p>
-              <p className="mt-1 font-semibold text-white">{Math.round(calculation.commissionRate * 100)}%</p>
-            </div>
-            <div>
-              <p className="text-stone-400">Ventas generadas</p>
-              <p className="mt-1 font-semibold text-white">{formatEuro(calculation.monthlySales)}</p>
-            </div>
-          </div>
-          <p className="mt-4 text-xs text-stone-300">Basado en conversion del 2% y ticket promedio EUR {calculation.averageTicket}.</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function HeroPhotoGrid() {
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {HERO_CARDS.map((card, index) => (
-        <div key={`${card.name}-${index}`} className={`rounded-[26px] border border-white/60 bg-white p-3 shadow-[0_20px_70px_-45px_rgba(28,28,28,0.55)] ${index % 3 === 1 ? 'translate-y-6' : ''}`}>
-          <div className="relative overflow-hidden rounded-[20px] bg-[radial-gradient(circle_at_top,#fef3c7,#f5f5f4_58%,#d6d3d1)] p-3">
-            <div className="absolute right-3 top-3 rounded-full bg-black/85 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white">UGC</div>
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-900 text-sm font-semibold text-white">{card.name.charAt(0)}</div>
-              <div>
-                <p className="text-sm font-semibold text-stone-900">{card.name}</p>
-                <p className="text-xs text-stone-500">Food creator</p>
-              </div>
-            </div>
-            <img src={card.product} alt={card.note} className="mx-auto h-24 w-24 object-contain" loading="lazy" />
-          </div>
-          <p className="mt-3 text-xs leading-5 text-stone-600">{card.note}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ApplicationForm() {
-  const [loading, setLoading] = useState(false);
+  const [openFaq, setOpenFaq] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    instagram: '',
+    social: '',
     followers: '',
     niche: 'Alimentacion y contenido gastronomico',
-    message: '',
+    content: '',
   });
+
+  const currentActivity = ACTIVITY_OPTIONS.find((item) => item.id === activity) || ACTIVITY_OPTIONS[1];
+  const calculator = useMemo(() => {
+    const followerCount = followers[0];
+    const commissionRate = commission[0];
+    const baseReach = followerCount * currentActivity.multiplier;
+    const ordersMin = Math.floor(baseReach * currentActivity.conversion.min);
+    const ordersMax = Math.floor(baseReach * currentActivity.conversion.max);
+    const gmvMin = ordersMin * 50;
+    const gmvMax = ordersMax * 50;
+    return {
+      followers: followerCount,
+      commission: commissionRate,
+      ordersMin,
+      ordersMax,
+      gmvAverage: Math.floor((gmvMin + gmvMax) / 2),
+      earningsMin: Math.floor(gmvMin * (commissionRate / 100)),
+      earningsMax: Math.floor(gmvMax * (commissionRate / 100)),
+      conversionLabel: `${(currentActivity.conversion.min * 100).toFixed(1)}-${(currentActivity.conversion.max * 100).toFixed(1)}%`,
+    };
+  }, [followers, commission, currentActivity]);
+
+  const scrollToCalculator = () => calculatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const scrollToApplication = () => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (event) => {
+  const submitApplication = async (event) => {
     event.preventDefault();
-
-    if (!formData.name || !formData.email || !formData.instagram || !formData.followers) {
+    if (!formData.name || !formData.email || !formData.social || !formData.followers) {
       toast.error('Completa nombre, email, red social principal y seguidores aproximados.');
       return;
     }
-
-    setLoading(true);
-
+    setSubmitting(true);
     try {
       await axios.post(`${API}/influencer/apply`, {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        instagram: formData.instagram.trim(),
+        instagram: formData.social.trim(),
         followers: formData.followers.trim(),
         niche: formData.niche.trim(),
-        message: formData.message.trim(),
+        message: formData.content.trim(),
       });
-
-      toast.success('Solicitud enviada. El equipo revisara tu perfil y te contactara por email.');
-      setFormData({
-        name: '',
-        email: '',
-        instagram: '',
-        followers: '',
-        niche: 'Alimentacion y contenido gastronomico',
-        message: '',
-      });
+      toast.success('Solicitud enviada. Te contactamos en menos de 48 horas.');
+      setFormData({ name: '', email: '', social: '', followers: '', niche: 'Alimentacion y contenido gastronomico', content: '' });
     } catch (error) {
       const detail = error?.response?.data?.detail;
       if (detail === 'Application already pending' || detail === 'Already registered or has pending application') {
@@ -265,369 +148,233 @@ function ApplicationForm() {
         toast.error('No se pudo enviar la solicitud. Intentalo de nuevo.');
       }
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-[32px] border border-stone-200 bg-white p-6 md:p-8 shadow-[0_30px_100px_-60px_rgba(28,28,28,0.55)]" data-testid="influencer-application-form">
-      <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">Solicitud</p>
-        <h3 className="mt-2 font-heading text-2xl font-semibold text-[#1C1C1C]">Solicitar mi cuenta de influencer</h3>
-        <p className="mt-2 text-sm text-stone-600">Las plazas son limitadas por zona para no saturar audiencias con las mismas recomendaciones.</p>
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-2">
-        <div>
-          <Label htmlFor="name">Nombre</Label>
-          <Input id="name" name="name" value={formData.name} onChange={handleChange} className="mt-2 h-12 rounded-2xl" />
-        </div>
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} className="mt-2 h-12 rounded-2xl" />
-        </div>
-        <div>
-          <Label htmlFor="instagram">Red social principal</Label>
-          <Input id="instagram" name="instagram" value={formData.instagram} onChange={handleChange} placeholder="@tuusuario o enlace" className="mt-2 h-12 rounded-2xl" />
-        </div>
-        <div>
-          <Label htmlFor="followers">Seguidores aprox</Label>
-          <Input id="followers" name="followers" value={formData.followers} onChange={handleChange} placeholder="Ej. 12.500" className="mt-2 h-12 rounded-2xl" />
-        </div>
-      </div>
-
-      <div className="mt-5">
-        <Label htmlFor="niche">Nicho</Label>
-        <Input id="niche" name="niche" value={formData.niche} onChange={handleChange} className="mt-2 h-12 rounded-2xl" />
-      </div>
-
-      <div className="mt-5">
-        <Label htmlFor="message">Que tipo de contenido haces?</Label>
-        <Textarea id="message" name="message" value={formData.message} onChange={handleChange} placeholder="Recetas, reviews, maridajes, cocina diaria, food styling..." className="mt-2 min-h-[120px] rounded-2xl" />
-      </div>
-
-      <Button type="submit" disabled={loading} className="mt-6 h-12 w-full rounded-full bg-black text-white hover:bg-stone-800">
-        {loading ? 'Enviando solicitud...' : 'Solicitar Mi Cuenta de Influencer'}
-      </Button>
-    </form>
-  );
-}
-
-export default function InfluencerLandingPage() {
-  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
-
-  const jobPostingSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'JobPosting',
-    title: 'Influencer de alimentacion',
-    description: 'Oportunidad para ganar dinero recomendando productos artesanales en Instagram, TikTok, WhatsApp y blog con comision variable del 3% al 7% segun ventas.',
-    datePosted: '2026-03-07',
-    employmentType: 'CONTRACTOR',
-    hiringOrganization: {
-      '@type': 'Organization',
-      name: 'Hispaloshop',
-      sameAs: 'https://www.hispaloshop.com',
-      logo: 'https://www.hispaloshop.com/logo.png',
-    },
-    applicantLocationRequirements: { '@type': 'Country', name: 'Spain' },
-    jobLocationType: 'TELECOMMUTE',
-    baseSalary: {
-      '@type': 'MonetaryAmount',
-      currency: 'EUR',
-      value: { '@type': 'QuantitativeValue', minValue: 100, maxValue: 2000, unitText: 'MONTH' },
-    },
-    directApply: true,
-    url: 'https://www.hispaloshop.com/influencer',
-  };
-
-  return (
-    <div className="min-h-screen bg-[#f6f1ea] text-[#1C1C1C]">
-      <SEO title="Gana Dinero Recomendando Productos Artesanales | Hispaloshop" description="Unete a 1,240 influencers. Gana del 3% al 7% por ventas. Sin inversion, sin stock, sin complicaciones. Aplica ahora." url="https://www.hispaloshop.com/influencer" structuredData={[jobPostingSchema]} />
+    <div className="min-h-screen bg-white text-[#111827]">
+      <SEO
+        title="Gana Dinero con tu Audiencia - Programa de Influencers Hispaloshop"
+        description="Gana entre EUR 100 y EUR 2,000/mes recomendando productos artesanales. 3-7% de comision, HI AI Creativo y cero costes de entrada."
+        url="https://www.hispaloshop.com/influencer"
+      />
       <Header />
 
-      <div className="mx-auto max-w-7xl px-4 pt-2">
-        <BackButton />
-      </div>
-
       <main>
-        <section className="overflow-hidden px-4 pb-16 pt-8 md:pb-24 md:pt-14">
-          <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-600">
-                <Sparkles className="h-4 w-4" />
-                Ganar dinero recomendando productos
-              </div>
-              <h1 className="mt-6 max-w-3xl font-heading text-4xl font-semibold leading-tight md:text-6xl">Tu Opinion Vale Dinero Real</h1>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-stone-600 md:text-xl">Gana entre EUR 100 y EUR 2,000 al mes recomendando productos artesanales que si comprarias.</p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button type="button" onClick={() => setIsCalculatorOpen(true)} className="h-12 rounded-full bg-black px-7 text-white hover:bg-stone-800">
-                  Calcular Cuanto Podria Ganar
-                </Button>
-                <Button asChild variant="outline" className="h-12 rounded-full border-stone-400 bg-transparent px-7 text-stone-900 hover:bg-white">
-                  <a href="#beneficios">Ver Todos los Beneficios</a>
-                </Button>
-              </div>
-
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-[24px] border border-stone-200 bg-white/80 p-4">
-                  <p className="text-3xl font-semibold">1,240</p>
-                  <p className="mt-1 text-sm text-stone-500">influencers activos</p>
-                </div>
-                <div className="rounded-[24px] border border-stone-200 bg-white/80 p-4">
-                  <p className="text-3xl font-semibold">3%-7%</p>
-                  <p className="mt-1 text-sm text-stone-500">comision por nivel</p>
-                </div>
-                <div className="rounded-[24px] border border-stone-200 bg-white/80 p-4">
-                  <p className="text-3xl font-semibold">&lt; 48h</p>
-                  <p className="mt-1 text-sm text-stone-500">respuesta habitual</p>
-                </div>
-              </div>
-
-              <div className="mt-8 flex flex-wrap gap-3 text-sm text-stone-600">
-                <span className="rounded-full bg-white px-4 py-2">ser influencer de alimentacion</span>
-                <span className="rounded-full bg-white px-4 py-2">monetizar instagram comida</span>
-                <span className="rounded-full bg-white px-4 py-2">afiliados productos artesanales</span>
-              </div>
-            </div>
-
-            <HeroPhotoGrid />
+        <section className="relative min-h-[760px] bg-gradient-to-br from-gray-900 via-black to-gray-950 text-white overflow-hidden flex items-center">
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-20 left-20 h-72 w-72 rounded-full bg-pink-500 blur-3xl animate-pulse" />
+            <div className="absolute bottom-20 right-20 h-72 w-72 rounded-full bg-purple-500 blur-3xl animate-pulse [animation-delay:1s]" />
           </div>
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <motion.span {...fadeUp} className="inline-flex items-center px-4 py-2 rounded-full bg-pink-500/20 text-pink-300 text-sm font-medium mb-6 border border-pink-500/30"><TrendingUp className="w-4 h-4 mr-2" />1,240 influencers ya ganando</motion.span>
+                <motion.h1 {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="font-heading text-5xl lg:text-7xl font-bold leading-tight mb-6">Tu opinion vale<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">dinero real</span></motion.h1>
+                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="text-xl text-gray-300 mb-8 leading-relaxed max-w-lg">Gana entre <span className="text-white font-bold">EUR 100 y EUR 2,000</span> al mes recomendando productos artesanales que si comprarias. Sin inversion, sin stock, con total libertad creativa.</motion.p>
+                <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.15 }} className="flex flex-wrap gap-6 md:gap-8 mb-10">
+                  <div><p className="text-3xl font-bold text-white">3%-7%</p><p className="text-sm text-gray-400">Comision por venta</p></div>
+                  <div><p className="text-3xl font-bold text-white">&lt;48h</p><p className="text-sm text-gray-400">Respuesta de aprobacion</p></div>
+                  <div><p className="text-3xl font-bold text-white">0 EUR</p><p className="text-sm text-gray-400">Coste de inscripcion</p></div>
+                </motion.div>
+                <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.2 }} className="flex flex-col sm:flex-row gap-4">
+                  <button onClick={scrollToCalculator} className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg hover:shadow-pink-500/25 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"><Calculator className="w-5 h-5" />Calcular mis ganancias</button>
+                  <button onClick={scrollToApplication} className="px-8 py-4 rounded-full font-semibold text-lg border-2 border-white/30 text-white hover:bg-white/10 transition-all">Solicitar mi cuenta</button>
+                </motion.div>
+              </div>
+              <motion.div {...fadeUp} transition={{ duration: 0.65, delay: 0.2 }} className="relative hidden lg:block h-[600px]">
+                <FloatingCard className="top-0 right-0 w-64 rotate-3 hover:rotate-0 transition-transform"><div className="flex items-center gap-3 mb-3"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop&crop=face" className="w-10 h-10 rounded-full object-cover" alt="Influencer" /><div><p className="text-sm font-semibold">@maria_cocina</p><p className="text-xs text-gray-400">12.4K seguidores</p></div></div><p className="text-2xl font-bold text-green-400">+EUR 640 este mes</p><p className="text-xs text-gray-400">48 pedidos generados</p></FloatingCard>
+                <FloatingCard className="top-32 left-0 w-56 -rotate-2 hover:rotate-0 transition-transform"><p className="text-xs text-gray-400 mb-2">Codigo de descuento</p><p className="text-xl font-mono font-bold text-pink-400">MARIA10</p><p className="text-xs text-gray-400 mt-2">10% descuento para sus seguidores</p></FloatingCard>
+                <div className="absolute bottom-20 right-10 w-72 rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-500/20 to-pink-500/20 p-6 backdrop-blur-md shadow-[0_30px_90px_-45px_rgba(0,0,0,0.6)]"><div className="flex items-center gap-2 mb-3"><Sparkles className="w-5 h-5 text-purple-400" /><span className="text-sm font-semibold text-purple-300">HI AI Creativo</span></div><p className="text-sm text-gray-300">Ideas para reel: mostrar el behind the scenes de como usas el producto en tu rutina diaria.</p></div>
+              </motion.div>
+            </div>
+          </div>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"><ChevronDown className="w-6 h-6 text-white/50" /></div>
         </section>
 
-        <section id="calculadora" className="px-4 py-10 md:py-16">
-          <div className="mx-auto max-w-5xl">
-            <EarningsCalculator />
+        <section ref={calculatorRef} id="calculadora" className="py-24 bg-white">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="text-center mb-12"><h2 className="font-heading text-4xl font-bold text-gray-900 mb-4">Calcula cuanto podrias ganar</h2><p className="text-gray-600">Ajusta los parametros y descubre tu potencial</p></motion.div>
+            <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="bg-gray-50 rounded-3xl p-8 lg:p-12 shadow-xl">
+              <div className="space-y-8 mb-10">
+                <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-700">Cuantos seguidores tienes?</Label><span className="font-bold text-pink-600 text-lg">{new Intl.NumberFormat('es-ES').format(calculator.followers)}</span></div><Slider value={followers} min={1000} max={500000} step={1000} onValueChange={setFollowers} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-pink-500 [&_[role=slider]]:bg-pink-500 [&_.bg-primary]:bg-pink-500" /><div className="flex justify-between text-xs text-gray-400 mt-2"><span>1K</span><span>500K</span></div></div>
+                <div><Label className="font-medium text-gray-700 mb-3 block">Que tan activo eres?</Label><div className="grid md:grid-cols-3 gap-4">{ACTIVITY_OPTIONS.map((option) => <button key={option.id} type="button" onClick={() => setActivity(option.id)} className={`p-4 rounded-xl border-2 text-center transition-all ${activity === option.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-300'}`}><p className="font-semibold text-gray-700">{option.label}</p><p className="text-xs text-gray-500 mt-1">{option.description}</p></button>)}</div></div>
+                <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-700">Tu nivel de comision</Label><span className="font-bold text-purple-600 text-lg">{calculator.commission}%</span></div><Slider value={commission} min={3} max={7} step={0.5} onValueChange={setCommission} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-purple-500 [&_[role=slider]]:bg-purple-500 [&_.bg-primary]:bg-gradient-to-r [&_.bg-primary]:from-green-400 [&_.bg-primary]:via-yellow-400 [&_.bg-primary]:to-purple-500" /><div className="grid grid-cols-5 gap-2 text-[11px] text-gray-400 mt-2"><span>Perseo 3%</span><span>Aquiles 4%</span><span>Hercules 5%</span><span>Apolo 6%</span><span className="text-right">Zeus 7%</span></div><p className="text-xs text-gray-500 mt-2">Subes de nivel automaticamente segun tu GMV mensual.</p></div>
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl"><div className="flex items-center gap-3"><ShoppingBag className="w-5 h-5 text-blue-600" /><span className="text-gray-700">Ticket medio estimado</span></div><span className="font-bold text-blue-600">EUR 50</span></div>
+              </div>
+              <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 text-white text-center relative overflow-hidden"><div className="absolute top-0 right-0 w-32 h-32 bg-pink-500 rounded-full blur-3xl opacity-30" /><p className="text-gray-400 mb-2">Podrias ganar estimado</p><div className="flex items-baseline justify-center gap-2 mb-4 flex-wrap"><span className="text-4xl lg:text-5xl font-bold">{formatCurrency(calculator.earningsMin)}</span><span className="text-gray-400">-</span><span className="text-4xl lg:text-5xl font-bold">{formatCurrency(calculator.earningsMax)}</span><span className="text-gray-400 text-xl">/mes</span></div><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm border-t border-white/10 pt-6"><div><p className="font-bold text-lg">{calculator.ordersMin}-{calculator.ordersMax}</p><p className="text-gray-400">Pedidos estimados/mes</p></div><div><p className="font-bold text-lg text-green-400">{calculator.conversionLabel}</p><p className="text-gray-400">Conversion esperada</p></div><div><p className="font-bold text-lg">{formatCurrency(calculator.gmvAverage)}</p><p className="text-gray-400">GMV generado</p></div></div></div>
+              <p className="text-xs text-gray-500 text-center mt-4">Estimacion basada en conversion del 2-4% segun actividad y ticket promedio de EUR 50.</p>
+            </motion.div>
           </div>
         </section>
-
-        <section className="bg-white px-4 py-14 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <div className="max-w-2xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">Como funciona</p>
-              <h2 className="mt-3 font-heading text-3xl font-semibold md:text-4xl">Tres pasos. Cero friccion.</h2>
-            </div>
-            <div className="mt-10 grid gap-5 md:grid-cols-3">
+        <section className="py-24 bg-[#f5f3ef]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="text-center mb-16"><h2 className="font-heading text-4xl font-bold text-gray-900 mb-4">Tres pasos. Cero friccion.</h2></motion.div>
+            <div className="grid md:grid-cols-3 gap-8">
               {[
-                { step: '01', title: 'Elige', desc: 'Selecciona productos que de verdad encajen con tu audiencia dentro del catalogo.', icon: Gift },
-                { step: '02', title: 'Comparte', desc: 'Usa tu link unico en Instagram, TikTok, WhatsApp, newsletter o blog.', icon: Instagram },
-                { step: '03', title: 'Cobra', desc: 'La comision entra sola en tu cuenta y se liquida de forma automatica.', icon: BadgeEuro },
-              ].map((item) => (
-                <article key={item.step} className="rounded-[30px] border border-stone-200 bg-[#f9f6f1] p-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-stone-400">{item.step}</span>
-                    <item.icon className="h-5 w-5 text-stone-900" />
-                  </div>
-                  <h3 className="mt-8 font-heading text-2xl font-semibold">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-stone-600">{item.desc}</p>
-                </article>
+                { step: '01', title: 'Elige', description: 'Selecciona productos que encajan con tu audiencia dentro del catalogo.', colors: 'bg-pink-100 text-pink-600' },
+                { step: '02', title: 'Comparte', description: 'Usa tu link unico en Instagram, TikTok, WhatsApp, newsletter o blog.', colors: 'bg-purple-100 text-purple-600' },
+                { step: '03', title: 'Cobra', description: 'La comision entra sola y se retira a los 15 dias por Stripe o transferencia.', colors: 'bg-green-100 text-green-600' },
+              ].map((item, index) => (
+                <motion.article key={item.step} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55, delay: index * 0.08 }} className="bg-white rounded-2xl p-8 text-center shadow-card hover:shadow-card-hover transition-all">
+                  <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${item.colors}`}><span className="text-2xl font-bold">{item.step}</span></div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                  <p className="text-gray-600">{item.description}</p>
+                </motion.article>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="px-4 py-14 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">Sistema de niveles</p>
-                <h2 className="mt-3 font-heading text-3xl font-semibold md:text-4xl">Subes de Perseo a Zeus segun lo que vendes</h2>
-              </div>
-              <a href="#formulario" className="inline-flex items-center gap-2 text-sm font-semibold text-stone-900">
-                Quiero entrar al programa <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-            <div className="mt-10">
-              <InfluencerTierLadder tiers={TIERS} />
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-[#161616] px-4 py-14 text-white md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <div className="grid gap-6 md:grid-cols-3">
-              <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
-                <Users className="h-6 w-6 text-amber-300" />
-                <p className="mt-5 text-4xl font-semibold">1,240</p>
-                <p className="mt-2 text-sm text-stone-300">influencers activos moviendo producto real</p>
-              </div>
-              <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
-                <TrendingUp className="h-6 w-6 text-amber-300" />
-                <p className="mt-5 text-4xl font-semibold">EUR 35</p>
-                <p className="mt-2 text-sm text-stone-300">ticket promedio usado en la estimacion</p>
-              </div>
-              <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
-                <Star className="h-6 w-6 text-amber-300" />
-                <p className="mt-5 text-4xl font-semibold">4.8/5</p>
-                <p className="mt-2 text-sm text-stone-300">satisfaccion media del programa interno</p>
-              </div>
-            </div>
-
-            <div className="mt-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-              <div>
-                <h2 className="font-heading text-3xl font-semibold">Prueba social que reduce objeciones</h2>
-                <div className="relative mt-8 px-10 md:px-14">
-                  <Carousel opts={{ align: 'start', loop: true }}>
-                    <CarouselContent>
-                      {TESTIMONIALS.map((item) => (
-                        <CarouselItem key={item.handle} className="md:basis-1/2">
-                          <article className="h-full rounded-[30px] border border-white/10 bg-white/6 p-6">
-                            <div className="flex items-center gap-4">
-                              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-lg font-semibold text-white">
-                                {item.name.charAt(0)}
-                              </div>
-                              <div>
-                                <p className="font-semibold">{item.name}</p>
-                                <p className="text-sm text-stone-300">{item.handle}</p>
-                              </div>
-                            </div>
-                            <p className="mt-5 text-base leading-7 text-stone-100">"{item.quote}"</p>
-                            <div className="mt-6 flex items-center justify-between text-sm">
-                              <span className="rounded-full bg-amber-300/15 px-3 py-1 text-amber-200">{item.tag}</span>
-                              <span className="font-semibold text-white">{item.result}</span>
-                            </div>
-                            <p className="mt-3 text-xs uppercase tracking-[0.22em] text-stone-400">{item.followers} seguidores</p>
-                          </article>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="left-0 border-white/20 bg-white/10 text-white hover:bg-white/20" />
-                    <CarouselNext className="right-0 border-white/20 bg-white/10 text-white hover:bg-white/20" />
-                  </Carousel>
-                </div>
-              </div>
-
-              <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(160deg,#292524,#171717)] p-6 shadow-[0_30px_90px_-60px_rgba(0,0,0,0.7)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">Dashboard</p>
-                <h3 className="mt-3 font-heading text-2xl font-semibold">Vista anonimizada de ingresos</h3>
-                <div className="mt-6 rounded-[26px] border border-white/10 bg-black/25 p-5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-stone-400">Comision acumulada</p>
-                      <p className="mt-1 text-3xl font-semibold">EUR 1,184</p>
-                    </div>
-                    <div className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">+18% este mes</div>
-                  </div>
-                  <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                    {[
-                      ['Clicks', '3,482'],
-                      ['Ventas', '96'],
-                      ['Conversion', '2.7%'],
-                    ].map(([label, value]) => (
-                      <div key={label} className="rounded-2xl bg-white/5 p-4">
-                        <p className="text-xs text-stone-400">{label}</p>
-                        <p className="mt-2 text-lg font-semibold">{value}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-6 rounded-2xl bg-white/5 p-4">
-                    <div className="mb-3 flex items-center justify-between text-xs text-stone-400">
-                      <span>Ultimos 30 dias</span>
-                      <span>Nivel actual: Apolo</span>
-                    </div>
-                    <div className="flex h-28 items-end gap-2">
-                      {[28, 41, 37, 58, 49, 72, 64, 85, 78, 92, 89, 100].map((bar, index) => (
-                        <div key={bar + index} className="flex-1 rounded-t-2xl bg-gradient-to-t from-amber-500 to-amber-200" style={{ height: `${bar}%` }} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-4">
+              <div><h2 className="font-heading text-4xl font-bold text-gray-900 mb-2">Subes de Perseo a Zeus segun lo que vendes</h2><p className="text-gray-600">Cuanto mas generas, mas ganas. Automatico.</p></div>
+              <button onClick={scrollToApplication} className="text-pink-600 font-semibold hover:text-pink-700 flex items-center gap-1">Quiero entrar al programa <ArrowRight className="w-4 h-4" /></button>
+            </motion.div>
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              {LEVELS.map((level, index) => {
+                const Icon = level.icon;
+                return (
+                  <motion.article key={level.name} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55, delay: index * 0.05 }} className={`relative rounded-2xl p-6 border-2 transition-all hover:-translate-y-1 ${level.bg} ${level.border}`}>
+                    {level.featured && <div className="absolute -top-3 -right-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-3 py-1 rounded-full font-bold">TOP</div>}
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${level.iconBg}`}><Icon className={`w-6 h-6 ${level.iconColor}`} /></div>
+                    <h3 className="font-bold text-gray-900 mb-1">{level.name}</h3>
+                    <p className={`text-2xl font-bold mb-2 ${level.name === 'ZEUS' ? 'text-purple-600' : 'text-gray-900'}`}>{level.rate}%</p>
+                    <p className="text-xs text-gray-500 mb-3">{level.description}</p>
+                    <div className={`pt-3 border-t ${level.border.replace('border-2 ', '')}`}><p className="text-xs text-gray-400">{level.requirement}</p></div>
+                  </motion.article>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        <section id="beneficios" className="bg-white px-4 py-14 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <div className="max-w-2xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">Herramientas incluidas</p>
-              <h2 className="mt-3 font-heading text-3xl font-semibold md:text-4xl">Todo lo necesario para monetizar contenido sin montar una operacion</h2>
-            </div>
-            <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {[
-                { icon: MessageCircle, title: 'Links automaticos con tracking', desc: 'Cada clic y venta queda atribuido de forma clara.' },
-                { icon: BarChart3, title: 'Dashboard en tiempo real', desc: 'Ve rendimiento, pedidos, conversion y comision sin esperar reportes.' },
-                { icon: Sparkles, title: 'Biblioteca de fotos pro', desc: 'Creatividades listas para stories, posts, reels y blog.' },
-                { icon: CircleHelp, title: 'Soporte prioritario por WhatsApp', desc: 'Respuesta rapida para dudas de enlaces, productos o cobros.' },
-              ].map((item) => (
-                <article key={item.title} className="rounded-[28px] border border-stone-200 bg-[#f8f4ee] p-6">
-                  <item.icon className="h-6 w-6 text-stone-900" />
-                  <h3 className="mt-5 text-lg font-semibold">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-stone-600">{item.desc}</p>
-                </article>
+        <section className="py-24 bg-gray-900 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-pink-400 mb-2">1,240</p><p className="text-gray-400 text-sm">Influencers activos moviendo producto real</p></div>
+              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-purple-400 mb-2">EUR 50</p><p className="text-gray-400 text-sm">Ticket promedio usado en la estimacion</p></div>
+              <div className="text-center"><p className="text-4xl lg:text-5xl font-bold text-green-400 mb-2">4.8/5</p><p className="text-gray-400 text-sm">Satisfaccion media del programa interno</p></div>
+            </motion.div>
+            <div className="grid md:grid-cols-2 gap-8">
+              {TESTIMONIALS.map((item, index) => (
+                <motion.article key={item.handle} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55, delay: index * 0.08 }} className="bg-white/5 rounded-2xl p-8 border border-white/10">
+                  <div className="flex items-center gap-4 mb-4"><img src={item.image} className="w-12 h-12 rounded-full object-cover" alt={item.name} /><div><p className="font-semibold">{item.name}</p><p className="text-sm text-gray-400">{item.handle}</p></div></div>
+                  <p className="text-gray-300 mb-4">{item.quote}</p>
+                  <div className="flex items-center gap-2 text-sm flex-wrap"><span className={`px-2 py-1 rounded ${index === 0 ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'}`}>{item.tag}</span><span className="text-gray-500">{item.followers}</span></div>
+                  <p className="text-pink-400 font-bold mt-4">{item.result}</p>
+                </motion.article>
               ))}
             </div>
           </div>
         </section>
-
-        <section className="px-4 py-14 md:py-20">
-          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.95fr_1.05fr]">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">FAQ</p>
-              <h2 className="mt-3 font-heading text-3xl font-semibold md:text-4xl">Objeciones resueltas antes de aplicar</h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-stone-600">La barrera de entrada es baja a proposito: sin stock, sin inversion y con seguimiento transparente.</p>
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="text-center mb-16"><p className="text-pink-600 font-semibold mb-2">HERRAMIENTAS INCLUIDAS</p><h2 className="font-heading text-4xl font-bold text-gray-900 mb-4">Todo lo necesario para monetizar contenido sin montar una operacion</h2></motion.div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {TOOLS.map((tool, index) => {
+                const Icon = tool.icon;
+                return (
+                  <motion.article key={tool.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55, delay: index * 0.05 }} className={`${tool.bg} rounded-2xl p-6 hover:shadow-lg transition-all`}>
+                    <Icon className={`w-10 h-10 ${tool.color} mb-4`} />
+                    <h3 className="font-bold text-gray-900 mb-2">{tool.title}</h3>
+                    <p className="text-sm text-gray-600">{tool.description}</p>
+                  </motion.article>
+                );
+              })}
             </div>
-            <Accordion type="single" collapsible className="space-y-4">
-              {FAQS.map((faq) => (
-                <AccordionItem key={faq.question} value={faq.question} className="rounded-[24px] border border-stone-200 bg-white px-6">
-                  <AccordionTrigger className="py-5 text-left text-base font-semibold text-stone-900 hover:no-underline">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-5 text-sm leading-7 text-stone-600">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+            <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="mt-12 rounded-2xl border border-[#DCE8DE] bg-[#EEF7F0] p-8">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4"><div className="w-14 h-14 bg-[#DCE8DE] rounded-full flex items-center justify-center"><Handshake className="w-7 h-7 text-[#2D5A3D]" /></div><div><h3 className="font-bold text-gray-900">Contacto directo con productores e importadores</h3><p className="text-gray-600">Negocia colaboraciones libremente. Sin intermediarios, sin comisiones extra.</p></div></div>
+                <span className="text-[#2D5A3D] font-semibold">Incluido gratis</span>
+              </div>
+            </motion.div>
           </div>
         </section>
 
-        <section id="formulario" className="bg-[linear-gradient(135deg,#1c1917,#292524_52%,#92400e)] px-4 py-14 text-white md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">Urgencia suave</p>
-                <h2 className="mt-3 font-heading text-3xl font-semibold md:text-5xl">Entramos pocos perfiles por zona para proteger tu capacidad de conversion</h2>
-                <p className="mt-5 max-w-xl text-base leading-8 text-stone-200">Si tu audiencia conecta con gastronomia, recetas, producto gourmet o consumo consciente, este programa esta hecho para ti.</p>
-                <div className="mt-8 space-y-3 text-sm text-stone-200">
-                  {['Sin inversion inicial', 'Sin gestionar envios ni incidencias', 'Comision visible desde el primer clic'].map((item) => (
-                    <div key={item} className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-amber-300" />
-                      <span>{item}</span>
+        <section className="py-24 bg-[#f5f3ef]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12">
+              <motion.div {...fadeUp}><p className="text-pink-600 font-semibold mb-2">FAQ</p><h2 className="font-heading text-4xl font-bold text-gray-900 mb-4">Objeciones resueltas antes de aplicar</h2><p className="text-gray-600">La barrera de entrada es baja a proposito: sin stock, sin inversion y con seguimiento transparente.</p></motion.div>
+              <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="space-y-4">
+                {FAQS.map((item, index) => {
+                  const isOpen = openFaq === index;
+                  return (
+                    <div key={item.question} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                      <button type="button" onClick={() => setOpenFaq(isOpen ? -1 : index)} className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50">
+                        <span className="font-medium text-gray-900">{item.question}</span>
+                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {isOpen && <div className="px-6 pb-4 text-gray-600">{item.answer}</div>}
                     </div>
+                  );
+                })}
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-24 bg-gray-900 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-30"><img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&h=800&fit=crop" className="w-full h-full object-cover" alt="Creator working" /></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/95 to-gray-900/80" />
+          <div ref={formRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <motion.div {...fadeUp}>
+                <p className="text-pink-400 font-semibold mb-4">URGENCIA SUAVE</p>
+                <h2 className="font-heading text-4xl lg:text-5xl font-bold text-white mb-6">Tu audiencia quiere escucharte. Tu bolsillo tambien.</h2>
+                <p className="text-gray-300 text-lg mb-8">Si tu audiencia conecta con gastronomia, recetas, producto gourmet o consumo consciente, este programa esta hecho para ti.</p>
+                <ul className="space-y-4 mb-8">
+                  {['Sin inversion inicial', 'Sin gestionar envios ni incidencias', 'Comision visible desde el primer clic', 'Libertad total de colaboraciones'].map((point) => (
+                    <li key={point} className="flex items-center gap-3 text-gray-300"><CheckCircle2 className="w-5 h-5 text-green-400" />{point}</li>
                   ))}
-                </div>
-              </div>
-
-              <ApplicationForm />
+                </ul>
+              </motion.div>
+              <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="bg-white rounded-2xl p-8 shadow-2xl">
+                <div className="mb-6"><h3 className="text-xl font-bold text-gray-900 mb-2">Solicitar mi cuenta de influencer</h3><p className="text-sm text-gray-500">Las plazas son limitadas por zona para no saturar audiencias con las mismas recomendaciones.</p></div>
+                <form onSubmit={submitApplication} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><Label htmlFor="name">Nombre</Label><Input id="name" name="name" value={formData.name} onChange={handleChange} required className="mt-1 h-11 rounded-lg" /></div>
+                    <div><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required className="mt-1 h-11 rounded-lg" /></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><Label htmlFor="social">Red social principal</Label><Input id="social" name="social" value={formData.social} onChange={handleChange} placeholder="@usuario o enlace" required className="mt-1 h-11 rounded-lg" /></div>
+                    <div><Label htmlFor="followersInput">Seguidores aprox</Label><Input id="followersInput" name="followers" value={formData.followers} onChange={handleChange} placeholder="Ej: 12500" required className="mt-1 h-11 rounded-lg" /></div>
+                  </div>
+                  <div>
+                    <Label htmlFor="niche">Nicho</Label>
+                    <select id="niche" name="niche" value={formData.niche} onChange={handleChange} className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent h-11 bg-white">
+                      <option>Alimentacion y contenido gastronomico</option>
+                      <option>Lifestyle y bienestar</option>
+                      <option>Sostenibilidad y consumo consciente</option>
+                      <option>Fitness y nutricion</option>
+                      <option>Otro</option>
+                    </select>
+                  </div>
+                  <div><Label htmlFor="content">Que tipo de contenido haces?</Label><Textarea id="content" name="content" value={formData.content} onChange={handleChange} placeholder="Recetas, reviews, maridajes, cocina diaria, food styling..." rows={3} className="mt-1 rounded-lg" /></div>
+                  <button type="submit" disabled={submitting} className="w-full bg-gray-900 text-white py-4 rounded-lg font-semibold hover:bg-gray-800 transition-all hover:scale-[1.01]">{submitting ? 'Enviando solicitud...' : 'Solicitar mi cuenta de influencer'}</button>
+                  <p className="text-xs text-gray-500 text-center">Respuesta en menos de 48 horas. Sin compromiso.</p>
+                </form>
+              </motion.div>
             </div>
-          </div>
-        </section>
-
-        <section className="bg-white px-4 py-8">
-          <div className="mx-auto flex max-w-6xl flex-col gap-3 text-sm text-stone-500 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-wrap gap-4">
-              <Link to="/terms" className="hover:text-stone-900">Terminos del programa</Link>
-              <a href="#formulario" className="hover:text-stone-900">FAQ completo</a>
-              <Link to="/help" className="hover:text-stone-900">Contactar equipo</Link>
-            </div>
-            <p>Canonical: /influencer</p>
           </div>
         </section>
       </main>
 
-      <Footer />
-
-      <Dialog open={isCalculatorOpen} onOpenChange={setIsCalculatorOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto rounded-[32px] border-stone-200 bg-[#f6f1ea] p-0 sm:max-w-3xl">
-          <DialogHeader className="px-6 pb-0 pt-6 md:px-8">
-            <DialogTitle className="font-heading text-2xl text-stone-900">Calcula tu potencial antes de aplicar</DialogTitle>
-            <DialogDescription className="text-sm text-stone-600">Estimacion orientativa para monetizar Instagram comida, TikTok food o recomendaciones gourmet.</DialogDescription>
-          </DialogHeader>
-          <div className="px-6 pb-6 pt-4 md:px-8 md:pb-8">
-            <EarningsCalculator compact />
+      <footer className="bg-black text-gray-400 py-12 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex gap-6 text-sm flex-wrap justify-center">
+              <Link to="/terms" className="hover:text-white transition-colors">Terminos del programa</Link>
+              <button onClick={() => setOpenFaq(0)} className="hover:text-white transition-colors">FAQ completo</button>
+              <Link to="/help" className="hover:text-white transition-colors">Contactar equipo</Link>
+            </div>
+            <div className="text-sm">Canonical: <span className="text-gray-500">/influencer</span></div>
           </div>
-        </DialogContent>
-      </Dialog>
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm"><p>&copy; 2026 Hispaloshop. Todos los derechos reservados.</p></div>
+        </div>
+      </footer>
     </div>
   );
 }
