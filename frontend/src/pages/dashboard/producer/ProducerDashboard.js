@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardHeader from '../../../components/dashboard/shared/DashboardHeader';
 import KPICard from '../../../components/dashboard/shared/KPICard';
@@ -7,6 +7,8 @@ import AreaChart from '../../../components/dashboard/charts/AreaChart';
 import QuickActions from '../../../components/dashboard/shared/QuickActions';
 import ActivityList from '../../../components/dashboard/shared/ActivityList';
 import HISuggestions from '../../../components/dashboard/shared/HISuggestions';
+import { useAuth } from '../../../context/AuthContext';
+import { api } from '../../../lib/api';
 import { 
   Euro, 
   Package, 
@@ -14,72 +16,124 @@ import {
   Plus, 
   ShoppingCart, 
   BarChart3, 
-  Tag 
+  Tag,
+  Loader2
 } from 'lucide-react';
-
-const MOCK_DATA = {
-  kpis: {
-    revenue: '€8,450',
-    orders: 156,
-    rating: 4.9,
-    growth: '+23%'
-  },
-  alerts: [
-    {
-      id: 1,
-      type: 'warning',
-      message: 'Stock bajo: Aceite Premium (quedan 5 unidades)',
-      actionLabel: 'Reponer',
-      onAction: () => {}
-    }
-  ],
-  chart: {
-    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
-    actual: [1800, 2200, 1950, 2500],
-    predicted: [2600, 2800, 3100, 3400]
-  },
-  pendingOrders: [
-    {
-      id: '4567',
-      title: '#4567 · María G.',
-      subtitle: '🆕 Nuevo · Hace 2h',
-      description: 'Aceite 500ml ×2, Miel ×1',
-      amount: '€38.40',
-      status: 'pending',
-      actionLabel: 'Preparar',
-      onAction: () => {}
-    },
-    {
-      id: '4566',
-      title: '#4566 · Carlos R.',
-      subtitle: '📦 Enviado · Hace 1d',
-      description: 'Pack regalo',
-      amount: '€52.00',
-      status: 'shipped',
-      actionLabel: 'Seguimiento',
-      onAction: () => {}
-    }
-  ],
-  suggestions: [
-    {
-      id: 1,
-      title: 'Oportunidad detectada',
-      description: 'La demanda de packs regalo sube +40% (Navidad)',
-      actionLabel: 'Crear pack',
-      onAction: () => {}
-    },
-    {
-      id: 2,
-      title: 'Optimización de precio',
-      description: 'Tu queso curado está 15% por debajo del mercado',
-      actionLabel: 'Ajustar precio',
-      onAction: () => {}
-    }
-  ]
-};
 
 function ProducerDashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState({
+    kpis: {
+      revenue: 0,
+      orders: 0,
+      rating: 0,
+      growth: 0
+    },
+    alerts: [],
+    chart: {
+      labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+      actual: [0, 0, 0, 0]
+    },
+    pendingOrders: [],
+    suggestions: []
+  });
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch producer stats
+      let statsData = {};
+      try {
+        statsData = await api.request('/producer/stats');
+      } catch (e) {
+        console.log('Stats endpoint not available');
+      }
+
+      // Fetch orders
+      const ordersData = await api.getProducerOrders({ status: 'pending' });
+      
+      // Fetch products for low stock alerts
+      let productsData = { products: [] };
+      try {
+        productsData = await api.request('/producer/products');
+      } catch (e) {
+        console.log('Products endpoint not available');
+      }
+
+      // Format pending orders
+      const pendingOrders = (ordersData?.orders || []).slice(0, 3).map(order => ({
+        id: order.id,
+        title: `#${order.order_number || order.id.slice(-4)} · ${order.customer_name || 'Cliente'}`,
+        subtitle: order.status === 'pending' ? '🆕 Nuevo' : 
+                  order.status === 'processing' ? '⏳ En preparación' :
+                  '📦 ' + order.status,
+        description: order.items?.map(i => i.product_name).join(', ') || 'Productos',
+        amount: `€${order.total_amount?.toFixed(2) || '0.00'}`,
+        status: order.status,
+        actionLabel: order.status === 'pending' ? 'Preparar' : 'Ver',
+        onAction: () => navigate(`/producer/orders/${order.id}`)
+      }));
+
+      // Generate low stock alerts
+      const lowStockProducts = (productsData.products || [])
+        .filter(p => p.stock < 10)
+        .slice(0, 2);
+      
+      const alerts = lowStockProducts.map(p => ({
+        id: p.id,
+        type: 'warning',
+        message: `Stock bajo: ${p.name} (quedan ${p.stock} unidades)`,
+        actionLabel: 'Reponer',
+        onAction: () => navigate(`/producer/products/${p.id}`)
+      }));
+
+      // Calculate revenue from orders
+      const totalRevenue = ordersData?.orders?.reduce((sum, o) => sum + (o.total_amount || 0), 0) || 0;
+      const totalOrders = ordersData?.total_count || ordersData?.orders?.length || 0;
+
+      setDashboardData({
+        kpis: {
+          revenue: totalRevenue,
+          orders: totalOrders,
+          rating: statsData.rating || 4.5,
+          growth: statsData.growth || 0
+        },
+        alerts,
+        chart: {
+          labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+          actual: statsData.weekly_revenue || [0, 0, 0, 0]
+        },
+        pendingOrders,
+        suggestions: [
+          {
+            id: 1,
+            title: 'Optimiza tus ventas',
+            description: 'Añade más productos para aumentar tu visibilidad',
+            actionLabel: 'Añadir producto',
+            onAction: () => navigate('/producer/products/new')
+          },
+          {
+            id: 2,
+            title: 'Conecta con influencers',
+            description: 'Colabora con influencers para promocionar tus productos',
+            actionLabel: 'Ver influencers',
+            onAction: () => navigate('/producer/influencers')
+          }
+        ]
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const quickActions = [
     { 
@@ -87,7 +141,7 @@ function ProducerDashboard() {
       icon: Plus, 
       label: 'Añadir producto', 
       color: '#2D5A3D',
-      onClick: () => navigate('/producer/products')
+      onClick: () => navigate('/producer/products/new')
     },
     { 
       id: 'orders', 
@@ -99,40 +153,48 @@ function ProducerDashboard() {
     { 
       id: 'analytics', 
       icon: BarChart3, 
-      label: 'Análisis de productos', 
+      label: 'Análisis', 
       color: '#3B82F6',
-      onClick: () => {}
+      onClick: () => navigate('/producer/analytics')
     },
     { 
       id: 'promo', 
       icon: Tag, 
-      label: 'Crear promoción', 
+      label: 'Promociones', 
       color: '#16A34A',
-      onClick: () => {}
+      onClick: () => navigate('/producer/promotions')
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#2D5A3D]" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F1E8] p-4 pb-24">
       <DashboardHeader 
-        userName="Cortijo Andaluz" 
+        userName={user?.name || 'Productor'}
         subtitle="Resumen de tu negocio"
-        notificationCount={3}
+        notificationCount={dashboardData.alerts.length}
       />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-3 gap-3 mb-4">
         <KPICard
           icon={Euro}
-          value={MOCK_DATA.kpis.revenue}
+          value={`€${dashboardData.kpis.revenue.toFixed(0)}`}
           label="Ingresos"
           subtext="este mes"
-          trend={MOCK_DATA.kpis.growth}
-          trendUp={true}
+          trend={`${dashboardData.kpis.growth > 0 ? '+' : ''}${dashboardData.kpis.growth}%`}
+          trendUp={dashboardData.kpis.growth >= 0}
         />
         <KPICard
           icon={Package}
-          value={MOCK_DATA.kpis.orders}
+          value={dashboardData.kpis.orders}
           label="Pedidos"
           subtext="este mes"
           accentColor="#E6A532"
@@ -140,7 +202,7 @@ function ProducerDashboard() {
         />
         <KPICard
           icon={Star}
-          value={MOCK_DATA.kpis.rating}
+          value={dashboardData.kpis.rating}
           label="Valoración"
           subtext="media"
           accentColor="#16A34A"
@@ -148,7 +210,7 @@ function ProducerDashboard() {
       </div>
 
       {/* Alerts */}
-      {MOCK_DATA.alerts.map(alert => (
+      {dashboardData.alerts.map(alert => (
         <div key={alert.id} className="mb-4">
           <AlertBanner 
             type={alert.type}
@@ -164,12 +226,12 @@ function ProducerDashboard() {
         <div className="mb-4">
           <h3 className="font-semibold text-[#1A1A1A]">Evolución de ventas</h3>
           <p className="text-xs text-[#6B7280]">
-            Línea sólida: real · Línea punteada: predicción HI
+            Ingresos semanales
           </p>
         </div>
         <AreaChart 
-          data={MOCK_DATA.chart.actual} 
-          labels={MOCK_DATA.chart.labels}
+          data={dashboardData.chart.actual} 
+          labels={dashboardData.chart.labels}
           color="#2D5A3D"
         />
       </div>
@@ -192,7 +254,7 @@ function ProducerDashboard() {
           </button>
         </div>
         <ActivityList 
-          items={MOCK_DATA.pendingOrders}
+          items={dashboardData.pendingOrders}
           emptyMessage="No hay pedidos pendientes"
         />
       </div>
@@ -200,7 +262,7 @@ function ProducerDashboard() {
       {/* HI Suggestions */}
       <div>
         <h3 className="font-semibold text-[#1A1A1A] mb-3">Sugerencias HI Ventas</h3>
-        <HISuggestions suggestions={MOCK_DATA.suggestions} />
+        <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>
   );

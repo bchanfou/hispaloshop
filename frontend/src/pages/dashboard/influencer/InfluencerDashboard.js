@@ -1,184 +1,218 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardHeader from '../../../components/dashboard/shared/DashboardHeader';
 import KPICard from '../../../components/dashboard/shared/KPICard';
-import TierProgress from '../../../components/dashboard/shared/TierProgress';
-import ComboChart from '../../../components/dashboard/charts/ComboChart';
+import AlertBanner from '../../../components/dashboard/shared/AlertBanner';
+import AreaChart from '../../../components/dashboard/charts/AreaChart';
 import QuickActions from '../../../components/dashboard/shared/QuickActions';
 import ActivityList from '../../../components/dashboard/shared/ActivityList';
 import HISuggestions from '../../../components/dashboard/shared/HISuggestions';
+import { useAuth } from '../../../context/AuthContext';
+import { api } from '../../../lib/api';
 import { 
-  DollarSign, 
+  Euro, 
   Users, 
+  MousePointerClick, 
+  Link as LinkIcon, 
   TrendingUp, 
-  Link2, 
-  BarChart3, 
-  Target, 
-  MessageCircle 
+  Gift,
+  Loader2
 } from 'lucide-react';
-
-const MOCK_DATA = {
-  kpis: {
-    earnings: '€1,240',
-    followers: '8.5k',
-    conversion: '4.2%',
-    growth: '+12%'
-  },
-  tier: {
-    current: 'AQUILES',
-    rate: 0.04,
-    next: 'HÉRCULES',
-    progress: 0.65
-  },
-  chart: {
-    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
-    earnings: [200, 340, 280, 420],
-    engagement: [3.2, 3.8, 4.1, 4.2]
-  },
-  topContent: [
-    {
-      id: '1',
-      title: 'Reel: "Queso artesanal"',
-      subtitle: '👁️ 12.5k views · ❤️ 890',
-      description: '€45 generados',
-      amount: '4.2%',
-      status: 'delivered',
-      actionLabel: 'Analizar',
-      onAction: () => {}
-    },
-    {
-      id: '2',
-      title: 'Post: "Desayuno saludable"',
-      subtitle: '👁️ 3.2k views · ❤️ 234',
-      description: '€12 generados',
-      amount: '2.1%',
-      status: 'pending',
-      actionLabel: 'Mejorar',
-      onAction: () => {}
-    }
-  ],
-  suggestions: [
-    {
-      id: 1,
-      title: 'Idea viral detectada',
-      description: '"What I eat in a day" está trending +45%',
-      actionLabel: 'Generar script',
-      onAction: () => {}
-    },
-    {
-      id: 2,
-      title: 'Producto trending',
-      description: 'Aceite de oliva con limón sube en búsquedas',
-      actionLabel: 'Crear contenido',
-      onAction: () => {}
-    }
-  ]
-};
 
 function InfluencerDashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState({
+    kpis: {
+      earnings: 0,
+      clicks: 0,
+      conversions: 0,
+      followers: 0
+    },
+    tier: 'Perseo',
+    chart: {
+      labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+      data: [0, 0, 0, 0]
+    },
+    recentConversions: [],
+    suggestions: []
+  });
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch influencer dashboard
+      let dashboardRes = {};
+      try {
+        dashboardRes = await api.getInfluencerDashboard();
+      } catch (e) {
+        console.log('Influencer dashboard endpoint not available');
+      }
+
+      // Fetch commissions
+      let commissionsData = {};
+      try {
+        commissionsData = await api.getCommissions();
+      } catch (e) {
+        console.log('Commissions endpoint not available');
+      }
+
+      // Fetch affiliate links
+      let linksData = {};
+      try {
+        linksData = await api.getAffiliateLinks();
+      } catch (e) {
+        console.log('Affiliate links endpoint not available');
+      }
+
+      const totalEarnings = commissionsData?.commissions?.reduce((sum, c) => sum + (c.amount || 0), 0) || 0;
+      const totalClicks = linksData?.links?.reduce((sum, l) => sum + (l.clicks || 0), 0) || 0;
+      const totalConversions = commissionsData?.commissions?.length || 0;
+
+      setDashboardData({
+        kpis: {
+          earnings: totalEarnings,
+          clicks: totalClicks,
+          conversions: totalConversions,
+          followers: user?.followers_count || 0
+        },
+        tier: dashboardRes?.profile?.tier || 'Perseo',
+        chart: {
+          labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+          data: dashboardRes?.earnings?.weekly || [0, 0, 0, 0]
+        },
+        recentConversions: (commissionsData?.commissions || []).slice(0, 3).map(c => ({
+          id: c.id,
+          title: `Venta · ${c.product_name || 'Producto'}`,
+          subtitle: `Comisión: €${c.amount?.toFixed(2) || '0.00'}`,
+          description: c.status === 'pending' ? '⏳ Pendiente' : '✅ Confirmada',
+          amount: `€${c.amount?.toFixed(2) || '0.00'}`,
+          status: c.status,
+          actionLabel: 'Ver',
+          onAction: () => {}
+        })),
+        suggestions: [
+          {
+            id: 1,
+            title: 'Sube de nivel a Aquiles',
+            description: 'Necesitas €200 más en ventas este mes',
+            actionLabel: 'Ver oportunidades',
+            onAction: () => navigate('/influencer/opportunities')
+          },
+          {
+            id: 2,
+            title: 'Nuevo productor disponible',
+            description: 'Aceites del Sur busca influencers',
+            actionLabel: 'Ver detalles',
+            onAction: () => navigate('/influencer/opportunities')
+          }
+        ]
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const quickActions = [
     { 
-      id: 'link', 
-      icon: Link2, 
-      label: 'Link de afiliado', 
+      id: 'links', 
+      icon: LinkIcon, 
+      label: 'Mis enlaces', 
       color: '#2D5A3D',
-      onClick: () => {}
+      onClick: () => navigate('/influencer/links')
     },
     { 
-      id: 'content', 
-      icon: BarChart3, 
-      label: 'Contenido top', 
+      id: 'opportunities', 
+      icon: TrendingUp, 
+      label: 'Oportunidades', 
       color: '#E6A532',
-      onClick: () => navigate('/creator')
+      onClick: () => navigate('/influencer/opportunities')
     },
     { 
-      id: 'promote', 
-      icon: Target, 
-      label: 'Productos para promo', 
+      id: 'earnings', 
+      icon: Euro, 
+      label: 'Mis ganancias', 
       color: '#3B82F6',
-      onClick: () => navigate('/products')
+      onClick: () => navigate('/influencer/earnings')
     },
     { 
-      id: 'contact', 
-      icon: MessageCircle, 
-      label: 'Contactar marcas', 
+      id: 'perks', 
+      icon: Gift, 
+      label: 'Beneficios', 
       color: '#16A34A',
-      onClick: () => {}
+      onClick: () => navigate('/influencer/perks')
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#2D5A3D]" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F1E8] p-4 pb-24">
       <DashboardHeader 
-        userName="Laura" 
-        subtitle="Tu rendimiento este mes"
-        notificationCount={5}
+        userName={user?.name?.split(' ')[0] || 'Influencer'}
+        subtitle={`Nivel: ${dashboardData.tier}`}
+        notificationCount={0}
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-4">
         <KPICard
-          icon={DollarSign}
-          value={MOCK_DATA.kpis.earnings}
-          label="Ganado"
+          icon={Euro}
+          value={`€${dashboardData.kpis.earnings.toFixed(0)}`}
+          label="Ganancias"
           subtext="este mes"
-          trend="23%"
-          trendUp={true}
+          accentColor="#2D5A3D"
         />
         <KPICard
-          icon={Users}
-          value={MOCK_DATA.kpis.followers}
-          label="Seguidores"
-          subtext={MOCK_DATA.kpis.growth}
-          trend={MOCK_DATA.kpis.growth}
-          trendUp={true}
+          icon={MousePointerClick}
+          value={dashboardData.kpis.clicks}
+          label="Clicks"
+          subtext="en tus enlaces"
           accentColor="#E6A532"
         />
         <KPICard
-          icon={TrendingUp}
-          value={MOCK_DATA.kpis.conversion}
-          label="Conversión"
-          subtext="promedio"
-          accentColor="#16A34A"
+          icon={Users}
+          value={dashboardData.kpis.conversions}
+          label="Ventas"
+          subtext="generadas"
+          accentColor="#3B82F6"
         />
-      </div>
-
-      {/* Tier Progress */}
-      <div className="mb-6">
-        <TierProgress 
-          currentTier={MOCK_DATA.tier.current}
-          currentRate={MOCK_DATA.tier.rate}
-          nextTier={MOCK_DATA.tier.next}
-          progress={MOCK_DATA.tier.progress}
-          onViewBenefits={() => {}}
+        <KPICard
+          icon={Users}
+          value={dashboardData.kpis.followers}
+          label="Seguidores"
+          subtext="en tu perfil"
+          accentColor="#16A34A"
         />
       </div>
 
       {/* Chart */}
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-[#1A1A1A]">Ingresos vs Engagement</h3>
+          <h3 className="font-semibold text-[#1A1A1A]">Ganancias semanales</h3>
           <p className="text-xs text-[#6B7280]">
-            Tus reels de recetas generan 3× más ingresos
+            Evolución de tus comisiones
           </p>
         </div>
-        <ComboChart 
-          barData={MOCK_DATA.chart.earnings} 
-          lineData={MOCK_DATA.chart.engagement}
-          labels={MOCK_DATA.chart.labels}
+        <AreaChart 
+          data={dashboardData.chart.data} 
+          labels={dashboardData.chart.labels}
+          color="#2D5A3D"
         />
-        <div className="flex items-center justify-center gap-6 mt-3">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-[#2D5A3D]" />
-            <span className="text-xs text-[#6B7280]">Ingresos (€)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#E6A532]" />
-            <span className="text-xs text-[#6B7280]">Engagement (%)</span>
-          </div>
-        </div>
       </div>
 
       {/* Quick Actions */}
@@ -187,27 +221,29 @@ function InfluencerDashboard() {
         <QuickActions actions={quickActions} />
       </div>
 
-      {/* Top Content */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-[#1A1A1A]">Contenido destacado</h3>
-          <button 
-            onClick={() => navigate('/creator')}
-            className="text-sm text-[#2D5A3D] font-medium"
-          >
-            Ver todo
-          </button>
+      {/* Recent Conversions */}
+      {dashboardData.recentConversions.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-[#1A1A1A]">Ventas recientes</h3>
+            <button 
+              onClick={() => navigate('/influencer/earnings')}
+              className="text-sm text-[#2D5A3D] font-medium"
+            >
+              Ver todas
+            </button>
+          </div>
+          <ActivityList 
+            items={dashboardData.recentConversions}
+            emptyMessage="No hay ventas todavía"
+          />
         </div>
-        <ActivityList 
-          items={MOCK_DATA.topContent} 
-          emptyMessage="No hay contenido publicado aún"
-        />
-      </div>
+      )}
 
       {/* HI Suggestions */}
       <div>
-        <h3 className="font-semibold text-[#1A1A1A] mb-3">Sugerencias HI Creator</h3>
-        <HISuggestions suggestions={MOCK_DATA.suggestions} />
+        <h3 className="font-semibold text-[#1A1A1A] mb-3">Sugerencias</h3>
+        <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>
   );

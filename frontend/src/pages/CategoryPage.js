@@ -1,25 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Search, SlidersHorizontal, Grid3X3, List, 
-  X, ChevronDown, Star, MapPin, Heart, ShoppingBag 
+  X, ChevronDown, Star, MapPin, Heart, ShoppingBag, Loader2
 } from 'lucide-react';
 import { CATEGORIES } from '../components/feed/CategoryPills';
-
-// Mock products data
-const MOCK_PRODUCTS = [
-  { id: 1, name: 'Aceite de Oliva Virgen Extra Premium', producer: 'Cortijo Andaluz', price: 24.90, originalPrice: 29.90, rating: 4.9, reviews: 128, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400', discount: 15, isNew: false },
-  { id: 2, name: 'Aceite EVOO DOP Sierra de Cazorla', producer: 'Olivar de la Sierra', price: 32.50, rating: 4.8, reviews: 89, image: 'https://images.unsplash.com/photo-1548685913-fe6678babe8d?w=400', isNew: true },
-  { id: 3, name: 'Aceite de Oliva Arbequina 5L', producer: 'Masía Catalana', price: 45.00, rating: 4.7, reviews: 234, image: 'https://images.unsplash.com/photo-1606923829579-0cb981a83e2e?w=400', isNew: false },
-  { id: 4, name: 'Pack Aceites del Sur (3x500ml)', producer: 'Selección Andaluza', price: 38.90, rating: 4.9, reviews: 67, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400', isNew: true },
-  { id: 5, name: 'Aceite Infusado con Limón', producer: 'Citrus Oils', price: 18.50, rating: 4.6, reviews: 45, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400', isNew: false },
-  { id: 6, name: 'Aceite Ecológico Cold Press', producer: 'BioOlivar', price: 28.00, rating: 4.8, reviews: 156, image: 'https://images.unsplash.com/photo-1548685913-fe6678babe8d?w=400', isNew: false },
-];
+import { useProducts } from '../hooks/useProducts';
+import { useLocale } from '../context/LocaleContext';
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
+  const { convertAndFormatPrice } = useLocale();
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('relevance');
   const [showFilters, setShowFilters] = useState(false);
@@ -28,9 +21,31 @@ const CategoryPage = () => {
   const category = CATEGORIES.find(c => c.id === categoryId) || CATEGORIES[0];
   const Icon = category.icon;
 
+  // Fetch real products from API
+  const { products, isLoading, error } = useProducts({ 
+    category: categoryId,
+    sort: sortBy,
+  });
+
   const removeFilter = (filter) => {
     setActiveFilters(activeFilters.filter(f => f !== filter));
   };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error al cargar productos</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-[#2D5A3D] text-white rounded-lg"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F1E8] pb-24">
@@ -73,7 +88,9 @@ const CategoryPage = () => {
         {/* Results count and controls */}
         <div className="px-4 pb-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-[#6B7280]">156 productos encontrados</p>
+            <p className="text-sm text-[#6B7280]">
+              {isLoading ? 'Cargando...' : `${products.length} productos encontrados`}
+            </p>
             <div className="flex items-center gap-2">
               {/* View toggle */}
               <div className="flex bg-gray-100 rounded-lg p-1">
@@ -136,9 +153,31 @@ const CategoryPage = () => {
 
       {/* Products */}
       <div className="p-4">
-        {viewMode === 'grid' ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-[#2D5A3D]" />
+          </div>
+        ) : products.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 px-4">
+            <div className="w-24 h-24 mb-6">
+              <Search className="w-full h-full text-gray-300" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-2">
+              No encontramos productos
+            </h3>
+            <p className="text-[#6B7280] text-center mb-6">
+              Prueba con otra categoría o ajusta tus filtros
+            </p>
+            <button 
+              onClick={() => setActiveFilters([])}
+              className="px-6 py-3 bg-[#2D5A3D] text-white rounded-full font-medium"
+            >
+              Quitar filtros
+            </button>
+          </div>
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-2 gap-3">
-            {MOCK_PRODUCTS.map((product, index) => (
+            {products.map((product, index) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -149,16 +188,16 @@ const CategoryPage = () => {
               >
                 <div className="relative aspect-square">
                   <img
-                    src={product.image}
+                    src={product.image_url || product.images?.[0] || '/placeholder-product.png'}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
-                  {product.discount && (
+                  {product.discount > 0 && (
                     <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                       -{product.discount}%
                     </span>
                   )}
-                  {product.isNew && (
+                  {product.is_new && (
                     <span className="absolute top-2 right-2 bg-[#2D5A3D] text-white text-xs font-bold px-2 py-1 rounded-full">
                       Nuevo
                     </span>
@@ -171,19 +210,19 @@ const CategoryPage = () => {
                   <h3 className="text-sm font-medium text-[#1A1A1A] line-clamp-2 mb-1">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-[#6B7280] mb-2">{product.producer}</p>
+                  <p className="text-xs text-[#6B7280] mb-2">{product.producer_name}</p>
                   <div className="flex items-center gap-1 mb-2">
                     <Star className="w-3.5 h-3.5 fill-[#E6A532] text-[#E6A532]" />
-                    <span className="text-xs font-medium">{product.rating}</span>
-                    <span className="text-xs text-[#6B7280]">({product.reviews})</span>
+                    <span className="text-xs font-medium">{product.rating || '4.5'}</span>
+                    <span className="text-xs text-[#6B7280]">({product.reviews_count || 0})</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-bold text-[#2D5A3D]">
-                      €{product.price.toFixed(2)}
+                      {convertAndFormatPrice(product.price)}
                     </span>
-                    {product.originalPrice && (
+                    {product.original_price && (
                       <span className="text-sm text-[#6B7280] line-through">
-                        €{product.originalPrice.toFixed(2)}
+                        {convertAndFormatPrice(product.original_price)}
                       </span>
                     )}
                   </div>
@@ -193,7 +232,7 @@ const CategoryPage = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {MOCK_PRODUCTS.map((product, index) => (
+            {products.map((product, index) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -204,11 +243,11 @@ const CategoryPage = () => {
               >
                 <div className="relative w-24 h-24 flex-shrink-0">
                   <img
-                    src={product.image}
+                    src={product.image_url || product.images?.[0] || '/placeholder-product.png'}
                     alt={product.name}
                     className="w-full h-full object-cover rounded-xl"
                   />
-                  {product.discount && (
+                  {product.discount > 0 && (
                     <span className="absolute -top-1 -left-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                       -{product.discount}%
                     </span>
@@ -218,15 +257,15 @@ const CategoryPage = () => {
                   <h3 className="font-medium text-[#1A1A1A] line-clamp-2 mb-1">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-[#6B7280] mb-1">{product.producer}</p>
+                  <p className="text-xs text-[#6B7280] mb-1">{product.producer_name}</p>
                   <div className="flex items-center gap-1 mb-2">
                     <Star className="w-3.5 h-3.5 fill-[#E6A532] text-[#E6A532]" />
-                    <span className="text-xs font-medium">{product.rating}</span>
-                    <span className="text-xs text-[#6B7280]">({product.reviews})</span>
+                    <span className="text-xs font-medium">{product.rating || '4.5'}</span>
+                    <span className="text-xs text-[#6B7280]">({product.reviews_count || 0})</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-[#2D5A3D]">
-                      €{product.price.toFixed(2)}
+                      {convertAndFormatPrice(product.price)}
                     </span>
                     <button className="p-2 bg-[#2D5A3D] text-white rounded-full">
                       <ShoppingBag className="w-4 h-4" />
@@ -238,27 +277,6 @@ const CategoryPage = () => {
           </div>
         )}
       </div>
-
-      {/* Empty State (example) */}
-      {false && (
-        <div className="flex flex-col items-center justify-center py-20 px-4">
-          <div className="w-24 h-24 mb-6">
-            <Search className="w-full h-full text-gray-300" />
-          </div>
-          <h3 className="text-lg font-semibold text-[#1A1A1A] mb-2">
-            No encontramos productos con esos filtros
-          </h3>
-          <p className="text-[#6B7280] text-center mb-6">
-            Prueba ajustando tus filtros o busca algo diferente
-          </p>
-          <button 
-            onClick={() => setActiveFilters([])}
-            className="px-6 py-3 bg-[#2D5A3D] text-white rounded-full font-medium"
-          >
-            Quitar filtros
-          </button>
-        </div>
-      )}
 
       {/* Filter Modal */}
       {showFilters && (
