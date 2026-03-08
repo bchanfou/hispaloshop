@@ -112,7 +112,6 @@ const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
 
 // Landing pages
 const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
-const ProductorLanding = lazy(() => import('./pages/landings/ProductorLanding'));
 const ImportadorLanding = lazy(() => import('./pages/landings/ImportadorLanding'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
 const ConsumerDashboard = lazy(() => import('./pages/dashboard/consumer'));
@@ -242,7 +241,7 @@ function AppRouter() {
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/que-es" element={<QueEsPage />} />
               <Route path="/ser-influencer" element={<Navigate to="/influencer" replace />} />
-              <Route path="/productor" element={<ProductorLanding />} />
+              <Route path="/ser-productor" element={<Navigate to="/productor" replace />} />
               <Route path="/importador" element={<ImportadorLanding />} />
               <Route path="/importer" element={<ImporterLandingPage />} />
               <Route path="/login" element={<LoginPage />} />
