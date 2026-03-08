@@ -1,59 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
-
-// Mock data for stories
-const MOCK_STORIES = [
-  {
-    id: 'self',
-    user: { id: 'self', username: 'Tu historia', avatar: null, isSelf: true },
-    hasUnseen: false,
-    isEmpty: true
-  },
-  {
-    id: '1',
-    user: { id: 'u1', username: 'cortijoandaluz', avatar: 'https://images.unsplash.com/photo-1548685913-fe6678babe8d?w=100' },
-    hasUnseen: true,
-    isLive: false
-  },
-  {
-    id: '2',
-    user: { id: 'u2', username: 'queserialaantigua', avatar: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=100' },
-    hasUnseen: true,
-    isLive: true
-  },
-  {
-    id: '3',
-    user: { id: 'u3', username: 'mieldelsur', avatar: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=100' },
-    hasUnseen: false,
-    isLive: false
-  },
-  {
-    id: '4',
-    user: { id: 'u4', username: 'embutidos_juan', avatar: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=100' },
-    hasUnseen: true,
-    isLive: false
-  },
-  {
-    id: '5',
-    user: { id: 'u5', username: 'panaderiamaria', avatar: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100' },
-    hasUnseen: false,
-    isLive: false
-  },
-  {
-    id: '6',
-    user: { id: 'u6', username: 'conservas_premium', avatar: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=100' },
-    hasUnseen: true,
-    isLive: false
-  },
-];
+import useSWR from 'swr';
+import { useAuth } from '../../context/AuthContext';
 
 const StoryAvatar = ({ story, onClick }) => {
-  const { user, hasUnseen, isLive, isEmpty } = story;
+  const { user, hasUnseen, isEmpty } = story;
   
   const getRingColor = () => {
-    if (isLive) return 'bg-gradient-to-tr from-red-500 via-purple-500 to-blue-500';
     if (hasUnseen) return 'bg-gradient-to-tr from-[#E6A532] via-[#2D5A3D] to-[#16A34A]';
     return 'bg-gray-200';
   };
@@ -71,24 +25,18 @@ const StoryAvatar = ({ story, onClick }) => {
             </div>
           ) : (
             <img
-              src={user.avatar}
-              alt={user.username}
+              src={user.avatar || user.picture || '/default-avatar.png'}
+              alt={user.username || user.name}
               className="w-full h-full rounded-full object-cover"
             />
           )}
         </div>
-        
-        {isLive && (
-          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-            LIVE
-          </span>
-        )}
       </div>
       
       <span className={`text-xs font-medium truncate max-w-[72px] ${
         isEmpty ? 'text-[#6B7280]' : 'text-[#1A1A1A]'
       }`}>
-        {isEmpty ? 'Tu historia' : user.username}
+        {isEmpty ? 'Tu historia' : (user.username || user.name || 'Usuario')}
       </span>
     </button>
   );
@@ -97,17 +45,94 @@ const StoryAvatar = ({ story, onClick }) => {
 const StoriesCarousel = () => {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
-  const [stories] = useState(MOCK_STORIES);
+  const { user } = useAuth();
+
+  // Fetch real stories from API
+  const { data: storiesData, isLoading } = useSWR(
+    '/stories/feed',
+    async (url) => {
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    { 
+      revalidateOnFocus: false,
+      fallbackData: []
+    }
+  );
 
   const handleStoryClick = (story) => {
     if (story.isEmpty) {
-      // Open story creator
       navigate('/stories/create');
     } else {
-      // Open story viewer
       navigate('/stories', { state: { startWithId: story.id } });
     }
   };
+
+  // Build stories array with "Your Story" first if user is logged in
+  const stories = React.useMemo(() => {
+    const feedStories = (storiesData?.stories || storiesData || []).slice(0, 10);
+    
+    if (user) {
+      const yourStory = {
+        id: 'self',
+        user: { 
+          id: user.user_id, 
+          username: 'Tu historia', 
+          avatar: user.picture,
+          name: user.name 
+        },
+        hasUnseen: false,
+        isEmpty: true
+      };
+      return [yourStory, ...feedStories];
+    }
+    
+    return feedStories;
+  }, [storiesData, user]);
+
+  if (isLoading) {
+    return (
+      <div className="bg-white py-4 border-b border-stone-100">
+        <div className="flex gap-4 overflow-x-auto px-4 scrollbar-hide">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-1.5 flex-shrink-0">
+              <div className="w-16 h-16 rounded-full bg-stone-200 animate-pulse" />
+              <div className="w-12 h-3 bg-stone-200 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (stories.length === 0) {
+    return (
+      <div className="bg-white py-4 border-b border-stone-100">
+        <div className="flex gap-4 overflow-x-auto px-4 scrollbar-hide">
+          {user && (
+            <StoryAvatar
+              story={{
+                id: 'self',
+                user: { 
+                  id: user.user_id, 
+                  username: 'Tu historia', 
+                  avatar: user.picture,
+                  name: user.name 
+                },
+                hasUnseen: false,
+                isEmpty: true
+              }}
+              onClick={() => navigate('/stories/create')}
+            />
+          )}
+          <div className="flex items-center text-sm text-stone-500 py-4">
+            No hay historias disponibles
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white py-4 border-b border-stone-100">
