@@ -6,11 +6,11 @@ from fastapi import APIRouter, Depends, Query
 from typing import Optional
 from datetime import datetime
 
-from backend.schemas.superadmin.audit import (
+from schemas.superadmin.audit import (
     AuditActionType, AuditLogFilter, AuditLogListResponse, AuditStats
 )
-from backend.services.superadmin.audit_service import audit_service
-from backend.routes.auth import get_current_user
+from services.superadmin.audit_service import audit_service
+from routes.auth import get_current_user
 
 router = APIRouter(prefix="/superadmin/audit", tags=["superadmin-audit"])
 

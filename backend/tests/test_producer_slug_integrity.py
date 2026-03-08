@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 from sqlalchemy.exc import IntegrityError
 
-from backend.routers.producer import _http_error_from_integrity_error, _is_slug_unique_violation
+from routers.producer import _http_error_from_integrity_error, _is_slug_unique_violation
 
 
 class _OrigError(Exception):

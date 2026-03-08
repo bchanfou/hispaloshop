@@ -5,9 +5,9 @@ Fase 5: Analytics y KPIs
 from fastapi import APIRouter, Depends, Query
 from typing import Optional
 
-from backend.schemas.superadmin.dashboard import DashboardSummaryResponse
-from backend.services.superadmin.analytics_service import analytics_service
-from backend.routes.auth import get_current_user
+from schemas.superadmin.dashboard import DashboardSummaryResponse
+from services.superadmin.analytics_service import analytics_service
+from routes.auth import get_current_user
 
 router = APIRouter(prefix="/superadmin/dashboard", tags=["superadmin-dashboard"])
 

@@ -4,7 +4,7 @@ Fase 5: Conexiones persistentes bidireccionales
 """
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 
-from backend.websocket.handler import handle_websocket
+from websocket.handler import handle_websocket
 
 router = APIRouter(tags=["websocket"])
 

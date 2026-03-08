@@ -7,8 +7,8 @@ from typing import Dict, List, Optional, Set, Any
 from bson import ObjectId
 import asyncio
 
-from backend.core.database import db
-from backend.core.cache import redis_client
+from core.database import db
+from core.cache import redis_client
 
 
 class ChatRealtimeService:

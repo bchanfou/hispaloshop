@@ -1,14 +1,16 @@
 """
 WebSocket Handler para Chat Real-Time
-Fase 5: Socket.io-style WebSockets con FastAPI
+Fase 5: WebSockets con session cookies (integrado con sistema de auth existente)
 """
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket, WebSocketDisconnect, Query
 from typing import Dict, Optional
 import json
+import logging
 
-from backend.services.chat.realtime_service import chat_realtime_service
-from backend.core.security import verify_token
-from backend.core.database import db
+from core.database import db
+from core.auth import get_current_user
+
+logger = logging.getLogger(__name__)
 
 
 class ConnectionManager:
@@ -21,62 +23,116 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket, user_id: str):
         await websocket.accept()
         self.active_connections[user_id] = websocket
-        await chat_realtime_service.connect_user(user_id, websocket)
+        logger.info(f"[WS] User {user_id} connected. Total: {len(self.active_connections)}")
     
     def disconnect(self, user_id: str):
         if user_id in self.active_connections:
             del self.active_connections[user_id]
+            logger.info(f"[WS] User {user_id} disconnected. Total: {len(self.active_connections)}")
     
     async def send_personal_message(self, message: dict, user_id: str):
         if user_id in self.active_connections:
-            await self.active_connections[user_id].send_json(message)
+            try:
+                await self.active_connections[user_id].send_json(message)
+            except Exception as e:
+                logger.error(f"[WS] Error sending to {user_id}: {e}")
     
-    async def broadcast(self, message: dict):
-        for connection in self.active_connections.values():
-            await connection.send_json(message)
+    async def broadcast_to_conversation(self, conversation_id: str, message: dict, exclude_user_id: str = None):
+        """Enviar mensaje a todos los participantes de una conversación"""
+        # Obtener participantes de la conversación
+        conv = await db.internal_chats.find_one({"conversation_id": conversation_id})
+        if not conv:
+            return
+        
+        participants = [conv.get("user1_id"), conv.get("user2_id")]
+        
+        for user_id in participants:
+            if user_id and user_id != exclude_user_id and user_id in self.active_connections:
+                try:
+                    await self.active_connections[user_id].send_json(message)
+                except Exception as e:
+                    logger.error(f"[WS] Error broadcasting to {user_id}: {e}")
 
 
 manager = ConnectionManager()
 
 
-async def handle_websocket(websocket: WebSocket, token: str):
+async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
     """
-    Manejar conexión WebSocket autenticada
+    Manejar conexión WebSocket autenticada via session token
+    
+    El token puede venir como query param o en la cookie session_token
     """
-    # Verificar token
+    user_id = None
+    
     try:
-        payload = verify_token(token)
-        user_id = payload.get("sub")
-        if not user_id:
-            await websocket.close(code=4001, reason="Invalid token")
+        # Intentar obtener session token de query param o cookies
+        session_token = token
+        
+        # Si no hay token en query, intentar con cookies
+        if not session_token:
+            # FastAPI WebSocket tiene cookies en request
+            cookies = websocket.cookies
+            session_token = cookies.get('session_token')
+        
+        if not session_token:
+            logger.warning("[WS] No session token provided")
+            await websocket.close(code=4001, reason="Authentication required")
             return
-    except Exception as e:
-        await websocket.close(code=4001, reason=f"Authentication failed: {str(e)}")
-        return
-    
-    # Aceptar conexión
-    await manager.connect(websocket, user_id)
-    
-    try:
+        
+        # Validar session token contra la base de datos
+        session_doc = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
+        if not session_doc:
+            logger.warning("[WS] Invalid session token")
+            await websocket.close(code=4001, reason="Invalid session")
+            return
+        
+        user_id = session_doc.get("user_id")
+        if not user_id:
+            await websocket.close(code=4001, reason="User not found")
+            return
+        
+        # Verificar que el usuario existe
+        user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        if not user_doc:
+            await websocket.close(code=4001, reason="User not found")
+            return
+        
+        # Aceptar conexión
+        await manager.connect(websocket, user_id)
+        
+        # Notificar al usuario que está conectado
+        await websocket.send_json({
+            "type": "connected",
+            "user_id": user_id,
+            "message": "WebSocket connected successfully"
+        })
+        
+        # Loop de mensajes
         while True:
-            # Recibir mensaje
-            data = await websocket.receive_text()
-            
             try:
+                data = await websocket.receive_text()
                 message = json.loads(data)
                 await process_websocket_message(message, user_id, websocket)
             except json.JSONDecodeError:
                 await websocket.send_json({
                     "type": "error",
-                    "message": "Invalid JSON"
+                    "message": "Invalid JSON format"
+                })
+            except Exception as e:
+                logger.error(f"[WS] Error processing message: {e}")
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Failed to process message"
                 })
     
     except WebSocketDisconnect:
-        manager.disconnect(user_id)
-        await chat_realtime_service.disconnect_user(user_id)
+        if user_id:
+            manager.disconnect(user_id)
     except Exception as e:
-        manager.disconnect(user_id)
-        await chat_realtime_service.disconnect_user(user_id)
+        logger.error(f"[WS] Unexpected error: {e}")
+        if user_id:
+            manager.disconnect(user_id)
 
 
 async def process_websocket_message(message: dict, user_id: str, websocket: WebSocket):
@@ -93,86 +149,125 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
         is_typing = message.get("is_typing", False)
         
         if conversation_id:
-            await chat_realtime_service.handle_typing(conversation_id, user_id, is_typing)
+            # Notificar al otro participante
+            await manager.broadcast_to_conversation(
+                conversation_id,
+                {
+                    "type": "typing",
+                    "conversation_id": conversation_id,
+                    "user_id": user_id,
+                    "is_typing": is_typing
+                },
+                exclude_user_id=user_id
+            )
     
     elif msg_type == "message":
         conversation_id = message.get("conversation_id")
-        content = message.get("content")
+        content = message.get("content", "").strip()
         
-        if conversation_id and content:
-            # Guardar mensaje en DB
-            from datetime import datetime
-            from bson import ObjectId
-            
-            message_doc = {
-                "conversation_id": conversation_id,
-                "sender_id": user_id,
-                "content": content,
-                "type": "text",
-                "status": "sent",
-                "created_at": datetime.utcnow(),
-                "delivered_to": [],
-                "read_by": []
-            }
-            
-            result = await db.chat_messages.insert_one(message_doc)
-            message_doc["_id"] = str(result.inserted_id)
-            
-            # Actualizar conversación
-            await db.chat_conversations.update_one(
-                {"_id": ObjectId(conversation_id)},
-                {"$set": {"last_message_at": datetime.utcnow()}}
-            )
-            
-            # Broadcast a participantes
-            await chat_realtime_service.broadcast_message(
-                conversation_id,
-                message_doc,
-                exclude_user=user_id
-            )
-            
-            # Confirmar envío al remitente
+        if not conversation_id or not content:
             await websocket.send_json({
-                "type": "message_sent",
-                "message_id": str(result.inserted_id),
-                "conversation_id": conversation_id,
-                "timestamp": datetime.utcnow().isoformat()
+                "type": "error",
+                "message": "Missing conversation_id or content"
             })
+            return
+        
+        # Verificar que el usuario es parte de la conversación
+        conv = await db.internal_chats.find_one({
+            "conversation_id": conversation_id,
+            "$or": [
+                {"user1_id": user_id},
+                {"user2_id": user_id}
+            ]
+        })
+        
+        if not conv:
+            await websocket.send_json({
+                "type": "error",
+                "message": "Conversation not found or access denied"
+            })
+            return
+        
+        # Crear mensaje
+        from datetime import datetime, timezone
+        import uuid
+        
+        message_doc = {
+            "message_id": f"msg_{uuid.uuid4().hex[:12]}",
+            "conversation_id": conversation_id,
+            "sender_id": user_id,
+            "content": content,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "read": False
+        }
+        
+        await db.chat_messages.insert_one(message_doc)
+        
+        # Actualizar conversación
+        await db.internal_chats.update_one(
+            {"conversation_id": conversation_id},
+            {
+                "$set": {
+                    "last_message": content,
+                    "last_message_at": message_doc["created_at"]
+                }
+            }
+        )
+        
+        # Confirmar al remitente
+        await websocket.send_json({
+            "type": "message_sent",
+            "message_id": message_doc["message_id"],
+            "conversation_id": conversation_id,
+            "timestamp": message_doc["created_at"]
+        })
+        
+        # Enviar al otro participante si está conectado
+        await manager.broadcast_to_conversation(
+            conversation_id,
+            {
+                "type": "new_message",
+                "conversation_id": conversation_id,
+                "message": message_doc
+            },
+            exclude_user_id=user_id
+        )
     
     elif msg_type == "read_receipt":
         conversation_id = message.get("conversation_id")
         message_ids = message.get("message_ids", [])
         
-        if conversation_id:
-            from datetime import datetime
-            from bson import ObjectId
-            
-            read_at = datetime.utcnow()
-            
+        if conversation_id and message_ids:
             # Marcar mensajes como leídos
-            for msg_id in message_ids:
-                await db.chat_messages.update_one(
-                    {"_id": ObjectId(msg_id)},
-                    {"$addToSet": {"read_by": user_id}}
-                )
+            await db.chat_messages.update_many(
+                {
+                    "message_id": {"$in": message_ids},
+                    "sender_id": {"$ne": user_id}
+                },
+                {"$set": {"read": True}}
+            )
             
-            # Broadcast read receipt
-            await chat_realtime_service.broadcast_read_receipt(
+            # Notificar al remitente original
+            await manager.broadcast_to_conversation(
                 conversation_id,
-                user_id,
-                read_at
+                {
+                    "type": "read_receipt",
+                    "conversation_id": conversation_id,
+                    "user_id": user_id,
+                    "message_ids": message_ids,
+                    "read_at": datetime.now(timezone.utc).isoformat()
+                },
+                exclude_user_id=user_id
             )
     
     elif msg_type == "join_conversation":
         conversation_id = message.get("conversation_id")
-        
-        # Verificar que el usuario pertenece a la conversación
-        conv = await db.chat_conversations.find_one({
-            "_id": ObjectId(conversation_id),
+        # Verificar acceso
+        conv = await db.internal_chats.find_one({
+            "conversation_id": conversation_id,
             "$or": [
-                {"importer_id": user_id},
-                {"producer_id": user_id},
-                {"participants.user_id": user_id}
+                {"user1_id": user_id},
+                {"user2_id": user_id}
             ]
         })
         
@@ -180,17 +275,12 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
             await websocket.send_json({
                 "type": "joined",
                 "conversation_id": conversation_id,
-                "online_users": await chat_realtime_service.get_online_users_in_conversation(conversation_id)
+                "success": True
             })
-    
-    elif msg_type == "presence_request":
-        target_user_id = message.get("user_id")
-        if target_user_id:
-            presence = await chat_realtime_service.get_user_presence(target_user_id)
+        else:
             await websocket.send_json({
-                "type": "presence_response",
-                "user_id": target_user_id,
-                "status": presence
+                "type": "error",
+                "message": "Cannot join conversation"
             })
     
     else:

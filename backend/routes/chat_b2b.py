@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from core.database import get_db
 from core.auth import get_current_user
 
-router = APIRouter(prefix="/chat", tags=["Chat B2B"])
+router = APIRouter(prefix="/b2b/chat", tags=["Chat B2B"])
 
 
 @router.get("/conversations")

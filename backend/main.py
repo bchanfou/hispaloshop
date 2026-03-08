@@ -175,7 +175,7 @@ app.include_router(b2b_router, prefix="/api/b2b", tags=["B2B"])
 
 # Chat B2B Routes (Fase 4)
 from routes.chat_b2b import router as chat_b2b_router
-app.include_router(chat_b2b_router, prefix="/api/chat", tags=["Chat B2B"])
+app.include_router(chat_b2b_router, prefix="/api", tags=["Chat B2B"])
 
 # FASE 5: Superadmin Enterprise + Chat Real-Time + Notificaciones
 # Superadmin Routes

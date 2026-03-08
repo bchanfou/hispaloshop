@@ -7,8 +7,8 @@ from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
 
-from backend.core.database import db
-from backend.core.cache import redis_client
+from core.database import db
+from core.cache import redis_client
 
 
 class NotificationChannel:
@@ -157,7 +157,7 @@ class NotificationDispatcher:
         """
         Enviar notificación in-app (WebSocket si online, DB si offline)
         """
-        from backend.services.chat.realtime_service import chat_realtime_service
+        from services.chat.realtime_service import chat_realtime_service
         
         # Verificar si usuario está online
         presence = await chat_realtime_service.get_user_presence(user_id)
@@ -189,7 +189,7 @@ class NotificationDispatcher:
         if not tokens:
             raise Exception("No push tokens registered")
         
-        from backend.core.config import settings
+        from core.config import settings
         
         # Usar FCM HTTP v1 API
         import httpx
@@ -244,7 +244,7 @@ class NotificationDispatcher:
         if self._is_quiet_hours(prefs):
             raise Exception("User in quiet hours")
         
-        from backend.core.config import settings
+        from core.config import settings
         
         email = prefs.get("email")
         if not email:

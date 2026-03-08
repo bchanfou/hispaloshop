@@ -5,8 +5,8 @@ Fase 5: Centro de notificaciones y preferencias
 from fastapi import APIRouter, Depends, Query
 from typing import Optional, List
 
-from backend.services.notifications.dispatcher_service import notification_dispatcher
-from backend.routes.auth import get_current_user
+from services.notifications.dispatcher_service import notification_dispatcher
+from routes.auth import get_current_user
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
@@ -67,7 +67,7 @@ async def mark_all_read(
     """
     Marcar todas las notificaciones como leídas
     """
-    from backend.core.database import db
+    from core.database import db
     from datetime import datetime
     from bson import ObjectId
     
@@ -123,7 +123,7 @@ async def get_notification_preferences(
     """
     Obtener preferencias de notificación
     """
-    from backend.core.database import db
+    from core.database import db
     
     prefs = await db.user_notification_preferences.find_one({
         "user_id": str(current_user["_id"])
@@ -152,7 +152,7 @@ async def update_notification_preferences(
     """
     Actualizar preferencias de notificación
     """
-    from backend.core.database import db
+    from core.database import db
     from datetime import datetime
     
     preferences["user_id"] = str(current_user["_id"])
@@ -195,3 +195,30 @@ async def admin_send_notification(
     )
     
     return {"notification_id": notification_id, "status": "sent"}
+
+# Function to create notification (used by other modules)
+async def create_notification(
+    user_id: str,
+    title: str,
+    body: str,
+    notification_type: str = "system",
+    channels: List[str] = None,
+    priority: str = "normal",
+    data: dict = None
+):
+    """
+    Create a notification for a user.
+    Used internally by other route modules.
+    """
+    if channels is None:
+        channels = ["in_app"]
+    
+    await notification_dispatcher.send_notification(
+        user_id=user_id,
+        title=title,
+        body=body,
+        notification_type=notification_type,
+        channels=channels,
+        priority=priority,
+        data=data or {}
+    )

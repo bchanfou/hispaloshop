@@ -7,9 +7,9 @@ from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
 
-from backend.core.database import db
-from backend.core.cache import redis_client
-from backend.schemas.superadmin.dashboard import (
+from core.database import db
+from core.cache import redis_client
+from schemas.superadmin.dashboard import (
     KPICard, RevenueDataPoint, GeoDistribution, 
     DashboardSummaryResponse, TopProduct, TopInfluencer
 )

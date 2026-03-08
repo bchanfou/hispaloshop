@@ -5,12 +5,12 @@ Fase 5: Moderación asistida por IA
 from fastapi import APIRouter, Depends, Query
 from typing import Optional
 
-from backend.schemas.superadmin.moderation import (
+from schemas.superadmin.moderation import (
     ContentType, ModerationStatus, ModerationAction,
     ModerationStats, SystemAlertStatus, SystemAlertSeverity
 )
-from backend.services.superadmin.moderation_service import moderation_service
-from backend.routes.auth import get_current_user
+from services.superadmin.moderation_service import moderation_service
+from routes.auth import get_current_user
 
 router = APIRouter(prefix="/superadmin/moderation", tags=["superadmin-moderation"])
 

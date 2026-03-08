@@ -6,8 +6,8 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
 
-from backend.core.database import db
-from backend.schemas.superadmin.audit import (
+from core.database import db
+from schemas.superadmin.audit import (
     AuditActionType, AuditLogEntry, AuditLogFilter, AuditStats
 )
 

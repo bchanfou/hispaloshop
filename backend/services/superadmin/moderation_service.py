@@ -7,8 +7,8 @@ from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
 
-from backend.core.database import db
-from backend.schemas.superadmin.moderation import (
+from core.database import db
+from schemas.superadmin.moderation import (
     ContentType, ModerationStatus, ModerationSeverity,
     ModerationQueueItem, ModerationAction, ModerationStats,
     SystemAlert, SystemAlertSeverity, SystemAlertStatus
@@ -68,7 +68,7 @@ class ModerationService:
         
         try:
             import openai
-            from backend.core.config import settings
+            from core.config import settings
             
             openai.api_key = settings.OPENAI_API_KEY
             
