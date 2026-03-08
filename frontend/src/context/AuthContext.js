@@ -3,7 +3,9 @@
  */
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authApi } from '../lib/authApi';
+import { getDefaultRoute } from '../lib/navigation';
 
 const AuthContext = createContext(null);
 

@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { ConsentSummary, ConsentFullDisclosure } from '../components/ConsentLayers';
 import { useLocale } from '../context/LocaleContext';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 const FIELD_MESSAGES = {
   email: 'Introduce un email valido.',
@@ -46,6 +47,7 @@ const backendMessageToField = (message = '') => {
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { registerWithRedirect } = useAuthRedirect();
   const { t, i18n } = useTranslation();
   const { language } = useLocale();
   const [searchParams] = useSearchParams();
@@ -154,17 +156,15 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await authApi.register(formData);
+      await registerWithRedirect(formData);
 
       if (formData.role === 'producer' || formData.role === 'importer') {
         toast.success(t('auth.producerRegistrationSuccess', 'Registration successful! Your account is pending admin approval.'));
       } else if (formData.role === 'influencer') {
         toast.success('Registro exitoso. Revisa tu email para verificar tu cuenta. Tu cuenta esta pendiente de aprobacion.');
       } else {
-        toast.success(t('auth.registrationSuccess', 'Registration successful! Please check your email to verify your account.'));
+        toast.success(t('auth.registrationSuccess', 'Registration successful! Welcome aboard.'));
       }
-
-      navigate('/login');
     } catch (error) {
       const errorMessage = getAuthErrorMessage(error, 'Error de registro. Revisa tus datos e intentalo de nuevo.');
       const field = backendMessageToField(errorMessage);

@@ -6,6 +6,7 @@ import { Label } from '../components/ui/label';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
+import { useAuthRedirect } from '../hooks/useAuthRedirect';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Lock, AtSign } from 'lucide-react';
@@ -14,7 +15,7 @@ import { getAuthErrorMessage } from '../lib/authApi';
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { loginWithRedirect } = useAuthRedirect();
   const [loginMethod, setLoginMethod] = useState('email');
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -24,25 +25,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await login({
+      await loginWithRedirect({
         email: formData.email.trim(),
         password: formData.password,
       });
 
       toast.success(t('auth.loginSuccess'));
-
-      const role = response?.user?.role;
-      if (role === 'admin') {
-        navigate('/admin');
-      } else if (role === 'super_admin') {
-        navigate('/super-admin');
-      } else if (role === 'producer' || role === 'importer') {
-        navigate('/producer');
-      } else if (role === 'influencer') {
-        navigate('/influencer/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
     } catch (error) {
       toast.error(getAuthErrorMessage(error, t('auth.loginError')));
     } finally {
