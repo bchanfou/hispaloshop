@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Diagnostics</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #0f0; }
+        .log { margin: 5px 0; padding: 10px; background: #2a2a2a; border-radius: 4px; }
+        .error { color: #f55; }
+        .success { color: #5f5; }
+        .info { color: #ff5; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 250px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Auth Diagnostics Tool</h1>
+    
+    <div class="log info">
+        <strong>Environment:</strong><br>
+        Host: <span id="host"></span><br>
+        API URL: <span id="apiUrl"></span>
+    </div>
+
+    <h2>Test 1: Backend Health</h2>
+    <button onclick="testHealth()">Test /health</button>
+    <div id="healthResult"></div>
+
+    <h2>Test 2: Login</h2>
+    <input type="email" id="email" placeholder="Email" value="consumer@test.com"><br>
+    <input type="password" id="password" placeholder="Password" value="Test1234"><br>
+    <button onclick="testLogin()">Test Login</button>
+    <div id="loginResult"></div>
+
+    <h2>Test 3: Get Current User</h2>
+    <button onclick="testMe()">Test /auth/me</button>
+    <div id="meResult"></div>
+
+    <h2>Test 4: Google Auth URL</h2>
+    <button onclick="testGoogleUrl()">Test /auth/google/url</button>
+    <div id="googleResult"></div>
+
+    <h2>Logs</h2>
+    <div id="logs"></div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:8000/api' : '/api';
+        
+        document.getElementById('host').textContent = window.location.host;
+        document.getElementById('apiUrl').textContent = API_BASE;
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            document.getElementById('logs').prepend(div);
+        }
+
+        async function testHealth() {
+            log('Testing /health...');
+            try {
+                const res = await fetch(`${API_BASE}/health`, { 
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                log(`Health: ${JSON.stringify(data)}`, 'success');
+                document.getElementById('healthResult').innerHTML = `<div class="log success">Status: ${res.status}<br>Data: ${JSON.stringify(data)}</div>`;
+            } catch (e) {
+                log(`Health Error: ${e.message}`, 'error');
+                document.getElementById('healthResult').innerHTML = `<div class="log error">Error: ${e.message}</div>`;
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            log(`Testing login for ${email}...`);
+            
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                log(`Login Status: ${res.status}`, res.ok ? 'success' : 'error');
+                log(`Login Response: ${JSON.stringify(data).slice(0, 200)}...`, res.ok ? 'success' : 'error');
+                
+                // Check cookies
+                log(`Cookies after login: ${document.cookie || '(none)'}`, 'info');
+                
+                document.getElementById('loginResult').innerHTML = `
+                    <div class="log ${res.ok ? 'success' : 'error'}">
+                        Status: ${res.status}<br>
+                        User: ${data.user ? data.user.email : 'N/A'}<br>
+                        Session: ${data.session_token ? '✓' : '✗'}<br>
+                        Cookies: ${document.cookie || 'none'}
+                    </div>
+                `;
+            } catch (e) {
+                log(`Login Error: ${e.message}`, 'error');
+                document.getElementById('loginResult').innerHTML = `<div class="log error">Error: ${e.message}</div>`;
+            }
+        }
+
+        async function testMe() {
+            log('Testing /auth/me...');
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, { 
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                log(`Me Status: ${res.status}`, data ? 'success' : 'info');
+                log(`Me Response: ${JSON.stringify(data).slice(0, 200)}...`);
+                document.getElementById('meResult').innerHTML = `<div class="log ${data ? 'success' : 'info'}">Status: ${res.status}<br>Data: ${JSON.stringify(data)}</div>`;
+            } catch (e) {
+                log(`Me Error: ${e.message}`, 'error');
+                document.getElementById('meResult').innerHTML = `<div class="log error">Error: ${e.message}</div>`;
+            }
+        }
+
+        async function testGoogleUrl() {
+            log('Testing /auth/google/url...');
+            try {
+                const res = await fetch(`${API_BASE}/auth/google/url`, { 
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                log(`Google URL Status: ${res.status}`, res.ok ? 'success' : 'error');
+                document.getElementById('googleResult').innerHTML = `<div class="log ${res.ok ? 'success' : 'error'}">Status: ${res.status}<br>Data: ${JSON.stringify(data)}</div>`;
+            } catch (e) {
+                log(`Google URL Error: ${e.message}`, 'error');
+                document.getElementById('googleResult').innerHTML = `<div class="log error">Error: ${e.message}</div>`;
+            }
+        }
+
+        // Auto-run health check
+        testHealth();
+    </script>
+</body>
+</html>
