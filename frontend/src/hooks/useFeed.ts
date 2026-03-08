@@ -32,7 +32,7 @@ export function useFeed(params?: { category?: string; cursor?: string }) {
   return {
     posts: data?.items || [],
     nextCursor: data?.next_cursor,
-    hasMore: data?.has_more,
+    hasMore: Boolean(data?.has_more),
     isLoading,
     error,
   };
@@ -51,7 +51,7 @@ export function useFollowingFeed(cursor?: string) {
   return {
     posts: data?.items || [],
     nextCursor: data?.next_cursor,
-    hasMore: data?.has_more,
+    hasMore: Boolean(data?.has_more),
     isLoading,
     error,
   };

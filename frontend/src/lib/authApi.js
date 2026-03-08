@@ -69,6 +69,11 @@ export const authApi = {
     return response.data;
   },
 
+  async getGoogleAuthUrl() {
+    const response = await apiClient.get('/auth/google/url');
+    return response.data;
+  },
+
   async register(payload) {
     const response = await apiClient.post('/auth/register', payload);
     return response.data;

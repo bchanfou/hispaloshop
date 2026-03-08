@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useRef } from 'react';
-import { API } from '../utils/api';
+import { redirectAfterAuth } from '../lib/navigation';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -24,10 +23,17 @@ export default function AuthCallback() {
         const token = params.get('token');
 
         if (token) {
-          // Our own Google OAuth flow - token is already set in cookie by backend
-          // Just need to fetch current user
-          await checkAuth();
-          navigate('/dashboard', { replace: true });
+          const user = await checkAuth();
+          if (user) {
+            const needsOnboarding = user.role === 'customer' && !user.onboarding_completed;
+            if (needsOnboarding) {
+              navigate('/onboarding', { replace: true });
+            } else {
+              redirectAfterAuth(user, navigate);
+            }
+            return;
+          }
+          throw new Error('Google session was not established');
           return;
         }
 
@@ -44,8 +50,17 @@ export default function AuthCallback() {
         }
 
         // No token or session found - check if user is already authenticated
-        await checkAuth();
-        navigate('/dashboard', { replace: true });
+        const user = await checkAuth();
+        if (user) {
+          const needsOnboarding = user.role === 'customer' && !user.onboarding_completed;
+          if (needsOnboarding) {
+            navigate('/onboarding', { replace: true });
+          } else {
+            redirectAfterAuth(user, navigate);
+          }
+          return;
+        }
+        navigate('/login', { replace: true });
 
       } catch (error) {
         console.error('Auth error:', error);

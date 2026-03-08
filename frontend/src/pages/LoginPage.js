@@ -10,7 +10,7 @@ import { useAuthRedirect } from '../hooks/useAuthRedirect';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Lock, AtSign } from 'lucide-react';
-import { getAuthErrorMessage } from '../lib/authApi';
+import { authApi, getAuthErrorMessage } from '../lib/authApi';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -41,8 +41,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       // Use our own Google OAuth endpoint
-      const response = await fetch('/api/auth/google/url');
-      const data = await response.json();
+      const data = await authApi.getGoogleAuthUrl();
       if (data.auth_url) {
         window.location.href = data.auth_url;
       } else {

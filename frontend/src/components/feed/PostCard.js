@@ -24,10 +24,11 @@ function LikeAnimation({ show }) {
 
 function ProductTag({ product }) {
   if (!product) return null;
+  const productId = product.id || product.product_id;
   
   return (
     <Link
-      to={`/products/${product.id}`}
+      to={`/products/${productId}`}
       className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg flex items-center gap-2 hover:bg-white transition-colors"
     >
       <ShoppingBag className="w-4 h-4 text-[#2D5A3D]" />
@@ -39,7 +40,7 @@ function ProductTag({ product }) {
   );
 }
 
-function PostCard({ post }) {
+function PostCard({ post, onLike, onComment, onShare, onSave }) {
   const { t } = useTranslation();
   const [liked, setLiked] = useState(post.liked || false);
   const [saved, setSaved] = useState(post.saved || false);
@@ -71,23 +72,36 @@ function PostCard({ post }) {
   const handleLike = () => {
     setLiked(!liked);
     setLikeCount(prev => liked ? prev - 1 : prev + 1);
+    if (onLike) onLike();
   };
 
   const handleSave = () => {
     setSaved(!saved);
+    if (onSave) onSave();
   };
 
   const handleShare = async () => {
+    if (onShare) {
+      await onShare();
+      return;
+    }
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: post.caption || 'Publicación de Hispaloshop',
           text: post.caption,
-          url: window.location.href,
+          url: `${window.location.origin}/posts/${post.id}`,
         });
       } catch (err) {
         console.log('Share cancelled');
       }
+    }
+  };
+
+  const handleComment = () => {
+    if (onComment) {
+      onComment();
     }
   };
 
@@ -201,9 +215,9 @@ function PostCard({ post }) {
           >
             <Heart className={`w-6 h-6 ${liked ? 'fill-current' : ''}`} />
           </motion.button>
-          <Link to={`/post/${post.id}`} className="text-[#1A1A1A]">
+          <button onClick={handleComment} className="text-[#1A1A1A]">
             <MessageCircle className="w-6 h-6" />
-          </Link>
+          </button>
           <button onClick={handleShare} className="text-[#1A1A1A]">
             <Share2 className="w-6 h-6" />
           </button>
@@ -233,9 +247,9 @@ function PostCard({ post }) {
         )}
 
         {post.comments > 0 && (
-          <Link to={`/post/${post.id}`} className="text-sm text-[#6B7280] mt-1 block">
+          <button onClick={handleComment} className="text-sm text-[#6B7280] mt-1 block">
             {t('feed.viewComments', 'Ver los {{count}} comentarios', { count: post.comments })}
-          </Link>
+          </button>
         )}
 
         <p className="text-xs text-[#6B7280] mt-1 uppercase tracking-wide">

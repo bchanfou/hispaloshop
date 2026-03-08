@@ -45,6 +45,7 @@ const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
 const ProductsPage = lazy(() => import('./pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const StorePage = lazy(() => import('./pages/StorePage'));
+const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
 const CertificatePage = lazy(() => import('./pages/CertificatePage.jsx'));
 const CertificatesListPage = lazy(() => import('./pages/CertificatesListPage'));
 const StoresListPage = lazy(() => import('./pages/StoresListPage'));
@@ -229,6 +230,8 @@ function AppRouter() {
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/productos" element={<Navigate to="/products" replace />} />
               <Route path="/products/:productId" element={<ProductDetailPage />} />
+              <Route path="/posts/:postId" element={<PostDetailPage />} />
+              <Route path="/post/:postId" element={<PostDetailPage />} />
               <Route path="/store/:storeSlug" element={<StorePage />} />
               <Route path="/certificate/:productId" element={<CertificatePage />} />
               <Route path="/certificates" element={<CertificatesListPage />} />
@@ -268,9 +271,11 @@ function AppRouter() {
               <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
               <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
+              <Route path="/b2b/producers" element={<Navigate to="/b2b/marketplace" replace />} />
               <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
               <Route path="/orders" element={<LegacyOrdersRedirect />} />
               <Route path="/profile" element={<LegacyProfileRedirect />} />
+              <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/help" element={<HelpPage />} />
@@ -303,9 +308,12 @@ function AppRouter() {
               <Route path="/producer" element={<ProducerLayout />}>
                 <Route index element={<ProducerOverview />} />
                 <Route path="products" element={<ProducerProducts />} />
+                <Route path="products/new" element={<Navigate to="/producer/products" replace />} />
+                <Route path="products/:productId" element={<Navigate to="/producer/products" replace />} />
                 <Route path="products/:productId/countries" element={<ProductCountryManagement />} />
                 <Route path="certificates" element={<ProducerCertificates />} />
                 <Route path="orders" element={<ProducerOrders />} />
+                <Route path="orders/:orderId" element={<Navigate to="/producer/orders" replace />} />
                 <Route path="payments" element={<ProducerPayments />} />
                 <Route path="profile" element={<ProducerProfile />} />
                 <Route path="store" element={<ProducerStoreProfile />} />
@@ -313,11 +321,15 @@ function AppRouter() {
                 <Route path="connect" element={<ProducerConnectPage />} />
                 <Route path="connect/success" element={<ProducerConnectSuccess />} />
                 <Route path="connect/refresh" element={<ProducerConnectRefresh />} />
+                <Route path="analytics" element={<Navigate to="/producer" replace />} />
+                <Route path="promotions" element={<Navigate to="/producer" replace />} />
+                <Route path="influencers" element={<Navigate to="/discover?scope=profiles" replace />} />
               </Route>
 
               <Route path="/dashboard" element={<CustomerLayout />}>
                 <Route index element={<CustomerOverview />} />
                 <Route path="orders" element={<CustomerOrders />} />
+                <Route path="orders/:orderId" element={<Navigate to="/dashboard/orders" replace />} />
                 <Route path="followed-stores" element={<CustomerFollowedStores />} />
                 <Route path="wishlist" element={<WishlistPage />} />
                 <Route path="profile" element={<CustomerProfile />} />
@@ -341,6 +353,10 @@ function AppRouter() {
                   </InfluencerLayoutResponsive>
                 )}
               />
+              <Route path="/influencer/opportunities" element={<Navigate to="/influencer/dashboard" replace />} />
+              <Route path="/influencer/links" element={<Navigate to="/influencer/dashboard" replace />} />
+              <Route path="/influencer/earnings" element={<Navigate to="/influencer/dashboard" replace />} />
+              <Route path="/influencer/perks" element={<Navigate to="/influencer/dashboard" replace />} />
               <Route
                 path="/influencer/stripe-connect"
                 element={(
@@ -358,10 +374,13 @@ function AppRouter() {
               <Route path="/dashboard/influencer/new" element={<InfluencerDashboardNew />} />
               <Route path="/dashboard/producer/new" element={<ProducerDashboardNew />} />
               <Route path="/dashboard/importer/new" element={<ImporterDashboardNew />} />
+              <Route path="/importer/orders" element={<Navigate to="/producer/orders" replace />} />
+              <Route path="/importer/orders/:orderId" element={<Navigate to="/producer/orders" replace />} />
+              <Route path="/importer/products/new" element={<Navigate to="/producer/products" replace />} />
+              <Route path="/importer/analytics" element={<Navigate to="/producer" replace />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/stories/*" element={<StoriesPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccess />} />
-              <Route path="/chat" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

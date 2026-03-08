@@ -32,8 +32,7 @@ function SuggestedProfiles() {
         {SUGGESTED_PROFILES.map((profile) => (
           <div
             key={profile.id}
-            className="flex-shrink-0 w-24 text-center cursor-pointer"
-            onClick={() => navigate(`/profile/${profile.id}`)}
+            className="flex-shrink-0 w-24 text-center"
           >
             <img
               src={profile.avatar}
@@ -42,7 +41,10 @@ function SuggestedProfiles() {
             />
             <p className="text-xs font-medium text-[#1A1A1A] truncate">{profile.name}</p>
             <p className="text-xs text-[#6B7280]">{profile.followers}</p>
-            <button className="mt-2 px-3 py-1 bg-[#2D5A3D] text-white text-xs rounded-full flex items-center gap-1 mx-auto hover:bg-[#234a30] transition-colors">
+            <button
+              onClick={() => navigate('/discover?scope=profiles')}
+              className="mt-2 px-3 py-1 bg-[#2D5A3D] text-white text-xs rounded-full flex items-center gap-1 mx-auto hover:bg-[#234a30] transition-colors"
+            >
               <UserPlus className="w-3 h-3" />
               {t('feed.follow', 'Seguir')}
             </button>

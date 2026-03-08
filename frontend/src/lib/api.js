@@ -32,16 +32,25 @@ class HispaloAPI {
    */
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
     
     const config = {
       ...options,
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json',
         'X-Client-Version': '1.0.0',
         ...options.headers,
       },
     };
+
+    if (!isFormData && !config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+
+    if (isFormData && config.headers['Content-Type']) {
+      delete config.headers['Content-Type'];
+    }
 
     // Añadir token de autorización
     const token = getToken();
@@ -110,6 +119,7 @@ class HispaloAPI {
     try {
       const response = await fetch(`${this.baseURL}/auth/refresh`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh_token: refreshToken }),
       });
@@ -164,6 +174,62 @@ class HispaloAPI {
    */
   async batch(requests) {
     return this.post('/batch', { requests });
+  }
+
+  async getFeed(params = {}) {
+    const queryParams = new URLSearchParams();
+
+    if (params.cursor) queryParams.set('skip', params.cursor);
+    if (params.limit) queryParams.set('limit', params.limit);
+    if (params.source === 'following') queryParams.set('scope', 'following');
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    const data = await this.get(`/feed${query}`);
+    const posts = Array.isArray(data?.posts) ? data.posts : [];
+
+    return {
+      items: posts.map((post) => ({
+        ...post,
+        id: post.id || post.post_id,
+      })),
+      has_more: Boolean(data?.has_more),
+      next_cursor: data?.has_more ? String(posts.length + Number(params.cursor || 0)) : null,
+      total: data?.total || posts.length,
+    };
+  }
+
+  async getPost(postId) {
+    const post = await this.get(`/posts/${postId}`);
+    return {
+      ...post,
+      id: post?.id || post?.post_id || postId,
+      post_id: post?.post_id || postId,
+    };
+  }
+
+  async toggleLikePost(postId) {
+    return this.post(`/posts/${postId}/like`, {});
+  }
+
+  async toggleSavePost(postId) {
+    return this.post(`/posts/${postId}/bookmark`, {});
+  }
+
+  async getPostComments(postId) {
+    return this.get(`/posts/${postId}/comments`);
+  }
+
+  async createComment(postId, data) {
+    const text = data?.text || data?.content || '';
+    return this.post(`/posts/${postId}/comments`, { text });
+  }
+
+  async getStoriesFeed() {
+    return this.get('/stories');
+  }
+
+  async viewStory(storyId) {
+    return this.post(`/stories/${storyId}/view`, {});
   }
 
   // ==========================================

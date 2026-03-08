@@ -562,8 +562,7 @@ export default function RegisterPage() {
                   type="button"
                   onClick={async () => {
                     try {
-                      const response = await fetch('/api/auth/google/url');
-                      const data = await response.json();
+                      const data = await authApi.getGoogleAuthUrl();
                       if (data.auth_url) {
                         window.location.href = data.auth_url;
                       } else {

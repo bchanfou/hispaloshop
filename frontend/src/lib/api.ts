@@ -344,8 +344,24 @@ class ApiClient {
   }
 
   async getFeed(params?: { cursor?: string; limit?: number; source?: string }) {
-    const query = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
-    return this.request(`/posts${query}`);
+    const queryParams = new URLSearchParams();
+    if (params?.cursor) queryParams.set('skip', params.cursor);
+    if (params?.limit) queryParams.set('limit', String(params.limit));
+    if (params?.source === 'following') queryParams.set('scope', 'following');
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    const data = await this.request(`/feed${query}`);
+    const posts = Array.isArray((data as any)?.posts) ? (data as any).posts : [];
+
+    return {
+      items: posts.map((post: any) => ({
+        ...post,
+        id: post.id || post.post_id,
+      })),
+      has_more: Boolean((data as any)?.has_more),
+      next_cursor: (data as any)?.has_more ? String(posts.length + Number(params?.cursor || 0)) : null,
+      total: (data as any)?.total || posts.length,
+    };
   }
 
   async getPost(postId: string) {
@@ -439,7 +455,7 @@ class ApiClient {
   }
 
   async getStoriesFeed() {
-    return this.request('/stories/feed');
+    return this.request('/stories');
   }
 
   async getUserStories(userId: string) {

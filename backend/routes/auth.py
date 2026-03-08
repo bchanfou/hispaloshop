@@ -23,6 +23,20 @@ from services.auth_helpers import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+def _set_session_cookie(target_response: Response, request: Request, session_token: str) -> None:
+    """Apply the session cookie consistently for JSON and redirect responses."""
+    is_secure_cookie = request.url.scheme == "https"
+    target_response.set_cookie(
+        key="session_token",
+        value=session_token,
+        max_age=7 * 24 * 60 * 60,
+        path="/",
+        samesite="none" if is_secure_cookie else "lax",
+        httponly=True,
+        secure=is_secure_cookie
+    )
+
 # Auth routes
 
 @router.post("/auth/register")
@@ -327,16 +341,7 @@ async def login(input: LoginInput, request: Request):
         "session_token": session_token
     })
     
-    is_secure_cookie = request.url.scheme == "https"
-    response.set_cookie(
-        key="session_token",
-        value=session_token,
-        max_age=7 * 24 * 60 * 60,  # 7 days
-        path="/",
-        samesite="none" if is_secure_cookie else "lax",
-        httponly=True,
-        secure=is_secure_cookie
-    )
+    _set_session_cookie(response, request, session_token)
     
     return response
 
@@ -522,16 +527,7 @@ async def auth_session(request: Request, response: Response):
     })
     
     # Set httpOnly cookie
-    is_secure_cookie = request.url.scheme == "https"
-    response.set_cookie(
-        key="session_token",
-        value=session_token,
-        max_age=7 * 24 * 60 * 60,  # 7 days
-        httponly=True,
-        secure=is_secure_cookie,
-        samesite="none" if is_secure_cookie else "lax",
-        path="/"
-    )
+    _set_session_cookie(response, request, session_token)
     
     return {
         "user": user_doc,
@@ -598,16 +594,7 @@ async def refresh_token(request: Request, response: Response):
     })
     
     # Set new cookie
-    is_secure_cookie = request.url.scheme == "https"
-    response.set_cookie(
-        key="session_token",
-        value=new_session_token,
-        max_age=7 * 24 * 60 * 60,  # 7 days
-        path="/",
-        samesite="none" if is_secure_cookie else "lax",
-        httponly=True,
-        secure=is_secure_cookie
-    )
+    _set_session_cookie(response, request, new_session_token)
     
     return {
         "user": user_doc,
@@ -670,7 +657,6 @@ async def get_google_auth_url(request: Request):
 @router.get("/auth/google/callback")
 async def google_auth_callback(
     request: Request,
-    response: Response,
     code: str = None,
     state: str = None,
     error: str = None
@@ -774,18 +760,8 @@ async def google_auth_callback(
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     
-    # Set cookie
-    is_secure_cookie = request.url.scheme == "https"
-    response.set_cookie(
-        key="session_token",
-        value=session_token,
-        max_age=7 * 24 * 60 * 60,
-        path="/",
-        samesite="none" if is_secure_cookie else "lax",
-        httponly=False,
-        secure=is_secure_cookie
-    )
-    
-    # Redirect to frontend with success
     frontend_redirect = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
-    return RedirectResponse(url=f"{frontend_redirect}/auth/callback?token={session_token}")
+    redirect_response = RedirectResponse(url=f"{frontend_redirect}/auth/callback?token=google")
+    _set_session_cookie(redirect_response, request, session_token)
+    redirect_response.delete_cookie("oauth_state", path="/")
+    return redirect_response
