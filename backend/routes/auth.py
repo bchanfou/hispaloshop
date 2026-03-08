@@ -542,6 +542,74 @@ async def get_me(request: Request):
     return user
 
 
+@router.post("/auth/refresh")
+async def refresh_token(request: Request, response: Response):
+    """Refresh session token - creates new session if valid"""
+    session_token = request.cookies.get('session_token')
+    
+    if not session_token:
+        raise HTTPException(status_code=401, detail="No session token")
+    
+    # Find valid session
+    session = await db.user_sessions.find_one(
+        {"session_token": session_token},
+        {"_id": 0}
+    )
+    
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid session")
+    
+    # Check expiration
+    expires_at = datetime.fromisoformat(session["expires_at"])
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
+    if expires_at < datetime.now(timezone.utc):
+        await db.user_sessions.delete_one({"session_token": session_token})
+        raise HTTPException(status_code=401, detail="Session expired")
+    
+    # Get user
+    user_doc = await db.users.find_one(
+        {"user_id": session["user_id"]},
+        {"_id": 0, "password_hash": 0}
+    )
+    
+    if not user_doc:
+        await db.user_sessions.delete_one({"session_token": session_token})
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    # Create new session
+    new_session_token = f"session_{uuid.uuid4().hex}"
+    
+    # Delete old session
+    await db.user_sessions.delete_one({"session_token": session_token})
+    
+    # Create new session
+    await db.user_sessions.insert_one({
+        "user_id": user_doc["user_id"],
+        "session_token": new_session_token,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Set new cookie
+    is_secure_cookie = request.url.scheme == "https"
+    response.set_cookie(
+        key="session_token",
+        value=new_session_token,
+        max_age=7 * 24 * 60 * 60,  # 7 days
+        path="/",
+        samesite="none" if is_secure_cookie else "lax",
+        httponly=False,
+        secure=is_secure_cookie
+    )
+    
+    return {
+        "user": user_doc,
+        "session_token": new_session_token
+    }
+
+
 @router.post("/auth/logout")
 async def logout(request: Request):
     session_token = request.cookies.get('session_token')

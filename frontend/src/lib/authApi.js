@@ -1,36 +1,8 @@
-import axios from 'axios';
-import { API } from '../utils/api';
+/**
+ * Auth API - Mejorado con manejo de cookies y refresh automático
+ */
 
-const AUTH_RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504, 520]);
-const MAX_RETRIES = 2;
-const RETRY_DELAYS_MS = [400, 900];
-
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const isRetryableError = (error) => {
-  if (!error) return false;
-  if (error.code === 'ECONNABORTED') return true;
-  if (!error.response) return true;
-  return AUTH_RETRYABLE_STATUS.has(error.response.status);
-};
-
-const withRetry = async (requestFactory) => {
-  let lastError;
-
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
-    try {
-      return await requestFactory();
-    } catch (error) {
-      lastError = error;
-      if (attempt === MAX_RETRIES || !isRetryableError(error)) {
-        throw error;
-      }
-      await wait(RETRY_DELAYS_MS[attempt] ?? RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1]);
-    }
-  }
-
-  throw lastError;
-};
+import apiClient from './axiosConfig';
 
 export const getAuthErrorMessage = (error, fallbackMessage = 'Ha ocurrido un error inesperado.') => {
   const detail = error?.response?.data?.detail;
@@ -91,45 +63,29 @@ export const getAuthErrorMessage = (error, fallbackMessage = 'Ha ocurrido un err
   return fallbackMessage;
 };
 
-const authRequest = (path, options = {}) =>
-  withRetry(() =>
-    axios({
-      url: `${API}${path}`,
-      withCredentials: true,
-      timeout: 12000,
-      ...options,
-    })
-  );
-
 export const authApi = {
   async login(credentials) {
-    const response = await authRequest('/auth/login', {
-      method: 'post',
-      data: credentials,
-    });
+    const response = await apiClient.post('/auth/login', credentials);
     return response.data;
   },
 
   async register(payload) {
-    const response = await authRequest('/auth/register', {
-      method: 'post',
-      data: payload,
-    });
+    const response = await apiClient.post('/auth/register', payload);
     return response.data;
   },
 
   async getCurrentUser() {
-    const response = await authRequest('/auth/me', {
-      method: 'get',
-    });
+    const response = await apiClient.get('/auth/me');
     return response.data;
   },
 
   async logout() {
-    const response = await authRequest('/auth/logout', {
-      method: 'post',
-      data: {},
-    });
+    const response = await apiClient.post('/auth/logout');
+    return response.data;
+  },
+
+  async refreshToken() {
+    const response = await apiClient.post('/auth/refresh');
     return response.data;
   },
 };
