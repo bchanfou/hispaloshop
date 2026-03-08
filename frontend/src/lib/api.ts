@@ -1,4 +1,5 @@
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+import { getApiOrigin, getApiUrl } from '../utils/api';
+
 const API_PREFIX = process.env.REACT_APP_API_PREFIX || '/api';
 const API_FALLBACK_PREFIX = process.env.REACT_APP_API_FALLBACK_PREFIX || '/api/v1';
 const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504, 520]);
@@ -52,8 +53,10 @@ class ApiClient {
   private token: string | null;
 
   constructor() {
-    this.baseUrl = `${API_URL}${API_PREFIX}`;
-    this.fallbackBaseUrl = API_FALLBACK_PREFIX !== API_PREFIX ? `${API_URL}${API_FALLBACK_PREFIX}` : null;
+    const apiUrl = getApiUrl();
+    const apiOrigin = getApiOrigin();
+    this.baseUrl = apiUrl;
+    this.fallbackBaseUrl = API_FALLBACK_PREFIX !== API_PREFIX ? `${apiOrigin}${API_FALLBACK_PREFIX}` : null;
     // Cookie-based auth - token is sent automatically via cookies
     this.token = null;
   }

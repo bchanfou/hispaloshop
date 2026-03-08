@@ -37,8 +37,8 @@ import MiniCart from './components/cart/MiniCart';
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const SellerLandingPage = lazy(() => import('./pages/SellerLandingPage'));
-const ProductorLandingPage = lazy(() => import('./pages/ProductorLandingPage'));
-const InfluencerLandingPage = lazy(() => import('./pages/InfluencerLandingPage'));
+const ProductorLandingPage = lazy(() => import('./pages/landings/ProductorLanding'));
+const InfluencerLandingPage = lazy(() => import('./pages/landings/InfluencerLanding'));
 const RecipesPage = lazy(() => import('./pages/RecipesPage'));
 const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
 const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
@@ -52,12 +52,16 @@ const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
-const ImporterLandingPage = lazy(() => import('./pages/ImporterLandingPage'));
+const ImporterLandingPage = lazy(() => import('./pages/landings/ImportadorLanding'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const HelpPage = lazy(() => import('./pages/HelpPage'));
+const BlogPage = lazy(() => import('./pages/BlogPage'));
+const PressPage = lazy(() => import('./pages/PressPage'));
+const CareersPage = lazy(() => import('./pages/CareersPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
 const SuperAdminLayout = lazy(() => import('./components/dashboard/SuperAdminLayoutResponsive'));
@@ -279,6 +283,10 @@ function AppRouter() {
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/help" element={<HelpPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/press" element={<PressPage />} />
+              <Route path="/careers" element={<CareersPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
 

@@ -1,42 +1,67 @@
-/**
- * API URL Helper
- * Centralized function to get the correct API URL based on environment
- * 
- * - Production (hispaloshop.com): Uses relative /api
- * - Staging/Preview: Uses relative /api
- * - Development (localhost): Uses REACT_APP_BACKEND_URL
- */
+const API_PREFIX = process.env.REACT_APP_API_PREFIX || '/api';
 
-export const getApiUrl = () => {
-  const apiPrefix = process.env.REACT_APP_API_PREFIX || '/api';
+const normalizeUrl = (value) => {
+  if (!value || typeof value !== 'string') return '';
+  return value.trim().replace(/\/+$/, '');
+};
 
+const buildApiUrl = (baseUrl) => {
+  const normalizedBase = normalizeUrl(baseUrl);
+  if (!normalizedBase) return '';
+  if (normalizedBase.endsWith(API_PREFIX)) return normalizedBase;
+  return `${normalizedBase}${API_PREFIX}`;
+};
+
+const getDefaultBackendOrigin = () => {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
-    
-    // Production, staging, or preview - always use relative URL
-    if (host.includes('hispaloshop.com') || host.includes('preview.')) {
-      return apiPrefix;
+
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:8000';
+    }
+
+    if (host.endsWith('hispaloshop.com')) {
+      return 'https://api.hispaloshop.com';
     }
   }
-  
-  // Development - use environment variable (fallback to local backend)
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
-  return backendUrl ? `${backendUrl}${apiPrefix}` : apiPrefix;
+
+  return 'http://localhost:8000';
+};
+
+export const getApiUrl = () => {
+  const explicitApiUrl = normalizeUrl(process.env.REACT_APP_API_URL);
+  if (explicitApiUrl) return buildApiUrl(explicitApiUrl);
+
+  const explicitBackendUrl = normalizeUrl(process.env.REACT_APP_BACKEND_URL);
+  if (explicitBackendUrl) return buildApiUrl(explicitBackendUrl);
+
+  return buildApiUrl(getDefaultBackendOrigin());
+};
+
+export const getApiOrigin = () => {
+  const apiUrl = getApiUrl();
+
+  try {
+    return new URL(apiUrl).origin;
+  } catch {
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+
+    return '';
+  }
 };
 
 export const resolveApiAssetUrl = (url) => {
   if (!url || typeof url !== 'string') return '';
   if (/^https?:\/\//i.test(url)) return url;
 
-  if (typeof window !== 'undefined') {
-    return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
-  }
+  const baseOrigin = getApiOrigin();
+  if (!baseOrigin) return url;
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
-  return backendUrl ? `${backendUrl}${url.startsWith('/') ? '' : '/'}${url}` : url;
+  return `${baseOrigin}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
-// Export the API URL constant for convenience
 export const API = getApiUrl();
 
 export default API;

@@ -5,15 +5,17 @@
 
 import { API } from './api'; // Centralized API URL
 
+let analyticsTrackingEnabled = true;
+
 export const trackPageVisit = async (page, country = null) => {
   try {
-    // Don't track in development or if API is not available
-    if (!API) return;
+    // Don't track if API is not available or the endpoint is known missing
+    if (!API || !analyticsTrackingEnabled) return;
     
     // Get referrer
     const referrer = document.referrer || null;
     
-    await fetch(`${API}/track/visit`, {
+    const response = await fetch(`${API}/track/visit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,6 +27,10 @@ export const trackPageVisit = async (page, country = null) => {
       }),
       credentials: 'include',
     });
+
+    if (response.status === 404) {
+      analyticsTrackingEnabled = false;
+    }
   } catch (error) {
     // Silently fail - don't break the app for analytics
     console.debug('Analytics tracking failed:', error);

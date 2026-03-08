@@ -2,352 +2,392 @@
 
 ## Objetivo
 
-Auditar toda la aplicacion de forma secuencial, empezando por la pagina principal y continuando por cada pagina, subpagina, boton, enlace y funcion visible, para:
+Dejar Hispaloshop funcional de extremo a extremo:
 
-1. Detectar rutas rotas, botones sin destino o con destino inexistente.
-2. Detectar llamadas API inconsistentes entre frontend y backend activo.
-3. Detectar flujos incompletos o divergentes entre implementaciones nuevas y legacy.
-4. Priorizar correcciones por impacto real sobre navegacion, conversion y operativa.
+1. Sin paginas que rompan en render.
+2. Sin botones o enlaces que no lleven a un destino real.
+3. Sin rutas visibles que terminen en 404 o redirect vacio.
+4. Sin componentes criticos conectados a endpoints equivocados o a mocks.
+5. Con una ruta clara de correccion por olas, empezando por lo que rompe conversion y navegacion.
 
 ---
 
-## Hallazgos Iniciales Confirmados
+## Estado Actual
+
+### Ya corregido en la primera pasada
+
+1. Se habilito detalle real de posts desde el feed.
+2. Se corrigio la base de stories del home para usar el flujo activo.
+3. Se elimino la ruta duplicada de `/chat`.
+4. Se ajusto el cliente JS para enviar cookies de sesion.
+5. Se anadieron redirects defensivos para varias rutas muertas de dashboards.
+
+Esto estabiliza parte de la navegacion, pero no significa que el producto este auditado ni operativo al 100%.
+
+### Ya corregido en la segunda pasada
+
+1. `/productor` y `/info/productor` ya no usan la landing rota en runtime.
+2. El footer de landings deja de apuntar a rutas inexistentes para blog, prensa, carreras y contacto.
+3. Ya existen paginas reales para `/blog`, `/press`, `/careers` y `/contact`.
+4. La compilacion del frontend pasa con esta navegacion publica cerrada.
+
+### Corregido en codigo durante la tercera pasada
+
+1. La base de API del frontend queda unificada y deja de mezclar `hispaloshop.com`, rutas relativas y `api.hispaloshop.com` sin `/api`.
+2. `auth`, `locale`, `exchange-rates`, `track/visit` y el feed ya apuntan a una estrategia de backend coherente.
+3. El backend acepta los headers `X-Client-Version` y `X-Request-ID`, que estaban provocando preflight innecesario con CORS.
+4. El backend amplia automaticamente CORS entre `https://hispaloshop.com` y `https://www.hispaloshop.com`.
+5. El tracking de visitas deja de insistir indefinidamente si el endpoint responde 404.
+
+---
+
+## Hallazgos Confirmados
 
 ### Criticos
 
-1. Navegacion a detalle de post sin ruta frontend.
-   - `frontend/src/components/feed/ForYouFeed.js`
-   - `frontend/src/components/feed/FollowingFeed.js`
-   - Ambos usan `navigate('/posts/${postId}')`.
-   - En `frontend/src/App.js` no existe ruta `"/posts/:postId"`.
-   - Impacto: botones de comentario/share del feed llevan a una URL no resuelta.
+1. El home feed sigue siendo una zona de alto riesgo.
+   - Archivos:
+     - `frontend/src/components/feed/ForYouFeed.js`
+     - `frontend/src/components/feed/FollowingFeed.js`
+     - `frontend/src/lib/api.js`
+     - `frontend/src/lib/api.ts`
+   - Causa: coexistencia de capa social nueva, endpoints legacy y diferentes formas de respuesta.
+   - Impacto: la seccion principal de la home puede quedar vacia, lanzar error o renderizar datos inconsistentes.
 
-2. Stories del home conectadas a un endpoint no montado en el backend activo.
-   - `frontend/src/components/stories/StoriesCarousel.js` hace `fetch('/stories/feed')`.
-   - El endpoint encontrado existe solo en `backend/_future_postgres/routers/stories.py`.
-   - `backend/main.py` no monta ese router.
-   - Impacto: carrusel de historias con alta probabilidad de fallo en home.
+2. Existen superficies visibles que siguen dependiendo de mocks.
+   - Archivos:
+     - `frontend/src/components/stories/StoryViewer.js`
+     - `frontend/src/components/reels/ReelsContainer.js`
+     - `frontend/src/components/reels/ReelComments.js`
+     - `frontend/src/components/profile/PostsGrid.js`
+     - `frontend/src/components/profile/StoreView.js`
+   - Impacto: partes del producto parecen listas pero no estan conectadas con backend real.
 
-3. Destinos mock en sugerencias del home.
-   - `frontend/src/components/feed/ForYouFeed.js`
-   - `SuggestedProfiles` navega a `/profile/s1`, `/profile/s2`, etc.
-   - Esos ids son mock y no corresponden a usuarios reales.
-   - Impacto: CTA visible en portada conduce a perfiles probablemente rotos.
+3. Errores reales de produccion ya observados en consola.
+   - `Access to fetch at 'https://api.hispaloshop.com/feed?scope=following' ... blocked by CORS`
+   - `404` en `/api/auth/me`, `/api/auth/google/url`, `/api/config/locale`, `/api/exchange-rates`, `/api/track/visit`
+   - `404` en `/api/stories`
+   - `Uncaught SyntaxError: Unexpected token 'export'`
+   - Impacto: feed sin cargar, login Google roto, locale sin config, tracking fallando y evidencia de una incompatibilidad JS pendiente de localizar.
 
 ### Altos
 
-4. Ruta duplicada para `"/chat"` en `frontend/src/App.js`.
-   - Hay una definicion con `ChatContainer` y otra con `Navigate to="/"`.
-   - Impacto: comportamiento ambiguo y deuda estructural en una ruta principal.
+3. Existen varias landings para la misma intencion con implementaciones divergentes.
+   - Archivos:
+     - `frontend/src/pages/ProductorLandingPage.js`
+     - `frontend/src/pages/SellerLandingPage.js`
+     - `frontend/src/pages/landings/ProductorLanding.js`
+   - Impacto: copy, diseño, CTA y calidad funcional diferentes para “ser productor”.
 
-5. Dashboards nuevos apuntan a rutas no declaradas.
-   - `frontend/src/pages/dashboard/consumer/ConsumerDashboard.js`
-   - `frontend/src/pages/dashboard/producer/ProducerDashboard.js`
-   - `frontend/src/pages/dashboard/influencer/InfluencerDashboard.js`
-   - `frontend/src/pages/dashboard/importer/ImporterDashboard.js`
-   - Ejemplos: `/dashboard/orders/:id`, `/producer/products/new`, `/producer/analytics`, `/influencer/earnings`, `/b2b/producers`, `/importer/analytics`.
-   - Impacto: botones visibles en paneles pueden romper navegacion o redirigir a 404.
+4. Dashboards nuevos siguen apoyandose en rutas placeholder o incompletas.
+   - Archivos:
+     - `frontend/src/pages/dashboard/consumer/ConsumerDashboard.js`
+     - `frontend/src/pages/dashboard/producer/ProducerDashboard.js`
+     - `frontend/src/pages/dashboard/influencer/InfluencerDashboard.js`
+     - `frontend/src/pages/dashboard/importer/ImporterDashboard.js`
+   - Impacto: varios quick actions y CTAs siguen sin funcionalidad final real.
 
-6. Inconsistencia de clientes API en frontend.
-   - Conviven `frontend/src/lib/api.js`, `frontend/src/lib/authApi.js`, `frontend/src/lib/axiosConfig.js` y varios `fetch()` directos.
-   - Impacto: cookies, auth, base URL y errores no se gestionan de forma uniforme.
+5. Hay inconsistencia estructural en la capa API del frontend.
+   - Conviven:
+     - `frontend/src/lib/api.js`
+     - `frontend/src/lib/api.ts`
+     - `frontend/src/lib/authApi.js`
+     - `frontend/src/lib/axiosConfig.js`
+     - `fetch()` y `axios` directos
+   - Impacto: auth, cookies, base URL y manejo de errores no son uniformes.
 
 ### Medios
 
-7. `FeedContainer` conserva codigo no conectado.
-   - Importa `CategoryPills` pero no se usa.
-   - Tiene `selectedCategory` y `handleRefresh` sin efecto real visible.
-   - Pasa props a `StoriesCarousel` que el componente no consume.
-   - Impacto: deuda tecnica y señales de integracion incompleta.
+6. `FeedContainer` conserva estado y props muertos.
+   - Archivo: `frontend/src/components/feed/FeedContainer.js`
+   - Impacto: deuda tecnica y señales de integracion parcial.
+
+7. Algunas landings usan navegacion directa con `window.location.href`.
+   - Archivo: `frontend/src/pages/landings/ProductorLanding.js`
+   - Impacto: comportamiento inconsistente con React Router.
+
+10. Hay componentes con mensajes de “endpoint not available” y fallbacks silenciosos.
+   - Esto no siempre rompe la UI, pero oculta falta de integracion real.
 
 ---
 
-## Estrategia de Auditoria
+## Riesgos por Area
 
-La auditoria no se ejecutara "por archivos", sino por superficie funcional visible al usuario.
+### A. Home y Conversion
 
-Orden obligatorio:
+Superficie:
 
-1. Home y sus subfunciones.
-2. Auth y onboarding.
-3. Catalogo, discovery y contenido publico.
-4. Compra: carrito, checkout, pedidos.
-5. Social: feed, posts, stories, reels, chat.
-6. Dashboards por rol.
-7. Admin y superadmin.
-8. Configuracion transversal y regresion automatizada.
+- Home
+- Header
+- Feed
+- Stories
+- CTA HI AI
+- Footer
 
-Cada bloque debe cerrar con:
+Riesgo:
 
-1. Inventario de botones/enlaces.
-2. Mapa de rutas involucradas.
-3. Endpoints consumidos.
-4. Bugs confirmados.
-5. Fixes propuestos.
-6. Tests de regresion a crear.
+- Si el home no carga feed o stories, se cae la pagina mas importante del producto.
 
----
+### B. Landings y Captacion
 
-## Fase 1: Home
+Superficie:
 
-### Superficie a auditar
+- `/productor`
+- `/vender`
+- `/influencer`
+- `/importador`
+- `/que-es`
 
-- `frontend/src/pages/HomePage.js`
-- `frontend/src/components/Header.js`
-- `frontend/src/components/feed/FeedContainer.js`
-- `frontend/src/components/feed/TabToggle.js`
-- `frontend/src/components/feed/LandingNavPills.js`
-- `frontend/src/components/feed/ForYouFeed.js`
-- `frontend/src/components/feed/FollowingFeed.js`
-- `frontend/src/components/stories/StoriesCarousel.js`
-- `frontend/src/components/feed/HIFloatingButton.js`
-- `frontend/src/components/Footer.js`
+Riesgo:
 
-### Checklist funcional
+- Si la pagina rompe o los CTAs llevan a paginas muertas, se pierde captacion.
 
-1. Header
-   - Logo
-   - Busqueda por scope: todo, productos, perfiles, tiendas
-   - Cart button
-   - Login / registro
-   - Logout
-   - Menu hamburguesa
-   - Selector de idioma
+### C. Navegacion Global
 
-2. Home feed
-   - Cambio entre "Siguiendo" y "Para ti"
-   - Navegacion a landings
-   - Carga de stories
-   - Scroll del feed
-   - Like
-   - Comentario
-   - Share
-   - Estado vacio
-   - Estado de error
+Superficie:
 
-3. CTA flotante HI AI
-   - Usuario autenticado
-   - Usuario anonimo
+- links de footer
+- links de landings
+- botones de dashboard
+- alias de rutas
 
-4. Footer
-   - Enlaces institucionales
-   - Enlaces de navegacion
-   - Enlaces externos
-   - Selector de idioma mobile
+Riesgo:
 
-### Entregable de la fase
+- Experiencia rota aunque la pagina principal cargue.
 
-- Matriz completa de botones de la portada.
-- Lista de rutas validas e invalidas de la portada.
-- Lista de endpoints realmente usados por la portada.
-- PR de correccion de bugs criticos de portada.
+### D. Social
+
+Superficie:
+
+- feed
+- posts
+- comments
+- stories
+- reels
+- chat
+
+Riesgo:
+
+- Gran parte del storytelling y engagement no esta unificada con backend real.
+
+### E. Operativa por Rol
+
+Superficie:
+
+- customer dashboard
+- producer dashboard
+- influencer dashboard
+- importer dashboard
+
+Riesgo:
+
+- El usuario entra a su panel y encuentra botones que no terminan en una accion real.
 
 ---
 
-## Fase 2: Auth y Onboarding
+## Plan de Accion
 
-### Superficie
+### Ola 1: Recuperar superficies rotas visibles
 
-- Login
-- Registro por rol
-- Google login
-- Verify email
-- Forgot/reset password
-- Auth callback
-- Onboarding
+Objetivo:
 
-### Riesgos a validar
+Quitar fallos visibles al usuario final en home y landings.
 
-1. Rutas alias duplicadas o inconsistentes.
-2. Redirecciones post-login segun rol.
-3. Google auth en local y en despliegue.
-4. Reglas de aprobacion para producer/importer/influencer.
-5. Flujos con cookies vs token local.
+Tareas:
+
+1. Corregir `/productor`.
+   - O bien completar `ProductorLandingPage.js` con los bloques faltantes.
+   - O bien sustituirla por una landing estable ya existente.
+   - Decision recomendada: reutilizar la implementacion estable y eliminar duplicidad.
+
+2. Verificar feed home contra backend activo.
+   - Confirmar forma exacta de respuesta de `/api/feed`.
+   - Confirmar que `ForYouFeed` y `FollowingFeed` consumen correctamente los campos reales.
+   - Revisar like, comment y share.
+
+3. Auditar todos los botones del home.
+   - Header
+   - Landing pills
+   - Stories
+   - Post cards
+   - Footer principal
+
+4. Auditar todos los botones visibles de landings principales.
+   - Productor
+   - Influencer
+   - Importador
+   - Que es
+
+Entrega de la ola:
+
+- Home y landings sin error boundary.
+- Sin CTA principal roto.
+
+### Ola 2: Eliminar rutas colgantes y destinos vacios
+
+Objetivo:
+
+Quitar todo enlace visible que no tenga pagina final o redirect intencional valido.
+
+Tareas:
+
+1. Inventario de rutas referenciadas desde botones y links.
+2. Cruce contra rutas definidas en `frontend/src/App.js`.
+3. Clasificacion por estado:
+   - existe
+   - existe pero rota
+   - no existe
+   - solo redirect temporal
+
+4. Resolver especialmente:
+   - `/blog`
+   - `/press`
+   - `/careers`
+   - `/contact`
+   - rutas internas de dashboards
+
+Entrega de la ola:
+
+- Ningun link visible del sitio apunta a una ruta inexistente.
+- Estado actual: cerrada para la navegacion publica principal y el footer de landings.
+
+### Ola 3: Unificar social real
+
+Objetivo:
+
+Dejar feed, posts, stories y reels conectados al backend activo, no a mocks.
+
+Tareas:
+
+1. Consolidar una sola capa API social.
+2. Unificar shape de posts.
+3. Revisar `PostViewer`, `PostCard`, feed cards y detalles.
+4. Sustituir mocks en stories y reels por endpoints reales o esconder la funcionalidad si no existe backend.
+
+Entrega de la ola:
+
+- Social visible 100% conectado o explícitamente desactivado donde no exista soporte real.
+- Estado actual:
+  - Base URL y CORS corregidos en codigo.
+  - Pendiente validar en despliegue que `api.hispaloshop.com` sirva realmente `/api/auth/me`, `/api/auth/google/url`, `/api/config/locale`, `/api/exchange-rates`, `/api/track/visit`, `/api/feed` y `/api/stories`.
+  - Pendiente localizar el origen exacto del `Unexpected token 'export'` con repro y archivo/script concreto.
+
+### Ola 4: Dashboards por rol
+
+Objetivo:
+
+Quitar CTAs muertos y dejar paneles operativos.
+
+Tareas:
+
+1. Auditar cada KPI card.
+2. Auditar quick actions.
+3. Auditar listas de actividad y sugerencias.
+4. Reemplazar redirects temporales por rutas reales o eliminar acciones hasta que existan.
+
+Entrega de la ola:
+
+- Cada boton visible en un dashboard hace algo real.
+
+### Ola 5: Catalogo, compra y cuenta
+
+Objetivo:
+
+Validar ecommerce base.
+
+Tareas:
+
+1. Products
+2. Product detail
+3. Stores
+4. Cart
+5. Checkout
+6. Orders
+7. Wishlist
+8. Profile
+
+Entrega de la ola:
+
+- Flujo browse -> product -> cart -> checkout -> order sin rutas muertas.
+
+### Ola 6: Admin y superadmin
+
+Objetivo:
+
+Validar paneles internos y guardas.
+
+Tareas:
+
+1. Roles
+2. Rutas
+3. CRUDs
+4. Metricas
+5. Estados de error
 
 ---
 
-## Fase 3: Publico y Descubrimiento
+## Metodologia de Auditoria
 
-### Superficie
+Cada bloque se cerrara con:
 
-- `ProductsPage`
-- `ProductDetailPage`
-- `StoresListPage`
-- `StorePage`
-- `DiscoverPage`
-- `CategoryPage`
-- `RecipesPage`
-- `RecipeDetailPage`
-- landings publicas
-
-### Validaciones
-
-1. Filtros, busqueda y query params.
-2. Navegacion producto -> tienda -> categoria.
-3. Enlaces cruzados desde landing a registro y ayuda.
-4. Estados vacios y fallos de carga.
+1. Inventario de botones.
+2. Inventario de enlaces.
+3. Rutas llamadas.
+4. Endpoints consumidos.
+5. Bugs confirmados.
+6. Fix propuesto.
+7. Verificacion de build.
 
 ---
 
-## Fase 4: Compra y Cuenta Cliente
+## Tests a Crear
 
-### Superficie
+1. Test de integridad de rutas.
+   - Detectar `navigate('/x')`, `to="/x"` y `href="/x"` sin correspondencia en `App.js`.
 
-- Cart
-- MiniCart
-- Checkout
-- Checkout success
-- Dashboard cliente
-- Orders
-- Wishlist
-- Profile
+2. Smoke test de home.
+   - Header
+   - Feed
+   - Stories
+   - Footer
+   - CTA principal
 
-### Validaciones
+3. Smoke test de landings.
+   - `/productor`
+   - `/vender`
+   - `/influencer`
+   - `/importador`
+   - `/que-es`
 
-1. Add to cart desde todas las superficies.
-2. Persistencia de carrito.
-3. Checkout con usuario anonimo y autenticado.
-4. Ordenes y detalle de orden.
-5. Direcciones, perfil y favoritos.
-6. Rutas internas del dashboard cliente.
+4. Smoke test de dashboards por rol.
 
----
-
-## Fase 5: Social, Posts, Stories, Reels y Chat
-
-### Superficie
-
-- Feed home
-- Social feed legado
-- Post viewer / detalle de post
-- Stories viewer / creator
-- Reels
-- Chat
-
-### Riesgos ya detectados
-
-1. Home usa social nuevo pero con rutas incompletas.
-2. Stories dependen de endpoint no montado.
-3. Existen implementaciones paralelas de feed social.
-4. Chat tiene ruta duplicada en `App.js`.
-
-### Validaciones
-
-1. Like, save, comment, share.
-2. Viewer de post.
-3. Historias: feed, create, view.
-4. Reels: producto, user, hashtags.
-5. Chat: acceso, rutas y auth.
-
----
-
-## Fase 6: Dashboards por Rol
-
-### Superficie
-
-- Dashboard cliente nuevo
-- Dashboard productor nuevo
-- Dashboard importador nuevo
-- Dashboard influencer nuevo
-- Layouts responsive asociados
-
-### Prioridad
-
-Muy alta, porque ya hay evidencia de botones con rutas no montadas.
-
-### Validaciones
-
-1. Cada card KPI.
-2. Cada quick action.
-3. Cada CTA de actividad reciente.
-4. Cada sugerencia HI.
-5. Coherencia entre dashboards "nuevos" y rutas realmente disponibles en `App.js`.
-
----
-
-## Fase 7: Admin y Superadmin
-
-### Superficie
-
-- `/admin/*`
-- `/super-admin/*`
-- tablas, acciones, filtros, moderacion, dashboards
-
-### Validaciones
-
-1. Guardas de rol.
-2. Enlaces internos.
-3. Operaciones CRUD.
-4. Carga de metricas.
-5. Estados de error.
-
----
-
-## Fase 8: Capa Transversal y Automatizacion
-
-### Objetivos
-
-1. Unificar estrategia API del frontend.
-2. Detectar rutas frontend inexistentes desde botones antes de llegar a produccion.
-3. Crear smoke tests de navegacion.
-4. Crear contract tests minimos para endpoints usados por UI.
-
-### Tests a crear
-
-1. Test de integridad de rutas:
-   - detectar `navigate('/x')` y `to="/x"` que no existan en `App.js`.
-
-2. Test de integridad home:
-   - header
-   - footer
-   - feed
-   - stories
-   - CTA HI AI
-
-3. Test de dashboards por rol:
-   - render
-   - cards
-   - quick actions
-   - redireccion correcta
-
-4. Test de endpoints criticos:
+5. Tests de endpoints criticos.
    - `/api/feed`
    - `/api/posts/:id`
    - `/api/posts/:id/comments`
-   - `/api/posts/:id/like`
+   - `/api/stories`
    - auth endpoints
 
 ---
 
-## Priorizacion de Correccion
+## Prioridad Real
 
-### Ola 1
-
-- Home rota o parcialmente rota
-- Auth
-- Stories
-- Rutas inexistentes desde botones visibles
-
-### Ola 2
-
-- Dashboards con CTAs muertos
-- Cart, checkout, orders
-- Discovery y catalogo
-
-### Ola 3
-
-- Admin / superadmin
-- Deuda tecnica de clientes API y duplicados legacy/nuevo
+1. Home feed
+2. Landing `/productor`
+3. Links visibles a rutas inexistentes
+4. Landings principales
+5. Dashboards por rol
+6. Social mock vs real
+7. Compra y cuenta
+8. Admin y superadmin
 
 ---
 
-## Siguiente Paso Operativo
+## Siguiente Paso Recomendado
 
-Empezar por una auditoria exhaustiva de la portada y dejar:
+Ejecutar ahora mismo un bloque completo sobre:
 
-1. inventario completo de botones y funciones del home,
-2. bugs confirmados con archivo y causa,
-3. lista de correcciones exactas,
-4. set inicial de tests de regresion para portada.
-
-Ese sera el primer bloque de ejecucion antes de pasar a auth y al resto del producto.
+1. reparar `/productor`,
+2. validar el home feed contra respuesta real del backend,
+3. listar y corregir los links visibles inexistentes de landings y footer,
+4. dejar el primer informe de auditoria funcional cerrado.

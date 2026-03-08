@@ -6,34 +6,11 @@
  */
 
 import axios from 'axios';
+import { getApiOrigin } from '../utils/api';
 
 // Determine the correct API base URL at RUNTIME (not build time)
 const getApiBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    
-    // PRODUCTION - hispaloshop.com - MUST use relative URL
-    if (host.includes('hispaloshop.com')) {
-      return '';  // Empty base, components will add /api
-    }
-    
-    // STAGING - preview environments
-    if (host.includes('preview.')) {
-      return '';  // Empty base, components will add /api
-    }
-    
-    // LOCALHOST - use env var for backend
-    if (host === 'localhost' || host === '127.0.0.1') {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
-      if (backendUrl) {
-        return backendUrl;  // Just the base URL, components add /api
-      }
-      return '';
-    }
-  }
-  
-  // Fallback
-  return '';
+  return getApiOrigin();
 };
 
 // Set the base URL for ALL axios requests globally
@@ -57,6 +34,7 @@ axios.interceptors.request.use(
         'localhost',
         '127.0.0.1',
         'hispaloshop.com',
+        'api.hispaloshop.com',
         'hispaloshop-api.up.railway.app'
       ];
       const isAllowed = allowedDomains.some(domain => url.hostname.includes(domain));

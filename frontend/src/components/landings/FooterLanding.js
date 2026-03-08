@@ -7,7 +7,7 @@ const FooterLanding = () => {
 
   const footerLinks = {
     producto: [
-      { label: 'Cómo funciona', href: '/que-es' },
+      { label: 'Como funciona', href: '/que-es' },
       { label: 'Para empresas', href: '/productor' },
       { label: 'Para influencers', href: '/influencer' },
       { label: 'Para importadores', href: '/importador' },
@@ -21,7 +21,7 @@ const FooterLanding = () => {
     soporte: [
       { label: 'Centro de ayuda', href: '/help' },
       { label: 'Contacto', href: '/contact' },
-      { label: 'Términos', href: '/terms' },
+      { label: 'Terminos', href: '/terms' },
       { label: 'Privacidad', href: '/privacy' },
     ],
   };
@@ -37,7 +37,6 @@ const FooterLanding = () => {
     <footer className="bg-[#1A1A1A] text-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <h3 className="text-xl font-bold mb-4">Hispaloshop</h3>
             <p className="text-gray-400 text-sm mb-4">
@@ -61,7 +60,6 @@ const FooterLanding = () => {
             </div>
           </div>
 
-          {/* Links */}
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
               <h4 className="font-semibold mb-4 capitalize">{title}</h4>
@@ -69,6 +67,7 @@ const FooterLanding = () => {
                 {links.map((link) => (
                   <li key={link.label}>
                     <button
+                      type="button"
                       onClick={() => navigate(link.href)}
                       className="text-gray-400 text-sm hover:text-white transition-colors"
                     >
@@ -82,7 +81,7 @@ const FooterLanding = () => {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400 text-sm">
-          © {new Date().getFullYear()} Hispaloshop. Todos los derechos reservados.
+          Copyright {new Date().getFullYear()} Hispaloshop. Todos los derechos reservados.
         </div>
       </div>
     </footer>
