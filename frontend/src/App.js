@@ -11,6 +11,7 @@ import CartPage from './pages/CartPage';
 import CheckoutSuccessPage from './pages/CheckoutSuccessPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import OnboardingPage from './pages/OnboardingPage';
 import AuthCallback from './pages/AuthCallback';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -126,9 +127,6 @@ const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
 const InfluencerRegister = lazy(() => import('./pages/register/influencer'));
 const ProducerRegister = lazy(() => import('./pages/register/producer'));
 const ImporterRegister = lazy(() => import('./pages/register/importer'));
-
-// Onboarding
-const OnboardingPage = lazy(() => import('./pages/onboarding/OnboardingPage'));
 
 function RouteLoader() {
   return (
@@ -261,6 +259,7 @@ function AppRouter() {
               <Route path="/seller/register" element={<RegisterPage />} />
               <Route path="/influencer/register" element={<RegisterPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -363,7 +362,6 @@ function AppRouter() {
               <Route path="/dashboard/importer/new" element={<ImporterDashboardNew />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/stories/*" element={<StoriesPage />} />
-              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccess />} />
               <Route path="/chat" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
