@@ -1,8 +1,12 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Type, Smile, Sticker, Pen, Image as ImageIcon, Sparkles, ChevronLeft, Download, Share2 } from 'lucide-react';
-import StoriesCarousel from './StoriesCarousel';
+import {
+  X, Type, Smile, Sticker, Image as ImageIcon, Sparkles, ChevronLeft,
+} from 'lucide-react';
+import axios from 'axios';
+import { API } from '../../utils/api';
+import { toast } from 'sonner';
 
 const STORY_FILTERS = [
   { id: 'normal', name: 'Normal', style: {} },
@@ -16,19 +20,13 @@ const STORY_FILTERS = [
 ];
 
 const STICKERS = [
-  { id: 's1', emoji: '🔥', name: 'Fuego' },
-  { id: 's2', emoji: '❤️', name: 'Corazón' },
-  { id: 's3', emoji: '🌟', name: 'Estrella' },
-  { id: 's4', emoji: '🛒', name: 'Carrito' },
-  { id: 's5', emoji: '🎉', name: 'Fiesta' },
-  { id: 's6', emoji: '🌿', name: 'Natural' },
-  { id: 's7', emoji: '🍯', name: 'Miel' },
-  { id: 's8', emoji: '🧀', name: 'Queso' },
+  { id: 's1', emoji: '🔥' }, { id: 's2', emoji: '❤️' }, { id: 's3', emoji: '🌟' },
+  { id: 's4', emoji: '🛒' }, { id: 's5', emoji: '🎉' }, { id: 's6', emoji: '🌿' },
+  { id: 's7', emoji: '🍯' }, { id: 's8', emoji: '🧀' },
 ];
 
-const TextItem = ({ text, position, onUpdate, onDelete, isSelected, onSelect }) => {
+const TextItem = ({ text, onUpdate, onDelete, isSelected, onSelect }) => {
   const [isDragging, setIsDragging] = useState(false);
-
   return (
     <motion.div
       drag
@@ -38,34 +36,17 @@ const TextItem = ({ text, position, onUpdate, onDelete, isSelected, onSelect }) 
         setIsDragging(false);
         onUpdate({ ...text, x: info.point.x, y: info.point.y });
       }}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (!isDragging) onSelect();
-      }}
+      onClick={(e) => { e.stopPropagation(); if (!isDragging) onSelect(); }}
       initial={{ x: text.x, y: text.y }}
-      style={{
-        position: 'absolute',
-        left: text.x,
-        top: text.y,
-        cursor: 'move',
-        zIndex: isSelected ? 10 : 1
-      }}
+      style={{ position: 'absolute', left: text.x, top: text.y, cursor: 'move', zIndex: isSelected ? 10 : 1 }}
       className={`px-4 py-2 rounded-lg ${isSelected ? 'ring-2 ring-white' : ''}`}
     >
-      <span style={{ 
-        fontSize: text.size, 
-        color: text.color,
-        fontWeight: text.bold ? 'bold' : 'normal',
-        textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
-      }}>
+      <span style={{ fontSize: text.size, color: text.color, fontWeight: text.bold ? 'bold' : 'normal', textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
         {text.content}
       </span>
       {isSelected && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
           className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"
         >
           <X className="w-3 h-3 text-white" />
@@ -78,78 +59,62 @@ const TextItem = ({ text, position, onUpdate, onDelete, isSelected, onSelect }) 
 const StoryCreator = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const canvasRef = useRef(null);
-  
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState(STORY_FILTERS[0]);
   const [texts, setTexts] = useState([]);
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [showTextInput, setShowTextInput] = useState(false);
   const [newTextContent, setNewTextContent] = useState('');
-  const [showStickers, setShowStickers] = useState(false);
   const [activeTab, setActiveTab] = useState('filters');
   const [isUploading, setIsUploading] = useState(false);
+  const [caption, setCaption] = useState('');
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setSelectedImage(url);
-    }
+    if (!file) return;
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
-  const handleAddText = () => {
-    setShowTextInput(true);
-    setNewTextContent('');
-  };
+  const handleAddText = () => { setShowTextInput(true); setNewTextContent(''); };
 
   const handleTextSubmit = () => {
     if (!newTextContent.trim()) return;
-    
-    const newText = {
-      id: Date.now().toString(),
-      content: newTextContent,
-      x: 50,
-      y: 50,
-      size: 24,
-      color: '#FFFFFF',
-      bold: true
-    };
-    
-    setTexts([...texts, newText]);
+    setTexts([...texts, {
+      id: Date.now().toString(), content: newTextContent,
+      x: 50, y: 50, size: 24, color: '#FFFFFF', bold: true,
+    }]);
     setShowTextInput(false);
     setNewTextContent('');
   };
 
-  const handleUpdateText = (id, updates) => {
-    setTexts(texts.map(t => t.id === id ? { ...t, ...updates } : t));
-  };
-
-  const handleDeleteText = (id) => {
-    setTexts(texts.filter(t => t.id !== id));
-    setSelectedTextId(null);
-  };
-
   const handleAddSticker = (sticker) => {
-    const newSticker = {
-      id: Date.now().toString(),
-      content: sticker.emoji,
-      x: Math.random() * 200 + 50,
-      y: Math.random() * 300 + 100,
-      size: 48,
-      color: 'transparent',
-      bold: false
-    };
-    setTexts([...texts, newSticker]);
-    setShowStickers(false);
+    setTexts([...texts, {
+      id: Date.now().toString(), content: sticker.emoji,
+      x: Math.random() * 200 + 50, y: Math.random() * 300 + 100,
+      size: 48, color: 'transparent', bold: false,
+    }]);
   };
 
   const handlePublish = async () => {
+    if (!selectedFile) return;
     setIsUploading(true);
-    // Simulate upload
-    await new Promise(r => setTimeout(r, 1500));
-    setIsUploading(false);
-    navigate(-1);
+    try {
+      const fd = new FormData();
+      fd.append('file', selectedFile);
+      fd.append('caption', caption.trim());
+      await axios.post(`${API}/stories`, fd, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('Historia publicada');
+      navigate(-1);
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'No se pudo publicar la historia');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -159,118 +124,82 @@ const StoryCreator = () => {
         <button onClick={() => navigate(-1)} className="p-2 text-white">
           <ChevronLeft className="w-6 h-6" />
         </button>
-        
-        <div className="flex items-center gap-3">
-          {selectedImage && (
-            <button 
-              onClick={handlePublish}
-              disabled={isUploading}
-              className="px-6 py-2 bg-[#2D5A3D] text-white rounded-full font-semibold disabled:opacity-50"
-            >
-              {isUploading ? 'Publicando...' : 'Tu historia'}
-            </button>
-          )}
-        </div>
+        {previewUrl && (
+          <button
+            onClick={handlePublish}
+            disabled={isUploading}
+            className="px-6 py-2 bg-[#2D5A3D] text-white rounded-full font-semibold disabled:opacity-50"
+          >
+            {isUploading ? 'Publicando...' : 'Publicar historia'}
+          </button>
+        )}
       </div>
 
-      {!selectedImage ? (
-        // Image selection view
-        <div className="h-full flex flex-col">
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="w-32 h-32 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center cursor-pointer"
-              >
-                <ImageIcon className="w-12 h-12 text-white/60" />
-              </div>
-              <p className="text-white/60">Toca para seleccionar foto</p>
-            </div>
+      {!previewUrl ? (
+        <div className="h-full flex flex-col items-center justify-center">
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="w-32 h-32 mx-auto mb-4 rounded-2xl bg-white/10 flex items-center justify-center cursor-pointer"
+          >
+            <ImageIcon className="w-12 h-12 text-white/60" />
           </div>
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
+          <p className="text-white/60">Toca para seleccionar foto</p>
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
         </div>
       ) : (
-        // Editor view
         <div className="h-full flex flex-col">
-          {/* Canvas area */}
-          <div 
-            className="flex-1 relative overflow-hidden"
-            onClick={() => setSelectedTextId(null)}
-          >
-            <img
-              src={selectedImage}
-              alt="Story"
-              className="w-full h-full object-contain"
-              style={selectedFilter.style}
-            />
-            
-            {/* Text overlays */}
-            {texts.map(text => (
+          <div className="flex-1 relative overflow-hidden" onClick={() => setSelectedTextId(null)}>
+            <img src={previewUrl} alt="Story" className="w-full h-full object-contain" style={selectedFilter.style} />
+            {texts.map((text) => (
               <TextItem
                 key={text.id}
                 text={text}
                 isSelected={selectedTextId === text.id}
                 onSelect={() => setSelectedTextId(text.id)}
-                onUpdate={(updates) => handleUpdateText(text.id, updates)}
-                onDelete={() => handleDeleteText(text.id)}
+                onUpdate={(updates) => setTexts(texts.map((t) => (t.id === text.id ? { ...t, ...updates } : t)))}
+                onDelete={() => { setTexts(texts.filter((t) => t.id !== text.id)); setSelectedTextId(null); }}
               />
             ))}
           </div>
 
-          {/* Bottom toolbar */}
           <div className="bg-black/80 backdrop-blur-xl p-4">
-            {/* Tabs */}
+            {/* Caption input */}
+            <input
+              type="text"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Añadir descripción..."
+              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm mb-3 focus:outline-none"
+              maxLength={200}
+            />
+
             <div className="flex justify-center gap-8 mb-4">
-              <button
-                onClick={() => setActiveTab('filters')}
-                className={`flex flex-col items-center gap-1 ${activeTab === 'filters' ? 'text-white' : 'text-white/50'}`}
-              >
-                <Sparkles className="w-6 h-6" />
-                <span className="text-xs">Filtros</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('text')}
-                className={`flex flex-col items-center gap-1 ${activeTab === 'text' ? 'text-white' : 'text-white/50'}`}
-              >
-                <Type className="w-6 h-6" />
-                <span className="text-xs">Texto</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('stickers')}
-                className={`flex flex-col items-center gap-1 ${activeTab === 'stickers' ? 'text-white' : 'text-white/50'}`}
-              >
-                <Sticker className="w-6 h-6" />
-                <span className="text-xs">Stickers</span>
-              </button>
+              {[
+                { id: 'filters', icon: <Sparkles className="w-6 h-6" />, label: 'Filtros' },
+                { id: 'text', icon: <Type className="w-6 h-6" />, label: 'Texto' },
+                { id: 'stickers', icon: <Smile className="w-6 h-6" />, label: 'Stickers' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex flex-col items-center gap-1 ${activeTab === tab.id ? 'text-white' : 'text-white/50'}`}
+                >
+                  {tab.icon}
+                  <span className="text-xs">{tab.label}</span>
+                </button>
+              ))}
             </div>
 
-            {/* Tab content */}
             {activeTab === 'filters' && (
               <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-                {STORY_FILTERS.map(filter => (
+                {STORY_FILTERS.map((filter) => (
                   <button
                     key={filter.id}
                     onClick={() => setSelectedFilter(filter)}
-                    className={`flex-shrink-0 w-16 flex flex-col items-center gap-1 ${
-                      selectedFilter.id === filter.id ? 'opacity-100' : 'opacity-60'
-                    }`}
+                    className={`flex-shrink-0 w-16 flex flex-col items-center gap-1 ${selectedFilter.id === filter.id ? 'opacity-100' : 'opacity-60'}`}
                   >
-                    <div 
-                      className="w-14 h-14 rounded-full overflow-hidden border-2 border-white"
-                      style={filter.style}
-                    >
-                      <img
-                        src={selectedImage}
-                        alt={filter.name}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white" style={filter.style}>
+                      <img src={previewUrl} alt={filter.name} className="w-full h-full object-cover" />
                     </div>
                     <span className="text-white text-xs">{filter.name}</span>
                   </button>
@@ -279,25 +208,16 @@ const StoryCreator = () => {
             )}
 
             {activeTab === 'text' && (
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={handleAddText}
-                  className="flex-1 py-3 bg-white/10 rounded-xl text-white font-medium"
-                >
-                  Añadir texto
-                </button>
-              </div>
+              <button onClick={handleAddText} className="w-full py-3 bg-white/10 rounded-xl text-white font-medium">
+                Añadir texto
+              </button>
             )}
 
             {activeTab === 'stickers' && (
               <div className="grid grid-cols-8 gap-2">
-                {STICKERS.map(sticker => (
-                  <button
-                    key={sticker.id}
-                    onClick={() => handleAddSticker(sticker)}
-                    className="text-3xl hover:scale-110 transition-transform"
-                  >
-                    {sticker.emoji}
+                {STICKERS.map((s) => (
+                  <button key={s.id} onClick={() => handleAddSticker(s)} className="text-3xl hover:scale-110 transition-transform">
+                    {s.emoji}
                   </button>
                 ))}
               </div>
@@ -310,33 +230,18 @@ const StoryCreator = () => {
       <AnimatePresence>
         {showTextInput && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="absolute inset-0 bg-black/90 flex items-center justify-center z-30"
           >
             <div className="w-full max-w-sm p-4">
               <input
-                type="text"
-                value={newTextContent}
-                onChange={(e) => setNewTextContent(e.target.value)}
-                placeholder="Escribe algo..."
-                autoFocus
+                type="text" value={newTextContent} onChange={(e) => setNewTextContent(e.target.value)}
+                placeholder="Escribe algo..." autoFocus
                 className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white text-center text-xl"
               />
               <div className="flex gap-3 mt-4">
-                <button
-                  onClick={() => setShowTextInput(false)}
-                  className="flex-1 py-3 bg-white/10 rounded-xl text-white"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleTextSubmit}
-                  className="flex-1 py-3 bg-[#2D5A3D] rounded-xl text-white font-semibold"
-                >
-                  Añadir
-                </button>
+                <button onClick={() => setShowTextInput(false)} className="flex-1 py-3 bg-white/10 rounded-xl text-white">Cancelar</button>
+                <button onClick={handleTextSubmit} className="flex-1 py-3 bg-[#2D5A3D] rounded-xl text-white font-semibold">Añadir</button>
               </div>
             </div>
           </motion.div>

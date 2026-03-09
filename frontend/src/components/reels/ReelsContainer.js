@@ -1,232 +1,186 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { API } from '../../utils/api';
 import ReelPlayer from './ReelPlayer';
 
-// Mock reels data
-const MOCK_REELS = [
-  {
-    id: 'r1',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=700&fit=crop',
+/**
+ * Normalise API response to the shape expected by ReelPlayer.
+ */
+function normalizeReel(item) {
+  return {
+    id: item.id || item.reel_id || item.post_id,
+    videoUrl: item.video_url,
+    thumbnail: item.thumbnail_url || null,
     user: {
-      id: 'u1',
-      username: 'queserialaantigua',
-      avatar: 'https://i.pravatar.cc/150?u=1',
-      verified: true,
-      isFollowing: false,
-    },
-    description: 'Así se hace el queso manchego curado tradicional 🧀✨ 12 meses de curación en cueva natural #quesomanchego #artesano #hispaloshop',
-    hashtags: ['quesomanchego', 'artesano', 'hispaloshop', 'quesocurado'],
-    audio: { name: 'Sonido original', author: 'queserialaantigua', original: true },
-    productTag: {
-      id: 'p1',
-      name: 'Queso Manchego Curado DOP',
-      price: 18.50,
-      image: 'https://images.unsplash.com/photo-1568627175730-73d05c79fa0f?w=200&h=200&fit=crop',
-      seller: 'Quesería La Antigua',
-      rating: 4.8,
-      reviews: 124,
-    },
-    stats: { likes: 1245, comments: 67, shares: 134, isLiked: false, isSaved: false },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'r2',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=700&fit=crop',
-    user: {
-      id: 'u2',
-      username: 'mieldelsur',
-      avatar: 'https://i.pravatar.cc/150?u=2',
+      id: item.user?.id || item.user_id || '',
+      username: item.user?.full_name || item.user_name || 'Usuario',
+      avatar: item.user?.avatar_url || item.user_profile_image || null,
       verified: false,
-      isFollowing: true,
+      isFollowing: item.user?.is_followed_by_me || false,
     },
-    description: 'Proceso de extracción de miel pura de romero 🍯 Directo de la colmena a tu mesa #mielnatural #apicultura #productolocal',
-    hashtags: ['mielnatural', 'apicultura', 'productolocal'],
-    audio: { name: 'Nature Sounds', author: 'mieldelsur', original: false },
-    productTag: {
-      id: 'p2',
-      name: 'Miel de Romero Ecológica 500g',
-      price: 12.90,
-      image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=200&h=200&fit=crop',
-      seller: 'Miel del Sur',
-      rating: 4.9,
-      reviews: 89,
+    description: item.caption || '',
+    audio: {
+      name: 'Sonido original',
+      author: item.user?.full_name || item.user_name || 'Usuario',
+      original: true,
     },
-    stats: { likes: 890, comments: 34, shares: 56, isLiked: true, isSaved: true },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'r3',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1603048719539-9ecb4aa395e3?w=400&h=700&fit=crop',
-    user: {
-      id: 'u3',
-      username: 'embutidosreyes',
-      avatar: 'https://i.pravatar.cc/150?u=3',
-      verified: true,
-      isFollowing: false,
+    productTag: item.tagged_product
+      ? {
+          id: item.tagged_product.product_id,
+          name: item.tagged_product.name,
+          price: item.tagged_product.price,
+          image: item.tagged_product.image || '',
+        }
+      : null,
+    stats: {
+      likes: item.likes_count || 0,
+      comments: item.comments_count || 0,
+      shares: 0,
+      isLiked: item.is_liked || false,
+      isSaved: item.is_saved || false,
     },
-    description: 'El arte del corte de jamón ibérico 🔪🐷 Solo los maestros cortadores logran esta perfección #jamoniberico #bellota #gourmet',
-    hashtags: ['jamoniberico', 'bellota', 'gourmet'],
-    audio: { name: 'Sonido original', author: 'embutidosreyes', original: true },
-    productTag: {
-      id: 'p3',
-      name: 'Jamón Ibérico de Bellota DOP',
-      price: 89.00,
-      originalPrice: 110.00,
-      image: 'https://images.unsplash.com/photo-1603048719539-9ecb4aa395e3?w=200&h=200&fit=crop',
-      seller: 'Embutidos Reyes',
-      rating: 4.9,
-      reviews: 256,
-    },
-    stats: { likes: 3420, comments: 128, shares: 445, isLiked: false, isSaved: false },
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'r4',
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=700&fit=crop',
-    user: {
-      id: 'u4',
-      username: 'bodegaspremium',
-      avatar: 'https://i.pravatar.cc/150?u=4',
-      verified: false,
-      isFollowing: false,
-    },
-    description: 'Cosecha 2024 🍷 El nuevo Rioja Reserva ya está disponible. Notas de frutos rojos y vainilla. #vino #rioja #reserva',
-    hashtags: ['vino', 'rioja', 'reserva'],
-    audio: { name: 'Elegant Jazz', author: 'bodegaspremium', original: false },
-    productTag: {
-      id: 'p4',
-      name: 'Rioja Reserva 2020',
-      price: 24.90,
-      image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=200&h=200&fit=crop',
-      seller: 'Bodegas Premium',
-      rating: 4.7,
-      reviews: 178,
-    },
-    stats: { likes: 2100, comments: 89, shares: 234, isLiked: false, isSaved: false },
-    createdAt: new Date().toISOString(),
-  },
-];
+  };
+}
 
 function ReelsContainer() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const initialId = searchParams.get('id');
-  
-  const [reels, setReels] = useState(MOCK_REELS);
-  const [currentIndex, setCurrentIndex] = useState(() => {
-    if (initialId) {
-      const index = MOCK_REELS.findIndex(r => r.id === initialId);
-      return index >= 0 ? index : 0;
-    }
-    return 0;
-  });
-  const [loading, setLoading] = useState(false);
+
+  const [reels, setReels] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState(null);
+  const skipRef = useRef(0);
   const containerRef = useRef(null);
-  const touchStartY = useRef(0);
 
-  // Find current reel index when ID changes
+  const fetchReels = useCallback(async (skip = 0) => {
+    const res = await axios.get(`${API}/reels`, {
+      params: { skip, limit: 10 },
+      withCredentials: true,
+    });
+    const items = (res.data?.items || []).map(normalizeReel).filter(r => r.videoUrl);
+    return { items, hasMore: res.data?.has_more ?? items.length === 10 };
+  }, []);
+
+  // Initial load
   useEffect(() => {
-    if (initialId) {
-      const index = reels.findIndex(r => r.id === initialId);
-      if (index >= 0 && index !== currentIndex) {
-        setCurrentIndex(index);
-        scrollToReel(index);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const { items, hasMore: more } = await fetchReels(0);
+        if (cancelled) return;
+        skipRef.current = items.length;
+        setReels(items);
+        setHasMore(more);
+        if (initialId && items.length > 0) {
+          const idx = items.findIndex(r => r.id === initialId);
+          if (idx >= 0) setCurrentIndex(idx);
+        }
+      } catch (err) {
+        if (!cancelled) setError('No se pudieron cargar los reels');
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    }
-  }, [initialId, reels, currentIndex]);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [fetchReels, initialId]);
 
-  // Scroll to specific reel
   const scrollToReel = (index) => {
     if (containerRef.current) {
-      const reelHeight = window.innerHeight;
-      containerRef.current.scrollTo({
-        top: index * reelHeight,
-        behavior: 'smooth'
-      });
+      containerRef.current.scrollTo({ top: index * window.innerHeight, behavior: 'smooth' });
     }
   };
 
-  // Handle scroll snap
   const handleScroll = useCallback(() => {
     if (!containerRef.current) return;
-    
-    const scrollTop = containerRef.current.scrollTop;
-    const reelHeight = window.innerHeight;
-    const newIndex = Math.round(scrollTop / reelHeight);
-    
+    const newIndex = Math.round(containerRef.current.scrollTop / window.innerHeight);
     if (newIndex !== currentIndex && newIndex >= 0 && newIndex < reels.length) {
       setCurrentIndex(newIndex);
-      // Update URL without navigation
-      const newReelId = reels[newIndex].id;
-      window.history.replaceState(null, '', `/reels?id=${newReelId}`);
+      if (reels[newIndex]) {
+        window.history.replaceState(null, '', `/reels?id=${reels[newIndex].id}`);
+      }
     }
-  }, [currentIndex, reels.length]);
+  }, [currentIndex, reels]);
 
-  // Navigate to next/prev reel
+  const loadMoreReels = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const { items, hasMore: more } = await fetchReels(skipRef.current);
+      skipRef.current += items.length;
+      setReels(prev => [...prev, ...items]);
+      setHasMore(more);
+    } catch (_) {
+      // silently fail
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasMore, fetchReels]);
+
   const goToNext = useCallback(() => {
     if (currentIndex < reels.length - 1) {
-      const nextIndex = currentIndex + 1;
-      setCurrentIndex(nextIndex);
-      scrollToReel(nextIndex);
+      const next = currentIndex + 1;
+      setCurrentIndex(next);
+      scrollToReel(next);
+      if (next >= reels.length - 3) loadMoreReels();
     } else {
-      // Load more reels
       loadMoreReels();
     }
-  }, [currentIndex, reels.length]);
+  }, [currentIndex, reels.length, loadMoreReels]);
 
   const goToPrev = useCallback(() => {
     if (currentIndex > 0) {
-      const prevIndex = currentIndex - 1;
-      setCurrentIndex(prevIndex);
-      scrollToReel(prevIndex);
+      const prev = currentIndex - 1;
+      setCurrentIndex(prev);
+      scrollToReel(prev);
     }
   }, [currentIndex]);
 
-  // Load more reels
-  const loadMoreReels = async () => {
-    if (loading) return;
-    setLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Add more reels (cycling through mock data)
-    const newReels = MOCK_REELS.map((reel, i) => ({
-      ...reel,
-      id: `${reel.id}-batch-${Date.now()}-${i}`,
-    }));
-    
-    setReels(prev => [...prev, ...newReels]);
-    setLoading(false);
-  };
-
   // Keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowDown') {
-        goToNext();
-      } else if (e.key === 'ArrowUp') {
-        goToPrev();
-      } else if (e.key === 'Escape') {
-        navigate(-1);
-      }
+    const onKey = (e) => {
+      if (e.key === 'ArrowDown') goToNext();
+      else if (e.key === 'ArrowUp') goToPrev();
+      else if (e.key === 'Escape') navigate(-1);
     };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [goToNext, goToPrev, navigate]);
 
-  // Prevent body scroll when reels are open
+  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, []);
+
+  if (loading) {
+    return (
+      <div className="h-screen w-full bg-black flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || reels.length === 0) {
+    return (
+      <div className="h-screen w-full bg-black flex flex-col items-center justify-center text-white p-8 text-center">
+        <p className="text-lg font-semibold mb-2">
+          {error || 'Aún no hay reels disponibles'}
+        </p>
+        <p className="text-sm text-white/60 mb-6">
+          Vuelve más tarde o sé el primero en publicar un reel.
+        </p>
+        <button onClick={() => navigate(-1)} className="px-6 py-2 bg-white/10 rounded-full text-sm">
+          Volver
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -244,24 +198,19 @@ function ReelsContainer() {
           onPrev={goToPrev}
         />
       ))}
-      
-      {/* Loading indicator */}
-      {loading && (
+
+      {loadingMore && (
         <div className="h-screen flex items-center justify-center bg-black">
           <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         </div>
       )}
-      
-      {/* End of reels message */}
-      {!loading && currentIndex >= reels.length - 1 && (
+
+      {!loadingMore && !hasMore && reels.length > 0 && (
         <div className="h-screen flex flex-col items-center justify-center bg-black text-white p-8 text-center">
           <p className="text-lg font-semibold mb-2">¡Has visto todo!</p>
           <p className="text-sm text-white/70 mb-4">Vuelve más tarde para ver más contenido</p>
           <button
-            onClick={() => {
-              setCurrentIndex(0);
-              scrollToReel(0);
-            }}
+            onClick={() => { setCurrentIndex(0); scrollToReel(0); }}
             className="px-6 py-2 bg-[#2D5A3D] rounded-full text-sm font-medium"
           >
             Volver al inicio

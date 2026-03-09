@@ -13,7 +13,7 @@ from core.database import db
 from core.models import User
 from core.auth import get_current_user, get_optional_user
 from config import normalize_influencer_tier
-from services.cloudinary_storage import upload_image as cloudinary_upload
+from services.cloudinary_storage import upload_image as cloudinary_upload, upload_video as cloudinary_upload_video
 # NOTE: PostgreSQL fallback disabled - using MongoDB only for MVP
 # from database import AsyncSessionLocal
 # from models import Post as PgPost, User as PgUser
@@ -134,6 +134,82 @@ async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
         )
 
     return {"items": items, "has_more": len(items) == limit}
+
+
+@router.post("/reels")
+async def create_reel(
+    file: UploadFile = File(...),
+    caption: str = Form(""),
+    product_id: str = Form(""),
+    user: User = Depends(get_current_user)
+):
+    """Create a reel (short video). Uploads to Cloudinary."""
+    if not file.content_type.startswith("video/"):
+        raise HTTPException(status_code=400, detail="Solo se permiten archivos de video")
+    contents = await file.read()
+    if len(contents) > 100 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="El video no puede superar 100MB")
+
+    result = await cloudinary_upload_video(contents, folder="reels", filename=f"reel_{uuid.uuid4().hex[:8]}")
+    video_url = result["url"]
+    thumbnail_url = result.get("thumbnail") or video_url
+
+    tagged_product = None
+    if product_id and product_id.strip():
+        prod = await db.products.find_one(
+            {"product_id": product_id.strip()},
+            {"_id": 0, "product_id": 1, "name": 1, "price": 1, "currency": 1, "images": 1}
+        )
+        if prod:
+            tagged_product = {
+                "product_id": prod["product_id"],
+                "name": prod.get("name", ""),
+                "price": prod.get("price", 0),
+                "image": (prod.get("images") or [None])[0],
+            }
+
+    reel_id = f"reel_{uuid.uuid4().hex[:12]}"
+    reel = {
+        "reel_id": reel_id,
+        "id": reel_id,
+        "user_id": user.user_id,
+        "user_name": user.name,
+        "video_url": video_url,
+        "thumbnail_url": thumbnail_url,
+        "caption": caption[:500] if caption else "",
+        "tagged_product": tagged_product,
+        "likes_count": 0,
+        "comments_count": 0,
+        "views_count": 0,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.reels.insert_one(reel)
+    return {k: v for k, v in reel.items() if k != "_id"}
+
+
+@router.post("/reels/{reel_id}/view")
+async def view_reel(reel_id: str, request: Request):
+    """Increment view count on a reel."""
+    current_user = await get_optional_user(request)
+    await db.reels.update_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]}, {"$inc": {"views_count": 1}})
+    return {"status": "ok"}
+
+
+@router.post("/reels/{reel_id}/like")
+async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
+    """Toggle like on a reel."""
+    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
+    existing = await db.reel_likes.find_one({"reel_id": reel_id, "user_id": user.user_id})
+    if existing:
+        await db.reel_likes.delete_one({"reel_id": reel_id, "user_id": user.user_id})
+        await db.reels.update_one(filter_q, {"$inc": {"likes_count": -1}})
+        return {"liked": False}
+    await db.reel_likes.insert_one({
+        "reel_id": reel_id, "user_id": user.user_id,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    await db.reels.update_one(filter_q, {"$inc": {"likes_count": 1}})
+    return {"liked": True}
 
 
 @router.get("/users/{user_id}/profile")

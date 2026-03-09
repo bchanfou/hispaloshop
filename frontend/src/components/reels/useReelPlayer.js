@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import axios from 'axios';
+import { API } from '../../utils/api';
 
 export const useReelPlayer = (reel) => {
   const videoRef = useRef(null);
@@ -62,11 +64,21 @@ export const useReelPlayer = (reel) => {
     }
   }, [isMuted]);
 
-  // Like
+  // Like (optimistic + API call)
   const toggleLike = useCallback(() => {
-    setIsLiked(prev => !prev);
-    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
-  }, [isLiked]);
+    const newLiked = !isLiked;
+    setIsLiked(newLiked);
+    setLikesCount(prev => newLiked ? prev + 1 : prev - 1);
+    if (reel?.id) {
+      axios
+        .post(`${API}/reels/${reel.id}/like`, {}, { withCredentials: true })
+        .catch(() => {
+          // Revert on error
+          setIsLiked(!newLiked);
+          setLikesCount(prev => newLiked ? prev - 1 : prev + 1);
+        });
+    }
+  }, [isLiked, reel?.id]);
 
   // Save
   const toggleSave = useCallback(() => {

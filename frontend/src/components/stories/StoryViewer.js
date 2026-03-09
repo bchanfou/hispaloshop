@@ -1,136 +1,103 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, MessageCircle, Send, MoreHorizontal, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
+import { X, Heart, Send, MoreHorizontal } from 'lucide-react';
+import axios from 'axios';
+import { API } from '../../utils/api';
 
-// Mock stories data
-const MOCK_STORIES_DATA = [
-  {
-    id: '1',
-    user: { id: 'u1', username: 'cortijoandaluz', avatar: 'https://images.unsplash.com/photo-1548685913-fe6678babe8d?w=100' },
-    slides: [
-      {
-        id: 's1-1',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600',
-        duration: 5000,
-        productTag: { id: 'p1', name: 'Aceite EVOO', price: 24.90, x: 50, y: 60 }
-      },
-      {
-        id: 's1-2',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1548685913-fe6678babe8d?w=600',
-        duration: 5000,
-        poll: { question: '¿Te gusta fuerte o suave?', yes: 78, no: 22 }
-      }
-    ],
-    views: 234,
-    likes: 45
-  },
-  {
-    id: '2',
-    user: { id: 'u2', username: 'queserialaantigua', avatar: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=100' },
-    slides: [
-      {
-        id: 's2-1',
-        type: 'video',
-        url: '/video1.mp4',
-        duration: 15000,
-        productTag: null
-      }
-    ],
-    views: 189,
-    likes: 34
-  },
-  {
-    id: '3',
-    user: { id: 'u3', username: 'mieldelsur', avatar: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=100' },
-    slides: [
-      {
-        id: 's3-1',
-        type: 'image',
-        url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600',
-        duration: 5000
-      }
-    ],
-    views: 156,
-    likes: 28
-  }
-];
-
-const StoryProgress = ({ slides, currentSlide, progress, isPaused }) => {
-  return (
-    <div className="flex gap-1 px-4 pt-2">
-      {slides.map((slide, index) => (
-        <div key={slide.id} className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-white rounded-full"
-            initial={{ width: 0 }}
-            animate={{ 
-              width: index < currentSlide ? '100%' : index === currentSlide ? `${progress}%` : '0%'
-            }}
-            transition={index === currentSlide && !isPaused ? { duration: 0.1, ease: 'linear' } : { duration: 0 }}
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
+const StoryProgress = ({ slides, currentSlide, progress, isPaused }) => (
+  <div className="flex gap-1 px-4 pt-2">
+    {slides.map((slide, index) => (
+      <div key={slide.story_id || index} className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-white rounded-full"
+          initial={{ width: 0 }}
+          animate={{
+            width: index < currentSlide ? '100%' : index === currentSlide ? `${progress}%` : '0%',
+          }}
+          transition={
+            index === currentSlide && !isPaused ? { duration: 0.1, ease: 'linear' } : { duration: 0 }
+          }
+        />
+      </div>
+    ))}
+  </div>
+);
 
 const StoryViewer = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const [storyGroups, setStoryGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [showProduct, setShowProduct] = useState(null);
   const [replyText, setReplyText] = useState('');
 
-  const stories = MOCK_STORIES_DATA;
-  const currentStory = stories[currentStoryIndex];
-  const currentSlide = currentStory?.slides[currentSlideIndex];
-
-  // Auto-advance slides
   useEffect(() => {
-    if (!currentSlide || isPaused) return;
+    let cancelled = false;
+    axios
+      .get(`${API}/stories`, { withCredentials: true })
+      .then((res) => {
+        if (!cancelled) {
+          const groups = Array.isArray(res.data) ? res.data : [];
+          setStoryGroups(groups.filter((g) => g.stories && g.stories.length > 0));
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-    const duration = currentSlide.duration || 5000;
-    const interval = 100; // Update every 100ms
-    const step = (interval / duration) * 100;
+  const currentGroup = storyGroups[currentGroupIndex];
+  const currentSlide = currentGroup?.stories[currentSlideIndex];
 
+  // Mark viewed
+  useEffect(() => {
+    if (!currentSlide?.story_id) return;
+    axios
+      .post(`${API}/stories/${currentSlide.story_id}/view`, {}, { withCredentials: true })
+      .catch(() => {});
+  }, [currentSlide]);
+
+  // Auto-advance
+  useEffect(() => {
+    if (!currentSlide || isPaused || loading) return;
+    const duration = 5000;
+    const step = (100 / duration) * 100;
     const timer = setInterval(() => {
-      setProgress(prev => {
+      setProgress((prev) => {
         const next = prev + step;
         if (next >= 100) {
-          // Move to next slide or story
-          if (currentSlideIndex < currentStory.slides.length - 1) {
-            setCurrentSlideIndex(prev => prev + 1);
+          if (currentSlideIndex < (currentGroup?.stories.length ?? 0) - 1) {
+            setCurrentSlideIndex((s) => s + 1);
             return 0;
-          } else if (currentStoryIndex < stories.length - 1) {
-            setCurrentStoryIndex(prev => prev + 1);
+          } else if (currentGroupIndex < storyGroups.length - 1) {
+            setCurrentGroupIndex((g) => g + 1);
             setCurrentSlideIndex(0);
             return 0;
           } else {
-            // End of all stories
             navigate(-1);
             return 0;
           }
         }
         return next;
       });
-    }, interval);
-
+    }, 100);
     return () => clearInterval(timer);
-  }, [currentSlide, currentSlideIndex, currentStory, currentStoryIndex, isPaused, navigate, stories.length]);
+  }, [currentSlide, currentSlideIndex, currentGroup, currentGroupIndex, isPaused, loading, navigate, storyGroups.length]);
 
   const handleTap = (side) => {
     if (side === 'right') {
-      if (currentSlideIndex < currentStory.slides.length - 1) {
-        setCurrentSlideIndex(prev => prev + 1);
+      if (currentSlideIndex < (currentGroup?.stories.length ?? 0) - 1) {
+        setCurrentSlideIndex((s) => s + 1);
         setProgress(0);
-      } else if (currentStoryIndex < stories.length - 1) {
-        setCurrentStoryIndex(prev => prev + 1);
+      } else if (currentGroupIndex < storyGroups.length - 1) {
+        setCurrentGroupIndex((g) => g + 1);
         setCurrentSlideIndex(0);
         setProgress(0);
       } else {
@@ -138,27 +105,43 @@ const StoryViewer = () => {
       }
     } else {
       if (currentSlideIndex > 0) {
-        setCurrentSlideIndex(prev => prev - 1);
+        setCurrentSlideIndex((s) => s - 1);
         setProgress(0);
-      } else if (currentStoryIndex > 0) {
-        setCurrentStoryIndex(prev => prev - 1);
-        setCurrentSlideIndex(stories[currentStoryIndex - 1].slides.length - 1);
+      } else if (currentGroupIndex > 0) {
+        const prev = storyGroups[currentGroupIndex - 1];
+        setCurrentGroupIndex((g) => g - 1);
+        setCurrentSlideIndex(prev.stories.length - 1);
         setProgress(0);
       }
     }
   };
 
-  const handleClose = () => {
-    navigate(-1);
-  };
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
 
-  if (!currentStory) return null;
+  if (!currentGroup) {
+    return (
+      <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center text-white p-8 text-center">
+        <p className="text-lg font-semibold mb-2">No hay historias disponibles</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-4 px-6 py-2 bg-white/10 rounded-full text-sm"
+        >
+          Volver
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black z-50">
-      {/* Progress bars */}
-      <StoryProgress 
-        slides={currentStory.slides} 
+      <StoryProgress
+        slides={currentGroup.stories}
         currentSlide={currentSlideIndex}
         progress={progress}
         isPaused={isPaused}
@@ -167,73 +150,61 @@ const StoryViewer = () => {
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/50 to-transparent">
         <div className="flex items-center gap-3">
-          <img
-            src={currentStory.user.avatar}
-            alt={currentStory.user.username}
-            className="w-10 h-10 rounded-full border-2 border-white"
-          />
-          <div>
-            <p className="text-white font-semibold text-sm">{currentStory.user.username}</p>
-            <p className="text-white/70 text-xs">Hace 2h</p>
-          </div>
+          {currentGroup.profile_image ? (
+            <img
+              src={currentGroup.profile_image}
+              alt={currentGroup.user_name}
+              className="w-10 h-10 rounded-full border-2 border-white object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full border-2 border-white bg-stone-700 flex items-center justify-center text-white font-bold">
+              {(currentGroup.user_name || 'U')[0].toUpperCase()}
+            </div>
+          )}
+          <p className="text-white font-semibold text-sm">{currentGroup.user_name}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="p-2 text-white">
-            <MoreHorizontal className="w-6 h-6" />
-          </button>
-          <button onClick={handleClose} className="p-2 text-white">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+        <button onClick={() => navigate(-1)} className="p-2 text-white">
+          <X className="w-6 h-6" />
+        </button>
       </div>
 
       {/* Content */}
       <div className="relative h-full">
-        {/* Slide content */}
         <div className="h-full flex items-center justify-center">
-          {currentSlide?.type === 'image' ? (
+          {currentSlide?.image_url ? (
             <img
-              src={currentSlide.url}
+              src={currentSlide.image_url}
               alt="Story"
               className="w-full h-full object-contain"
             />
           ) : (
-            <video
-              src={currentSlide?.url}
-              className="w-full h-full object-contain"
-              autoPlay
-              muted
-              playsInline
-            />
+            <div className="w-full h-full bg-stone-800 flex items-center justify-center">
+              <p className="text-white/60 text-sm">{currentSlide?.caption || ''}</p>
+            </div>
           )}
         </div>
 
-        {/* Product tag */}
-        {currentSlide?.productTag && (
-          <button
-            onClick={() => setShowProduct(currentSlide.productTag)}
-            className="absolute bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-lg"
-            style={{ left: `${currentSlide.productTag.x}%`, top: `${currentSlide.productTag.y}%` }}
-          >
-            <span className="text-xs font-semibold text-[#1A1A1A]">
-              {currentSlide.productTag.name} · €{currentSlide.productTag.price}
-            </span>
-          </button>
+        {currentSlide?.caption && (
+          <div className="absolute bottom-32 left-4 right-4">
+            <p className="text-white text-sm bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
+              {currentSlide.caption}
+            </p>
+          </div>
         )}
 
         {/* Tap zones */}
         <div className="absolute inset-0 flex">
           <button
-            onClick={() => handleTap('left')}
             className="w-1/3 h-full"
+            onClick={() => handleTap('left')}
             onMouseDown={() => setIsPaused(true)}
             onMouseUp={() => setIsPaused(false)}
             onTouchStart={() => setIsPaused(true)}
             onTouchEnd={() => setIsPaused(false)}
           />
           <button
-            onClick={() => handleTap('right')}
             className="w-2/3 h-full"
+            onClick={() => handleTap('right')}
             onMouseDown={() => setIsPaused(true)}
             onMouseUp={() => setIsPaused(false)}
             onTouchStart={() => setIsPaused(true)}
@@ -242,70 +213,24 @@ const StoryViewer = () => {
         </div>
       </div>
 
-      {/* Bottom interactions */}
+      {/* Reply bar */}
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-        {/* Reply input */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Enviar mensaje..."
-              className="w-full bg-white/20 backdrop-blur-sm text-white placeholder-white/60 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:bg-white/30"
-            />
-          </div>
+        <div className="flex items-center gap-3">
+          <input
+            type="text"
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="Enviar mensaje..."
+            className="flex-1 bg-white/20 backdrop-blur-sm text-white placeholder-white/60 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:bg-white/30"
+          />
           <button className="p-2 text-white">
-          <Heart className="w-6 h-6" />
-        </button>
+            <Heart className="w-6 h-6" />
+          </button>
           <button className="p-2 text-white">
             <Send className="w-6 h-6" />
           </button>
         </div>
-
-        {/* View count */}
-        <div className="flex items-center justify-center gap-4 text-white/70 text-sm">
-          <span className="flex items-center gap-1">
-            <Play className="w-4 h-4" />
-            {currentStory.views} vistas
-          </span>
-          <span className="flex items-center gap-1">
-            <Heart className="w-4 h-4" />
-            {currentStory.likes}
-          </span>
-        </div>
       </div>
-
-      {/* Product modal */}
-      <AnimatePresence>
-        {showProduct && (
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 z-20"
-          >
-            <div className="flex gap-4">
-              <div className="w-24 h-24 bg-gray-100 rounded-xl flex-shrink-0" />
-              <div className="flex-1">
-                <h3 className="font-bold text-[#1A1A1A]">{showProduct.name}</h3>
-                <p className="text-2xl font-bold text-[#2D5A3D]">€{showProduct.price}</p>
-                <div className="flex gap-2 mt-3">
-                  <button className="flex-1 py-2 bg-[#2D5A3D] text-white rounded-lg text-sm font-medium">
-                    Comprar
-                  </button>
-                  <button 
-                    onClick={() => setShowProduct(null)}
-                    className="px-4 py-2 border border-gray-200 rounded-lg text-sm"
-                  >
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

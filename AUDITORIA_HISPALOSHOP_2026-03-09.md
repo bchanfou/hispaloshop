@@ -10,6 +10,65 @@ Esta auditoria se ha hecho sobre el codigo existente del repositorio en su estad
 
 Observacion base: el stack declarado en negocio no coincide con el stack real del repo. El frontend activo no es Next.js sino React + `react-scripts`/CRACO (`frontend/package.json:61-73`), y no hay evidencia de un backend Node.js/Express operativo en el runtime actual.
 
+## ACTUALIZACION 2026-03-10 - Estado posterior a la ejecucion del MVP fix
+
+Esta seccion documenta el estado real del repositorio despues de ejecutar las Fases 1-4 del plan correctivo. El resto del documento se conserva como baseline de auditoria del 2026-03-09 y no se ha reescrito linea por linea.
+
+### Resumen ejecutivo de la actualizacion
+
+- `Auth` ya no esta duplicado en el runtime activo: el flujo se concentra en `frontend/src/context/AuthContext.js`, se eliminaron `frontend/src/providers/AuthProvider.jsx` y `frontend/src/hooks/useAuthRedirect.js`, y el onboarding activo usa `onboarding_completed` de forma consistente.
+- `Checkout` y monetizacion quedaron consolidados alrededor de `backend/core/monetization.py` y `backend/routes/orders.py`; `backend/routes/checkout.py` fue retirado del runtime y el split activo ya no descuenta al influencer del payout del seller.
+- El sistema activo de influencers se simplifico al modelo MVP de `hercules/atenea/zeus` en `backend/config.py`, con atribucion principal por `referred_by` y retiro del router legacy `backend/routes/affiliates.py` y del servicio `backend/services/affiliate_tracking.py`.
+- Se activo geobloqueo por mercados con `target_markets` en `backend/services/markets.py`, se retiraron los endpoints HI Coins del runtime en `backend/routes/subscriptions.py` y se anadio RFQ B2B simple en `backend/routes/rfq.py`.
+- Siguen abiertos gaps importantes fuera del alcance del MVP fix: pricing oficial `79/149 EUR + IVA`, soporte de planes para `importer`, normalizacion de entidades, Hispalopoints reales, robustez del certificado digital y limpieza arquitectonica completa.
+
+### Estado actual por frente
+
+| Frente | Estado actual | Evidencia principal | Lectura frente al baseline |
+|---|---|---|---|
+| Auth y onboarding | Cerrado para MVP | `frontend/src/context/AuthContext.js`, `backend/routes/auth.py`, `backend/routes/onboarding.py` | Corrige G-17 en runtime activo |
+| Monetizacion y checkout | Cerrado para MVP operativo | `backend/core/monetization.py`, `backend/routes/orders.py`, `backend/routes/producer.py`, `backend/tests/test_monetization_engine.py` | Corrige G-01, G-02, G-03 y G-04; reduce G-05 |
+| Influencers | Parcial y simplificado | `backend/config.py`, `backend/services/referrals.py`, `backend/routes/orders.py` | Cierra duplicidad operativa, pero sustituye el ladder original de 5 tiers por un MVP de 3 tiers |
+| Geobloqueo | Cerrado para MVP | `backend/services/markets.py`, `backend/routes/products.py`, `backend/routes/cart.py`, `backend/routes/orders.py` | Nuevo control no presente en el baseline |
+| HI Coins / Hispalopoints | HI Coins retirado; Hispalopoints sigue ausente | `backend/routes/subscriptions.py`, `backend/scripts/delete_hi_coins_collections.py` | Se elimina deuda del runtime, pero G-15 sigue abierto respecto al negocio completo |
+| B2B | RFQ simple operativo | `backend/routes/rfq.py`, `frontend/src/hooks/api/useImporter.js`, `frontend/src/components/b2b/QuoteBuilder.js` | Sustituye alcance B2B complejo por flujo minimo viable |
+
+### Clasificacion actualizada de gaps del baseline
+
+#### Cerrados o mitigados en runtime
+
+- `G-01`, `G-02`, `G-03`, `G-04`: corregidos en el flujo activo de checkout, payouts y dashboard financiero.
+- `G-12`: backend y frontend admin convergen en `active/suspended`.
+- `G-17`: eliminada la duplicidad activa de auth y unificado `onboarding_completed`.
+
+#### Parciales o cerrados solo para el MVP simplificado
+
+- `G-05`: ya no gobiernan el runtime `backend/routes/checkout.py` ni `backend/routes/affiliates.py`, pero sigue existiendo codigo legado fuera del flujo principal.
+- `G-06`: existe ya una base canonica para monetizacion, pero no hay una unica fuente de verdad completa para pricing, planes, tiers, frontend y tests.
+- `G-09`, `G-10`: el runtime ya no usa el ladder antiguo; ahora usa `hercules/atenea/zeus`. Esto resuelve la fragmentacion operativa, pero no implementa el modelo completo de 5 tiers del documento de negocio.
+- `G-11`: backend admin normaliza tier y comision a la escalera activa, pero la UI admin todavia conserva campos legacy de descuento y necesita limpieza funcional.
+- `G-19`: el catalogo ya expone mejor `target_markets`, pero el modelo transaccional sigue muy acoplado a `producer_id`.
+
+#### Abiertos
+
+- `G-07`: el catalogo de planes sigue en `54/108 USD` en `backend/routes/subscriptions.py`.
+- `G-08`: `/sellers/me/plan` sigue restringido a `producer`.
+- `G-13`: la suite de tests legacy no se ha reescrito de forma integral.
+- `G-14`: no se introdujeron entidades normalizadas de `Subscription`, `Commission` o perfiles separados.
+- `G-15`: HI Coins se retiro del runtime, pero Hispalopoints reales no existen.
+- `G-16`: el certificado digital sigue sin passport robusto ni trazabilidad fuerte.
+- `G-18`: la arquitectura declarada sigue sin coincidir plenamente con la real.
+- `G-20`: `manual_commission_rate` sigue presente y sin gobierno canonico claro.
+
+### Validacion ejecutada en esta etapa
+
+- `frontend`: `npm --prefix frontend run build` compila correctamente tras las Fases 1-4.
+- `backend`: no se pudo ejecutar una validacion Python fiable en este entorno; por tanto, el estado backend esta validado por inspeccion de codigo, wiring de rutas y ausencia de referencias activas a modulos retirados.
+
+### Conclusion de la actualizacion
+
+El repo ya no esta en el estado auditado el 2026-03-09. El bloqueo principal de autenticacion, el problema critico del split economico, la duplicidad activa de checkout/afiliacion y la deuda operativa de HI Coins quedaron corregidos o retirados del runtime. Aun asi, la hoja de ruta original no esta cerrada: quedan pendientes de negocio y arquitectura que no eran necesarias para sacar el MVP fix, especialmente pricing oficial, planes para importadores, normalizacion de datos, Hispalopoints y el modelo completo de certificados.
+
 ---
 
 ## FASE 1 - Auditoria
