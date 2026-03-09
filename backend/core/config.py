@@ -2,11 +2,9 @@
 Configuration — Pydantic v2 Settings con validaciones estrictas.
 Fase 0: Eliminados todos los defaults inseguros.
 """
-import os
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
-from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -72,6 +70,9 @@ class Settings(BaseSettings):
     RESEND_API_KEY: Optional[str] = Field(default=None)
     EMAIL_FROM: str = Field(default="Hispaloshop <onboarding@resend.dev>")
     FRONTEND_URL: str = Field(default="https://www.hispaloshop.com")
+    AUTH_BACKEND_URL: str = Field(default="http://localhost:8000")
+    GOOGLE_CLIENT_ID: Optional[str] = Field(default=None)
+    GOOGLE_CLIENT_SECRET: Optional[str] = Field(default=None)
     
     # ============================================
     # PLATAFORMA
@@ -129,6 +130,26 @@ class Settings(BaseSettings):
             raise ValueError("STRIPE_SECRET_KEY debe empezar con sk_test_ o sk_live_")
         return v
 
+    @field_validator('ALLOWED_ORIGINS')
+    @classmethod
+    def validate_allowed_origins(cls, v):
+        """Normalizar lista csv de origenes permitidos."""
+        if not v:
+            raise ValueError("ALLOWED_ORIGINS no puede estar vacio")
+        origins = [origin.strip().rstrip("/") for origin in v.split(",") if origin.strip()]
+        if not origins:
+            raise ValueError("ALLOWED_ORIGINS debe contener al menos un origen")
+        return ",".join(origins)
+
+    @field_validator('FRONTEND_URL', 'AUTH_BACKEND_URL')
+    @classmethod
+    def validate_urls(cls, v):
+        if not v:
+            raise ValueError("La URL no puede estar vacia")
+        if not v.startswith(("http://", "https://")):
+            raise ValueError("La URL debe empezar con http:// o https://")
+        return v.rstrip("/")
+
 
 # Instancia global - falla en import si vars obligatorias no estan
 settings = Settings()
@@ -158,6 +179,9 @@ CLOUDINARY_API_SECRET = settings.CLOUDINARY_API_SECRET
 RESEND_API_KEY = settings.RESEND_API_KEY
 EMAIL_FROM = settings.EMAIL_FROM
 FRONTEND_URL = settings.FRONTEND_URL
+AUTH_BACKEND_URL = settings.AUTH_BACKEND_URL
+GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
 PLATFORM_COMMISSION = settings.PLATFORM_COMMISSION
 EMERGENT_LLM_KEY = settings.EMERGENT_LLM_KEY
 OPENAI_API_KEY = settings.OPENAI_API_KEY

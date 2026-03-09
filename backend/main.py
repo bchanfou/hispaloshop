@@ -80,21 +80,21 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # ============================================
 
 # 1. CORS Configuration - RESTRICTIVO
-origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(",") if origin.strip()]
+origins = []
+for origin in settings.ALLOWED_ORIGINS.split(","):
+    normalized = origin.strip().rstrip("/")
+    if normalized and normalized not in origins:
+        origins.append(normalized)
 
-frontend_origin = settings.FRONTEND_URL.rstrip("/")
-if frontend_origin and frontend_origin not in origins:
-    origins.append(frontend_origin)
-
-if frontend_origin.startswith("https://www."):
-    naked_origin = frontend_origin.replace("https://www.", "https://", 1)
-    if naked_origin not in origins:
-        origins.append(naked_origin)
-elif frontend_origin.startswith("https://") and "://" in frontend_origin:
-    host = frontend_origin.split("://", 1)[1]
-    www_origin = f"https://www.{host}"
-    if www_origin not in origins:
-        origins.append(www_origin)
+for candidate in [
+    settings.FRONTEND_URL,
+    "https://hispaloshop.com",
+    "https://www.hispaloshop.com",
+    "http://localhost:3000",
+]:
+    normalized = candidate.strip().rstrip("/")
+    if normalized and normalized not in origins:
+        origins.append(normalized)
 
 # En produccion, rechazar wildcard origins
 if settings.ENV == "production":

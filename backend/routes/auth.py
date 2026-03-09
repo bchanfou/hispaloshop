@@ -13,6 +13,7 @@ import re
 from core.database import db
 from core.models import User, RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput
 from core.auth import get_current_user
+from core.config import settings
 from core.constants import get_email_template
 from services.auth_helpers import (
     hash_password, verify_password, needs_rehash,
@@ -617,12 +618,12 @@ async def logout(request: Request):
 @router.get("/auth/google/url")
 async def get_google_auth_url(request: Request):
     """Get Google OAuth URL for self-managed authentication"""
-    client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    client_id = settings.GOOGLE_CLIENT_ID
     if not client_id:
+        logger.error("[GOOGLE_AUTH] GOOGLE_CLIENT_ID missing in environment")
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     
-    # Use environment variable for backend URL or build from request
-    backend_url = os.environ.get('AUTH_BACKEND_URL', str(request.base_url).rstrip('/'))
+    backend_url = settings.AUTH_BACKEND_URL
     redirect_uri = f"{backend_url}/api/auth/google/callback"
     
     # Google OAuth parameters
@@ -639,6 +640,7 @@ async def get_google_auth_url(request: Request):
         f"&access_type=offline"
         f"&prompt=consent"
     )
+    logger.info("[GOOGLE_AUTH] Generated Google auth URL with redirect_uri=%s", redirect_uri)
     
     # Store state in a short-lived, secure cookie
     is_secure_cookie = request.url.scheme == "https"
@@ -664,22 +666,24 @@ async def google_auth_callback(
     """Handle Google OAuth callback"""
     stored_state = request.cookies.get("oauth_state")
     if not state or state != stored_state:
+        logger.warning("[GOOGLE_AUTH] Invalid OAuth state. received=%s stored=%s", state, stored_state)
         raise HTTPException(status_code=400, detail="Invalid state parameter")
 
     if error:
+        logger.error("[GOOGLE_AUTH] Google returned error=%s", error)
         raise HTTPException(status_code=400, detail=f"Google auth error: {error}")
     
     if not code:
         raise HTTPException(status_code=400, detail="No authorization code provided")
     
-    client_id = os.environ.get('GOOGLE_CLIENT_ID')
-    client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
+    client_id = settings.GOOGLE_CLIENT_ID
+    client_secret = settings.GOOGLE_CLIENT_SECRET
     
     if not client_id or not client_secret:
+        logger.error("[GOOGLE_AUTH] Google OAuth missing credentials. client_id=%s client_secret_present=%s", bool(client_id), bool(client_secret))
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     
-    # Exchange code for tokens
-    backend_url = os.environ.get('AUTH_BACKEND_URL', str(request.base_url).rstrip('/'))
+    backend_url = settings.AUTH_BACKEND_URL
     redirect_uri = f"{backend_url}/api/auth/google/callback"
     
     import httpx
@@ -697,6 +701,7 @@ async def google_auth_callback(
         )
     
     if token_response.status_code != 200:
+        logger.error("[GOOGLE_AUTH] Token exchange failed. status=%s body=%s", token_response.status_code, token_response.text)
         raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
     
     tokens = token_response.json()
@@ -710,6 +715,7 @@ async def google_auth_callback(
         )
     
     if userinfo_response.status_code != 200:
+        logger.error("[GOOGLE_AUTH] Failed fetching userinfo. status=%s body=%s", userinfo_response.status_code, userinfo_response.text)
         raise HTTPException(status_code=400, detail="Failed to get user info from Google")
     
     google_user = userinfo_response.json()
