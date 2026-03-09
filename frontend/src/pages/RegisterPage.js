@@ -10,8 +10,9 @@ import { Shield, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ConsentSummary, ConsentFullDisclosure } from '../components/ConsentLayers';
 import { useLocale } from '../context/LocaleContext';
+import { useAuth } from '../context/AuthContext';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
-import { useAuthRedirect } from '../hooks/useAuthRedirect';
+import { redirectAfterAuth } from '../lib/navigation';
 
 const FIELD_MESSAGES = {
   email: 'Introduce un email valido.',
@@ -47,11 +48,12 @@ const backendMessageToField = (message = '') => {
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { registerWithRedirect } = useAuthRedirect();
+  const { register } = useAuth();
   const { t, i18n } = useTranslation();
   const { language } = useLocale();
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role');
+  const intendedRoute = searchParams.get('redirect');
 
   const pathName = typeof window !== 'undefined' ? window.location.pathname : '';
   const pathRole = pathName.includes('/vender')
@@ -156,7 +158,15 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await registerWithRedirect(formData);
+      const data = await register(formData);
+
+      if (data?.user) {
+        if (data.user.role === 'customer' && !data.user.onboarding_completed) {
+          navigate('/onboarding', { replace: true });
+        } else {
+          redirectAfterAuth(data.user, navigate, intendedRoute);
+        }
+      }
 
       if (formData.role === 'producer' || formData.role === 'importer') {
         toast.success(t('auth.producerRegistrationSuccess', 'Registration successful! Your account is pending admin approval.'));

@@ -1,22 +1,40 @@
-/**
- * AuthContext - Mejorado con manejo robusto de sesión
- */
-
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { authApi } from '../lib/authApi';
-import { getDefaultRoute } from '../lib/navigation';
 
 const AuthContext = createContext(null);
 
+function normalizeUser(rawUser) {
+  if (!rawUser) return null;
+
+  const normalizedUser = { ...rawUser };
+  const onboardingCompleted =
+    normalizedUser.onboarding_completed ??
+    normalizedUser.onboardingCompleted ??
+    false;
+
+  normalizedUser.role = normalizedUser.role ? String(normalizedUser.role).toLowerCase() : null;
+  normalizedUser.onboarding_completed = Boolean(onboardingCompleted);
+  normalizedUser.onboardingCompleted = Boolean(onboardingCompleted);
+
+  return normalizedUser;
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUserState] = useState(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState(null);
   const mountedRef = useRef(true);
 
-  // Verificar sesión al cargar
+  const setUser = useCallback((value) => {
+    if (typeof value === 'function') {
+      setUserState((currentUser) => normalizeUser(value(currentUser)));
+      return;
+    }
+
+    setUserState(normalizeUser(value));
+  }, []);
+
   const checkAuth = useCallback(async () => {
     if (mountedRef.current) {
       setLoading(true);
@@ -25,10 +43,13 @@ export function AuthProvider({ children }) {
 
     try {
       const currentUser = await authApi.getCurrentUser();
+      const normalizedUser = normalizeUser(currentUser || null);
+
       if (mountedRef.current) {
-        setUser(currentUser || null);
+        setUser(normalizedUser);
       }
-      return currentUser || null;
+
+      return normalizedUser;
     } catch (err) {
       console.log('[Auth] No active session');
       if (mountedRef.current) {
@@ -41,7 +62,7 @@ export function AuthProvider({ children }) {
         setInitialized(true);
       }
     }
-  }, []);
+  }, [setUser]);
 
   useEffect(() => {
     checkAuth();
@@ -51,18 +72,20 @@ export function AuthProvider({ children }) {
     };
   }, [checkAuth]);
 
-  // Login
   const login = useCallback(async (credentials) => {
     setLoading(true);
     setError(null);
 
     try {
       const data = await authApi.login(credentials);
+      const normalizedUser = normalizeUser(data?.user || null);
+
       if (mountedRef.current) {
-        setUser(data?.user || null);
+        setUser(normalizedUser);
         setInitialized(true);
       }
-      return data;
+
+      return { ...data, user: normalizedUser };
     } catch (err) {
       if (mountedRef.current) {
         setError(err);
@@ -73,20 +96,22 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     }
-  }, []);
+  }, [setUser]);
 
-  // Register
   const register = useCallback(async (payload) => {
     setLoading(true);
     setError(null);
 
     try {
       const data = await authApi.register(payload);
+      const normalizedUser = normalizeUser(data?.user || null);
+
       if (mountedRef.current) {
-        setUser(data?.user || null);
+        setUser(normalizedUser);
         setInitialized(true);
       }
-      return data;
+
+      return { ...data, user: normalizedUser };
     } catch (err) {
       if (mountedRef.current) {
         setError(err);
@@ -97,55 +122,65 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     }
-  }, []);
+  }, [setUser]);
 
-  // Logout
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
-    } catch (error) {
-      console.error('[Auth] Logout error:', error);
+    } catch (logoutError) {
+      console.error('[Auth] Logout error:', logoutError);
     } finally {
       if (mountedRef.current) {
         setUser(null);
         setError(null);
+        setInitialized(true);
       }
     }
-  }, []);
+  }, [setUser]);
 
-  // Verificar si tiene rol específico
-  const hasRole = useCallback((role) => {
-    return user?.role === role;
-  }, [user]);
+  const refreshUser = useCallback(async () => checkAuth(), [checkAuth]);
 
-  // Verificar si tiene alguno de los roles
-  const hasAnyRole = useCallback((roles) => {
-    return roles.includes(user?.role);
-  }, [user]);
+  const hasRole = useCallback((role) => user?.role === role, [user]);
+  const hasAnyRole = useCallback((roles) => roles.includes(user?.role), [user]);
+  const isOnboardingComplete = useCallback(() => user?.onboarding_completed === true, [user]);
 
-  // Verificar si onboarding está completo
-  const isOnboardingComplete = useCallback(() => {
-    return user?.onboarding_completed === true;
-  }, [user]);
+  const role = user?.role || null;
+  const onboarding_completed = Boolean(user?.onboarding_completed);
 
-  const value = useMemo(
-    () => ({
-      user,
-      setUser,
-      loading,
-      initialized,
-      error,
-      checkAuth,
-      login,
-      register,
-      logout,
-      hasRole,
-      hasAnyRole,
-      isOnboardingComplete,
-      isAuthenticated: !!user,
-    }),
-    [user, loading, initialized, error, checkAuth, login, register, logout, hasRole, hasAnyRole, isOnboardingComplete]
-  );
+  const value = useMemo(() => ({
+    user,
+    setUser,
+    loading,
+    initialized,
+    error,
+    checkAuth,
+    refreshUser,
+    login,
+    register,
+    logout,
+    role,
+    onboarding_completed,
+    hasRole,
+    hasAnyRole,
+    isOnboardingComplete,
+    isAuthenticated: !!user,
+  }), [
+    user,
+    setUser,
+    loading,
+    initialized,
+    error,
+    checkAuth,
+    refreshUser,
+    login,
+    register,
+    logout,
+    role,
+    onboarding_completed,
+    hasRole,
+    hasAnyRole,
+    isOnboardingComplete,
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

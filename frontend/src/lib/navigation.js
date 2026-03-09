@@ -10,26 +10,41 @@
  */
 export function getDefaultRoute(user, onboardingCompleted = true) {
   if (!user) return '/login';
+
+  const role = user.role ? String(user.role).toLowerCase() : null;
+  const hasCompletedOnboarding =
+    onboardingCompleted ??
+    user.onboarding_completed ??
+    user.onboardingCompleted ??
+    true;
   
   // If onboarding not completed, go to onboarding first
-  if (!onboardingCompleted && user.role === 'customer') {
+  if (!hasCompletedOnboarding && role === 'customer') {
     return '/onboarding';
   }
+
+  if (user.approved === false && ['producer', 'importer', 'influencer'].includes(role)) {
+    return '/pending-approval';
+  }
   
-  switch (user.role) {
+  switch (role) {
     case 'customer':
       return '/dashboard';
     
     case 'producer':
-    case 'importer':
       return '/producer';
+
+    case 'importer':
+      return '/importer/dashboard';
     
     case 'influencer':
       return '/influencer/dashboard';
     
     case 'admin':
-    case 'super_admin':
       return '/admin';
+
+    case 'super_admin':
+      return '/super-admin';
     
     default:
       return '/dashboard';
@@ -50,9 +65,9 @@ export function hasRouteAccess(route, role) {
   // Role-based route restrictions
   const roleRoutes = {
     customer: ['/dashboard', '/cart', '/user'],
-    producer: ['/producer', '/dashboard'],
-    importer: ['/producer', '/importer', '/dashboard'],
-    influencer: ['/influencer', '/dashboard'],
+    producer: ['/producer', '/dashboard', '/pending-approval'],
+    importer: ['/producer', '/importer', '/dashboard', '/pending-approval'],
+    influencer: ['/influencer', '/dashboard', '/pending-approval'],
     admin: ['/admin', '/dashboard'],
     super_admin: ['/admin', '/super-admin', '/dashboard'],
   };
@@ -103,6 +118,9 @@ export function redirectAfterAuth(user, navigate, intendedRoute = null) {
   }
   
   // Otherwise go to default route for role
-  const defaultRoute = getDefaultRoute(user, user.onboarding_completed);
+  const defaultRoute = getDefaultRoute(
+    user,
+    user.onboarding_completed ?? user.onboardingCompleted
+  );
   navigate(defaultRoute);
 }

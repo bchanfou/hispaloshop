@@ -1,56 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { onboardingApi } from '../../lib/onboardingApi';
 
-export default function FollowStep({ onNext, onBack, onError, onSkip }) {
+export default function FollowStep({ onBack, onComplete, onError }) {
   const [suggestions, setSuggestions] = useState([]);
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    loadSuggestions();
-  }, []);
+    const loadSuggestions = async () => {
+      try {
+        const data = await onboardingApi.getSuggestions(3);
+        setSuggestions(data.suggestions || []);
+      } catch (err) {
+        onError?.('Error al cargar sugerencias');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const loadSuggestions = async () => {
-    try {
-      const data = await onboardingApi.getSuggestions(8);
-      setSuggestions(data.suggestions || []);
-    } catch (err) {
-      onError?.('Error al cargar sugerencias');
-    } finally {
-      setLoading(false);
-    }
-  };
+    loadSuggestions();
+  }, [onError]);
 
   const toggleUser = (userId) => {
-    setSelected(prev => {
-      if (prev.includes(userId)) {
-        return prev.filter(id => id !== userId);
-      }
-      return [...prev, userId];
-    });
+    setSelected((currentSelection) => (
+      currentSelection.includes(userId)
+        ? currentSelection.filter((id) => id !== userId)
+        : [...currentSelection, userId]
+    ));
   };
 
-  const handleContinue = async () => {
+  const handleFinish = async () => {
     setSaving(true);
     try {
       await onboardingApi.followUsers(selected);
-      onNext();
+      await onComplete?.();
     } catch (err) {
-      onError?.(err.response?.data?.detail || 'Error al seguir usuarios');
+      onError?.(err.response?.data?.detail || 'Error al guardar las cuentas seguidas');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const getRoleBadge = (role) => {
-    switch (role) {
-      case 'producer':
-        return { text: 'Productor', class: 'bg-green-100 text-green-700' };
-      case 'influencer':
-        return { text: 'Influencer', class: 'bg-purple-100 text-purple-700' };
-      default:
-        return { text: 'Usuario', class: 'bg-stone-100 text-stone-700' };
     }
   };
 
@@ -66,24 +54,23 @@ export default function FollowStep({ onNext, onBack, onError, onSkip }) {
     <div className="space-y-6">
       <div className="text-center">
         <h1 className="text-2xl font-bold text-stone-900 mb-2">
-          Descubre creadores
+          Sigue productores destacados
         </h1>
         <p className="text-stone-600">
-          Sigue a productores e influencers para personalizar tu feed
+          Elige algunas cuentas para personalizar tu feed inicial.
         </p>
       </div>
 
       {suggestions.length === 0 ? (
         <div className="text-center py-8 text-stone-500">
-          <p>No hay sugerencias disponibles en este momento.</p>
-          <p className="text-sm mt-2">Puedes omitir este paso y descubrir usuarios más tarde.</p>
+          <p>No hay sugerencias disponibles ahora mismo.</p>
+          <p className="text-sm mt-2">Puedes finalizar y descubrir productores mas tarde.</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {suggestions.map(user => {
-            const badge = getRoleBadge(user.role);
+          {suggestions.map((user) => {
             const isSelected = selected.includes(user.user_id);
-            
+
             return (
               <div
                 key={user.user_id}
@@ -100,20 +87,17 @@ export default function FollowStep({ onNext, onBack, onError, onSkip }) {
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <h3 className="font-medium text-stone-900 truncate">
-                      {user.name}
-                    </h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${badge.class}`}>
-                      {badge.text}
-                    </span>
-                  </div>
-                  <p className="text-sm text-stone-500 truncate">
-                    @{user.username}
-                  </p>
-                  {user.bio && (
-                    <p className="text-sm text-stone-600 mt-1 truncate">
-                      {user.bio}
+                  <h3 className="font-medium text-stone-900 truncate">
+                    {user.name}
+                  </h3>
+                  {user.username && (
+                    <p className="text-sm text-stone-500 truncate">
+                      @{user.username}
+                    </p>
+                  )}
+                  {user.country && (
+                    <p className="text-xs text-stone-400 mt-1">
+                      Mercado: {user.country}
                     </p>
                   )}
                   {user.followers_count > 0 && (
@@ -144,23 +128,15 @@ export default function FollowStep({ onNext, onBack, onError, onSkip }) {
           onClick={onBack}
           className="px-6 py-2 text-stone-600 hover:text-stone-900 transition-colors"
         >
-          Atrás
+          Atras
         </button>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={onSkip}
-            className="px-6 py-2 text-stone-600 hover:text-stone-900 transition-colors"
-          >
-            Omitir
-          </button>
-          <button
-            onClick={handleContinue}
-            disabled={saving}
-            className="px-6 py-2 bg-stone-900 text-white rounded-lg font-medium disabled:opacity-50 hover:bg-stone-800 transition-colors"
-          >
-            {saving ? 'Guardando...' : 'Continuar'}
-          </button>
-        </div>
+        <button
+          onClick={handleFinish}
+          disabled={saving}
+          className="px-6 py-2 bg-stone-900 text-white rounded-lg font-medium disabled:opacity-50 hover:bg-stone-800 transition-colors"
+        >
+          {saving ? 'Guardando...' : 'Finalizar'}
+        </button>
       </div>
     </div>
   );

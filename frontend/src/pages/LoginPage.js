@@ -1,34 +1,47 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
-import { useAuthRedirect } from '../hooks/useAuthRedirect';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Lock, AtSign } from 'lucide-react';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
+import { redirectAfterAuth } from '../lib/navigation';
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { loginWithRedirect } = useAuthRedirect();
+  const location = useLocation();
+  const { login } = useAuth();
   const [loginMethod, setLoginMethod] = useState('email');
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const intendedRoute = useMemo(() => {
+    const redirectParam = new URLSearchParams(location.search).get('redirect');
+    return redirectParam || location.state?.from?.pathname || null;
+  }, [location.search, location.state]);
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await loginWithRedirect({
+      const data = await login({
         email: formData.email.trim(),
         password: formData.password,
       });
+
+      if (data?.user) {
+        if (data.user.role === 'customer' && !data.user.onboarding_completed) {
+          navigate('/onboarding', { replace: true });
+        } else {
+          redirectAfterAuth(data.user, navigate, intendedRoute);
+        }
+      }
 
       toast.success(t('auth.loginSuccess'));
     } catch (error) {

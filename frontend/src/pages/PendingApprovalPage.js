@@ -4,13 +4,8 @@ import { Clock3, ShieldCheck } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
-import { useAuth } from '../context/AuthContext';
-import { getDefaultRoute } from '../lib/navigation';
 
 export default function PendingApprovalPage() {
-  const { user } = useAuth();
-  const dashboardUrl = user ? getDefaultRoute(user, user.onboarding_completed) : '/';
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -29,15 +24,15 @@ export default function PendingApprovalPage() {
             <div className="flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-[#2D5A27] mt-0.5" />
               <div className="space-y-1 text-sm text-text-secondary">
-                <p>Podras completar tu perfil y revisar tu panel.</p>
-                <p>No se mostraran funciones restringidas hasta que la aprobacion termine.</p>
+                <p>Recibiras acceso completo cuando el equipo valide tu alta.</p>
+                <p>Mientras tanto, algunas funciones comerciales seguiran restringidas.</p>
                 <p>Si tarda demasiado, usa contacto o soporte interno.</p>
               </div>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white">
-              <Link to={dashboardUrl}>Ir a mi panel</Link>
+              <Link to="/">Volver al inicio</Link>
             </Button>
             <Button asChild variant="outline">
               <Link to="/contact">Contactar</Link>

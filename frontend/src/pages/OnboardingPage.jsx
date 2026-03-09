@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { onboardingApi } from '../lib/onboardingApi';
@@ -7,9 +7,8 @@ import OnboardingLayout from '../components/onboarding/OnboardingLayout';
 import InterestsStep from '../components/onboarding/InterestsStep';
 import LocationStep from '../components/onboarding/LocationStep';
 import FollowStep from '../components/onboarding/FollowStep';
-import WelcomeStep from '../components/onboarding/WelcomeStep';
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 3;
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -18,33 +17,14 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Check onboarding status on mount
-  useEffect(() => {
-    if (authLoading) return;
-    
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    // If user already completed onboarding, redirect to dashboard
-    if (user.onboarding_completed) {
-      navigate('/dashboard');
-      return;
-    }
-
-    // Check current step from API
-    checkOnboardingStatus();
-  }, [user, authLoading, navigate]);
-
-  const checkOnboardingStatus = async () => {
+  const checkOnboardingStatus = useCallback(async () => {
     try {
       const status = await onboardingApi.getStatus();
       if (status.completed) {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
         return;
       }
-      // Resume from where user left off
+
       if (status.current_step && status.current_step > 1 && status.current_step <= TOTAL_STEPS) {
         setCurrentStep(status.current_step);
       }
@@ -53,34 +33,44 @@ export default function OnboardingPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    if (user.role !== 'customer') {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    if (user.onboarding_completed) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+
+    checkOnboardingStatus();
+  }, [user, authLoading, navigate, checkOnboardingStatus]);
 
   const handleNext = useCallback(() => {
-    setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS));
+    setCurrentStep((prev) => Math.min(prev + 1, TOTAL_STEPS));
     setError(null);
   }, []);
 
   const handleBack = useCallback(() => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
     setError(null);
   }, []);
 
-  const handleSkip = useCallback(async () => {
-    try {
-      await onboardingApi.skip();
-      await checkAuth(); // Refresh user data
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Error skipping onboarding:', err);
-      // Still navigate even if API fails
-      navigate('/dashboard');
-    }
-  }, [navigate, checkAuth]);
-
   const handleComplete = useCallback(async () => {
-    await checkAuth(); // Refresh user data
-    navigate('/dashboard');
-  }, [navigate, checkAuth]);
+    await onboardingApi.complete();
+    await checkAuth();
+    navigate('/dashboard', { replace: true });
+  }, [checkAuth, navigate]);
 
   const handleError = useCallback((message) => {
     setError(message);
@@ -106,21 +96,14 @@ export default function OnboardingPage() {
       case 2:
         return <LocationStep {...props} onBack={handleBack} />;
       case 3:
-        return <FollowStep {...props} onBack={handleBack} onSkip={handleNext} />;
-      case 4:
-        return <WelcomeStep onComplete={handleComplete} onError={handleError} />;
+        return <FollowStep onBack={handleBack} onComplete={handleComplete} onError={handleError} />;
       default:
         return null;
     }
   };
 
   return (
-    <OnboardingLayout
-      currentStep={currentStep}
-      totalSteps={TOTAL_STEPS}
-      onSkip={currentStep < TOTAL_STEPS ? handleSkip : undefined}
-      showSkip={currentStep < TOTAL_STEPS}
-    >
+    <OnboardingLayout currentStep={currentStep} totalSteps={TOTAL_STEPS} showSkip={false}>
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
           {error}

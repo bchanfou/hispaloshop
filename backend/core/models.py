@@ -2,7 +2,7 @@
 All Pydantic models for Hispaloshop.
 Single source of truth — imported by server.py and all route modules.
 """
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, ConfigDict, Field, EmailStr
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 
@@ -10,15 +10,27 @@ from datetime import datetime, timedelta
 # ── User & Auth ──────────────────────────────────────────────
 
 class User(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     user_id: str
     email: EmailStr
     name: str
     role: str
+    username: Optional[str] = None
     country: Optional[str] = None
+    postal_code: Optional[str] = None
     picture: Optional[str] = None
     email_verified: bool = False
     password_hash: Optional[str] = None
     created_at: datetime
+    updated_at: Optional[datetime] = None
+    onboarding_completed: bool = False
+    onboarding_step: int = 1
+    interests: List[str] = []
+    following: List[str] = []
+    followers: List[str] = []
+    followers_count: int = 0
+    subscription: Optional[Dict[str, Any]] = None
     company_name: Optional[str] = None
     phone: Optional[str] = None
     whatsapp: Optional[str] = None
@@ -27,6 +39,13 @@ class User(BaseModel):
     vat_cif: Optional[str] = None
     stripe_account_id: Optional[str] = None
     approved: bool = False
+
+    # Compatibilidad: el repositorio mezcla acceso tipo objeto y tipo dict.
+    def __getitem__(self, key: str):
+        return getattr(self, key)
+
+    def get(self, key: str, default=None):
+        return getattr(self, key, default)
 
 
 class Address(BaseModel):

@@ -3,7 +3,7 @@ Auth routes: register, login, logout, verify-email, password reset, session.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
-from typing import Optional
+from typing import Any, Optional
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlencode
 import uuid
@@ -38,10 +38,53 @@ def _set_session_cookie(target_response: Response, request: Request, session_tok
         secure=is_secure_cookie
     )
 
+
+def _json_safe(value: Any):
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {key: _json_safe(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_json_safe(item) for item in value]
+    return value
+
+
+def _sanitize_user_doc(user_doc: dict) -> dict:
+    sanitized = {key: value for key, value in dict(user_doc).items() if key not in {"_id", "password_hash"}}
+    if sanitized.get("role") == "customer":
+        sanitized["onboarding_completed"] = bool(sanitized.get("onboarding_completed", False))
+        sanitized["onboarding_step"] = int(sanitized.get("onboarding_step", 1) or 1)
+    else:
+        sanitized["onboarding_completed"] = bool(sanitized.get("onboarding_completed", True))
+        sanitized["onboarding_step"] = int(sanitized.get("onboarding_step", 0) or 0)
+    sanitized.setdefault("followers_count", len(sanitized.get("followers", [])))
+    return _json_safe(sanitized)
+
+
+async def _create_user_session(user_id: str) -> str:
+    session_token = f"session_{uuid.uuid4().hex}"
+    await db.user_sessions.insert_one({
+        "user_id": user_id,
+        "session_token": session_token,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    return session_token
+
+
+def _build_auth_response(request: Request, user_doc: dict, session_token: str, **extra_payload: Any) -> JSONResponse:
+    response = JSONResponse(content={
+        **extra_payload,
+        "user": _sanitize_user_doc(user_doc),
+        "session_token": session_token,
+    })
+    _set_session_cookie(response, request, session_token)
+    return response
+
 # Auth routes
 
 @router.post("/auth/register")
-async def register(input: RegisterInput):
+async def register(input: RegisterInput, request: Request):
     # GDPR Compliance: Consent is MANDATORY for customers
     if input.role == "customer" and not input.analytics_consent:
         raise HTTPException(
@@ -51,7 +94,7 @@ async def register(input: RegisterInput):
     
     existing = await db.users.find_one({"email": input.email}, {"_id": 0})
     if existing:
-        return {"message": "Registration successful. Please check your email to verify your account."}
+        raise HTTPException(status_code=400, detail="Email already registered")
     
     # Username validation
     username = input.username
@@ -70,7 +113,7 @@ async def register(input: RegisterInput):
     
     user_data = {
         "user_id": user_id,
-        "email": input.email,
+        "email": input.email.lower(),
         "name": input.name,
         "username": username,
         "role": input.role,
@@ -78,7 +121,15 @@ async def register(input: RegisterInput):
         "password_hash": password_hash,
         "email_verified": False,
         "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
         "approved": input.role == "customer",
+        "auth_provider": "local",
+        "onboarding_completed": input.role != "customer",
+        "onboarding_step": 1 if input.role == "customer" else 0,
+        "interests": [],
+        "following": [],
+        "followers": [],
+        "followers_count": 0,
         # GDPR Consent tracking
         "consent": {
             "analytics_consent": input.analytics_consent,
@@ -95,12 +146,22 @@ async def register(input: RegisterInput):
             "contact_person": input.contact_person,
             "fiscal_address": input.fiscal_address,
             "vat_cif": input.vat_cif,
-            "approved": False
+            "approved": False,
+            "subscription": {
+                "plan": "FREE",
+                "plan_status": "active",
+                "commission_rate": 0.20,
+            },
         })
     
     if input.role == "influencer":
         user_data.update({
-            "approved": False  # Needs admin approval
+            "approved": False,  # Needs admin approval
+            "influencer_profile": {
+                "tier": "perseo",
+                "commission_rate": 0.03,
+                "followers_count": int(str(input.followers or "0").replace(".", "").replace(",", "") or 0),
+            },
         })
         # Create influencer record
         influencer_id = f"inf_{uuid.uuid4().hex[:12]}"
@@ -171,6 +232,8 @@ async def register(input: RegisterInput):
     </div>
     """
     
+    session_token = await _create_user_session(user_id)
+
     try:
         send_email(
             to=input.email,
@@ -181,16 +244,19 @@ async def register(input: RegisterInput):
     except HTTPException as e:
         # If email fails, we should still allow registration but warn the user
         logger.error(f"[REGISTRATION] Failed to send verification email to {input.email}")
-        # Don't block registration, but user won't get email
-        return {
-            "message": "Registration successful, but failed to send verification email. Please try resending it later.",
-            "user_id": user_id
-        }
+        return _build_auth_response(
+            request,
+            user_data,
+            session_token,
+            message="Registration successful, but failed to send verification email. Please try resending it later.",
+        )
     
-    return {
-        "message": "Registration successful. Please check your email to verify your account.",
-        "user_id": user_id
-    }
+    return _build_auth_response(
+        request,
+        user_data,
+        session_token,
+        message="Registration successful. Please check your email to verify your account.",
+    )
 
 # Email verification endpoints
 @router.post("/auth/verify-email")
@@ -320,31 +386,8 @@ async def login(input: LoginInput, request: Request):
         await db.users.update_one({"user_id": user_doc["user_id"]}, {"$set": {"password_hash": new_hash}})
         logger.info(f"[AUTH] Migrated password hash to bcrypt for {user_doc.get('email')}")
     
-    # Create session
-    session_token = f"session_{uuid.uuid4().hex}"
-    await db.user_sessions.insert_one({
-        "user_id": user_doc["user_id"],
-        "session_token": session_token,
-        "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    user_doc.pop("password_hash", None)
-    
-    # Convert datetime objects to ISO strings for JSON serialization
-    for key, value in user_doc.items():
-        if isinstance(value, datetime):
-            user_doc[key] = value.isoformat()
-    
-    # Create response and set cookie
-    response = JSONResponse(content={
-        "user": user_doc,
-        "session_token": session_token
-    })
-    
-    _set_session_cookie(response, request, session_token)
-    
-    return response
+    session_token = await _create_user_session(user_doc["user_id"])
+    return _build_auth_response(request, user_doc, session_token)
 
 # Password Recovery Endpoints
 
@@ -496,6 +539,12 @@ async def auth_session(request: Request, response: Response):
             "role": "customer",
             "email_verified": True,
             "approved": True,
+            "onboarding_completed": False,
+            "onboarding_step": 1,
+            "interests": [],
+            "following": [],
+            "followers": [],
+            "followers_count": 0,
             "analytics_consent": {
                 "version": "1.0",
                 "granted": True,
@@ -526,13 +575,12 @@ async def auth_session(request: Request, response: Response):
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     
-    # Set httpOnly cookie
-    _set_session_cookie(response, request, session_token)
-    
-    return {
-        "user": user_doc,
+    response = JSONResponse(content={
+        "user": _sanitize_user_doc(user_doc),
         "session_token": session_token
-    }
+    })
+    _set_session_cookie(response, request, session_token)
+    return response
 @router.get("/auth/me")
 async def get_me(request: Request):
     """Get current user - returns null if not authenticated (no 401)"""
@@ -540,7 +588,7 @@ async def get_me(request: Request):
     user = await get_optional_user(request)
     if not user:
         return None
-    return user
+    return _sanitize_user_doc(user.model_dump())
 
 
 @router.post("/auth/refresh")
@@ -607,7 +655,9 @@ async def logout(request: Request):
     session_token = request.cookies.get('session_token')
     if session_token:
         await db.user_sessions.delete_one({"session_token": session_token})
-    return {"message": "Logged out"}
+    response = JSONResponse(content={"message": "Logged out"})
+    response.delete_cookie("session_token", path="/")
+    return response
 
 
 # ============================================================================
@@ -738,6 +788,12 @@ async def google_auth_callback(
             "email_verified": google_user.get("verified_email", True),
             "approved": True,
             "auth_provider": "google",
+            "onboarding_completed": False,
+            "onboarding_step": 1,
+            "interests": [],
+            "following": [],
+            "followers": [],
+            "followers_count": 0,
             "analytics_consent": {
                 "version": "1.0",
                 "granted": True,

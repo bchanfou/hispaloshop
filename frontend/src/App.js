@@ -19,8 +19,9 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import BottomNavBar from './components/BottomNavBar';
 import ScrollToTop from './components/ScrollToTop';
 import AppErrorBoundary from './components/AppErrorBoundary';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from './components/ui/sonner';
-import { AuthProvider as LegacyAuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { HelmetProvider } from 'react-helmet-async';
@@ -261,13 +262,27 @@ function AppRouter() {
               <Route path="/seller/register" element={<RegisterPage />} />
               <Route path="/influencer/register" element={<RegisterPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />
-              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route
+                path="/onboarding"
+                element={(
+                  <ProtectedRoute allowedRoles={['customer']} requireOnboarding={false}>
+                    <OnboardingPage />
+                  </ProtectedRoute>
+                )}
+              />
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/importer/register" element={<RegisterPage />} />
-              <Route path="/importer/dashboard" element={<ImporterDashboardPage />} />
+              <Route
+                path="/importer/dashboard"
+                element={(
+                  <ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}>
+                    <ImporterDashboardPage />
+                  </ProtectedRoute>
+                )}
+              />
               <Route path="/importer/catalog" element={<Navigate to="/producer/products" replace />} />
               <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
               <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
@@ -284,11 +299,25 @@ function AppRouter() {
               <Route path="/press" element={<PressPage />} />
               <Route path="/careers" element={<CareersPage />} />
               <Route path="/contact" element={<ContactPage />} />
-              <Route path="/pending-approval" element={<PendingApprovalPage />} />
+              <Route
+                path="/pending-approval"
+                element={(
+                  <ProtectedRoute allowedRoles={['producer', 'importer', 'influencer']} requireOnboarding={false}>
+                    <PendingApprovalPage />
+                  </ProtectedRoute>
+                )}
+              />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
 
-              <Route path="/admin" element={<AdminLayout />}>
+              <Route
+                path="/admin"
+                element={(
+                  <ProtectedRoute allowedRoles={['admin', 'super_admin']} requireOnboarding={false}>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                )}
+              >
                 <Route index element={<AdminOverview />} />
                 <Route path="producers" element={<AdminProducers />} />
                 <Route path="products" element={<AdminProducts />} />
@@ -300,7 +329,14 @@ function AppRouter() {
               </Route>
               <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
 
-              <Route path="/super-admin" element={<SuperAdminLayout />}>
+              <Route
+                path="/super-admin"
+                element={(
+                  <ProtectedRoute allowedRoles={['super_admin']} requireOnboarding={false}>
+                    <SuperAdminLayout />
+                  </ProtectedRoute>
+                )}
+              >
                 <Route index element={<SuperAdminOverviewPage />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="content" element={<ContentManagement />} />
@@ -311,7 +347,14 @@ function AppRouter() {
                 <Route path="admins" element={<AdminManagement />} />
               </Route>
 
-              <Route path="/producer" element={<ProducerLayout />}>
+              <Route
+                path="/producer"
+                element={(
+                  <ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}>
+                    <ProducerLayout />
+                  </ProtectedRoute>
+                )}
+              >
                 <Route index element={<ProducerOverview />} />
                 <Route path="products" element={<ProducerProducts />} />
                 <Route path="products/new" element={<Navigate to="/producer/products" replace />} />
@@ -332,7 +375,14 @@ function AppRouter() {
                 <Route path="influencers" element={<Navigate to="/discover?scope=profiles" replace />} />
               </Route>
 
-              <Route path="/dashboard" element={<CustomerLayout />}>
+              <Route
+                path="/dashboard"
+                element={(
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <CustomerLayout />
+                  </ProtectedRoute>
+                )}
+              >
                 <Route index element={<CustomerOverview />} />
                 <Route path="orders" element={<CustomerOrders />} />
                 <Route path="orders/:orderId" element={<Navigate to="/dashboard/orders" replace />} />
@@ -343,7 +393,14 @@ function AppRouter() {
                 <Route path="predictions" element={<HispaloPredictions />} />
               </Route>
 
-              <Route path="/customer" element={<CustomerLayout />}>
+              <Route
+                path="/customer"
+                element={(
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <CustomerLayout />
+                  </ProtectedRoute>
+                )}
+              >
                 <Route index element={<CustomerOverview />} />
                 <Route path="orders" element={<CustomerOrders />} />
                 <Route path="saved" element={<CustomerFollowedStores />} />
@@ -354,9 +411,11 @@ function AppRouter() {
               <Route
                 path="/influencer/dashboard"
                 element={(
-                  <InfluencerLayoutResponsive>
-                    <InfluencerDashboard />
-                  </InfluencerLayoutResponsive>
+                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
+                    <InfluencerLayoutResponsive>
+                      <InfluencerDashboard />
+                    </InfluencerLayoutResponsive>
+                  </ProtectedRoute>
                 )}
               />
               <Route path="/influencer/opportunities" element={<Navigate to="/influencer/dashboard" replace />} />
@@ -366,9 +425,11 @@ function AppRouter() {
               <Route
                 path="/influencer/stripe-connect"
                 element={(
-                  <InfluencerLayoutResponsive>
-                    <InfluencerDashboard />
-                  </InfluencerLayoutResponsive>
+                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
+                    <InfluencerLayoutResponsive>
+                      <InfluencerDashboard />
+                    </InfluencerLayoutResponsive>
+                  </ProtectedRoute>
                 )}
               />
 
@@ -404,7 +465,7 @@ function App() {
     <HelmetProvider>
       <BrowserRouter>
         <AppErrorBoundary>
-          <LegacyAuthProvider>
+          <AuthProvider>
             <LocaleProvider>
               <CartProvider>
                 <ChatProvider>
@@ -414,7 +475,7 @@ function App() {
                 </ChatProvider>
               </CartProvider>
             </LocaleProvider>
-          </LegacyAuthProvider>
+          </AuthProvider>
         </AppErrorBoundary>
       </BrowserRouter>
     </HelmetProvider>
