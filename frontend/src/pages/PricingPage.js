@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -12,24 +12,30 @@ import { toast } from 'sonner';
 import { API } from '../utils/api';
 
 export default function PricingPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
   const [plans, setPlans] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(null);
+  const isSeller = user?.role === 'producer' || user?.role === 'importer';
+  const sellerSignupPath = '/vender/registro?redirect=/pricing';
 
   useEffect(() => {
     fetchPlans();
-  }, [user]);
+  }, [user, isSeller]);
 
   const fetchPlans = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${API}/sellers/plans`);
       setPlans(res.data.plans || []);
-      if (user?.role === 'producer' || user?.role === 'importer') {
+      if (isSeller) {
         const planRes = await axios.get(`${API}/sellers/me/plan`, { withCredentials: true });
         setCurrentPlan(planRes.data);
+      } else {
+        setCurrentPlan(null);
       }
     } catch (err) {
       console.error(err);
@@ -38,18 +44,76 @@ export default function PricingPage() {
     }
   };
 
+  const handleSellerEntry = () => {
+    if (!user) {
+      navigate(sellerSignupPath);
+      return;
+    }
+
+    if (isSeller) {
+      navigate('/producer');
+      return;
+    }
+
+    navigate('/productor');
+  };
+
   const handleSubscribe = async (planKey) => {
-    if (!user) { window.location.href = '/register'; return; }
-    if (planKey === 'FREE') return;
+    if (!user) {
+      navigate(sellerSignupPath);
+      return;
+    }
+
+    if (!isSeller) {
+      toast.error('Estos planes son solo para productores e importadores.');
+      navigate('/productor');
+      return;
+    }
+
     setSubscribing(planKey);
     try {
+      if (planKey === 'FREE') {
+        if (currentPlan?.plan && currentPlan.plan !== 'FREE') {
+          const res = await axios.post(`${API}/sellers/me/plan/change`, { plan: 'FREE' }, { withCredentials: true });
+          toast.success(res.data?.message || 'Plan cambiado a FREE.');
+          await fetchPlans();
+        } else {
+          navigate('/producer');
+        }
+        return;
+      }
+
+      if (currentPlan?.stripe_subscription_id && currentPlan?.plan && currentPlan.plan !== 'FREE') {
+        const res = await axios.post(`${API}/sellers/me/plan/change`, { plan: planKey }, { withCredentials: true });
+        toast.success(res.data?.message || `Plan actualizado a ${planKey}.`);
+        await fetchPlans();
+        return;
+      }
+
       const res = await axios.post(`${API}/sellers/me/plan/subscribe`, { plan: planKey }, { withCredentials: true });
-      if (res.data.checkout_url) window.location.href = res.data.checkout_url;
+      if (res.data.checkout_url) {
+        window.location.href = res.data.checkout_url;
+      } else {
+        toast.error('No se pudo iniciar el pago. Intentalo otra vez.');
+      }
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Error');
     } finally {
       setSubscribing(null);
     }
+  };
+
+  const getPlanActionLabel = (planKey) => {
+    if (planKey === 'FREE') {
+      if (!user) return 'Crear cuenta de vendedor';
+      if (!isSeller) return 'Ver como vender';
+      return currentPlan?.plan === 'FREE' ? t('pricing.currentPlanBtn') : 'Pasar a FREE';
+    }
+
+    if (!user) return 'Crear cuenta y continuar';
+    if (!isSeller) return 'Ver planes para vender';
+    if (currentPlan?.plan === 'FREE' || !currentPlan?.stripe_subscription_id) return 'Empezar prueba y pagar';
+    return `Cambiar a ${planKey}`;
   };
 
   const icons = { FREE: Star, PRO: Zap, ELITE: Crown };
@@ -67,6 +131,34 @@ export default function PricingPage() {
           <p className="text-xs font-semibold text-[#2D5A27] uppercase tracking-widest mb-2">{t('pricing.tagline')}</p>
           <h1 className="font-heading text-3xl md:text-4xl font-semibold text-[#1C1C1C] mb-3">{t('pricing.title')}</h1>
           <p className="text-[#666] text-sm max-w-lg mx-auto">{t('pricing.subtitle')}</p>
+        </div>
+
+        <div className="mb-10 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm md:flex md:items-center md:justify-between md:gap-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#2D5A27]">Acceso a planes</p>
+            <h2 className="mt-2 text-xl font-semibold text-[#1C1C1C]">
+              {isSeller
+                ? 'Gestiona tu suscripcion y cambia de plan cuando quieras.'
+                : user
+                  ? 'Tu cuenta actual no es de vendedor.'
+                  : 'Crea una cuenta de vendedor para contratar un plan.'}
+            </h2>
+            <p className="mt-2 text-sm text-[#666] max-w-2xl">
+              {isSeller
+                ? 'Si eliges un plan de pago, te llevamos directamente al checkout correspondiente.'
+                : user
+                  ? 'Estos planes estan reservados para productores e importadores. Te llevo a la pagina de vendedor para que sigas el flujo correcto.'
+                  : 'Los planes de esta pagina son para productores e importadores. El alta gratuita tambien arranca desde el registro de vendedor.'}
+            </p>
+          </div>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row md:mt-0">
+            <Button onClick={handleSellerEntry} className="rounded-xl h-11 bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white">
+              {isSeller ? 'Ir a mi panel' : user ? 'Ver pagina de vendedor' : 'Crear cuenta de vendedor'}
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/contact')} className="rounded-xl h-11">
+              Hablar con ventas
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5" data-testid="pricing-grid">
@@ -118,26 +210,36 @@ export default function PricingPage() {
 
                 {isCurrent ? (
                   <Button disabled className="w-full rounded-xl h-11 opacity-60">{t('pricing.currentPlanBtn')}</Button>
-                ) : plan.key === 'FREE' ? (
-                  <Link to={user ? '/producer' : '/register'}>
-                    <Button variant="outline" className="w-full rounded-xl h-11">
-                      {user ? t('pricing.switchToFree') : t('pricing.createFreeAccount')}
-                    </Button>
-                  </Link>
                 ) : (
                   <Button
                     onClick={() => handleSubscribe(plan.key)}
                     disabled={subscribing === plan.key}
-                    className={`w-full rounded-xl h-11 ${isRecommended ? 'bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white' : 'bg-[#1C1C1C] hover:bg-[#333] text-white'}`}
+                    variant={plan.key === 'FREE' ? 'outline' : 'default'}
+                    className={`w-full rounded-xl h-11 ${plan.key === 'FREE' ? '' : isRecommended ? 'bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white' : 'bg-[#1C1C1C] hover:bg-[#333] text-white'}`}
                   >
                     {subscribing === plan.key ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                      <>{currentPlan ? t('pricing.upgrade') : t('pricing.freeTrial')} <ArrowRight className="w-4 h-4 ml-1" /></>
+                      <>{getPlanActionLabel(plan.key)} <ArrowRight className="w-4 h-4 ml-1" /></>
                     )}
                   </Button>
                 )}
               </div>
             );
           })}
+        </div>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-stone-200 bg-white p-5">
+            <p className="text-sm font-semibold text-[#1C1C1C]">1. Suscripcion</p>
+            <p className="mt-2 text-sm text-[#666]">Seleccionas plan, validamos tu rol de vendedor y abrimos el flujo correcto.</p>
+          </div>
+          <div className="rounded-2xl border border-stone-200 bg-white p-5">
+            <p className="text-sm font-semibold text-[#1C1C1C]">2. Pago seguro</p>
+            <p className="mt-2 text-sm text-[#666]">Los planes de pago usan checkout seguro de Stripe con tarjeta y periodo de prueba si aplica.</p>
+          </div>
+          <div className="rounded-2xl border border-stone-200 bg-white p-5">
+            <p className="text-sm font-semibold text-[#1C1C1C]">3. Activacion</p>
+            <p className="mt-2 text-sm text-[#666]">Despues del pago o cambio de plan, actualizamos tu comision y el panel queda listo para operar.</p>
+          </div>
         </div>
 
         <div className="mt-10 text-center text-xs text-[#999]">

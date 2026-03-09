@@ -1,312 +1,545 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { motion } from 'framer-motion';
-import { ArrowRight, Store, CreditCard, Truck, Share2, Cpu, BarChart3, Check, Star, Zap, Gem, Quote } from 'lucide-react';
+import {
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  ChevronDown,
+  CreditCard,
+  Globe,
+  Loader2,
+  ShieldCheck,
+  Star,
+  Store,
+  Truck,
+  Users,
+  Wallet,
+  Zap,
+  Crown,
+} from 'lucide-react';
 import SEOHead from '../../components/landings/SEOHead';
 import NavbarLanding from '../../components/landings/NavbarLanding';
 import FooterLanding from '../../components/landings/FooterLanding';
-import PricingTable from '../../components/landings/PricingTable';
-import StepProcess from '../../components/landings/StepProcess';
+import LandingSectionNav from '../../components/landings/LandingSectionNav';
+import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
+import { API } from '../../utils/api';
 
-const FEATURES = [
-  { icon: Store, title: 'Tienda digital', desc: 'Tu propio escaparate online' },
-  { icon: CreditCard, title: 'Pagos seguros', desc: 'Stripe integrado, sin complicaciones' },
-  { icon: Truck, title: 'Logística', desc: 'Integrada o externa, tú decides' },
-  { icon: Share2, title: 'Red social', desc: 'Posts y reels integrados' },
-  { icon: Cpu, title: 'HI AI', desc: 'Asistente de ventas inteligente' },
-  { icon: BarChart3, title: 'Analytics', desc: 'Datos en tiempo real' },
+const NAV_ITEMS = [
+  { label: 'Resumen', href: '#hero' },
+  { label: 'Ventajas', href: '#benefits' },
+  { label: 'Planes', href: '#plans' },
+  { label: 'Pago', href: '#payment' },
+  { label: 'Requisitos', href: '#requirements' },
 ];
 
-const PLANS = [
+const BENEFITS = [
   {
-    name: 'FREE',
-    price: '€0',
-    period: '/mes',
-    commission: '20% comisión',
-    features: [
-      'Hasta 50 productos',
-      'Tienda básica',
-      'Soporte email',
-      'Acceso a comunidad'
-    ],
-    cta: 'Empezar gratis',
-    onCta: () => window.location.href = '/register/producer'
+    icon: Store,
+    title: 'Tienda operativa',
+    description: 'Catalogo, pedidos y visibilidad en marketplace desde una sola cuenta.',
   },
   {
-    name: 'PRO',
-    price: '€79',
-    period: '/mes',
-    commission: '18% comisión',
-    features: [
-      'Productos ilimitados',
-      'Destacados en búsqueda',
-      'HI AI avanzado',
-      'Soporte prioritario'
-    ],
-    cta: 'Elegir PRO',
-    onCta: () => window.location.href = '/register/producer'
+    icon: Globe,
+    title: 'Venta directa',
+    description: 'Menos intermediarios, mas control sobre precio, marca y margen.',
   },
   {
-    name: 'ELITE',
-    price: '€149',
-    period: '/mes',
-    commission: '17% comisión',
-    features: [
-      'Todo lo de PRO',
-      'Manager dedicado',
-      'Envío gratuito incluido',
-      'API acceso'
-    ],
-    cta: 'Contactar ventas',
-    onCta: () => window.location.href = '/register/producer'
-  }
+    icon: BarChart3,
+    title: 'Panel con datos',
+    description: 'Ventas, conversion, paises y rendimiento en tiempo real.',
+  },
+  {
+    icon: Truck,
+    title: 'Logistica flexible',
+    description: 'Configuras envios, paises y operativa segun tu capacidad real.',
+  },
 ];
 
-const TESTIMONIALS = [
+const PAYMENT_STEPS = [
   {
-    quote: 'Dejé de depender de los intermediarios. Ahora decido yo cuánto vale mi trabajo.',
-    name: 'José',
-    role: 'Cortijo Andaluz',
-    image: 'https://i.pravatar.cc/150?u=jose'
+    icon: Users,
+    title: 'Alta de vendedor',
+    description: 'Primero activas tu cuenta de productor o importador con el registro correcto.',
   },
   {
-    quote: 'Crecí un 300% en 6 meses. La visibilidad que me dio Hispaloshop fue increíble.',
-    name: 'María',
-    role: 'Quesería La Antigua',
-    image: 'https://i.pravatar.cc/150?u=maria2'
+    icon: CreditCard,
+    title: 'Suscripcion segura',
+    description: 'Eliges plan y abrimos checkout de Stripe solo cuando toca pagar o cambiar de nivel.',
   },
   {
-    quote: 'Exporto a Alemania desde mi pueblo. Nunca imaginé tener clientes internacionales.',
-    name: 'Antonio',
-    role: 'Miel del Sur',
-    image: 'https://i.pravatar.cc/150?u=antonio'
-  }
+    icon: Wallet,
+    title: 'Activacion del plan',
+    description: 'Actualizamos tu comision y dejas listo el panel para vender, cobrar y escalar.',
+  },
 ];
 
-const ProductorLanding = () => {
+const REQUIREMENTS = [
+  'Datos fiscales y bancarios al dia',
+  'Catalogo listo para publicarse',
+  'Politica de envios definida',
+  'Compromiso con calidad y trazabilidad',
+];
+
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
+  transition: { duration: 0.5 },
+};
+
+const PLAN_ICONS = {
+  FREE: Star,
+  PRO: Zap,
+  ELITE: Crown,
+};
+
+export default function ProductorLanding() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [plans, setPlans] = useState([]);
+  const [currentPlan, setCurrentPlan] = useState(null);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+  const [subscribing, setSubscribing] = useState(null);
+  const isSeller = user?.role === 'producer' || user?.role === 'importer';
+  const sellerSignupPath = '/vender/registro?redirect=/pricing';
+
+  useEffect(() => {
+    fetchPlans();
+  }, [user, isSeller]);
+
+  const fetchPlans = async () => {
+    setLoadingPlans(true);
+    try {
+      const res = await axios.get(`${API}/sellers/plans`);
+      setPlans(res.data.plans || []);
+      if (isSeller) {
+        const planRes = await axios.get(`${API}/sellers/me/plan`, { withCredentials: true });
+        setCurrentPlan(planRes.data);
+      } else {
+        setCurrentPlan(null);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleMainEntry = () => {
+    if (!user) {
+      navigate(sellerSignupPath);
+      return;
+    }
+
+    if (isSeller) {
+      navigate('/producer');
+      return;
+    }
+
+    toast.error('Tu cuenta actual no es de vendedor. Te llevo al equipo para activarla.');
+    navigate('/contact');
+  };
+
+  const handlePlanAction = async (planKey) => {
+    if (!user) {
+      navigate(sellerSignupPath);
+      return;
+    }
+
+    if (!isSeller) {
+      toast.error('Necesitas una cuenta de productor o importador para contratar un plan.');
+      navigate('/contact');
+      return;
+    }
+
+    setSubscribing(planKey);
+
+    try {
+      if (planKey === 'FREE') {
+        if (currentPlan?.plan && currentPlan.plan !== 'FREE') {
+          const res = await axios.post(`${API}/sellers/me/plan/change`, { plan: 'FREE' }, { withCredentials: true });
+          toast.success(res.data?.message || 'Plan cambiado a FREE.');
+          await fetchPlans();
+        } else {
+          navigate('/producer');
+        }
+        return;
+      }
+
+      if (currentPlan?.stripe_subscription_id && currentPlan?.plan && currentPlan.plan !== 'FREE') {
+        const res = await axios.post(`${API}/sellers/me/plan/change`, { plan: planKey }, { withCredentials: true });
+        toast.success(res.data?.message || `Plan actualizado a ${planKey}.`);
+        await fetchPlans();
+        return;
+      }
+
+      const res = await axios.post(`${API}/sellers/me/plan/subscribe`, { plan: planKey }, { withCredentials: true });
+      if (res.data.checkout_url) {
+        window.location.href = res.data.checkout_url;
+      } else {
+        toast.error('No se pudo abrir el checkout. Intentalo otra vez.');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Error al procesar la suscripcion.');
+    } finally {
+      setSubscribing(null);
+    }
+  };
+
+  const getPlanActionLabel = (planKey) => {
+    if (planKey === 'FREE') {
+      if (!user) return 'Crear cuenta';
+      if (!isSeller) return 'Hablar con soporte';
+      return currentPlan?.plan === 'FREE' ? 'Plan actual' : 'Pasar a FREE';
+    }
+
+    if (!user) return 'Registrarme y seguir';
+    if (!isSeller) return 'Necesito activar vendedor';
+    if (currentPlan?.plan === 'FREE' || !currentPlan?.stripe_subscription_id) return 'Suscribirme y pagar';
+    return `Cambiar a ${planKey}`;
+  };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#f5f1e8] text-[#1a1a1a]">
       <SEOHead
-        title="Vende directo online como productor en Hispaloshop"
-        description="Crea tu tienda digital y vende directo a consumidores. Controla tu precio y marca. Comisión desde solo el 17%."
-        keywords="vender productos artesanales, tienda online productores, ecommerce alimentación"
+        title="Programa para productores Hispaloshop"
+        description="Landing para productores e importadores con informacion de planes, suscripcion y pago seguro."
+        keywords="productor hispaloshop, vender online, planes marketplace, suscripcion productor"
       />
-      
-      <NavbarLanding />
 
-      {/* Hero */}
-      <section className="relative bg-[#2D5A3D] pt-20 pb-24">
-        <div className="absolute inset-0 opacity-20">
-          <img
-            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200"
-            alt="Olivar"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-                Tu granja, tu tienda, tus reglas
-              </h1>
-              <p className="text-lg text-white/80 mb-8 leading-relaxed">
-                Vende directo a consumidores e importadores. Controla tu precio, tu marca, tu futuro.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <button
-                  onClick={() => navigate('/register/producer')}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#E6A532] text-white rounded-full font-medium hover:bg-[#d4952b] transition-colors"
-                >
-                  <ArrowRight className="w-5 h-5" />
-                  Crear mi tienda
-                </button>
-                <button
-                  onClick={() => navigate('/help')}
-                  className="px-6 py-3 border-2 border-white text-white rounded-full font-medium hover:bg-white/10 transition-colors"
-                >
-                  Hablar con equipo
-                </button>
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm"
-            >
-              <Quote className="w-8 h-8 text-[#E6A532] mb-4" />
-              <p className="text-white/90 italic mb-4">
-                "Dejé de depender de los intermediarios. Ahora decido yo cuánto vale mi trabajo"
-              </p>
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://i.pravatar.cc/150?u=jose"
-                  alt="José"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <p className="text-white font-medium">José</p>
-                  <p className="text-white/60 text-sm">Cortijo Andaluz</p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <NavbarLanding extraLinks={[{ label: 'Planes', href: '#plans' }, { label: 'Pago', href: '#payment' }]} />
+      <LandingSectionNav items={NAV_ITEMS} />
 
-      {/* Problem */}
-      <section className="bg-[#F5F1E8] py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">
-            El modelo tradicional vs Hispaloshop
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white rounded-2xl p-6">
-              <h3 className="font-semibold text-[#DC2626] mb-4">El modelo antiguo</h3>
-              <p className="text-[#6B7280] text-sm mb-4">Tú → Cooperativa → Distribuidor → Supermercado → Cliente</p>
-              <div className="text-3xl font-bold text-[#DC2626]">Tu margen: 15-20%</div>
-            </div>
-            <div className="bg-[#2D5A3D] rounded-2xl p-6 text-white">
-              <h3 className="font-semibold text-[#E6A532] mb-4">Hispaloshop</h3>
-              <p className="text-white/70 text-sm mb-4">Tú → Cliente directo</p>
-              <div className="text-3xl font-bold">Tu margen: 80-85%</div>
-              <p className="text-white/60 text-sm mt-2">(menos comisión 15-20%)</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <main>
+        <section id="hero" className="relative overflow-hidden bg-[#173025] text-white">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(230,165,50,0.25),_transparent_34%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.20),_transparent_28%)]" />
+          <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+            <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              <div>
+                <motion.p {...fadeUp} className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/80">
+                  <Store className="h-4 w-4" />
+                  Venta directa con suscripcion clara y checkout seguro
+                </motion.p>
+                <motion.h1 {...fadeUp} transition={{ duration: 0.5, delay: 0.05 }} className="max-w-3xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+                  Tu marca, tu catalogo y tu plan de venta en un solo sitio.
+                </motion.h1>
+                <motion.p {...fadeUp} transition={{ duration: 0.5, delay: 0.1 }} className="mt-5 max-w-2xl text-lg text-white/75">
+                  Hispaloshop te deja publicar, vender, cobrar y escalar con planes reales para productor o importador.
+                </motion.p>
 
-      {/* Features */}
-      <section className="bg-white py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">
-            Todo incluido
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {FEATURES.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-[#F5F1E8] rounded-2xl p-6 text-center"
-                >
-                  <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-[#2D5A3D] flex items-center justify-center">
-                    <Icon className="w-7 h-7 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-[#1A1A1A] mb-2">{feature.title}</h3>
-                  <p className="text-sm text-[#6B7280]">{feature.desc}</p>
+                <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.15 }} className="mt-8 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={handleMainEntry}
+                    className="rounded-full bg-[#e6a532] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#d4952b]"
+                  >
+                    {isSeller ? 'Ir a mi panel' : 'Crear mi cuenta'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollTo('plans')}
+                    className="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
+                  >
+                    Ver planes y pago
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/contact')}
+                    className="rounded-full border border-transparent px-6 py-3 font-semibold text-white/80 transition-colors hover:text-white"
+                  >
+                    Hablar con equipo
+                  </button>
                 </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
-      {/* Pricing */}
-      <section className="bg-[#F5F1E8] py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-4">
-            Elige tu plan
-          </h2>
-          <p className="text-center text-[#6B7280] mb-12">
-            Sin permanencia. Cambia o cancela cuando quieras.
-          </p>
-          <PricingTable plans={PLANS} highlighted={1} />
-        </div>
-      </section>
-
-      {/* Requirements */}
-      <section className="bg-white py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">
-            Requisitos para vender
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {[
-              'Registro sanitario (RGSEAA)',
-              'Seguro de responsabilidad civil',
-              'Cuenta bancaria para cobros',
-              'Compromiso de calidad'
-            ].map((req, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-[#16A34A]" />
-                <span className="text-[#1A1A1A]">{req}</span>
+                <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }} className="mt-10 grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                    <p className="text-3xl font-bold">FREE</p>
+                    <p className="mt-1 text-sm text-white/70">Entrada sin cuota para arrancar catalogo y operativa.</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                    <p className="text-3xl font-bold">PRO</p>
+                    <p className="mt-1 text-sm text-white/70">Menor comision y herramientas avanzadas de crecimiento.</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                    <p className="text-3xl font-bold">ELITE</p>
+                    <p className="mt-1 text-sm text-white/70">Prioridad comercial, account manager y capa premium.</p>
+                  </div>
+                </motion.div>
               </div>
-            ))}
-          </div>
-          <p className="text-center text-[#6B7280] mt-8">
-            Te ayudamos con la documentación si es necesario.
-          </p>
-        </div>
-      </section>
 
-      {/* Testimonials */}
-      <section className="bg-[#F5F1E8] py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">
-            Historias de éxito
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white rounded-2xl p-6"
-              >
-                <Quote className="w-8 h-8 text-[#E6A532] mb-4" />
-                <p className="text-[#1A1A1A] mb-4 italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <img src={t.image} alt={t.name} className="w-10 h-10 rounded-full" />
-                  <div>
-                    <p className="font-semibold text-[#1A1A1A]">{t.name}</p>
-                    <p className="text-sm text-[#6B7280]">{t.role}</p>
+              <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.15 }} className="rounded-[28px] border border-white/10 bg-white/10 p-6 backdrop-blur">
+                <div className="rounded-2xl bg-white p-5 text-[#111827] shadow-xl">
+                  <div className="flex items-center justify-between border-b border-stone-200 pb-4">
+                    <div>
+                      <p className="text-sm font-medium text-stone-500">Operacion simplificada</p>
+                      <h2 className="mt-1 text-2xl font-bold">Del registro al cobro sin friccion rara</h2>
+                    </div>
+                    <div className="rounded-full bg-[#eef5ef] p-3 text-[#2d5a3d]">
+                      <ShieldCheck className="h-6 w-6" />
+                    </div>
+                  </div>
+                  <div className="mt-5 space-y-4">
+                    <div className="flex items-center justify-between rounded-2xl bg-stone-50 p-4">
+                      <span className="text-sm text-stone-600">Catalogo y tienda</span>
+                      <span className="text-lg font-semibold">Desde FREE</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-2xl bg-stone-50 p-4">
+                      <span className="text-sm text-stone-600">Pago de suscripcion</span>
+                      <span className="text-lg font-semibold">Stripe Checkout</span>
+                    </div>
+                    <div className="rounded-2xl bg-[#111827] p-5 text-white">
+                      <p className="text-sm text-white/65">Comision del marketplace</p>
+                      <p className="mt-1 text-3xl font-bold">20% / 18% / 17%</p>
+                      <p className="mt-2 text-sm text-white/70">Segun tu plan activo y el nivel de soporte que necesites.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => scrollTo('payment')}
+                      className="flex w-full items-center justify-center gap-2 rounded-full bg-[#2d5a3d] px-5 py-3 font-semibold text-white transition-colors hover:bg-[#234a31]"
+                    >
+                      Ver como funciona el pago
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </motion.div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/55">
+            <ChevronDown className="h-6 w-6 animate-bounce" />
+          </div>
+        </section>
 
-      {/* CTA */}
-      <section className="bg-[#2D5A3D] py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">
-            Tu producto merece ser encontrado
-          </h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            <button
-              onClick={() => navigate('/register/producer')}
-              className="px-8 py-4 bg-[#E6A532] text-white rounded-full font-semibold hover:bg-[#d4952b] transition-colors"
-            >
-              Crear tienda gratis
-            </button>
-            <button
-              onClick={() => navigate('/help')}
-              className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white/10 transition-colors"
-            >
-              Solicitar llamada
-            </button>
+        <section id="benefits" className="bg-white py-20">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#2d5a3d]">Ventajas</p>
+              <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Todo lo que necesitas para vender con orden</h2>
+            </motion.div>
+            <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.05 }} className="mt-10 grid gap-6 md:grid-cols-4">
+              {BENEFITS.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className="rounded-[24px] border border-stone-200 bg-[#faf7f2] p-6">
+                    <div className="inline-flex rounded-2xl bg-[#2d5a3d] p-3 text-white">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-4 text-xl font-semibold">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-stone-600">{item.description}</p>
+                  </div>
+                );
+              })}
+            </motion.div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section id="plans" className="bg-[#f5f1e8] py-20">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#2d5a3d]">Planes</p>
+                <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Suscripcion y comision con datos reales</h2>
+                <p className="mt-3 max-w-2xl text-sm text-stone-600">
+                  Los precios y la comision salen del backend activo. Si ya eres vendedor, desde aqui puedes suscribirte, pagar o cambiar de plan.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/pricing')}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#2d5a3d] transition-colors hover:text-[#234a31]"
+              >
+                Ver detalle completo
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </motion.div>
+
+            {loadingPlans ? (
+              <div className="flex justify-center py-14">
+                <Loader2 className="h-6 w-6 animate-spin text-[#2d5a3d]" />
+              </div>
+            ) : (
+              <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.05 }} className="mt-10 grid gap-5 lg:grid-cols-3">
+                {plans.map((plan) => {
+                  const Icon = PLAN_ICONS[plan.key] || Star;
+                  const isCurrent = currentPlan?.plan === plan.key;
+                  const isRecommended = plan.recommended;
+
+                  return (
+                    <article
+                      key={plan.key}
+                      className={`relative rounded-[28px] border p-6 ${
+                        isRecommended ? 'border-[#2d5a3d] bg-white shadow-lg' : 'border-stone-200 bg-white'
+                      } ${isCurrent ? 'ring-2 ring-[#2d5a3d]/20' : ''}`}
+                    >
+                      {isRecommended && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#2d5a3d] px-4 py-1 text-xs font-semibold text-white">
+                          Recomendado
+                        </div>
+                      )}
+                      {isCurrent && (
+                        <div className="absolute -top-3 right-4 rounded-full bg-[#111827] px-3 py-1 text-xs font-semibold text-white">
+                          Tu plan
+                        </div>
+                      )}
+
+                      <Icon className={`h-8 w-8 ${isRecommended ? 'text-[#2d5a3d]' : 'text-stone-500'}`} />
+                      <h3 className="mt-4 text-2xl font-semibold text-stone-900">{plan.label}</h3>
+                      <div className="mt-3 flex items-baseline gap-2">
+                        <span className="text-4xl font-bold text-stone-900">{plan.price === 0 ? 'Gratis' : `${plan.price} EUR`}</span>
+                        {plan.price > 0 && <span className="text-sm text-stone-500">/mes + IVA</span>}
+                      </div>
+                      {plan.price_with_vat && <p className="mt-1 text-xs text-stone-500">Total estimado con IVA: {plan.price_with_vat.toFixed(2)} EUR</p>}
+                      <p className="mt-3 text-sm font-medium text-[#2d5a3d]">Comision marketplace: {plan.commission}</p>
+
+                      <ul className="mt-6 space-y-3">
+                        {plan.features.map((feature) => (
+                          <li key={feature} className="flex items-start gap-3 text-sm text-stone-600">
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#2d5a3d]" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <button
+                        type="button"
+                        onClick={() => !isCurrent && handlePlanAction(plan.key)}
+                        disabled={isCurrent || subscribing === plan.key}
+                        className={`mt-8 w-full rounded-full px-5 py-3 font-semibold transition-colors ${
+                          isCurrent
+                            ? 'cursor-not-allowed bg-stone-100 text-stone-400'
+                            : plan.key === 'FREE'
+                              ? 'border border-stone-300 bg-white text-stone-800 hover:bg-stone-50'
+                              : 'bg-[#111827] text-white hover:bg-[#202938]'
+                        }`}
+                      >
+                        {subscribing === plan.key ? 'Procesando...' : getPlanActionLabel(plan.key)}
+                      </button>
+                    </article>
+                  );
+                })}
+              </motion.div>
+            )}
+          </div>
+        </section>
+
+        <section id="payment" className="bg-white py-20">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#2d5a3d]">Pago y activacion</p>
+              <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Como funciona la suscripcion de verdad</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-stone-600">
+                El flujo distingue entre alta, suscripcion, cambio de plan y pago seguro para no mandarte a pantallas equivocadas.
+              </p>
+            </motion.div>
+
+            <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.05 }} className="mt-10 grid gap-6 md:grid-cols-3">
+              {PAYMENT_STEPS.map((step) => {
+                const Icon = step.icon;
+                return (
+                  <div key={step.title} className="rounded-[26px] border border-stone-200 bg-[#faf7f2] p-6">
+                    <div className="inline-flex rounded-2xl bg-[#111827] p-3 text-white">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-4 text-xl font-semibold">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-stone-600">{step.description}</p>
+                  </div>
+                );
+              })}
+            </motion.div>
+
+            <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.1 }} className="mt-8 rounded-[30px] bg-[#111827] p-8 text-white">
+              <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#e6a532]">Stripe Checkout</p>
+                  <h3 className="mt-3 text-3xl font-bold">Pago seguro, cambio de plan y downgrade sin salirte del flujo valido</h3>
+                  <div className="mt-6 space-y-3 text-sm text-white/75">
+                    <p>Los planes de pago abren checkout de Stripe cuando todavia no existe suscripcion activa.</p>
+                    <p>Si ya tienes suscripcion, el sistema usa cambio de plan en vez de crear otra compra paralela.</p>
+                    <p>Si bajas a FREE, aplicamos downgrade correctamente en lugar de dejarte en un boton muerto.</p>
+                  </div>
+                </div>
+                <div className="rounded-[26px] border border-white/10 bg-white/5 p-6">
+                  <div className="flex items-center justify-between rounded-2xl bg-white/5 p-4">
+                    <span className="text-sm text-white/70">Metodo de pago</span>
+                    <span className="font-semibold">Tarjeta via Stripe</span>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 p-4">
+                    <span className="text-sm text-white/70">Facturacion</span>
+                    <span className="font-semibold">Mensual</span>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 p-4">
+                    <span className="text-sm text-white/70">Respuesta</span>
+                    <span className="font-semibold">Checkout inmediato</span>
+                  </div>
+                  <div className="mt-6 flex flex-col gap-3">
+                    <button
+                      type="button"
+                      onClick={() => scrollTo('plans')}
+                      className="rounded-full bg-[#e6a532] px-5 py-3 font-semibold text-white transition-colors hover:bg-[#d4952b]"
+                    >
+                      Elegir plan ahora
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleMainEntry}
+                      className="rounded-full border border-white/15 px-5 py-3 font-semibold text-white transition-colors hover:bg-white/10"
+                    >
+                      {isSeller ? 'Ir a mi panel' : 'Activar cuenta de vendedor'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        <section id="requirements" className="bg-[#f5f1e8] py-20">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <motion.div {...fadeUp} className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#2d5a3d]">Requisitos</p>
+                <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Lo minimo para arrancar con buen pie</h2>
+                <p className="mt-4 text-sm leading-6 text-stone-600">
+                  No hace falta una operacion gigante. Si tienes tu base legal y comercial ordenada, puedes entrar y escalar desde el panel.
+                </p>
+              </div>
+              <div className="rounded-[30px] border border-stone-200 bg-white p-6">
+                <div className="space-y-4">
+                  {REQUIREMENTS.map((item) => (
+                    <div key={item} className="flex items-start gap-3">
+                      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#2d5a3d]" />
+                      <span className="text-sm text-stone-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 rounded-2xl bg-[#eef5ef] p-5">
+                  <p className="text-sm font-semibold text-[#2d5a3d]">Siguiente paso recomendado</p>
+                  <p className="mt-2 text-sm text-stone-700">
+                    Crea tu cuenta, elige plan y deja listo tu metodo de cobro para publicar catalogo y activar pedidos.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleMainEntry}
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#2d5a3d] px-5 py-3 font-semibold text-white transition-colors hover:bg-[#234a31]"
+                  >
+                    Empezar ahora
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </main>
 
       <FooterLanding />
     </div>
   );
-};
-
-export default ProductorLanding;
+}
