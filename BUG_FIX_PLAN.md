@@ -60,6 +60,10 @@ Esto estabiliza parte de la navegacion, pero no significa que el producto este a
 17. Las rutas publicas legacy de `/reels` y `/stories/*` dejan de exponer viewers mock y ahora redirigen a superficies reales del producto.
 18. `/checkout` deja de exponer el checkout mock mobile y redirige al flujo real de `/cart`, que si usa carrito, direcciones y checkout Stripe del backend.
 19. Ya existe una ruta real `/pending-approval`, evitando que los redirects automáticos de cuenta pendiente acaben en destino inexistente.
+20. Los entrypoints de compra rápida dejan de empujar a `/checkout` y apuntan directamente a `/cart`, alineados con el flujo real de compra.
+21. `redirectAfterAuth` deja de validar rutas legacy de cliente como si fueran superficie principal activa.
+22. `CheckoutSuccessPage` ya lleva a `/dashboard/orders` en lugar de `/orders`.
+23. `hasRouteAccess` deja de considerar `/orders` como superficie principal de cliente.
 
 ---
 
@@ -481,6 +485,7 @@ Entrega de la ola:
 - Flujo browse -> product -> cart -> checkout -> order sin rutas muertas.
 - Estado actual:
   - `/checkout` ya no deriva a una pantalla mock separada
+  - `MiniCart`, `AddToCartButton` y compra rápida social ya no fuerzan la ruta legacy de checkout
   - el siguiente pendiente es validar de extremo a extremo `cart -> create-checkout -> stripe -> /checkout/success`
 
 ### Ola 6: Admin y superadmin

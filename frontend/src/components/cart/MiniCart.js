@@ -16,7 +16,7 @@ const MiniCart = ({ isOpen, onClose }) => {
 
   const handleCheckout = () => {
     onClose();
-    navigate('/checkout');
+    navigate('/cart');
   };
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {

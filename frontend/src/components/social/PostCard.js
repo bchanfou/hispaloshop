@@ -54,7 +54,7 @@ export function PostCard({ post }) {
         affiliate_code: product.affiliate_code,
         post_id: post.id || post._id
       });
-      navigate('/checkout');
+      navigate('/cart');
     } catch (error) {
       toast.error('Error al añadir al carrito');
     }

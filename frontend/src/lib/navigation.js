@@ -49,7 +49,7 @@ export function hasRouteAccess(route, role) {
   
   // Role-based route restrictions
   const roleRoutes = {
-    customer: ['/dashboard', '/cart', '/checkout', '/orders', '/wishlist', '/profile'],
+    customer: ['/dashboard', '/cart', '/user'],
     producer: ['/producer', '/dashboard'],
     importer: ['/producer', '/importer', '/dashboard'],
     influencer: ['/influencer', '/dashboard'],

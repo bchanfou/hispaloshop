@@ -100,7 +100,7 @@ export default function CheckoutSuccessPage() {
               
               {/* Action buttons - Stack on mobile, inline on desktop */}
               <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:justify-center">
-                <Link to="/orders" className="w-full md:w-auto">
+                <Link to="/dashboard/orders" className="w-full md:w-auto">
                   <Button 
                     className="w-full bg-primary hover:bg-primary-hover text-white rounded-full h-12 md:h-11 text-base md:text-sm font-medium" 
                     data-testid="view-orders-button"

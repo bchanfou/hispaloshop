@@ -43,7 +43,7 @@ const AddToCartButton = ({
 
   const handleBuyNow = async () => {
     await handleAdd();
-    navigate('/checkout');
+    navigate('/cart');
   };
 
   const variants = {
