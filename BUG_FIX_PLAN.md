@@ -39,6 +39,28 @@ Esto estabiliza parte de la navegacion, pero no significa que el producto este a
 4. El backend amplia automaticamente CORS entre `https://hispaloshop.com` y `https://www.hispaloshop.com`.
 5. El tracking de visitas deja de insistir indefinidamente si el endpoint responde 404.
 
+### Corregido en codigo durante la cuarta pasada
+
+1. Los entrypoints `dashboard/new` por rol dejan de exponer paneles placeholder.
+2. `/dashboard/consumer` ahora deriva al dashboard operativo de cliente.
+3. `/dashboard/producer/new` ahora deriva al panel operativo de productor.
+4. `/dashboard/influencer/new` ahora deriva al panel operativo de influencer.
+5. `/dashboard/importer/new` ahora deriva al panel de importador.
+6. `/importer/dashboard` deja de redirigir al panel de productor y monta su dashboard propio.
+7. `Customer Dashboard` deja de depender de aliases legacy y pasa a rutas reales de `/dashboard/*`.
+8. `Importer Dashboard` deja de enlazar a `/store` y `/producer/store-profile`, y pasa a una superficie real de tienda.
+9. `Importer Dashboard` deja de enviar a aliases de importador que solo redirigian y apunta directamente a productos y pedidos operativos.
+10. `Influencer Dashboard` ya no muestra un boton de retirada sin accion: el CTA lleva a la seccion real de retiros.
+11. `ProducerOverviewResponsive` ya no colapsa entero si falla una sola fuente de datos; ahora degrada por bloques y avisa.
+12. `ImporterDashboardPage` ya no cae a pantalla de error total si fallan metricas; muestra estado vacio temporal con aviso explicito.
+13. `ProducerDashboard` deja de mandar a detalles inexistentes de pedidos y productos, y redirige sus CTAs a superficies operativas.
+14. `ProducerDashboard` ya no usa quick actions que rebotan en redirects cosmeticos a `analytics`, `promotions` o `products/new`.
+15. `ProducerDashboard` ahora avisa cuando faltan metricas o stock, en vez de degradar en silencio.
+16. La ruta publica `/profile/:userId` deja de usar el perfil mock y pasa a `UserProfilePage`, que si consume datos reales de usuario, posts y productos.
+17. Las rutas publicas legacy de `/reels` y `/stories/*` dejan de exponer viewers mock y ahora redirigen a superficies reales del producto.
+18. `/checkout` deja de exponer el checkout mock mobile y redirige al flujo real de `/cart`, que si usa carrito, direcciones y checkout Stripe del backend.
+19. Ya existe una ruta real `/pending-approval`, evitando que los redirects automáticos de cuenta pendiente acaben en destino inexistente.
+
 ---
 
 ## Hallazgos Confirmados
@@ -56,12 +78,15 @@ Esto estabiliza parte de la navegacion, pero no significa que el producto este a
 
 2. Existen superficies visibles que siguen dependiendo de mocks.
    - Archivos:
-     - `frontend/src/components/stories/StoryViewer.js`
-     - `frontend/src/components/reels/ReelsContainer.js`
-     - `frontend/src/components/reels/ReelComments.js`
-     - `frontend/src/components/profile/PostsGrid.js`
-     - `frontend/src/components/profile/StoreView.js`
+      - `frontend/src/components/stories/StoryViewer.js`
+      - `frontend/src/components/reels/ReelsContainer.js`
+      - `frontend/src/components/reels/ReelComments.js`
    - Impacto: partes del producto parecen listas pero no estan conectadas con backend real.
+   - Estado actual:
+     - la ruta publica de perfil ya no expone el perfil mock antiguo
+     - `StoryViewer` y `ReelsContainer` ya no quedan expuestos por rutas publicas directas
+     - sigue pendiente decidir si `reels` se integra de verdad con backend o se elimina tambien del resto de entrypoints
+     - sigue pendiente cerrar `ReelComments` y el stack de reels si el backend final no existe
 
 3. Errores reales de produccion ya observados en consola.
    - `Access to fetch at 'https://api.hispaloshop.com/feed?scope=following' ... blocked by CORS`
@@ -69,6 +94,10 @@ Esto estabiliza parte de la navegacion, pero no significa que el producto este a
    - `404` en `/api/stories`
    - `Uncaught SyntaxError: Unexpected token 'export'`
    - Impacto: feed sin cargar, login Google roto, locale sin config, tracking fallando y evidencia de una incompatibilidad JS pendiente de localizar.
+   - Estado actual:
+     - revisado `frontend/public/index.html` sin scripts `type="module"` problematicos
+     - revisado `frontend/public/sw-push.js` sin sintaxis ESM
+     - hipotesis de trabajo: el error viene de un asset o script servido fuera del bundle principal o de una integracion de terceros en despliegue
 
 ### Altos
 
@@ -86,6 +115,13 @@ Esto estabiliza parte de la navegacion, pero no significa que el producto este a
      - `frontend/src/pages/dashboard/influencer/InfluencerDashboard.js`
      - `frontend/src/pages/dashboard/importer/ImporterDashboard.js`
    - Impacto: varios quick actions y CTAs siguen sin funcionalidad final real.
+   - Hallazgos concretos ya confirmados:
+     - `ConsumerDashboard` usa `api.getMyOrders({ limit: '5' })`, pero la firma tipada actual solo contempla `status` y `page`.
+     - `ConsumerDashboard` navega a `/dashboard/orders/:id`, que hoy redirige de forma defensiva a la lista y no a un detalle real.
+     - `ProducerDashboard` ya fue corregido para dejar de usar `products/new`, `analytics`, `promotions` y detalles placeholder; queda pendiente validar si sus metricas proceden del backend final esperado.
+     - `InfluencerDashboard` usa `/influencer/opportunities`, `/influencer/links`, `/influencer/earnings` y `/influencer/perks`, todas redirigidas hoy al dashboard principal.
+     - `ImporterDashboard` usa `/importer/orders`, `/importer/orders/:id`, `/importer/products/new`, `/importer/analytics` y `/b2b/producers`, varias de ellas resueltas con redirects temporales.
+     - `ProducerDashboard` y `ImporterDashboard` llaman a `/producer/stats`, `/importer/stats`, `/importer/orders` y `/importer/products`, que deben contrastarse con el backend publicado antes de considerar cerrada la ola.
 
 5. Hay inconsistencia estructural en la capa API del frontend.
    - Conviven:
@@ -154,6 +190,8 @@ Superficie:
 Riesgo:
 
 - Experiencia rota aunque la pagina principal cargue.
+- Estado actual:
+  - corregido tambien el destino automatico `/pending-approval`, que antes podia romper por falta de ruta
 
 ### D. Social
 
@@ -280,14 +318,146 @@ Quitar CTAs muertos y dejar paneles operativos.
 
 Tareas:
 
-1. Auditar cada KPI card.
-2. Auditar quick actions.
-3. Auditar listas de actividad y sugerencias.
-4. Reemplazar redirects temporales por rutas reales o eliminar acciones hasta que existan.
+1. Auditar `ConsumerDashboard`.
+   - Validar KPIs y fuentes de datos.
+   - Corregir acceso a wishlist y pedidos.
+   - Sustituir accesos a detalle inexistente por lista real o detalle real.
+
+2. Auditar `ProducerDashboard`.
+   - Sustituir acciones a `products/new`, `analytics` y `promotions` por superficies reales.
+   - Corregir alertas de stock bajo que hoy intentan abrir rutas placeholder.
+   - Confirmar si `/producer/stats` y `/producer/products` responden en el backend activo.
+
+3. Auditar `InfluencerDashboard`.
+   - Revisar `getInfluencerDashboard`, `getCommissions` y `getAffiliateLinks`.
+   - Eliminar o materializar quick actions que hoy solo vuelven al mismo dashboard.
+   - Definir una superficie real minima para links, ganancias y oportunidades.
+
+4. Auditar `ImporterDashboard`.
+   - Confirmar soporte real de `/importer/stats`, `/importer/orders` y `/importer/products`.
+   - Sustituir redirects por destinos operativos o quitar botones.
+   - Reconciliar quick actions con `B2BMarketplacePage` y panel productor reutilizado.
+
+5. Cruce final dashboard -> rutas -> endpoint.
+   - Cada KPI debe tener una fuente de datos valida.
+   - Cada quick action debe abrir una pantalla funcional.
+   - Cada item de actividad debe llevar a detalle real o quedarse en lista real.
+   - Cada sugerencia HI debe ejecutar una accion util y no un redirect cosmetico.
 
 Entrega de la ola:
 
 - Cada boton visible en un dashboard hace algo real.
+- Criterio de cierre:
+  - cero redirects temporales visibles desde dashboards
+  - cero CTA que devuelvan al mismo panel sin cambio de contexto
+  - cero cards apoyadas en endpoints inexistentes o silenciosamente degradados
+- Estado actual:
+  - cerrada para los entrypoints de dashboards "new"
+  - corregidos enlaces muertos obvios en `Customer Dashboard` e `Importer Dashboard`
+  - corregidos CTA internos visibles en `Influencer Dashboard`
+  - corregidos CTA muertos y degradacion silenciosa en `ProducerDashboard`
+  - iniciada la depuracion profunda de KPIs, fuentes de datos y degradaciones silenciosas en paneles legacy y responsive
+  - pendiente continuar el mismo criterio en el resto de paneles operativos y en metricas que siguen siendo aproximadas o mockeadas
+
+### Ola 7: Cierre operativo de todo lo que esta a medias
+
+Objetivo:
+
+Convertir el producto desde "funciona a ratos" a "todas las funciones visibles tienen destino real, datos honestos y criterio de error claro".
+
+Bloques:
+
+1. Superficies visibles con backend confirmado.
+   - Feed home
+   - Stories
+   - Locale
+   - Google auth
+   - Track/visit
+   - Criterio de cierre:
+     - cada endpoint responde en despliegue real
+     - cero 404 en consola para superficies publicas
+     - cero errores CORS en origin `hispaloshop.com`
+
+2. Navegacion sin puntos muertos.
+   - inventario automatico de `to=`, `navigate()`, `href=`
+   - cruce contra `App.js`
+   - resolucion de:
+     - ruta real
+     - redirect valido y util
+     - boton eliminado
+   - Criterio de cierre:
+     - ningun CTA visible apunta a placeholder o a redirect al mismo contexto
+
+3. Social real vs mock.
+   - Posts
+   - Stories
+   - Reels
+   - Perfil social
+   - Comentarios
+   - Criterio de cierre:
+     - lo que no tenga backend se oculta
+     - lo que quede visible usa endpoints reales
+
+4. Ecommerce base extremo a extremo.
+   - listado
+   - detalle
+   - carrito
+   - checkout
+   - pedido
+   - wishlist
+   - perfil cliente
+   - Criterio de cierre:
+     - browse -> PDP -> cart -> checkout -> order sin rutas muertas ni estados imposibles
+
+5. Paneles por rol.
+   - productor
+   - importador
+   - influencer
+   - cliente
+   - admin
+   - superadmin
+   - Criterio de cierre:
+     - cada KPI tiene fuente valida
+     - cada boton hace una accion real
+     - cada error se muestra como warning o empty state, no como silencio
+
+6. Observabilidad y prevencion.
+   - smoke tests de rutas
+   - smoke tests de flujos principales
+   - test automatizado de integridad de enlaces
+   - Criterio de cierre:
+     - build estable
+     - smoke tests verdes
+     - regresiones visibles detectadas antes del despliegue
+
+### Plan de ejecucion recomendado
+
+Fase 1. Produccion publica.
+- validar en despliegue `feed`, `stories`, `auth/me`, `google/url`, `config/locale`, `exchange-rates`, `track/visit`
+- localizar el `Unexpected token 'export'`
+- dejar consola limpia en home, login y registro
+
+Fase 2. Navegacion global.
+- barrer todos los enlaces visibles y quick actions
+- resolver redirects circulares
+- quitar cualquier CTA sin pantalla final
+
+Fase 3. Social.
+- unificar feed/post/story/reel/profile
+- ocultar componentes mock mientras no tengan backend real
+
+Fase 4. Ecommerce.
+- cerrar productos, checkout, pedidos, wishlist y perfil
+- validar estados vacios, errores y sesiones expiradas
+
+Fase 5. Backoffice.
+- rematar paneles de productor, importador, influencer, admin y superadmin
+- sustituir "coming soon" por pantallas reales o retirar accesos
+
+Fase 6. Blindaje.
+- test de integridad de rutas
+- smoke tests por rol
+- checklist de despliegue
 
 ### Ola 5: Catalogo, compra y cuenta
 
@@ -309,6 +479,9 @@ Tareas:
 Entrega de la ola:
 
 - Flujo browse -> product -> cart -> checkout -> order sin rutas muertas.
+- Estado actual:
+  - `/checkout` ya no deriva a una pantalla mock separada
+  - el siguiente pendiente es validar de extremo a extremo `cart -> create-checkout -> stripe -> /checkout/success`
 
 ### Ola 6: Admin y superadmin
 

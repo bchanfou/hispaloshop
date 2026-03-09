@@ -24,6 +24,7 @@ function ProducerDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [dataWarnings, setDataWarnings] = useState([]);
   const [dashboardData, setDashboardData] = useState({
     kpis: {
       revenue: 0,
@@ -47,6 +48,8 @@ function ProducerDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      setDataWarnings([]);
+      const warnings = [];
       
       // Fetch producer stats
       let statsData = {};
@@ -54,6 +57,7 @@ function ProducerDashboard() {
         statsData = await api.request('/producer/stats');
       } catch (e) {
         console.log('Stats endpoint not available');
+        warnings.push('Las metricas avanzadas no estan disponibles ahora mismo.');
       }
 
       // Fetch orders
@@ -65,6 +69,7 @@ function ProducerDashboard() {
         productsData = await api.request('/producer/products');
       } catch (e) {
         console.log('Products endpoint not available');
+        warnings.push('No se pudo cargar el stock de productos para las alertas.');
       }
 
       // Format pending orders
@@ -78,7 +83,7 @@ function ProducerDashboard() {
         amount: `€${order.total_amount?.toFixed(2) || '0.00'}`,
         status: order.status,
         actionLabel: order.status === 'pending' ? 'Preparar' : 'Ver',
-        onAction: () => navigate(`/producer/orders/${order.id}`)
+        onAction: () => navigate('/producer/orders')
       }));
 
       // Generate low stock alerts
@@ -91,7 +96,7 @@ function ProducerDashboard() {
         type: 'warning',
         message: `Stock bajo: ${p.name} (quedan ${p.stock} unidades)`,
         actionLabel: 'Reponer',
-        onAction: () => navigate(`/producer/products/${p.id}`)
+        onAction: () => navigate('/producer/products')
       }));
 
       // Calculate revenue from orders
@@ -117,7 +122,7 @@ function ProducerDashboard() {
             title: 'Optimiza tus ventas',
             description: 'Añade más productos para aumentar tu visibilidad',
             actionLabel: 'Añadir producto',
-            onAction: () => navigate('/producer/products/new')
+            onAction: () => navigate('/producer/products')
           },
           {
             id: 2,
@@ -128,6 +133,7 @@ function ProducerDashboard() {
           }
         ]
       });
+      setDataWarnings(warnings);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -141,7 +147,7 @@ function ProducerDashboard() {
       icon: Plus, 
       label: 'Añadir producto', 
       color: '#2D5A3D',
-      onClick: () => navigate('/producer/products/new')
+      onClick: () => navigate('/producer/products')
     },
     { 
       id: 'orders', 
@@ -155,14 +161,14 @@ function ProducerDashboard() {
       icon: BarChart3, 
       label: 'Análisis', 
       color: '#3B82F6',
-      onClick: () => navigate('/producer/analytics')
+      onClick: () => navigate('/producer/payments')
     },
     { 
       id: 'promo', 
       icon: Tag, 
       label: 'Promociones', 
       color: '#16A34A',
-      onClick: () => navigate('/producer/promotions')
+      onClick: () => navigate('/producer/store')
     }
   ];
 
@@ -181,6 +187,18 @@ function ProducerDashboard() {
         subtitle="Resumen de tu negocio"
         notificationCount={dashboardData.alerts.length}
       />
+
+      {dataWarnings.length > 0 && (
+        <div className="mb-4 space-y-2">
+          {dataWarnings.map((warning) => (
+            <AlertBanner
+              key={warning}
+              type="warning"
+              message={warning}
+            />
+          ))}
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-3 gap-3 mb-4">

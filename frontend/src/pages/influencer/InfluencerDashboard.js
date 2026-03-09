@@ -322,6 +322,11 @@ export default function InfluencerDashboard() {
     setDashboard(prev => ({ ...prev, discount_code: newCode }));
   };
 
+  const scrollToWithdrawals = () => {
+    const withdrawalSection = document.getElementById('withdrawal-card-section');
+    withdrawalSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const copyDiscountCode = () => {
     if (dashboard?.discount_code) {
       navigator.clipboard.writeText(dashboard.discount_code);
@@ -464,7 +469,11 @@ export default function InfluencerDashboard() {
             <p className="text-3xl md:text-4xl font-bold text-amber-600">€{dashboard.available_balance?.toFixed(0) || 0}</p>
             <p className="text-xs text-text-muted mt-2">Disponible</p>
             {(dashboard.available_balance || 0) >= 50 && (
-              <Button size="sm" className="mt-3 bg-amber-600 hover:bg-amber-700 text-white rounded-full text-xs px-4">
+              <Button
+                size="sm"
+                onClick={scrollToWithdrawals}
+                className="mt-3 bg-amber-600 hover:bg-amber-700 text-white rounded-full text-xs px-4"
+              >
                 Retirar
               </Button>
             )}
@@ -738,7 +747,7 @@ export default function InfluencerDashboard() {
 
         {/* Withdrawal Card - Only show for active influencers with Stripe */}
         {dashboard.status === 'active' && dashboard.payment_schedule && (
-          <div className="mt-6">
+          <div id="withdrawal-card-section" className="mt-6">
             <WithdrawalCard 
               availableToWithdraw={dashboard.payment_schedule.available_to_withdraw}
               stripeConnected={stripeStatus?.connected && stripeStatus?.onboarding_complete}

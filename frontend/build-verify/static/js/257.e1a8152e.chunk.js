@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkfrontend=self.webpackChunkfrontend||[]).push([[257],{70257:function(n,e,t){t.r(e),t.d(e,{default:function(){return r}});t(9950);var s=t(44414);function r(){return(0,s.jsx)("div",{className:"p-6",children:(0,s.jsx)("h1",{className:"text-2xl font-bold",children:"Historial de Cotizaciones B2B"})})}}}]);

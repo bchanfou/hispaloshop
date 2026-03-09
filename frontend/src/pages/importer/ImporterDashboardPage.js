@@ -168,6 +168,7 @@ export default function ImporterDashboardPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dataWarning, setDataWarning] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -176,11 +177,21 @@ export default function ImporterDashboardPage() {
   const fetchData = async () => {
     try {
       setError(null);
+      setDataWarning(null);
       const response = await axios.get(`${API}/importer/stats`, { withCredentials: true });
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching importer stats:', error);
-      setError('Failed to load dashboard data. Please refresh the page.');
+      setStats({
+        total_products: 0,
+        approved_products: 0,
+        total_orders: 0,
+        follower_count: 0,
+        low_stock_products: [],
+        recent_reviews: [],
+        countries_of_origin: [],
+      });
+      setDataWarning('No se pudieron cargar las metricas del importador. Se muestran valores vacios temporalmente.');
     } finally {
       setLoading(false);
     }
@@ -195,18 +206,6 @@ export default function ImporterDashboardPage() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-12">
-        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-red-600 mb-4">{error}</p>
-        <Button onClick={fetchData} className="bg-primary hover:bg-primary-hover text-white">
-          Retry
-        </Button>
-      </div>
-    );
-  }
-
   const isPending = !user?.approved;
 
   return (
@@ -217,6 +216,20 @@ export default function ImporterDashboardPage() {
       <p className="text-text-muted mb-8">
         Manage your imported products and track sales from multiple countries
       </p>
+
+      {dataWarning && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+            <div>
+              <p className="text-amber-800 text-sm">{dataWarning}</p>
+              <Button onClick={fetchData} variant="outline" className="mt-3">
+                Reintentar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pending Warning */}
       {isPending && (
@@ -246,21 +259,21 @@ export default function ImporterDashboardPage() {
           label="Total Products"
           value={stats?.total_products || 0}
           sublabel={`${stats?.approved_products || 0} approved`}
-          linkTo="/importer/catalog"
+          linkTo="/producer/products"
           color="blue"
         />
         <StatCard
           icon={ShoppingBag}
           label="Orders"
           value={stats?.total_orders || 0}
-          linkTo="/importer/orders"
+          linkTo="/producer/orders"
           color="green"
         />
         <StatCard
           icon={Users}
           label="Store Followers"
           value={stats?.follower_count || 0}
-          linkTo="/store"
+          linkTo="/producer/store"
           color="purple"
         />
         <StatCard
@@ -268,7 +281,7 @@ export default function ImporterDashboardPage() {
           label="Countries"
           value={(stats?.countries_of_origin || []).length}
           sublabel="of origin"
-          linkTo="/importer/catalog"
+          linkTo="/producer/products"
           color="amber"
         />
       </div>
@@ -322,21 +335,21 @@ export default function ImporterDashboardPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
-            to="/importer/catalog"
+            to="/producer/products"
             className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
           >
             <Package className="w-5 h-5 text-blue-600" />
             <span className="text-blue-800 font-medium">Manage Products</span>
           </Link>
           <Link
-            to="/producer/store-profile"
+            to="/producer/store"
             className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors"
           >
             <Globe className="w-5 h-5 text-purple-600" />
             <span className="text-purple-800 font-medium">Edit Store Profile</span>
           </Link>
           <Link
-            to="/importer/orders"
+            to="/producer/orders"
             className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors"
           >
             <ShoppingBag className="w-5 h-5 text-green-600" />

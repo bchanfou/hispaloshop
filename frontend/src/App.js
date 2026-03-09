@@ -62,6 +62,7 @@ const BlogPage = lazy(() => import('./pages/BlogPage'));
 const PressPage = lazy(() => import('./pages/PressPage'));
 const CareersPage = lazy(() => import('./pages/CareersPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
 const SuperAdminLayout = lazy(() => import('./components/dashboard/SuperAdminLayoutResponsive'));
@@ -83,7 +84,6 @@ const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdmin
 
 const ProducerLayout = lazy(() => import('./components/dashboard/ProducerLayoutResponsive'));
 const ProducerOverview = lazy(() => import('./pages/producer/ProducerOverviewResponsive'));
-const StoriesPage = lazy(() => import('./pages/stories/StoriesPage'));
 const ProducerProducts = lazy(() => import('./pages/producer/ProducerProducts'));
 const ProducerCertificates = lazy(() => import('./pages/producer/ProducerCertificates'));
 const ProducerOrders = lazy(() => import('./pages/producer/ProducerOrders'));
@@ -106,14 +106,10 @@ const HispaloPredictions = lazy(() => import('./pages/customer/HispaloPrediction
 const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
 
 const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDashboard'));
-const ReelsContainer = lazy(() => import('./components/reels/ReelsContainer'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
-const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 
 // Checkout
-const CheckoutPage = lazy(() => import('./pages/checkout/CheckoutPage'));
-const CheckoutSuccess = lazy(() => import('./pages/checkout/CheckoutSuccess'));
 
 // Landing pages
 const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
@@ -122,6 +118,7 @@ const ConsumerDashboard = lazy(() => import('./pages/dashboard/consumer'));
 const InfluencerDashboardNew = lazy(() => import('./pages/dashboard/influencer'));
 const ProducerDashboardNew = lazy(() => import('./pages/dashboard/producer'));
 const ImporterDashboardNew = lazy(() => import('./pages/dashboard/importer'));
+const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
 
 // Registration flows
 const RoleSelector = lazy(() => import('./pages/register/RoleSelector'));
@@ -270,7 +267,7 @@ function AppRouter() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/importer/register" element={<RegisterPage />} />
-              <Route path="/importer/dashboard" element={<Navigate to="/producer" replace />} />
+              <Route path="/importer/dashboard" element={<ImporterDashboardPage />} />
               <Route path="/importer/catalog" element={<Navigate to="/producer/products" replace />} />
               <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
               <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
@@ -287,6 +284,7 @@ function AppRouter() {
               <Route path="/press" element={<PressPage />} />
               <Route path="/careers" element={<CareersPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/pending-approval" element={<PendingApprovalPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
 
@@ -374,21 +372,20 @@ function AppRouter() {
                 )}
               />
 
-              <Route path="/reels" element={<ReelsContainer />} />
+              <Route path="/reels" element={<Navigate to="/discover?tab=feeds" replace />} />
               <Route path="/chat" element={<ChatContainer />} />
-              <Route path="/profile/:userId" element={<ProfilePage />} />
+              <Route path="/profile/:userId" element={<UserProfilePage />} />
               <Route path="/dashboard/new" element={<DashboardPage />} />
-              <Route path="/dashboard/consumer" element={<ConsumerDashboard />} />
-              <Route path="/dashboard/influencer/new" element={<InfluencerDashboardNew />} />
-              <Route path="/dashboard/producer/new" element={<ProducerDashboardNew />} />
-              <Route path="/dashboard/importer/new" element={<ImporterDashboardNew />} />
+              <Route path="/dashboard/consumer" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard/influencer/new" element={<Navigate to="/influencer/dashboard" replace />} />
+              <Route path="/dashboard/producer/new" element={<Navigate to="/producer" replace />} />
+              <Route path="/dashboard/importer/new" element={<Navigate to="/importer/dashboard" replace />} />
               <Route path="/importer/orders" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/importer/orders/:orderId" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/importer/products/new" element={<Navigate to="/producer/products" replace />} />
               <Route path="/importer/analytics" element={<Navigate to="/producer" replace />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/stories/*" element={<StoriesPage />} />
-              <Route path="/checkout/success" element={<CheckoutSuccess />} />
+              <Route path="/checkout" element={<Navigate to="/cart" replace />} />
+              <Route path="/stories/*" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

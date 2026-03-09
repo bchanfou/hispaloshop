@@ -480,6 +480,7 @@ export default function ProducerOverviewResponsive() {
   const [payments, setPayments] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dataWarnings, setDataWarnings] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -488,12 +489,45 @@ export default function ProducerOverviewResponsive() {
   const fetchData = async () => {
     try {
       setError(null);
-      const [statsRes, paymentsRes] = await Promise.all([
+      setDataWarnings([]);
+      const [statsRes, paymentsRes] = await Promise.allSettled([
         axios.get(`${API}/producer/stats`, { withCredentials: true }),
         axios.get(`${API}/producer/payments`, { withCredentials: true })
       ]);
-      setStats(statsRes.data);
-      setPayments(paymentsRes.data);
+      const warnings = [];
+
+      if (statsRes.status === 'fulfilled') {
+        setStats(statsRes.value.data);
+      } else {
+        setStats({
+          total_products: 0,
+          approved_products: 0,
+          total_orders: 0,
+          follower_count: 0,
+          low_stock_products: [],
+          recent_reviews: [],
+        });
+        warnings.push('No se pudieron cargar las metricas del catalogo y la tienda.');
+      }
+
+      if (paymentsRes.status === 'fulfilled') {
+        setPayments(paymentsRes.value.data);
+      } else {
+        setPayments({
+          total_gross: 0,
+          total_net: 0,
+          total_sold: 0,
+          producer_share: 0,
+          pending_orders: 0,
+          stripe_connected: false,
+        });
+        warnings.push('No se pudo cargar el resumen de pagos.');
+      }
+
+      setDataWarnings(warnings);
+      if (warnings.length === 2) {
+        setError('No se pudieron cargar los datos principales del panel. Por favor, refresca la pagina.');
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('Error al cargar datos. Por favor, refresca la página.');
@@ -559,6 +593,18 @@ export default function ProducerOverviewResponsive() {
 
   return (
     <div className="space-y-4 md:space-y-6">
+      {dataWarnings.length > 0 && !error && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+            <div className="space-y-1 text-sm text-amber-800">
+              {dataWarnings.map((warning) => (
+                <p key={warning}>{warning}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {/* Quick Actions — 2 Big Buttons (impossible to miss) */}
       <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
         <Link to="/producer/products" className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]" data-testid="quick-add-product">
