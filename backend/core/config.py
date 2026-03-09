@@ -151,6 +151,18 @@ class Settings(BaseSettings):
             raise ValueError("ALLOWED_ORIGINS debe contener al menos un origen")
         return ",".join(origins)
 
+    @field_validator('DEBUG', mode='before')
+    @classmethod
+    def normalize_debug_flag(cls, v):
+        """Aceptar flags habituales de despliegue como release/production."""
+        if isinstance(v, str):
+            normalized = v.strip().lower()
+            if normalized in {"1", "true", "yes", "on", "debug", "development", "dev"}:
+                return True
+            if normalized in {"0", "false", "no", "off", "release", "prod", "production", ""}:
+                return False
+        return v
+
     @field_validator('FRONTEND_URL', 'AUTH_BACKEND_URL')
     @classmethod
     def validate_urls(cls, v):

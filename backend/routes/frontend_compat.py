@@ -112,8 +112,7 @@ def _get_public_auth_backend_url(request: Request) -> str:
     configured = (settings.AUTH_BACKEND_URL or "").rstrip("/")
     request_origin = _get_request_origin(request)
     if request_origin and not _is_local_origin(request_origin):
-        if not configured or _is_local_origin(configured):
-            return request_origin
+        return request_origin
     return configured or request_origin
 
 

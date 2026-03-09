@@ -159,6 +159,8 @@ export default function RegisterPage() {
 
     try {
       const data = await register(formData);
+      const backendMessage = data?.message;
+      const emailDeliveryUnavailable = data?.email_delivery_available === false;
 
       if (data?.user) {
         if (data.user.role === 'customer' && !data.user.onboarding_completed) {
@@ -168,7 +170,11 @@ export default function RegisterPage() {
         }
       }
 
-      if (formData.role === 'producer' || formData.role === 'importer') {
+      if (emailDeliveryUnavailable) {
+        toast.error(backendMessage || 'La cuenta se creo, pero el servicio de email no esta configurado.');
+      } else if (backendMessage) {
+        toast.success(backendMessage);
+      } else if (formData.role === 'producer' || formData.role === 'importer') {
         toast.success(t('auth.producerRegistrationSuccess', 'Registration successful! Your account is pending admin approval.'));
       } else if (formData.role === 'influencer') {
         toast.success('Registro exitoso. Revisa tu email para verificar tu cuenta. Tu cuenta esta pendiente de aprobacion.');
@@ -576,11 +582,11 @@ export default function RegisterPage() {
                       if (data.auth_url) {
                         window.location.href = data.auth_url;
                       } else {
-                        alert('Error al conectar con Google');
+                        toast.error('Error al conectar con Google');
                       }
                     } catch (error) {
                       console.error('Google auth error:', error);
-                      alert('Error al conectar con Google');
+                      toast.error(getAuthErrorMessage(error, 'Error al conectar con Google'));
                     }
                   }}
                   className="w-full mt-4 bg-white hover:bg-stone-50 text-text-primary border border-stone-200 rounded-full h-12 md:h-11 text-base md:text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2 md:gap-3 active:scale-[0.98]"

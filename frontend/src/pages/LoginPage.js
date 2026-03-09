@@ -62,7 +62,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error('Google login error:', error);
-      toast.error('Error al conectar con Google');
+      toast.error(getAuthErrorMessage(error, 'Error al conectar con Google'));
     }
   };
 

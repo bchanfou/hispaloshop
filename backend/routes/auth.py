@@ -70,8 +70,7 @@ def _get_public_auth_backend_url(request: Request) -> str:
     configured = (settings.AUTH_BACKEND_URL or "").rstrip("/")
     request_origin = _get_request_origin(request)
     if request_origin and not _is_local_origin(request_origin):
-        if not configured or _is_local_origin(configured):
-            return request_origin
+        return request_origin
     return configured or request_origin
 
 
@@ -85,6 +84,28 @@ def _get_public_frontend_url(request: Request) -> str:
             return candidate
 
     return configured or header_origin or _get_request_origin(request)
+
+
+def _is_email_delivery_configured() -> bool:
+    api_key = (settings.RESEND_API_KEY or "").strip()
+    return bool(api_key and api_key != "PLACEHOLDER_RESEND_KEY")
+
+
+def _build_verification_link(request: Request, verification_key: str) -> str:
+    frontend_url = _get_public_frontend_url(request)
+    return f"{frontend_url}/verify-email?code={verification_key}"
+
+
+def _build_frontend_auth_callback_response(request: Request, **params: str) -> RedirectResponse:
+    frontend_url = _get_public_frontend_url(request)
+    query = urlencode({key: value for key, value in params.items() if value})
+    target_url = f"{frontend_url}/auth/callback"
+    if query:
+        target_url = f"{target_url}?{query}"
+    response = RedirectResponse(url=target_url)
+    response.delete_cookie("oauth_state", path="/")
+    response.delete_cookie("oauth_frontend_origin", path="/")
+    return response
 
 
 def _set_session_cookie(target_response: Response, request: Request, session_token: str) -> None:
@@ -176,7 +197,8 @@ async def register(input: RegisterInput, request: Request):
             detail="Analytics consent is required for customer registration"
         )
     
-    existing = await db.users.find_one({"email": input.email}, {"_id": 0})
+    normalized_email = input.email.lower()
+    existing = await db.users.find_one({"email": normalized_email}, {"_id": 0})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     
@@ -204,7 +226,7 @@ async def register(input: RegisterInput, request: Request):
     
     user_data = {
         "user_id": user_id,
-        "email": input.email.lower(),
+        "email": normalized_email,
         "name": input.name,
         "username": username,
         "role": input.role,
@@ -294,7 +316,7 @@ async def register(input: RegisterInput, request: Request):
     verification_code = generate_verification_code()
     await db.email_verifications.insert_one({
         "user_id": user_id,
-        "email": input.email,
+        "email": normalized_email,
         "token": verification_code,
         "code": verification_code,  # Store as code for clarity
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -304,6 +326,7 @@ async def register(input: RegisterInput, request: Request):
     # Get email template in user's language
     user_lang = input.language if input.language in ["es", "en", "ko"] else "en"
     template = get_email_template("verification", user_lang)
+    verification_link = _build_verification_link(request, verification_code)
     
     # Send verification email with 6-digit code in user's language
     email_html = f"""
@@ -320,6 +343,15 @@ async def register(input: RegisterInput, request: Request):
             <div style="background-color: #1C1C1C; color: white; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 20px 30px; border-radius: 8px; display: inline-block;">
                 {verification_code}
             </div>
+            <div style="margin-top: 24px;">
+                <a href="{verification_link}" style="display: inline-block; padding: 12px 20px; background: #2D5A3D; color: white; text-decoration: none; border-radius: 999px; font-weight: 600;">
+                    Verificar email
+                </a>
+            </div>
+            <p style="color: #7A7A7A; font-size: 14px; margin-top: 20px; line-height: 1.5;">
+                Tambien puedes abrir este enlace directamente:<br>
+                <a href="{verification_link}" style="color: #2D5A3D;">{verification_link}</a>
+            </p>
             <p style="color: #7A7A7A; font-size: 14px; margin-top: 25px;">
                 {template['expires']}
             </p>
@@ -330,31 +362,43 @@ async def register(input: RegisterInput, request: Request):
         </p>
     </div>
     """
-    
+
     session_token = await _create_user_session(user_id)
 
-    try:
-        send_email(
-            to=input.email,
-            subject=template['subject'],
-            html=email_html
-        )
-        logger.info(f"[REGISTRATION] Verification email sent to {input.email} in {user_lang}")
-    except HTTPException as e:
-        # If email fails, we should still allow registration but warn the user
-        logger.error(f"[REGISTRATION] Failed to send verification email to {input.email}")
+    if not _is_email_delivery_configured():
+        logger.error("[REGISTRATION] Email delivery unavailable for %s", normalized_email)
         return _build_auth_response(
             request,
             user_data,
             session_token,
-            message="Registration successful, but failed to send verification email. Please try resending it later.",
+            email_delivery_available=False,
+            message="La cuenta se creo, pero el servicio de email no esta configurado. Configura Resend antes de pedir verificacion por email.",
+        )
+
+    try:
+        send_email(
+            to=normalized_email,
+            subject=template['subject'],
+            html=email_html
+        )
+        logger.info(f"[REGISTRATION] Verification email sent to {normalized_email} in {user_lang}")
+    except Exception:
+        # If email fails, we should still allow registration but warn the user
+        logger.exception("[REGISTRATION] Failed to send verification email to %s", normalized_email)
+        return _build_auth_response(
+            request,
+            user_data,
+            session_token,
+            email_delivery_available=False,
+            message="La cuenta se creo, pero no se pudo enviar el email de verificacion. Prueba a reenviarlo cuando el servicio de email este disponible.",
         )
     
     return _build_auth_response(
         request,
         user_data,
         session_token,
-        message="Registration successful. Please check your email to verify your account.",
+        email_delivery_available=True,
+        message="Registro completado. Revisa tu email para verificar tu cuenta.",
     )
 
 # Email verification endpoints
@@ -370,7 +414,7 @@ async def verify_email(token: str = None, code: str = None):
         {"$or": [{"code": verification_key}, {"token": verification_key}]},
         {"_id": 0}
     )
-    
+
     if not verification:
         raise HTTPException(status_code=400, detail="Código de verificación inválido")
     
@@ -387,14 +431,14 @@ async def verify_email(token: str = None, code: str = None):
         {"user_id": verification["user_id"]},
         {"$set": {"email_verified": True}}
     )
-    
+
     # Delete the verification record
     await db.email_verifications.delete_one({"user_id": verification["user_id"]})
     
     return {"message": "Email verificado correctamente", "success": True}
 
 @router.post("/auth/resend-verification")
-async def resend_verification(user: User = Depends(get_current_user)):
+async def resend_verification(request: Request, user: User = Depends(get_current_user)):
     """Resend verification email with 6-digit code"""
     if user.email_verified:
         return {"message": "Email already verified"}
@@ -412,6 +456,7 @@ async def resend_verification(user: User = Depends(get_current_user)):
         "created_at": datetime.now(timezone.utc).isoformat(),
         "expires_at": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
     })
+    verification_link = _build_verification_link(request, verification_code)
     
     # Send verification email with 6-digit code
     email_html = f"""
@@ -435,13 +480,21 @@ async def resend_verification(user: User = Depends(get_current_user)):
     </div>
     """
     
+    if not _is_email_delivery_configured():
+        logger.error("[RESEND_VERIFICATION] Email delivery unavailable for %s", user.email)
+        raise HTTPException(status_code=503, detail="El servicio de email no esta configurado. Configura Resend antes de reenviar codigos de verificacion.")
+
     # Send email
-    send_email(
-        to=user.email,
+    try:
+        send_email(
+            to=user.email,
         subject="Código de verificación - Hispaloshop",
-        html=email_html
-    )
-    
+            html=email_html
+        )
+    except Exception as exc:
+        logger.exception("[RESEND_VERIFICATION] Failed to send verification email to %s", user.email)
+        raise HTTPException(status_code=503, detail="No se pudo enviar el email de verificacion. Intentalo de nuevo cuando el servicio de email este disponible.") from exc
+
     logger.info(f"[RESEND_VERIFICATION] Code sent to {user.email}")
     
     return {
@@ -493,17 +546,21 @@ async def login(input: LoginInput, request: Request):
 @router.post("/auth/forgot-password")
 async def forgot_password(input: ForgotPasswordInput, request: Request):
     """Request password reset email — uses request origin for correct URL."""
-    user = await db.users.find_one({"email": input.email}, {"_id": 0})
+    normalized_email = input.email.lower()
+    user = await db.users.find_one({"email": normalized_email}, {"_id": 0})
     
     if not user:
-        return {"message": "If that email exists, a password reset link has been sent."}
+        return {
+            "message": "If that email exists, a password reset link has been sent.",
+            "email_delivery_available": _is_email_delivery_configured(),
+        }
     
     await db.password_resets.delete_many({"user_id": user["user_id"]})
     
     reset_token = generate_verification_token()
     await db.password_resets.insert_one({
         "user_id": user["user_id"],
-        "email": input.email,
+        "email": normalized_email,
         "token": reset_token,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "expires_at": (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat(),
@@ -540,16 +597,26 @@ async def forgot_password(input: ForgotPasswordInput, request: Request):
         <p style="color: #999; font-size: 12px; margin-top: 24px;">{expires[lang]}<br>{ignores[lang]}</p>
     </div>
     """
+
+    if not _is_email_delivery_configured():
+        logger.error("[FORGOT_PASSWORD] Email delivery unavailable for %s", normalized_email)
+        return {
+            "message": "If that email exists, a password reset link has been sent.",
+            "email_delivery_available": False,
+        }
     
     try:
-        send_email(to=input.email, subject=subjects[lang], html=email_html)
-        logger.info(f"[FORGOT_PASSWORD] Reset email sent to {input.email} (lang={lang}, origin={origin})")
+        send_email(to=normalized_email, subject=subjects[lang], html=email_html)
+        logger.info(f"[FORGOT_PASSWORD] Reset email sent to {normalized_email} (lang={lang}, origin={origin})")
     except Exception as e:
         logger.error(f"[FORGOT_PASSWORD] Email failed: {e}")
-        logger.error(f"[FORGOT_PASSWORD] Failed to send reset email to {input.email}")
+        logger.error(f"[FORGOT_PASSWORD] Failed to send reset email to {normalized_email}")
         # Still return success to user
     
-    return {"message": "If that email exists, a password reset link has been sent."}
+    return {
+        "message": "If that email exists, a password reset link has been sent.",
+        "email_delivery_available": True,
+    }
 
 
 @router.post("/auth/reset-password")
@@ -828,21 +895,21 @@ async def google_auth_callback(
     stored_state = request.cookies.get("oauth_state")
     if not state or state != stored_state:
         logger.warning("[GOOGLE_AUTH] Invalid OAuth state. received=%s stored=%s", state, stored_state)
-        raise HTTPException(status_code=400, detail="Invalid state parameter")
+        return _build_frontend_auth_callback_response(request, error="Invalid state parameter")
 
     if error:
         logger.error("[GOOGLE_AUTH] Google returned error=%s", error)
-        raise HTTPException(status_code=400, detail=f"Google auth error: {error}")
+        return _build_frontend_auth_callback_response(request, error=f"Google auth error: {error}")
     
     if not code:
-        raise HTTPException(status_code=400, detail="No authorization code provided")
+        return _build_frontend_auth_callback_response(request, error="No authorization code provided")
     
     client_id = settings.GOOGLE_CLIENT_ID
     client_secret = settings.GOOGLE_CLIENT_SECRET
     
     if not client_id or not client_secret:
         logger.error("[GOOGLE_AUTH] Google OAuth missing credentials. client_id=%s client_secret_present=%s", bool(client_id), bool(client_secret))
-        raise HTTPException(status_code=500, detail="Google OAuth not configured")
+        return _build_frontend_auth_callback_response(request, error="Google OAuth not configured")
     
     backend_url = _get_public_auth_backend_url(request)
     redirect_uri = f"{backend_url}/api/auth/google/callback"
@@ -863,7 +930,7 @@ async def google_auth_callback(
     
     if token_response.status_code != 200:
         logger.error("[GOOGLE_AUTH] Token exchange failed. status=%s body=%s", token_response.status_code, token_response.text)
-        raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
+        return _build_frontend_auth_callback_response(request, error="Failed to exchange authorization code")
     
     tokens = token_response.json()
     access_token = tokens.get("access_token")
@@ -877,7 +944,7 @@ async def google_auth_callback(
     
     if userinfo_response.status_code != 200:
         logger.error("[GOOGLE_AUTH] Failed fetching userinfo. status=%s body=%s", userinfo_response.status_code, userinfo_response.text)
-        raise HTTPException(status_code=400, detail="Failed to get user info from Google")
+        return _build_frontend_auth_callback_response(request, error="Failed to get user info from Google")
     
     google_user = userinfo_response.json()
     
@@ -933,9 +1000,6 @@ async def google_auth_callback(
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     
-    frontend_redirect = _get_public_frontend_url(request)
-    redirect_response = RedirectResponse(url=f"{frontend_redirect}/auth/callback?token=google")
+    redirect_response = _build_frontend_auth_callback_response(request, token="google")
     _set_session_cookie(redirect_response, request, session_token)
-    redirect_response.delete_cookie("oauth_state", path="/")
-    redirect_response.delete_cookie("oauth_frontend_origin", path="/")
     return redirect_response

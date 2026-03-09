@@ -14,22 +14,25 @@ import { API } from '../utils/api';
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const verificationCode = searchParams.get('code');
   const token = searchParams.get('token');
+  const verificationValue = verificationCode || token;
+  const verificationParam = verificationCode ? 'code' : 'token';
   const [status, setStatus] = useState('verifying'); // verifying, success, error
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (token) {
+    if (verificationValue) {
       verifyEmail();
     } else {
       setStatus('error');
-      setMessage('No verification token provided');
+      setMessage('No verification code provided');
     }
-  }, [token]);
+  }, [verificationValue]);
 
   const verifyEmail = async () => {
     try {
-      const response = await axios.post(`${API}/auth/verify-email?token=${token}`);
+      const response = await axios.post(`${API}/auth/verify-email?${verificationParam}=${encodeURIComponent(verificationValue)}`);
       setStatus('success');
       setMessage(response.data.message || 'Email verified successfully!');
       toast.success('Email verified! You can now login.');

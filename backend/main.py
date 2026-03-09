@@ -12,6 +12,7 @@ import logging
 # === IMPORTAR NUEVO SISTEMA DE CONFIGURACION ===
 # La validacion de variables criticas ocurre aqui
 from core.config import settings
+from core.database import connect_db, disconnect_db
 
 # === MIDDLEWARE DE SEGURIDAD ===
 from middleware.security import (
@@ -254,6 +255,7 @@ async def legacy_health():
 @app.on_event("startup")
 async def startup_event():
     """Validaciones adicionales en startup"""
+    await connect_db()
     print(f"\n{'='*50}")
     print(f"[STARTUP] Hispaloshop API v1.0.0")
     print(f"Environment: {settings.ENV}")
@@ -264,3 +266,9 @@ async def startup_event():
     print(f"         Checkout Split + B2B Importer + Superadmin Enterprise")
     print(f"         Chat Real-Time + Notifications Omnichannel")
     print(f"{'='*50}\n")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cerrar conexiones abiertas al detener la app."""
+    await disconnect_db()

@@ -188,7 +188,7 @@ export default function CartPage() {
         toast.info(`MVP: ${response.data.verification_token.substring(0, 8)}...`);
       }
     } catch (error) {
-      toast.error(t('checkout.failedResend'));
+      toast.error(error.response?.data?.detail || t('checkout.failedResend'));
     } finally {
       setResending(false);
     }

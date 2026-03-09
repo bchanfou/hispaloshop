@@ -169,7 +169,7 @@ function EmailVerificationBanner({ user, onVerified }) {
       await axios.post(`${API}/auth/resend-verification`, {}, { withCredentials: true });
       toast.success('Código enviado a tu email');
     } catch (error) {
-      toast.error('Error al enviar código');
+      toast.error(error.response?.data?.detail || 'Error al enviar código');
     } finally {
       setResending(false);
     }

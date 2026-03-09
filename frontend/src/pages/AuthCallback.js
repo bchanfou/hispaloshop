@@ -20,7 +20,14 @@ export default function AuthCallback() {
       try {
         // Check for token in URL (from our Google OAuth callback)
         const params = new URLSearchParams(location.search);
+        const authError = params.get('error');
         const token = params.get('token');
+
+        if (authError) {
+          setError(authError);
+          setTimeout(() => navigate('/login', { replace: true }), 3000);
+          return;
+        }
 
         if (token) {
           const user = await checkAuth();

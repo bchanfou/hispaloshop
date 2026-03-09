@@ -94,7 +94,7 @@ async def create_certificate(input: CertificateInput, user: User = Depends(get_c
         raise HTTPException(status_code=404, detail="Product not found")
     certificate_id = f"cert_{uuid.uuid4().hex[:12]}"
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr_url = f"https://app.hispaloshop.com/certificate/{input.product_id}"
+    qr_url = f"https://www.hispaloshop.com/certificate/{input.product_id}"
     qr.add_data(qr_url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
@@ -106,6 +106,7 @@ async def create_certificate(input: CertificateInput, user: User = Depends(get_c
         "product_id": input.product_id,
         "product_name": product["name"],
         "data": input.data,
+        "qr_url": qr_url,
         "qr_code": qr_base64,
         "approved": user.role == "admin",
         "created_at": datetime.now(timezone.utc).isoformat(),

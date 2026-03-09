@@ -27,7 +27,11 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      await axios.post(`${API}/auth/forgot-password`, { email });
+      const response = await axios.post(`${API}/auth/forgot-password`, { email });
+      if (response.data?.email_delivery_available === false) {
+        toast.error('El servicio de email no esta configurado. No podremos enviar enlaces de recuperacion todavia.');
+        return;
+      }
       setEmailSent(true);
       toast.success(t('forgotPassword.emailSent', '¡Email de recuperación enviado!'));
     } catch (error) {

@@ -7,7 +7,11 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import uuid
 import logging
-from sqlalchemy import select, desc
+
+try:
+    from sqlalchemy import select, desc
+except Exception:  # Optional while the Mongo stack remains the active runtime.
+    select = desc = None
 
 from core.database import db
 from core.models import User

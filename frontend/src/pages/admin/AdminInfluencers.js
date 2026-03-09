@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
-import { Plus, DollarSign, Ban, Play, Trash2, Eye, Send } from 'lucide-react';
+import { Plus, DollarSign, Ban, Play, Trash2, Eye, Send, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../../utils/api';
@@ -13,12 +13,13 @@ import { API } from '../../utils/api';
 
 export default function AdminInfluencers() {
   const { t } = useTranslation();
-  const tierCommission = { hercules: 3, atenea: 5, zeus: 7 };
   const [influencers, setInfluencers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedInfluencer, setSelectedInfluencer] = useState(null);
+  const [editInfluencer, setEditInfluencer] = useState(null);
+  const [editForm, setEditForm] = useState({ tier: 'hercules', followers_count: 1000 });
   const [newInfluencer, setNewInfluencer] = useState({
     full_name: '',
     email: '',
@@ -108,6 +109,27 @@ export default function AdminInfluencers() {
       setSelectedInfluencer(res.data);
     } catch (err) {
       toast.error('Error loading influencer details');
+    }
+  };
+
+  const openEdit = (inf) => {
+    setEditForm({ tier: inf.current_tier || 'hercules', followers_count: inf.followers_count || 0 });
+    setEditInfluencer(inf);
+  };
+
+  const saveEdit = async () => {
+    if (!editInfluencer) return;
+    try {
+      await axios.put(
+        `${API}/admin/influencers/${editInfluencer.influencer_id}?tier=${editForm.tier}&followers_count=${editForm.followers_count}`,
+        {},
+        { withCredentials: true }
+      );
+      toast.success('Influencer actualizado');
+      setEditInfluencer(null);
+      fetchInfluencers();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Error al actualizar');
     }
   };
 
@@ -296,6 +318,14 @@ export default function AdminInfluencers() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          onClick={() => openEdit(inf)}
+                          title="Editar tier"
+                        >
+                          <Pencil className="h-4 w-4 text-stone-500" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
                           onClick={() => fetchInfluencerDetails(inf.influencer_id)}
                           title={t('admin.viewDetails')}
                         >
@@ -341,6 +371,53 @@ export default function AdminInfluencers() {
         </CardContent>
       </Card>
 
+      {/* Edit Tier Dialog */}
+      <Dialog open={!!editInfluencer} onOpenChange={() => setEditInfluencer(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar influencer</DialogTitle>
+          </DialogHeader>
+          {editInfluencer && (
+            <div className="space-y-4 pt-4">
+              <div>
+                <p className="text-sm text-[#7A7A7A] mb-1">Influencer</p>
+                <p className="font-medium">{editInfluencer.full_name}</p>
+                <p className="text-sm text-[#7A7A7A]">{editInfluencer.email}</p>
+              </div>
+              <div>
+                <Label>Tier</Label>
+                <select
+                  value={editForm.tier}
+                  onChange={(e) => setEditForm({ ...editForm, tier: e.target.value })}
+                  className="w-full border border-[#DED7CE] rounded-md p-2 mt-1"
+                >
+                  <option value="hercules">Hercules · 3%</option>
+                  <option value="atenea">Atenea · 5%</option>
+                  <option value="zeus">Zeus · 7%</option>
+                </select>
+              </div>
+              <div>
+                <Label>Seguidores</Label>
+                <Input
+                  type="number"
+                  value={editForm.followers_count}
+                  onChange={(e) => setEditForm({ ...editForm, followers_count: parseInt(e.target.value || '0', 10) })}
+                  className="mt-1"
+                />
+              </div>
+              <div className="bg-stone-50 rounded-lg p-3 text-sm text-stone-600">
+                Comision que se aplicara: <strong>
+                  {editForm.tier === 'hercules' ? '3%' : editForm.tier === 'atenea' ? '5%' : '7%'}
+                </strong>
+              </div>
+              <Button onClick={saveEdit} className="w-full bg-[#1C1C1C] hover:bg-[#2A2A2A]">
+                Guardar cambios
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Influencer Details Modal */}
       <Dialog open={!!selectedInfluencer} onOpenChange={() => setSelectedInfluencer(null)}>
         <DialogContent className="max-w-2xl">
@@ -367,7 +444,7 @@ export default function AdminInfluencers() {
                   <p className="font-medium">{selectedInfluencer.discount_code_info?.value}%</p>
                 </div>
               </div>
-              
+
               {selectedInfluencer.recent_commissions?.length > 0 && (
                 <div>
                   <h4 className="font-medium mb-2">Recent Commissions</h4>

@@ -124,10 +124,6 @@ const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashbo
 
 // Registration flows
 const RoleSelector = lazy(() => import('./pages/register/RoleSelector'));
-const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
-const InfluencerRegister = lazy(() => import('./pages/register/influencer'));
-const ProducerRegister = lazy(() => import('./pages/register/producer'));
-const ImporterRegister = lazy(() => import('./pages/register/importer'));
 
 function RouteLoader() {
   return (
@@ -256,10 +252,10 @@ function AppRouter() {
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/register/new" element={<RoleSelector />} />
-              <Route path="/register/consumer" element={<ConsumerRegister />} />
-              <Route path="/register/influencer" element={<InfluencerRegister />} />
-              <Route path="/register/producer" element={<ProducerRegister />} />
-              <Route path="/register/importer" element={<ImporterRegister />} />
+              <Route path="/register/consumer" element={<Navigate to="/register?role=customer" replace />} />
+              <Route path="/register/influencer" element={<Navigate to="/register?role=influencer" replace />} />
+              <Route path="/register/producer" element={<Navigate to="/register?role=producer" replace />} />
+              <Route path="/register/importer" element={<Navigate to="/register?role=importer" replace />} />
               <Route path="/seller/register" element={<RegisterPage />} />
               <Route path="/influencer/register" element={<RegisterPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />
