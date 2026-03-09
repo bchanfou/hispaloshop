@@ -11,8 +11,9 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Query
 
 from core.database import db
 from core.auth import get_current_user, require_role
-from core.config import PLATFORM_COMMISSION
+from core.config import PLATFORM_COMMISSION, settings
 from core.models import User, InfluencerApplication, CreateInfluencerCodeInput, WithdrawalRequest
+from config import normalize_influencer_tier
 
 logger = logging.getLogger(__name__)
 
@@ -73,8 +74,12 @@ async def get_influencer_dashboard(user: User = Depends(get_current_user)):
     if not influencer:
         raise HTTPException(status_code=404, detail="You are not registered as an influencer")
     
-    if influencer.get("status") == "banned":
+    if influencer.get("status") == "suspended":
         raise HTTPException(status_code=403, detail="Your influencer account has been suspended")
+
+    current_tier = normalize_influencer_tier(influencer.get("current_tier", "hercules"), influencer.get("commission_rate"))
+    commission_rate = float(influencer.get("commission_rate", 0.03) or 0.03)
+    commission_value = int(round(commission_rate * 100))
     
     # Get their discount code
     discount_code = None
@@ -130,8 +135,10 @@ async def get_influencer_dashboard(user: User = Depends(get_current_user)):
         "full_name": influencer.get("full_name", "Influencer"),
         "status": influencer.get("status", "pending"),
         "discount_code": discount_code,
-        "commission_type": influencer.get("commission_type", "percentage"),
-        "commission_value": influencer.get("commission_value", 3),
+        "current_tier": current_tier,
+        "commission_type": "percentage",
+        "commission_rate": commission_rate,
+        "commission_value": commission_value,
         "platform_commission": PLATFORM_COMMISSION,  # 0.18 = 18%
         "total_sales_generated": round(influencer.get("total_sales_generated", 0), 2),
         "total_commission_earned": round(influencer.get("total_commission_earned", 0), 2),
@@ -411,7 +418,7 @@ async def track_referral_click(code: str, request: Request):
     response.set_cookie(
         key="referral_code",
         value=code.upper(),
-        max_age=7 * 24 * 60 * 60,  # 7 days
+        max_age=settings.AFFILIATE_ATTRIBUTION_DAYS * 24 * 60 * 60,
         httponly=False,  # Allow JS to read it for UI purposes
         samesite="lax"
     )

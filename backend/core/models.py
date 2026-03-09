@@ -298,6 +298,7 @@ class Product(BaseModel):
     track_stock: bool = True
     variants: Optional[List[Dict[str, Any]]] = None
     available_countries: Optional[List[str]] = None
+    target_markets: Optional[List[str]] = None
     country_prices: Optional[Dict[str, float]] = None
     country_currency: Optional[Dict[str, str]] = None
     source_language: Optional[str] = "es"
@@ -371,6 +372,7 @@ class ProductInput(BaseModel):
     price: float
     images: List[str]
     country_origin: str
+    target_markets: Optional[List[str]] = None
     ingredients: List[str]
     allergens: List[str]
     certifications: List[str]
@@ -599,6 +601,13 @@ class BuyNowInput(BaseModel):
     quantity: int = 1
 
 
+class RFQCreateInput(BaseModel):
+    producer_id: str
+    product_ids: List[str]
+    message: str
+    target_country: str
+
+
 # ── Commerce / Influencer / Discount ────────────────────────
 
 class DiscountCode(BaseModel):
@@ -651,10 +660,15 @@ class Influencer(BaseModel):
 class InfluencerCreate(BaseModel):
     full_name: str
     email: str
+    tier: str = "hercules"
     commission_type: str = "percentage"
-    commission_value: float = 10.0
+    commission_value: Optional[float] = None
+    phone: Optional[str] = None
+    social_platform: Optional[str] = None
+    social_handle: Optional[str] = None
+    followers_count: int = 0
     discount_code: Optional[str] = None
-    discount_value: float = 10.0
+    discount_percentage: float = 10.0
 
 
 class InfluencerCommission(BaseModel):

@@ -70,7 +70,7 @@ export default function AboutPage() {
       icon: Sparkles,
       title: 'Para influencers',
       points: [
-        'Tiers activos: Perseo, Aquiles, Hercules, Apolo, Zeus',
+        'Tiers activos: Hercules, Atenea, Zeus',
         'Comisiones del 3% al 7% segun GMV',
         'Tracking de conversion y rendimiento',
         'Monetizacion en posts y reels',

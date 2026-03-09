@@ -19,10 +19,32 @@ from core.models import (
 )
 from core.constants import SUPPORTED_COUNTRIES
 from core.auth import get_current_user, require_role, require_super_admin
+from config import INFLUENCER_TIER_CONFIG, normalize_influencer_tier
 from services.auth_helpers import hash_password
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+def _get_tier_metadata(tier: str | None, commission_value: float | None = None) -> dict:
+    normalized_tier = normalize_influencer_tier(tier, (commission_value or 0) / 100 if commission_value is not None else None)
+    config = INFLUENCER_TIER_CONFIG[normalized_tier]
+    return {
+        "tier": normalized_tier,
+        "commission_rate": config["commission_rate"],
+        "commission_value": int(round(config["commission_rate"] * 100)),
+    }
+
+
+def _serialize_influencer(doc: dict) -> dict:
+    influencer = dict(doc)
+    tier_meta = _get_tier_metadata(influencer.get("current_tier"), influencer.get("commission_value"))
+    influencer["current_tier"] = tier_meta["tier"]
+    influencer["commission_rate"] = influencer.get("commission_rate", tier_meta["commission_rate"])
+    influencer["commission_type"] = "percentage"
+    influencer["commission_value"] = influencer.get("commission_value", tier_meta["commission_value"])
+    influencer["status"] = "suspended" if influencer.get("status") in {"terminated", "banned", "paused"} else influencer.get("status", "pending")
+    return influencer
 
 
 # ============================================
@@ -141,7 +163,7 @@ async def list_influencers(user: User = Depends(get_current_user)):
     """List all influencers (Admin only)"""
     await require_role(user, ["admin"])
     influencers = await db.influencers.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
-    return influencers
+    return [_serialize_influencer(inf) for inf in influencers]
 
 @router.get("/admin/influencers/{influencer_id}")
 async def get_influencer(influencer_id: str, user: User = Depends(get_current_user)):
@@ -163,8 +185,8 @@ async def get_influencer(influencer_id: str, user: User = Depends(get_current_us
         {"_id": 0}
     ).sort("created_at", -1).to_list(20)
     influencer["recent_commissions"] = commissions
-    
-    return influencer
+
+    return _serialize_influencer(influencer)
 
 @router.post("/admin/influencers")
 async def create_influencer(input: InfluencerCreate, user: User = Depends(get_current_user)):
@@ -200,6 +222,8 @@ async def create_influencer(input: InfluencerCreate, user: User = Depends(get_cu
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.discount_codes.insert_one(discount_code)
+
+    tier_meta = _get_tier_metadata(input.tier, input.commission_value)
     
     influencer = {
         "influencer_id": influencer_id,
@@ -212,7 +236,10 @@ async def create_influencer(input: InfluencerCreate, user: User = Depends(get_cu
         "followers_count": input.followers_count,
         "discount_code_id": code_id,
         "discount_code": discount_code_str,
-        "commission_rate": input.commission_rate or 0.15,
+        "current_tier": tier_meta["tier"],
+        "commission_type": "percentage",
+        "commission_value": tier_meta["commission_value"],
+        "commission_rate": tier_meta["commission_rate"],
         "status": "active",
         "total_sales_generated": 0,
         "total_commission_earned": 0,
@@ -223,13 +250,13 @@ async def create_influencer(input: InfluencerCreate, user: User = Depends(get_cu
     await db.influencers.insert_one(influencer)
     influencer.pop("_id", None)
     
-    return influencer
+    return _serialize_influencer(influencer)
 
 @router.put("/admin/influencers/{influencer_id}")
 async def update_influencer(influencer_id: str, full_name: Optional[str] = None, 
                            phone: Optional[str] = None, social_platform: Optional[str] = None,
                            social_handle: Optional[str] = None, followers_count: Optional[int] = None,
-                           commission_rate: Optional[float] = None,
+                           commission_rate: Optional[float] = None, tier: Optional[str] = None,
                            user: User = Depends(get_current_user)):
     """Update influencer details (Admin only)"""
     await require_role(user, ["admin"])
@@ -240,7 +267,12 @@ async def update_influencer(influencer_id: str, full_name: Optional[str] = None,
     if social_platform: update_data["social_platform"] = social_platform
     if social_handle: update_data["social_handle"] = social_handle
     if followers_count is not None: update_data["followers_count"] = followers_count
-    if commission_rate is not None: update_data["commission_rate"] = commission_rate
+    if commission_rate is not None or tier is not None:
+        tier_meta = _get_tier_metadata(tier, commission_rate * 100 if commission_rate is not None else None)
+        update_data["current_tier"] = tier_meta["tier"]
+        update_data["commission_rate"] = tier_meta["commission_rate"]
+        update_data["commission_type"] = "percentage"
+        update_data["commission_value"] = tier_meta["commission_value"]
     
     if update_data:
         await db.influencers.update_one({"influencer_id": influencer_id}, {"$set": update_data})
@@ -252,7 +284,7 @@ async def update_influencer_status(influencer_id: str, status: str, user: User =
     """Update influencer status (Admin only)"""
     await require_role(user, ["admin"])
     
-    if status not in ["active", "suspended", "terminated"]:
+    if status not in ["active", "suspended"]:
         raise HTTPException(status_code=400, detail="Invalid status")
     
     influencer = await db.influencers.find_one({"influencer_id": influencer_id})
@@ -323,7 +355,7 @@ async def get_influencer_stats(user: User = Depends(get_current_user)):
         "total_influencers": total_influencers,
         "active_influencers": active_influencers,
         "total_sales_generated": agg["total_sales"],
-        "total_commissions_paid": agg["total_commissions"],
+        "total_commissions_earned": agg["total_commissions"],
         "total_pending_payouts": agg["total_pending"]
     }
 

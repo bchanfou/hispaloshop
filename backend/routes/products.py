@@ -15,6 +15,7 @@ from core.database import db
 from core.auth import get_current_user, get_optional_user, require_role
 from core.models import User, ProductInput
 from core.constants import SUPPORTED_LANGUAGES
+from services.markets import get_product_target_markets, is_product_available_in_country, normalize_market_code, normalize_markets
 from services.translation import TranslationService
 
 # Translation languages - must match server.py
@@ -42,6 +43,7 @@ async def get_products(
     free_shipping: Optional[str] = None
 ):
     """Get products. Default: all active/approved products. featured_only for Best Products."""
+    country = normalize_market_code(country)
     query = {}
     and_conditions = []
     
@@ -92,9 +94,12 @@ async def get_products(
         # Filter by country availability (products available in this country)
         and_conditions.append({
             "$or": [
+                {"target_markets": country},
                 {"available_countries": country},
-                {"available_countries": None},
-                {"available_countries": {"$exists": False}}
+                {"$and": [
+                    {"$or": [{"target_markets": None}, {"target_markets": {"$exists": False}}, {"target_markets": []}]},
+                    {"$or": [{"available_countries": None}, {"available_countries": {"$exists": False}}, {"available_countries": []}]},
+                ]},
             ]
         })
     if certifications:
@@ -206,6 +211,7 @@ async def get_products(
     
     # Enrich products with country-specific pricing and multi-market availability
     for product in products:
+        product["target_markets"] = get_product_target_markets(product)
         inv = product.get("inventory_by_country", [])
         if country:
             # Find market for this country
@@ -226,7 +232,7 @@ async def get_products(
                 else:
                     product["display_price"] = product["price"]
                     product["display_currency"] = "EUR"
-                    product["available_in_country"] = len(inv) == 0  # available if no inventory system
+                    product["available_in_country"] = len(inv) == 0 and is_product_available_in_country(product, country)
         else:
             product["available_in_country"] = True  # no country filter = show all
     
@@ -263,6 +269,7 @@ async def get_products(
 @router.get("/products/{product_id}")
 async def get_product(product_id: str, country: Optional[str] = None, lang: Optional[str] = None):
     """Get a single product, optionally translated to the specified language"""
+    country = normalize_market_code(country)
     
     # If language is requested, use the translation service
     if lang and lang in SUPPORTED_LANGUAGES:
@@ -275,12 +282,12 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
             raise HTTPException(status_code=404, detail="Product not found")
     
     # Add country-specific pricing info
+    product["target_markets"] = get_product_target_markets(product)
     if country:
-        available_countries = product.get("available_countries", [])
         country_prices = product.get("country_prices", {})
         
         # Check if available in country (or has no restrictions)
-        is_available = not available_countries or country in available_countries
+        is_available = is_product_available_in_country(product, country)
         product["is_available_in_country"] = is_available
         
         if country in country_prices:
@@ -321,6 +328,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
     
     # Determine seller type from user role
     seller_type = user.role if user.role in ["producer", "importer", "admin"] else "producer"
+    target_markets = normalize_markets(input.target_markets or ([input.country_origin] if input.country_origin else []))
     
     product = {
         "product_id": product_id,
@@ -345,7 +353,8 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         "low_stock_threshold": 5,
         "track_stock": True,
         # Country availability - default to country of origin
-        "available_countries": [input.country_origin] if input.country_origin else [],
+        "available_countries": target_markets,
+        "target_markets": target_markets,
         "country_prices": {input.country_origin: input.price} if input.country_origin else {},
         "country_currency": {input.country_origin: "EUR"} if input.country_origin else {},
         # Translation fields
@@ -370,7 +379,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
     try:
         cert_id = f"cert_{uuid.uuid4().hex[:12]}"
         cert_number = f"HSP-{datetime.now(timezone.utc).strftime('%Y')}-{uuid.uuid4().hex[:6].upper()}"
-        markets = [m["country_code"] for m in product.get("inventory_by_country", []) if m.get("active")]
+        markets = get_product_target_markets(product)
         requirements = ["origin_verification", "quality_check"]
         cat_slug = product.get("category_id", "")
         if any(k in cat_slug for k in ["carne", "meat", "lact", "dairy", "queso", "cheese", "congel", "frozen"]):

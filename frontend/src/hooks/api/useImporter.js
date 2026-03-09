@@ -20,7 +20,7 @@ const IMPORTER_KEYS = {
 export function useB2BCatalog() {
   return useQuery({
     queryKey: IMPORTER_KEYS.catalog,
-    queryFn: () => api.get('/importer/catalog'),
+    queryFn: () => api.get('/b2b/catalog'),
     staleTime: 10 * 60 * 1000,
   });
 }
@@ -32,11 +32,12 @@ export function useCreateInquiry() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ productId, quantity, requirements }) => 
-      api.post('/importer/inquiries', {
-        product_id: productId,
-        quantity,
-        requirements,
+    mutationFn: ({ producerId, productIds, message, targetCountry }) =>
+      api.post('/rfq/contact', {
+        producer_id: producerId,
+        product_ids: productIds,
+        message,
+        target_country: targetCountry,
       }),
     
     onSuccess: () => {
@@ -51,7 +52,7 @@ export function useCreateInquiry() {
 export function useInquiries() {
   return useQuery({
     queryKey: IMPORTER_KEYS.inquiries,
-    queryFn: () => api.get('/importer/inquiries'),
+    queryFn: () => api.get('/rfq/mine'),
     staleTime: 2 * 60 * 1000,
   });
 }

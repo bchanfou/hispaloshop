@@ -185,7 +185,7 @@ async def get_user_profile(user_id: str, request: Request):
         )
         if inf:
             profile["niche"] = inf.get("niche") or profile.get("niche")
-            profile["tier"] = normalize_influencer_tier(inf.get("current_tier", "perseo"))
+            profile["tier"] = normalize_influencer_tier(inf.get("current_tier", "hercules"), inf.get("commission_rate"))
 
     if user.get("role") == "producer":
         orders = await db.orders.find(
@@ -493,7 +493,6 @@ async def delete_own_account(request: Request, user: User = Depends(get_current_
     await db.ai_profiles.delete_many({"user_id": uid})
     await db.notifications.delete_many({"user_id": uid})
     await db.store_followers.delete_many({"user_id": uid})
-    await db.customer_influencer_attribution.delete_many({"customer_id": uid})
     await db.scheduled_payouts.delete_many({"influencer_id": uid})
     
     # If seller, delete products and store

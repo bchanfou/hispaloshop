@@ -30,7 +30,7 @@ function InfluencerDashboard() {
       conversions: 0,
       followers: 0
     },
-    tier: 'Perseo',
+    tier: 'Hercules',
     chart: {
       labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
       data: [0, 0, 0, 0]
@@ -82,7 +82,7 @@ function InfluencerDashboard() {
           conversions: totalConversions,
           followers: user?.followers_count || 0
         },
-        tier: dashboardRes?.profile?.tier || 'Perseo',
+        tier: dashboardRes?.profile?.tier || dashboardRes?.current_tier || 'Hercules',
         chart: {
           labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
           data: dashboardRes?.earnings?.weekly || [0, 0, 0, 0]
@@ -100,7 +100,7 @@ function InfluencerDashboard() {
         suggestions: [
           {
             id: 1,
-            title: 'Sube de nivel a Aquiles',
+            title: 'Sube de nivel a Atenea',
             description: 'Necesitas €200 más en ventas este mes',
             actionLabel: 'Ver oportunidades',
             onAction: () => navigate('/influencer/opportunities')

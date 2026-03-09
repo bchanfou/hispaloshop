@@ -60,30 +60,65 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Canonical influencer tier ladder for both modern and legacy APIs.
+# Canonical simplified influencer ladder used by the active Mongo runtime.
 # Amounts are expressed in cents where applicable.
 INFLUENCER_TIER_CONFIG = {
-    "perseo": {"min_gmv_cents": 0, "commission_bps": 300, "name": "Perseo", "commission_rate": 0.03},
-    "aquiles": {"min_gmv_cents": 50_000, "commission_bps": 400, "name": "Aquiles", "commission_rate": 0.04},
-    "hercules": {"min_gmv_cents": 200_000, "commission_bps": 500, "name": "Hercules", "commission_rate": 0.05},
-    "apolo": {"min_gmv_cents": 750_000, "commission_bps": 600, "name": "Apolo", "commission_rate": 0.06},
-    "zeus": {"min_gmv_cents": 2_000_000, "commission_bps": 700, "name": "Zeus", "commission_rate": 0.07},
+    "hercules": {
+        "min_gmv_cents": 0,
+        "min_followers": 0,
+        "commission_bps": 300,
+        "name": "Hercules",
+        "commission_rate": 0.03,
+    },
+    "atenea": {
+        "min_gmv_cents": 500_000,
+        "min_followers": 2_500,
+        "commission_bps": 500,
+        "name": "Atenea",
+        "commission_rate": 0.05,
+    },
+    "zeus": {
+        "min_gmv_cents": 2_000_000,
+        "min_followers": 10_000,
+        "commission_bps": 700,
+        "name": "Zeus",
+        "commission_rate": 0.07,
+    },
 }
 
-INFLUENCER_TIER_ORDER = ["perseo", "aquiles", "hercules", "apolo", "zeus"]
+INFLUENCER_TIER_ORDER = ["hercules", "atenea", "zeus"]
 
-# Backward-compatible aliases from older 3-tier naming.
+# Legacy aliases from older ladders collapse into the 3-tier model.
 INFLUENCER_TIER_ALIASES = {
-    "atenea": "hercules",  # legacy 5% tier
-    "titan": "zeus",       # legacy 7% tier
-    "HERCULES": "perseo",
-    "ATENEA": "hercules",
-    "TITAN": "zeus",
+    "perseo": "hercules",
+    "aquiles": "hercules",
+    "artemisa": "atenea",
+    "apolo": "zeus",
+    "titan": "zeus",
+    "atenea": "atenea",
+    "hercules": "hercules",
+    "zeus": "zeus",
+    "HERCULES": "hercules",
+    "ATENEA": "atenea",
+    "ZEUS": "zeus",
 }
 
 
-def normalize_influencer_tier(tier: str | None) -> str:
+def normalize_influencer_tier(tier: str | None, commission_rate: float | None = None) -> str:
+    if commission_rate is not None:
+        try:
+            rate = float(commission_rate)
+        except (TypeError, ValueError):
+            rate = None
+        if rate is not None:
+            if rate >= 0.07:
+                return "zeus"
+            if rate >= 0.05:
+                return "atenea"
+            return "hercules"
+
     if not tier:
-        return "perseo"
-    normalized = INFLUENCER_TIER_ALIASES.get(tier, tier).lower()
-    return normalized if normalized in INFLUENCER_TIER_CONFIG else "perseo"
+        return "hercules"
+
+    normalized = INFLUENCER_TIER_ALIASES.get(tier, str(tier).lower()).lower()
+    return normalized if normalized in INFLUENCER_TIER_CONFIG else "hercules"

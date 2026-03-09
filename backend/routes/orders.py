@@ -4,7 +4,7 @@ email notifications, financial ledger, commission audit.
 Extracted from server.py.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks
-from typing import Optional, List
+from typing import Any, Dict, Optional, List
 from datetime import datetime, timezone, timedelta
 import uuid
 import os
@@ -18,10 +18,11 @@ from core.models import (
     User, OrderCreateInput, BuyNowInput, OrderStatusUpdate,
 )
 from core.constants import SUPPORTED_COUNTRIES
-from core.config import PLATFORM_COMMISSION, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+from core.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
 from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
 from services.ledger import write_ledger_event
+from services.markets import get_product_target_markets, is_product_available_in_country, normalize_market_code
 from config import normalize_influencer_tier
 from services.shipping_service import ShippingPolicy, ShippingService
 
@@ -32,6 +33,140 @@ router = APIRouter()
 stripe.api_key = STRIPE_SECRET_KEY
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+
+
+def _round_money(amount: float) -> float:
+    return round(float(amount or 0), 2)
+
+
+def _first_influencer_split(commission_data: dict) -> Optional[dict]:
+    for split in commission_data.get("splits", []):
+        if split.get("influencer_cut", 0) > 0:
+            return split
+    return None
+
+
+def _commission_data_to_split_details(commission_data: dict, sellers: Dict[str, Dict[str, Any]]) -> List[dict]:
+    split_details = []
+    for split in commission_data.get("splits", []):
+        seller_meta = sellers.get(split["seller_id"], {})
+        split_details.append({
+            "producer_id": split["seller_id"],
+            "gross_amount": _round_money(split.get("seller_gmv", 0)),
+            "seller_amount": _round_money(split.get("seller_payout", 0)),
+            "platform_fee": _round_money(split.get("platform_gross", 0)),
+            "platform_net": _round_money(split.get("platform_net", 0)),
+            "influencer_cut": _round_money(split.get("influencer_cut", 0)),
+            "seller_plan": split.get("seller_plan", "FREE"),
+            "commission_rate": split.get("platform_rate_snapshot", 0),
+            "influencer_rate": split.get("influencer_rate_snapshot", 0),
+            "influencer_tier": split.get("influencer_tier_snapshot"),
+            "stripe_account_id": seller_meta.get("stripe_account_id"),
+            "charges_enabled": seller_meta.get("charges_enabled", False),
+        })
+    return split_details
+
+
+async def _get_order_commission_data(order: dict) -> dict:
+    existing = order.get("commission_data")
+    if existing and existing.get("splits"):
+        return existing
+
+    from services.subscriptions import calculate_order_commissions
+
+    return await calculate_order_commissions(db, order)
+
+
+async def _get_active_influencer_context(customer_id: str, customer_email: str) -> Optional[dict]:
+    customer_doc = await db.users.find_one(
+        {"user_id": customer_id},
+        {"_id": 0, "referred_by": 1, "referral_code": 1, "referral_expires_at": 1},
+    )
+    if customer_doc and customer_doc.get("referred_by"):
+        expiry_str = customer_doc.get("referral_expires_at")
+        referral_active = True
+        if expiry_str:
+            try:
+                referral_active = datetime.fromisoformat(expiry_str.replace("Z", "+00:00")) > datetime.now(timezone.utc)
+            except Exception:
+                referral_active = False
+
+        if referral_active:
+            influencer = await db.influencers.find_one(
+                {"influencer_id": customer_doc["referred_by"], "status": "active"},
+                {"_id": 0, "influencer_id": 1, "current_tier": 1, "commission_rate": 1, "email": 1},
+            )
+            if influencer and influencer.get("email") != customer_email:
+                return {
+                    "influencer_id": influencer["influencer_id"],
+                    "discount_code": customer_doc.get("referral_code"),
+                    "tier": normalize_influencer_tier(
+                        influencer.get("current_tier", "hercules"),
+                        influencer.get("commission_rate"),
+                    ),
+                }
+
+    return None
+
+
+async def _ensure_influencer_commission_record(order: dict, commission_data: dict) -> None:
+    influencer_id = order.get("influencer_id")
+    if not influencer_id:
+        return
+
+    influencer_amount = _round_money(commission_data.get("total_influencer_cut", 0))
+    if influencer_amount <= 0:
+        return
+
+    existing = await db.influencer_commissions.find_one(
+        {"order_id": order["order_id"], "influencer_id": influencer_id},
+        {"_id": 0, "commission_id": 1},
+    )
+    if existing:
+        return
+
+    created_at = datetime.now(timezone.utc)
+    payment_available_date = created_at + timedelta(days=15)
+    first_split = _first_influencer_split(commission_data) or {}
+    order_value = _round_money(sum(split.get("seller_gmv", 0) for split in commission_data.get("splits", [])))
+    platform_fee = _round_money(commission_data.get("total_platform_gross", 0))
+
+    commission_record = {
+        "commission_id": f"comm_{uuid.uuid4().hex[:12]}",
+        "influencer_id": influencer_id,
+        "order_id": order["order_id"],
+        "discount_code": order.get("influencer_discount_code"),
+        "order_total": _round_money(order.get("total_amount", 0)),
+        "order_value": order_value,
+        "platform_fee": platform_fee,
+        "commission_amount": influencer_amount,
+        "commission_rate": first_split.get("influencer_rate_snapshot"),
+        "influencer_tier": first_split.get("influencer_tier_snapshot"),
+        "commission_status": "pending",
+        "created_at": created_at.isoformat(),
+        "payment_available_date": payment_available_date.isoformat(),
+    }
+    await db.influencer_commissions.insert_one(commission_record)
+
+    await db.orders.update_one(
+        {"order_id": order["order_id"]},
+        {"$set": {
+            "influencer_commission_amount": influencer_amount,
+            "influencer_commission_status": "pending",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+
+    await db.influencers.update_one(
+        {"influencer_id": influencer_id},
+        {"$inc": {
+            "total_sales_generated": order_value,
+            "total_commission_earned": influencer_amount,
+            "available_balance": influencer_amount,
+        }},
+    )
+
+    await check_and_notify_influencer_withdrawal_available(influencer_id, db)
 
 # ============================================================================
 # PAYMENT SYSTEM — Separate Charges & Transfers Architecture
@@ -59,16 +194,14 @@ async def execute_seller_transfers(order: dict):
     Execute Stripe transfers to each seller after payment is confirmed.
     Uses dynamic commission rates based on seller plan (FREE=20%, PRO=18%, ELITE=17%).
     """
-    from services.subscriptions import calculate_order_commissions, get_seller_commission_rate
-
     order_id = order["order_id"]
     
     if order.get("transfers_executed"):
         logger.info(f"[TRANSFERS] Already executed for {order_id}, skipping")
         return {"transfer_records": order.get("transfer_records", []), "total_platform_fee": order.get("total_platform_fee", 0)}
     
-    # Calculate commissions dynamically based on seller plans + influencer tiers
-    commission_data = await calculate_order_commissions(db, order)
+    # Use the snapshot captured at checkout when available.
+    commission_data = await _get_order_commission_data(order)
     splits = commission_data.get("splits", [])
     
     currency = order.get("currency", "EUR").lower()
@@ -166,10 +299,8 @@ async def execute_seller_transfers(order: dict):
     return {"transfer_records": transfer_records, "total_platform_fee": total_platform_fee}
 
 
-async def schedule_influencer_payout(order: dict, total_platform_fee: float):
-    """Schedule an influencer payout based on tier commission rate (D+15)."""
-    from services.subscriptions import get_influencer_commission_rate
-    
+async def schedule_influencer_payout(order: dict, total_platform_fee: float, commission_data: Optional[dict] = None):
+    """Schedule an influencer payout capped by the platform commission snapshot."""
     influencer_id = order.get("influencer_id")
     if not influencer_id:
         return
@@ -180,19 +311,25 @@ async def schedule_influencer_payout(order: dict, total_platform_fee: float):
     existing = await db.scheduled_payouts.find_one({"order_id": order_id, "influencer_id": influencer_id})
     if existing:
         return
-    
-    # Get influencer tier and calculate commission from NET GMV (not platform fee)
-    inf_doc = await db.influencers.find_one({"influencer_id": influencer_id}, {"_id": 0, "current_tier": 1, "commission_rate": 1, "stripe_account_id": 1})
-    if not inf_doc:
+
+    commission_data = commission_data or await _get_order_commission_data(order)
+    first_split = _first_influencer_split(commission_data)
+    if not first_split:
         return
-    
-    inf_rate = inf_doc.get("commission_rate", 0.03)
-    net_gmv = order.get("total_amount", 0)
-    influencer_amount = round(net_gmv * inf_rate, 2)
-    
+
+    influencer_amount = _round_money(commission_data.get("total_influencer_cut", 0))
     if influencer_amount <= 0:
         return
-    
+
+    inf_doc = await db.influencers.find_one(
+        {"influencer_id": influencer_id},
+        {"_id": 0, "current_tier": 1, "commission_rate": 1, "stripe_account_id": 1},
+    )
+    if not inf_doc:
+        return
+
+    inf_rate = first_split.get("influencer_rate_snapshot", inf_doc.get("commission_rate", 0.03))
+    net_gmv = _round_money(sum(split.get("seller_gmv", 0) for split in commission_data.get("splits", [])))
     stripe_account_id = inf_doc.get("stripe_account_id")
     now = datetime.now(timezone.utc)
     due_date = now + timedelta(days=15)
@@ -201,11 +338,15 @@ async def schedule_influencer_payout(order: dict, total_platform_fee: float):
         "payout_id": f"payout_{uuid.uuid4().hex[:12]}",
         "influencer_id": influencer_id,
         "influencer_stripe_account_id": stripe_account_id,
-        "influencer_tier": normalize_influencer_tier(inf_doc.get("current_tier", "perseo")),
+        "influencer_tier": first_split.get("influencer_tier_snapshot") or normalize_influencer_tier(
+            inf_doc.get("current_tier", "hercules"),
+            inf_doc.get("commission_rate"),
+        ),
         "influencer_rate": inf_rate,
         "order_id": order_id,
         "amount": influencer_amount,
         "net_gmv": net_gmv,
+        "platform_fee_cap": _round_money(total_platform_fee),
         "currency": currency,
         "due_date": due_date.isoformat(),
         "status": "scheduled",
@@ -316,14 +457,19 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         status="completed",
     )
     
+    commission_data = await _get_order_commission_data(order)
+
     # 5. Execute seller transfers (Separate Charges & Transfers)
     transfer_result = await execute_seller_transfers(order)
     total_platform_fee = transfer_result["total_platform_fee"] if transfer_result else 0
-    
-    # 6. Schedule influencer payout (15 days deferred)
-    await schedule_influencer_payout(order, total_platform_fee)
-    
-    # 7. Notify producers
+
+    # 6. Persist influencer commission only after payment confirmation.
+    await _ensure_influencer_commission_record(order, commission_data)
+
+    # 7. Schedule influencer payout (15 days deferred)
+    await schedule_influencer_payout(order, total_platform_fee, commission_data)
+
+    # 8. Notify producers
     producers = set(item["producer_id"] for item in order.get("line_items", []))
     for producer_id in producers:
         producer_items = [item for item in order["line_items"] if item["producer_id"] == producer_id]
@@ -348,7 +494,7 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         except Exception as e:
             logger.error(f"[EMAIL] Failed for producer {producer_id}: {e}")
     
-    # 8. Create commission_transaction record for audit trail
+    # 9. Create commission_transaction record for audit trail
     from services.ledger import EXCHANGE_RATES_TO_USD
     currency = order.get("currency", "EUR")
     usd_rate = EXCHANGE_RATES_TO_USD.get(currency.upper(), 1.0)
@@ -477,7 +623,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         )
     
     # Get user's selected country for pricing and currency
-    user_country = user_doc.get("locale", {}).get("country", "ES")
+    user_country = normalize_market_code(user_doc.get("locale", {}).get("country")) or "ES"
     base_currency = SUPPORTED_COUNTRIES.get(user_country, {}).get("currency", "EUR")
     
     cart_items = await db.cart_items.find({"user_id": user.user_id}, {"_id": 0}).to_list(100)
@@ -497,8 +643,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
             continue
         
         # Validate country availability
-        available_countries = product.get("available_countries", [])
-        if available_countries and user_country not in available_countries:
+        if not is_product_available_in_country(product, user_country):
             stock_issues.append(f"Product '{item['product_name']}' is not available in {user_country}")
             continue
         
@@ -608,7 +753,8 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                 
                 # Attribution lock + tier-based commission
                 if discount_code.get("influencer_id"):
-                    from services.subscriptions import check_influencer_attribution, create_attribution, get_influencer_commission_rate
+                    from services.referrals import check_influencer_attribution, create_attribution
+                    from services.subscriptions import get_influencer_commission_rate
                     attr_check = await check_influencer_attribution(db, user.user_id, discount_code["code"])
                     
                     if not attr_check["allowed"]:
@@ -619,7 +765,10 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
                             {"influencer_id": attr_check["influencer_id"], "status": "active"}, {"_id": 0}
                         )
                         if influencer and influencer.get("email") != user.email:
-                            influencer_tier = normalize_influencer_tier(influencer.get("current_tier", "perseo"))
+                            influencer_tier = normalize_influencer_tier(
+                                influencer.get("current_tier", "hercules"),
+                                influencer.get("commission_rate"),
+                            )
                             inf_rate = influencer.get("commission_rate", get_influencer_commission_rate(influencer_tier))
                             net_order_value = subtotal - discount_amount
                             commission_amount = round(net_order_value * inf_rate, 2)
@@ -636,42 +785,25 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
 
     discounted_subtotal = max(0, subtotal - discount_amount)
 
-    # 18-month attribution fallback:
-    # if customer already attributed to an influencer, commission applies on future orders
-    # even when customer does not re-enter the influencer code.
+    # Active referral attribution:
+    # once a customer is linked through referred_by, future orders reuse that influencer
+    # while the referral window is still valid.
     if not influencer_commission_data:
-        active_attr = await db.customer_influencer_attribution.find_one(
-            {"customer_id": user.user_id, "is_active": True},
-            {"_id": 0}
-        )
-        if active_attr:
-            expiry_str = active_attr.get("attribution_expiry_date")
-            is_active = True
-            if expiry_str:
-                try:
-                    expires_at = datetime.fromisoformat(expiry_str.replace("Z", "+00:00"))
-                    is_active = expires_at > datetime.now(timezone.utc)
-                except Exception:
-                    is_active = False
+        influencer_context = await _get_active_influencer_context(user.user_id, user.email)
+        if influencer_context:
+            from services.subscriptions import get_influencer_commission_rate
 
-            if is_active and active_attr.get("influencer_id"):
-                influencer = await db.influencers.find_one(
-                    {"influencer_id": active_attr["influencer_id"], "status": "active"},
-                    {"_id": 0}
-                )
-                if influencer and influencer.get("email") != user.email:
-                    from services.subscriptions import get_influencer_commission_rate
-                    influencer_tier = normalize_influencer_tier(influencer.get("current_tier", "perseo"))
-                    inf_rate = influencer.get("commission_rate", get_influencer_commission_rate(influencer_tier))
-                    commission_amount = round(discounted_subtotal * inf_rate, 2)
-                    influencer_commission_data = {
-                        "influencer_id": influencer["influencer_id"],
-                        "discount_code": active_attr.get("code_used"),
-                        "commission_amount": commission_amount,
-                        "commission_rate": inf_rate,
-                        "tier": influencer_tier,
-                        "order_value": round(discounted_subtotal, 2),
-                    }
+            influencer_tier = influencer_context["tier"]
+            inf_rate = get_influencer_commission_rate(influencer_tier)
+            commission_amount = round(discounted_subtotal * inf_rate, 2)
+            influencer_commission_data = {
+                "influencer_id": influencer_context["influencer_id"],
+                "discount_code": influencer_context.get("discount_code"),
+                "commission_amount": commission_amount,
+                "commission_rate": inf_rate,
+                "tier": influencer_tier,
+                "order_value": round(discounted_subtotal, 2),
+            }
 
     # Shipping policy calculation by producer
     producer_groups: dict[str, dict] = {}
@@ -767,18 +899,24 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         # Allow checkout anyway — platform collects, manual payout later
         # raise HTTPException(status_code=400, detail={"message": "Some sellers cannot receive payments", "issues": stripe_issues})
     
-    # Calculate split: 82% seller, 18% platform
-    split_details = []
-    for pid, data in producers_in_order.items():
-        seller_amount = round(data["amount"] * (1 - PLATFORM_COMMISSION), 2)
-        platform_fee = round(data["amount"] * PLATFORM_COMMISSION, 2)
-        split_details.append({
-            "producer_id": pid,
-            "gross_amount": round(data["amount"], 2),
-            "seller_amount": seller_amount,
-            "platform_fee": platform_fee,
-            "stripe_account_id": data.get("stripe_account_id"),
-            "charges_enabled": data.get("charges_enabled", False)
+    order_commission_seed = {
+        "order_id": order_id,
+        "line_items": line_items,
+        "total_amount": round(total_amount, 2),
+        "influencer_id": influencer_commission_data["influencer_id"] if influencer_commission_data else None,
+    }
+    commission_data = await _get_order_commission_data(order_commission_seed)
+    split_details = _commission_data_to_split_details(commission_data, producers_in_order)
+
+    first_influencer_split = _first_influencer_split(commission_data)
+    total_influencer_cut = _round_money(commission_data.get("total_influencer_cut", 0))
+    if influencer_commission_data and first_influencer_split:
+        influencer_commission_data.update({
+            "commission_amount": total_influencer_cut,
+            "commission_rate": first_influencer_split.get("influencer_rate_snapshot", influencer_commission_data.get("commission_rate")),
+            "tier": first_influencer_split.get("influencer_tier_snapshot", influencer_commission_data.get("tier")),
+            "order_value": _round_money(sum(split.get("seller_gmv", 0) for split in commission_data.get("splits", []))),
+            "platform_fee": _round_money(commission_data.get("total_platform_gross", 0)),
         })
     
     host_url = str(request.base_url).rstrip('/')
@@ -839,6 +977,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "status": "initiated",
         "payment_status": "pending",
         "split_details": split_details,
+        "commission_data": commission_data,
         "metadata": {"order_id": order_id, "country": user_country},
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat()
@@ -863,6 +1002,8 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "status": "pending",
         "line_items": line_items,
         "split_details": split_details,
+        "commission_data": commission_data,
+        "financial_snapshot": commission_data,
         "shipping_address": input.shipping_address,
         "payment_session_id": session.id,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -873,43 +1014,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         "influencer_commission_status": "pending" if influencer_commission_data else None
     }
     await db.orders.insert_one(order)
-    
-    # Phase 4: Create commission record if influencer code was used
-    if influencer_commission_data:
-        created_at = datetime.now(timezone.utc)
-        # Payment is available 15 days after the sale
-        payment_available_date = created_at + timedelta(days=15)
-        
-        commission_record = {
-            "commission_id": f"comm_{uuid.uuid4().hex[:12]}",
-            "influencer_id": influencer_commission_data["influencer_id"],
-            "order_id": order_id,
-            "discount_code": influencer_commission_data["discount_code"],
-            "order_total": round(total_amount, 2),
-            "order_value": influencer_commission_data.get("order_value", round(total_amount, 2)),
-            "platform_fee": influencer_commission_data.get("platform_fee", round(total_amount * PLATFORM_COMMISSION, 2)),
-            "commission_amount": influencer_commission_data["commission_amount"],
-            "commission_status": "pending",
-            "created_at": created_at.isoformat(),
-            "payment_available_date": payment_available_date.isoformat()
-        }
-        await db.influencer_commissions.insert_one(commission_record)
-        
-        # Update influencer stats (pending)
-        await db.influencers.update_one(
-            {"influencer_id": influencer_commission_data["influencer_id"]},
-            {"$inc": {
-                "total_sales_generated": round(total_amount, 2),
-                "total_commission_earned": influencer_commission_data["commission_amount"],
-                "available_balance": influencer_commission_data["commission_amount"]
-            }}
-        )
-        
-        # Check and send notification if influencer reached €50 withdrawal threshold
-        await check_and_notify_influencer_withdrawal_available(influencer_commission_data["influencer_id"], db)
-    
     return {"url": session.url, "session_id": session.id}
-
 
 @router.post("/checkout/buy-now")
 async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = Depends(get_current_user)):
@@ -921,7 +1026,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         raise HTTPException(status_code=503, detail="Payment processing not configured. Contact the administrator.")
 
     # Get user's country for pricing
-    user_country = user.country or 'ES'
+    user_country = normalize_market_code(user.country) or 'ES'
     
     # Fetch product with country-specific pricing
     product = await db.products.find_one({"product_id": input.product_id}, {"_id": 0})
@@ -929,8 +1034,8 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         raise HTTPException(status_code=404, detail="Product not found")
     
     # Check country availability
-    available_countries = product.get("available_countries", [])
-    if available_countries and user_country not in available_countries:
+    product["target_markets"] = get_product_target_markets(product)
+    if not is_product_available_in_country(product, user_country):
         raise HTTPException(status_code=400, detail=f"Product not available in {user_country}")
     
     # Get country-specific price and currency
@@ -1020,19 +1125,21 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         producer_stripe = await db.influencers.find_one({"user_id": producer_id}, {"_id": 0, "stripe_account_id": 1, "stripe_onboarding_complete": 1})
         if not producer_stripe:
             producer_stripe = await db.stores.find_one({"user_id": producer_id}, {"_id": 0, "stripe_account_id": 1, "stripe_charges_enabled": 1})
-    
-    # Calculate split: platform fee vs seller payout
-    platform_fee = round(total_amount * PLATFORM_COMMISSION, 2)
-    seller_amount = round(total_amount - platform_fee, 2)
-    
-    split_details = [{
-        "producer_id": producer_id,
-        "gross_amount": round(total_amount, 2),
-        "seller_amount": seller_amount,
-        "platform_fee": platform_fee,
-        "stripe_account_id": producer_stripe.get("stripe_account_id") if producer_stripe else None,
-        "charges_enabled": producer_stripe.get("stripe_charges_enabled", producer_stripe.get("stripe_onboarding_complete", False)) if producer_stripe else False
-    }]
+
+    influencer_context = await _get_active_influencer_context(user.user_id, user.email)
+    buy_now_commission_seed = {
+        "order_id": order_id,
+        "line_items": [line_item],
+        "total_amount": round(total_amount, 2),
+        "influencer_id": influencer_context["influencer_id"] if influencer_context else None,
+    }
+    commission_data = await _get_order_commission_data(buy_now_commission_seed)
+    split_details = _commission_data_to_split_details(commission_data, {
+        producer_id: {
+            "stripe_account_id": producer_stripe.get("stripe_account_id") if producer_stripe else None,
+            "charges_enabled": producer_stripe.get("stripe_charges_enabled", producer_stripe.get("stripe_onboarding_complete", False)) if producer_stripe else False,
+        }
+    })
     
     # Setup Stripe checkout — Separate Charges & Transfers
     host_url = str(request.base_url).rstrip('/')
@@ -1056,6 +1163,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
             "country": user_country,
             "buy_now": "true",
             "seller_breakdown": _json.dumps(seller_breakdown),
+            "influencer_id": influencer_context["influencer_id"] if influencer_context else "",
         },
         "line_items": [{
             "price_data": {
@@ -1086,6 +1194,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "status": "initiated",
         "payment_status": "pending",
         "split_details": split_details,
+        "commission_data": commission_data,
         "metadata": {"order_id": order_id, "country": user_country, "buy_now": True},
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat()
@@ -1104,6 +1213,12 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "country": user_country,
         "discount_info": None,
         "split_details": split_details,
+        "commission_data": commission_data,
+        "financial_snapshot": commission_data,
+        "influencer_id": influencer_context["influencer_id"] if influencer_context else None,
+        "influencer_discount_code": influencer_context["discount_code"] if influencer_context else None,
+        "influencer_commission_amount": _round_money(commission_data.get("total_influencer_cut", 0)) if influencer_context else None,
+        "influencer_commission_status": "pending" if influencer_context and commission_data.get("total_influencer_cut", 0) > 0 else None,
         "status": "pending_payment",
         "buy_now": True,
         "created_at": datetime.now(timezone.utc).isoformat()

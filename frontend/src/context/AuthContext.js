@@ -103,7 +103,10 @@ export function AuthProvider({ children }) {
     setError(null);
 
     try {
-      const data = await authApi.register(payload);
+      const referralCode = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('ref')
+        : null;
+      const data = await authApi.register(payload, { ref: referralCode });
       const normalizedUser = normalizeUser(data?.user || null);
 
       if (mountedRef.current) {

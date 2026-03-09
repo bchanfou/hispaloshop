@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from core.database import get_db
 from core.auth import get_current_user
 from core.models import Cart
+from services.markets import is_product_available_in_country
 
 router = APIRouter(prefix="/cart", tags=["Cart"])
 
@@ -79,6 +80,14 @@ async def add_to_cart(
     
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+
+    user_doc = await db.users.find_one(
+        {"user_id": current_user.user_id},
+        {"_id": 0, "country": 1, "locale.country": 1},
+    ) or {}
+    user_country = user_doc.get("locale", {}).get("country") or user_doc.get("country") or getattr(current_user, "country", None) or "ES"
+    if not is_product_available_in_country(product, user_country):
+        raise HTTPException(status_code=400, detail=f"Product not available in {user_country}")
     
     # Verificar stock
     stock = product.get("stock_quantity", product.get("stock", 0))
@@ -241,6 +250,88 @@ async def remove_from_cart(
     )
     
     return {"success": True, "message": "Item removed"}
+
+
+@router.post("/validate-country")
+async def validate_cart_country(request: Request, current_user = Depends(get_current_user)):
+    db = get_db()
+    payload = await request.json()
+    country = str(payload.get("country", "")).upper()
+    if not country:
+        raise HTTPException(status_code=400, detail="Country is required")
+
+    cart = await db.carts.find_one({"user_id": current_user.user_id, "status": "active"})
+    if not cart:
+        return {"unavailable_count": 0, "unavailable_items": []}
+
+    from bson.objectid import ObjectId
+
+    unavailable_items = []
+    for item in cart.get("items", []):
+        try:
+            product = await db.products.find_one({"_id": ObjectId(item["product_id"])})
+        except Exception:
+            product = None
+
+        if not product or not is_product_available_in_country(product, country):
+            unavailable_items.append({
+                "product_id": item.get("product_id"),
+                "product_name": item.get("product_name"),
+                "variant_name": item.get("variant_name"),
+                "pack_label": item.get("pack_label"),
+            })
+
+    return {
+        "unavailable_count": len(unavailable_items),
+        "unavailable_items": unavailable_items,
+    }
+
+
+@router.post("/apply-country-change")
+async def apply_country_change(request: Request, current_user = Depends(get_current_user)):
+    db = get_db()
+    payload = await request.json()
+    country = str(payload.get("country", "")).upper()
+    if not country:
+        raise HTTPException(status_code=400, detail="Country is required")
+
+    cart = await db.carts.find_one({"user_id": current_user.user_id, "status": "active"})
+    if not cart:
+        return {"removed_count": 0, "updated_count": 0, "items": []}
+
+    from bson.objectid import ObjectId
+
+    next_items = []
+    removed_count = 0
+    updated_count = 0
+
+    for item in cart.get("items", []):
+        try:
+            product = await db.products.find_one({"_id": ObjectId(item["product_id"])})
+        except Exception:
+            product = None
+
+        if not product or not is_product_available_in_country(product, country):
+            removed_count += 1
+            continue
+
+        updated_item = dict(item)
+        country_prices = product.get("country_prices", {})
+        if country in country_prices:
+            unit_price_cents = int(round(float(country_prices[country]) * 100))
+            if updated_item.get("unit_price_cents") != unit_price_cents:
+                updated_item["unit_price_cents"] = unit_price_cents
+                updated_item["total_price_cents"] = unit_price_cents * int(updated_item.get("quantity", 1))
+                updated_count += 1
+
+        next_items.append(updated_item)
+
+    await db.carts.update_one(
+        {"_id": cart["_id"]},
+        {"$set": {"items": next_items, "updated_at": datetime.utcnow()}},
+    )
+
+    return {"removed_count": removed_count, "updated_count": updated_count, "items": next_items}
 
 
 @router.post("/apply-coupon")

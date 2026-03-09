@@ -13,6 +13,7 @@ import { API } from '../../utils/api';
 
 export default function AdminInfluencers() {
   const { t } = useTranslation();
+  const tierCommission = { hercules: 3, atenea: 5, zeus: 7 };
   const [influencers, setInfluencers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,10 +22,10 @@ export default function AdminInfluencers() {
   const [newInfluencer, setNewInfluencer] = useState({
     full_name: '',
     email: '',
-    commission_type: 'percentage',
-    commission_value: 10,
+    tier: 'hercules',
+    followers_count: 1000,
     discount_code: '',
-    discount_value: 10
+    discount_percentage: 10
   });
 
   useEffect(() => {
@@ -60,10 +61,10 @@ export default function AdminInfluencers() {
       setNewInfluencer({
         full_name: '',
         email: '',
-        commission_type: 'percentage',
-        commission_value: 10,
+        tier: 'hercules',
+        followers_count: 1000,
         discount_code: '',
-        discount_value: 10
+        discount_percentage: 10
       });
       fetchInfluencers();
       fetchStats();
@@ -79,7 +80,7 @@ export default function AdminInfluencers() {
         {},
         { withCredentials: true }
       );
-      toast.success(`Influencer ${status === 'active' ? 'activated' : status === 'paused' ? 'paused' : 'banned'}`);
+      toast.success(`Influencer ${status === 'active' ? 'activated' : 'suspended'}`);
       fetchInfluencers();
     } catch (err) {
       toast.error('Error updating status');
@@ -156,23 +157,24 @@ export default function AdminInfluencers() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>{t('admin.commissionType')}</Label>
+                  <Label>Tier</Label>
                   <select
-                    value={newInfluencer.commission_type}
-                    onChange={(e) => setNewInfluencer({...newInfluencer, commission_type: e.target.value})}
+                    value={newInfluencer.tier}
+                    onChange={(e) => setNewInfluencer({...newInfluencer, tier: e.target.value})}
                     className="w-full border border-[#DED7CE] rounded-md p-2"
                   >
-                    <option value="percentage">{t('admin.percentage')}</option>
-                    <option value="fixed">{t('admin.fixedAmount')}</option>
+                    <option value="hercules">Hercules · 3%</option>
+                    <option value="atenea">Atenea · 5%</option>
+                    <option value="zeus">Zeus · 7%</option>
                   </select>
                 </div>
                 <div>
-                  <Label>{t('admin.commissionValue')}</Label>
+                  <Label>Followers</Label>
                   <Input
                     type="number"
-                    value={newInfluencer.commission_value}
-                    onChange={(e) => setNewInfluencer({...newInfluencer, commission_value: parseFloat(e.target.value)})}
-                    placeholder="10"
+                    value={newInfluencer.followers_count}
+                    onChange={(e) => setNewInfluencer({...newInfluencer, followers_count: parseInt(e.target.value || '0', 10) || 0})}
+                    placeholder="1000"
                   />
                 </div>
               </div>
@@ -189,8 +191,8 @@ export default function AdminInfluencers() {
                   <Label>{t('admin.customerDiscount')}</Label>
                   <Input
                     type="number"
-                    value={newInfluencer.discount_value}
-                    onChange={(e) => setNewInfluencer({...newInfluencer, discount_value: parseFloat(e.target.value)})}
+                    value={newInfluencer.discount_percentage}
+                    onChange={(e) => setNewInfluencer({...newInfluencer, discount_percentage: parseFloat(e.target.value)})}
                     placeholder="10"
                   />
                 </div>
@@ -266,7 +268,7 @@ export default function AdminInfluencers() {
                     <td className="py-3 px-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         inf.status === 'active' ? 'bg-green-100 text-green-700' :
-                        inf.status === 'paused' ? 'bg-amber-100 text-amber-700' :
+                        inf.status === 'suspended' ? 'bg-amber-100 text-amber-700' :
                         'bg-red-100 text-red-700'
                       }`}>
                         {inf.status}
@@ -313,7 +315,7 @@ export default function AdminInfluencers() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => updateStatus(inf.influencer_id, 'paused')}
+                            onClick={() => updateStatus(inf.influencer_id, 'suspended')}
                             title={t('admin.pause')}
                           >
                             <Ban className="h-4 w-4 text-amber-600" />

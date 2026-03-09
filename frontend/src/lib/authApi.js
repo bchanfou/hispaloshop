@@ -74,8 +74,12 @@ export const authApi = {
     return response.data;
   },
 
-  async register(payload) {
-    const response = await apiClient.post('/auth/register', payload);
+  async register(payload, options = {}) {
+    const params = {};
+    if (options.ref) {
+      params.ref = options.ref;
+    }
+    const response = await apiClient.post('/auth/register', payload, { params });
     return response.data;
   },
 

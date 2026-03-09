@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TrendingUp, Users, DollarSign, RefreshCw, Loader2, Award, Shield, Sparkles, Crown } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, RefreshCw, Loader2, Award, Sparkles, Crown } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 import { API } from '../utils/api';
@@ -40,14 +40,16 @@ export default function TierProgress() {
   if (loading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-text-muted" /></div>;
   if (!data) return null;
 
-  const tierIcons = { perseo: Award, aquiles: Shield, hercules: Sparkles, apolo: TrendingUp, zeus: Crown };
-  const tierColors = { perseo: '#6b7280', aquiles: '#2D5A27', hercules: '#2563eb', apolo: '#d97706', zeus: '#7c3aed' };
+  const tierIcons = { hercules: Award, atenea: Sparkles, zeus: Crown };
+  const tierColors = { hercules: '#2D5A27', atenea: '#2563eb', zeus: '#7c3aed' };
   const Icon = tierIcons[data.current_tier] || Award;
   const color = tierColors[data.current_tier] || '#6b7280';
-  const tierLabels = { perseo: 'Perseo', aquiles: 'Aquiles', hercules: 'Hercules', apolo: 'Apolo', zeus: 'Zeus' };
+  const tierLabels = { hercules: 'Hercules', atenea: 'Atenea', zeus: 'Zeus' };
   const nextTierLabel = tierLabels[data.progress?.next_tier] || data.progress?.next_tier;
   const gmvCurrentEuros = Math.round((data.progress?.gmv?.current || 0) / 100);
   const gmvNeededEuros = Math.round((data.progress?.gmv?.needed || 0) / 100);
+  const followersCurrent = data.progress?.followers?.current || 0;
+  const followersNeeded = data.progress?.followers?.needed || 0;
 
   return (
     <div className="space-y-4" data-testid="tier-progress">
@@ -100,6 +102,12 @@ export default function TierProgress() {
                 label="GMV acumulado (EUR)"
                 current={gmvCurrentEuros}
                 target={gmvNeededEuros}
+                color={color}
+              />
+              <ProgressBar
+                label="Seguidores"
+                current={followersCurrent}
+                target={followersNeeded}
                 color={color}
               />
             </div>

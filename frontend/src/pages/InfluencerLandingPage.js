@@ -16,7 +16,6 @@ import {
   Sparkles,
   Star,
   TrendingUp,
-  Zap,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Header from '../components/Header';
@@ -36,11 +35,9 @@ const ACTIVITY_OPTIONS = [
 ];
 
 const LEVELS = [
-  { name: 'PERSEO', rate: 3, description: 'Empiezas cobrando 3%', requirement: 'Hasta EUR 499/mes', border: 'border-stone-200', bg: 'bg-stone-50', iconBg: 'bg-stone-200', iconColor: 'text-stone-600', icon: Zap },
-  { name: 'AQUILES', rate: 4, description: 'Primer salto de comision', requirement: 'Desde EUR 500/mes', border: 'border-blue-200', bg: 'bg-blue-50', iconBg: 'bg-blue-200', iconColor: 'text-blue-600', icon: TrendingUp },
-  { name: 'HERCULES', rate: 5, description: 'Ritmo estable', requirement: 'Desde EUR 2,000/mes', border: 'border-green-200', bg: 'bg-green-50', iconBg: 'bg-green-200', iconColor: 'text-green-600', icon: Award },
-  { name: 'APOLO', rate: 6, description: 'Partner avanzado', requirement: 'Desde EUR 7,500/mes', border: 'border-orange-200', bg: 'bg-orange-50', iconBg: 'bg-orange-200', iconColor: 'text-orange-600', icon: Crown },
-  { name: 'ZEUS', rate: 7, description: 'Nivel elite', requirement: 'Desde EUR 20,000/mes', border: 'border-purple-300', bg: 'bg-gradient-to-br from-purple-50 to-pink-50', iconBg: 'bg-gradient-to-br from-purple-400 to-pink-400', iconColor: 'text-white', icon: Star, featured: true },
+  { name: 'HERCULES', rate: 3, description: 'Nivel de entrada', requirement: 'Desde EUR 0/mes y 0 seguidores', border: 'border-green-200', bg: 'bg-green-50', iconBg: 'bg-green-200', iconColor: 'text-green-600', icon: Award },
+  { name: 'ATENEA', rate: 5, description: 'Primer salto relevante', requirement: 'Desde EUR 5,000/mes y 2,500 seguidores', border: 'border-amber-200', bg: 'bg-amber-50', iconBg: 'bg-amber-200', iconColor: 'text-amber-700', icon: Crown },
+  { name: 'ZEUS', rate: 7, description: 'Nivel elite', requirement: 'Desde EUR 20,000/mes y 10,000 seguidores', border: 'border-purple-300', bg: 'bg-gradient-to-br from-purple-50 to-pink-50', iconBg: 'bg-gradient-to-br from-purple-400 to-pink-400', iconColor: 'text-white', icon: Star, featured: true },
 ];
 
 const TESTIMONIALS = [
@@ -81,7 +78,7 @@ export default function InfluencerLandingPage() {
   const calculatorRef = useRef(null);
   const formRef = useRef(null);
   const [followers, setFollowers] = useState([17800]);
-  const [commission, setCommission] = useState([4]);
+  const [commission, setCommission] = useState([5]);
   const [activity, setActivity] = useState('regular');
   const [openFaq, setOpenFaq] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -202,7 +199,7 @@ export default function InfluencerLandingPage() {
               <div className="space-y-8 mb-10">
                 <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-800">Cuantos seguidores tienes?</Label><span className="font-bold text-pink-600 text-lg">{new Intl.NumberFormat('es-ES').format(calculator.followers)}</span></div><Slider value={followers} min={1000} max={500000} step={1000} onValueChange={setFollowers} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-pink-500 [&_[role=slider]]:bg-pink-500 [&_.bg-primary]:bg-pink-500" /><div className="flex justify-between text-xs text-gray-500 mt-2"><span>1K</span><span>500K</span></div></div>
                 <div><Label className="font-medium text-gray-800 mb-3 block">Que tan activo eres?</Label><div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{ACTIVITY_OPTIONS.map((option) => <button key={option.id} type="button" onClick={() => setActivity(option.id)} className={`p-4 rounded-xl border-2 text-center transition-all ${activity === option.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-pink-300'}`}><p className="font-semibold text-gray-800">{option.label}</p><p className="text-xs text-gray-600 mt-1">{option.description}</p></button>)}</div></div>
-                <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-800">Tu nivel de comision</Label><span className="font-bold text-purple-600 text-lg">{calculator.commission}%</span></div><Slider value={commission} min={3} max={7} step={0.5} onValueChange={setCommission} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-purple-500 [&_[role=slider]]:bg-purple-500 [&_.bg-primary]:bg-gradient-to-r [&_.bg-primary]:from-green-400 [&_.bg-primary]:via-yellow-400 [&_.bg-primary]:to-purple-500" /><div className="grid grid-cols-5 gap-2 text-[11px] text-gray-500 mt-2"><span>Perseo 3%</span><span>Aquiles 4%</span><span>Hercules 5%</span><span>Apolo 6%</span><span className="text-right">Zeus 7%</span></div><p className="text-xs text-gray-600 mt-2">Subes de nivel automaticamente segun tu GMV mensual.</p></div>
+                <div><div className="flex justify-between mb-3 gap-3"><Label className="font-medium text-gray-800">Tu nivel de comision</Label><span className="font-bold text-purple-600 text-lg">{calculator.commission}%</span></div><Slider value={commission} min={3} max={7} step={2} onValueChange={setCommission} className="[&_[role=slider]]:h-5 [&_[role=slider]]:w-5 [&_[role=slider]]:border-purple-500 [&_[role=slider]]:bg-purple-500 [&_.bg-primary]:bg-gradient-to-r [&_.bg-primary]:from-green-400 [&_.bg-primary]:via-yellow-400 [&_.bg-primary]:to-purple-500" /><div className="grid grid-cols-3 gap-2 text-[11px] text-gray-500 mt-2"><span>Hercules 3%</span><span className="text-center">Atenea 5%</span><span className="text-right">Zeus 7%</span></div><p className="text-xs text-gray-600 mt-2">Subes de nivel automaticamente segun GMV mensual y seguidores verificados.</p></div>
                 <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl"><div className="flex items-center gap-3"><ShoppingBag className="w-5 h-5 text-blue-600" /><span className="text-gray-700">Ticket medio estimado</span></div><span className="font-bold text-blue-600">EUR 50</span></div>
               </div>
               <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 sm:p-8 text-white text-center relative overflow-hidden"><div className="absolute top-0 right-0 w-32 h-32 bg-pink-500 rounded-full blur-3xl opacity-30" /><p className="text-gray-300 mb-2">Podrias ganar estimado</p><div className="flex items-baseline justify-center gap-2 mb-4 flex-wrap"><span className="text-3xl sm:text-4xl lg:text-5xl font-bold">{formatCurrency(calculator.earningsMin)}</span><span className="text-gray-300">-</span><span className="text-3xl sm:text-4xl lg:text-5xl font-bold">{formatCurrency(calculator.earningsMax)}</span><span className="text-gray-300 text-lg sm:text-xl">/mes</span></div><div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm border-t border-white/10 pt-6"><div><p className="font-bold text-lg">{calculator.ordersMin}-{calculator.ordersMax}</p><p className="text-gray-300">Pedidos estimados/mes</p></div><div><p className="font-bold text-lg text-green-400">{calculator.conversionLabel}</p><p className="text-gray-300">Conversion esperada</p></div><div><p className="font-bold text-lg">{formatCurrency(calculator.gmvAverage)}</p><p className="text-gray-300">GMV generado</p></div></div></div>
@@ -232,10 +229,10 @@ export default function InfluencerLandingPage() {
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-4">
-              <div><h2 className="font-heading text-4xl font-bold text-gray-900 mb-2">Subes de Perseo a Zeus segun lo que vendes</h2><p className="text-gray-600">Cuanto mas generas, mas ganas. Automatico.</p></div>
+              <div><h2 className="font-heading text-4xl font-bold text-gray-900 mb-2">Subes de Hercules a Zeus segun lo que vendes</h2><p className="text-gray-600">Cuanto mas generas y crece tu audiencia, mas ganas. Automatico.</p></div>
               <button onClick={scrollToApplication} className="text-pink-600 font-semibold hover:text-pink-700 flex items-center gap-1">Quiero entrar al programa <ArrowRight className="w-4 h-4" /></button>
             </motion.div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {LEVELS.map((level, index) => {
                 const Icon = level.icon;
                 return (

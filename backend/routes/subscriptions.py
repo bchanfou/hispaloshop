@@ -15,12 +15,11 @@ from core.auth import get_current_user, require_role
 from services.subscriptions import (
     SELLER_PLANS, INFLUENCER_TIERS, STRIPE_PUBLISHABLE_KEY,
     get_seller_commission_rate, get_influencer_commission_rate, ensure_stripe_products,
-    calculate_order_commissions, check_influencer_attribution,
+    calculate_order_commissions,
     recalculate_influencer_tier, GRACE_PERIOD_DAYS,
     list_subscription_plans, has_tier_access,
     calculate_dynamic_commission, get_user_subscription_doc,
-    record_subscription_event, get_hi_coin_balance,
-    create_hi_coin_transaction, adjust_hi_coin_balance,
+    record_subscription_event,
 )
 from config import INFLUENCER_TIER_ORDER, normalize_influencer_tier
 
@@ -380,12 +379,18 @@ async def get_influencer_tiers():
     """Public: get influencer tier info."""
     return {
         "tiers": [
-            {"key": tier, "label": INFLUENCER_TIERS[tier]["name"], "commission": f"{int(INFLUENCER_TIERS[tier]['commission_rate'] * 100)}%"}
+            {
+                "key": tier,
+                "label": INFLUENCER_TIERS[tier]["name"],
+                "commission": f"{int(INFLUENCER_TIERS[tier]['commission_rate'] * 100)}%",
+                "min_gmv_cents": INFLUENCER_TIERS[tier]["min_gmv_cents"],
+                "min_followers": INFLUENCER_TIERS[tier].get("min_followers", 0),
+            }
             for tier in INFLUENCER_TIER_ORDER
         ],
         "attribution_months": 18,
         "payout_delay_days": 15,
-        "min_payout_usd": 50,
+        "min_payout_eur": 50,
     }
 
 
@@ -399,8 +404,8 @@ async def get_my_tier(user: User = Depends(get_current_user)):
     if not inf:
         raise HTTPException(status_code=404, detail="No eres influencer registrado")
 
-    current_tier = normalize_influencer_tier(inf.get("current_tier", "perseo"))
-    metrics = inf.get("last_90_days_metrics", {})
+    current_tier = normalize_influencer_tier(inf.get("current_tier", "hercules"), inf.get("commission_rate"))
+    metrics = inf.get("monthly_metrics") or inf.get("last_90_days_metrics", {})
 
     # Calculate progress to next tier
     progress = {}
@@ -411,6 +416,7 @@ async def get_my_tier(user: User = Depends(get_current_user)):
         progress = {
             "next_tier": next_tier_key,
             "gmv": {"current": metrics.get("net_gmv_cents", int(round(metrics.get("net_gmv", 0) * 100))), "needed": next_reqs["min_gmv_cents"]},
+            "followers": {"current": metrics.get("followers_count", inf.get("followers_count", 0)), "needed": next_reqs.get("min_followers", 0)},
         }
 
     return {
@@ -450,83 +456,6 @@ async def upgrade_subscription(request: Request, user: User = Depends(get_curren
     )
     await record_subscription_event(db, user.user_id, 'upgraded', {'from': current_plan, 'to': new_plan, 'billing_cycle': billing_cycle})
     return {'message': f'Plan actualizado a {new_plan}', 'old_plan': current_plan, 'new_plan': new_plan}
-
-
-@router.post('/hi-coins/spend')
-async def spend_hi_coins(request: Request, user: User = Depends(get_current_user)):
-    payload = await request.json()
-    amount = float(payload.get('amount', 0))
-    description = payload.get('description', 'Gasto de HI Coins')
-    if amount <= 0:
-        raise HTTPException(status_code=400, detail='Monto invalido')
-
-    balance = await get_hi_coin_balance(db, user.user_id)
-    if balance.get('balance', 0) < amount:
-        raise HTTPException(status_code=400, detail='Balance HI Coin insuficiente')
-
-    await adjust_hi_coin_balance(db, user.user_id, -amount)
-    tx = await create_hi_coin_transaction(db, user.user_id, 'spend_feature', -amount, description, payload.get('metadata'))
-    return {'message': 'HI Coins descontados', 'transaction': tx}
-
-
-@router.get('/hi-coins/balance')
-async def hi_coin_balance(user: User = Depends(get_current_user)):
-    balance = await get_hi_coin_balance(db, user.user_id)
-    txs = await db.hi_coin_transactions.find({'user_id': user.user_id}, {'_id': 0}).sort('created_at', -1).to_list(100)
-    return {'balance': balance, 'transactions': txs}
-
-
-@router.post('/hi-coins/convert')
-async def hi_coin_convert(request: Request, user: User = Depends(get_current_user)):
-    payload = await request.json()
-    amount_hic = float(payload.get('amount_hic', 0))
-    if amount_hic <= 0:
-        raise HTTPException(status_code=400, detail='Monto invalido')
-
-    balance = await get_hi_coin_balance(db, user.user_id)
-    if balance.get('balance', 0) < amount_hic:
-        raise HTTPException(status_code=400, detail='Balance HI Coin insuficiente')
-
-    eur_amount = round(amount_hic * 0.95, 2)
-    await adjust_hi_coin_balance(db, user.user_id, -amount_hic)
-    tx = await create_hi_coin_transaction(
-        db,
-        user.user_id,
-        'convert_to_eur',
-        -amount_hic,
-        f'Conversion de {amount_hic} HIC a EUR con fee 5%',
-        {'eur_amount': eur_amount, 'fee_percent': 5},
-    )
-    return {'message': 'Conversion registrada', 'eur_amount': eur_amount, 'transaction': tx}
-
-
-@router.get('/hi-coins/exchange-rate')
-async def hi_coin_exchange_rate():
-    return {'currency': 'HIC', 'rate_to_eur': 1, 'conversion_fee_percent': 5}
-
-
-@router.post('/hi-coins/earn-cashback')
-async def earn_hi_coin_cashback(request: Request, user: User = Depends(get_current_user)):
-    payload = await request.json()
-    order_total = float(payload.get('order_total', 0))
-    if order_total <= 0:
-        raise HTTPException(status_code=400, detail='order_total invalido')
-
-    subscription = await get_user_subscription_doc(db, user.user_id)
-    is_pro = str(subscription.get('plan', 'FREE')).upper() in {'PRO', 'ELITE'}
-    cashback_rate = 0.02 if is_pro else 0.01
-    earned = round(order_total * cashback_rate, 2)
-
-    await adjust_hi_coin_balance(db, user.user_id, earned)
-    tx = await create_hi_coin_transaction(
-        db,
-        user.user_id,
-        'earn_cashback',
-        earned,
-        f'Cashback {int(cashback_rate*100)}% sobre orden',
-        {'order_total': order_total, 'cashback_rate': cashback_rate},
-    )
-    return {'earned_hic': earned, 'transaction': tx}
 
 
 @router.post('/admin/finance/commission-override/{user_id}')
@@ -594,9 +523,6 @@ async def admin_finance_dashboard(user: User = Depends(get_current_user)):
     elite_subscriptions = await db.users.count_documents({'subscription.plan': 'ELITE', 'subscription.plan_status': 'active'})
     free_subscriptions = await db.users.count_documents({'$or': [{'subscription.plan': 'FREE'}, {'subscription': {'$exists': False}}]})
 
-    hic_pending_conversion = await db.hi_coin_transactions.find({'type': 'convert_to_eur'}, {'_id': 0, 'amount': 1}).to_list(10000)
-    hic_pending_total = round(abs(sum(t.get('amount', 0) for t in hic_pending_conversion)), 2)
-
     return {
         'generated_at': now.isoformat(),
         'kpis': {
@@ -606,7 +532,6 @@ async def admin_finance_dashboard(user: User = Depends(get_current_user)):
             'subscriptions_free': free_subscriptions,
             'subscriptions_pro': pro_subscriptions,
             'subscriptions_elite': elite_subscriptions,
-            'hi_coins_pending_conversion': hic_pending_total,
         }
     }
 

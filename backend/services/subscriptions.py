@@ -9,6 +9,7 @@ from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
+from core.monetization import calculate_order_split, cents_to_float
 from config import INFLUENCER_TIER_CONFIG, INFLUENCER_TIER_ORDER, normalize_influencer_tier
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ INFLUENCER_TIERS = {
         "name": cfg["name"],
         "min_gmv": cfg["min_gmv_cents"] / 100,
         "min_gmv_cents": cfg["min_gmv_cents"],
+        "min_followers": cfg.get("min_followers", 0),
     }
     for tier, cfg in INFLUENCER_TIER_CONFIG.items()
 }
@@ -186,52 +188,6 @@ async def record_subscription_event(db, user_id: str, event_type: str, metadata:
     })
 
 
-async def get_hi_coin_balance(db, user_id: str) -> Dict[str, Any]:
-    balance = await db.hi_coin_balances.find_one({"user_id": user_id}, {"_id": 0})
-    if balance:
-        return balance
-    default = {
-        "user_id": user_id,
-        "balance": 0.0,
-        "lifetime_earned": 0.0,
-        "lifetime_spent": 0.0,
-        "currency": "HIC",
-    }
-    await db.hi_coin_balances.insert_one(default)
-    return default
-
-
-async def create_hi_coin_transaction(
-    db,
-    user_id: str,
-    tx_type: str,
-    amount: float,
-    description: str,
-    metadata: Optional[Dict[str, Any]] = None,
-):
-    tx = {
-        "id": f"hic_{datetime.now(timezone.utc).timestamp()}",
-        "user_id": user_id,
-        "type": tx_type,
-        "amount": round(amount, 2),
-        "description": description,
-        "metadata": metadata or {},
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    }
-    await db.hi_coin_transactions.insert_one(tx)
-    return tx
-
-
-async def adjust_hi_coin_balance(db, user_id: str, amount_delta: float):
-    update = {"$inc": {"balance": round(amount_delta, 2)}}
-    if amount_delta > 0:
-        update["$inc"]["lifetime_earned"] = round(amount_delta, 2)
-    else:
-        update["$inc"]["lifetime_spent"] = round(abs(amount_delta), 2)
-
-    await db.hi_coin_balances.update_one({"user_id": user_id}, update, upsert=True)
-
-
 async def ensure_stripe_products(db):
     """Create Stripe products/prices for seller subscriptions if they don't exist."""
     config = await db.stripe_config.find_one({"config_id": "subscription_products"})
@@ -296,7 +252,6 @@ async def calculate_order_commissions(db, order: dict) -> dict:
     Calculate commission split for an order based on seller plan + influencer tier.
     Returns commission breakdown with rate snapshots.
     """
-    seller_id = None
     total_net_gmv = order.get("total_amount", 0)
 
     # Get seller(s) from line items
@@ -309,46 +264,65 @@ async def calculate_order_commissions(db, order: dict) -> dict:
         # Get seller's current plan
         seller_doc = await db.users.find_one({"user_id": sid}, {"_id": 0, "subscription": 1})
         seller_plan = (seller_doc or {}).get("subscription", {}).get("plan", "FREE")
-        platform_rate = get_seller_commission_rate(seller_plan)
 
         # Calculate seller's portion of the order
-        seller_gmv = sum(
+        seller_gmv = round(sum(
             item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
             for item in order.get("line_items", [])
             if item.get("producer_id") == sid
-        )
+        ), 2)
+        seller_gmv_cents = int(round(seller_gmv * 100))
 
         # Influencer attribution
-        influencer_rate = 0
         influencer_id = order.get("influencer_id")
         influencer_tier = None
         if influencer_id:
-            inf_doc = await db.influencers.find_one({"influencer_id": influencer_id}, {"_id": 0, "current_tier": 1})
-            influencer_tier = normalize_influencer_tier((inf_doc or {}).get("current_tier", "perseo"))
-            influencer_rate = get_influencer_commission_rate(influencer_tier)
+            inf_doc = await db.influencers.find_one(
+                {"influencer_id": influencer_id},
+                {"_id": 0, "current_tier": 1, "commission_rate": 1},
+            )
+            influencer_tier = normalize_influencer_tier(
+                (inf_doc or {}).get("current_tier", "hercules"),
+                (inf_doc or {}).get("commission_rate"),
+            )
 
-        platform_gross = round(seller_gmv * platform_rate, 2)
-        influencer_cut = round(seller_gmv * influencer_rate, 2) if influencer_id else 0
-        platform_net = round(platform_gross - influencer_cut, 2)
-        seller_payout = round(seller_gmv - platform_gross, 2)
+        split_cents = calculate_order_split(
+            total_cents=seller_gmv_cents,
+            seller_plan=seller_plan,
+            influencer_tier=influencer_tier,
+        )
+        split_snapshot = split_cents["snapshot"]
+        platform_gross = cents_to_float(split_cents["platform_gross_cents"])
+        influencer_cut = cents_to_float(split_cents["influencer_cut_cents"])
+        platform_net = cents_to_float(split_cents["platform_net_cents"])
+        seller_payout = cents_to_float(split_cents["seller_payout_cents"])
 
         splits.append({
             "seller_id": sid,
-            "seller_plan": seller_plan,
-            "platform_rate_snapshot": platform_rate,
+            "seller_plan": split_snapshot["seller_plan"],
+            "platform_rate_snapshot": split_snapshot["commission_rate"],
             "influencer_id": influencer_id,
-            "influencer_tier_snapshot": influencer_tier,
-            "influencer_rate_snapshot": influencer_rate,
+            "influencer_tier_snapshot": split_snapshot["influencer_tier"],
+            "influencer_rate_snapshot": split_snapshot["influencer_rate"],
             "seller_gmv": seller_gmv,
             "platform_gross": platform_gross,
             "influencer_cut": influencer_cut,
             "platform_net": platform_net,
             "seller_payout": seller_payout,
+            "seller_gmv_cents": seller_gmv_cents,
+            "platform_gross_cents": split_cents["platform_gross_cents"],
+            "influencer_cut_cents": split_cents["influencer_cut_cents"],
+            "platform_net_cents": split_cents["platform_net_cents"],
+            "seller_payout_cents": split_cents["seller_payout_cents"],
+            "snapshot": split_snapshot,
         })
 
     return {
         "order_id": order.get("order_id"),
         "total_net_gmv": total_net_gmv,
+        "total_platform_gross": round(sum(split["platform_gross"] for split in splits), 2),
+        "total_platform_net": round(sum(split["platform_net"] for split in splits), 2),
+        "total_influencer_cut": round(sum(split["influencer_cut"] for split in splits), 2),
         "splits": splits,
         "calculated_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -419,26 +393,23 @@ async def create_attribution(db, customer_id: str, influencer_id: str, code_used
 
 
 async def recalculate_influencer_tier(db, influencer_id: str) -> str:
-    """Recalculate influencer tier based on last 90 days GMV."""
+    """Recalculate influencer tier from the active order ledger over the last 30 days."""
     now = datetime.now(timezone.utc)
-    ninety_days_ago = (now - timedelta(days=90)).isoformat()
+    monthly_window_start = (now - timedelta(days=30)).isoformat()
+    influencer_doc = await db.influencers.find_one(
+        {"influencer_id": influencer_id},
+        {"_id": 0, "followers_count": 1, "current_tier": 1, "commission_rate": 1},
+    )
+    if not influencer_doc:
+        return "hercules"
 
-    # Get attributed customers with orders in last 90 days
-    attributions = await db.customer_influencer_attribution.find(
-        {"influencer_id": influencer_id, "is_active": True},
-        {"_id": 0, "customer_id": 1}
-    ).to_list(10000)
-    customer_ids = [a["customer_id"] for a in attributions]
+    followers_count = int(influencer_doc.get("followers_count", 0) or 0)
 
-    if not customer_ids:
-        return "perseo"
-
-    # Count unique customers with orders in last 90 days
     pipeline = [
         {"$match": {
-            "user_id": {"$in": customer_ids},
+            "influencer_id": influencer_id,
             "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]},
-            "created_at": {"$gte": ninety_days_ago}
+            "created_at": {"$gte": monthly_window_start},
         }},
         {"$group": {
             "_id": "$user_id",
@@ -449,31 +420,39 @@ async def recalculate_influencer_tier(db, influencer_id: str) -> str:
     customer_metrics = await db.orders.aggregate(pipeline).to_list(10000)
 
     unique_customers = len(customer_metrics)
-    net_gmv = sum(c["total_gmv"] for c in customer_metrics)
+    net_gmv = round(sum(c["total_gmv"] for c in customer_metrics), 2)
     repeat_buyers = sum(1 for c in customer_metrics if c["order_count"] >= 2)
     repurchase_rate = repeat_buyers / unique_customers if unique_customers > 0 else 0
 
-    # Determine tier from GMV-only ladder to stay aligned with product spec.
     net_gmv_cents = int(round(net_gmv * 100))
-    new_tier = "perseo"
+    new_tier = "hercules"
     for tier_name in reversed(INFLUENCER_TIER_ORDER):
-        if net_gmv_cents >= INFLUENCER_TIERS[tier_name]["min_gmv_cents"]:
+        tier_cfg = INFLUENCER_TIERS[tier_name]
+        if (
+            net_gmv_cents >= tier_cfg["min_gmv_cents"] and
+            followers_count >= tier_cfg.get("min_followers", 0)
+        ):
             new_tier = tier_name
             break
 
     # Update influencer
+    metrics = {
+        "unique_customers": unique_customers,
+        "net_gmv": net_gmv,
+        "net_gmv_cents": net_gmv_cents,
+        "repurchase_rate": round(repurchase_rate, 4),
+        "followers_count": followers_count,
+        "window_days": 30,
+    }
     await db.influencers.update_one(
         {"influencer_id": influencer_id},
         {"$set": {
             "current_tier": new_tier,
             "commission_rate": get_influencer_commission_rate(new_tier),
-            "last_90_days_metrics": {
-                "unique_customers": unique_customers,
-                "net_gmv": round(net_gmv, 2),
-                "net_gmv_cents": net_gmv_cents,
-                "repurchase_rate": round(repurchase_rate, 4),
-            },
-            "next_tier_review_date": (now + timedelta(days=90)).isoformat(),
+            "commission_value": int(round(get_influencer_commission_rate(new_tier) * 100)),
+            "monthly_metrics": metrics,
+            "last_90_days_metrics": metrics,
+            "next_tier_review_date": (now + timedelta(days=30)).isoformat(),
             "updated_at": now.isoformat(),
         }}
     )

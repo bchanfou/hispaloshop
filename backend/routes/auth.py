@@ -81,6 +81,28 @@ def _build_auth_response(request: Request, user_doc: dict, session_token: str, *
     _set_session_cookie(response, request, session_token)
     return response
 
+
+async def _resolve_referral_influencer(referral_code: Optional[str]) -> tuple[Optional[dict], Optional[str]]:
+    if not referral_code:
+        return None, None
+
+    normalized_code = str(referral_code).strip().upper()
+    discount = await db.discount_codes.find_one(
+        {"code": normalized_code, "influencer_id": {"$exists": True, "$ne": None}, "active": True},
+        {"_id": 0, "code": 1, "influencer_id": 1},
+    )
+    if not discount:
+        return None, None
+
+    influencer = await db.influencers.find_one(
+        {"influencer_id": discount["influencer_id"], "status": {"$in": ["active", "pending"]}},
+        {"_id": 0, "influencer_id": 1, "user_id": 1, "email": 1},
+    )
+    if not influencer:
+        return None, None
+
+    return influencer, discount["code"]
+
 # Auth routes
 
 @router.post("/auth/register")
@@ -110,6 +132,13 @@ async def register(input: RegisterInput, request: Request):
     
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     password_hash = hash_password(input.password)
+    referral_code = request.query_params.get("ref") or request.cookies.get("referral_code")
+    referred_influencer, resolved_referral_code = await _resolve_referral_influencer(referral_code)
+    referral_expires_at = None
+    if referred_influencer:
+        referral_expires_at = (
+            datetime.now(timezone.utc) + timedelta(days=settings.AFFILIATE_ATTRIBUTION_DAYS)
+        ).isoformat()
     
     user_data = {
         "user_id": user_id,
@@ -135,7 +164,10 @@ async def register(input: RegisterInput, request: Request):
             "analytics_consent": input.analytics_consent,
             "consent_version": input.consent_version,
             "consent_date": datetime.now(timezone.utc).isoformat() if input.analytics_consent else None
-        }
+        },
+        "referred_by": referred_influencer["influencer_id"] if referred_influencer else None,
+        "referral_code": resolved_referral_code,
+        "referral_expires_at": referral_expires_at,
     }
     
     if input.role in ["producer", "importer"]:
@@ -155,13 +187,15 @@ async def register(input: RegisterInput, request: Request):
         })
     
     if input.role == "influencer":
+        audience_size = int(str(input.followers or "0").replace(".", "").replace(",", "") or 0)
         user_data.update({
             "approved": False,  # Needs admin approval
             "influencer_profile": {
-                "tier": "perseo",
+                "tier": "hercules",
                 "commission_rate": 0.03,
-                "followers_count": int(str(input.followers or "0").replace(".", "").replace(",", "") or 0),
+                "followers_count": audience_size,
             },
+            "followers_count": audience_size,
         })
         # Create influencer record
         influencer_id = f"inf_{uuid.uuid4().hex[:12]}"
@@ -177,10 +211,13 @@ async def register(input: RegisterInput, request: Request):
                 "twitter": input.twitter
             },
             "followers": input.followers,
+            "followers_count": audience_size,
             "niche": input.niche,
-            "status": "pending",  # pending, active, banned
+            "status": "pending",
+            "current_tier": "hercules",
+            "commission_rate": 0.03,
             "commission_type": "percentage",
-            "commission_value": 3,  # Base tier (Perseo) 3%
+            "commission_value": 3,
             "discount_code_id": None,  # Will be set when they create their code
             "total_sales_generated": 0,
             "total_commission_earned": 0,

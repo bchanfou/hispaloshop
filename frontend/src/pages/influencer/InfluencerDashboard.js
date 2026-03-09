@@ -372,7 +372,7 @@ export default function InfluencerDashboard() {
     );
   }
 
-  const tierPercent = dashboard.commission_type === 'percentage' ? Number(dashboard.commission_value || 0) : 0;
+  const tierPercent = Number(dashboard.commission_value || ((dashboard.commission_rate || 0) * 100) || 0);
   const influencerExample = ((18 * tierPercent) / 100).toFixed(2);
 
   return (
@@ -415,9 +415,8 @@ export default function InfluencerDashboard() {
         {dashboard.status !== 'active' && dashboard.status !== 'pending' && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
             <p className="text-amber-800 text-sm">
-              {t('influencer.accountStatus')} <strong>{dashboard.status === 'paused' ? t('influencer.paused') : dashboard.status === 'banned' ? t('influencer.banned') : dashboard.status}</strong>. 
-              {dashboard.status === 'paused' && ` ${t('influencer.contactSupport')}`}
-              {dashboard.status === 'banned' && ` ${t('influencer.accountSuspended')}`}
+              {t('influencer.accountStatus')} <strong>{dashboard.status}</strong>. 
+              {dashboard.status === 'suspended' && ` ${t('influencer.accountSuspended')}`}
             </p>
           </div>
         )}
@@ -536,9 +535,7 @@ export default function InfluencerDashboard() {
                 <div>
                   <p className="text-xs md:text-sm text-text-muted">{t('influencer.commissionRate')}</p>
                   <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
-                    {dashboard.commission_type === 'percentage' 
-                      ? `${dashboard.commission_value}%` 
-                      : `€${dashboard.commission_value}`}
+                    {`${tierPercent}%`}
                   </p>
                 </div>
                 <div className="h-10 w-10 md:h-12 md:w-12 bg-purple-50 rounded-full flex items-center justify-center">

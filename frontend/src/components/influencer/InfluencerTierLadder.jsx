@@ -1,18 +1,16 @@
 import React from 'react';
-import { Award, Flame, Gem, Rocket, Crown } from 'lucide-react';
+import { Award, Gem, Crown } from 'lucide-react';
 
 const TIER_ICONS = {
-  Perseo: Award,
-  Aquiles: Flame,
   Hercules: Gem,
-  Apolo: Rocket,
+  Atenea: Award,
   Zeus: Crown,
 };
 
 export default function InfluencerTierLadder({ tiers }) {
   return (
     <div className="overflow-x-auto pb-2" data-testid="tier-ladder">
-      <div className="flex min-w-[860px] items-stretch gap-4">
+      <div className="flex min-w-[520px] items-stretch gap-4">
         {tiers.map((tier, index) => {
           const Icon = TIER_ICONS[tier.name] || Award;
 

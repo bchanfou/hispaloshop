@@ -165,7 +165,7 @@ async def cron_tier_recalculation(user: User = Depends(get_current_user)):
 
     changes = []
     for inf in due_influencers:
-        old_tier = normalize_influencer_tier(inf.get("current_tier", "perseo"))
+        old_tier = normalize_influencer_tier(inf.get("current_tier", "hercules"))
         new_tier = await recalculate_influencer_tier(db, inf["influencer_id"])
         if new_tier != old_tier:
             changes.append({"influencer_id": inf["influencer_id"], "from": old_tier, "to": new_tier})
@@ -176,13 +176,23 @@ async def cron_tier_recalculation(user: User = Depends(get_current_user)):
 
 @router.post("/admin/cron/attribution-expiry")
 async def cron_attribution_expiry(user: User = Depends(get_current_user)):
-    """Weekly: expire old attributions (18 months)."""
+    """Weekly: expire old referral attributions (18 months)."""
     await require_role(user, ["admin", "super_admin"])
 
     now = datetime.now(timezone.utc).isoformat()
-    result = await db.customer_influencer_attribution.update_many(
-        {"is_active": True, "attribution_expiry_date": {"$lte": now}},
-        {"$set": {"is_active": False, "expired_at": now}}
+    result = await db.users.update_many(
+        {
+            "referred_by": {"$exists": True, "$ne": None},
+            "referral_expires_at": {"$lte": now},
+        },
+        {
+            "$unset": {
+                "referred_by": "",
+                "referral_code": "",
+                "referral_expires_at": "",
+            },
+            "$set": {"referral_expired_at": now},
+        },
     )
 
     return {"expired": result.modified_count}

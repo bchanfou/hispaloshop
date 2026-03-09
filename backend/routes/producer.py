@@ -15,6 +15,7 @@ import stripe
 from core.database import db
 from core.models import User, ProducerAddressInput, ShippingPolicyInput
 from core.config import PLATFORM_COMMISSION, STRIPE_SECRET_KEY
+from core.monetization import COMMISSION_RATES, normalize_seller_plan
 from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
 
@@ -24,6 +25,64 @@ router = APIRouter()
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 stripe.api_key = STRIPE_SECRET_KEY
+
+
+def _round_money(amount: float) -> float:
+    return round(float(amount or 0), 2)
+
+
+def _get_producer_financial_snapshot(order: dict, producer_id: str) -> dict:
+    producer_subtotal = 0
+    producer_items = []
+    for item in order.get("line_items", []):
+        if item.get("producer_id") != producer_id:
+            continue
+        item_total = item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
+        producer_subtotal += item_total
+        producer_items.append({
+            "product_name": item.get("product_name", ""),
+            "quantity": item.get("quantity", 1),
+            "price": item.get("price", 0),
+            "subtotal": item_total,
+        })
+
+    if producer_subtotal <= 0:
+        return {}
+
+    split_details = order.get("split_details", [])
+    producer_split = next((split for split in split_details if split.get("producer_id") == producer_id), None)
+    if producer_split:
+        gross_amount = _round_money(producer_split.get("gross_amount", producer_subtotal))
+        platform_fee = _round_money(producer_split.get("platform_fee", 0))
+        net_earnings = _round_money(producer_split.get("seller_amount", gross_amount - platform_fee))
+        commission_rate = float(producer_split.get("commission_rate", 0) or 0)
+        paid_out = bool(producer_split.get("paid_out", False))
+    else:
+        commission_data = order.get("commission_data", {})
+        producer_commission = next(
+            (split for split in commission_data.get("splits", []) if split.get("seller_id") == producer_id),
+            None,
+        )
+        if producer_commission:
+            gross_amount = _round_money(producer_commission.get("seller_gmv", producer_subtotal))
+            platform_fee = _round_money(producer_commission.get("platform_gross", 0))
+            net_earnings = _round_money(producer_commission.get("seller_payout", gross_amount - platform_fee))
+            commission_rate = float(producer_commission.get("platform_rate_snapshot", 0) or 0)
+        else:
+            gross_amount = _round_money(producer_subtotal)
+            platform_fee = _round_money(producer_subtotal * PLATFORM_COMMISSION)
+            net_earnings = _round_money(gross_amount - platform_fee)
+            commission_rate = PLATFORM_COMMISSION
+        paid_out = False
+
+    return {
+        "gross_amount": gross_amount,
+        "platform_fee": platform_fee,
+        "net_earnings": net_earnings,
+        "commission_rate": commission_rate,
+        "paid_out": paid_out,
+        "items": producer_items,
+    }
 
 # ============================================
 # PRODUCER DASHBOARD ENDPOINTS
@@ -154,6 +213,13 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
         {"_id": 0}
     ).sort("created_at", -1).to_list(500)
     
+    seller_doc = await db.users.find_one(
+        {"user_id": user.user_id},
+        {"_id": 0, "subscription.plan": 1, "stripe_account_id": 1},
+    )
+    current_plan = normalize_seller_plan((seller_doc or {}).get("subscription", {}).get("plan"))
+    current_commission_rate = float(COMMISSION_RATES[current_plan])
+
     total_gross = 0
     total_net = 0
     total_platform_fee = 0
@@ -164,37 +230,22 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
     monthly_data = {}
     
     for order in all_orders:
-        # Calculate this producer's share in the order
-        producer_subtotal = 0
-        producer_items = []
-        for item in order.get("line_items", []):
-            if item.get("producer_id") == user.user_id:
-                item_total = item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
-                producer_subtotal += item_total
-                producer_items.append({
-                    "product_name": item.get("product_name", ""),
-                    "quantity": item.get("quantity", 1),
-                    "price": item.get("price", 0),
-                    "subtotal": item_total
-                })
-        
-        if producer_subtotal <= 0:
+        producer_financials = _get_producer_financial_snapshot(order, user.user_id)
+        if not producer_financials:
             continue
-        
-        platform_fee = round(producer_subtotal * PLATFORM_COMMISSION, 2)
-        net_earnings = round(producer_subtotal - platform_fee, 2)
+
+        gross_amount = producer_financials["gross_amount"]
+        platform_fee = producer_financials["platform_fee"]
+        net_earnings = producer_financials["net_earnings"]
         is_paid = order.get("status") in ("paid", "confirmed", "preparing", "shipped", "delivered")
         
         if is_paid:
-            total_gross += producer_subtotal
+            total_gross += gross_amount
             total_net += net_earnings
             total_platform_fee += platform_fee
             paid_orders_count += 1
             
-            # Track if payout is still pending (not yet transferred)
-            split = order.get("split_details", [])
-            producer_split = next((s for s in split if s.get("producer_id") == user.user_id), None)
-            if not producer_split or not producer_split.get("paid_out", False):
+            if not producer_financials["paid_out"]:
                 pending_payout += net_earnings
         else:
             pending_orders_count += 1
@@ -205,7 +256,7 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
         if month_key not in monthly_data:
             monthly_data[month_key] = {"gross": 0, "net": 0, "orders": 0}
         if is_paid:
-            monthly_data[month_key]["gross"] += producer_subtotal
+            monthly_data[month_key]["gross"] += gross_amount
             monthly_data[month_key]["net"] += net_earnings
             monthly_data[month_key]["orders"] += 1
         
@@ -216,10 +267,11 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
                 "date": order.get("created_at", ""),
                 "status": order.get("status", "unknown"),
                 "customer_name": order.get("user_name", "Unknown"),
-                "gross_amount": round(producer_subtotal, 2),
+                "gross_amount": gross_amount,
                 "platform_fee": platform_fee,
                 "net_earnings": net_earnings,
-                "items": producer_items,
+                "commission_rate": producer_financials["commission_rate"],
+                "items": producer_financials["items"],
                 "currency": order.get("currency", "EUR")
             })
     
@@ -231,8 +283,7 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
     
     # Check Stripe Connect status
     stripe_connected = False
-    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "stripe_account_id": 1})
-    if user_doc and user_doc.get("stripe_account_id"):
+    if seller_doc and seller_doc.get("stripe_account_id"):
         stripe_connected = True
     store = await db.stores.find_one({"user_id": user.user_id}, {"_id": 0, "stripe_account_id": 1, "stripe_charges_enabled": 1})
     if store and store.get("stripe_charges_enabled"):
@@ -243,7 +294,8 @@ async def get_producer_payments(user: User = Depends(get_current_user)):
         "total_net": round(total_net, 2),
         "total_platform_fee": round(total_platform_fee, 2),
         "pending_payout": round(pending_payout, 2),
-        "commission_rate": PLATFORM_COMMISSION,
+        "commission_rate": current_commission_rate,
+        "commission_plan": current_plan,
         "paid_orders": paid_orders_count,
         "pending_orders": pending_orders_count,
         "stripe_connected": stripe_connected,

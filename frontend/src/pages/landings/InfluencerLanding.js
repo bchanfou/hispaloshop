@@ -1,76 +1,88 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, DollarSign, Users, TrendingUp, Check, Calculator, Camera, Link2, BarChart3, Gift, Headphones, Star, Trophy, Award, Crown } from 'lucide-react';
+import {
+  ArrowRight,
+  Award,
+  BarChart3,
+  Calculator,
+  Check,
+  Crown,
+  DollarSign,
+  Headphones,
+  Link2,
+  Sparkles,
+  Star,
+  Users,
+} from 'lucide-react';
 import SEOHead from '../../components/landings/SEOHead';
 import NavbarLanding from '../../components/landings/NavbarLanding';
 import FooterLanding from '../../components/landings/FooterLanding';
-import PricingTable from '../../components/landings/PricingTable';
-import TestimonialCarousel from '../../components/landings/TestimonialCarousel';
 
 const TIERS = [
-  { icon: Star, name: 'PERSEO', rate: '3%', range: '€0-1k/mes', feature: 'Acceso básico' },
-  { icon: Trophy, name: 'AQUILES', rate: '4%', range: '€1k-5k/mes', feature: 'Badge bronce' },
-  { icon: Award, name: 'HÉRCULES', rate: '5%', range: '€5k-15k/mes', feature: 'Early access' },
-  { icon: Crown, name: 'ZEUS', rate: '7%', range: '>€15k/mes', feature: 'Manager dedicado' },
+  { icon: Award, name: 'HERCULES', rate: '3%', rule: 'Desde EUR 0/mes y 0 seguidores', feature: 'Entrada al programa' },
+  { icon: Crown, name: 'ATENEA', rate: '5%', rule: 'Desde EUR 5k/mes y 2.5k seguidores', feature: 'Mayor visibilidad y payout superior' },
+  { icon: Star, name: 'ZEUS', rate: '7%', rule: 'Desde EUR 20k/mes y 10k seguidores', feature: 'Nivel elite con soporte prioritario' },
 ];
 
 const TOOLS = [
-  { icon: Link2, title: 'Links personalizados', desc: 'Tracking de cada conversión' },
-  { icon: BarChart3, title: 'Analytics real-time', desc: 'Dashboard completo' },
-  { icon: Camera, title: 'HI AI Creator', desc: 'Genera contenido con IA' },
-  { icon: Gift, title: 'Catálogo con muestras', desc: 'Prueba antes de promocionar' },
-  { icon: DollarSign, title: 'Pagos automáticos', desc: 'Semanal o mensual' },
-  { icon: Headphones, title: 'Soporte prioritario', desc: 'Atención especializada' },
+  { icon: Link2, title: 'Links con tracking', desc: 'Cada venta queda atribuida a tu codigo o enlace.' },
+  { icon: BarChart3, title: 'Dashboard en tiempo real', desc: 'Clicks, pedidos y comisiones visibles sin hojas manuales.' },
+  { icon: Sparkles, title: 'Creatividad asistida', desc: 'Ideas de contenido para mover catalogo real, no publicidad vacia.' },
+  { icon: Headphones, title: 'Soporte prioritario', desc: 'Ayuda rapida para validacion, cobros y dudas operativas.' },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote: 'He ganado €1,200 este mes recomendando quesos que compro igualmente.',
-    name: '@maria_foodie',
-    role: 'Influencer gastronómica',
-    image: 'https://i.pravatar.cc/150?u=maria'
-  },
-  {
-    quote: 'Mi engagement subió un 40% desde que comparto contenido de productores reales.',
-    name: '@carlos_eats',
-    role: 'Food blogger',
-    image: 'https://i.pravatar.cc/150?u=carlos2'
-  }
+const REQUIREMENTS = [
+  'Perfil publico en Instagram, TikTok o YouTube',
+  '1,000+ seguidores reales',
+  'Contenido alineado con gastronomia, lifestyle o consumo consciente',
+  'Residencia en un mercado operativo del marketplace',
 ];
 
-const InfluencerLanding = () => {
+export default function InfluencerLanding() {
   const navigate = useNavigate();
   const [followers, setFollowers] = useState(25000);
   const [engagement, setEngagement] = useState(3.5);
-  
-  const estimatedMin = Math.round(followers * (engagement / 100) * 0.02 * 10);
-  const estimatedMax = Math.round(followers * (engagement / 100) * 0.04 * 10);
+  const [commissionRate, setCommissionRate] = useState(5);
+
+  const estimate = useMemo(() => {
+    const baseClicks = followers * (engagement / 100);
+    const ordersMin = Math.round(baseClicks * 0.02);
+    const ordersMax = Math.round(baseClicks * 0.04);
+    const ticket = 50;
+    const gmvMin = ordersMin * ticket;
+    const gmvMax = ordersMax * ticket;
+    return {
+      min: Math.round(gmvMin * (commissionRate / 100)),
+      max: Math.round(gmvMax * (commissionRate / 100)),
+      ordersMin,
+      ordersMax,
+    };
+  }, [commissionRate, engagement, followers]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <SEOHead
-        title="Monetiza tu contenido como influencer en Hispaloshop"
-        description="Gana dinero recomendando productos artesanales. Programa de afiliados con comisiones del 3% al 7%. Sin inventarios, sin compromisos."
-        keywords="influencer marketing, monetizar instagram, programa afiliados, food blogger"
+        title="Programa de Influencers Hispaloshop"
+        description="Monetiza contenido con el programa de influencers Hispaloshop. Solo 3 tiers activos: Hercules, Atenea y Zeus."
+        keywords="influencer, afiliados, comisiones, creators, gastronomia"
       />
-      
       <NavbarLanding variant="dark" />
 
-      {/* Hero */}
       <section className="bg-[#2D5A3D] pt-20 pb-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+              <p className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/90 text-sm mb-6">
+                <Users className="w-4 h-4" />
+                3 tiers activos y una sola logica de atribucion
+              </p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-                Monetiza tu paladar
+                Monetiza contenido con reglas claras
               </h1>
               <p className="text-lg text-white/80 mb-8 leading-relaxed">
-                Gana dinero compartiendo productos que te gustan de verdad. 
-                Sin inventarios, sin compromisos, sin drama.
+                Recomienda productos que encajan con tu audiencia y cobra entre 3% y 7%
+                sin inventario, sin stock y con tracking consistente.
               </p>
               <div className="flex flex-wrap gap-4">
                 <button
@@ -78,87 +90,58 @@ const InfluencerLanding = () => {
                   className="flex items-center gap-2 px-6 py-3 bg-[#E6A532] text-white rounded-full font-medium hover:bg-[#d4952b] transition-colors"
                 >
                   <DollarSign className="w-5 h-5" />
-                  Quiero empezar
+                  Solicitar acceso
                 </button>
                 <button
-                  onClick={() => document.getElementById('calculator').scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' })}
                   className="px-6 py-3 border-2 border-white text-white rounded-full font-medium hover:bg-white/10 transition-colors"
                 >
                   Ver calculadora
                 </button>
               </div>
             </motion.div>
-            
+
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
+              initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm"
+              transition={{ delay: 0.1 }}
+              className="bg-white/10 rounded-3xl p-8 backdrop-blur-sm border border-white/10"
             >
-              <p className="text-white/90 italic mb-4">
-                "He ganado €1,200 este mes recomendando quesos que compro igualmente"
-              </p>
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://i.pravatar.cc/150?u=maria"
-                  alt="@maria_foodie"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <p className="text-white font-medium">@maria_foodie</p>
-                  <p className="text-white/60 text-sm">12.5k seguidores</p>
-                </div>
+              <p className="text-white/70 text-sm mb-2">Ejemplo de payout mensual</p>
+              <p className="text-4xl font-bold text-white mb-2">EUR 640</p>
+              <p className="text-white/75 mb-6">48 pedidos atribuidos con ticket medio de EUR 50</p>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                {TIERS.map((tier) => (
+                  <div key={tier.name} className="rounded-2xl bg-white/10 p-4">
+                    <p className="text-xs text-white/60">{tier.name}</p>
+                    <p className="text-xl font-bold text-white">{tier.rate}</p>
+                  </div>
+                ))}
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Model */}
-      <section className="bg-white py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-[#1A1A1A] mb-12">Así de simple</h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            {['Descubre productos', 'Crea contenido', 'Comparte tu link', 'Gana comisión'].map((step, i) => (
-              <div key={i} className="relative">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#2D5A3D] text-white flex items-center justify-center font-bold">
-                  {i + 1}
-                </div>
-                <p className="font-medium text-[#1A1A1A]">{step}</p>
-                {i < 3 && (
-                  <div className="hidden md:block absolute top-6 left-[60%] w-full h-0.5 bg-[#2D5A3D]/20" />
-                )}
-              </div>
-            ))}
-          </div>
-          <p className="mt-8 text-[#6B7280]">
-            No vendas lo que no comprarías. Tu credibilidad es tu activo.
-          </p>
-        </div>
-      </section>
-
-      {/* Tiers */}
-      <section className="bg-[#F5F1E8] py-20">
+      <section className="py-20 bg-[#F5F1E8]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">
-            Sistema de niveles
-          </h2>
-          <div className="grid md:grid-cols-4 gap-4">
+          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">Sistema de tiers simplificado</h2>
+          <div className="grid md:grid-cols-3 gap-4">
             {TIERS.map((tier, index) => {
               const Icon = tier.icon;
               return (
                 <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
+                  key={tier.name}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-6 text-center"
+                  transition={{ delay: index * 0.08 }}
+                  className="bg-white rounded-2xl p-6 text-center shadow-sm"
                 >
                   <Icon className="w-8 h-8 mx-auto mb-3 text-[#E6A532]" />
                   <h3 className="font-bold text-[#1A1A1A]">{tier.name}</h3>
                   <p className="text-3xl font-bold text-[#2D5A3D] my-2">{tier.rate}</p>
-                  <p className="text-sm text-[#6B7280]">{tier.range}</p>
+                  <p className="text-sm text-[#6B7280]">{tier.rule}</p>
                   <p className="text-xs text-[#6B7280] mt-2">{tier.feature}</p>
                 </motion.div>
               );
@@ -167,51 +150,18 @@ const InfluencerLanding = () => {
         </div>
       </section>
 
-      {/* Tools */}
-      <section className="bg-white py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">
-            Herramientas incluidas
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {TOOLS.map((tool, index) => {
-              const Icon = tool.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-start gap-4 p-4"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[#2D5A3D]/10 flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-5 h-5 text-[#2D5A3D]" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[#1A1A1A]">{tool.title}</h3>
-                    <p className="text-sm text-[#6B7280]">{tool.desc}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Calculator */}
-      <section id="calculator" className="bg-[#F5F1E8] py-20">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl p-8 shadow-sm">
+      <section id="calculator" className="py-20 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F8FAF8] rounded-3xl p-8 shadow-sm border border-[#E6ECE7]">
             <div className="flex items-center gap-3 mb-6">
               <Calculator className="w-6 h-6 text-[#2D5A3D]" />
               <h2 className="text-2xl font-bold text-[#1A1A1A]">Calculadora de ingresos</h2>
             </div>
-            
-            <div className="space-y-6 mb-8">
+
+            <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-[#1A1A1A] mb-2">
-                  ¿Cuántos seguidores tienes?
+                  Seguidores
                 </label>
                 <input
                   type="range"
@@ -226,10 +176,10 @@ const InfluencerLanding = () => {
                   {followers.toLocaleString()} personas
                 </p>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-[#1A1A1A] mb-2">
-                  ¿Cuál es tu engagement rate?
+                  Engagement rate
                 </label>
                 <input
                   type="range"
@@ -240,71 +190,91 @@ const InfluencerLanding = () => {
                   onChange={(e) => setEngagement(Number(e.target.value))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
-                <p className="text-center font-semibold text-[#2D5A3D] mt-2">
-                  {engagement}%
-                </p>
+                <p className="text-center font-semibold text-[#2D5A3D] mt-2">{engagement}%</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#1A1A1A] mb-2">
+                  Tier estimado
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[3, 5, 7].map((rate) => (
+                    <button
+                      key={rate}
+                      type="button"
+                      onClick={() => setCommissionRate(rate)}
+                      className={`rounded-xl px-4 py-3 border text-sm font-medium transition-colors ${
+                        commissionRate === rate
+                          ? 'border-[#2D5A3D] bg-[#2D5A3D] text-white'
+                          : 'border-[#D7DED8] bg-white text-[#1A1A1A]'
+                      }`}
+                    >
+                      {rate}%
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-            
-            <div className="bg-[#2D5A3D]/5 rounded-xl p-6 text-center">
-              <p className="text-sm text-[#6B7280] mb-2">Estimación mensual:</p>
+
+            <div className="mt-8 bg-[#2D5A3D]/5 rounded-2xl p-6 text-center">
+              <p className="text-sm text-[#6B7280] mb-2">Estimacion mensual</p>
               <p className="text-4xl font-bold text-[#2D5A3D]">
-                €{estimatedMin.toLocaleString()} - €{estimatedMax.toLocaleString()}
+                EUR {estimate.min.toLocaleString()} - EUR {estimate.max.toLocaleString()}
               </p>
               <p className="text-xs text-[#6B7280] mt-2">
-                Basado en conversión promedio 2-4%
+                Basado en {estimate.ordersMin}-{estimate.ordersMax} pedidos estimados al mes.
               </p>
             </div>
-            
-            <button
-              onClick={() => navigate('/register/influencer')}
-              className="w-full mt-6 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
-            >
-              Empezar ahora
-            </button>
           </div>
         </div>
       </section>
 
-      {/* Requirements */}
-      <section className="bg-white py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">
-            Para unirte
-          </h2>
-          <div className="space-y-4 max-w-lg mx-auto">
-            {[
-              'Perfil público en Instagram/TikTok/YouTube',
-              '1,000+ seguidores reales',
-              'Contenido relacionado con gastronomía/lifestyle',
-              'Mayor de edad y residencia UE'
-            ].map((req, i) => (
-              <div key={i} className="flex items-center gap-3">
+      <section className="py-20 bg-[#F5F1E8]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">Herramientas incluidas</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            {TOOLS.map((tool, index) => {
+              const Icon = tool.icon;
+              return (
+                <motion.div
+                  key={tool.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                  className="flex items-start gap-4 p-5 bg-white rounded-2xl shadow-sm"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-[#2D5A3D]/10 flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-5 h-5 text-[#2D5A3D]" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#1A1A1A]">{tool.title}</h3>
+                    <p className="text-sm text-[#6B7280]">{tool.desc}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-[#1A1A1A] mb-10">Requisitos de entrada</h2>
+          <div className="space-y-4 max-w-xl mx-auto text-left">
+            {REQUIREMENTS.map((req) => (
+              <div key={req} className="flex items-center gap-3">
                 <Check className="w-5 h-5 text-[#16A34A] flex-shrink-0" />
                 <span className="text-[#1A1A1A]">{req}</span>
               </div>
             ))}
           </div>
-          <p className="text-center text-[#6B7280] mt-6">
-            Proceso de aprobación: 24-48h
-          </p>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-[#2D5A3D] py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">
-            Tu audiencia confía en ti
-          </h2>
-          <p className="text-white/80 mb-8">
-            Recomiéndales lo mejor
-          </p>
           <button
             onClick={() => navigate('/register/influencer')}
-            className="px-8 py-4 bg-[#E6A532] text-white rounded-full font-semibold hover:bg-[#d4952b] transition-colors"
+            className="mt-10 inline-flex items-center gap-2 px-8 py-4 bg-[#2D5A3D] text-white rounded-full font-semibold hover:bg-[#234a31] transition-colors"
           >
             Aplicar como influencer
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </section>
@@ -312,6 +282,4 @@ const InfluencerLanding = () => {
       <FooterLanding />
     </div>
   );
-};
-
-export default InfluencerLanding;
+}
