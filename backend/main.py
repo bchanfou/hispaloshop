@@ -2,8 +2,9 @@
 Hispaloshop API - Stack MongoDB (Activo)
 Fase 0: Seguridad reforzada, PostgreSQL congelado en _future_postgres/
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import logging
@@ -53,6 +54,7 @@ from routes.importer import router as legacy_importer_router
 from routes.onboarding import router as onboarding_router
 from routes.ai import router as ai_router
 from routes.affiliates import router as affiliates_router
+from routes.frontend_compat import router as frontend_compat_router
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +121,7 @@ app.add_middleware(
         "X-Client-Version",
         "X-Request-ID",
     ],
+    expose_headers=["X-Total-Count"],
     max_age=600,  # 10 minutos cache preflight
 )
 
@@ -135,6 +138,7 @@ if settings.ENV == "development":
 # ============================================
 # API Routes - Stack MongoDB (Funcional)
 # ============================================
+app.include_router(frontend_compat_router, prefix="/api", tags=["frontend-compat"])
 app.include_router(legacy_auth_router, prefix="/api", tags=["auth"])
 app.include_router(legacy_config_router, prefix="/api", tags=["config"])
 app.include_router(legacy_feed_router, prefix="/api", tags=["feed"])
@@ -209,6 +213,29 @@ app.include_router(notifications_v2_router, prefix="/api/v2/notifications", tags
 # WebSocket Routes (Fase 5)
 from routes.websocket_chat import router as websocket_router
 app.include_router(websocket_router)
+
+
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={
+            "detail": "Route not found",
+            "path": str(request.url.path),
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def internal_error_handler(request: Request, exc: Exception):
+    logger.exception("Unhandled error on %s", request.url.path, exc_info=exc)
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "detail": "Internal server error",
+            "path": str(request.url.path),
+        },
+    )
 
 
 @app.get("/health")

@@ -1087,6 +1087,7 @@ class Story(Base):
     id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[UUIDType] = mapped_column(ForeignKey("users.id"), index=True)
     media_url: Mapped[str] = mapped_column(String(500))
+    thumbnail_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     media_type: Mapped[str] = mapped_column(String(20), default="image")
     polls: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSONB, nullable=True)
     questions: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSONB, nullable=True)
@@ -1116,6 +1117,20 @@ class StoryView(Base):
 
     story: Mapped["Story"] = relationship(back_populates="viewers")
     viewer: Mapped["User"] = relationship(back_populates="story_views")
+
+
+class AnalyticsVisit(Base):
+    __tablename__ = "analytics_visits"
+
+    id: Mapped[UUIDType] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("tenants.id"), nullable=True, index=True)
+    user_id: Mapped[Optional[UUIDType]] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    path: Mapped[str] = mapped_column(String(500), index=True)
+    referrer: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    ip_address: Mapped[Optional[str]] = mapped_column(INET, nullable=True)
+    user_agent: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    country_code: Mapped[Optional[str]] = mapped_column(String(2), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), index=True)
 
 
 Index("idx_affiliate_events_cookie_created", AffiliateEvent.cookie_id, AffiliateEvent.created_at)
