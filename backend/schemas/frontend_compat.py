@@ -53,6 +53,8 @@ class UserOut(BaseModel):
     role: str = "customer"
     email_verified: bool = False
     approved: bool = False
+    onboarding_completed: Optional[bool] = None
+    username: Optional[str] = None
     profile: UserProfileOut
 
 
@@ -100,4 +102,5 @@ class TrackVisitOut(BaseModel):
 
 
 class GoogleAuthUrlOut(BaseModel):
-    url: str
+    auth_url: str
+    state: str

@@ -310,8 +310,8 @@ async def login(input: LoginInput, request: Request):
     if not verify_password(input.password, user_doc["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    # Producer and importer accounts require admin approval before access.
-    if user_doc.get("role") in ["producer", "importer"] and not user_doc.get("approved", False):
+    # Producer, importer and influencer accounts require admin approval before access.
+    if user_doc.get("role") in ["producer", "importer", "influencer"] and not user_doc.get("approved", False):
         raise HTTPException(status_code=403, detail="Your account is pending admin approval")
     
     # Progressive rehash: SHA256 → bcrypt

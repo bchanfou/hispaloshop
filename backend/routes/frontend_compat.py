@@ -90,6 +90,8 @@ async def _serialize_user_from_request(request: Request, authorization: Optional
         role=user_doc.get("role", "customer"),
         email_verified=bool(user_doc.get("email_verified", False)),
         approved=bool(user_doc.get("approved", False)),
+        onboarding_completed=user_doc.get("onboarding_completed"),
+        username=user_doc.get("username"),
         profile=UserProfileOut(
             picture=user_doc.get("picture"),
             profile_image=user_doc.get("profile_image") or user_doc.get("picture"),
@@ -359,21 +361,34 @@ async def track_visit(payload: TrackVisitIn, request: Request):
     return TrackVisitOut(success=True)
 
 
-@router.get("/auth/google/url", response_model=GoogleAuthUrlOut)
-async def get_google_auth_url():
+@router.get("/auth/google/url")
+async def get_google_auth_url(request: Request):
     if not settings.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
 
     backend_url = (settings.AUTH_BACKEND_URL or "").rstrip("/")
+    state = uuid.uuid4().hex
     params = urlencode(
         {
             "client_id": settings.GOOGLE_CLIENT_ID,
             "redirect_uri": f"{backend_url}/api/auth/google/callback",
             "response_type": "code",
             "scope": "openid email profile",
-            "state": uuid.uuid4().hex,
+            "state": state,
             "access_type": "offline",
             "prompt": "consent",
         }
     )
-    return GoogleAuthUrlOut(url=f"https://accounts.google.com/o/oauth2/v2/auth?{params}")
+    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{params}"
+    is_secure = request.url.scheme == "https"
+    from fastapi.responses import JSONResponse as _JSONResponse
+    resp = _JSONResponse(content={"auth_url": auth_url, "state": state})
+    resp.set_cookie(
+        key="oauth_state",
+        value=state,
+        max_age=600,
+        httponly=True,
+        secure=is_secure,
+        samesite="lax" if not is_secure else "none",
+    )
+    return resp
