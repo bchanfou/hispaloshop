@@ -473,6 +473,15 @@ async def resend_verification(request: Request, user: User = Depends(get_current
             <div style="background-color: #1C1C1C; color: white; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 20px 30px; border-radius: 8px; display: inline-block;">
                 {verification_code}
             </div>
+            <div style="margin-top: 24px;">
+                <a href="{verification_link}" style="display: inline-block; padding: 12px 20px; background: #2D5A3D; color: white; text-decoration: none; border-radius: 999px; font-weight: 600;">
+                    Verificar email
+                </a>
+            </div>
+            <p style="color: #7A7A7A; font-size: 14px; margin-top: 20px; line-height: 1.5;">
+                También puedes abrir este enlace directamente:<br>
+                <a href="{verification_link}" style="color: #2D5A3D;">{verification_link}</a>
+            </p>
             <p style="color: #7A7A7A; font-size: 14px; margin-top: 25px;">
                 Este código expira en 24 horas.
             </p>
