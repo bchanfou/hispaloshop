@@ -62,7 +62,7 @@ async def test_track_conversion_creates_conversion_event_per_item_without_mutati
     db.get = AsyncMock(side_effect=[order_item_one, order_item_two])
     db.add = Mock()
     db.flush = AsyncMock()
-    recalc_mock = AsyncMock(return_value="perseo")
+    recalc_mock = AsyncMock(return_value="hercules")
     monkeypatch.setattr("services.affiliate_service.recalculate_influencer_tier", recalc_mock)
 
     first = await track_conversion(db, order_id, item_one, "AFFCODE", 1000)

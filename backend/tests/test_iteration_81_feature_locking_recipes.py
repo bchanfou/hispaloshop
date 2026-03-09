@@ -354,13 +354,12 @@ class TestInfluencerTiers:
         data = response.json()
         
         assert "tiers" in data
+        assert len(data["tiers"]) == 3
         tier_keys = [t["key"] for t in data["tiers"]]
-        assert "perseo" in tier_keys
-        assert "aquiles" in tier_keys
         assert "hercules" in tier_keys
-        assert "apolo" in tier_keys
+        assert "atenea" in tier_keys
         assert "zeus" in tier_keys
-        
+
         print(f"✓ Influencer tiers: {tier_keys}")
 
 

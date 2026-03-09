@@ -1,7 +1,7 @@
 """
 Iteration 76 - Phase 2 SaaS Features Tests
 - Seller subscription plans (FREE/PRO/ELITE)
-- Influencer tiers (PERSEO/AQUILES/HERCULES/APOLO/ZEUS)
+- Influencer tiers (HERCULES/ATENEA/ZEUS)
 - Admin cron job endpoints
 - Subscription management endpoints
 """
@@ -118,14 +118,14 @@ class TestSellerPlansEndpoints:
         
         # Validate PRO plan
         pro_plan = next(p for p in plans if p["key"] == "PRO")
-        assert pro_plan["price"] == 54
+        assert pro_plan["price"] == 79
         assert pro_plan["commission"] == "18%"
         assert pro_plan.get("recommended") == True
         assert len(pro_plan["features"]) > 0
         
         # Validate ELITE plan
         elite_plan = next(p for p in plans if p["key"] == "ELITE")
-        assert elite_plan["price"] == 108
+        assert elite_plan["price"] == 149
         assert elite_plan["commission"] == "17%"
         assert len(elite_plan["features"]) > 0
         
@@ -218,49 +218,39 @@ class TestInfluencerTiersEndpoints:
     """Tests for influencer tier endpoints."""
     
     def test_get_influencer_tiers_public(self, api_client):
-        """GET /api/influencers/tiers - returns 5 tiers (PERSEO..ZEUS)."""
+        """GET /api/influencers/tiers - returns 3 tiers (HERCULES/ATENEA/ZEUS)."""
         response = api_client.get(f"{BASE_URL}/api/influencers/tiers")
         assert response.status_code == 200
-        
+
         data = response.json()
         tiers = data.get("tiers", [])
-        
-        # Validate 5 tiers returned
-        assert len(tiers) == 5, f"Expected 5 tiers, got {len(tiers)}"
-        
-        tier_keys = [t["key"] for t in tiers]
-        assert "perseo" in tier_keys, "perseo tier missing"
-        assert "aquiles" in tier_keys, "aquiles tier missing"
-        assert "hercules" in tier_keys, "hercules tier missing"
-        assert "apolo" in tier_keys, "apolo tier missing"
-        assert "zeus" in tier_keys, "zeus tier missing"
-        
-        # Validate PERSEO tier
-        perseo = next(t for t in tiers if t["key"] == "perseo")
-        assert perseo["commission"] == "3%"
 
-        # Validate AQUILES tier
-        aquiles = next(t for t in tiers if t["key"] == "aquiles")
-        assert aquiles["commission"] == "4%"
+        # Validate 3 tiers returned
+        assert len(tiers) == 3, f"Expected 3 tiers, got {len(tiers)}"
+
+        tier_keys = [t["key"] for t in tiers]
+        assert "hercules" in tier_keys, "hercules tier missing"
+        assert "atenea" in tier_keys, "atenea tier missing"
+        assert "zeus" in tier_keys, "zeus tier missing"
 
         # Validate HERCULES tier
         hercules = next(t for t in tiers if t["key"] == "hercules")
-        assert hercules["commission"] == "5%"
+        assert hercules["commission"] == "3%"
 
-        # Validate APOLO tier
-        apolo = next(t for t in tiers if t["key"] == "apolo")
-        assert apolo["commission"] == "6%"
+        # Validate ATENEA tier
+        atenea = next(t for t in tiers if t["key"] == "atenea")
+        assert atenea["commission"] == "5%"
 
         # Validate ZEUS tier
         zeus = next(t for t in tiers if t["key"] == "zeus")
         assert zeus["commission"] == "7%"
-        
+
         # Validate other fields
         assert data.get("attribution_months") == 18
         assert data.get("payout_delay_days") == 15
         assert data.get("min_payout_usd") == 50
-        
-        print(f"✓ GET /api/influencers/tiers returns 5 tiers: {tier_keys}")
+
+        print(f"✓ GET /api/influencers/tiers returns 3 tiers: {tier_keys}")
 
 
 class TestAdminCronEndpoints:

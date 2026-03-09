@@ -9,13 +9,20 @@ import os
 import logging
 import bcrypt as _bcrypt
 import resend
+from core.config import settings
 
 logger = logging.getLogger(__name__)
 
-RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
-EMAIL_FROM = os.environ.get('EMAIL_FROM', 'Hispaloshop <onboarding@resend.dev>')
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.hispaloshop.com')
-AUTH_BACKEND_URL = os.environ.get('AUTH_BACKEND_URL', '')
+RESEND_API_KEY = settings.RESEND_API_KEY or os.environ.get('RESEND_API_KEY')
+EMAIL_FROM = settings.EMAIL_FROM or os.environ.get('EMAIL_FROM', 'Hispaloshop <onboarding@resend.dev>')
+FRONTEND_URL = settings.FRONTEND_URL or os.environ.get('FRONTEND_URL', 'https://www.hispaloshop.com')
+AUTH_BACKEND_URL = settings.AUTH_BACKEND_URL or os.environ.get('AUTH_BACKEND_URL', '')
+
+
+def _get_email_config():
+    api_key = (settings.RESEND_API_KEY or os.environ.get('RESEND_API_KEY') or '').strip()
+    email_from = settings.EMAIL_FROM or os.environ.get('EMAIL_FROM', 'Hispaloshop <onboarding@resend.dev>')
+    return api_key, email_from
 
 
 def hash_password(password: str) -> str:
@@ -45,12 +52,13 @@ def generate_verification_code() -> str:
 
 
 def send_email(to: str, subject: str, html: str):
-    if not RESEND_API_KEY or RESEND_API_KEY == 'PLACEHOLDER_RESEND_KEY':
+    api_key, email_from = _get_email_config()
+    if not api_key or api_key == 'PLACEHOLDER_RESEND_KEY':
         logger.error(f"[EMAIL] Cannot send to {to}: Resend not configured")
         return
     try:
-        resend.api_key = RESEND_API_KEY
-        resend.Emails.send({"from": EMAIL_FROM, "to": [to], "subject": subject, "html": html})
+        resend.api_key = api_key
+        resend.Emails.send({"from": email_from, "to": [to], "subject": subject, "html": html})
         logger.info(f"[EMAIL] Sent to {to}: {subject}")
     except Exception as e:
         logger.error(f"[EMAIL] Failed to send to {to}: {e}")

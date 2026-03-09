@@ -9,42 +9,40 @@ from services.subscriptions import get_influencer_commission_rate
 
 def test_normalize_tier_supports_legacy_aliases():
     assert normalize_influencer_tier("hercules") == "hercules"
-    assert normalize_influencer_tier("atenea") == "hercules"
+    assert normalize_influencer_tier("atenea") == "atenea"
     assert normalize_influencer_tier("titan") == "zeus"
-    assert normalize_influencer_tier("AQUILES") == "aquiles"
-    assert normalize_influencer_tier(None) == "perseo"
+    assert normalize_influencer_tier("AQUILES") == "hercules"
+    assert normalize_influencer_tier(None) == "hercules"
 
 
-def test_commission_rates_for_5_tiers():
-    assert get_influencer_commission_rate("perseo") == 0.03
-    assert get_influencer_commission_rate("aquiles") == 0.04
-    assert get_influencer_commission_rate("hercules") == 0.05
-    assert get_influencer_commission_rate("apolo") == 0.06
+def test_commission_rates_for_3_tiers():
+    assert get_influencer_commission_rate("hercules") == 0.03
+    assert get_influencer_commission_rate("atenea") == 0.05
     assert get_influencer_commission_rate("zeus") == 0.07
+    # legacy aliases resolve to canonical tiers
+    assert get_influencer_commission_rate("perseo") == 0.03
+    assert get_influencer_commission_rate("aquiles") == 0.03
+    assert get_influencer_commission_rate("apolo") == 0.07
 
 
 def test_influencer_profile_get_commission_bps_by_tier():
     profile = InfluencerProfile(user_id=uuid4())
-    for tier, expected in [("perseo", 300), ("aquiles", 400), ("hercules", 500), ("apolo", 600), ("zeus", 700)]:
+    for tier, expected in [("hercules", 300), ("atenea", 500), ("zeus", 700)]:
         profile.tier = tier
         assert profile.get_commission_bps() == expected
 
 
-def test_influencer_profile_recalculate_tier_5_thresholds():
+def test_influencer_profile_recalculate_tier_3_thresholds():
     profile = InfluencerProfile(user_id=uuid4())
     profile.monthly_gmv_cents = 0
-    assert profile.recalculate_tier() == "perseo"
-    profile.monthly_gmv_cents = 50_000
-    assert profile.recalculate_tier() == "aquiles"
-    profile.monthly_gmv_cents = 200_000
     assert profile.recalculate_tier() == "hercules"
-    profile.monthly_gmv_cents = 750_000
-    assert profile.recalculate_tier() == "apolo"
+    profile.monthly_gmv_cents = 500_000
+    assert profile.recalculate_tier() == "atenea"
     profile.monthly_gmv_cents = 2_000_000
     assert profile.recalculate_tier() == "zeus"
 
 
-def test_public_tiers_endpoint_returns_5_levels():
+def test_public_tiers_endpoint_returns_3_levels():
     os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
     os.environ.setdefault("DB_NAME", "hispaloshop_test")
     get_influencer_tiers = __import__("routes.subscriptions", fromlist=["get_influencer_tiers"]).get_influencer_tiers
@@ -53,8 +51,11 @@ def test_public_tiers_endpoint_returns_5_levels():
     assert keys == INFLUENCER_TIER_ORDER
 
 
-def test_migration_maps_legacy_tier_values():
-    migration = Path("alembic/versions/20260416_0013_unify_influencer_tiers_5_levels.py").read_text(encoding="utf-8")
-    assert "WHEN tier IN ('hercules', 'HERCULES') THEN 'perseo'" in migration
-    assert "WHEN tier IN ('atenea', 'ATENEA') THEN 'hercules'" in migration
-    assert "WHEN tier IN ('titan', 'TITAN') THEN 'zeus'" in migration
+def test_legacy_aliases_map_to_3_tier_model():
+    from config import INFLUENCER_TIER_ALIASES, INFLUENCER_TIER_CONFIG
+    assert INFLUENCER_TIER_ALIASES["perseo"] == "hercules"
+    assert INFLUENCER_TIER_ALIASES["aquiles"] == "hercules"
+    assert INFLUENCER_TIER_ALIASES["apolo"] == "zeus"
+    assert INFLUENCER_TIER_ALIASES["titan"] == "zeus"
+    assert INFLUENCER_TIER_ALIASES["atenea"] == "atenea"
+    assert set(INFLUENCER_TIER_CONFIG.keys()) == {"hercules", "atenea", "zeus"}

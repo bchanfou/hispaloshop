@@ -460,25 +460,6 @@ async def upgrade_subscription(request: Request, user: User = Depends(get_curren
     return {'message': f'Plan actualizado a {new_plan}', 'old_plan': current_plan, 'new_plan': new_plan}
 
 
-@router.post('/admin/finance/commission-override/{user_id}')
-async def admin_commission_override(user_id: str, request: Request, user: User = Depends(get_current_user)):
-    await require_role(user, ['admin'])
-    payload = await request.json()
-    new_rate = float(payload.get('commission_rate', 0))
-    reason = payload.get('reason', 'manual_override')
-    if new_rate <= 0 or new_rate > 0.5:
-        raise HTTPException(status_code=400, detail='commission_rate fuera de rango')
-
-    await db.users.update_one({'user_id': user_id}, {'$set': {'subscription.manual_commission_rate': new_rate}})
-    await db.commission_overrides.insert_one({
-        'user_id': user_id,
-        'commission_rate': new_rate,
-        'reason': reason,
-        'updated_by': user.user_id,
-        'created_at': datetime.now(timezone.utc).isoformat(),
-    })
-    return {'message': 'Override aplicado', 'user_id': user_id, 'commission_rate': new_rate}
-
 
 @router.get('/admin/finance/commissions')
 async def admin_commission_audit(user: User = Depends(get_current_user)):
