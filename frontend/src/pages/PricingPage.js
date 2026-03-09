@@ -27,7 +27,7 @@ export default function PricingPage() {
     try {
       const res = await axios.get(`${API}/sellers/plans`);
       setPlans(res.data.plans || []);
-      if (user?.role === 'producer') {
+      if (user?.role === 'producer' || user?.role === 'importer') {
         const planRes = await axios.get(`${API}/sellers/me/plan`, { withCredentials: true });
         setCurrentPlan(planRes.data);
       }
@@ -98,9 +98,12 @@ export default function PricingPage() {
                   <Icon className={`w-8 h-8 mb-3 ${isRecommended ? 'text-[#2D5A27]' : 'text-[#666]'}`} />
                   <h3 className="font-heading text-xl font-semibold text-[#1C1C1C]">{plan.label}</h3>
                   <div className="flex items-baseline gap-1 mt-2">
-                    <span className="text-3xl font-bold text-[#1C1C1C]">${plan.price}</span>
-                    {plan.price > 0 && <span className="text-sm text-[#666]">/{t('pricing.month')}</span>}
+                    <span className="text-3xl font-bold text-[#1C1C1C]">{plan.price === 0 ? 'Gratis' : `${plan.price} €`}</span>
+                    {plan.price > 0 && <span className="text-sm text-[#666]">/{t('pricing.month')} + IVA</span>}
                   </div>
+                  {plan.price_with_vat && (
+                    <p className="text-xs text-[#999] mt-0.5">~{plan.price_with_vat.toFixed(2)} € con IVA</p>
+                  )}
                   <p className="text-sm text-[#2D5A27] font-medium mt-1">{t('pricing.commission')}: {plan.commission}</p>
                 </div>
 

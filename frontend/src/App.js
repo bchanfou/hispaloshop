@@ -56,6 +56,7 @@ const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ImporterLandingPage = lazy(() => import('./pages/landings/ImportadorLanding'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
+const B2BChatPage = lazy(() => import('./pages/b2b/B2BChatPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const HelpPage = lazy(() => import('./pages/HelpPage'));
@@ -289,6 +290,7 @@ function AppRouter() {
               <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
               <Route path="/b2b/producers" element={<Navigate to="/b2b/marketplace" replace />} />
               <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
+              <Route path="/b2b/chat" element={<B2BChatPage />} />
               <Route path="/orders" element={<LegacyOrdersRedirect />} />
               <Route path="/profile" element={<LegacyProfileRedirect />} />
               <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />

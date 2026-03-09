@@ -113,7 +113,7 @@ async def get_seller_plans():
                 "key": "FREE",
                 "label": "Free",
                 "price": 0,
-                "currency": "USD",
+                "currency": "EUR",
                 "commission": "20%",
                 "features": [
                     "Publicar productos",
@@ -124,8 +124,9 @@ async def get_seller_plans():
             {
                 "key": "PRO",
                 "label": "Pro",
-                "price": 54,
-                "currency": "USD",
+                "price": 79,
+                "price_with_vat": 95.59,
+                "currency": "EUR",
                 "commission": "18%",
                 "recommended": True,
                 "features": [
@@ -142,8 +143,9 @@ async def get_seller_plans():
             {
                 "key": "ELITE",
                 "label": "Elite",
-                "price": 108,
-                "currency": "USD",
+                "price": 149,
+                "price_with_vat": 180.29,
+                "currency": "EUR",
                 "commission": "17%",
                 "features": [
                     "Todo de Pro +",
@@ -164,7 +166,7 @@ async def get_seller_plans():
 @router.get("/sellers/me/plan")
 async def get_my_plan(user: User = Depends(get_current_user)):
     """Get current seller's subscription details."""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     sub = (await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "subscription": 1})) or {}
     subscription = sub.get("subscription", {})
 
@@ -182,7 +184,7 @@ async def get_my_plan(user: User = Depends(get_current_user)):
 @router.post("/sellers/me/plan/subscribe")
 async def create_subscription(request: Request, user: User = Depends(get_current_user)):
     """Create a Stripe Checkout session for plan subscription."""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     body = await request.json()
     plan_key = body.get("plan", "PRO").upper()
 

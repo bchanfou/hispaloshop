@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import logging
 from typing import Dict, List, Optional
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 import uuid
 
 from fastapi import APIRouter, Header, HTTPException, Query, Request, Response
@@ -25,6 +25,8 @@ from schemas.frontend_compat import (
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Frontend Compatibility"])
+_LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0"}
+_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com", "vercel.app", "emergentagent.com")
 
 _EXCHANGE_RATES_CACHE: Dict[str, object] = {"rates": None, "updated_at": None}
 _DEFAULT_EXCHANGE_RATES = {"EUR": 1.0, "USD": 1.08, "GBP": 0.85}
@@ -65,6 +67,62 @@ def _coerce_iso(value: object, default: Optional[datetime] = None) -> str:
         return value.astimezone(timezone.utc).isoformat()
     base = default or datetime.now(timezone.utc)
     return base.isoformat()
+
+
+def _extract_origin(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return None
+    parsed = urlparse(value.strip())
+    if not parsed.scheme or not parsed.netloc:
+        return None
+    return f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
+
+
+def _is_local_origin(value: Optional[str]) -> bool:
+    origin = _extract_origin(value)
+    if not origin:
+        return False
+    hostname = (urlparse(origin).hostname or "").lower()
+    return hostname in _LOCAL_HOSTS
+
+
+def _is_trusted_frontend_origin(value: Optional[str]) -> bool:
+    origin = _extract_origin(value)
+    if not origin:
+        return False
+    hostname = (urlparse(origin).hostname or "").lower()
+    if hostname in _LOCAL_HOSTS:
+        return True
+    return any(hostname.endswith(suffix) for suffix in _TRUSTED_FRONTEND_SUFFIXES)
+
+
+def _get_request_origin(request: Request) -> str:
+    forwarded_proto = (request.headers.get("x-forwarded-proto") or "").split(",")[0].strip()
+    forwarded_host = (request.headers.get("x-forwarded-host") or "").split(",")[0].strip()
+    host = forwarded_host or request.headers.get("host") or request.url.netloc
+    scheme = forwarded_proto or request.url.scheme or "http"
+    return f"{scheme}://{host}".rstrip("/")
+
+
+def _is_secure_request(request: Request) -> bool:
+    return _get_request_origin(request).startswith("https://")
+
+
+def _get_public_auth_backend_url(request: Request) -> str:
+    configured = (settings.AUTH_BACKEND_URL or "").rstrip("/")
+    request_origin = _get_request_origin(request)
+    if request_origin and not _is_local_origin(request_origin):
+        if not configured or _is_local_origin(configured):
+            return request_origin
+    return configured or request_origin
+
+
+def _get_public_frontend_url(request: Request) -> str:
+    header_origin = _extract_origin(request.headers.get("origin")) or _extract_origin(request.headers.get("referer"))
+    configured = (settings.FRONTEND_URL or "").rstrip("/")
+    if header_origin and _is_trusted_frontend_origin(header_origin):
+        return header_origin
+    return configured or header_origin or _get_request_origin(request)
 
 
 async def _resolve_current_user(request: Request, authorization: Optional[str]) -> Optional[object]:
@@ -366,7 +424,7 @@ async def get_google_auth_url(request: Request):
     if not settings.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
 
-    backend_url = (settings.AUTH_BACKEND_URL or "").rstrip("/")
+    backend_url = _get_public_auth_backend_url(request)
     state = uuid.uuid4().hex
     params = urlencode(
         {
@@ -380,12 +438,21 @@ async def get_google_auth_url(request: Request):
         }
     )
     auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{params}"
-    is_secure = request.url.scheme == "https"
+    is_secure = _is_secure_request(request)
+    frontend_origin = _extract_origin(request.headers.get("origin")) or _extract_origin(request.headers.get("referer")) or _get_public_frontend_url(request)
     from fastapi.responses import JSONResponse as _JSONResponse
     resp = _JSONResponse(content={"auth_url": auth_url, "state": state})
     resp.set_cookie(
         key="oauth_state",
         value=state,
+        max_age=600,
+        httponly=True,
+        secure=is_secure,
+        samesite="lax" if not is_secure else "none",
+    )
+    resp.set_cookie(
+        key="oauth_frontend_origin",
+        value=frontend_origin,
         max_age=600,
         httponly=True,
         secure=is_secure,

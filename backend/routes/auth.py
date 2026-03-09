@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from typing import Any, Optional
 from datetime import datetime, timezone, timedelta
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 import uuid
 import logging
 import re
@@ -23,11 +23,73 @@ from services.auth_helpers import (
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+_LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0"}
+_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com", "vercel.app", "emergentagent.com")
+
+
+def _extract_origin(value: Optional[str]) -> Optional[str]:
+    if not value:
+        return None
+    parsed = urlparse(value.strip())
+    if not parsed.scheme or not parsed.netloc:
+        return None
+    return f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
+
+
+def _is_local_origin(value: Optional[str]) -> bool:
+    origin = _extract_origin(value)
+    if not origin:
+        return False
+    hostname = (urlparse(origin).hostname or "").lower()
+    return hostname in _LOCAL_HOSTS
+
+
+def _is_trusted_frontend_origin(value: Optional[str]) -> bool:
+    origin = _extract_origin(value)
+    if not origin:
+        return False
+    hostname = (urlparse(origin).hostname or "").lower()
+    if hostname in _LOCAL_HOSTS:
+        return True
+    return any(hostname.endswith(suffix) for suffix in _TRUSTED_FRONTEND_SUFFIXES)
+
+
+def _get_request_origin(request: Request) -> str:
+    forwarded_proto = (request.headers.get("x-forwarded-proto") or "").split(",")[0].strip()
+    forwarded_host = (request.headers.get("x-forwarded-host") or "").split(",")[0].strip()
+    host = forwarded_host or request.headers.get("host") or request.url.netloc
+    scheme = forwarded_proto or request.url.scheme or "http"
+    return f"{scheme}://{host}".rstrip("/")
+
+
+def _is_secure_request(request: Request) -> bool:
+    return _get_request_origin(request).startswith("https://")
+
+
+def _get_public_auth_backend_url(request: Request) -> str:
+    configured = (settings.AUTH_BACKEND_URL or "").rstrip("/")
+    request_origin = _get_request_origin(request)
+    if request_origin and not _is_local_origin(request_origin):
+        if not configured or _is_local_origin(configured):
+            return request_origin
+    return configured or request_origin
+
+
+def _get_public_frontend_url(request: Request) -> str:
+    cookie_origin = _extract_origin(request.cookies.get("oauth_frontend_origin"))
+    header_origin = _extract_origin(request.headers.get("origin")) or _extract_origin(request.headers.get("referer"))
+    configured = (settings.FRONTEND_URL or "").rstrip("/")
+
+    for candidate in (cookie_origin, header_origin):
+        if candidate and _is_trusted_frontend_origin(candidate):
+            return candidate
+
+    return configured or header_origin or _get_request_origin(request)
 
 
 def _set_session_cookie(target_response: Response, request: Request, session_token: str) -> None:
     """Apply the session cookie consistently for JSON and redirect responses."""
-    is_secure_cookie = request.url.scheme == "https"
+    is_secure_cookie = _is_secure_request(request)
     target_response.set_cookie(
         key="session_token",
         value=session_token,
@@ -548,7 +610,7 @@ async def auth_session(request: Request, response: Response):
     if not session_id:
         raise HTTPException(status_code=400, detail="No session ID provided")
     
-    auth_backend_url = settings.AUTH_BACKEND_URL
+    auth_backend_url = _get_public_auth_backend_url(request)
     
     import httpx
     async with httpx.AsyncClient() as client:
@@ -709,7 +771,7 @@ async def get_google_auth_url(request: Request):
         logger.error("[GOOGLE_AUTH] GOOGLE_CLIENT_ID missing in environment")
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     
-    backend_url = settings.AUTH_BACKEND_URL
+    backend_url = _get_public_auth_backend_url(request)
     redirect_uri = f"{backend_url}/api/auth/google/callback"
     
     # Google OAuth parameters
@@ -733,12 +795,21 @@ async def get_google_auth_url(request: Request):
     logger.info("[GOOGLE_AUTH] Generated Google auth URL with redirect_uri=%s", redirect_uri)
     
     # Store state in a short-lived, secure cookie
-    is_secure_cookie = request.url.scheme == "https"
+    is_secure_cookie = _is_secure_request(request)
+    frontend_origin = _extract_origin(request.headers.get("origin")) or _extract_origin(request.headers.get("referer")) or _get_public_frontend_url(request)
     response = JSONResponse(content={"auth_url": auth_url, "state": state})
     response.set_cookie(
         key="oauth_state",
         value=state,
         max_age=600,  # 10 minutes
+        httponly=True,
+        secure=is_secure_cookie,
+        samesite="lax" if not is_secure_cookie else "none"
+    )
+    response.set_cookie(
+        key="oauth_frontend_origin",
+        value=frontend_origin,
+        max_age=600,
         httponly=True,
         secure=is_secure_cookie,
         samesite="lax" if not is_secure_cookie else "none"
@@ -773,7 +844,7 @@ async def google_auth_callback(
         logger.error("[GOOGLE_AUTH] Google OAuth missing credentials. client_id=%s client_secret_present=%s", bool(client_id), bool(client_secret))
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
     
-    backend_url = settings.AUTH_BACKEND_URL
+    backend_url = _get_public_auth_backend_url(request)
     redirect_uri = f"{backend_url}/api/auth/google/callback"
     
     import httpx
@@ -862,8 +933,9 @@ async def google_auth_callback(
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     
-    frontend_redirect = settings.FRONTEND_URL
+    frontend_redirect = _get_public_frontend_url(request)
     redirect_response = RedirectResponse(url=f"{frontend_redirect}/auth/callback?token=google")
     _set_session_cookie(redirect_response, request, session_token)
     redirect_response.delete_cookie("oauth_state", path="/")
+    redirect_response.delete_cookie("oauth_frontend_origin", path="/")
     return redirect_response

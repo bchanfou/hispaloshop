@@ -19,6 +19,19 @@ const apiClient = axios.create({
 // Flag para evitar loops de refresh
 let isRefreshing = false;
 let refreshSubscribers = [];
+const NON_REFRESHABLE_AUTH_PATHS = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh',
+  '/auth/google',
+  '/auth/session',
+];
+
+const shouldAttemptRefresh = (config) => {
+  if (!config || config._skipAuthRefresh) return false;
+  const url = config.url || '';
+  return !NON_REFRESHABLE_AUTH_PATHS.some((path) => url.includes(path));
+};
 
 // Suscribirse al refresh
 const subscribeTokenRefresh = (callback) => {
@@ -60,7 +73,11 @@ apiClient.interceptors.response.use(
     }
 
     // 401 Unauthorized - intentar refresh
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (
+      error.response.status === 401 &&
+      !originalRequest?._retry &&
+      shouldAttemptRefresh(originalRequest)
+    ) {
       if (isRefreshing) {
         // Esperar a que termine el refresh
         return new Promise((resolve) => {
@@ -75,7 +92,9 @@ apiClient.interceptors.response.use(
 
       try {
         // Intentar refresh (el backend lee la cookie automáticamente)
-        const response = await apiClient.post('/auth/refresh');
+        const response = await apiClient.post('/auth/refresh', undefined, {
+          _skipAuthRefresh: true,
+        });
         
         if (response.data?.session_token) {
           onTokenRefreshed();

@@ -1,4 +1,5 @@
 const API_PREFIX = process.env.REACT_APP_API_PREFIX || '/api';
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0']);
 
 const normalizeUrl = (value) => {
   if (!value || typeof value !== 'string') return '';
@@ -7,7 +8,7 @@ const normalizeUrl = (value) => {
 
 const buildApiUrl = (baseUrl) => {
   const normalizedBase = normalizeUrl(baseUrl);
-  if (!normalizedBase) return '';
+  if (!normalizedBase) return API_PREFIX;
   if (normalizedBase.endsWith(API_PREFIX)) return normalizedBase;
   return `${normalizedBase}${API_PREFIX}`;
 };
@@ -16,13 +17,13 @@ const getDefaultBackendOrigin = () => {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
 
-    if (host === 'localhost' || host === '127.0.0.1') {
+    if (LOCAL_HOSTS.has(host)) {
       return 'http://localhost:8000';
     }
 
-    if (host.endsWith('hispaloshop.com')) {
-      return 'https://api.hispaloshop.com';
-    }
+    // In deployed environments prefer same-origin `/api` so rewrites handle
+    // routing and auth cookies remain tied to the frontend origin.
+    return '';
   }
 
   return 'http://localhost:8000';
@@ -40,6 +41,10 @@ export const getApiUrl = () => {
 
 export const getApiOrigin = () => {
   const apiUrl = getApiUrl();
+
+  if (apiUrl.startsWith('/') && typeof window !== 'undefined') {
+    return window.location.origin;
+  }
 
   try {
     return new URL(apiUrl).origin;

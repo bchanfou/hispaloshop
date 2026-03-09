@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2 } from 'lucide-react';
+import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2, MessageSquare } from 'lucide-react';
 import { useB2BCatalog, useB2BProducers } from '../../hooks/api/useImporter';
 import QuoteBuilder from '../../components/b2b/QuoteBuilder';
 
@@ -39,7 +39,7 @@ function ProductCard({ product }) {
   );
 }
 
-function ProducerCard({ producer, onContact }) {
+function ProducerCard({ producer, onContact, onChat }) {
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-4">
       <div className="flex items-start gap-3">
@@ -68,12 +68,20 @@ function ProducerCard({ producer, onContact }) {
           <p className="text-xs text-stone-400 mt-1">{producer.product_count || 0} productos activos</p>
         </div>
       </div>
-      <button
-        onClick={() => onContact(producer.user_id || producer.id)}
-        className="w-full mt-3 py-2 bg-[#2D5A3D] text-white rounded-xl text-sm font-medium flex items-center justify-center gap-1"
-      >
-        Solicitar cotización <ChevronRight className="w-4 h-4" />
-      </button>
+      <div className="mt-3 flex gap-2">
+        <button
+          onClick={() => onContact(producer.user_id || producer.id)}
+          className="flex-1 py-2 bg-[#2D5A3D] text-white rounded-xl text-sm font-medium flex items-center justify-center gap-1"
+        >
+          Cotizar <ChevronRight className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => onChat(producer.user_id || producer.id)}
+          className="flex-1 py-2 border border-[#2D5A3D] text-[#2D5A3D] rounded-xl text-sm font-medium flex items-center justify-center gap-1"
+        >
+          Chat <MessageSquare className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -104,6 +112,10 @@ export default function B2BMarketplacePage() {
   const handleContactProducer = (producerId) => {
     setRfqProducerId(producerId);
     setActiveTab('rfq');
+  };
+
+  const handleChat = (producerId) => {
+    navigate(`/b2b/chat?producer=${producerId}`);
   };
 
   return (
@@ -196,6 +208,7 @@ export default function B2BMarketplacePage() {
                     key={producer.user_id || producer.id}
                     producer={producer}
                     onContact={handleContactProducer}
+                    onChat={handleChat}
                   />
                 ))}
               </div>

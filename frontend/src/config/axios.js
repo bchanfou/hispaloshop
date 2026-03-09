@@ -6,11 +6,11 @@
  */
 
 import axios from 'axios';
-import { getApiOrigin } from '../utils/api';
+import { getApiUrl } from '../utils/api';
 
 // Determine the correct API base URL at RUNTIME (not build time)
 const getApiBaseUrl = () => {
-  return getApiOrigin();
+  return getApiUrl();
 };
 
 // Set the base URL for ALL axios requests globally
