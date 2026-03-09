@@ -2,16 +2,26 @@
 Configuration — Pydantic v2 Settings con validaciones estrictas.
 Fase 0: Eliminados todos los defaults inseguros.
 """
+from pathlib import Path
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
+
+
+_CURRENT_FILE = Path(__file__).resolve()
+_BACKEND_DIR = _CURRENT_FILE.parents[1]
+_REPO_ROOT = _CURRENT_FILE.parents[2]
 
 
 class Settings(BaseSettings):
     """Configuracion validada en startup. Falla fast si faltan vars criticas."""
     
     model_config = SettingsConfigDict(
-        env_file=".env",
+        # Soporta arranque desde la raiz del repo o desde /backend.
+        env_file=(
+            str(_REPO_ROOT / ".env"),
+            str(_BACKEND_DIR / ".env"),
+        ),
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra='ignore'  # Permitir variables extra en .env (ej: PORT)

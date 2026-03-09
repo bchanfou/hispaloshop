@@ -5,9 +5,9 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from typing import Optional
 from datetime import datetime, timezone, timedelta
+from urllib.parse import urlencode
 import uuid
 import logging
-import os
 import re
 
 from core.database import db
@@ -468,8 +468,7 @@ async def auth_session(request: Request, response: Response):
     if not session_id:
         raise HTTPException(status_code=400, detail="No session ID provided")
     
-    # Use environment variable for auth backend URL
-    auth_backend_url = os.environ.get('AUTH_BACKEND_URL', 'https://demobackend.emergentagent.com')
+    auth_backend_url = settings.AUTH_BACKEND_URL
     
     import httpx
     async with httpx.AsyncClient() as client:
@@ -631,14 +630,18 @@ async def get_google_auth_url(request: Request):
     state = uuid.uuid4().hex  # CSRF protection
     
     auth_url = (
-        f"https://accounts.google.com/o/oauth2/v2/auth"
-        f"?client_id={client_id}"
-        f"&redirect_uri={redirect_uri}"
-        f"&response_type=code"
-        f"&scope={scope}"
-        f"&state={state}"
-        f"&access_type=offline"
-        f"&prompt=consent"
+        "https://accounts.google.com/o/oauth2/v2/auth?"
+        + urlencode(
+            {
+                "client_id": client_id,
+                "redirect_uri": redirect_uri,
+                "response_type": "code",
+                "scope": scope,
+                "state": state,
+                "access_type": "offline",
+                "prompt": "consent",
+            }
+        )
     )
     logger.info("[GOOGLE_AUTH] Generated Google auth URL with redirect_uri=%s", redirect_uri)
     
@@ -766,7 +769,7 @@ async def google_auth_callback(
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     
-    frontend_redirect = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+    frontend_redirect = settings.FRONTEND_URL
     redirect_response = RedirectResponse(url=f"{frontend_redirect}/auth/callback?token=google")
     _set_session_cookie(redirect_response, request, session_token)
     redirect_response.delete_cookie("oauth_state", path="/")
