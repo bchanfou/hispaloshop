@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { useCreateInquiry } from '../../hooks/api/useImporter';
 
-export default function QuoteBuilder() {
+export default function QuoteBuilder({ initialProducerId = '' }) {
   const createInquiry = useCreateInquiry();
-  const [producerId, setProducerId] = useState('');
+  const [producerId, setProducerId] = useState(initialProducerId);
   const [targetCountry, setTargetCountry] = useState('ES');
   const [message, setMessage] = useState('');
   const [rows, setRows] = useState([{ product_id: '', qty_requested: 100 }]);

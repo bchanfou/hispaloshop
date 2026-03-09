@@ -8,12 +8,14 @@ import stripe
 from typing import Optional
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Request, Query
+from fastapi.responses import RedirectResponse
 
 from core.database import db
 from core.auth import get_current_user, require_role
 from core.config import PLATFORM_COMMISSION, settings
 from core.models import User, InfluencerApplication, CreateInfluencerCodeInput, WithdrawalRequest
-from config import normalize_influencer_tier
+from config import normalize_influencer_tier, settings as legacy_settings
+from routes.orders import check_and_notify_influencer_withdrawal_available
 
 logger = logging.getLogger(__name__)
 
@@ -418,7 +420,7 @@ async def track_referral_click(code: str, request: Request):
     response.set_cookie(
         key="referral_code",
         value=code.upper(),
-        max_age=settings.AFFILIATE_ATTRIBUTION_DAYS * 24 * 60 * 60,
+        max_age=legacy_settings.AFFILIATE_ATTRIBUTION_DAYS * 24 * 60 * 60,
         httponly=False,  # Allow JS to read it for UI purposes
         samesite="lax"
     )

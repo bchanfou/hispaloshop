@@ -1,6 +1,6 @@
 /**
  * Hooks para Importador / B2B
- * Catálogo B2B, RFQ, negociaciones, pedidos B2B
+ * Catálogo B2B, RFQ, descubrimiento de productores
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -8,19 +8,28 @@ import { api } from '../../lib/api';
 
 const IMPORTER_KEYS = {
   catalog: ['importer', 'catalog'],
+  producers: ['importer', 'producers'],
   inquiries: ['importer', 'inquiries'],
-  negotiations: ['importer', 'negotiations'],
-  orders: ['importer', 'orders'],
-  documents: ['importer', 'documents'],
 };
 
 /**
  * Hook para catálogo B2B
  */
-export function useB2BCatalog() {
+export function useB2BCatalog(filters = {}) {
   return useQuery({
-    queryKey: IMPORTER_KEYS.catalog,
-    queryFn: () => api.get('/b2b/catalog'),
+    queryKey: [...IMPORTER_KEYS.catalog, filters],
+    queryFn: () => api.get('/b2b/catalog', filters),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+/**
+ * Hook para descubrimiento de productores B2B
+ */
+export function useB2BProducers(filters = {}) {
+  return useQuery({
+    queryKey: [...IMPORTER_KEYS.producers, filters],
+    queryFn: () => api.get('/b2b/producers', filters),
     staleTime: 10 * 60 * 1000,
   });
 }
@@ -30,7 +39,7 @@ export function useB2BCatalog() {
  */
 export function useCreateInquiry() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ producerId, productIds, message, targetCountry }) =>
       api.post('/rfq/contact', {
@@ -39,7 +48,7 @@ export function useCreateInquiry() {
         message,
         target_country: targetCountry,
       }),
-    
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMPORTER_KEYS.inquiries });
     },
@@ -47,7 +56,7 @@ export function useCreateInquiry() {
 }
 
 /**
- * Hook para inquiries del importador
+ * Hook para inquiries del importador (GET /rfq/mine)
  */
 export function useInquiries() {
   return useQuery({
@@ -58,84 +67,12 @@ export function useInquiries() {
 }
 
 /**
- * Hook para negociaciones activas
+ * Hook para RFQs recibidas por un productor (GET /rfq/received)
  */
-export function useNegotiations() {
+export function useReceivedRFQs() {
   return useQuery({
-    queryKey: IMPORTER_KEYS.negotiations,
-    queryFn: () => api.get('/importer/negotiations'),
-    staleTime: 1 * 60 * 1000,
-    refetchInterval: 60000, // Refetch cada minuto
-  });
-}
-
-/**
- * Hook para iniciar negociación
- */
-export function useStartNegotiation() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ producerId, productId, initialOffer }) => 
-      api.post('/importer/negotiations', {
-        producer_id: producerId,
-        product_id: productId,
-        initial_offer: initialOffer,
-      }),
-    
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: IMPORTER_KEYS.negotiations });
-    },
-  });
-}
-
-/**
- * Hook para responder a contraoferta
- */
-export function useRespondNegotiation() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ negotiationId, response, counterOffer }) => 
-      api.post(`/importer/negotiations/${negotiationId}/respond`, {
-        response,
-        counter_offer: counterOffer,
-      }),
-    
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: IMPORTER_KEYS.negotiations });
-    },
-  });
-}
-
-/**
- * Hook para pedidos B2B
- */
-export function useB2BOrders() {
-  return useQuery({
-    queryKey: IMPORTER_KEYS.orders,
-    queryFn: () => api.get('/importer/orders'),
+    queryKey: ['producer', 'rfq', 'received'],
+    queryFn: () => api.get('/rfq/received'),
     staleTime: 2 * 60 * 1000,
-  });
-}
-
-/**
- * Hook para documentación de exportación
- */
-export function useExporterDocuments() {
-  return useQuery({
-    queryKey: IMPORTER_KEYS.documents,
-    queryFn: () => api.get('/importer/documents'),
-    staleTime: 10 * 60 * 1000,
-  });
-}
-
-/**
- * Hook para descargar documento
- */
-export function useDownloadDocument() {
-  return useMutation({
-    mutationFn: (documentId) => 
-      api.get(`/importer/documents/${documentId}/download`),
   });
 }
