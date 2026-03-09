@@ -353,18 +353,72 @@ class ApiClient {
     if (params?.source === 'following') queryParams.set('scope', 'following');
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    const data = await this.request(`/feed${query}`);
-    const posts = Array.isArray((data as any)?.posts) ? (data as any).posts : [];
+    const normalize = (data: any) => {
+      const posts = Array.isArray(data?.posts)
+        ? data.posts
+        : Array.isArray(data?.data?.posts)
+          ? data.data.posts
+          : [];
 
-    return {
-      items: posts.map((post: any) => ({
+      const items = posts.map((post: any) => ({
         ...post,
         id: post.id || post.post_id,
-      })),
-      has_more: Boolean((data as any)?.has_more),
-      next_cursor: (data as any)?.has_more ? String(posts.length + Number(params?.cursor || 0)) : null,
-      total: (data as any)?.total || posts.length,
+        post_id: post.post_id || post.id,
+        caption: post.caption || post.content || '',
+        image_url: post.image_url || post.thumbnail || post.media?.[0]?.url || null,
+        media: Array.isArray(post.media) && post.media.length > 0
+          ? post.media
+          : (post.image_url || post.thumbnail
+              ? [{ url: post.image_url || post.thumbnail, ratio: '1:1' }]
+              : []),
+        user_name: post.user_name || post.author_name,
+        user_profile_image: post.user_profile_image || post.author_avatar,
+        user_role: post.user_role || post.author_type,
+        comments_count: post.comments_count ?? 0,
+        likes_count: post.likes_count ?? 0,
+        shares_count: post.shares_count ?? 0,
+      }));
+
+      const hasMore = Boolean(data?.has_more ?? data?.data?.meta?.has_more);
+      return {
+        items,
+        has_more: hasMore,
+        next_cursor: hasMore ? String(items.length + Number(params?.cursor || 0)) : null,
+        total: data?.total || data?.data?.meta?.total || items.length,
+      };
     };
+
+    try {
+      const data = await this.request(`/feed${query}`);
+      return normalize(data);
+    } catch (primaryError) {
+      try {
+        if (params?.source !== 'following') {
+          const legacyQuery = query ? `${query}&scope=hybrid` : '?scope=hybrid';
+          const legacyData = await this.request(`/feed${legacyQuery}`);
+          return normalize(legacyData);
+        }
+      } catch (legacyError) {
+        console.warn('[feed] legacy /feed fallback failed', legacyError);
+      }
+
+      try {
+        const page = Math.floor(Number(params?.cursor || 0) / Number(params?.limit || 20)) + 1;
+        const type = params?.source === 'following' ? 'following' : 'for_you';
+        const modularData = await this.request(`/posts/feed?type=${type}&page=${page}&limit=${params?.limit || 20}`);
+        return normalize(modularData);
+      } catch (modularError) {
+        console.warn('[feed] /posts/feed fallback failed', modularError);
+      }
+
+      console.error('[feed] all feed fallbacks failed', primaryError);
+      return {
+        items: [],
+        has_more: false,
+        next_cursor: null,
+        total: 0,
+      };
+    }
   }
 
   async getPost(postId: string) {
