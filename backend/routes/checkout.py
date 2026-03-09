@@ -134,14 +134,17 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
     
     try:
         import stripe
+        import json as _json
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        
-        # Verificar webhook (en producción usar endpoint_secret)
-        # event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        event = stripe.Event.construct_from(
-            __import__('json').loads(payload), stripe.api_key
-        )
-        
+
+        webhook_secret = settings.STRIPE_WEBHOOK_SECRET
+        if webhook_secret:
+            event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+        else:
+            event = _json.loads(payload)
+
+    except stripe.error.SignatureVerificationError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid webhook signature: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Webhook error: {str(e)}")
     

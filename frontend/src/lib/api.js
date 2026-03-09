@@ -288,6 +288,37 @@ class HispaloAPI {
   }
 
   // ==========================================
+  // PRODUCTS
+  // ==========================================
+
+  /**
+   * Fetch product catalog with optional filters (country, category, search, etc.)
+   */
+  getProducts(filters = {}) {
+    const params = {};
+    if (filters.country)       params.country        = filters.country;
+    if (filters.category)      params.category       = filters.category;
+    if (filters.search)        params.search         = filters.search;
+    if (filters.sort)          params.sort           = filters.sort;
+    if (filters.min_price != null) params.min_price  = filters.min_price;
+    if (filters.max_price != null) params.max_price  = filters.max_price;
+    if (filters.certifications) params.certifications = filters.certifications;
+    if (filters.seller_id)     params.seller_id      = filters.seller_id;
+    if (filters.featured_only) params.featured_only  = filters.featured_only;
+    if (filters.lang)          params.lang           = filters.lang;
+    if (filters.limit)         params.limit          = filters.limit;
+    if (filters.cursor)        params.cursor         = filters.cursor;
+    return this.get('/products', params);
+  }
+
+  getProduct(productId, filters = {}) {
+    const params = {};
+    if (filters.country) params.country = filters.country;
+    if (filters.lang)    params.lang    = filters.lang;
+    return this.get(`/products/${productId}`, params);
+  }
+
+  // ==========================================
   // WEBSOCKET
   // ==========================================
 

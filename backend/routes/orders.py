@@ -28,6 +28,9 @@ from services.shipping_service import ShippingPolicy, ShippingService
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+# Set Stripe API key at module level so all calls in this module use it
+stripe.api_key = STRIPE_SECRET_KEY
+
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # ============================================================================
@@ -142,8 +145,9 @@ async def execute_seller_transfers(order: dict):
     # Write ledger events for each seller transfer
     buyer_country = order.get("country", "")
     buyer_id = order.get("user_id", "")
+    order_split_details = order.get("split_details", [])
     for rec in transfer_records:
-        seller_split = next((s for s in split_details if s["producer_id"] == rec["seller_id"]), {})
+        seller_split = next((s for s in order_split_details if s.get("producer_id") == rec["seller_id"]), {})
         await write_ledger_event(
             db,
             event_type="seller_transfer",
@@ -442,8 +446,28 @@ async def process_influencer_scheduled_payouts():
 
 # ── Payment Routes ───────────────────────────────────────────
 
+@router.get("/payments/stripe-status")
+async def stripe_status():
+    """Health check: returns whether Stripe is properly configured."""
+    key = STRIPE_SECRET_KEY or ""
+    is_live = key.startswith("sk_live_") and len(key) > 20 and "PENDIENTE" not in key
+    is_test = key.startswith("sk_test_") and len(key) > 20
+    webhook = STRIPE_WEBHOOK_SECRET or ""
+    webhook_ok = webhook.startswith("whsec_") and len(webhook) > 32 and "PENDIENTE" not in webhook
+    return {
+        "stripe_configured": is_live or is_test,
+        "mode": "live" if is_live else ("test" if is_test else "not_configured"),
+        "webhook_configured": webhook_ok,
+    }
+
+
 @router.post("/payments/create-checkout")
 async def create_checkout(request: Request, input: OrderCreateInput, user: User = Depends(get_current_user)):
+    # Guard: Stripe must be configured with a real key
+    _sk = STRIPE_SECRET_KEY or ""
+    if not (_sk.startswith(("sk_live_", "sk_test_")) and len(_sk) > 20 and "PENDIENTE" not in _sk):
+        raise HTTPException(status_code=503, detail="Payment processing not configured. Contact the administrator.")
+
     # Check email verification before checkout
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "email_verified": 1, "locale": 1})
     if not user_doc.get("email_verified", False):
@@ -892,6 +916,10 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
     """
     Create direct checkout session for Buy Now (skip cart)
     """
+    _sk = STRIPE_SECRET_KEY or ""
+    if not (_sk.startswith(("sk_live_", "sk_test_")) and len(_sk) > 20 and "PENDIENTE" not in _sk):
+        raise HTTPException(status_code=503, detail="Payment processing not configured. Contact the administrator.")
+
     # Get user's country for pricing
     user_country = user.country or 'ES'
     
@@ -1123,12 +1151,20 @@ async def stripe_webhook(request: Request):
     body = await request.body()
     signature = request.headers.get("Stripe-Signature")
     
+    # A real webhook secret starts with "whsec_" and is ≥32 chars after that prefix.
+    _real_webhook_secret = (
+        STRIPE_WEBHOOK_SECRET
+        if (STRIPE_WEBHOOK_SECRET and STRIPE_WEBHOOK_SECRET.startswith("whsec_") and len(STRIPE_WEBHOOK_SECRET) > 32)
+        else None
+    )
+
     try:
-        # Verify webhook signature if secret is configured
-        if STRIPE_WEBHOOK_SECRET:
-            event = stripe.Webhook.construct_event(body, signature, STRIPE_WEBHOOK_SECRET)
+        # Verify webhook signature if a real secret is configured
+        if _real_webhook_secret:
+            event = stripe.Webhook.construct_event(body, signature, _real_webhook_secret)
         else:
-            # No webhook secret: parse payload directly (test/dev mode)
+            # No real webhook secret: parse payload directly (test/dev mode — signature not verified)
+            logger.warning("[WEBHOOK] Signature verification skipped — STRIPE_WEBHOOK_SECRET not configured")
             payload = body.decode("utf-8")
             event = _json.loads(payload)
         

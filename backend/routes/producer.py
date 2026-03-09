@@ -14,7 +14,7 @@ import stripe
 
 from core.database import db
 from core.models import User, ProducerAddressInput, ShippingPolicyInput
-from core.config import PLATFORM_COMMISSION
+from core.config import PLATFORM_COMMISSION, STRIPE_SECRET_KEY
 from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
 
@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+
+stripe.api_key = STRIPE_SECRET_KEY
 
 # ============================================
 # PRODUCER DASHBOARD ENDPOINTS

@@ -5,6 +5,7 @@
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
+import { useLocale } from '../../context/LocaleContext';
 
 const PRODUCT_KEYS = {
   detail: (id) => ['product', id],
@@ -39,18 +40,24 @@ export function useCategory(slug) {
 }
 
 /**
- * Hook para catálogo con filtros
+ * Hook para catálogo con filtros (geo-filtered by user's active country)
  */
 export function useCatalog(filters = {}) {
-  const filterKey = JSON.stringify(filters);
-  
+  const { country, language } = useLocale();
+  const merged = {
+    country: filters.country || country || 'ES',
+    lang: filters.lang || language || 'es',
+    ...filters,
+  };
+  const filterKey = JSON.stringify(merged);
+
   return useInfiniteQuery({
     queryKey: PRODUCT_KEYS.catalog(filterKey),
-    queryFn: ({ pageParam }) => 
-      api.get('/products', { 
-        ...filters, 
-        cursor: pageParam, 
-        limit: 20 
+    queryFn: ({ pageParam }) =>
+      api.get('/products', {
+        ...merged,
+        cursor: pageParam,
+        limit: 20
       }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 5 * 60 * 1000,

@@ -16,36 +16,40 @@ export default function CheckoutSuccessPage() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [status, setStatus] = useState('checking');
-  const [attempts, setAttempts] = useState(0);
 
   useEffect(() => {
-    if (sessionId) {
-      pollPaymentStatus();
-    }
-  }, [sessionId]);
+    if (!sessionId) return;
 
-  const pollPaymentStatus = async () => {
-    if (attempts >= 5) {
-      setStatus('timeout');
-      return;
-    }
+    let cancelled = false;
+    let attempt = 0;
+    const MAX_ATTEMPTS = 8;
+    const INTERVAL_MS = 2500;
 
-    try {
-      const response = await axios.get(`${API}/payments/checkout-status/${sessionId}`, {
-        withCredentials: true
-      });
-
-      if (response.data.payment_status === 'paid') {
-        setStatus('success');
-      } else {
-        setAttempts(attempts + 1);
-        setTimeout(pollPaymentStatus, 2000);
+    const poll = async () => {
+      if (cancelled) return;
+      if (attempt >= MAX_ATTEMPTS) {
+        setStatus('timeout');
+        return;
       }
-    } catch (error) {
-      console.error('Error checking payment status:', error);
-      setStatus('error');
-    }
-  };
+      attempt++;
+      try {
+        const response = await axios.get(`${API}/payments/checkout-status/${sessionId}`, {
+          withCredentials: true,
+        });
+        if (response.data.payment_status === 'paid' || response.data.status === 'paid') {
+          if (!cancelled) setStatus('success');
+        } else if (!cancelled) {
+          setTimeout(poll, INTERVAL_MS);
+        }
+      } catch (error) {
+        console.error('Error checking payment status:', error);
+        if (!cancelled) setStatus('error');
+      }
+    };
+
+    poll();
+    return () => { cancelled = true; };
+  }, [sessionId]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
