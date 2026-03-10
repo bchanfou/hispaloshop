@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { Plus, Trash2, Send, Loader2 } from 'lucide-react';
-import { useCreateInquiry } from '../../hooks/api/useImporter';
+import { useCreateInquiry } from '../../features/b2b/queries';
 
 // ─── Schema ─────────────────────────────────────────────────────────────────
 const rowSchema = z.object({

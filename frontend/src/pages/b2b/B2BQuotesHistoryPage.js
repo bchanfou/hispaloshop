@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FileText, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp, Package, Loader2 } from 'lucide-react';
-import { useInquiries, useReceivedRFQs } from '../../hooks/api/useImporter';
+import { useInquiries, useReceivedRFQs } from '../../features/b2b/queries';
 import { useAuth } from '../../context/AuthContext';
 
 const STATUS_CONFIG = {
@@ -68,8 +68,8 @@ export default function B2BQuotesHistoryPage() {
   const { user } = useAuth();
   const isProducer = user?.role === 'producer';
 
-  const importerQuery = useInquiries();
-  const producerQuery = useReceivedRFQs();
+  const importerQuery = useInquiries(Boolean(user) && !isProducer);
+  const producerQuery = useReceivedRFQs(Boolean(user) && isProducer);
 
   const activeQuery = isProducer ? producerQuery : importerQuery;
   const rfqs = activeQuery.data?.items || [];

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2, MessageSquare } from 'lucide-react';
-import { useB2BCatalog, useB2BProducers } from '../../hooks/api/useImporter';
+import { useB2BCatalog, useB2BProducers } from '../../features/b2b/queries';
 import QuoteBuilder from '../../components/b2b/QuoteBuilder';
 
 const TABS = [
@@ -87,6 +87,7 @@ function ProducerCard({ producer, onContact, onChat }) {
 }
 
 export default function B2BMarketplacePage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('catalog');
   const [search, setSearch] = useState('');
   const [rfqProducerId, setRfqProducerId] = useState('');

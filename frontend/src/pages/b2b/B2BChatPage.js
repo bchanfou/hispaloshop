@@ -7,8 +7,7 @@ import {
   useB2BMessages,
   useSendB2BMessage,
   useCreateB2BConversation,
-} from '../../hooks/api/useB2BChat';
-import { api } from '../../lib/api';
+} from '../../features/b2b/queries';
 
 function Avatar({ name, size = 'md' }) {
   const cls = size === 'sm' ? 'w-8 h-8 text-sm' : 'w-10 h-10 text-base';
@@ -137,10 +136,10 @@ export default function B2BChatPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const convsQuery = useB2BConversations();
+  const convsQuery = useB2BConversations(Boolean(user));
   const createConv = useCreateB2BConversation();
 
-  const conversations = convsQuery.data?.data || [];
+  const conversations = convsQuery.data?.data || convsQuery.data || [];
 
   const targetProducerId = searchParams.get('producer');
   const [activeConvId, setActiveConvId] = useState(searchParams.get('conv') || null);
@@ -159,7 +158,7 @@ export default function B2BChatPage() {
         { producerId: targetProducerId },
         {
           onSuccess: (res) => {
-            const newId = res?.data?.conversation_id;
+            const newId = res?.conversation_id || res?.data?.conversation_id;
             if (newId) {
               setActiveConvId(newId);
               setSearchParams({ conv: newId }, { replace: true });
