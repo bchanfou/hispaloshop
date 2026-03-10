@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import { 
-  Users, Package, FileCheck, ShoppingBag, 
-  LayoutDashboard, ArrowLeft, LogOut, Tag, Star, 
-  UserCheck, Menu, X, MoreHorizontal, Settings
+import {
+  Users, Package, FileCheck, ShoppingBag,
+  LayoutDashboard, ArrowLeft, LogOut, Tag, Star,
+  UserCheck, Menu, X, MoreHorizontal, Settings, ShieldAlert
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +53,7 @@ export default function AdminLayoutResponsive() {
     { to: '/admin/discount-codes', icon: Tag, label: t('admin.discountCodes', 'Discounts'), shortLabel: 'Descuentos' },
     { to: '/admin/influencers', icon: UserCheck, label: t('admin.influencers', 'Influencers'), shortLabel: 'Influencers' },
     { to: '/admin/reviews', icon: Star, label: t('admin.reviews', 'Reviews'), shortLabel: 'Reseñas' },
+    { to: '/admin/escalation', icon: ShieldAlert, label: 'Escalar a SA', shortLabel: 'Escalar' },
   ];
 
   // Mobile bottom nav - first 4 + more menu

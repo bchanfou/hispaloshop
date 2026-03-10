@@ -8,11 +8,12 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File, Form
 
 from core.database import db
-from core.auth import get_current_user
+from core.auth import get_current_user, require_role
 from core.models import User, InternalMessageCreate
 from core.websocket import chat_manager
 from services.cloudinary_storage import upload_image as cloudinary_upload
 from routes.push_notifications import send_push_to_user
+from services.chat_crypto import encrypt_message, decrypt_message_dict
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +57,11 @@ async def get_user_conversations(user: User = Depends(get_current_user)):
             "other_user_name": other_participant["name"] if other_participant else "Unknown",
             "other_user_role": other_participant["role"] if other_participant else None,
             "other_user_avatar": other_participant.get("avatar"),
-            "last_message": last_msg,
+            "last_message": decrypt_message_dict(last_msg) if last_msg else None,
             "unread_count": unread,
             "created_at": conv.get("created_at"),
-            "updated_at": conv.get("updated_at")
+            "updated_at": conv.get("updated_at"),
+            "conv_type": conv.get("conv_type"),
         })
     
     return result
@@ -98,6 +100,8 @@ async def get_conversation_messages(
             {"$set": {"status": "delivered", "delivered_at": datetime.now(timezone.utc).isoformat()}}
         )
     
+    # Decrypt message content before returning
+    messages = [decrypt_message_dict(m) for m in messages]
     return list(reversed(messages))
 
 @router.post("/internal-chat/messages")
@@ -194,21 +198,24 @@ async def send_internal_message(
                 detail="Este usuario aun no ha respondido. No puedes enviar mas mensajes hasta recibir respuesta."
             )
     
-    # Create message
+    # Create message — encrypt content at rest
     message_id = f"msg_{uuid.uuid4().hex[:12]}"
+    encrypted_content = encrypt_message(input.content) if input.content else input.content
     message = {
         "message_id": message_id,
         "conversation_id": conversation_id,
         "sender_id": user.user_id,
         "sender_name": user.name,
         "sender_role": user.role,
-        "content": input.content,
+        "content": encrypted_content,
         "image_url": input.image_url,
         "status": "sent",
         "created_at": now
     }
-    
+
     await db.internal_messages.insert_one(message)
+    # Return plaintext to client — never expose encrypted bytes
+    message["content"] = input.content
     
     # Update conversation updated_at and status
     update_conv = {"updated_at": now}
@@ -438,3 +445,131 @@ async def delete_conversation(
     await db.internal_conversations.delete_one({"conversation_id": conversation_id})
     
     return {"message": "Conversation deleted successfully"}
+
+
+# ──────────────────────────────────────────────
+# ESCALATION CHANNEL: Admin → SuperAdmin
+# ──────────────────────────────────────────────
+
+@router.post("/internal-chat/escalate")
+async def escalate_to_superadmin(
+    request: Request,
+    user: User = Depends(get_current_user)
+):
+    """
+    Open (or reopen) the private escalation channel between an admin and all super_admins.
+    Only admins and super_admins can access this endpoint.
+    Conversations are tagged with conv_type='escalation' and encrypted like all chat messages.
+    """
+    await require_role(user, ["admin", "super_admin"])
+
+    body = await request.json()
+    initial_message = body.get("message", "").strip()
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Find the first available super_admin to assign this escalation to
+    # (or return existing escalation conv for this admin)
+    existing = await db.internal_conversations.find_one({
+        "conv_type": "escalation",
+        "participants.user_id": user.user_id
+    })
+
+    if existing:
+        conv_id = existing["conversation_id"]
+    else:
+        # Pick any active super_admin
+        super_admin = await db.users.find_one(
+            {"role": "super_admin", "account_status": {"$ne": "banned"}},
+            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1}
+        )
+        if not super_admin:
+            raise HTTPException(status_code=503, detail="No hay superadmins disponibles en este momento")
+
+        conv_id = f"esc_{uuid.uuid4().hex[:12]}"
+        new_conv = {
+            "conversation_id": conv_id,
+            "conv_type": "escalation",
+            "status": "active",
+            "participants": [
+                {"user_id": user.user_id, "name": user.name, "role": user.role, "avatar": None},
+                {"user_id": super_admin["user_id"], "name": super_admin["name"], "role": "super_admin", "avatar": super_admin.get("profile_image")}
+            ],
+            "created_at": now,
+            "updated_at": now
+        }
+        await db.internal_conversations.insert_one(new_conv)
+
+    # Optionally send initial message
+    if initial_message:
+        message_id = f"msg_{uuid.uuid4().hex[:12]}"
+        encrypted = encrypt_message(initial_message)
+        msg_doc = {
+            "message_id": message_id,
+            "conversation_id": conv_id,
+            "sender_id": user.user_id,
+            "sender_name": user.name,
+            "sender_role": user.role,
+            "content": encrypted,
+            "status": "sent",
+            "created_at": now
+        }
+        await db.internal_messages.insert_one(msg_doc)
+        await db.internal_conversations.update_one(
+            {"conversation_id": conv_id},
+            {"$set": {"updated_at": now}}
+        )
+        # Notify super_admin via WebSocket
+        conv_doc = await db.internal_conversations.find_one({"conversation_id": conv_id})
+        for p in (conv_doc or {}).get("participants", []):
+            if p["user_id"] != user.user_id:
+                ws_msg = {
+                    "type": "new_message",
+                    "message": {**msg_doc, "content": initial_message, "_id": None},
+                    "conversation_id": conv_id,
+                    "conv_type": "escalation"
+                }
+                ws_msg["message"].pop("_id", None)
+                await chat_manager.send_personal_message(ws_msg, p["user_id"])
+
+    return {"conversation_id": conv_id, "conv_type": "escalation"}
+
+
+@router.get("/internal-chat/escalations")
+async def list_escalations(user: User = Depends(get_current_user)):
+    """
+    SuperAdmin: list all open escalation conversations.
+    Admin: list own escalation conversation.
+    """
+    await require_role(user, ["admin", "super_admin"])
+
+    if user.role == "super_admin":
+        convs = await db.internal_conversations.find(
+            {"conv_type": "escalation"},
+            {"_id": 0}
+        ).sort("updated_at", -1).to_list(200)
+    else:
+        convs = await db.internal_conversations.find(
+            {"conv_type": "escalation", "participants.user_id": user.user_id},
+            {"_id": 0}
+        ).sort("updated_at", -1).to_list(10)
+
+    result = []
+    for conv in convs:
+        last_msg = await db.internal_messages.find_one(
+            {"conversation_id": conv["conversation_id"]},
+            {"_id": 0},
+            sort=[("created_at", -1)]
+        )
+        unread = await db.internal_messages.count_documents({
+            "conversation_id": conv["conversation_id"],
+            "sender_id": {"$ne": user.user_id},
+            "status": {"$ne": "read"}
+        })
+        result.append({
+            **conv,
+            "last_message": decrypt_message_dict(last_msg) if last_msg else None,
+            "unread_count": unread
+        })
+
+    return result

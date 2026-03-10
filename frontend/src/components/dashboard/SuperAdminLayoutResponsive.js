@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  Shield, ArrowLeft, LogOut, Users, BarChart3, 
-  TrendingUp, Globe, Package, MoreHorizontal, Wallet
+import {
+  Shield, ArrowLeft, LogOut, Users, BarChart3,
+  TrendingUp, Globe, Package, MoreHorizontal, Wallet, ShieldAlert
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import GlobalSearch from '../GlobalSearch';
@@ -31,6 +31,7 @@ export default function SuperAdminLayoutResponsive() {
     { to: '/super-admin/content', icon: Package, label: t('contentManagement.title', 'Content'), shortLabel: 'Contenido' },
     { to: '/super-admin/insights', icon: BarChart3, label: t('superAdmin.customerInsights', 'Insights'), shortLabel: 'Insights' },
     { to: '/super-admin/analytics', icon: TrendingUp, label: t('superAdmin.analytics', 'Analytics'), shortLabel: 'Analytics' },
+    { to: '/super-admin/escalation', icon: ShieldAlert, label: 'Escalaciones', shortLabel: 'Escalar' },
   ];
 
   // Mobile bottom nav - first 4 + more
