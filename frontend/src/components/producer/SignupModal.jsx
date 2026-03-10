@@ -41,8 +41,8 @@ export const PRODUCER_PLANS = {
     price: '0€ / mes',
     chargeLabel: 'No pagaras nada hasta que vendas.',
     commission: '20%',
-    accentClass: 'border-[#4ade80] bg-white',
-    buttonClass: 'bg-[#15803d] text-white hover:bg-[#166534]',
+    accentClass: 'border-green-400 bg-white',
+    buttonClass: 'bg-green-700 text-white hover:bg-green-800',
     summary: 'Para productores que quieren empezar a vender sin riesgo.',
     features: [
       'Tienda virtual personalizada con tu historia y origen',
@@ -59,8 +59,8 @@ export const PRODUCER_PLANS = {
     price: '79€ + IVA / mes',
     chargeLabel: '79€ + IVA (95,59€) mensuales',
     commission: '18%',
-    accentClass: 'border-[#d97706] bg-white shadow-[0_26px_60px_-38px_rgba(217,119,6,0.45)] lg:scale-[1.04]',
-    buttonClass: 'bg-[#d97706] text-white hover:bg-[#b45309]',
+    accentClass: 'border-amber-600 bg-white shadow-[0_26px_60px_-38px_rgba(217,119,6,0.45)] lg:scale-[1.04]',
+    buttonClass: 'bg-amber-600 text-white hover:bg-amber-700',
     summary: 'Para productores serios que quieren escalar sin locura.',
     features: [
       'Herramientas de IA para marketing',
@@ -79,8 +79,8 @@ export const PRODUCER_PLANS = {
     price: '149€ + IVA / mes',
     chargeLabel: '149€ + IVA (180,29€) mensuales',
     commission: '17%',
-    accentClass: 'border-[#6366f1] bg-white',
-    buttonClass: 'bg-[#4f46e5] text-white hover:bg-[#4338ca]',
+    accentClass: 'border-indigo-500 bg-white',
+    buttonClass: 'bg-indigo-600 text-white hover:bg-indigo-700',
     summary: 'Para cooperativas y productores con ambicion global.',
     features: [
       'Todo lo del PRO',
@@ -260,12 +260,12 @@ function readStoredState(initialPlan) {
 
 function fieldClass(hasError, isValid) {
   if (hasError) {
-    return 'border-[#dc2626] focus-visible:border-[#dc2626] focus-visible:ring-4 focus-visible:ring-[#dc2626]/15';
+    return 'border-red-600 focus-visible:border-red-600 focus-visible:ring-4 focus-visible:ring-red-600/15';
   }
   if (isValid) {
-    return 'border-emerald-500 focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-[#10b981]/15';
+    return 'border-emerald-500 focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-600/15';
   }
-  return 'border-[#d6d3d1] focus-visible:border-[#14532d] focus-visible:ring-4 focus-visible:ring-[#14532d]/15';
+  return 'border-stone-300 focus-visible:border-green-900 focus-visible:ring-4 focus-visible:ring-green-900/15';
 }
 
 function StatusIcon({ valid }) {
@@ -297,7 +297,7 @@ function ProgressDots({ step, success }) {
           initial={false}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.32, ease: 'easeOut' }}
-          className="absolute left-0 top-4 h-[2px] rounded-full bg-gradient-to-r from-[#14532d] via-[#d97706] to-[#4f46e5]"
+          className="absolute left-0 top-4 h-[2px] rounded-full bg-gradient-to-r from-green-900 via-amber-600 to-indigo-600"
         />
         <div className="relative flex items-center justify-between">
           {[1, 2, 3].map((point) => {
@@ -305,7 +305,7 @@ function ProgressDots({ step, success }) {
             const label = point === 1 ? 'Quien eres' : point === 2 ? 'Tu producción' : 'Confirma tu plan';
             return (
               <div key={label} className="flex flex-col items-center gap-2">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition ${active ? 'border-[#14532d] bg-[#14532d] text-white' : 'border-stone-300 bg-white text-stone-500'}`}>
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition ${active ? 'border-green-900 bg-green-900 text-white' : 'border-stone-300 bg-white text-stone-500'}`}>
                   {point}
                 </div>
                 <span className={`hidden text-[11px] font-medium sm:block ${active ? 'text-stone-700' : 'text-stone-400'}`}>{label}</span>
@@ -322,7 +322,7 @@ function InlineError({ message }) {
   if (!message) {
     return null;
   }
-  return <p className="mt-2 text-sm text-[#dc2626]">{message}</p>;
+  return <p className="mt-2 text-sm text-red-600">{message}</p>;
 }
 
 export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }) {
@@ -759,7 +759,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           <select
             value={formData.phonePrefix}
             onChange={(event) => updateField('phonePrefix', event.target.value)}
-            className="h-12 rounded-[10px] border border-[#d6d3d1] bg-white px-3 text-sm font-semibold text-stone-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-4 focus:ring-[#14532d]/15"
+            className="h-12 rounded-[10px] border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-4 focus:ring-green-900/15"
           >
             {PHONE_PREFIXES.map((prefix) => (
               <option key={prefix.value} value={prefix.value}>
@@ -824,7 +824,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
             id="producer-legal"
             checked={formData.acceptLegal}
             onCheckedChange={(checked) => updateField('acceptLegal', Boolean(checked))}
-            className="mt-1 h-5 w-5 rounded-md border-stone-400 data-[state=checked]:bg-[#14532d] data-[state=checked]:text-white"
+            className="mt-1 h-5 w-5 rounded-md border-stone-400 data-[state=checked]:bg-green-900 data-[state=checked]:text-white"
           />
           <div>
             <Label htmlFor="producer-legal" className="mb-0 text-sm font-semibold text-stone-800">
@@ -832,7 +832,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
             </Label>
             <p className="mt-1 text-sm text-stone-600">
               Puedes revisarlos antes de seguir en{' '}
-              <Link to="/legal" target="_blank" className="font-semibold text-[#14532d] underline underline-offset-2">
+              <Link to="/legal" target="_blank" className="font-semibold text-green-900 underline underline-offset-2">
                 /legal
               </Link>
               .
@@ -874,7 +874,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 key={type}
                 type="button"
                 onClick={() => toggleProductType(type)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-[#14532d] bg-[#14532d] text-white shadow-[0_12px_24px_-20px_rgba(20,83,45,0.6)]' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-green-900 bg-green-900 text-white shadow-[0_12px_24px_-20px_rgba(20,83,45,0.6)]' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
               >
                 {type}
               </button>
@@ -892,7 +892,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               key={option}
               type="button"
               onClick={() => updateField('exportStage', option)}
-              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${formData.exportStage === option ? 'border-[#d97706] bg-amber-50 text-[#92400e]' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${formData.exportStage === option ? 'border-amber-600 bg-amber-50 text-amber-800' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
             >
               {option}
             </button>
@@ -933,10 +933,10 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 key={option}
                 type="button"
                 onClick={() => updateField('references', option)}
-                className={`flex w-full items-center justify-between rounded-[14px] border px-4 py-3 text-sm font-semibold transition ${formData.references === option ? 'border-[#4f46e5] bg-[#eef2ff] text-[#4338ca]' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+                className={`flex w-full items-center justify-between rounded-[14px] border px-4 py-3 text-sm font-semibold transition ${formData.references === option ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
               >
                 <span>{option}</span>
-                <span className={`h-3 w-3 rounded-full border ${formData.references === option ? 'border-[#4f46e5] bg-[#4f46e5]' : 'border-stone-300 bg-white'}`} />
+                <span className={`h-3 w-3 rounded-full border ${formData.references === option ? 'border-indigo-600 bg-indigo-600' : 'border-stone-300 bg-white'}`} />
               </button>
             ))}
           </div>
@@ -961,7 +961,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 <PlanPill
                   label={plan.badge}
                   selected={selectedPlan === plan.key}
-                  accent={plan.key === 'pro' ? 'bg-amber-50 text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}
+                  accent={plan.key === 'pro' ? 'bg-amber-50 text-amber-700' : plan.key === 'elite' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-green-800'}
                 />
                 <div>
                   <p className="text-base font-bold text-stone-900">{plan.name}</p>
@@ -980,7 +980,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                   <PlanPill
                     label={plan.badge}
                     selected={true}
-                    accent={plan.key === 'pro' ? 'bg-amber-50 text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}
+                    accent={plan.key === 'pro' ? 'bg-amber-50 text-amber-700' : plan.key === 'elite' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-green-800'}
                   />
                   <h3 className="mt-4 text-3xl font-bold tracking-[-0.03em] text-stone-900">{plan.name}</h3>
                   <p className="mt-2 text-sm leading-7 text-stone-600">{plan.summary}</p>
@@ -995,7 +995,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                   <ul className="mt-4 space-y-3">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3 text-sm leading-7 text-stone-700">
-                        <Wheat className="mt-1 h-4 w-4 shrink-0 text-[#d97706]" />
+                        <Wheat className="mt-1 h-4 w-4 shrink-0 text-amber-600" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -1008,19 +1008,19 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
       </Tabs>
 
       {selectedPlan === 'free' ? (
-        <div className="rounded-[22px] border border-[#bbf7d0] bg-[#f0fdf4] p-5">
+        <div className="rounded-[22px] border border-green-200 bg-green-50 p-5">
           <div className="flex items-start gap-3">
             <Checkbox
               id="producer-commission"
               checked={formData.acceptCommission}
               onCheckedChange={(checked) => updateField('acceptCommission', Boolean(checked))}
-              className="mt-1 h-5 w-5 rounded-md border-[#86efac] data-[state=checked]:bg-[#15803d] data-[state=checked]:text-white"
+              className="mt-1 h-5 w-5 rounded-md border-green-300 data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
             />
             <div>
-              <Label htmlFor="producer-commission" className="mb-0 text-sm font-semibold text-[#14532d]">
+              <Label htmlFor="producer-commission" className="mb-0 text-sm font-semibold text-green-900">
                 Entiendo que Hispaloshop retiene un 20% de comisión por venta
               </Label>
-              <p className="mt-2 text-sm leading-7 text-[#166534]">
+              <p className="mt-2 text-sm leading-7 text-green-800">
                 No pagaras nada hasta que vendas. Cuando vendas, te quedaras con el 80%.
               </p>
               <InlineError message={errors.acceptCommission} />
@@ -1037,7 +1037,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 Pago seguro por Stripe. Cancela cuando quieras desde tu panel.
               </p>
             </div>
-            <div className="rounded-2xl bg-[#f5f3ff] p-3 text-[#4f46e5]">
+            <div className="rounded-2xl bg-violet-50 p-3 text-indigo-600">
               <CreditCard className="h-5 w-5" />
             </div>
           </div>
@@ -1056,7 +1056,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
             Pago seguro por Stripe. Si tu banco pide una confirmacion extra, la resolvemos aquí mismo sin sacarte de la página.
           </p>
           <InlineError message={errors.card} />
-          {stripeError && !errors.card ? <p className="mt-3 text-sm text-[#dc2626]">{stripeError}</p> : null}
+          {stripeError && !errors.card ? <p className="mt-3 text-sm text-red-600">{stripeError}</p> : null}
         </div>
       )}
     </div>
@@ -1073,11 +1073,11 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
         className="rounded-[32px] border border-stone-200 bg-white p-8 shadow-[0_28px_70px_-40px_rgba(0,0,0,0.22)] sm:p-10"
       >
         <div className="mx-auto max-w-2xl">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#ecfdf5] text-emerald-500 shadow-[0_18px_44px_-26px_rgba(16,185,129,0.45)]">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 shadow-[0_18px_44px_-26px_rgba(16,185,129,0.45)]">
             <CircleCheckBig className="h-10 w-10" />
           </div>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#d6d3d1] bg-stone-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
-            <Sparkles className="h-4 w-4 text-[#d97706]" />
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-stone-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+            <Sparkles className="h-4 w-4 text-amber-600" />
             Infraestructura activada
           </div>
           <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.04em] text-stone-900">
@@ -1088,7 +1088,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           </p>
           <div className="mt-8 rounded-[22px] border border-stone-200 bg-stone-50 p-5">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-1 h-5 w-5 shrink-0 text-[#14532d]" />
+              <ShieldCheck className="mt-1 h-5 w-5 shrink-0 text-green-900" />
               <p className="text-sm leading-7 text-stone-600">
                 Si tu alta queda pendiente de revision, veras primero el estado de aprobacion. Desde ahí sigues el proceso sin perder nada.
               </p>
@@ -1102,7 +1102,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 clearFlow();
                 redirectAfterAuth(activeUser, navigate);
               }}
-              className="rounded-2xl bg-[#14532d] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#166534]"
+              className="rounded-2xl bg-green-900 px-6 py-4 text-sm font-semibold text-white transition hover:bg-green-800"
             >
               Ir a mi panel de control
             </button>
@@ -1161,7 +1161,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           <div className="flex-1 overflow-y-auto bg-[#fdfcf8]">
             <div className="mx-auto flex h-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:flex-row lg:gap-12 lg:px-10 lg:py-10">
               <aside className="w-full rounded-[28px] bg-[#2c241b] p-6 text-[#faf9f6] shadow-[0_24px_70px_-36px_rgba(44,36,27,0.6)] lg:max-w-[360px]">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#fbbf24]">Lo que te llevas</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-400">Lo que te llevas</p>
                 <h3 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-white">
                   {successState ? 'Ya tienes la escalera construida.' : activePlan.name}
                 </h3>
@@ -1181,11 +1181,11 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                     <p>Guardamos el progreso en localStorage con la clave `hispalo_producer_signup`.</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-[#fbbf24]" />
+                    <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-amber-400" />
                     <p>La contrasena no se guarda en localStorage, asi evitas dejar un secreto expuesto.</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CreditCard className="mt-1 h-4 w-4 shrink-0 text-[#818cf8]" />
+                    <CreditCard className="mt-1 h-4 w-4 shrink-0 text-indigo-400" />
                     <p>FREE crea la cuenta al instante. PRO y ELITE activan Stripe inline sin salir del flujo.</p>
                   </div>
                 </div>
@@ -1240,7 +1240,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                               type="button"
                               onClick={proceed}
                               disabled={step === 1 && !formData.acceptLegal}
-                              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#14532d] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#166534] disabled:cursor-not-allowed disabled:bg-stone-300"
+                              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-green-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:bg-stone-300"
                             >
                               Continuar
                               <ArrowRight className="h-4 w-4" />
@@ -1250,7 +1250,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                               type="button"
                               onClick={submitFlow}
                               disabled={submitting}
-                              className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-[#d97706] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#b45309] disabled:cursor-not-allowed disabled:opacity-70"
+                              className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-amber-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-70"
                             >
                               {submitting ? (
                                 <>

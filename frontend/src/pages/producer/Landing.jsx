@@ -60,17 +60,17 @@ const valueCards = [
 
 function HeroStory({ expanded, onToggle }) {
   return (
-    <div className="rounded-[28px] border border-[#d97706]/40 bg-black/15 p-5 shadow-[0_22px_60px_-34px_rgba(0,0,0,0.45)] backdrop-blur-sm sm:p-7">
-      <div className="border-l-4 border-[#d97706] pl-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#fbbf24]">Verano de 2024</p>
-        <p className="mt-4 text-sm leading-7 text-[#faf9f6]/88 sm:text-[15px]">
+    <div className="rounded-[28px] border border-amber-600/40 bg-black/15 p-5 shadow-[0_22px_60px_-34px_rgba(0,0,0,0.45)] backdrop-blur-sm sm:p-7">
+      <div className="border-l-4 border-amber-600 pl-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Verano de 2024</p>
+        <p className="mt-4 text-sm leading-7 text-stone-50/88 sm:text-[15px]">
           Tenía 24 años y una obsesión: conectar a los mejores productores españoles con el mundo. Recorrí España de fábrica en fábrica. Conocí a la gente de la Cooperativa La Carrera en Úbeda, probé los productos de Anaconda Foods en Madrid y me enamoré de la honestidad de Carolina Honest en Reus. Decidí representar a esas tres fábricas en Corea del Sur.
         </p>
         <div className={`${expanded ? 'block' : 'hidden md:block'}`}>
-          <p className="mt-4 text-sm leading-7 text-[#faf9f6]/88 sm:text-[15px]">
+          <p className="mt-4 text-sm leading-7 text-stone-50/88 sm:text-[15px]">
             Con 20 kg de muestras en la maleta volé a Seúl. Luego a Japón. Durante un año viví el rechazo sistemático: oficina tras oficina de importadores, siempre la misma respuesta. No tenemos tiempo, no tenemos personal, el packaging no sirve. Nadie me miró a los ojos. Nadie valoró el alma que había en esos productos.
           </p>
-          <p className="mt-4 text-sm leading-7 text-[#faf9f6]/88 sm:text-[15px]">
+          <p className="mt-4 text-sm leading-7 text-stone-50/88 sm:text-[15px]">
             Desesperado, pedí dinero prestado e importé un container de palomitas orgánicas españolas. Fracasé estrepitosamente. Durante seis meses esas palomitas se pudrieron en mi salón de Incheon mientras me peleaba en ferias sin hablar coreano. Perdí 15.000€. Lloré en un parque de Seúl preguntándome qué había hecho mal. Lo he sufrido en mis carnes. Y por eso, ahora, estoy construyendo lo que yo necesitaba entonces.
           </p>
         </div>
@@ -79,7 +79,7 @@ function HeroStory({ expanded, onToggle }) {
       <button
         type="button"
         onClick={onToggle}
-        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#fbbf24] md:hidden"
+        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-amber-300 md:hidden"
       >
         {expanded ? 'Cerrar historia' : 'Leer toda la historia'}
         <ArrowRight className={`h-4 w-4 transition ${expanded ? 'rotate-90' : ''}`} />
@@ -124,7 +124,7 @@ export default function ProducerLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fdfcf8] text-[#1f2937]">
+    <div className="min-h-screen bg-[#fdfcf8] text-gray-800">
       <SEO
         title="Vende tu producto artesanal al mundo | Hispaloshop para Productores"
         description="Vender productos artesanales online, exportar alimentos espanoles y vender directo al consumidor sin intermediarios desde un marketplace para productores locales con IA, importadores y comunidad."
@@ -152,7 +152,7 @@ export default function ProducerLanding() {
           <div className="absolute inset-0 opacity-30" aria-hidden="true">
             <div className="absolute left-[8%] top-[18%] h-40 w-40 rounded-full border border-white/10" />
             <div className="absolute right-[10%] top-[22%] h-24 w-24 rounded-full border border-white/10" />
-            <div className="absolute bottom-[18%] right-[22%] h-52 w-52 rounded-full bg-[#14532d]/25 blur-3xl" />
+            <div className="absolute bottom-[18%] right-[22%] h-52 w-52 rounded-full bg-green-900/25 blur-3xl" />
           </div>
 
           <div className="relative mx-auto flex min-h-[calc(100svh-56px)] max-w-7xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
@@ -160,7 +160,7 @@ export default function ProducerLanding() {
               <div className="max-w-3xl">
                 <motion.span
                   {...fadeUp}
-                  className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#fbbf24]"
+                  className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-300"
                 >
                   Lo he sufrido en mis carnes
                 </motion.span>
@@ -174,7 +174,7 @@ export default function ProducerLanding() {
                 <motion.p
                   {...fadeUp}
                   transition={{ duration: 0.55, delay: 0.1 }}
-                  className="mt-6 max-w-3xl text-base leading-8 text-[#faf9f6]/92 sm:text-[22px]"
+                  className="mt-6 max-w-3xl text-base leading-8 text-stone-50/92 sm:text-[22px]"
                 >
                   La realidad del productor artesano: madrugones en el obrador, fines de semana en mercadillos vendiendo tres botes, supermercados que te piden exclusividad territorial y te pagan cuando les da la gana. Mientras tanto, tu producto se queda en stock, tu ilusion se desgasta y tu te preguntas si no habria sido mejor quedarte en el trabajo de oficina.
                 </motion.p>
@@ -186,7 +186,7 @@ export default function ProducerLanding() {
                   <button
                     type="button"
                     onClick={() => openSignup('free')}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#d97706] px-7 py-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#b45309] hover:shadow-[0_18px_40px_-18px_rgba(217,119,6,0.6)]"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-600 px-7 py-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-amber-700 hover:shadow-[0_18px_40px_-18px_rgba(217,119,6,0.6)]"
                   >
                     Crear mi tienda GRATIS
                     <ArrowRight className="h-4 w-4" />
@@ -202,7 +202,7 @@ export default function ProducerLanding() {
                 <motion.p
                   {...fadeUp}
                   transition={{ duration: 0.55, delay: 0.2 }}
-                  className="mt-8 max-w-3xl text-base leading-8 text-[#faf9f6]/88"
+                  className="mt-8 max-w-3xl text-base leading-8 text-stone-50/88"
                 >
                   Si estas leyendo esto y te duele el pecho, no estas solo. Lo he vivido. Y por eso, a mis 26 anos, de vuelta en Reus con mis ultimos euros, estoy construyendo lo que yo necesitaba entonces.
                 </motion.p>
@@ -220,10 +220,10 @@ export default function ProducerLanding() {
                       key={point}
                       className="flex min-h-[120px] items-start gap-3 rounded-[22px] border border-white/10 bg-white/[0.06] px-4 py-4"
                     >
-                      <div className="mt-1 rounded-full bg-[#f87171]/15 p-2 text-[#f87171]">
+                      <div className="mt-1 rounded-full bg-red-400/15 p-2 text-red-400">
                         <Leaf className="h-4 w-4" />
                       </div>
-                      <p className="text-sm leading-7 text-[#faf9f6]/88">{point}</p>
+                      <p className="text-sm leading-7 text-stone-50/88">{point}</p>
                     </article>
                   ))}
                 </div>
@@ -241,8 +241,8 @@ export default function ProducerLanding() {
         <section className="bg-[#fdfcf8] py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-4xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#14532d]">La infraestructura</p>
-              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-[#14532d] sm:text-[42px]">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-green-900">La infraestructura</p>
+              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-green-900 sm:text-[42px]">
                 Hispaloshop no es otro marketplace. Es tu ventana al mundo sin intermediarios que te roben el alma.
               </h2>
               <p className="mt-6 text-lg leading-8 text-slate-700">
@@ -263,12 +263,12 @@ export default function ProducerLanding() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.5, delay: index * 0.08 }}
-                    className="group rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_18px_50px_-34px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-[#16a34a] hover:shadow-[0_26px_65px_-34px_rgba(20,83,45,0.28)]"
+                    className="group rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_18px_50px_-34px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-green-600 hover:shadow-[0_26px_65px_-34px_rgba(20,83,45,0.28)]"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#14532d] text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-900 text-white">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <h3 className="mt-5 text-xl font-bold text-[#1f2937]">{card.title}</h3>
+                    <h3 className="mt-5 text-xl font-bold text-gray-800">{card.title}</h3>
                     <p className="mt-3 text-sm leading-7 text-slate-600">{card.body}</p>
                   </motion.article>
                 );
@@ -277,11 +277,11 @@ export default function ProducerLanding() {
           </div>
         </section>
 
-        <section id="planes-productor" className="bg-[#f5f5f4] py-16 sm:py-20">
+        <section id="planes-productor" className="bg-stone-100 py-16 sm:py-20">
           <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-3xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4f46e5]">Planes y accion</p>
-              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-[#1f2937] sm:text-[40px]">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-indigo-600">Planes y accion</p>
+              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-gray-800 sm:text-[40px]">
                 Elige la velocidad. Nosotros ponemos la escalera.
               </h2>
               <p className="mt-5 text-lg leading-8 text-slate-600">
@@ -300,17 +300,17 @@ export default function ProducerLanding() {
                   className={`flex h-full flex-col rounded-[30px] border-t-4 p-7 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_70px_-36px_rgba(0,0,0,0.24)] ${plan.accentClass}`}
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${plan.key === 'pro' ? 'bg-amber-50 text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${plan.key === 'pro' ? 'bg-amber-50 text-amber-700' : plan.key === 'elite' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-green-800'}`}>
                       {plan.badge}
                     </span>
                     <span className="text-sm font-semibold text-stone-400">{plan.name}</span>
                   </div>
-                  <p className="mt-6 text-4xl font-extrabold tracking-[-0.04em] text-[#1f2937]">{plan.price}</p>
+                  <p className="mt-6 text-4xl font-extrabold tracking-[-0.04em] text-gray-800">{plan.price}</p>
                   <p className="mt-4 text-sm leading-7 text-slate-600">{plan.summary}</p>
                   <ul className="mt-7 space-y-3 text-sm text-slate-600">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
-                        <Wheat className="mt-1 h-4 w-4 shrink-0 text-[#d97706]" />
+                        <Wheat className="mt-1 h-4 w-4 shrink-0 text-amber-600" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -334,8 +334,8 @@ export default function ProducerLanding() {
             >
               <div className="grid gap-5 lg:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#14532d]">SEO y mercado</p>
-                  <h3 className="mt-3 text-2xl font-bold text-[#1f2937]">Tu producto necesita infraestructura, no mas humo.</h3>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-green-900">SEO y mercado</p>
+                  <h3 className="mt-3 text-2xl font-bold text-gray-800">Tu producto necesita infraestructura, no mas humo.</h3>
                   <p className="mt-3 text-sm leading-7 text-slate-600">
                     Esto no es una promesa vaga de visibilidad. Es una forma concreta de vender productos artesanales online, de comercializar productos gourmet con mas contexto y de dejar de perseguir a quien deberia buscarte a ti.
                   </p>

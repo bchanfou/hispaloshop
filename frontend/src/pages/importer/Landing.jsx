@@ -217,7 +217,7 @@ export default function ImporterLanding() {
                   <button
                     type="button"
                     onClick={() => openOnboarding('free')}
-                    className="inline-flex items-center justify-center rounded-full bg-amber-500 px-7 py-4 text-base font-semibold text-[#1a1a1a] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_-16px_rgba(245,158,11,0.65)]"
+                    className="inline-flex items-center justify-center rounded-full bg-amber-500 px-7 py-4 text-base font-semibold text-stone-950 transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_-16px_rgba(245,158,11,0.65)]"
                   >
                     Comenzar Gratis
                   </button>
@@ -276,7 +276,7 @@ export default function ImporterLanding() {
                     key={item.text}
                     className="flex min-h-[108px] items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-4"
                   >
-                    <div className="mt-1 rounded-full bg-[#ef4444]/15 p-2 text-red-500">
+                    <div className="mt-1 rounded-full bg-red-500/15 p-2 text-red-500">
                       <Icon className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <p className="text-sm font-medium leading-6 text-white/88">{item.text}</p>
@@ -335,7 +335,7 @@ export default function ImporterLanding() {
         <section id="importer-plans" className="bg-slate-50 py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-3xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#3b82f6]">Planes y accion</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-500">Planes y accion</p>
               <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.03em] text-slate-900 sm:text-4xl">
                 Empieza con stock pequeño. Escala cuando el mercado te responda.
               </h2>
@@ -373,7 +373,7 @@ export default function ImporterLanding() {
                   <button
                     type="button"
                     onClick={() => openOnboarding(plan.id)}
-                    className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-semibold transition ${plan.id === 'pro' ? 'bg-[#3b82f6] text-white hover:bg-[#2563eb]' : plan.id === 'elite' ? 'bg-slate-900 text-white hover:bg-slate-950' : 'bg-amber-500 text-[#1a1a1a] hover:bg-amber-400'}`}
+                    className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-semibold transition ${plan.id === 'pro' ? 'bg-blue-500 text-white hover:bg-blue-600' : plan.id === 'elite' ? 'bg-slate-900 text-white hover:bg-slate-950' : 'bg-amber-500 text-stone-950 hover:bg-amber-400'}`}
                   >
                     {plan.cta}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
