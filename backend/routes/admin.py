@@ -154,6 +154,51 @@ async def toggle_discount_code(code_id: str, user: User = Depends(get_current_us
     return {"message": f"Discount code {'activated' if new_status else 'deactivated'}", "active": new_status}
 
 
+@router.get("/admin/influencer-codes/pending")
+async def get_pending_influencer_codes(user: User = Depends(get_current_user)):
+    """Get all influencer discount codes pending admin approval"""
+    await require_role(user, ["admin"])
+    codes = await db.discount_codes.find(
+        {"is_influencer_code": True, "approval_status": "pending"},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(200)
+    return codes
+
+
+@router.put("/admin/influencer-codes/{code_id}/approve")
+async def approve_influencer_code(code_id: str, user: User = Depends(get_current_user)):
+    """Approve an influencer discount code"""
+    await require_role(user, ["admin"])
+    code = await db.discount_codes.find_one({"code_id": code_id, "is_influencer_code": True}, {"_id": 0})
+    if not code:
+        raise HTTPException(status_code=404, detail="Código de influencer no encontrado")
+    await db.discount_codes.update_one(
+        {"code_id": code_id},
+        {"$set": {"active": True, "approval_status": "approved", "approved_at": datetime.now(timezone.utc).isoformat(), "approved_by": user.email}}
+    )
+    return {"message": f"Código {code['code']} aprobado y activado", "code": code["code"]}
+
+
+@router.put("/admin/influencer-codes/{code_id}/reject")
+async def reject_influencer_code(code_id: str, reason: str = "", user: User = Depends(get_current_user)):
+    """Reject an influencer discount code"""
+    await require_role(user, ["admin"])
+    code = await db.discount_codes.find_one({"code_id": code_id, "is_influencer_code": True}, {"_id": 0})
+    if not code:
+        raise HTTPException(status_code=404, detail="Código de influencer no encontrado")
+    await db.discount_codes.update_one(
+        {"code_id": code_id},
+        {"$set": {"active": False, "approval_status": "rejected", "rejection_reason": reason, "rejected_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    # Also clear the influencer's discount_code_id so they can request a new one
+    if code.get("influencer_id"):
+        await db.influencers.update_one(
+            {"influencer_id": code["influencer_id"]},
+            {"$unset": {"discount_code_id": ""}}
+        )
+    return {"message": f"Código {code['code']} rechazado"}
+
+
 # =====================================================
 # PHASE 4: INFLUENCER MANAGEMENT ENDPOINTS (ADMIN)
 # =====================================================

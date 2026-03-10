@@ -67,6 +67,8 @@ export default function FinancialDashboard() {
   const [downloading, setDownloading] = useState(false);
   const [filter, setFilter] = useState('all');
   const [expandedRow, setExpandedRow] = useState(null);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
@@ -101,18 +103,22 @@ export default function FinancialDashboard() {
   const handleDownloadExcel = async () => {
     setDownloading(true);
     try {
-      const response = await axios.get(`${API}/admin/export/financial-report`, {
+      const params = new URLSearchParams();
+      if (dateFrom) params.set('date_from', dateFrom);
+      if (dateTo) params.set('date_to', dateTo);
+      const response = await axios.get(`${API}/admin/export/financial-report?${params.toString()}`, {
         withCredentials: true,
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `financial_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      const suffix = dateFrom && dateTo ? `_${dateFrom}_al_${dateTo}` : `_${new Date().toISOString().slice(0, 10)}`;
+      link.setAttribute('download', `hispaloshop_contabilidad${suffix}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success('Reporte descargado');
+      toast.success('Reporte descargado correctamente');
     } catch (err) {
       toast.error('Error descargando reporte');
     } finally {
@@ -181,19 +187,34 @@ export default function FinancialDashboard() {
           </h1>
           <p className="text-sm text-text-muted mt-0.5">Ledger financiero, impuestos y consolidacion USD</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={fetchData} data-testid="refresh-btn">
             <RefreshCw className="w-4 h-4" />
           </Button>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={e => setDateFrom(e.target.value)}
+            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-[#444] focus:outline-none focus:ring-1 focus:ring-stone-400"
+            title="Desde"
+          />
+          <input
+            type="date"
+            value={dateTo}
+            onChange={e => setDateTo(e.target.value)}
+            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-[#444] focus:outline-none focus:ring-1 focus:ring-stone-400"
+            title="Hasta"
+          />
           <Button
             variant="outline"
             size="sm"
             onClick={handleDownloadExcel}
             disabled={downloading}
             data-testid="download-excel-btn"
+            className="bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
           >
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            <span className="ml-1.5 hidden sm:inline">Excel</span>
+            <span className="ml-1.5">Descargar Excel</span>
           </Button>
         </div>
       </div>

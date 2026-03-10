@@ -1594,24 +1594,39 @@ async def export_financial_report(
         query.setdefault("created_at", {})["$lte"] = date_to
     
     entries = await db.financial_ledger.find(query, {"_id": 0}).sort("created_at", 1).to_list(5000)
-    
+
+    # Build lookup maps for seller/influencer names
+    seller_ids = {e.get("seller_id") for e in entries if e.get("seller_id")}
+    influencer_ids = {e.get("influencer_id") for e in entries if e.get("influencer_id")}
+
+    seller_map = {}
+    for doc in await db.users.find({"user_id": {"$in": list(seller_ids)}}, {"_id": 0, "user_id": 1, "full_name": 1, "email": 1}).to_list(500):
+        seller_map[doc["user_id"]] = f"{doc.get('full_name', '')} <{doc.get('email', '')}>"
+
+    influencer_map = {}
+    for doc in await db.influencers.find({"influencer_id": {"$in": list(influencer_ids)}}, {"_id": 0, "influencer_id": 1, "full_name": 1, "email": 1}).to_list(500):
+        influencer_map[doc["influencer_id"]] = f"{doc.get('full_name', '')} <{doc.get('email', '')}>"
+
     wb = Workbook()
     headers = [
-        "Fecha", "Order ID", "Event Type", "Seller", "Seller Country",
-        "Buyer Country", "Buyer State", "Gross", "Product Tax", "Tax Type",
-        "Platform Fee", "Platform Tax", "Stripe Fee", "Seller Net",
-        "Influencer", "Influencer Amount", "Currency", "USD Equivalent",
-        "VAT Rate", "Reverse Charge", "Transfer ID", "Status"
+        "Fecha", "Order ID", "Tipo de Evento", "Vendedor (Nombre)", "Vendedor (ID)", "País Vendedor",
+        "País Comprador", "Región Comprador", "Bruto (€)", "Impuesto Producto", "Tipo Impuesto",
+        "Comisión Plataforma", "Impuesto Plataforma", "Fee Stripe", "Neto Vendedor (€)",
+        "Influencer (Nombre)", "Influencer (ID)", "Comisión Influencer (€)",
+        "Moneda", "Equiv. USD", "Tasa IVA Aplicada", "Cargo Inverso", "Transfer ID", "Estado"
     ]
-    
+
     def write_sheet(ws, rows):
         ws.append(headers)
         for e in rows:
+            sid = e.get("seller_id", "")
+            iid = e.get("influencer_id", "")
             ws.append([
                 e.get("created_at", "")[:10],
                 e.get("order_id", ""),
                 e.get("event_type", ""),
-                e.get("seller_id", ""),
+                seller_map.get(sid, ""),
+                sid,
                 e.get("seller_country", ""),
                 e.get("buyer_country", ""),
                 e.get("buyer_state", ""),
@@ -1622,43 +1637,58 @@ async def export_financial_report(
                 e.get("platform_tax_amount", 0),
                 e.get("stripe_fee", 0),
                 e.get("seller_net", 0),
-                e.get("influencer_id", ""),
+                influencer_map.get(iid, ""),
+                iid,
                 e.get("influencer_amount", 0),
                 e.get("currency", ""),
                 e.get("usd_equivalent", 0),
                 e.get("vat_rate_applied", 0),
-                "Yes" if e.get("reverse_charge_applied") else "No",
+                "Sí" if e.get("reverse_charge_applied") else "No",
                 e.get("transfer_id", ""),
                 e.get("status", ""),
             ])
-    
+
     # Sheet 1 — Full Ledger
     ws1 = wb.active
     ws1.title = "Ledger Completo"
     write_sheet(ws1, entries)
-    
-    # Sheet 2 — US
-    ws2 = wb.create_sheet("Resumen US")
-    us_entries = [e for e in entries if e.get("buyer_country") == "US"]
-    write_sheet(ws2, us_entries)
-    
-    # Sheet 3 — EU
-    ws3 = wb.create_sheet("Resumen EU")
+
+    # Sheet 2 — EU
     from services.ledger import EU_VAT_RATES
     eu_countries = set(EU_VAT_RATES.keys())
-    eu_entries = [e for e in entries if e.get("buyer_country") in eu_countries]
-    write_sheet(ws3, eu_entries)
-    
+    ws2 = wb.create_sheet("Resumen EU")
+    write_sheet(ws2, [e for e in entries if e.get("buyer_country") in eu_countries])
+
+    # Sheet 3 — US
+    ws3 = wb.create_sheet("Resumen US")
+    write_sheet(ws3, [e for e in entries if e.get("buyer_country") == "US"])
+
     # Sheet 4 — KR
     ws4 = wb.create_sheet("Resumen KR")
-    kr_entries = [e for e in entries if e.get("buyer_country") == "KR"]
-    write_sheet(ws4, kr_entries)
-    
-    # Sheet 5 — USD Consolidated
-    ws5 = wb.create_sheet("Consolidado USD")
-    ws5.append(["Fecha", "Order ID", "Event Type", "USD Equivalent", "Currency", "Original Amount", "Exchange Rate"])
-    for e in entries:
+    write_sheet(ws4, [e for e in entries if e.get("buyer_country") == "KR"])
+
+    # Sheet 5 — Influencer Commissions Detail
+    ws5 = wb.create_sheet("Comisiones Influencers")
+    ws5.append(["Fecha", "Influencer (Nombre)", "Influencer (ID)", "Order ID", "Comisión (€)", "Moneda", "Tier", "Estado"])
+    inf_entries = [e for e in entries if e.get("influencer_id") and e.get("influencer_amount", 0) > 0]
+    for e in inf_entries:
+        iid = e.get("influencer_id", "")
         ws5.append([
+            e.get("created_at", "")[:10],
+            influencer_map.get(iid, ""),
+            iid,
+            e.get("order_id", ""),
+            e.get("influencer_amount", 0),
+            e.get("currency", ""),
+            e.get("influencer_tier", ""),
+            e.get("status", ""),
+        ])
+
+    # Sheet 6 — Consolidado USD
+    ws6 = wb.create_sheet("Consolidado USD")
+    ws6.append(["Fecha", "Order ID", "Tipo Evento", "Equiv. USD", "Moneda Original", "Importe Original", "Tasa de Cambio"])
+    for e in entries:
+        ws6.append([
             e.get("created_at", "")[:10],
             e.get("order_id", ""),
             e.get("event_type", ""),
@@ -1667,13 +1697,21 @@ async def export_financial_report(
             e.get("product_subtotal", 0),
             e.get("exchange_rate_to_usd", 0),
         ])
-    
+
     # Save to bytes
     output = io.BytesIO()
     wb.save(output)
     output.seek(0)
-    
-    filename = f"hispaloshop_financial_report_{datetime.now(timezone.utc).strftime('%Y%m%d')}.xlsx"
+
+    period = ""
+    if date_from:
+        period += f"_{date_from}"
+    if date_to:
+        period += f"_al_{date_to}"
+    if not period:
+        period = f"_{datetime.now(timezone.utc).strftime('%Y%m%d')}"
+
+    filename = f"hispaloshop_contabilidad{period}.xlsx"
     return StreamingResponse(
         output,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

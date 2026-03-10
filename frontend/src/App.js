@@ -120,6 +120,7 @@ const InfluencerDashboardNew = lazy(() => import('./pages/dashboard/influencer')
 const ProducerDashboardNew = lazy(() => import('./pages/dashboard/producer'));
 const ImporterDashboardNew = lazy(() => import('./pages/dashboard/importer'));
 const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
+const ImporterCertificatesPage = lazy(() => import('./pages/importer/ImporterCertificatesPage'));
 
 // Registration flows
 const RoleSelector = lazy(() => import('./pages/register/RoleSelector'));
@@ -285,6 +286,14 @@ function AppRouter() {
                 element={(
                   <ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}>
                     <ImporterDashboardPage />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/importer/certificates"
+                element={(
+                  <ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}>
+                    <ImporterCertificatesPage />
                   </ProtectedRoute>
                 )}
               />

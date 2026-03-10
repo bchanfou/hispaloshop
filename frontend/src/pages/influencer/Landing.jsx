@@ -274,21 +274,39 @@ export default function Landing() {
                     <div className="rounded-[24px] border border-fuchsia-400/30 bg-fuchsia-500/10 p-5">
                       <p className="text-sm uppercase tracking-[0.24em] text-fuchsia-100/80">Lo he visto con mis propios ojos</p>
                       <p className="mt-3 text-lg font-semibold text-white">
-                        300.000 seguidores no garantizan comer todos los dias.
+                        300.000 seguidores. Sin poder comer tranquilo al final del mes.
                       </p>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-                        <p className="text-sm uppercase tracking-[0.24em] text-slate-400">@bchanfuah</p>
+                        <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Alberto</p>
                         <p className="mt-3 text-sm leading-6 text-slate-300">
-                          Si quieres saber quien esta detras de esto, sigo aqui. No escondido detras de una marca.
+                          300k seguidores. Lo vi destruido: aceptando inauguraciones de autoservicios, vendiendo
+                          cremas que no usaba. Miedo en los ojos.
                         </p>
                       </div>
                       <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
+                        <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Rebeca</p>
+                        <p className="mt-3 text-sm leading-6 text-slate-300">
+                          2.000 seguidores y una dedicación brutal. Su sueño: vivir en Corea creando contenido.
+                          Sin tener que vender su alma.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
                         <p className="text-sm uppercase tracking-[0.24em] text-slate-400">18 meses</p>
                         <p className="mt-3 text-sm leading-6 text-slate-300">
-                          Si conectas a una persona con un producto real, sigues cobrando cuando vuelva.
+                          Si conectas a una persona con un producto real, sigues cobrando cada vez que vuelva.
+                          Ingreso pasivo de verdad.
+                        </p>
+                      </div>
+                      <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
+                        <p className="text-sm uppercase tracking-[0.24em] text-slate-400">@bchanfuah</p>
+                        <p className="mt-3 text-sm leading-6 text-slate-300">
+                          Sigo aquí. No escondido detrás de una marca. Lo construí para ellos. Y para ti.
                         </p>
                       </div>
                     </div>
@@ -301,17 +319,33 @@ export default function Landing() {
               <div className="relative">
                 <div className={!storyExpanded ? 'max-h-[15.5rem] overflow-hidden md:max-h-none' : ''}>
                   <p className="text-lg leading-8 text-slate-100">
-                    A los 22 anos estaba en Seul, haciendo de extra en videoclips de K-pop y series de Netflix.
-                    Conoci a Alberto. 300.000 seguidores en Instagram. Belleza pura. Pero lo veia partirse el lomo:
-                    aceptando eventos de inauguracion de locales de autoservicio, vendiendo cremas que no usa,
-                    posteando cosas que no le representan solo porque bro, es que tengo que pagar el piso. Esa imagen
-                    nunca se me quito de la cabeza.
+                    Tenía 22 años cuando me metí en el mundo del K-pop y los K-dramas en Corea del Sur. Trabajaba
+                    como extra, apareciendo fugazmente en videoclips y series de Netflix. Fue ahí donde conocí a{' '}
+                    <strong className="text-white">Alberto</strong>. Trescientos mil seguidores en Instagram. Pero
+                    lo vi destruido: tenía que aceptar colaboraciones con marcas que no representaba, vender
+                    productos que ni siquiera usaba, asistir a inauguraciones de locales solo para pagar el piso.
+                    Vi en sus ojos el miedo que todos los creadores conocen: tener la audiencia pero no la libertad.
+                    Esa imagen no se me quitó de la cabeza.
                   </p>
                   <p className="mt-6 text-lg leading-8 text-slate-100">
-                    Ahora tengo 26 anos. Son las 6 de la madrugada. Estoy en la habitacion de mis padres en Reus.
-                    Llevo toda la noche despierto con 3 cafes encima escribiendo esto. No te voy a vender humo. No te
-                    voy a decir que seras millonario en 3 meses. Te voy a decir la verdad: esto es dificil. Pero es
-                    real. Y es justo.
+                    Pero también conocí a <strong className="text-white">Rebeca</strong>. Apenas 2.000 seguidores
+                    recién conquistados. La vi trabajar con una dedicación que me dejó sin palabras. Su sueño:
+                    vivir en Corea del Sur dedicándose a crear contenido. Hacerlo dignamente, sin vender su alma.
+                    Y yo pensé: &ldquo;Esta chica se lo merece, pero el sistema está diseñado para que solo ganen
+                    las grandes corporaciones&rdquo;.
+                  </p>
+                  <p className="mt-6 text-lg leading-8 text-slate-100">
+                    A los 24 años recorrí España de fábrica en fábrica buscando los mejores productores. A los
+                    25 perdí 15.000€ importando un container de palomitas orgánicas que se pudrió en Incheon
+                    mientras yo rogaba en ferias sin hablar coreano. Lloré en un parque de Seúl. A los 26 volví
+                    a la habitación de mis padres en Reus. Son las 6 de la mañana y llevo dos meses sin dormir
+                    más de 5 horas al día construyendo esto.
+                  </p>
+                  <p className="mt-6 text-lg leading-8 text-slate-100">
+                    <strong className="text-white">Lo hice pensando en Alberto y en Rebeca.</strong> Para que
+                    Alberto no tenga que elegir entre su integridad y su pan. Para que Rebeca, con sus 2.000
+                    seguidores y su dedicación brutal, pueda empezar a vivir de esto sin esperar a tener cien mil.
+                    Por eso el mínimo son 1.000 seguidores: el valor no está en el número, está en la conexión real.
                   </p>
                 </div>
 

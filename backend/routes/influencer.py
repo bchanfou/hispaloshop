@@ -124,10 +124,14 @@ async def get_influencer_dashboard(user: User = Depends(get_current_user)):
     
     # Get their discount code
     discount_code = None
+    discount_code_active = False
+    discount_code_approval_status = None
     if influencer.get("discount_code_id"):
         code = await db.discount_codes.find_one({"code_id": influencer["discount_code_id"]}, {"_id": 0})
         if code:
             discount_code = code["code"]
+            discount_code_active = code.get("active", False)
+            discount_code_approval_status = code.get("approval_status", "approved" if code.get("active") else "pending")
     
     # Get recent commissions with payment info
     recent_commissions = await db.influencer_commissions.find(
@@ -176,6 +180,8 @@ async def get_influencer_dashboard(user: User = Depends(get_current_user)):
         "full_name": influencer.get("full_name", "Influencer"),
         "status": influencer.get("status", "pending"),
         "discount_code": discount_code,
+        "discount_code_active": discount_code_active,
+        "discount_code_approval_status": discount_code_approval_status,
         "current_tier": current_tier,
         "commission_type": "percentage",
         "commission_rate": commission_rate,
@@ -227,14 +233,15 @@ async def create_influencer_discount_code(input: CreateInfluencerCodeInput, user
     if existing:
         raise HTTPException(status_code=400, detail="Este código ya está en uso. Elige otro.")
     
-    # Create the discount code
+    # Create the discount code (inactive until admin approves)
     code_id = f"code_{uuid.uuid4().hex[:12]}"
     discount_code = {
         "code_id": code_id,
         "code": code,
         "type": "percentage",
-        "value": 10,  # 10% discount for customers
-        "active": True,
+        "value": 10,  # 10% discount for customers — fixed
+        "active": False,  # Activated only after admin approval
+        "approval_status": "pending",  # pending | approved | rejected
         "description": f"Código de influencer {influencer['full_name']}",
         "min_cart_amount": None,
         "usage_limit": None,  # Unlimited uses
@@ -244,20 +251,33 @@ async def create_influencer_discount_code(input: CreateInfluencerCodeInput, user
         "end_date": None,
         "is_influencer_code": True,
         "influencer_id": influencer["influencer_id"],
+        "influencer_name": influencer.get("full_name", ""),
+        "influencer_handle": influencer.get("social_handle", ""),
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.discount_codes.insert_one(discount_code)
-    
+
     # Update influencer with the code
     await db.influencers.update_one(
         {"influencer_id": influencer["influencer_id"]},
         {"$set": {"discount_code_id": code_id}}
     )
-    
+
+    # Notify admins
+    await db.admin_notifications.insert_one({
+        "type": "influencer_code_pending",
+        "message": f"El influencer {influencer['full_name']} ha creado el código {code} — requiere aprobación",
+        "influencer_id": influencer["influencer_id"],
+        "code_id": code_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "read": False
+    })
+
     return {
         "success": True,
         "code": code,
-        "message": f"¡Código {code} creado! Tus seguidores recibirán 10% de descuento."
+        "approval_status": "pending",
+        "message": f"¡Código {code} solicitado! El equipo de Hispaloshop lo revisará en menos de 24h."
     }
 
 @router.get("/influencer/commissions")

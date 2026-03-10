@@ -5,9 +5,9 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { API } from '../../utils/api';
-import { 
+import {
   Plus, Trash2, Edit, Search, Tag, Percent, DollarSign, Truck,
-  Check, X, Calendar, Users, ShoppingBag
+  Check, X, Calendar, Users, ShoppingBag, Clock, Sparkles
 } from 'lucide-react';
 
 
@@ -15,6 +15,7 @@ import {
 export default function AdminDiscountCodes() {
   const { t } = useTranslation();
   const [discountCodes, setDiscountCodes] = useState([]);
+  const [pendingInfluencerCodes, setPendingInfluencerCodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -32,18 +33,46 @@ export default function AdminDiscountCodes() {
   });
 
   useEffect(() => {
-    fetchDiscountCodes();
+    fetchAll();
   }, []);
 
-  const fetchDiscountCodes = async () => {
+  const fetchAll = async () => {
     try {
-      const response = await axios.get(`${API}/admin/discount-codes`, { withCredentials: true });
-      setDiscountCodes(response.data);
+      const [codesRes, pendingRes] = await Promise.all([
+        axios.get(`${API}/admin/discount-codes`, { withCredentials: true }),
+        axios.get(`${API}/admin/influencer-codes/pending`, { withCredentials: true }),
+      ]);
+      setDiscountCodes(codesRes.data);
+      setPendingInfluencerCodes(pendingRes.data);
     } catch (error) {
       console.error('Error fetching discount codes:', error);
-      toast.error('Failed to load discount codes');
+      toast.error('Error al cargar los códigos de descuento');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDiscountCodes = fetchAll;
+
+  const handleApproveInfluencerCode = async (codeId, codeName) => {
+    try {
+      await axios.put(`${API}/admin/influencer-codes/${codeId}/approve`, {}, { withCredentials: true });
+      toast.success(`Código ${codeName} aprobado y activado`);
+      fetchAll();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Error al aprobar el código');
+    }
+  };
+
+  const handleRejectInfluencerCode = async (codeId, codeName) => {
+    const reason = window.prompt(`Motivo del rechazo del código ${codeName} (opcional):`);
+    if (reason === null) return; // Cancelled
+    try {
+      await axios.put(`${API}/admin/influencer-codes/${codeId}/reject?reason=${encodeURIComponent(reason || '')}`, {}, { withCredentials: true });
+      toast.success(`Código ${codeName} rechazado`);
+      fetchAll();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Error al rechazar el código');
     }
   };
 
@@ -172,8 +201,8 @@ export default function AdminDiscountCodes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C]">Discount Codes</h1>
-          <p className="text-[#7A7A7A] text-sm mt-1">Manage promotional codes and discounts</p>
+          <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C]">Códigos de Descuento</h1>
+          <p className="text-[#7A7A7A] text-sm mt-1">Gestiona códigos promocionales e influencers</p>
         </div>
         <Button
           onClick={() => setShowCreateForm(true)}
@@ -181,9 +210,56 @@ export default function AdminDiscountCodes() {
           data-testid="create-discount-btn"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Create Code
+          Nuevo código
         </Button>
       </div>
+
+      {/* Pending influencer codes */}
+      {pendingInfluencerCodes.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Clock className="w-5 h-5 text-amber-600" />
+            <h2 className="font-semibold text-amber-800">
+              Códigos de influencer pendientes de aprobación ({pendingInfluencerCodes.length})
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {pendingInfluencerCodes.map((code) => (
+              <div key={code.code_id} className="bg-white rounded-lg border border-amber-200 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-9 h-9 rounded-full bg-fuchsia-100 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-4 h-4 text-fuchsia-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-[#1C1C1C] text-lg tracking-wide">{code.code}</p>
+                    <p className="text-sm text-[#7A7A7A] truncate">
+                      {code.influencer_name || 'Influencer'}{code.influencer_handle ? ` · ${code.influencer_handle}` : ''} · 10% descuento · uso ilimitado
+                    </p>
+                    <p className="text-xs text-[#9A9A9A]">Solicitado: {new Date(code.created_at).toLocaleDateString('es-ES')}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
+                    onClick={() => handleApproveInfluencerCode(code.code_id, code.code)}
+                  >
+                    <Check className="w-4 h-4 mr-1" /> Aprobar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-300 text-red-600 hover:bg-red-50 rounded-full px-4"
+                    onClick={() => handleRejectInfluencerCode(code.code_id, code.code)}
+                  >
+                    <X className="w-4 h-4 mr-1" /> Rechazar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Create/Edit Form */}
       {showCreateForm && (

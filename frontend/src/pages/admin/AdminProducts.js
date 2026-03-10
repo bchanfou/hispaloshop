@@ -4,9 +4,9 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { API } from '../../utils/api';
-import { 
+import {
   Search, CheckCircle, XCircle, Trash2, Edit, ArrowLeft, Plus,
-  Package, DollarSign
+  Package, DollarSign, ClipboardList
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -21,6 +21,8 @@ export default function AdminProducts() {
   const [filter, setFilter] = useState('all');
   const [editingProduct, setEditingProduct] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [checklistProduct, setChecklistProduct] = useState(null); // product pending checklist approval
+  const [checklistItems, setChecklistItems] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     category_id: '',
@@ -59,10 +61,30 @@ export default function AdminProducts() {
     }
   };
 
+  const openApprovalChecklist = (product) => {
+    // Auto-detect which items are already met
+    const hasPhotos = (product.images?.filter(i => i)?.length || 0) >= 1;
+    const hasIngredients = (product.ingredients?.length || 0) > 0;
+    const hasAllergens = Array.isArray(product.allergens); // field exists (can be empty = "none")
+    const hasCertifications = (product.certifications?.length || 0) > 0;
+    const hasDescription = (product.description?.trim()?.length || 0) >= 20;
+    const hasCountry = !!product.country_origin?.trim();
+    setChecklistItems({
+      photos: hasPhotos,
+      ingredients: hasIngredients,
+      allergens: hasAllergens,
+      certifications: hasCertifications,
+      description: hasDescription,
+      country: hasCountry,
+    });
+    setChecklistProduct(product);
+  };
+
   const approveProduct = async (productId, approved) => {
     try {
       await axios.put(`${API}/admin/products/${productId}/approve?approved=${approved}`, {}, { withCredentials: true });
       toast.success(approved ? t('adminProducts.messages.productApproved') : t('adminProducts.messages.productRejected'));
+      setChecklistProduct(null);
       fetchProducts();
     } catch (error) {
       toast.error(t('adminProducts.messages.updateError'));
@@ -385,10 +407,10 @@ export default function AdminProducts() {
                         <Button
                           size="sm"
                           className="bg-green-600 hover:bg-green-700"
-                          onClick={() => approveProduct(product.product_id, true)}
+                          onClick={() => openApprovalChecklist(product)}
                           data-testid={`approve-${product.product_id}`}
                         >
-                          <CheckCircle className="w-4 h-4" />
+                          <ClipboardList className="w-4 h-4" />
                         </Button>
                       )}
                       {product.approved && (
@@ -419,5 +441,65 @@ export default function AdminProducts() {
         )}
       </div>
     </div>
+
+    {/* Approval Checklist Modal */}
+    {checklistProduct && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <ClipboardList className="w-6 h-6 text-amber-600" />
+            <h2 className="text-lg font-semibold text-[#1C1C1C]">Checklist de Aprobación</h2>
+          </div>
+          <p className="text-sm text-[#7A7A7A] mb-5">
+            Verifica que el producto <strong>{checklistProduct.name}</strong> cumple todos los requisitos antes de aprobar.
+          </p>
+          <div className="space-y-3 mb-6">
+            {[
+              { key: 'photos', label: 'Al menos 1 foto del producto', auto: true },
+              { key: 'description', label: 'Descripción completa (mín. 20 caracteres)', auto: true },
+              { key: 'country', label: 'País de origen indicado', auto: true },
+              { key: 'ingredients', label: 'Ingredientes listados', auto: true },
+              { key: 'allergens', label: 'Alérgenos revisados (campo presente)', auto: true },
+              { key: 'certifications', label: 'Certificaciones o normativas adjuntas', auto: true },
+            ].map(({ key, label }) => (
+              <label key={key} className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={!!checklistItems[key]}
+                  onChange={(e) => setChecklistItems(prev => ({ ...prev, [key]: e.target.checked }))}
+                  className="mt-0.5 w-4 h-4 accent-green-600"
+                />
+                <span className={`text-sm ${checklistItems[key] ? 'text-[#1C1C1C]' : 'text-[#7A7A7A]'}`}>
+                  {label}
+                  {checklistItems[key] === false && <span className="ml-1 text-amber-500 text-xs">(falta)</span>}
+                </span>
+              </label>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            <Button
+              className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-40"
+              disabled={!Object.values(checklistItems).every(Boolean)}
+              onClick={() => approveProduct(checklistProduct.product_id, true)}
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Aprobar Producto
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setChecklistProduct(null)}
+            >
+              Cancelar
+            </Button>
+          </div>
+          {!Object.values(checklistItems).every(Boolean) && (
+            <p className="text-xs text-amber-600 mt-3 text-center">
+              Marca todos los ítems para poder aprobar
+            </p>
+          )}
+        </div>
+      </div>
+    )}
   );
 }

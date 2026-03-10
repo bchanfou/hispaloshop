@@ -270,9 +270,46 @@ const QueEsPage = () => {
         </div>
       </section>
 
+      <section className="bg-[#1A1A1A] py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#9CC3A6] mb-3">La historia detrás</p>
+            <h2 className="text-3xl font-bold text-white mb-4">Por qué existe Hispaloshop</h2>
+            <p className="text-[#9a9a9a] text-lg">No es una empresa. Es una respuesta a algo que vi con mis propios ojos.</p>
+          </div>
+          <div className="bg-white/5 rounded-2xl p-6 sm:p-8 border border-white/10 space-y-5 text-[#d1d5db] text-base leading-8">
+            <p>
+              Tenía 24 años y recorría España de fábrica en fábrica. Conocí a productores increíbles: la{' '}
+              <strong className="text-white">Cooperativa La Carrera</strong> en Úbeda,{' '}
+              <strong className="text-white">Anaconda Foods</strong> en Madrid,{' '}
+              <strong className="text-white">Carolina Honest</strong> en Reus. Gente que se partía el lomo para
+              hacer algo con alma. Y nadie los veía. Sus productos se perdían entre estanterías de supermercados
+              que se quedaban el 50% del margen y los pagaban cuando les daba la gana.
+            </p>
+            <p>
+              Intenté llevar esos productos al mundo. Fracasé. Perdí 15.000€ y lloré en un parque de Seúl.
+              Pero entendí algo que no se olvida: <strong className="text-white">el problema no era el producto.
+              Era la falta de un canal directo entre quien hace la comida y quien la come.</strong>
+            </p>
+            <p>
+              Hispaloshop existe para eso. Para que tú sepas exactamente quién hace lo que comes. Para que el
+              productor honesto no sea invisible. Para que la calidad de verdad llegue directamente a tu mesa,
+              sin intermediarios que inflan el precio y borran la historia.
+            </p>
+            <div className="pt-2 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#2D5A3D] flex items-center justify-center text-white font-bold text-xs shrink-0">BC</div>
+              <div>
+                <p className="text-white font-semibold text-sm">Bil Chanfou — Fundador</p>
+                <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-[#9CC3A6] hover:text-white transition-colors">@bchanfuah</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-[#F5F1E8] py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">Como funciona</h2>
+          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">Cómo funciona</h2>
           <StepProcess steps={STEPS} layout="horizontal" />
         </div>
       </section>

@@ -64,14 +64,14 @@ function HeroStory({ expanded, onToggle }) {
       <div className="border-l-4 border-[#d97706] pl-5">
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#fbbf24]">Verano de 2024</p>
         <p className="mt-4 text-sm leading-7 text-[#faf9f6]/88 sm:text-[15px]">
-          Tenia 24 anos y una obsesion: conectar a los mejores productores espanoles con el mundo. Pase meses recorriendo Espana de fabrica en fabrica. Conoci a la gente de la Cooperativa La Carrera, probe los productos de Anaconda Foods y me enamore de la honestidad de Carolina Honest. Decidi representar a esas tres fabricas en Corea del Sur.
+          Tenía 24 años y una obsesión: conectar a los mejores productores españoles con el mundo. Recorrí España de fábrica en fábrica. Conocí a la gente de la Cooperativa La Carrera en Úbeda, probé los productos de Anaconda Foods en Madrid y me enamoré de la honestidad de Carolina Honest en Reus. Decidí representar a esas tres fábricas en Corea del Sur.
         </p>
         <div className={`${expanded ? 'block' : 'hidden md:block'}`}>
           <p className="mt-4 text-sm leading-7 text-[#faf9f6]/88 sm:text-[15px]">
-            Con unas cuantas muestras en la maleta vole a Seul. Despues pase 5 meses en Japon, entrando en oficina tras oficina de importadores. La respuesta era siempre la misma: no tenemos tiempo, no tenemos personal, el packaging no esta adaptado. Nadie me miro a los ojos. Nadie valoro el alma que habia en esos productos.
+            Con 20 kg de muestras en la maleta volé a Seúl. Luego a Japón. Durante un año viví el rechazo sistemático: oficina tras oficina de importadores, siempre la misma respuesta. No tenemos tiempo, no tenemos personal, el packaging no sirve. Nadie me miró a los ojos. Nadie valoró el alma que había en esos productos.
           </p>
           <p className="mt-4 text-sm leading-7 text-[#faf9f6]/88 sm:text-[15px]">
-            Desesperado, pedi dinero prestado e intente importar yo mismo. Fracase. Tan estrepitosamente que casi pedi comida en la calle en Tokio. Llore en un parque de Shinjuku preguntandome que habia hecho mal. Lo he sufrido en mis carnes. Y por eso, ahora, estoy construyendo lo que yo necesitaba entonces.
+            Desesperado, pedí dinero prestado e importé un container de palomitas orgánicas españolas. Fracasé estrepitosamente. Durante seis meses esas palomitas se pudrieron en mi salón de Incheon mientras me peleaba en ferias sin hablar coreano. Perdí 15.000€. Lloré en un parque de Seúl preguntándome qué había hecho mal. Lo he sufrido en mis carnes. Y por eso, ahora, estoy construyendo lo que yo necesitaba entonces.
           </p>
         </div>
       </div>

@@ -193,8 +193,37 @@ export default function AboutPage() {
           </div>
         </section>
 
+        <section className="mb-12">
+          <h2 className="font-heading text-2xl font-semibold text-[#1C1C1C] text-center mb-2">Por qué existe Hispaloshop</h2>
+          <p className="text-sm text-[#666] text-center mb-8">La historia real detrás del proyecto.</p>
+          <div className="bg-[#1C1C1C] rounded-2xl p-6 sm:p-8 text-white">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-[#2D5A27] flex items-center justify-center text-white font-bold text-sm shrink-0">BC</div>
+              <div>
+                <p className="font-semibold text-white text-sm">Bil Chanfou</p>
+                <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-stone-400 hover:text-white transition-colors">@bchanfuah</a>
+              </div>
+              <span className="ml-auto text-xs text-stone-500 uppercase tracking-widest">Fundador</span>
+            </div>
+            <div className="space-y-4 text-sm leading-7 text-stone-300">
+              <p>
+                Tenía 22 años cuando estaba en Seúl haciendo de extra en videoclips de K-pop. Conocí a <strong className="text-white">Alberto</strong> —300.000 seguidores en Instagram— destruido: vendiendo productos que no usaba solo para pagar el piso. Y a <strong className="text-white">Rebeca</strong>, con apenas 2.000 seguidores y una dedicación brutal, soñando con vivir de crear contenido dignamente. El sistema no estaba hecho para ninguno de los dos.
+              </p>
+              <p>
+                A los 24 años recorrí España de fábrica en fábrica: la Cooperativa La Carrera en Úbeda, Anaconda Foods en Madrid, Carolina Honest en Reus. Volé a Seúl con 20 kg de muestras. Luego a Japón. Un año de rechazo sistemático: nadie valoró el alma que había en esos productos.
+              </p>
+              <p>
+                A los 25 perdí 15.000€ en un container de palomitas que se pudrió en Incheon. Lloré en un parque de Seúl. A los 26, volví a la habitación de mis padres en Reus. Son las 6 de la mañana y llevo dos meses sin dormir más de 5 horas construyendo esto.
+              </p>
+              <p className="text-white font-medium">
+                Lo hice para que ningún productor honesto vuelva a sentirse invisible. Para que ningún influencer tenga que elegir entre su integridad y su pan.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section className="mb-12 text-center">
-          <h2 className="font-heading text-2xl font-semibold text-[#1C1C1C] mb-8">Como funciona</h2>
+          <h2 className="font-heading text-2xl font-semibold text-[#1C1C1C] mb-8">Cómo funciona</h2>
           <div className="grid grid-cols-3 gap-4">
             {[
               { icon: Sparkles, title: 'Descubre', desc: 'Explora catalogo, tiendas y contenido.' },

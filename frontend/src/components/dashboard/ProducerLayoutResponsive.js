@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import { 
-  Package, FileCheck, ShoppingBag, CreditCard, 
-  LayoutDashboard, ArrowLeft, LogOut, AlertTriangle, 
-  User, Store, Menu, X, MoreHorizontal, Settings
+import {
+  Package, FileCheck, ShoppingBag, CreditCard,
+  LayoutDashboard, ArrowLeft, LogOut, AlertTriangle,
+  User, Store, Menu, X, MoreHorizontal, Settings, BookOpen, Award
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +53,10 @@ export default function ProducerLayout() {
     { to: '/producer/orders', icon: ShoppingBag, label: t('producer.orders', 'Pedidos'), shortLabel: 'Pedidos' },
     { to: '/producer/payments', icon: CreditCard, label: 'Ganancias', shortLabel: 'Ganancias' },
     { to: '/producer/store', icon: Store, label: 'Mi Tienda', shortLabel: 'Tienda' },
+    { to: '/recipes/create', icon: BookOpen, label: 'Crear Receta', shortLabel: 'Receta' },
+    ...(user?.role === 'importer' ? [{ to: '/importer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' }] : [
+      { to: '/producer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' },
+    ]),
   ];
 
   // Mobile bottom nav - all 5 fit

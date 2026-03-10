@@ -319,7 +319,12 @@ export default function InfluencerDashboard() {
   };
 
   const handleCodeCreated = (newCode) => {
-    setDashboard(prev => ({ ...prev, discount_code: newCode }));
+    setDashboard(prev => ({
+      ...prev,
+      discount_code: newCode,
+      discount_code_active: false,
+      discount_code_approval_status: 'pending',
+    }));
   };
 
   const scrollToWithdrawals = () => {
@@ -421,7 +426,7 @@ export default function InfluencerDashboard() {
           </div>
         )}
 
-        {/* Create Code Card - Only show if active and no code yet */}
+        {/* Create Code Card - Only show if active and no code yet (neither pending nor approved) */}
         {dashboard.status === 'active' && !dashboard.discount_code && (
           <div className="mb-4 md:mb-6">
             <CreateCodeCard onCodeCreated={handleCodeCreated} />
@@ -432,15 +437,32 @@ export default function InfluencerDashboard() {
         <TierProgress />
 
         {/* === CODE HERO - The main thing influencers need === */}
-        {dashboard.discount_code && (
+        {dashboard.discount_code && dashboard.discount_code_approval_status === 'pending' && (
+          <div className="bg-amber-50 rounded-2xl border-2 border-amber-300 p-6 text-center mb-6" data-testid="code-pending">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-amber-700 bg-amber-100 px-3 py-1 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                Pendiente de aprobación
+              </span>
+            </div>
+            <p className="text-3xl md:text-4xl font-heading font-bold text-amber-700 tracking-wider mb-3" data-testid="influencer-code-pending">
+              {dashboard.discount_code}
+            </p>
+            <p className="text-sm text-amber-600">
+              Tu código está siendo revisado por el equipo de Hispaloshop. Lo aprobaremos en menos de 24h.
+            </p>
+          </div>
+        )}
+
+        {dashboard.discount_code && dashboard.discount_code_active && (
           <div className="bg-white rounded-2xl border-2 border-amber-200 p-6 text-center mb-6" data-testid="code-hero">
-            <p className="text-xs text-amber-600 uppercase tracking-widest mb-2">Tu codigo</p>
+            <p className="text-xs text-amber-600 uppercase tracking-widest mb-2">Tu código</p>
             <p className="text-4xl md:text-5xl font-heading font-bold text-[#1C1C1C] tracking-wider mb-4" data-testid="influencer-code">
               {dashboard.discount_code}
             </p>
             <div className="flex justify-center gap-3 mb-4">
               <Button
-                onClick={() => { navigator.clipboard.writeText(dashboard.discount_code); toast.success('Codigo copiado'); }}
+                onClick={() => { navigator.clipboard.writeText(dashboard.discount_code); toast.success('Código copiado'); }}
                 className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-6"
                 data-testid="copy-code-btn"
               >
@@ -838,7 +860,7 @@ export default function InfluencerDashboard() {
         </Card>
 
         {/* Analytics Section */}
-        {dashboard.status === 'active' && dashboard.discount_code && (
+        {dashboard.status === 'active' && dashboard.discount_code && dashboard.discount_code_active && (
           <div className="mt-8">
             <InfluencerAnalytics />
           </div>
