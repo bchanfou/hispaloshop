@@ -141,6 +141,10 @@ export function CartProvider({ children }) {
   );
 }
 
+/**
+ * Legacy runtime cart source.
+ * Kept active until the cart UI is migrated away from context in a later phase.
+ */
 export function useCart() {
   return useContext(CartContext);
 }

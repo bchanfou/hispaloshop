@@ -1,3 +1,8 @@
+/**
+ * @deprecated Legacy SWR cart hook.
+ * Prefer `features/cart/queries` for React Query-based fetching.
+ */
+
 import useSWR, { useSWRConfig } from 'swr';
 import { api } from '@/lib/api';
 import { useCallback } from 'react';

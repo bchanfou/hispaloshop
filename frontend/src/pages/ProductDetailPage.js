@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import BackButton from '../components/BackButton';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ProductImageGallery from '../components/ProductImageGallery';
 import { Button } from '../components/ui/button';
@@ -14,8 +12,13 @@ import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
 import SEO from '../components/SEO';
+import {
+  useProductDetail,
+  useProductPurchaseOptions,
+  useProductReviews as useProductReviewsHook,
+  useStoreFollow,
+} from '../features/products/hooks';
 
 // Strip emojis from text (data may contain unwanted emoji chars)
 const stripEmoji = (text) => {
@@ -27,216 +30,77 @@ export default function ProductDetailPage() {
   const { productId } = useParams();
   const { addToCart } = useCart();
   const { user } = useAuth();
-  const { convertAndFormatPrice, country, language } = useLocale();
-  const { t, i18n } = useTranslation();
-  const [product, setProduct] = useState(null);
-  const [certificate, setCertificate] = useState(null);
-  const [storeInfo, setStoreInfo] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [translating, setTranslating] = useState(false);
-  
-  // Follow store state
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followLoading, setFollowLoading] = useState(false);
-  
-  // Wishlist state
-  const [inWishlist, setInWishlist] = useState(false);
-  const [wishlistLoading, setWishlistLoading] = useState(false);
-  
-  // Variant & Pack selection state
-  const [selectedVariant, setSelectedVariant] = useState(null);
-  const [selectedPack, setSelectedPack] = useState(null);
-  
-  // Flavor variants (related products with different flavors)
-  const [flavorVariants, setFlavorVariants] = useState([]);
-  
-  // Reviews state
-  const [reviews, setReviews] = useState([]);
-  const [averageRating, setAverageRating] = useState(0);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [canReview, setCanReview] = useState(false);
-  const [reviewOrderId, setReviewOrderId] = useState(null);
+  const { convertAndFormatPrice } = useLocale();
+  const { t } = useTranslation();
+  const {
+    product,
+    certificate,
+    storeInfo,
+    inWishlist,
+    isLoading: loading,
+    isError: hasProductError,
+    wishlistLoading,
+    toggleWishlist: toggleWishlistMutation,
+  } = useProductDetail(productId);
+  const {
+    quantity,
+    setQuantity,
+    selectedVariant,
+    selectedPack,
+    setSelectedPack,
+    hasVariants,
+    currentPrice,
+    currentIngredients,
+    currentNutritionalInfo,
+    currentAllergens,
+    trackStock,
+    stock,
+    lowStockThreshold,
+    isOutOfStock,
+    isLowStock,
+    maxQuantity,
+    handleVariantChange,
+    calculateSavings,
+  } = useProductPurchaseOptions(productId);
+  const {
+    reviews,
+    averageRating,
+    totalReviews,
+    canReview,
+    reviewOrderId,
+    isSubmitting: submittingReview,
+    submitReview,
+  } = useProductReviewsHook(productId);
+  const {
+    isFollowing,
+    followLoading,
+    handleFollowStore: toggleStoreFollow,
+  } = useStoreFollow(storeInfo?.slug);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewRating, setReviewRating] = useState(8);
+  const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
-  const [submittingReview, setSubmittingReview] = useState(false);
-
-  const currentLang = i18n.language || language || 'es';
 
   useEffect(() => {
-    fetchProduct();
-    fetchCertificate();
-    fetchReviews();
-    fetchFlavorVariants();
-  }, [productId, country, currentLang]);
-
-  useEffect(() => {
-    if (user) {
-      checkCanReview();
-      // Check wishlist status
-      axios.get(`${API}/wishlist/check/${productId}`, { withCredentials: true })
-        .then(r => setInWishlist(r.data?.in_wishlist || false))
-        .catch(() => {});
-    }
-  }, [user, productId]);
-
-  useEffect(() => {
-    if (product?.variants?.length > 0) {
-      const firstVariant = product.variants[0];
-      setSelectedVariant(firstVariant);
-      if (firstVariant.packs?.length > 0) {
-        setSelectedPack(firstVariant.packs[0]);
-      }
-    }
-  }, [product]);
-
-  // Fetch store info when product loads
-  useEffect(() => {
-    if (product?.store_id) {
-      fetchStoreInfo(product.store_id);
-    } else if (product?.seller_id || product?.producer_id) {
-      fetchStoreByUserId(product.seller_id || product.producer_id);
-    }
-  }, [product]);
-
-  // Check if user is following the store
-  useEffect(() => {
-    if (user && storeInfo?.slug) {
-      checkFollowStatus();
-    }
-  }, [user, storeInfo]);
-
-  const fetchProduct = async () => {
-    try {
-      setTranslating(true);
-      const response = await axios.get(`${API}/products/${productId}?country=${country}&lang=${currentLang}`);
-      setProduct(response.data);
-    } catch (error) {
-      console.error('Error fetching product:', error);
+    if (hasProductError) {
       toast.error(t('errors.notFound'));
-    } finally {
-      setLoading(false);
-      setTranslating(false);
     }
-  };
-
-  const toggleWishlist = async () => {
-    if (!user) { toast.info(t('auth.loginRequired', 'Inicia sesión para guardar')); return; }
-    setWishlistLoading(true);
-    try {
-      if (inWishlist) {
-        await axios.delete(`${API}/wishlist/${productId}`, { withCredentials: true });
-        setInWishlist(false);
-        toast.success(t('wishlist.removed', 'Eliminado de la lista de deseos'));
-      } else {
-        await axios.post(`${API}/wishlist/${productId}`, {}, { withCredentials: true });
-        setInWishlist(true);
-        toast.success(t('wishlist.added', 'Guardado en tu lista de deseos'));
-      }
-    } catch { toast.error(t('errors.generic', 'Error')); }
-    finally { setWishlistLoading(false); }
-  };
-
-  const fetchStoreInfo = async (storeId) => {
-    try {
-      const response = await axios.get(`${API}/stores?seller_id=${storeId}`);
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        setStoreInfo(response.data[0]);
-      }
-    } catch (error) {
-      console.log('Store not found by ID');
-    }
-  };
-
-  const fetchStoreByUserId = async (userId) => {
-    try {
-      const response = await axios.get(`${API}/stores?seller_id=${userId}`);
-      if (response.data && response.data.length > 0) {
-        setStoreInfo(response.data[0]);
-      }
-    } catch (error) {
-      console.log('Store not found by user ID');
-    }
-  };
-
-  const checkFollowStatus = async () => {
-    try {
-      const response = await axios.get(`${API}/store/${storeInfo.slug}/following`, { withCredentials: true });
-      setIsFollowing(response.data.following);
-    } catch (error) {
-      setIsFollowing(false);
-    }
-  };
+  }, [hasProductError, t]);
 
   const handleFollowStore = async () => {
     if (!user) {
-      toast.error(t('errors.unauthorized', 'Inicia sesión para seguir tiendas'));
+      toast.error(t('errors.unauthorized', 'Inicia sesion para seguir tiendas'));
       return;
     }
-    
-    setFollowLoading(true);
+
     try {
-      if (isFollowing) {
-        await axios.delete(`${API}/store/${storeInfo.slug}/follow`, { withCredentials: true });
-        setIsFollowing(false);
-        setStoreInfo(prev => ({ ...prev, follower_count: Math.max(0, (prev.follower_count || 1) - 1) }));
-        toast.success(t('store.unfollowed', 'Has dejado de seguir la tienda'));
-      } else {
-        await axios.post(`${API}/store/${storeInfo.slug}/follow`, {}, { withCredentials: true });
-        setIsFollowing(true);
-        setStoreInfo(prev => ({ ...prev, follower_count: (prev.follower_count || 0) + 1 }));
-        toast.success(t('store.followed', '¡Ahora sigues esta tienda!'));
-      }
-    } catch (error) {
+      await toggleStoreFollow();
+      toast.success(
+        isFollowing
+          ? t('store.unfollowed', 'Has dejado de seguir la tienda')
+          : t('store.followed', 'Ahora sigues esta tienda'),
+      );
+    } catch {
       toast.error(t('errors.generic', 'Error al procesar la solicitud'));
-    } finally {
-      setFollowLoading(false);
-    }
-  };
-
-  const fetchFlavorVariants = async () => {
-    try {
-      const response = await axios.get(`${API}/products/${productId}/variants`);
-      if (response.data && response.data.length > 1) {
-        setFlavorVariants(response.data);
-      } else {
-        setFlavorVariants([]);
-      }
-    } catch (error) {
-      setFlavorVariants([]);
-    }
-  };
-
-  const fetchCertificate = async () => {
-    try {
-      const response = await axios.get(`${API}/certificates/product/${productId}?lang=${currentLang}`);
-      setCertificate(response.data);
-    } catch (error) {
-      console.log('No certificate found for product');
-    }
-  };
-
-  const fetchReviews = async () => {
-    try {
-      const response = await axios.get(`${API}/products/${productId}/reviews`);
-      setReviews(response.data.reviews);
-      setAverageRating(response.data.average_rating);
-      setTotalReviews(response.data.total_reviews);
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-    }
-  };
-
-  const checkCanReview = async () => {
-    try {
-      const response = await axios.get(`${API}/reviews/can-review/${productId}`, { withCredentials: true });
-      setCanReview(response.data.can_review);
-      if (response.data.order_id) {
-        setReviewOrderId(response.data.order_id);
-      }
-    } catch (error) {
-      setCanReview(false);
     }
   };
 
@@ -245,51 +109,40 @@ export default function ProductDetailPage() {
       toast.error('Please write a comment');
       return;
     }
-    
-    setSubmittingReview(true);
+
     try {
-      await axios.post(`${API}/reviews/create`, {
-        product_id: productId,
-        order_id: reviewOrderId,
+      await submitReview({
+        orderId: reviewOrderId,
         rating: reviewRating,
-        comment: reviewComment
-      }, { withCredentials: true });
-      
+        comment: reviewComment,
+      });
+
       toast.success('Review submitted successfully!');
       setShowReviewForm(false);
       setReviewComment('');
-      setReviewRating(8);
-      fetchReviews();
-      checkCanReview();
+      setReviewRating(5);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to submit review');
-    } finally {
-      setSubmittingReview(false);
+      toast.error(error.response?.data?.detail || error.message || 'Failed to submit review');
     }
   };
 
-  // Stock calculations
-  const trackStock = product?.track_stock !== false;
-  const stock = product?.stock ?? 100;
-  const lowStockThreshold = product?.low_stock_threshold ?? 5;
-  const isOutOfStock = trackStock && stock <= 0;
-  const isLowStock = trackStock && stock > 0 && stock <= lowStockThreshold;
-  const maxQuantity = trackStock ? stock : 99;
+  const toggleWishlist = async () => {
+    if (!user) {
+      toast.info(t('auth.loginRequired', 'Inicia sesion para guardar'));
+      return;
+    }
 
-  // Check if product has variants
-  const hasVariants = product?.variants && product.variants.length > 0;
-  
-  // Current price based on selection
-  const currentPrice = selectedPack?.price || selectedVariant?.price || product?.price;
-
-  // Get current ingredients (from variant if selected, otherwise from product)
-  const currentIngredients = selectedVariant?.ingredients || product?.ingredients || [];
-  
-  // Get current nutritional info (from variant if selected, otherwise from product)
-  const currentNutritionalInfo = selectedVariant?.nutritional_info || product?.nutritional_info || null;
-  
-  // Get current allergens (from variant if selected, otherwise from product)
-  const currentAllergens = selectedVariant?.allergens || product?.allergens || [];
+    try {
+      await toggleWishlistMutation();
+      toast.success(
+        inWishlist
+          ? t('wishlist.removed', 'Eliminado de la lista de deseos')
+          : t('wishlist.added', 'Guardado en tu lista de deseos'),
+      );
+    } catch {
+      toast.error(t('errors.generic', 'Error'));
+    }
+  };
 
   const handleAddToCart = async () => {
     if (!user) {
@@ -348,24 +201,6 @@ export default function ProductDetailPage() {
     } else {
       toast.error(t('errors.generic', 'Error al procesar'), { id: 'buy-now' });
     }
-  };
-
-  const handleVariantChange = (variant) => {
-    setSelectedVariant(variant);
-    if (variant.packs?.length > 0) {
-      setSelectedPack(variant.packs[0]);
-    } else {
-      setSelectedPack(null);
-    }
-  };
-
-  // Calculate pack savings
-  const calculateSavings = (pack, variant) => {
-    if (!variant?.price || !pack?.quantity) return null;
-    const regularTotal = variant.price * pack.quantity;
-    const packTotal = pack.price;
-    const savings = regularTotal - packTotal;
-    return savings > 0 ? savings : null;
   };
 
   if (loading) {
@@ -1100,3 +935,4 @@ export default function ProductDetailPage() {
     </div>
   );
 }
+

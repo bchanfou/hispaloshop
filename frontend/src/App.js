@@ -484,21 +484,25 @@ function AppRouter() {
 function App() {
   return (
     <HelmetProvider>
-      <BrowserRouter>
-        <AppErrorBoundary>
-          <AuthProvider>
-            <LocaleProvider>
-              <CartProvider>
-                <ChatProvider>
-                  <AppRouter />
-                  <BottomNavBar />
-                  <Toaster position="top-center" />
-                </ChatProvider>
-              </CartProvider>
-            </LocaleProvider>
-          </AuthProvider>
-        </AppErrorBoundary>
-      </BrowserRouter>
+      <QueryProvider>
+        <BrowserRouter>
+          <AppErrorBoundary>
+            <AuthProvider>
+              <LocaleProvider>
+                <CartProvider>
+                  <ChatProvider>
+                    <RealtimeProvider>
+                      <AppRouter />
+                      <BottomNavBar />
+                      <Toaster position="top-center" />
+                    </RealtimeProvider>
+                  </ChatProvider>
+                </CartProvider>
+              </LocaleProvider>
+            </AuthProvider>
+          </AppErrorBoundary>
+        </BrowserRouter>
+      </QueryProvider>
     </HelmetProvider>
   );
 }

@@ -1,3 +1,8 @@
+/**
+ * @deprecated Legacy local cart hook based on localStorage.
+ * Prefer `context/CartContext` for current runtime behavior or `features/cart/queries` for new data work.
+ */
+
 import { useState, useCallback, useEffect, createContext, useContext } from 'react';
 
 const CartContext = createContext(null);

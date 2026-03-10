@@ -1,95 +1,69 @@
 /**
- * Hook de autenticación
- * Login, registro, logout y gestión de sesión
+ * Hook de autenticacion
+ * Login, registro, logout y gestion de sesion
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api';
-import { setToken, removeToken, setUser, getUser } from '../../lib/auth';
+import { api as realtimeApi } from '../../lib/api';
+import { getToken, removeToken, setToken, setUser } from '../../lib/auth';
+import apiClient from '../../services/api/client';
 
-// Keys para cache
 const AUTH_KEYS = {
   user: ['auth', 'user'],
   me: ['auth', 'me'],
 };
 
-/**
- * Hook para obtener usuario actual
- */
 export function useCurrentUser() {
   return useQuery({
     queryKey: AUTH_KEYS.me,
-    queryFn: () => api.get('/auth/me'),
-    staleTime: 5 * 60 * 1000, // 5 min
+    queryFn: () => apiClient.get('/auth/me'),
+    staleTime: 5 * 60 * 1000,
     retry: false,
-    // Si no hay token, no hacer la request
-    enabled: !!localStorage.getItem('hispalo_access_token'),
+    enabled: !!getToken(),
   });
 }
 
-/**
- * Hook de login
- */
 export function useLogin() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ email, password }) => 
-      api.post('/auth/login', { email, password }),
-    
+    mutationFn: ({ email, password }) =>
+      apiClient.post('/auth/login', { email, password }),
     onSuccess: (data) => {
-      // Guardar tokens
       setToken(data.access_token, data.refresh_token);
       setUser(data.user);
-      
-      // Actualizar cache
       queryClient.setQueryData(AUTH_KEYS.me, data.user);
-      
-      // Conectar WebSocket
-      api.connectWebSocket();
+      realtimeApi.connectWebSocket();
     },
   });
 }
 
-/**
- * Hook de registro
- */
 export function useRegister() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (userData) => api.post('/auth/register', userData),
-    
+    mutationFn: (userData) => apiClient.post('/auth/register', userData),
     onSuccess: (data) => {
       setToken(data.tokens.access, data.tokens.refresh);
       setUser(data.user);
       queryClient.setQueryData(AUTH_KEYS.me, data.user);
-      api.connectWebSocket();
+      realtimeApi.connectWebSocket();
     },
   });
 }
 
-/**
- * Hook de logout
- */
 export function useLogout() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: () => api.post('/auth/logout'),
-    
+    mutationFn: () => apiClient.post('/auth/logout', {}),
     onSuccess: () => {
-      // Limpiar todo
       removeToken();
-      api.disconnect();
+      realtimeApi.disconnect();
       queryClient.clear();
-      
-      // Redireccionar a login
       window.location.href = '/login';
     },
-    
     onError: () => {
-      // Aunque falle, limpiar local
       removeToken();
       queryClient.clear();
       window.location.href = '/login';
@@ -97,15 +71,11 @@ export function useLogout() {
   });
 }
 
-/**
- * Hook para actualizar perfil
- */
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (profileData) => api.put('/auth/me', profileData),
-    
+    mutationFn: (profileData) => apiClient.put('/auth/me', profileData),
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_KEYS.me, data.user);
       setUser(data.user);
@@ -113,62 +83,47 @@ export function useUpdateProfile() {
   });
 }
 
-/**
- * Hook para recuperar contraseña
- */
 export function useForgotPassword() {
   return useMutation({
-    mutationFn: (email) => api.post('/auth/forgot-password', { email }),
+    mutationFn: (email) => apiClient.post('/auth/forgot-password', { email }),
   });
 }
 
-/**
- * Hook para resetear contraseña
- */
 export function useResetPassword() {
   return useMutation({
-    mutationFn: ({ token, newPassword }) => 
-      api.post('/auth/reset-password', { token, new_password: newPassword }),
+    mutationFn: ({ token, newPassword }) =>
+      apiClient.post('/auth/reset-password', { token, new_password: newPassword }),
   });
 }
 
-/**
- * Hook para OAuth (Google, Apple, Facebook)
- */
 export function useOAuthLogin() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ provider, token }) => 
-      api.post(`/auth/oauth/${provider}`, { token }),
-    
+    mutationFn: ({ provider, token }) =>
+      apiClient.post(`/auth/oauth/${provider}`, { token }),
     onSuccess: (data) => {
       setToken(data.access_token, data.refresh_token);
       setUser(data.user);
       queryClient.setQueryData(AUTH_KEYS.me, data.user);
-      api.connectWebSocket();
+      realtimeApi.connectWebSocket();
     },
   });
 }
 
-/**
- * Hook para verificar documentos (productores/importadores)
- */
 export function useVerifyDocument() {
   return useMutation({
-    mutationFn: (formData) => api.post('/auth/verify-document', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    mutationFn: (formData) =>
+      apiClient.post('/auth/verify-document', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }),
   });
 }
 
-/**
- * Hook para obtener estado de verificación
- */
 export function useVerificationStatus() {
   return useQuery({
     queryKey: ['auth', 'verification'],
-    queryFn: () => api.get('/auth/verification-status'),
-    enabled: false, // Solo cuando se solicite
+    queryFn: () => apiClient.get('/auth/verification-status'),
+    enabled: false,
   });
 }

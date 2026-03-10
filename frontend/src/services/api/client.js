@@ -1,0 +1,139 @@
+import axios from 'axios';
+import { getRefreshToken, getToken, removeToken, setToken } from '../../lib/auth';
+import { getApiUrl } from '../../utils/api';
+
+export const API_BASE_URL = getApiUrl();
+
+function generateRequestId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return `req_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function normalizeApiError(error) {
+  const message =
+    error?.response?.data?.detail ||
+    error?.response?.data?.message ||
+    error?.message ||
+    'API request failed';
+
+  const apiError = new Error(message);
+  apiError.name = 'ApiClientError';
+  apiError.status = error?.response?.status ?? 0;
+  apiError.data = error?.response?.data ?? null;
+  return apiError;
+}
+
+const httpClient = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+  headers: {
+    Accept: 'application/json',
+    'X-Client-Version': '1.0.0',
+  },
+});
+
+let refreshPromise = null;
+
+async function refreshSession() {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) {
+    return false;
+  }
+
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/refresh`,
+      { refresh_token: refreshToken },
+      { withCredentials: true },
+    );
+
+    if (response?.data?.access_token) {
+      setToken(response.data.access_token, response.data.refresh_token);
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+httpClient.interceptors.request.use((config) => {
+  const nextConfig = { ...config };
+  nextConfig.headers = nextConfig.headers || {};
+
+  const token = getToken();
+  if (token && !nextConfig.headers.Authorization) {
+    nextConfig.headers.Authorization = `Bearer ${token}`;
+  }
+
+  if (!nextConfig.headers['X-Request-ID']) {
+    nextConfig.headers['X-Request-ID'] = generateRequestId();
+  }
+
+  return nextConfig;
+});
+
+httpClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error?.config;
+
+    if (error?.response?.status === 401 && originalRequest && !originalRequest.__isRetryRequest) {
+      originalRequest.__isRetryRequest = true;
+
+      if (!refreshPromise) {
+        refreshPromise = refreshSession().finally(() => {
+          refreshPromise = null;
+        });
+      }
+
+      const refreshed = await refreshPromise;
+      if (refreshed) {
+        const token = getToken();
+        if (token) {
+          originalRequest.headers = {
+            ...(originalRequest.headers || {}),
+            Authorization: `Bearer ${token}`,
+          };
+        }
+
+        return httpClient(originalRequest);
+      }
+
+      removeToken();
+    }
+
+    return Promise.reject(normalizeApiError(error));
+  },
+);
+
+async function request(config) {
+  const response = await httpClient.request(config);
+  return response.data;
+}
+
+export const apiClient = {
+  request,
+  get(url, config = {}) {
+    return request({ ...config, method: 'GET', url });
+  },
+  post(url, data, config = {}) {
+    return request({ ...config, method: 'POST', url, data });
+  },
+  put(url, data, config = {}) {
+    return request({ ...config, method: 'PUT', url, data });
+  },
+  patch(url, data, config = {}) {
+    return request({ ...config, method: 'PATCH', url, data });
+  },
+  delete(url, config = {}) {
+    return request({ ...config, method: 'DELETE', url });
+  },
+};
+
+export { httpClient };
+export default apiClient;

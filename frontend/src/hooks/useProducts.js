@@ -1,3 +1,8 @@
+/**
+ * @deprecated Legacy SWR product hooks.
+ * Prefer `features/products/queries` for React Query-based fetching.
+ */
+
 import useSWR from 'swr';
 import { api } from '../lib/api';
 import { useLocale } from '../context/LocaleContext';

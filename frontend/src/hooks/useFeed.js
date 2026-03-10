@@ -1,3 +1,8 @@
+/**
+ * @deprecated Legacy SWR feed hooks.
+ * Prefer `features/feed/queries` for React Query-based fetching.
+ */
+
 import useSWR from 'swr';
 import { api } from '../lib/api';
 
