@@ -3,9 +3,16 @@ import { motion } from 'framer-motion';
 
 const StepProcess = ({ steps, layout = 'horizontal' }) => {
   const isHorizontal = layout === 'horizontal';
+  const horizontalColsClass = isHorizontal
+    ? (steps.length === 2
+      ? 'md:grid-cols-2'
+      : steps.length === 4
+        ? 'md:grid-cols-4'
+        : 'md:grid-cols-3')
+    : '';
 
   return (
-    <div className={`${isHorizontal ? 'grid md:grid-cols-4 gap-6' : 'space-y-8'}`}>
+    <div className={`${isHorizontal ? `grid gap-6 ${horizontalColsClass}` : 'space-y-8'}`}>
       {steps.map((step, index) => {
         const Icon = step.icon;
         return (
@@ -17,27 +24,24 @@ const StepProcess = ({ steps, layout = 'horizontal' }) => {
             transition={{ delay: index * 0.15 }}
             className={`relative ${isHorizontal ? 'text-center' : 'flex gap-6'}`}
           >
-            {/* Connector line */}
             {isHorizontal && index < steps.length - 1 && (
-              <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-accent/20" />
+              <div className="absolute left-[60%] top-8 hidden h-0.5 w-[80%] bg-stone-200 md:block" />
             )}
 
-            {/* Icon */}
             <div className={`${isHorizontal ? 'mx-auto mb-4' : 'flex-shrink-0'}`}>
-              <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center relative z-10">
+              <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-stone-950">
                 <Icon className="w-7 h-7 text-white" />
               </div>
             </div>
 
-            {/* Content */}
             <div className={isHorizontal ? '' : 'flex-1'}>
-              <div className="text-sm font-semibold text-accent mb-1">
+              <div className="mb-1 text-sm font-semibold text-stone-500">
                 Paso {index + 1}
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="mb-2 text-lg font-semibold text-stone-950">
                 {step.title}
               </h3>
-              <p className="text-text-muted text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed text-stone-600">
                 {step.description}
               </p>
             </div>

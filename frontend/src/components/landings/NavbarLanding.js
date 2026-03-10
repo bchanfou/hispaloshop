@@ -5,11 +5,12 @@ import { Menu, X } from 'lucide-react';
 const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const isDark = variant === 'dark';
-  const textColor = isDark ? 'text-white' : 'text-gray-900';
-  const bgColor = isDark ? 'bg-accent' : 'bg-white';
-  
+  const textColor = isDark ? 'text-white' : 'text-stone-950';
+  const navTextColor = isDark ? 'text-stone-300' : 'text-stone-700';
+  const bgColor = isDark ? 'bg-stone-950/95' : 'bg-white/95';
+
   const navLinks = [
     { label: 'Descubrir', href: '/discover' },
     { label: 'Ser Influencer', href: '/influencer' },
@@ -33,79 +34,68 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
   };
 
   return (
-    <nav className={`${bgColor} sticky top-0 z-50 border-b border-gray-100`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <button 
-            onClick={() => navigate('/')}
-            className={`text-xl font-bold ${textColor}`}
-          >
+    <nav className={`${bgColor} sticky top-0 z-50 border-b border-stone-200 backdrop-blur`}>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          <button onClick={() => navigate('/')} className={`text-xl font-bold ${textColor}`}>
             Hispaloshop
           </button>
-          
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-6">
+
+          <div className="hidden items-center gap-6 md:flex">
             {navLinks.map((link) => (
               <button
                 key={link.label}
                 onClick={() => handleNav(link.href)}
-                className={`text-sm font-medium ${textColor} hover:opacity-70 transition-opacity`}
+                className={`text-sm font-medium ${navTextColor} transition-colors hover:text-stone-950`}
               >
                 {link.label}
               </button>
             ))}
           </div>
-          
-          {/* CTAs */}
-          <div className="hidden md:flex items-center gap-3">
+
+          <div className="hidden items-center gap-3 md:flex">
             <button
               onClick={() => navigate('/login')}
-              className={`text-sm font-medium ${textColor} hover:opacity-70`}
+              className={`text-sm font-medium ${navTextColor} transition-colors hover:text-stone-950`}
             >
               Iniciar sesión
             </button>
             <button
               onClick={() => navigate('/register/new')}
-              className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-full hover:bg-accent/90 transition-colors"
+              className="rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-black"
             >
               Registrarse
             </button>
           </div>
-          
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className={`md:hidden p-2 ${textColor}`}
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+
+          <button onClick={() => setIsOpen(!isOpen)} className={`p-2 md:hidden ${textColor}`}>
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
-      
-      {/* Mobile menu */}
+
       {isOpen && (
-        <div className="md:hidden bg-white border-t">
-          <div className="px-4 py-3 space-y-2">
+        <div className="border-t border-stone-200 bg-white md:hidden">
+          <div className="space-y-2 px-4 py-3">
             {navLinks.map((link) => (
               <button
                 key={link.label}
                 onClick={() => handleNav(link.href)}
-                className="block w-full text-left py-2 text-gray-900 font-medium"
+                className="block w-full rounded-2xl px-3 py-2 text-left font-medium text-stone-950 transition-colors hover:bg-stone-50"
               >
                 {link.label}
               </button>
             ))}
-            <hr className="my-2" />
+            <hr className="my-2 border-stone-200" />
             <button
               onClick={() => { navigate('/login'); setIsOpen(false); }}
-              className="block w-full text-left py-2 text-gray-900 font-medium"
+              className="block w-full rounded-2xl px-3 py-2 text-left font-medium text-stone-950 transition-colors hover:bg-stone-50"
             >
               Iniciar sesión
             </button>
             <button
               onClick={() => { navigate('/register/new'); setIsOpen(false); }}
-              className="w-full py-2 bg-accent text-white font-medium rounded-lg"
+              className="w-full rounded-2xl bg-stone-950 py-3 font-medium text-white transition-colors hover:bg-black"
             >
               Registrarse
             </button>

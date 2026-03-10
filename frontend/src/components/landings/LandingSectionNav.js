@@ -5,7 +5,7 @@ const DEFAULT_ITEMS = [
   { label: 'Descubrir', href: '/discover' },
   { label: 'Ser Influencer', href: '/influencer' },
   { label: 'Ser Vendedor', href: '/productor' },
-  { label: 'Multimarket', href: '/que-es#multimarket' },
+  { label: 'Historia', href: '/que-es#historia' },
 ];
 
 export default function LandingSectionNav({ items = DEFAULT_ITEMS }) {

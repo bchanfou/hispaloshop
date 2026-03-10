@@ -19,20 +19,20 @@ const FeatureGrid = ({ features, columns = 3 }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
+            className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
           >
             {Icon && (
-              <div 
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                style={{ backgroundColor: `${feature.color || '#2D5A3D'}15` }}
+              <div
+                className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
+                style={{ backgroundColor: `${feature.color || '#111111'}15` }}
               >
-                <Icon className="w-6 h-6" style={{ color: feature.color || '#2D5A3D' }} />
+                <Icon className="w-6 h-6" style={{ color: feature.color || '#111111' }} />
               </div>
             )}
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="mb-2 text-lg font-semibold text-stone-950">
               {feature.title}
             </h3>
-            <p className="text-text-muted text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed text-stone-600">
               {feature.description}
             </p>
           </motion.div>

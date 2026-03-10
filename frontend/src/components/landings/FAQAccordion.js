@@ -12,23 +12,20 @@ const FAQAccordion = ({ faqs }) => {
   return (
     <div className="space-y-4">
       {faqs.map((faq, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-xl border border-gray-100 overflow-hidden"
-        >
+        <div key={index} className="overflow-hidden rounded-xl border border-stone-200 bg-white">
           <button
             onClick={() => toggle(index)}
-            className="w-full flex items-center justify-between p-5 text-left"
+            className="flex w-full items-center justify-between p-5 text-left"
           >
-            <span className="font-medium text-gray-900 pr-4">{faq.question}</span>
+            <span className="pr-4 font-medium text-stone-950">{faq.question}</span>
             <motion.div
               animate={{ rotate: openIndex === index ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronDown className="w-5 h-5 text-text-muted flex-shrink-0" />
+              <ChevronDown className="h-5 w-5 shrink-0 text-stone-500" />
             </motion.div>
           </button>
-          
+
           <AnimatePresence>
             {openIndex === index && (
               <motion.div
@@ -37,7 +34,7 @@ const FAQAccordion = ({ faqs }) => {
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="px-5 pb-5 text-text-muted leading-relaxed">
+                <div className="px-5 pb-5 leading-relaxed text-stone-600">
                   {faq.answer}
                 </div>
               </motion.div>
