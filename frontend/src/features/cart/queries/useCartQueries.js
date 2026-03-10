@@ -3,6 +3,9 @@ import apiClient from '../../../services/api/client';
 
 export const cartKeys = {
   cart: ['cart'],
+  pricing: ['cart', 'pricing'],
+  verification: ['cart', 'verification'],
+  addresses: ['cart', 'addresses'],
   orders: ['orders'],
   order: (id) => ['order', id],
   checkout: (id) => ['checkout', id],
@@ -32,6 +35,81 @@ export function useAddToCart() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
     },
+  });
+}
+
+export function useCartPricing(options = {}) {
+  return useQuery({
+    queryKey: cartKeys.pricing,
+    queryFn: async () => {
+      const data = await apiClient.get('/cart');
+
+      return {
+        subtotalCents: data?.subtotal_cents || 0,
+        shippingCents: data?.shipping_cents || 0,
+        taxCents: data?.tax_cents || 0,
+        taxRateBp: data?.tax_rate_bp || 2100,
+        stockIssues: (data?.items || []).filter((item) => !item.stock_available),
+      };
+    },
+    ...options,
+  });
+}
+
+export function useEmailVerificationStatus(options = {}) {
+  return useQuery({
+    queryKey: cartKeys.verification,
+    queryFn: () => apiClient.get('/auth/verification-status'),
+    ...options,
+  });
+}
+
+export function useSavedAddresses(options = {}) {
+  return useQuery({
+    queryKey: cartKeys.addresses,
+    queryFn: async () => {
+      const data = await apiClient.get('/customer/addresses');
+      return data?.addresses || [];
+    },
+    ...options,
+  });
+}
+
+export function useCreateAddress() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) => apiClient.post('/customer/addresses', payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: cartKeys.addresses });
+    },
+  });
+}
+
+export function useVerifyEmail() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (token) => apiClient.post(`/auth/verify-email?token=${encodeURIComponent(token)}`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: cartKeys.verification });
+    },
+  });
+}
+
+export function useResendVerification() {
+  return useMutation({
+    mutationFn: () => apiClient.post('/auth/resend-verification', {}),
+  });
+}
+
+export function useCreateStripeCheckout() {
+  return useMutation({
+    mutationFn: ({ shippingAddress, origin }) =>
+      apiClient.post('/payments/create-checkout', {
+        shipping_address: shippingAddress,
+        origin,
+      }),
   });
 }
 
@@ -78,18 +156,6 @@ export function useSyncCart() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
     },
-  });
-}
-
-export function useCreateCheckout() {
-  return useMutation({
-    mutationFn: ({ items, shippingAddress, shippingMethod, paymentMethod }) =>
-      apiClient.post('/checkout', {
-        items,
-        shipping_address: shippingAddress,
-        shipping_method: shippingMethod,
-        payment_method: paymentMethod,
-      }),
   });
 }
 

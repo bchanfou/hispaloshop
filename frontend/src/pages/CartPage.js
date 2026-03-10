@@ -12,55 +12,43 @@ import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Check } from 'lucide-react';
-import { API } from '../utils/api';
+import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
 
-// ─── Zod schema for new address ────────────────────────────────────────────
 const addressSchema = z.object({
   name: z.string().optional(),
   full_name: z.string().min(2, 'Nombre completo requerido'),
   phone: z.string().optional(),
-  street: z.string().min(5, 'Dirección requerida'),
+  street: z.string().min(5, 'Direccion requerida'),
   city: z.string().min(2, 'Ciudad requerida'),
-  postal_code: z.string().regex(/^\d{4,10}$/, 'Código postal no válido'),
-  country: z.string().min(2, 'País requerido'),
+  postal_code: z.string().regex(/^\d{4,10}$/, 'Codigo postal no valido'),
+  country: z.string().min(2, 'Pais requerido'),
   is_default: z.boolean().optional(),
 });
-
-
 
 export default function CartPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading, checkAuth } = useAuth();
-  const { cartItems, removeFromCart, getTotalPrice, loading, fetchCart } = useCart();
-  const { t, convertAndFormatPrice, getConvertedPrice, currency, getExchangeRateDisplay, countries, country } = useLocale();
-  const [emailVerified, setEmailVerified] = useState(null);
+  const {
+    cartItems,
+    removeFromCart,
+    getTotalPrice,
+    loading: cartLoading,
+    appliedDiscount,
+    applyDiscount,
+    removeDiscount,
+  } = useCart();
+  const { t, convertAndFormatPrice, currency, getExchangeRateDisplay, countries, country } = useLocale();
   const [verificationToken, setVerificationToken] = useState('');
-  const [verifying, setVerifying] = useState(false);
-  const [resending, setResending] = useState(false);
-  
-  // Discount code state
   const [discountCode, setDiscountCode] = useState('');
-  const [appliedDiscount, setAppliedDiscount] = useState(null);
-  const [applyingDiscount, setApplyingDiscount] = useState(false);
-  const [stockIssues, setStockIssues] = useState([]);
-  const [cartSummary, setCartSummary] = useState({
-    subtotal_cents: 0,
-    shipping_cents: 0,
-    tax_cents: 0,
-    tax_rate_bp: 2100,
-    total_cents: 0,
-  });
-  
-  // Address state
-  const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
-  const [savingAddress, setSavingAddress] = useState(false);
-
-  // Address form (react-hook-form + zod)
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const { emailVerified, verifying, resending, verifyEmail, resendVerification, refetch: refetchVerification } = useCartVerification();
+  const { savedAddresses, defaultAddressId, createAddress, savingAddress, isLoading: addressesLoading } = useCartAddresses();
+  const { cartSummary, stockIssues, refetch: refetchPricing } = useCartPricing(cartItems, appliedDiscount);
+  const { checkoutLoading, createCheckout } = useCartCheckout();
   const {
     register: registerAddr,
     handleSubmit: handleAddrSubmit,
@@ -72,125 +60,64 @@ export default function CartPage() {
   });
 
   useEffect(() => {
-    // Only redirect if auth has finished loading and user is not logged in
     if (!authLoading && !user) {
       navigate('/login');
     }
-  }, [user, authLoading, navigate]);
+  }, [authLoading, navigate, user]);
 
   useEffect(() => {
-    if (user) {
-      checkVerificationStatus();
-      fetchCartWithDiscount();
-      fetchSavedAddresses();
+    if (!addressesLoading && savedAddresses.length === 0) {
+      setShowNewAddressForm(true);
     }
-  }, [user]);
+  }, [addressesLoading, savedAddresses.length]);
 
-  const fetchSavedAddresses = async () => {
-    try {
-      const response = await axios.get(`${API}/customer/addresses`, { withCredentials: true });
-      const addresses = response.data.addresses || [];
-      setSavedAddresses(addresses);
-      
-      // Auto-select default address or first address
-      const defaultAddr = addresses.find(a => a.is_default);
-      if (defaultAddr) {
-        setSelectedAddressId(defaultAddr.address_id);
-      } else if (addresses.length > 0) {
-        setSelectedAddressId(addresses[0].address_id);
-      } else {
-        setShowNewAddressForm(true);
-      }
-    } catch (error) {
-      console.error('Error fetching addresses:', error);
+  useEffect(() => {
+    if (savedAddresses.length > 0 && !selectedAddressId) {
+      setSelectedAddressId(defaultAddressId);
     }
-  };
+  }, [defaultAddressId, savedAddresses.length, selectedAddressId]);
 
   const handleSaveNewAddress = async (data) => {
-    setSavingAddress(true);
     try {
-      await axios.post(`${API}/customer/addresses`, {
+      await createAddress({
         ...data,
-        name: data.name || t('checkout.newAddress') || 'Nueva dirección',
+        name: data.name || t('checkout.newAddress') || 'Nueva direccion',
         is_default: data.is_default ?? false,
-      }, { withCredentials: true });
-      await fetchSavedAddresses();
+      });
       setShowNewAddressForm(false);
       resetAddr({ country: 'ES', is_default: false });
       toast.success(t('success.saved'));
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic'));
-    } finally {
-      setSavingAddress(false);
+      toast.error(error?.message || t('errors.generic'));
     }
   };
 
-  const getSelectedAddress = () => {
-    return savedAddresses.find(a => a.address_id === selectedAddressId);
-  };
-
-  const checkVerificationStatus = async () => {
-    try {
-      const response = await axios.get(`${API}/auth/verification-status`, { withCredentials: true });
-      setEmailVerified(response.data.email_verified);
-    } catch (error) {
-      console.error('Error checking verification status:', error);
-    }
-  };
-
-  const fetchCartWithDiscount = async () => {
-    try {
-      const response = await axios.get(`${API}/cart`, { withCredentials: true });
-      setCartSummary({
-        subtotal_cents: response.data.subtotal_cents || 0,
-        shipping_cents: response.data.shipping_cents || 0,
-        tax_cents: response.data.tax_cents || 0,
-        tax_rate_bp: response.data.tax_rate_bp || 2100,
-        total_cents: response.data.total_cents || 0,
-      });
-      if (response.data.discount) {
-        setAppliedDiscount(response.data.discount);
-      }
-      // Check for stock issues
-      const issues = response.data.items?.filter(item => !item.stock_available) || [];
-      setStockIssues(issues);
-    } catch (error) {
-      console.error('Error fetching cart:', error);
-    }
-  };
+  const getSelectedAddress = () => savedAddresses.find((address) => address.address_id === selectedAddressId);
 
   const handleVerifyEmail = async () => {
     if (!verificationToken.trim()) {
       toast.error(t('checkout.verificationCodePlaceholder'));
       return;
     }
-    
-    setVerifying(true);
     try {
-      await axios.post(`${API}/auth/verify-email?token=${verificationToken}`, {}, { withCredentials: true });
+      await verifyEmail(verificationToken);
       toast.success(t('checkout.emailVerifiedSuccess'));
-      setEmailVerified(true);
-      checkAuth(); // Refresh user data
+      checkAuth();
+      await refetchVerification();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('checkout.invalidCode'));
-    } finally {
-      setVerifying(false);
+      toast.error(error?.message || t('checkout.invalidCode'));
     }
   };
 
   const handleResendVerification = async () => {
-    setResending(true);
     try {
-      const response = await axios.post(`${API}/auth/resend-verification`, {}, { withCredentials: true });
-      toast.success(t('checkout.verificationSent') || 'Código enviado. Revisa tu email.');
-      // For MVP, show the token (in production this would be emailed)
-      if (response.data.verification_token) {
-        toast.info(`MVP: ${response.data.verification_token.substring(0, 8)}...`);
+      const response = await resendVerification();
+      toast.success(t('checkout.verificationSent') || 'Codigo enviado. Revisa tu email.');
+      if (response?.verification_token) {
+        toast.info(`MVP: ${response.verification_token.substring(0, 8)}...`);
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('checkout.failedResend'));
-    } finally {
-      setResending(false);
+      toast.error(error?.message || t('checkout.failedResend'));
     }
   };
 
@@ -199,41 +126,46 @@ export default function CartPage() {
       toast.error(t('errors.generic'));
       return;
     }
-    
-    setApplyingDiscount(true);
+    setDiscountLoading(true);
     try {
-      const response = await axios.post(
-        `${API}/cart/apply-discount?code=${discountCode.toUpperCase()}`,
-        {},
-        { withCredentials: true }
-      );
-      setAppliedDiscount(response.data.discount);
+      const result = await applyDiscount(discountCode.toUpperCase());
+      if (!result?.success) {
+        throw new Error(result?.error || t('errors.generic'));
+      }
+      await refetchPricing();
       setDiscountCode('');
       toast.success(t('success.added'));
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic'));
+      toast.error(error?.message || t('errors.generic'));
     } finally {
-      setApplyingDiscount(false);
+      setDiscountLoading(false);
     }
   };
 
   const handleRemoveDiscount = async () => {
+    setDiscountLoading(true);
     try {
-      await axios.delete(`${API}/cart/remove-discount`, { withCredentials: true });
-      setAppliedDiscount(null);
+      const result = await removeDiscount();
+      if (!result?.success) {
+        throw new Error(result?.error || t('errors.generic'));
+      }
+      await refetchPricing();
       toast.success(t('success.deleted'));
     } catch (error) {
-      toast.error(t('errors.generic'));
+      toast.error(error?.message || t('errors.generic'));
+    } finally {
+      setDiscountLoading(false);
     }
   };
 
-  // Calculate totals with currency conversion
   const getDiscountedTotal = () => {
     if (cartSummary.total_cents > 0) {
       return cartSummary.total_cents / 100;
     }
     const subtotal = getTotalPrice();
-    if (!appliedDiscount) return subtotal;
+    if (!appliedDiscount) {
+      return subtotal;
+    }
     return Math.max(0, subtotal - (appliedDiscount.discount_amount || 0));
   };
 
@@ -242,64 +174,45 @@ export default function CartPage() {
       toast.error(t('cart.empty'));
       return;
     }
-
     if (!emailVerified) {
       toast.error(t('errors.unauthorized'));
       return;
     }
-
     if (stockIssues.length > 0) {
       toast.error(t('errors.generic'));
       return;
     }
-
-    // Validate address selection
     const selectedAddress = getSelectedAddress();
-    if (!selectedAddress && !showNewAddressForm) {
+    if (!selectedAddress) {
       toast.error(t('checkout.selectAddress') || 'Please select a shipping address');
       return;
     }
-
     const addressToUse = {
-      full_name: selectedAddress.full_name,
-      street: selectedAddress.street,
-      city: selectedAddress.city,
-      postal_code: selectedAddress.postal_code,
-      country: selectedAddress.country,
-      phone: selectedAddress.phone || ''
+      full_name: selectedAddress?.full_name,
+      street: selectedAddress?.street,
+      city: selectedAddress?.city,
+      postal_code: selectedAddress?.postal_code,
+      country: selectedAddress?.country,
+      phone: selectedAddress?.phone || '',
     };
-
     try {
-      // Create checkout session with selected address
-      const response = await axios.post(
-        `${API}/payments/create-checkout`,
-        {
-          shipping_address: addressToUse
-        },
-        {
-          withCredentials: true,
-          headers: {
-            'origin': window.location.origin
-          }
-        }
-      );
-
-      // Redirect to Stripe
-      window.location.href = response.data.url;
+      const response = await createCheckout({ shippingAddress: addressToUse, origin: window.location.origin });
+      window.location.href = response.url;
     } catch (error) {
       console.error('Checkout error:', error);
-      // Handle stock validation errors from backend
-      if (error.response?.data?.detail?.issues) {
-        const issues = error.response.data.detail.issues;
-        issues.forEach(issue => toast.error(issue));
+      if (error?.data?.detail?.issues) {
+        error.data.detail.issues.forEach((issue) => toast.error(issue));
       } else {
-        const errorMessage = error.response?.data?.detail || t('checkout.checkoutFailed');
-        toast.error(typeof errorMessage === 'string' ? errorMessage : t('checkout.checkoutFailed'));
+        toast.error(error?.message || t('checkout.checkoutFailed'));
       }
     }
   };
 
-  // Show loading while checking auth
+  const handleRemoveItem = async (item) => {
+    await removeFromCart(item.product_id, item.variant_id, item.pack_id);
+    await refetchPricing();
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -319,48 +232,34 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12 pb-32 md:pb-12">
-        {/* Breadcrumbs - Hidden on mobile */}
         <div className="hidden md:block">
           <Breadcrumbs className="mb-6" />
         </div>
-        
-        {/* Back Button - Hidden on mobile (use header back) */}
         <div className="mb-4 md:mb-6 hidden md:block">
           <BackButton label={t('checkout.continueShopping')} />
         </div>
-
         <h1 className="font-heading text-2xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-4 md:mb-8" data-testid="cart-page-title">
           {t('cart.title')}
         </h1>
 
-        {/* Email Verification Banner */}
         {emailVerified === false && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8" data-testid="verification-banner">
             <div className="flex items-start gap-4">
               <AlertTriangle className="w-6 h-6 text-amber-600 mt-0.5" />
               <div className="flex-1">
                 <h3 className="font-semibold text-amber-900 mb-2">{t('checkout.verifyEmail')}</h3>
-                <p className="text-amber-800 mb-4">
-                  {t('checkout.verifyEmailMessage')} ({user.email})
-                </p>
-                
+                <p className="text-amber-800 mb-4">{t('checkout.verifyEmailMessage')} ({user.email})</p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex gap-2 flex-1">
                     <Input
                       placeholder={t('checkout.verificationCodePlaceholder')}
                       value={verificationToken}
-                      onChange={(e) => setVerificationToken(e.target.value)}
+                      onChange={(event) => setVerificationToken(event.target.value)}
                       className="flex-1 max-w-xs"
                       data-testid="verification-input"
                     />
-                    <Button
-                      onClick={handleVerifyEmail}
-                      disabled={verifying}
-                      className="bg-amber-600 hover:bg-amber-700"
-                      data-testid="verify-button"
-                    >
+                    <Button onClick={handleVerifyEmail} disabled={verifying} className="bg-amber-600 hover:bg-amber-700" data-testid="verify-button">
                       {verifying ? t('checkout.verifying') : t('checkout.verify')}
                     </Button>
                   </div>
@@ -380,7 +279,6 @@ export default function CartPage() {
           </div>
         )}
 
-        {/* Verified Badge */}
         {emailVerified === true && (
           <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-6 inline-flex items-center gap-2" data-testid="verified-badge">
             <CheckCircle className="w-5 h-5 text-green-600" />
@@ -388,7 +286,7 @@ export default function CartPage() {
           </div>
         )}
 
-        {loading ? (
+        {cartLoading ? (
           <p className="text-text-muted text-center py-12">{t('common.loading')}</p>
         ) : cartItems.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border border-stone-200">
@@ -399,14 +297,10 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => {
-                const hasStockIssue = stockIssues.some(i => i.product_id === item.product_id);
-                // Generate unique key for items with variants/packs
-                const itemKey = item.variant_id && item.pack_id 
-                  ? `${item.product_id}-${item.variant_id}-${item.pack_id}`
-                  : item.product_id;
+                const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
+                const itemKey = item.variant_id && item.pack_id ? `${item.product_id}-${item.variant_id}-${item.pack_id}` : item.product_id;
                 return (
                   <div
                     key={itemKey}
@@ -414,13 +308,10 @@ export default function CartPage() {
                     data-testid={`cart-item-${itemKey}`}
                   >
                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-stone-100 overflow-hidden flex-shrink-0">
-                      {item.image && (
-                        <img src={item.image} alt={item.product_name} className="w-full h-full object-cover" />
-                      )}
+                      {item.image && <img src={item.image} alt={item.product_name} className="w-full h-full object-cover" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-text-primary text-sm md:text-base line-clamp-2">{item.product_name}</h3>
-                      {/* Variant and Pack info */}
                       {(item.variant_name || item.pack_label) && (
                         <p className="text-xs md:text-sm text-text-muted">
                           {item.variant_name && <span>{item.variant_name}</span>}
@@ -432,29 +323,26 @@ export default function CartPage() {
                         <div>
                           <p className="text-xs md:text-sm text-text-muted">{t('cart.quantity', 'Cantidad')}: {item.quantity}</p>
                           <p className="text-primary font-bold text-sm md:text-base mt-0.5">
-                            {convertAndFormatPrice((item.price * item.quantity), item.currency || 'EUR')}
+                            {convertAndFormatPrice(item.price * item.quantity, item.currency || 'EUR')}
                           </p>
                         </div>
-                        {/* Delete button - Mobile: icon only */}
                         <button
-                          onClick={() => removeFromCart(item.product_id, item.variant_id, item.pack_id)}
+                          onClick={() => handleRemoveItem(item)}
                           className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors md:hidden"
                           data-testid={`remove-item-${itemKey}-mobile`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      {/* Stock issue warning */}
                       {hasStockIssue && (
                         <div className="flex items-center gap-1 mt-1 text-xs text-red-600">
                           <AlertCircle className="w-3 h-3" />
-                          <span>{stockIssues.find(i => i.product_id === item.product_id)?.message}</span>
+                          <span>{stockIssues.find((issue) => issue.product_id === item.product_id)?.message}</span>
                         </div>
                       )}
                     </div>
-                    {/* Delete button - Desktop */}
                     <button
-                      onClick={() => removeFromCart(item.product_id, item.variant_id, item.pack_id)}
+                      onClick={() => handleRemoveItem(item)}
                       className="hidden md:flex p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       data-testid={`remove-item-${itemKey}`}
                     >
@@ -464,25 +352,19 @@ export default function CartPage() {
                 );
               })}
 
-              {/* Shipping Address Section */}
               <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-address-section">
                 <h3 className="font-heading text-base md:text-lg font-semibold text-text-primary mb-3 md:mb-4 flex items-center gap-2">
                   <MapPin className="w-4 h-4 md:w-5 md:h-5" />
                   {t('checkout.shippingAddress')}
                 </h3>
 
-                {/* Saved Addresses */}
                 {savedAddresses.length > 0 && !showNewAddressForm && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-3 md:mb-4">
                     {savedAddresses.map((addr) => (
                       <div
                         key={addr.address_id}
                         onClick={() => setSelectedAddressId(addr.address_id)}
-                        className={`cursor-pointer p-3 md:p-4 rounded-lg border-2 transition-all ${
-                          selectedAddressId === addr.address_id 
-                            ? 'border-primary bg-primary/5' 
-                            : 'border-stone-200 hover:border-stone-300'
-                        }`}
+                        className={`cursor-pointer p-3 md:p-4 rounded-lg border-2 transition-all ${selectedAddressId === addr.address_id ? 'border-primary bg-primary/5' : 'border-stone-200 hover:border-stone-300'}`}
                         data-testid={`address-${addr.address_id}`}
                       >
                         <div className="flex items-start justify-between gap-2">
@@ -499,16 +381,13 @@ export default function CartPage() {
                             <p className="text-xs md:text-sm text-text-muted truncate">{addr.street}</p>
                             <p className="text-xs md:text-sm text-text-muted">{addr.city}, {addr.postal_code}</p>
                           </div>
-                          {selectedAddressId === addr.address_id && (
-                            <Check className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
-                          )}
+                          {selectedAddressId === addr.address_id && <Check className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />}
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
 
-                {/* Add New Address Button */}
                 {!showNewAddressForm && (
                   <Button
                     variant="outline"
@@ -521,133 +400,72 @@ export default function CartPage() {
                   </Button>
                 )}
 
-                {/* New Address Form */}
                 {showNewAddressForm && (
-                  <form
-                    onSubmit={handleAddrSubmit(handleSaveNewAddress)}
-                    className="space-y-4 p-4 border border-stone-200 rounded-lg"
-                    data-testid="new-address-form"
-                  >
+                  <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 border border-stone-200 rounded-lg" data-testid="new-address-form">
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-1">
-                        {t('checkout.addressName') || 'Nombre de dirección'}
-                      </label>
-                      <Input
-                        {...registerAddr('name')}
-                        placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'}
-                        data-testid="new-address-name"
-                      />
+                      <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.addressName') || 'Nombre de direccion'}</label>
+                      <Input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} data-testid="new-address-name" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1">
-                          {t('checkout.fullName')} <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                          {...registerAddr('full_name')}
-                          placeholder={t('checkout.fullName')}
-                          className={addrErrors.full_name ? 'border-red-500' : ''}
-                          data-testid="new-address-fullname"
-                        />
+                        <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.fullName')} <span className="text-red-500">*</span></label>
+                        <Input {...registerAddr('full_name')} placeholder={t('checkout.fullName')} className={addrErrors.full_name ? 'border-red-500' : ''} data-testid="new-address-fullname" />
                         {addrErrors.full_name && <p className="text-red-500 text-xs mt-1">{addrErrors.full_name.message}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1">
-                          {t('common.phone')}
-                        </label>
-                        <Input
-                          {...registerAddr('phone')}
-                          type="tel"
-                          placeholder={t('common.phone')}
-                          data-testid="new-address-phone"
-                        />
+                        <label className="block text-sm font-medium text-text-primary mb-1">{t('common.phone')}</label>
+                        <Input {...registerAddr('phone')} type="tel" placeholder={t('common.phone')} data-testid="new-address-phone" />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-1">
-                        {t('checkout.street')} <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        {...registerAddr('street')}
-                        placeholder={t('checkout.street')}
-                        className={addrErrors.street ? 'border-red-500' : ''}
-                        data-testid="new-address-street"
-                      />
+                      <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.street')} <span className="text-red-500">*</span></label>
+                      <Input {...registerAddr('street')} placeholder={t('checkout.street')} className={addrErrors.street ? 'border-red-500' : ''} data-testid="new-address-street" />
                       {addrErrors.street && <p className="text-red-500 text-xs mt-1">{addrErrors.street.message}</p>}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1">
-                          {t('checkout.city')} <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                          {...registerAddr('city')}
-                          placeholder={t('checkout.city')}
-                          className={addrErrors.city ? 'border-red-500' : ''}
-                          data-testid="new-address-city"
-                        />
+                        <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.city')} <span className="text-red-500">*</span></label>
+                        <Input {...registerAddr('city')} placeholder={t('checkout.city')} className={addrErrors.city ? 'border-red-500' : ''} data-testid="new-address-city" />
                         {addrErrors.city && <p className="text-red-500 text-xs mt-1">{addrErrors.city.message}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1">
-                          {t('checkout.zip')} <span className="text-red-500">*</span>
-                        </label>
-                        <Input
-                          {...registerAddr('postal_code')}
-                          placeholder={t('checkout.zip')}
-                          className={addrErrors.postal_code ? 'border-red-500' : ''}
-                          data-testid="new-address-postal"
-                        />
+                        <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.zip')} <span className="text-red-500">*</span></label>
+                        <Input {...registerAddr('postal_code')} placeholder={t('checkout.zip')} className={addrErrors.postal_code ? 'border-red-500' : ''} data-testid="new-address-postal" />
                         {addrErrors.postal_code && <p className="text-red-500 text-xs mt-1">{addrErrors.postal_code.message}</p>}
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-1">
-                        {t('checkout.country')} <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        {...registerAddr('country')}
-                        className={`w-full px-4 py-2 rounded-lg border bg-white text-sm ${addrErrors.country ? 'border-red-500' : 'border-stone-200'}`}
-                        data-testid="new-address-country"
-                      >
-                        <option value="ES">España</option>
+                      <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.country')} <span className="text-red-500">*</span></label>
+                      <select {...registerAddr('country')} className={`w-full px-4 py-2 rounded-lg border bg-white text-sm ${addrErrors.country ? 'border-red-500' : 'border-stone-200'}`} data-testid="new-address-country">
+                        <option value="ES">Espana</option>
                         <option value="PT">Portugal</option>
                         <option value="FR">Francia</option>
                         <option value="DE">Alemania</option>
                         <option value="IT">Italia</option>
                         <option value="GB">Reino Unido</option>
                         <option value="US">Estados Unidos</option>
-                        <option value="MX">México</option>
+                        <option value="MX">Mexico</option>
                         <option value="AR">Argentina</option>
                         <option value="CO">Colombia</option>
                       </select>
                       {addrErrors.country && <p className="text-red-500 text-xs mt-1">{addrErrors.country.message}</p>}
                     </div>
                     <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="is_default"
-                        {...registerAddr('is_default')}
-                        className="rounded border-stone-300"
-                      />
-                      <label htmlFor="is_default" className="text-sm text-text-muted">
-                        {t('checkout.setAsDefault') || 'Establecer como predeterminada'}
-                      </label>
+                      <input type="checkbox" id="is_default" {...registerAddr('is_default')} className="rounded border-stone-300" />
+                      <label htmlFor="is_default" className="text-sm text-text-muted">{t('checkout.setAsDefault') || 'Establecer como predeterminada'}</label>
                     </div>
                     <div className="flex gap-3">
-                      <Button
-                        type="submit"
-                        disabled={savingAddress}
-                        className="flex-1 bg-primary hover:bg-primary-hover"
-                        data-testid="save-new-address-btn"
-                      >
+                      <Button type="submit" disabled={savingAddress} className="flex-1 bg-primary hover:bg-primary-hover" data-testid="save-new-address-btn">
                         {savingAddress ? t('common.loading') : t('common.save')}
                       </Button>
                       {savedAddresses.length > 0 && (
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={() => { setShowNewAddressForm(false); resetAddr({ country: 'ES', is_default: false }); }}
+                          onClick={() => {
+                            setShowNewAddressForm(false);
+                            resetAddr({ country: 'ES', is_default: false });
+                          }}
                           data-testid="cancel-new-address-btn"
                         >
                           {t('common.cancel')}
@@ -659,31 +477,14 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* Order Summary */}
             <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 h-fit lg:sticky lg:top-24">
-              <h2 className="font-heading text-lg md:text-xl font-semibold text-text-primary mb-3 md:mb-4">
-                {t('checkout.orderSummary')}
-              </h2>
-              
-              {/* Discount Code Input */}
+              <h2 className="font-heading text-lg md:text-xl font-semibold text-text-primary mb-3 md:mb-4">{t('checkout.orderSummary')}</h2>
               <div className="mb-4 md:mb-6">
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
-                    <Input
-                      placeholder={t('cart.discountCode')}
-                      value={discountCode}
-                      onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-                      className="flex-1 text-sm"
-                      data-testid="discount-code-input"
-                    />
-                    <Button
-                      onClick={handleApplyDiscount}
-                      disabled={applyingDiscount}
-                      variant="outline"
-                      className="border-primary text-primary hover:bg-primary hover:text-white"
-                      data-testid="apply-discount-btn"
-                    >
-                      {applyingDiscount ? t('common.loading') : t('cart.apply')}
+                    <Input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 text-sm" data-testid="discount-code-input" />
+                    <Button onClick={handleApplyDiscount} disabled={discountLoading} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white" data-testid="apply-discount-btn">
+                      {discountLoading ? t('common.loading') : t('cart.apply')}
                     </Button>
                   </div>
                 ) : (
@@ -692,125 +493,93 @@ export default function CartPage() {
                       <Tag className="w-4 h-4 text-green-600" />
                       <span className="text-green-800 font-medium">{appliedDiscount.code}</span>
                       <span className="text-green-600 text-sm">
-                        {appliedDiscount.type === 'percentage' 
-                          ? `-${appliedDiscount.value}%` 
+                        {appliedDiscount.type === 'percentage'
+                          ? `-${appliedDiscount.value}%`
                           : appliedDiscount.type === 'fixed'
-                          ? `-€${appliedDiscount.value}`
-                          : t('checkout.freeShipping')}
+                            ? `-${convertAndFormatPrice(appliedDiscount.value, currency)}`
+                            : t('checkout.freeShipping')}
                       </span>
                     </div>
-                    <button
-                      onClick={handleRemoveDiscount}
-                      className="text-green-600 hover:text-green-800 p-1"
-                      data-testid="remove-discount-btn"
-                    >
+                    <button onClick={handleRemoveDiscount} className="text-green-600 hover:text-green-800 p-1" data-testid="remove-discount-btn">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 )}
               </div>
-              
+
               <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
                 <div className="flex justify-between text-sm md:text-base">
                   <span className="text-text-muted">{t('cart.subtotal')}</span>
-                  <span className="text-text-primary">
-                    {convertAndFormatPrice((cartSummary.subtotal_cents || Math.round(getTotalPrice() * 100)) / 100, 'EUR')}
-                  </span>
+                  <span className="text-text-primary">{convertAndFormatPrice((cartSummary.subtotal_cents || Math.round(getTotalPrice() * 100)) / 100, 'EUR')}</span>
                 </div>
-                
                 {appliedDiscount && appliedDiscount.discount_amount > 0 && (
                   <div className="flex justify-between text-green-600 text-sm md:text-base">
                     <span>{t('cart.discount')}</span>
                     <span>-{convertAndFormatPrice(appliedDiscount.discount_amount, currency)}</span>
                   </div>
                 )}
-                
                 <div className="flex justify-between text-sm md:text-base">
                   <span className="text-text-muted">{t('checkout.shipping')}</span>
                   <span className="text-text-primary">
-                    {(cartSummary.shipping_cents || 0) > 0
-                      ? convertAndFormatPrice(cartSummary.shipping_cents / 100, 'EUR')
-                      : <span className="text-green-600">{t('common.free')}</span>}
+                    {(cartSummary.shipping_cents || 0) > 0 ? convertAndFormatPrice(cartSummary.shipping_cents / 100, 'EUR') : <span className="text-green-600">{t('common.free')}</span>}
                   </span>
                 </div>
-
                 <div className="flex justify-between text-sm md:text-base">
-                  <span className="text-text-muted">
-                    IVA ({((cartSummary.tax_rate_bp || 2100) / 100).toFixed(0)}%)
-                  </span>
-                  <span className="text-text-primary">
-                    {convertAndFormatPrice((cartSummary.tax_cents || 0) / 100, 'EUR')}
-                  </span>
+                  <span className="text-text-muted">IVA ({((cartSummary.tax_rate_bp || 2100) / 100).toFixed(0)}%)</span>
+                  <span className="text-text-primary">{convertAndFormatPrice((cartSummary.tax_cents || 0) / 100, 'EUR')}</span>
                 </div>
-                
                 <div className="border-t border-stone-200 pt-2 md:pt-3 flex justify-between">
                   <span className="font-semibold text-text-primary text-sm md:text-base">{t('cart.total')}</span>
                   <span className="font-bold text-lg md:text-xl text-primary">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>
                 </div>
-                
-                {/* Exchange Rate Info */}
                 {currency !== (countries[country]?.currency || 'EUR') && (
                   <div className="text-xs text-text-muted pt-2 border-t">
                     <p>{t('checkout.displayCurrency', { currency })}</p>
                     <p className="font-medium">{t('checkout.chargeCurrency', { currency: countries[country]?.currency || 'EUR' })}</p>
                     {getExchangeRateDisplay(countries[country]?.currency || 'EUR') && (
-                      <p className="text-xs mt-1">
-                        {t('checkout.exchangeRate')}: {getExchangeRateDisplay(countries[country]?.currency || 'EUR').text}
-                      </p>
+                      <p className="text-xs mt-1">{t('checkout.exchangeRate')}: {getExchangeRateDisplay(countries[country]?.currency || 'EUR').text}</p>
                     )}
                   </div>
                 )}
               </div>
-              
-              {/* Selected Address Summary */}
+
               {(getSelectedAddress() || showNewAddressForm) && (
                 <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-stone-50 rounded-lg">
                   <p className="text-[10px] md:text-xs text-text-muted mb-0.5 md:mb-1">{t('checkout.shippingTo') || 'Shipping to'}:</p>
                   {showNewAddressForm ? (
                     <p className="text-xs md:text-sm text-text-primary">{t('checkout.newAddressForm') || 'New address (fill form below)'}</p>
                   ) : (
-                    <p className="text-xs md:text-sm text-text-primary">
-                      {getSelectedAddress()?.full_name}, {getSelectedAddress()?.city}
-                    </p>
+                    <p className="text-xs md:text-sm text-text-primary">{getSelectedAddress()?.full_name}, {getSelectedAddress()?.city}</p>
                   )}
                 </div>
               )}
-              
+
               <Button
                 onClick={handleCheckout}
-                disabled={!emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
-                className={`w-full rounded-full py-3 md:py-2 text-sm md:text-base font-medium ${emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-ds-primary hover:bg-ds-primary/90 text-white' : 'bg-stone-300 cursor-not-allowed text-text-muted'}`}
+                disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
+                className={`w-full rounded-full py-3 md:py-2 text-sm md:text-base font-medium ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-ds-primary hover:bg-ds-primary/90 text-white' : 'bg-stone-300 cursor-not-allowed text-text-muted'}`}
                 data-testid="checkout-button"
               >
-                {!emailVerified 
-                  ? t('errors.unauthorized')
-                  : stockIssues.length > 0 
-                  ? t('errors.generic')
-                  : (!getSelectedAddress() && !showNewAddressForm)
-                  ? (t('checkout.selectAddress') || 'Select Address')
-                  : t('cart.checkout')}
+                {checkoutLoading
+                  ? t('common.loading')
+                  : !emailVerified
+                    ? t('errors.unauthorized')
+                    : stockIssues.length > 0
+                      ? t('errors.generic')
+                      : (!getSelectedAddress() && !showNewAddressForm)
+                        ? (t('checkout.selectAddress') || 'Select Address')
+                        : t('cart.checkout')}
               </Button>
-              
-              {!emailVerified && (
-                <p className="text-xs text-text-muted mt-2 text-center">
-                  {t('checkout.emailVerificationRequired') || 'Email verification required'}
-                </p>
-              )}
-              {stockIssues.length > 0 && (
-                <p className="text-xs text-red-500 mt-2 text-center">
-                  {t('checkout.stockIssues') || 'Some items have insufficient stock'}
-                </p>
-              )}
+
+              {!emailVerified && <p className="text-xs text-text-muted mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Email verification required'}</p>}
+              {stockIssues.length > 0 && <p className="text-xs text-red-500 mt-2 text-center">{t('checkout.stockIssues') || 'Some items have insufficient stock'}</p>}
               {!getSelectedAddress() && !showNewAddressForm && emailVerified && stockIssues.length === 0 && (
-                <p className="text-xs text-amber-600 mt-2 text-center">
-                  {t('checkout.pleaseSelectAddress') || 'Please select or add a shipping address'}
-                </p>
+                <p className="text-xs text-amber-600 mt-2 text-center">{t('checkout.pleaseSelectAddress') || 'Please select or add a shipping address'}</p>
               )}
             </div>
           </div>
         )}
       </div>
-
       <Footer />
     </div>
   );
