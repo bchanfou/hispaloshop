@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Input } from '../../components/ui/input';
 import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 import InfluencerAIAssistant from '../../components/InfluencerAIAssistant';
@@ -13,28 +12,20 @@ import InternalChat from '../../components/InternalChat';
 import InfluencerAnalytics from '../../components/InfluencerAnalytics';
 import TierProgress from '../../components/TierProgress';
 import { useTranslation } from 'react-i18next';
-import { API } from '../../utils/api';
+import {
+  useInfluencerDiscountCodes,
+  useInfluencerEmailVerification,
+  useInfluencerProfile,
+  useInfluencerStripeStatus,
+  useInfluencerWithdrawal,
+} from '../../features/influencer/hooks';
 
 const MINIMUM_WITHDRAWAL = 50; // €50 minimum
 
 // Withdrawal Component
 function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSuccess }) {
-  const [withdrawing, setWithdrawing] = useState(false);
-  const [withdrawals, setWithdrawals] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
-
-  useEffect(() => {
-    fetchWithdrawals();
-  }, []);
-
-  const fetchWithdrawals = async () => {
-    try {
-      const res = await axios.get(`${API}/influencer/withdrawals`, { withCredentials: true });
-      setWithdrawals(res.data.withdrawals || []);
-    } catch (error) {
-      console.error('Error fetching withdrawals:', error);
-    }
-  };
+  const { withdrawals, withdrawing, requestWithdrawal, refetchWithdrawals } = useInfluencerWithdrawal();
 
   const handleWithdraw = async () => {
     if (availableToWithdraw < MINIMUM_WITHDRAWAL) {
@@ -42,16 +33,13 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
       return;
     }
     
-    setWithdrawing(true);
     try {
-      const res = await axios.post(`${API}/influencer/request-withdrawal`, {}, { withCredentials: true });
-      toast.success(res.data.message);
-      fetchWithdrawals();
+      const res = await requestWithdrawal();
+      toast.success(res?.message || 'Retiro solicitado');
+      await refetchWithdrawals();
       if (onWithdrawSuccess) onWithdrawSuccess();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al procesar el retiro');
-    } finally {
-      setWithdrawing(false);
+      toast.error(error?.message || 'Error al procesar el retiro');
     }
   };
 
@@ -143,35 +131,28 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
 // Email Verification Component
 function EmailVerificationBanner({ user, onVerified }) {
   const [code, setCode] = useState('');
-  const [verifying, setVerifying] = useState(false);
-  const [resending, setResending] = useState(false);
+  const { verifying, resending, verifyEmailCode, resendVerificationCode } = useInfluencerEmailVerification();
 
   const handleVerify = async () => {
     if (!code || code.length !== 6) {
       toast.error('Introduce el código de 6 dígitos');
       return;
     }
-    setVerifying(true);
     try {
-      await axios.post(`${API}/auth/verify-email?code=${code}`, {}, { withCredentials: true });
+      await verifyEmailCode(code);
       toast.success('¡Email verificado!');
       onVerified();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Código inválido');
-    } finally {
-      setVerifying(false);
+      toast.error(error?.message || 'Código inválido');
     }
   };
 
   const handleResend = async () => {
-    setResending(true);
     try {
-      await axios.post(`${API}/auth/resend-verification`, {}, { withCredentials: true });
+      await resendVerificationCode();
       toast.success('Código enviado a tu email');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al enviar código');
-    } finally {
-      setResending(false);
+      toast.error(error?.message || 'Error al enviar código');
     }
   };
 
@@ -209,22 +190,19 @@ function EmailVerificationBanner({ user, onVerified }) {
 // Create Code Component
 function CreateCodeCard({ onCodeCreated }) {
   const [code, setCode] = useState('');
-  const [creating, setCreating] = useState(false);
+  const { creatingCode, createDiscountCode } = useInfluencerDiscountCodes();
 
   const handleCreate = async () => {
     if (!code || code.length < 3) {
       toast.error('El código debe tener al menos 3 caracteres');
       return;
     }
-    setCreating(true);
     try {
-      const res = await axios.post(`${API}/influencer/create-code`, { code }, { withCredentials: true });
-      toast.success(res.data.message);
-      onCodeCreated(res.data.code);
+      const res = await createDiscountCode(code);
+      toast.success(res?.message || 'Código creado');
+      onCodeCreated(res?.code || code);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al crear código');
-    } finally {
-      setCreating(false);
+      toast.error(error?.message || 'Error al crear código');
     }
   };
 
@@ -248,8 +226,8 @@ function CreateCodeCard({ onCodeCreated }) {
             className="flex-1 uppercase text-lg font-mono"
             maxLength={20}
           />
-          <Button onClick={handleCreate} disabled={creating || code.length < 3}>
-            {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear código'}
+          <Button onClick={handleCreate} disabled={creatingCode || code.length < 3}>
+            {creatingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear código'}
           </Button>
         </div>
         <p className="text-xs text-text-muted mt-2">

@@ -1,62 +1,83 @@
 import BackButton from '../components/BackButton';
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
-import { 
-  User, MapPin, Calendar, Grid3X3, Heart, MessageCircle, 
-  ShoppingBag, Star, Settings, Camera, Share2, UserPlus, UserMinus,
-  X, Loader2, ImagePlus, Send, Package, CirclePlus, Trophy
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import {
+  User,
+  MapPin,
+  Calendar,
+  Grid3X3,
+  Heart,
+  MessageCircle,
+  ShoppingBag,
+  Star,
+  Settings,
+  Camera,
+  Share2,
+  UserPlus,
+  UserMinus,
+  X,
+  Loader2,
+  ImagePlus,
+  Send,
+  Package,
+  Trophy,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
-
-import { API } from '../utils/api';
 import { getDefaultRoute, getDashboardLabel } from '../lib/navigation';
 import PostViewer from '../components/PostViewer';
 import { StoriesRow } from '../components/HispaloStories';
 import BadgeGrid from '../components/BadgeGrid';
+import {
+  useUserAvatar,
+  useUserBadges,
+  useUserFollow,
+  useUserPosts,
+  useUserProducts,
+  useUserProfile,
+} from '../features/user/hooks';
+import { resolveUserImage } from '../features/user/queries';
 
-
-function CreatePostModal({ onClose, onPostCreated }) {
+function CreatePostModal({ onClose, onCreate, creatingPost }) {
   const { t } = useTranslation();
   const [caption, setCaption] = useState('');
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [uploading, setUploading] = useState(false);
   const fileRef = useRef(null);
 
-  const handleFileSelect = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    if (!f.type.startsWith('image/')) { toast.error(t('social.imagesOnly')); return; }
-    if (f.size > 10 * 1024 * 1024) { toast.error(t('social.maxSize10')); return; }
-    setFile(f);
+  const handleFileSelect = (event) => {
+    const nextFile = event.target.files?.[0];
+    if (!nextFile) return;
+    if (!nextFile.type.startsWith('image/')) {
+      toast.error(t('social.imagesOnly'));
+      return;
+    }
+    if (nextFile.size > 10 * 1024 * 1024) {
+      toast.error(t('social.maxSize10'));
+      return;
+    }
+
+    setFile(nextFile);
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(f);
+    reader.readAsDataURL(nextFile);
   };
 
   const handleSubmit = async () => {
-    if (!file) { toast.error(t('social.selectImage')); return; }
-    setUploading(true);
+    if (!file) {
+      toast.error(t('social.selectImage'));
+      return;
+    }
+
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('caption', caption);
-      const res = await axios.post(`${API}/posts`, formData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      await onCreate({ file, caption });
       toast.success(t('social.published'));
-      onPostCreated(res.data);
       onClose();
-    } catch (err) {
-      toast.error(err.response?.data?.detail || t('social.errorCreate'));
-    } finally {
-      setUploading(false);
+    } catch (error) {
+      toast.error(error?.message || t('social.errorCreate'));
     }
   };
 
@@ -66,13 +87,21 @@ function CreatePostModal({ onClose, onPostCreated }) {
       <div className="relative bg-white rounded-2xl w-full max-w-lg shadow-2xl" data-testid="create-post-modal">
         <div className="flex items-center justify-between p-4 border-b border-stone-200">
           <h3 className="font-semibold text-primary">{t('social.newPost')}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-full"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-full">
+            <X className="w-5 h-5" />
+          </button>
         </div>
         <div className="p-4 space-y-4">
           {preview ? (
             <div className="relative">
               <img src={preview} alt="Preview" className="w-full max-h-80 object-cover rounded-xl" />
-              <button onClick={() => { setFile(null); setPreview(null); }} className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full hover:bg-slate-950/80">
+              <button
+                onClick={() => {
+                  setFile(null);
+                  setPreview(null);
+                }}
+                className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full hover:bg-slate-950/80"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -89,18 +118,18 @@ function CreatePostModal({ onClose, onPostCreated }) {
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
           <textarea
             value={caption}
-            onChange={(e) => setCaption(e.target.value)}
+            onChange={(event) => setCaption(event.target.value)}
             placeholder={t('social.writeCaption')}
             className="w-full p-3 border border-stone-200 rounded-xl text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
             data-testid="post-caption-input"
           />
           <Button
             onClick={handleSubmit}
-            disabled={!file || uploading}
+            disabled={!file || creatingPost}
             className="w-full bg-primary hover:bg-primary-hover text-white rounded-xl h-11"
             data-testid="submit-post-btn"
           >
-            {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
+            {creatingPost ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
             {t('social.publish')}
           </Button>
         </div>
@@ -113,110 +142,39 @@ export default function UserProfilePage() {
   const { userId } = useParams();
   const { user: currentUser } = useAuth();
   const { t } = useTranslation();
-  const [profile, setProfile] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
-  const [activeTab, setActiveTab] = useState(null); // null = auto-detect on load
+  const { profile, isLoading: profileLoading } = useUserProfile(userId);
+  const { posts, isLoading: postsLoading, createPost, creatingPost } = useUserPosts(userId);
+  const { badges, isLoading: badgesLoading } = useUserBadges(userId, currentUser?.user_id === userId);
+  const { isFollowing, followersCount, followingCount, toggleFollow } = useUserFollow(userId, profile);
+  const { uploadingAvatar, uploadAvatar } = useUserAvatar(userId);
+  const [activeTab, setActiveTab] = useState(null);
   const [showCreatePost, setShowCreatePost] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [sellerProducts, setSellerProducts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [savedPosts, setSavedPosts] = useState([]);
-  const [badges, setBadges] = useState([]);
   const avatarInputRef = useRef(null);
 
   const isOwnProfile = currentUser?.user_id === userId;
+  const isSeller = profile?.role === 'producer' || profile?.role === 'importer';
+  const { sellerProducts } = useUserProducts(userId, activeTab === 'products' && isSeller);
+  const loading = profileLoading || postsLoading || badgesLoading;
   const dashboardUrl = currentUser ? getDefaultRoute(currentUser, currentUser.onboarding_completed) : '/login';
   const dashboardLabel = currentUser ? getDashboardLabel(currentUser.role) : 'Panel';
 
   useEffect(() => {
-    fetchProfile();
-  }, [userId]);
-
-  // Auto-set default tab based on role
-  useEffect(() => {
     if (profile && activeTab === null) {
-      setActiveTab(profile.role === 'producer' || profile.role === 'importer' ? 'products' : 'posts');
+      setActiveTab(isSeller ? 'products' : 'posts');
     }
-  }, [profile, activeTab]);
-
-  useEffect(() => {
-    if (activeTab === 'products' && (profile?.role === 'producer' || profile?.role === 'importer')) {
-      axios.get(`${API}/products?seller_id=${userId}`, { withCredentials: true })
-        .then(res => {
-          const data = res.data?.products || res.data || [];
-          if (Array.isArray(data) && data.length > 0) {
-            setSellerProducts(data);
-          } else {
-            setSellerProducts([]);
-          }
-        })
-        .catch(() => {
-          setSellerProducts([]);
-        });
-    }
-    if (activeTab === 'saved' && isOwnProfile && currentUser) {
-      axios.get(`${API}/users/${userId}/posts?bookmarked=true`, { withCredentials: true })
-        .then(res => { setSavedPosts(res.data || []); })
-        .catch(() => setSavedPosts([]));
-    }
-  }, [activeTab, userId, profile]);
-
-  const fetchProfile = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API}/users/${userId}/profile`, { withCredentials: true });
-      setProfile(res.data);
-      setFollowersCount(res.data.followers_count || 0);
-      setFollowingCount(res.data.following_count || 0);
-      setIsFollowing(res.data.is_following || false);
-      
-      const postsRes = await axios.get(`${API}/users/${userId}/posts`);
-      const remotePosts = postsRes.data || [];
-      if (Array.isArray(remotePosts) && remotePosts.length > 0) {
-        setPosts(remotePosts);
-      } else {
-        setPosts([]);
-      }
-
-      // Fetch badges
-      const badgesRes = await axios.get(`${API}/users/${userId}/badges`);
-      setBadges(badgesRes.data || []);
-
-      // Auto-check badges for own profile
-      if (currentUser?.user_id === userId) {
-        axios.post(`${API}/users/${userId}/badges/check`, {}, { withCredentials: true }).catch(() => {});
-      }
-    } catch (err) {
-      console.error('Error fetching profile:', err);
-      if (err.response?.status === 404) {
-        setProfile({
-          user_id: userId, name: 'Usuario', bio: '', followers_count: 0, following_count: 0, posts_count: 0
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [activeTab, isSeller, profile]);
 
   const handleFollow = async () => {
-    if (!currentUser) { toast.error(t('social.loginToFollow')); return; }
+    if (!currentUser) {
+      toast.error(t('social.loginToFollow'));
+      return;
+    }
+
     try {
-      if (isFollowing) {
-        await axios.delete(`${API}/users/${userId}/follow`, { withCredentials: true });
-        setIsFollowing(false);
-        setFollowersCount(prev => prev - 1);
-        toast.success(t('social.unfollowed'));
-      } else {
-        await axios.post(`${API}/users/${userId}/follow`, {}, { withCredentials: true });
-        setIsFollowing(true);
-        setFollowersCount(prev => prev + 1);
-        toast.success(t('social.nowFollowing'));
-      }
-    } catch (err) {
+      await toggleFollow();
+      toast.success(isFollowing ? t('social.unfollowed') : t('social.nowFollowing'));
+    } catch {
       toast.error(t('social.errorFollow'));
     }
   };
@@ -224,43 +182,36 @@ export default function UserProfilePage() {
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
-      try { await navigator.share({ title: `Perfil de ${profile?.name}`, url }); } catch { /* ignore */ }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success(t('social.linkCopied'));
+      try {
+        await navigator.share({ title: `Perfil de ${profile?.name}`, url });
+      } catch {
+        return;
+      }
+      return;
     }
+
+    await navigator.clipboard.writeText(url);
+    toast.success(t('social.linkCopied'));
   };
 
-  const handleAvatarUpload = async (e) => {
-    const file = e.target.files?.[0];
+  const handleAvatarUpload = async (event) => {
+    const file = event.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) { toast.error(t('social.imagesOnly')); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error(t('social.maxSize5')); return; }
-    
-    setUploadingAvatar(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await axios.post(`${API}/users/upload-avatar`, formData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      setProfile(prev => ({ ...prev, profile_image: res.data.image_url }));
-      toast.success(t('social.profileUpdated'));
-    } catch (err) {
-      toast.error(t('social.errorUpload'));
-    } finally {
-      setUploadingAvatar(false);
+    if (!file.type.startsWith('image/')) {
+      toast.error(t('social.imagesOnly'));
+      return;
     }
-  };
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(t('social.maxSize5'));
+      return;
+    }
 
-  const handlePostCreated = (newPost) => {
-    setPosts(prev => [newPost, ...prev]);
-  };
-
-  const getImageUrl = (url) => {
-    if (!url) return null;
-    return url.startsWith('http') ? url : `${API}${url}`;
+    try {
+      await uploadAvatar(file);
+      toast.success(t('social.profileUpdated'));
+    } catch {
+      toast.error(t('social.errorUpload'));
+    }
   };
 
   if (loading) {
@@ -278,20 +229,14 @@ export default function UserProfilePage() {
     <div className="min-h-screen bg-stone-50">
       <Header />
 
-      {/* Profile Header */}
       <div className="bg-white border-b border-stone-200">
         <div className="max-w-4xl mx-auto px-4 py-8">
-        <BackButton />
+          <BackButton />
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-            {/* Profile Picture */}
             <div className="relative">
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-stone-200 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
                 {profile?.profile_image ? (
-                  <img 
-                    src={getImageUrl(profile.profile_image)} 
-                    alt={profile.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={resolveUserImage(profile.profile_image)} alt={profile.name} className="w-full h-full object-cover" />
                 ) : (
                   <User className="w-16 h-16 text-stone-400" />
                 )}
@@ -303,7 +248,7 @@ export default function UserProfilePage() {
               </div>
               {isOwnProfile && (
                 <>
-                  <button 
+                  <button
                     onClick={() => avatarInputRef.current?.click()}
                     className="absolute bottom-2 right-2 bg-primary text-white p-2 rounded-full hover:bg-primary-hover transition-colors"
                     data-testid="change-avatar-btn"
@@ -315,20 +260,21 @@ export default function UserProfilePage() {
               )}
             </div>
 
-            {/* Profile Info */}
             <div className="flex-1 text-center md:text-left">
               <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
                 <h1 className="text-2xl font-bold text-primary">{profile?.name}</h1>
-                {profile?.username && (
-                  <span className="text-sm text-text-muted">@{profile.username}</span>
-                )}
-                
-                {/* Role badge */}
+                {profile?.username && <span className="text-sm text-text-muted">@{profile.username}</span>}
+
                 {profile?.role && profile.role !== 'customer' && (
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                    profile.role === 'influencer' ? 'bg-purple-100 text-purple-700' :
-                    profile.role === 'producer' || profile.role === 'importer' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'
-                  }`}>
+                  <span
+                    className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                      profile.role === 'influencer'
+                        ? 'bg-purple-100 text-purple-700'
+                        : profile.role === 'producer' || profile.role === 'importer'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-sky-100 text-sky-700'
+                    }`}
+                  >
                     {profile.role === 'influencer'
                       ? t('social.roleInfluencer')
                       : profile.role === 'producer'
@@ -338,22 +284,24 @@ export default function UserProfilePage() {
                           : profile.role}
                   </span>
                 )}
-                
+
                 {!isOwnProfile && currentUser && (
                   <div className="flex gap-2">
                     <Button
                       onClick={handleFollow}
-                      className={`${
-                        isFollowing 
-                          ? 'bg-stone-200 text-primary hover:bg-stone-300' 
-                          : 'bg-accent text-white hover:bg-accent/90'
-                      }`}
+                      className={`${isFollowing ? 'bg-stone-200 text-primary hover:bg-stone-300' : 'bg-accent text-white hover:bg-accent/90'}`}
                       data-testid="follow-btn"
                     >
                       {isFollowing ? (
-                        <><UserMinus className="w-4 h-4 mr-2" />Siguiendo</>
+                        <>
+                          <UserMinus className="w-4 h-4 mr-2" />
+                          Siguiendo
+                        </>
                       ) : (
-                        <><UserPlus className="w-4 h-4 mr-2" />{t('social.follow')}</>
+                        <>
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          {t('social.follow')}
+                        </>
                       )}
                     </Button>
                     <Button
@@ -403,7 +351,6 @@ export default function UserProfilePage() {
                 </Button>
               </div>
 
-              {/* Stats */}
               <div className="flex justify-center md:justify-start gap-8 mb-4">
                 <div className="text-center">
                   <p className="text-xl font-bold text-primary">{posts.length}</p>
@@ -422,7 +369,8 @@ export default function UserProfilePage() {
               {profile?.bio && <p className="text-primary max-w-md">{profile.bio}</p>}
               {profile?.location && (
                 <div className="flex items-center gap-1 text-text-muted mt-2">
-                  <MapPin className="w-4 h-4" /><span className="text-sm">{profile.location}</span>
+                  <MapPin className="w-4 h-4" />
+                  <span className="text-sm">{profile.location}</span>
                 </div>
               )}
               {profile?.created_at && (
@@ -434,14 +382,12 @@ export default function UserProfilePage() {
                 </div>
               )}
 
-              {/* Earned Badges (compact) */}
               {badges.length > 0 && (
                 <div className="mt-3">
                   <BadgeGrid badges={badges} compact />
                 </div>
               )}
 
-              {/* Seller Stats Card */}
               {profile?.seller_stats && (
                 <div className="mt-4 bg-stone-50 rounded-xl p-4 border border-stone-200" data-testid="seller-stats-card">
                   <div className="grid grid-cols-3 gap-3 text-center">
@@ -466,7 +412,6 @@ export default function UserProfilePage() {
                       <Star className="w-3.5 h-3.5" /> {t('social.verifiedSeller')}
                     </div>
                   )}
-                  {/* Action buttons */}
                   <div className="flex gap-2 mt-3">
                     {profile.seller_stats.store_slug && (
                       <Link to={`/store/${profile.seller_stats.store_slug}`} className="flex-1" data-testid="view-store-link">
@@ -480,7 +425,10 @@ export default function UserProfilePage() {
                         variant="outline"
                         className="flex-1 rounded-xl text-xs h-9"
                         onClick={() => {
-                          if (!currentUser) { toast.error(t('social.login')); return; }
+                          if (!currentUser) {
+                            toast.error(t('social.login'));
+                            return;
+                          }
                           window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId: profile.user_id } }));
                         }}
                         data-testid="message-btn"
@@ -493,14 +441,16 @@ export default function UserProfilePage() {
                     <div className="mt-3 pt-3 border-t border-stone-200">
                       <p className="text-[10px] text-text-muted uppercase tracking-wider mb-2">{t('social.featuredProducts')}</p>
                       <div className="flex gap-2 overflow-x-auto">
-                        {profile.seller_stats.featured_products.map(p => (
-                          <Link key={p.product_id} to={`/products/${p.product_id}`} className="shrink-0 w-16">
+                        {profile.seller_stats.featured_products.map((product) => (
+                          <Link key={product.product_id} to={`/products/${product.product_id}`} className="shrink-0 w-16">
                             <div className="w-16 h-16 rounded-lg bg-stone-100 overflow-hidden border border-stone-200 hover:border-accent transition-colors">
-                              {p.images?.[0] ? (
-                                <img src={p.images[0].startsWith('http') ? p.images[0] : `${API}${p.images[0]}`} alt="" className="w-full h-full object-cover" />
-                              ) : <ShoppingBag className="w-5 h-5 text-stone-300 m-auto mt-5" />}
+                              {product.images?.[0] ? (
+                                <img src={resolveUserImage(product.images[0])} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <ShoppingBag className="w-5 h-5 text-stone-300 m-auto mt-5" />
+                              )}
                             </div>
-                            <p className="text-[10px] text-primary truncate mt-0.5">{p.name}</p>
+                            <p className="text-[10px] text-primary truncate mt-0.5">{product.name}</p>
                           </Link>
                         ))}
                       </div>
@@ -509,16 +459,11 @@ export default function UserProfilePage() {
                 </div>
               )}
 
-              {/* Influencer public info */}
               {profile?.role === 'influencer' && (
                 <div className="mt-4 bg-purple-50/50 rounded-xl p-4 border border-purple-200/50" data-testid="influencer-public-card">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-xs font-semibold text-purple-700 bg-purple-100 px-2.5 py-1 rounded-full">
-                      Influencer
-                    </span>
-                    {profile.niche && (
-                      <span className="text-xs text-text-muted">{profile.niche}</span>
-                    )}
+                    <span className="text-xs font-semibold text-purple-700 bg-purple-100 px-2.5 py-1 rounded-full">Influencer</span>
+                    {profile.niche && <span className="text-xs text-text-muted">{profile.niche}</span>}
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-center mb-3">
                     <div>
@@ -534,16 +479,21 @@ export default function UserProfilePage() {
                       <p className="text-[10px] text-text-muted uppercase">Social</p>
                     </div>
                   </div>
-                  {/* Social links */}
                   <div className="flex gap-2 flex-wrap">
                     {profile.instagram && (
-                      <a href={`https://instagram.com/${profile.instagram}`} target="_blank" rel="noopener noreferrer" className="text-xs text-pink-600 bg-pink-50 px-2.5 py-1 rounded-full hover:bg-pink-100">@{profile.instagram}</a>
+                      <a href={`https://instagram.com/${profile.instagram}`} target="_blank" rel="noopener noreferrer" className="text-xs text-pink-600 bg-pink-50 px-2.5 py-1 rounded-full hover:bg-pink-100">
+                        @{profile.instagram}
+                      </a>
                     )}
                     {profile.tiktok && (
-                      <a href={`https://tiktok.com/@${profile.tiktok}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary bg-stone-100 px-2.5 py-1 rounded-full hover:bg-stone-200">TikTok</a>
+                      <a href={`https://tiktok.com/@${profile.tiktok}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary bg-stone-100 px-2.5 py-1 rounded-full hover:bg-stone-200">
+                        TikTok
+                      </a>
                     )}
                     {profile.youtube && (
-                      <a href={profile.youtube} target="_blank" rel="noopener noreferrer" className="text-xs text-red-600 bg-red-50 px-2.5 py-1 rounded-full hover:bg-red-100">YouTube</a>
+                      <a href={profile.youtube} target="_blank" rel="noopener noreferrer" className="text-xs text-red-600 bg-red-50 px-2.5 py-1 rounded-full hover:bg-red-100">
+                        YouTube
+                      </a>
                     )}
                   </div>
                   {!isOwnProfile && currentUser && (
@@ -562,7 +512,6 @@ export default function UserProfilePage() {
         </div>
       </div>
 
-      {/* Hispalostories */}
       {isOwnProfile && (
         <div className="bg-white border-b border-stone-200">
           <div className="max-w-4xl mx-auto px-4 py-4">
@@ -571,12 +520,10 @@ export default function UserProfilePage() {
         </div>
       )}
 
-      {/* Tabs */}
       <div className="bg-white border-b border-stone-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-center">
-            {/* Products tab for sellers */}
-            {(profile?.role === 'producer' || profile?.role === 'importer') && (
+            {isSeller && (
               <button
                 onClick={() => setActiveTab('products')}
                 className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
@@ -630,9 +577,7 @@ export default function UserProfilePage() {
         </div>
       </div>
 
-      {/* Tab Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Products Tab (sellers only) */}
         {activeTab === 'products' && (
           <div>
             {sellerProducts.length === 0 ? (
@@ -643,17 +588,19 @@ export default function UserProfilePage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {sellerProducts.map(p => (
-                  <Link key={p.product_id} to={`/products/${p.product_id}`} className="group" data-testid={`seller-product-${p.product_id}`}>
+                {sellerProducts.map((product) => (
+                  <Link key={product.product_id} to={`/products/${product.product_id}`} className="group" data-testid={`seller-product-${product.product_id}`}>
                     <div className="aspect-square rounded-xl bg-stone-100 overflow-hidden border border-stone-200 group-hover:border-accent transition-colors">
-                      {p.images?.[0] ? (
-                        <img src={getImageUrl(p.images[0])} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      {product.images?.[0] ? (
+                        <img src={resolveUserImage(product.images[0])} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-stone-300"><Package className="w-10 h-10" /></div>
+                        <div className="w-full h-full flex items-center justify-center text-stone-300">
+                          <Package className="w-10 h-10" />
+                        </div>
                       )}
                     </div>
-                    <p className="text-sm font-medium text-primary mt-2 truncate">{p.name}</p>
-                    <p className="text-sm font-bold text-accent">{(p.display_price || p.price)?.toFixed(2)}€</p>
+                    <p className="text-sm font-medium text-primary mt-2 truncate">{product.name}</p>
+                    <p className="text-sm font-bold text-accent">{`${(product.display_price || product.price)?.toFixed(2)}\u20AC`}</p>
                   </Link>
                 ))}
               </div>
@@ -661,65 +608,52 @@ export default function UserProfilePage() {
           </div>
         )}
 
-        {/* Posts Tab */}
-        {activeTab === 'posts' && (
-        posts.length === 0 ? (
-          <div className="text-center py-16">
-            <Grid3X3 className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-primary mb-2">
-              {isOwnProfile ? t('social.shareFirstPost') : t('social.noPosts')}
-            </h3>
-            <p className="text-text-muted">
-              {isOwnProfile 
-                ? 'Comparte fotos de tus productos favoritos con la comunidad'
-                : t('social.userNoPosts')}
-            </p>
-            {isOwnProfile && (
-              <Button 
-                className="mt-4 bg-accent hover:bg-accent/90"
-                onClick={() => setShowCreatePost(true)}
-                data-testid="create-first-post-btn"
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Crear publicación
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-1 md:gap-4">
-            {posts.map((post) => (
-              <div 
-                key={post.post_id} 
-                className="aspect-square relative group overflow-hidden rounded-md cursor-pointer"
-                onClick={() => setSelectedPost(post)}
-              >
-                <img 
-                  src={getImageUrl(post.image_url)} 
-                  alt={post.caption || 'Post'}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
-                  <div className="flex items-center gap-1 text-white">
-                    <Heart className="w-5 h-5 fill-white" />
-                    <span className="font-semibold">{post.likes_count || 0}</span>
+        {activeTab === 'posts' &&
+          (posts.length === 0 ? (
+            <div className="text-center py-16">
+              <Grid3X3 className="w-16 h-16 text-stone-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-primary mb-2">
+                {isOwnProfile ? t('social.shareFirstPost') : t('social.noPosts')}
+              </h3>
+              <p className="text-text-muted">
+                {isOwnProfile ? 'Comparte fotos de tus productos favoritos con la comunidad' : t('social.userNoPosts')}
+              </p>
+              {isOwnProfile && (
+                <Button className="mt-4 bg-accent hover:bg-accent/90" onClick={() => setShowCreatePost(true)} data-testid="create-first-post-btn">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Crear publicacion
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-1 md:gap-4">
+              {posts.map((post) => (
+                <div
+                  key={post.post_id}
+                  className="aspect-square relative group overflow-hidden rounded-md cursor-pointer"
+                  onClick={() => setSelectedPost(post)}
+                >
+                  <img src={resolveUserImage(post.image_url)} alt={post.caption || 'Post'} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
+                    <div className="flex items-center gap-1 text-white">
+                      <Heart className="w-5 h-5 fill-white" />
+                      <span className="font-semibold">{post.likes_count || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-white">
+                      <MessageCircle className="w-5 h-5 fill-white" />
+                      <span className="font-semibold">{post.comments_count || 0}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-white">
-                    <MessageCircle className="w-5 h-5 fill-white" />
-                    <span className="font-semibold">{post.comments_count || 0}</span>
-                  </div>
+                  {post.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-white text-xs line-clamp-2">{post.caption}</p>
+                    </div>
+                  )}
                 </div>
-                {post.caption && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-white text-xs line-clamp-2">{post.caption}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )
-        )}
+              ))}
+            </div>
+          ))}
 
-        {/* Badges Tab */}
         {activeTab === 'badges' && (
           <div data-testid="badges-tab-content">
             {badges.length > 0 ? (
@@ -734,14 +668,20 @@ export default function UserProfilePage() {
           </div>
         )}
       </div>
+
       {showCreatePost && (
-        <CreatePostModal onClose={() => setShowCreatePost(false)} onPostCreated={handlePostCreated} />
+        <CreatePostModal
+          onClose={() => setShowCreatePost(false)}
+          onCreate={async ({ file, caption }) => {
+            await createPost({ file, caption });
+          }}
+          creatingPost={creatingPost}
+        />
       )}
 
-      {/* Fullscreen Post Viewer — Instagram style with like/comment/nav */}
       {selectedPost && (
-        <PostViewer 
-          post={selectedPost} 
+        <PostViewer
+          post={selectedPost}
           posts={posts}
           profile={profile}
           currentUser={currentUser}
@@ -752,4 +692,3 @@ export default function UserProfilePage() {
     </div>
   );
 }
-

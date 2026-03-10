@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import React, { useState, useRef } from 'react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { Plus, Edit, ArrowLeft, Eye, CheckCircle, Clock, XCircle, Upload, X, Image as ImageIcon, Loader2, Package, AlertTriangle, Layers, Globe, Trash2, List, Apple, Award, ChevronDown } from 'lucide-react';
 import VariantPackManager from './VariantPackManager';
-import { API, resolveApiAssetUrl } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { useCategories } from '../../features/products/queries';
+import {
+  useProducerImageUpload,
+  useProducerProductMutations,
+  useProducerProducts,
+} from '../../features/producer/hooks';
 
 
 
@@ -18,8 +22,8 @@ const statusIcons = {
 
 // Image Upload Component
 function ImageUploader({ images, setImages, maxImages = 3, t }) {
-  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const { uploadImage, uploading } = useProducerImageUpload();
 
   // Helper to normalize images array
   const normalizeImages = (arr) => {
@@ -42,8 +46,6 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
     }
 
     const filesToUpload = files.slice(0, availableSlots);
-    setUploading(true);
-
     try {
       for (const file of filesToUpload) {
         // Validate file type
@@ -59,18 +61,8 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
         }
 
         // Upload file
-        const formData = new FormData();
-        formData.append('file', file);
-
         try {
-          const response = await axios.post(`${API}/upload/product-image`, formData, {
-            withCredentials: true,
-            headers: { 'Content-Type': 'multipart/form-data' },
-            timeout: 30000 // 30 second timeout
-          });
-
-          // Add the URL to images array
-          const imageUrl = resolveApiAssetUrl(response.data.url);
+          const imageUrl = await uploadImage(file);
           setImages(prev => {
             const normalizedPrev = Array.isArray(prev) ? prev.filter(img => img && typeof img === 'string' && img.trim()) : [];
             return [...normalizedPrev, imageUrl];
@@ -80,7 +72,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
         } catch (uploadError) {
           console.error('Upload error for file:', file.name, uploadError);
           toast.error(
-            uploadError.response?.data?.detail || t('producerProducts.uploadFailed'),
+            uploadError?.message || t('producerProducts.uploadFailed'),
             { duration: 4000 }
           );
         }
@@ -89,7 +81,6 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
       console.error('Upload process error:', error);
       toast.error(t('producerProducts.uploadFailed'), { duration: 4000 });
     } finally {
-      setUploading(false);
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -181,7 +172,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
 function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpdate, t }) {
   const [editing, setEditing] = useState(false);
   const [stock, setStock] = useState(currentStock);
-  const [saving, setSaving] = useState(false);
+  const { updateStock, updateStockLoading } = useProducerProductMutations();
 
   const handleSave = async () => {
     if (stock < 0) {
@@ -189,20 +180,13 @@ function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpda
       return;
     }
     
-    setSaving(true);
     try {
-      await axios.put(
-        `${API}/producer/products/${productId}/stock`,
-        { stock: parseInt(stock) },
-        { withCredentials: true }
-      );
+      await updateStock({ productId, stock });
       toast.success(t('producerProducts.stockUpdated'));
       setEditing(false);
       onUpdate();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('producerProducts.stockError'));
-    } finally {
-      setSaving(false);
+      toast.error(error?.message || t('producerProducts.stockError'));
     }
   };
 
@@ -220,10 +204,10 @@ function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpda
         <Button 
           size="sm" 
           onClick={handleSave} 
-          disabled={saving}
+          disabled={updateStockLoading}
           className="h-8 px-2"
         >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : t('common.save')}
+          {updateStockLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('common.save')}
         </Button>
         <Button 
           size="sm" 
@@ -271,13 +255,13 @@ function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpda
 
 export default function ProducerProducts() {
   const { t } = useTranslation();
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading, refetchProducts } = useProducerProducts();
+  const categoriesQuery = useCategories();
+  const categories = categoriesQuery.data || [];
+  const { saveProduct, saveProductLoading } = useProducerProductMutations();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [variantManagerProduct, setVariantManagerProduct] = useState(null);
-  const [relatedProducts, setRelatedProducts] = useState([]); // For flavor linking
   
   // Enhanced form data with new fields
   const [formData, setFormData] = useState({
@@ -352,32 +336,6 @@ export default function ProducerProducts() {
     { code: 'IL', name: 'Israel' }, { code: 'ZA', name: 'Sudafrica' },
   ];
 
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get(`${API}/producer/products`, { withCredentials: true });
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Failed to load products');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`${API}/categories`);
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -429,20 +387,17 @@ export default function ProducerProducts() {
         free_shipping_min_qty: formData.free_shipping_min_qty ? parseInt(formData.free_shipping_min_qty) : null
       };
 
-      if (editingProduct) {
-        await axios.put(`${API}/products/${editingProduct.product_id}`, data, { withCredentials: true });
-        toast.success(t('producerProducts.productUpdated'));
-      } else {
-        await axios.post(`${API}/products`, data, { withCredentials: true });
-        toast.success(t('producerProducts.productCreated'));
-      }
-      
+      await saveProduct({
+        productId: editingProduct?.product_id,
+        payload: data,
+      });
+      toast.success(editingProduct ? t('producerProducts.productUpdated') : t('producerProducts.productCreated'));
       setShowCreateForm(false);
       setEditingProduct(null);
       resetForm();
-      fetchProducts();
+      await refetchProducts();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('producerProducts.saveError'));
+      toast.error(error?.message || t('producerProducts.saveError'));
     }
   };
 
@@ -1050,7 +1005,7 @@ export default function ProducerProducts() {
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button type="submit" data-testid="submit-product-btn">
+              <Button type="submit" disabled={saveProductLoading} data-testid="submit-product-btn">
                 {editingProduct ? t('producerProducts.updateProduct') : t('producerProducts.createProduct')}
               </Button>
               <Button type="button" variant="secondary" onClick={() => { setShowCreateForm(false); setEditingProduct(null); resetForm(); }}>
@@ -1191,7 +1146,7 @@ export default function ProducerProducts() {
                         currentStock={stock}
                         isLowStock={isLowStock}
                         isOutOfStock={isOutOfStock}
-                        onUpdate={fetchProducts}
+                        onUpdate={refetchProducts}
                         t={t}
                       />
                     </td>
@@ -1259,7 +1214,7 @@ export default function ProducerProducts() {
         <VariantPackManager
           product={variantManagerProduct}
           onClose={() => setVariantManagerProduct(null)}
-          onUpdate={fetchProducts}
+          onUpdate={refetchProducts}
         />
       )}
     </div>
