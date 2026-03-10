@@ -2094,7 +2094,7 @@
     "customerChat": "Customer chat",
     "month": "mo",
     "commissionLabel": "Commission",
-    "netGMVDisclaimer": "Commission calculated on NET GMV (after shipping and taxes). PRO plan $54/mo, ELITE plan $108/mo."
+    "netGMVDisclaimer": "Commission calculated on NET GMV (excl. shipping and taxes). PRO plan €79 + VAT/mo, ELITE plan €149 + VAT/mo."
   },
   "influencerLanding": {
     "tagline": "Influencer Program",

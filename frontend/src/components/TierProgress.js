@@ -125,11 +125,11 @@ export default function TierProgress() {
       <div className="bg-white rounded-xl border border-stone-200 p-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-text-muted uppercase tracking-wider">Ganancias totales</p>
-          <p className="text-xl font-bold text-emerald-600">${(data.total_earnings || 0).toFixed(2)}</p>
+          <p className="text-xl font-bold text-emerald-600">{(data.total_earnings || 0).toFixed(2)}€</p>
         </div>
         <div className="text-right">
           <p className="text-xs text-text-muted uppercase tracking-wider">Pendiente de pago</p>
-          <p className="text-xl font-bold text-text-primary">${(data.pending_payout || 0).toFixed(2)}</p>
+          <p className="text-xl font-bold text-text-primary">{(data.pending_payout || 0).toFixed(2)}€</p>
         </div>
       </div>
     </div>

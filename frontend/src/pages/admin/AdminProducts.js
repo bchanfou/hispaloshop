@@ -281,7 +281,8 @@ export default function AdminProducts() {
 
   // List View
   return (
-    <div>
+    <>
+      <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
@@ -383,7 +384,7 @@ export default function AdminProducts() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-text-primary">${product.price?.toFixed(2)}</span>
+                        <span className="font-medium text-text-primary">{product.price?.toFixed(2)}€</span>
                         <button
                           onClick={() => setEditingProduct(product.product_id)}
                           className="text-text-muted hover:text-primary"
@@ -440,7 +441,7 @@ export default function AdminProducts() {
           </table>
         )}
       </div>
-    </div>
+      </div>
 
     {/* Approval Checklist Modal */}
     {checklistProduct && (
@@ -501,5 +502,6 @@ export default function AdminProducts() {
         </div>
       </div>
     )}
+    </>
   );
 }

@@ -126,7 +126,7 @@
     "whatIsHispaloshop": "Que es Hispaloshop",
     "marketplace": "Marketplace + Social Commerce",
     "commissionMulti": "Comision 18%  Multi-pais",
-    "influencerPayouts": "Atribucion 18 meses · Retiro minimo 50€",
+    "influencerPayouts": "Atribucion 18 meses ï¿½ Retiro minimo 50ï¿½",
     "meat": "Carnes",
     "cheese": "Quesos",
     "frozen": "Congelados",
@@ -1762,7 +1762,7 @@
     "summaryItem3": "10% de descuento para tus seguidores",
     "summaryItem4": "Panel de control con estadsticas",
     "commissionExampleTitle": "Ejemplo de clculo",
-    "commissionExampleDesc": "Si un cliente compra €100: Hispaloshop gana €18 (18%), y tu recibes segun tier activo (ejemplo Perseo 3%: €0.54).",
+    "commissionExampleDesc": "Si un cliente compra ï¿½100: Hispaloshop gana ï¿½18 (18%), y tu recibes segun tier activo (ejemplo Perseo 3%: ï¿½0.54).",
     "registerButton": "Registrarme como Influencer",
     "ctaNote": "Ya tienes cuenta",
     "ctaLogin": "Inicia sesin"
@@ -2094,7 +2094,7 @@
     "customerChat": "Chat con clientes",
     "month": "mes",
     "commissionLabel": "Comision",
-    "netGMVDisclaimer": "Comision calculada sobre NET GMV (despues de envio e impuestos). Plan PRO $54/mes, ELITE $108/mes."
+    "netGMVDisclaimer": "ComisiÃ³n calculada sobre el GMV neto (excl. envÃ­o e impuestos). Plan PRO 79â‚¬ + IVA/mes, ELITE 149â‚¬ + IVA/mes."
   },
   "influencerLanding": {
     "tagline": "Programa de Influencers",

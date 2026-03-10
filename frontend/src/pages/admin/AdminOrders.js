@@ -76,7 +76,7 @@ export default function AdminOrders() {
             <div>
               <p className="text-sm text-text-muted">{t('adminOrders.summary.totalRevenue')}</p>
               <p className="text-2xl font-bold text-text-primary">
-                ${payments.summary?.total_amount?.toFixed(2) || '0.00'}
+                {payments.summary?.total_amount?.toFixed(2) || '0.00'}€
               </p>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function AdminOrders() {
             <div>
               <p className="text-sm text-text-muted">{t('adminOrders.summary.platformCommission')}</p>
               <p className="text-2xl font-bold text-text-primary">
-                ${payments.summary?.platform_commission?.toFixed(2) || '0.00'}
+                {payments.summary?.platform_commission?.toFixed(2) || '0.00'}€
               </p>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function AdminOrders() {
             <div>
               <p className="text-sm text-text-muted">{t('adminOrders.summary.producerPayouts')}</p>
               <p className="text-2xl font-bold text-text-primary">
-                ${payments.summary?.producer_share?.toFixed(2) || '0.00'}
+                {payments.summary?.producer_share?.toFixed(2) || '0.00'}€
               </p>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function AdminOrders() {
                       <p className="text-text-primary">{t('adminOrders.ordersTable.itemsCount', { count: order.line_items?.length || 0 })}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-text-primary">${order.total_amount?.toFixed(2)}</p>
+                      <p className="font-medium text-text-primary">{order.total_amount?.toFixed(2)}€</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-800'}`}>
