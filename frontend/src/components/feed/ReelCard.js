@@ -1,11 +1,34 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Heart, Play, Volume2, VolumeX, ShoppingBag, MessageCircle, Share2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import {
+  Heart,
+  MessageCircle,
+  Play,
+  ShoppingBag,
+  Volume2,
+  VolumeX,
+  X,
+} from 'lucide-react';
+
+function formatCount(value) {
+  if (!value) return '0';
+  if (value > 999) return `${(value / 1000).toFixed(1)}k`;
+  return String(value);
+}
+
+function formatPrice(value) {
+  const amount = Number(value);
+  if (Number.isNaN(amount)) return null;
+
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(amount);
+}
 
 function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
-  const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [liked, setLiked] = useState(reel.liked || false);
@@ -14,12 +37,11 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
   const videoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
 
-  // Auto-play when visible
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && videoRef.current) {
-          videoRef.current.play();
+          videoRef.current.play().catch(() => {});
           setIsPlaying(true);
         } else if (videoRef.current) {
           videoRef.current.pause();
@@ -29,221 +51,203 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
       { threshold: 0.5 }
     );
 
-    if (videoRef.current) {
-      observer.observe(videoRef.current);
-    }
+    if (videoRef.current) observer.observe(videoRef.current);
 
     return () => observer.disconnect();
   }, []);
 
   const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play().catch(() => {});
     }
+
+    setIsPlaying(!isPlaying);
   };
 
-  const toggleMute = (e) => {
-    e.stopPropagation();
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
+  const toggleMute = (event) => {
+    event.stopPropagation();
+    if (!videoRef.current) return;
+
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
   };
 
   const handleLike = () => {
     setLiked(!liked);
-    setLikeCount(prev => liked ? prev - 1 : prev + 1);
+    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
   };
 
   const handleTap = () => {
     setShowControls(true);
-    
+
     if (controlsTimeoutRef.current) {
       clearTimeout(controlsTimeoutRef.current);
     }
-    
+
     controlsTimeoutRef.current = setTimeout(() => {
       if (isPlaying) setShowControls(false);
     }, 2000);
   };
 
-  // Versión para grid (preview)
+  const productPrice = formatPrice(reel.productTag?.price);
+
   if (isInFeed) {
     return (
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        className="relative aspect-[9/16] bg-stone-900 rounded-lg overflow-hidden cursor-pointer group"
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.985 }}
+        className="group relative aspect-[9/16] w-full overflow-hidden rounded-[28px] border border-stone-200 bg-stone-950 text-left"
         onClick={() => onOpenFullscreen?.(reel)}
       >
-        {/* Thumbnail/Video */}
         <img
           src={reel.thumbnail || reel.videoUrl}
           alt={reel.caption}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         />
-        
-        {/* Overlay gradiente */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
-        
-        {/* Play button */}
+
+        <div className="absolute inset-0 bg-gradient-to-b from-black/12 via-transparent to-black/72" />
+
+        <div className="absolute left-3 right-3 top-3 flex items-start justify-between">
+          <span className="rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-semibold text-stone-950 backdrop-blur-sm">
+            Reel
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+            <Heart className="h-3.5 w-3.5 fill-white text-white" />
+            {formatCount(reel.likes)}
+          </span>
+        </div>
+
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm">
-            <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm">
+            <Play className="ml-0.5 h-6 w-6 fill-white" />
           </div>
         </div>
-        
-        {/* Stats */}
-        <div className="absolute top-2 right-2 flex items-center gap-1 text-white text-xs font-medium">
-          <Heart className="w-3.5 h-3.5 fill-white" />
-          {reel.likes > 999 ? `${(reel.likes / 1000).toFixed(1)}k` : reel.likes}
-        </div>
-        
-        {/* Info bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <div className="flex items-center gap-2 mb-1">
+
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <div className="mb-3 flex items-center gap-2">
             <img
               src={reel.user?.avatar || '/default-avatar.png'}
               alt={reel.user?.name}
-              className="w-6 h-6 rounded-full border border-white/50"
+              className="h-8 w-8 rounded-full border border-white/50 object-cover"
             />
-            <span className="text-white text-xs font-medium truncate">
+            <span className="truncate text-sm font-medium text-white">
               @{reel.user?.name || reel.user_name}
             </span>
           </div>
-          <p className="text-white/90 text-xs line-clamp-2">{reel.caption}</p>
-          
-          {reel.productTag && (
-            <div className="mt-2 flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-2 py-1 w-fit">
-              <ShoppingBag className="w-3 h-3 text-white" />
-              <span className="text-white text-xs">{reel.productTag.name}</span>
-              <span className="text-white/80 text-xs">€{reel.productTag.price}</span>
+
+          <p className="line-clamp-2 text-sm text-white/90">{reel.caption}</p>
+
+          {reel.productTag ? (
+            <div className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full border border-white/15 bg-white/16 px-3 py-2 text-xs text-white backdrop-blur-sm">
+              <ShoppingBag className="h-3.5 w-3.5" />
+              <span className="truncate">{reel.productTag.name}</span>
+              {productPrice ? <span className="text-white/80">{productPrice}</span> : null}
             </div>
-          )}
+          ) : null}
         </div>
-      </motion.div>
+      </motion.button>
     );
   }
 
-  // Versión full-screen
   return (
-    <div 
-      className="relative w-full h-screen bg-black overflow-hidden"
-      onClick={handleTap}
-    >
-      {/* Video */}
+    <div className="relative h-screen w-full overflow-hidden bg-black" onClick={handleTap}>
       <video
         ref={videoRef}
         src={reel.videoUrl}
-        className="w-full h-full object-cover"
+        className="h-full w-full object-cover"
         loop
         muted={isMuted}
         playsInline
         onClick={togglePlay}
       />
-      
-      {/* Overlay controls */}
-      {showControls && (
+
+      {showControls ? (
         <>
-          {/* Top bar */}
-          <div className="absolute top-0 left-0 right-0 p-4 pt-safe flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent">
-            <button 
+          <div className="absolute left-0 right-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/65 to-transparent p-4 pt-safe">
+            <button
               onClick={() => window.history.back()}
-              className="text-white p-2"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
             >
-              ✕
+              <X className="h-5 w-5" />
             </button>
-            <button onClick={toggleMute} className="p-2 text-white">
-              {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+            <button
+              onClick={toggleMute}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
+            >
+              {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </button>
           </div>
-          
-          {/* Sidebar derecha */}
-          <div className="absolute right-2 bottom-20 flex flex-col items-center gap-4">
+
+          <div className="absolute bottom-24 right-3 flex flex-col items-center gap-4">
             <Link to={`/user/${reel.user?.id}`} className="flex flex-col items-center gap-1">
               <img
                 src={reel.user?.avatar || '/default-avatar.png'}
                 alt={reel.user?.name}
-                className="w-10 h-10 rounded-full border-2 border-white"
+                className="h-11 w-11 rounded-full border-2 border-white object-cover"
               />
             </Link>
-            
-            <motion.button
-              whileTap={{ scale: 0.85 }}
-              onClick={handleLike}
-              className="flex flex-col items-center gap-1"
-            >
-              <Heart className={`w-7 h-7 ${liked ? 'text-red-500 fill-red-500' : 'text-white'}`} />
-              <span className="text-white text-xs font-medium">
-                {likeCount > 999 ? `${(likeCount / 1000).toFixed(1)}k` : likeCount}
-              </span>
+
+            <motion.button whileTap={{ scale: 0.88 }} onClick={handleLike} className="flex flex-col items-center gap-1">
+              <Heart className={`h-7 w-7 ${liked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+              <span className="text-xs font-medium text-white">{formatCount(likeCount)}</span>
             </motion.button>
-            
-            <button className="flex flex-col items-center gap-1">
-              <MessageCircle className="w-7 h-7 text-white" />
-              <span className="text-white text-xs font-medium">{reel.comments || 0}</span>
-            </button>
-            
-            <button className="flex flex-col items-center gap-1">
-              <Share2 className="w-7 h-7 text-white" />
-            </button>
-            
-            {reel.productTag && (
-              <Link
-                to={`/products/${reel.productTag.id}`}
-                className="flex flex-col items-center gap-1"
-              >
-                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <ShoppingBag className="w-5 h-5 text-white" />
+
+            <div className="flex flex-col items-center gap-1">
+              <MessageCircle className="h-7 w-7 text-white" />
+              <span className="text-xs font-medium text-white">{reel.comments || 0}</span>
+            </div>
+
+            {reel.productTag ? (
+              <Link to={`/products/${reel.productTag.id}`} className="flex flex-col items-center gap-1">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/18 text-white backdrop-blur-sm">
+                  <ShoppingBag className="h-5 w-5" />
                 </div>
               </Link>
-            )}
+            ) : null}
           </div>
-          
-          {/* Bottom info */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 pb-safe bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pb-safe">
             <div className="pr-16">
-              <Link to={`/user/${reel.user?.id}`} className="text-white font-semibold text-sm">
+              <Link to={`/user/${reel.user?.id}`} className="text-sm font-semibold text-white">
                 @{reel.user?.name || reel.user_name}
               </Link>
-              <p className="text-white/90 text-sm mt-1 line-clamp-2">{reel.caption}</p>
-              
-              {reel.productTag && (
+              <p className="mt-2 line-clamp-2 text-sm text-white/90">{reel.caption}</p>
+
+              {reel.productTag ? (
                 <Link
                   to={`/products/${reel.productTag.id}`}
-                  className="mt-3 flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2"
+                  className="mt-4 flex items-center gap-3 rounded-[24px] border border-white/15 bg-white/14 px-3 py-3 backdrop-blur-sm"
                 >
                   <img
                     src={reel.productTag.image}
                     alt={reel.productTag.name}
-                    className="w-10 h-10 rounded bg-white/50 object-cover"
+                    className="h-11 w-11 rounded-2xl bg-white/50 object-cover"
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white text-xs font-medium truncate">{reel.productTag.name}</p>
-                    <p className="text-white/80 text-xs">€{reel.productTag.price}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-white">{reel.productTag.name}</p>
+                    {productPrice ? <p className="text-xs text-white/80">{productPrice}</p> : null}
                   </div>
-                  <button className="px-3 py-1 bg-accent text-white text-xs font-medium rounded-full">
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-950">
                     Ver
-                  </button>
+                  </span>
                 </Link>
-              )}
+              ) : null}
             </div>
           </div>
         </>
-      )}
-      
-      {/* Pause indicator */}
-      {!isPlaying && (
+      ) : null}
+
+      {!isPlaying ? (
         <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-          <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center">
-            <Play className="w-8 h-8 text-white fill-white ml-1" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black/50 text-white">
+            <Play className="ml-1 h-8 w-8 fill-white" />
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
