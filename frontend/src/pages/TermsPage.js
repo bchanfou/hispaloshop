@@ -25,7 +25,7 @@ export default function TermsPage() {
               contenido y pagos.
             </p>
             <p>
-              Los usuarios deben proporcionar informacion veraz, mantener la seguridad de su cuenta y cumplir
+              Los usuarios deben proporcionar información veraz, mantener la seguridad de su cuenta y cumplir
               la normativa aplicable en su pais.
             </p>
             <p>

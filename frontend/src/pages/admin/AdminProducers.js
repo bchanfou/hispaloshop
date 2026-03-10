@@ -243,7 +243,7 @@ export default function AdminProducers() {
       <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
         {t('adminProducers.title', 'Productores e Importadores')}
       </h1>
-      <p className="text-text-muted mb-6">{t('adminProducers.subtitle', 'Gestion de productores e importadores por estado y pais')}</p>
+      <p className="text-text-muted mb-6">{t('adminProducers.subtitle', 'Gestión de productores e importadores por estado y pais')}</p>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">

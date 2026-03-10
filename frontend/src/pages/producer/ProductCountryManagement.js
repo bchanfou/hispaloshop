@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { API } from '../../utils/api';
 
 const COUNTRIES = {
-  ES: { name: 'Espana', currency: 'EUR' },
+  ES: { name: 'España', currency: 'EUR' },
   US: { name: 'Estados Unidos', currency: 'USD' },
   DE: { name: 'Alemania', currency: 'EUR' },
   FR: { name: 'Francia', currency: 'EUR' },
@@ -19,8 +19,8 @@ const COUNTRIES = {
   PT: { name: 'Portugal', currency: 'EUR' },
   GB: { name: 'Reino Unido', currency: 'GBP' },
   KR: { name: 'Corea del Sur', currency: 'KRW' },
-  JP: { name: 'Japon', currency: 'JPY' },
-  CA: { name: 'Canada', currency: 'CAD' },
+  JP: { name: 'Japón', currency: 'JPY' },
+  CA: { name: 'Canadá', currency: 'CAD' },
   MX: { name: 'Mexico', currency: 'MXN' },
   BR: { name: 'Brasil', currency: 'BRL' },
   AU: { name: 'Australia', currency: 'AUD' },
@@ -217,7 +217,7 @@ export default function ProductCountryManagement() {
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800 flex items-start gap-3">
         <Warehouse className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
         <div>
-          <p className="font-medium mb-1">Reglas de activacion por mercado:</p>
+          <p className="font-medium mb-1">Reglas de activación por mercado:</p>
           <ul className="text-xs space-y-0.5 text-blue-700">
             <li>{t('producer.stockRequired')}</li>
             <li>SLA de entrega maximo 48 horas</li>

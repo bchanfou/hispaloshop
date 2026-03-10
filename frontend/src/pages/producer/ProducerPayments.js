@@ -131,7 +131,7 @@ function OrderRow({ order, expanded, onToggle }) {
               </div>
             ))}
             <div className="pt-1.5 mt-1.5 border-t border-stone-200 flex justify-between text-xs">
-              <span className="text-text-muted">Comision plataforma ({(order.platform_fee / order.gross_amount * 100).toFixed(0)}%)</span>
+              <span className="text-text-muted">Comisión plataforma ({(order.platform_fee / order.gross_amount * 100).toFixed(0)}%)</span>
               <span className="text-red-500">-{order.platform_fee.toFixed(2)}€</span>
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function ProducerPayments() {
         />
         <StatCard
           icon={CreditCard}
-          label={`Comision plataforma (${commissionPct}%)`}
+          label={`Comisión plataforma (${commissionPct}%)`}
           value={`${data.total_platform_fee.toFixed(2)}€`}
           color="amber"
           testId="stat-fees"
@@ -385,7 +385,7 @@ export default function ProducerPayments() {
       <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 text-sm text-text-muted">
         <p>
           <strong className="text-text-secondary">Como funcionan los pagos:</strong> Cada venta se divide automaticamente.
-          Tu recibes el <strong>{100 - commissionPct}%</strong> y la plataforma retiene el <strong>{commissionPct}%</strong> de comision.
+          Tu recibes el <strong>{100 - commissionPct}%</strong> y la plataforma retiene el <strong>{commissionPct}%</strong> de comisión.
           {data.stripe_connected 
             ? ' Las transferencias se procesan automaticamente a tu cuenta bancaria via Stripe.'
             : ' Conecta Stripe Connect para activar las transferencias automaticas.'}

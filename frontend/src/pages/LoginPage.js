@@ -78,7 +78,7 @@ export default function LoginPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="flex-1 text-center text-sm font-medium text-text-primary pr-8">
-            {t('auth.login', 'Iniciar sesion')}
+            {t('auth.login', 'Iniciar sesión')}
           </h1>
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function LoginPage() {
               </h1>
             </div>
             <p className="text-sm md:text-base text-text-secondary text-center mb-6 md:mb-8">
-              {t('auth.signInToAccount', 'Inicia sesion para acceder a tu cuenta')}
+              {t('auth.signInToAccount', 'Inicia sesión para acceder a tu cuenta')}
             </p>
 
             <div className="flex gap-2 mb-5 md:mb-6">
@@ -213,7 +213,7 @@ export default function LoginPage() {
                 className="inline-block text-sm text-primary hover:text-primary-hover py-2 px-4 rounded-lg hover:bg-primary/5 transition-colors"
                 data-testid="producer-signup-link"
               >
-                {t('auth.areYouProducer', 'Eres productor? Registrate aqui')}
+                {t('auth.areYouProducer', 'Eres productor? Regístrate aquí')}
               </Link>
             </div>
           </div>

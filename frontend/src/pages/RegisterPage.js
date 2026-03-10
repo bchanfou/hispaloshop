@@ -21,8 +21,8 @@ const FIELD_MESSAGES = {
   username: 'Revisa el nombre de usuario.',
   country: 'El pais es obligatorio.',
   company_name: 'El nombre de la empresa es obligatorio.',
-  phone: 'El telefono es obligatorio.',
-  fiscal_address: 'La direccion fiscal es obligatoria.',
+  phone: 'El teléfono es obligatorio.',
+  fiscal_address: 'La dirección fiscal es obligatoria.',
   vat_cif: 'El CIF/NIF es obligatorio.',
   followers: 'Necesitas al menos 1.000 seguidores.',
   analytics_consent: 'Debes aceptar el tratamiento de datos para continuar.',
@@ -36,7 +36,7 @@ const backendMessageToField = (message = '') => {
   if (text.includes('username') || text.includes('usuario')) return 'username';
   if (text.includes('country') || text.includes('pais')) return 'country';
   if (text.includes('company')) return 'company_name';
-  if (text.includes('phone') || text.includes('telefono')) return 'phone';
+  if (text.includes('phone') || text.includes('teléfono')) return 'phone';
   if (text.includes('fiscal')) return 'fiscal_address';
   if (text.includes('vat') || text.includes('cif') || text.includes('nif')) return 'vat_cif';
   if (text.includes('followers') || text.includes('seguidores')) return 'followers';
@@ -134,7 +134,7 @@ export default function RegisterPage() {
 
     if (formData.role === 'influencer') {
       if (!formData.followers) {
-        errors.followers = 'Numero de seguidores requerido';
+        errors.followers = 'Número de seguidores requerido';
       }
       const followerCount = parseInt(String(formData.followers).replace(/[^0-9]/g, ''), 10);
       if (Number.isNaN(followerCount) || followerCount < 1000) {
@@ -333,7 +333,7 @@ export default function RegisterPage() {
                   value={formData.country}
                   onChange={handleChange}
                   className={`mt-2 h-12 md:h-10 text-base md:text-sm rounded-xl md:rounded-lg ${formErrors.country ? 'border-red-500' : ''}`}
-                  placeholder="Espana"
+                  placeholder="España"
                   data-testid="country-input"
                 />
                 {formErrors.country && <p className="text-red-500 text-xs md:text-sm mt-1" data-testid="country-error">{formErrors.country}</p>}
@@ -405,7 +405,7 @@ export default function RegisterPage() {
                       value={formData.fiscal_address}
                       onChange={handleChange}
                       className={`mt-2 h-12 md:h-10 text-base md:text-sm rounded-xl md:rounded-lg ${formErrors.fiscal_address ? 'border-red-500' : ''}`}
-                      placeholder="Calle, numero, ciudad, CP"
+                      placeholder="Calle, número, ciudad, CP"
                       data-testid="fiscal-address-input"
                     />
                     {formErrors.fiscal_address && <p className="text-red-500 text-xs md:text-sm mt-1" data-testid="fiscal-address-error">{formErrors.fiscal_address}</p>}
@@ -480,10 +480,10 @@ export default function RegisterPage() {
 
                   <div className="bg-purple-50 border border-purple-200 rounded-xl md:rounded-lg p-3 md:p-4">
                     <p className="text-xs md:text-sm text-purple-900">
-                      <strong>{t('common.note', 'Nota')}:</strong> {t('register.influencerPendingNote', 'Las cuentas de influencer requieren aprobacion del administrador. Una vez aprobada, podras crear tu codigo de descuento personalizado y comenzar a ganar comisiones.')}
+                      <strong>{t('common.note', 'Nota')}:</strong> {t('register.influencerPendingNote', 'Las cuentas de influencer requieren aprobacion del administrador. Una vez aprobada, podras crear tu código de descuento personalizado y comenzar a ganar comisiones.')}
                     </p>
                     <ul className="text-xs md:text-sm text-purple-800 mt-2 space-y-1">
-                      <li>- <strong>3%-7%</strong> {t('register.commissionPerSale', 'de comision por tier (atribucion 18 meses)')}</li>
+                      <li>- <strong>3%-7%</strong> {t('register.commissionPerSale', 'de comisión por tier (atribucion 18 meses)')}</li>
                       <li>- <strong>10%</strong> {t('register.discountForFollowers', 'de descuento para tus seguidores')}</li>
                       <li>- {t('register.minFollowersReq', 'Requisito: minimo 1.000 seguidores')}</li>
                     </ul>

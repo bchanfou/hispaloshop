@@ -109,7 +109,7 @@ export default function ProductsPage() {
 
   const countryGroups = [
     { region: t('regions.europe', 'Europa'), countries: [
-      { code: 'Spain', name: t('countries.Spain', 'Espana') },
+      { code: 'Spain', name: t('countries.Spain', 'España') },
       { code: 'Italy', name: t('countries.Italy', 'Italia') },
       { code: 'France', name: t('countries.France', 'Francia') },
       { code: 'Portugal', name: t('countries.Portugal', 'Portugal') },
@@ -117,12 +117,12 @@ export default function ProductsPage() {
     ]},
     { region: t('regions.americas', 'Americas'), countries: [
       { code: 'USA', name: t('countries.USA', 'Estados Unidos') },
-      { code: 'Canada', name: t('countries.Canada', 'Canada') },
+      { code: 'Canadá', name: t('countries.Canadá', 'Canadá') },
       { code: 'Mexico', name: t('countries.Mexico', 'Mexico') },
       { code: 'Colombia', name: t('countries.Colombia', 'Colombia') },
     ]},
     { region: t('regions.asiaOceania', 'Asia y Oceania'), countries: [
-      { code: 'Japan', name: t('countries.Japan', 'Japon') },
+      { code: 'Japan', name: t('countries.Japan', 'Japón') },
       { code: 'Korea', name: t('countries.Korea', 'Corea del Sur') },
       { code: 'Thailand', name: t('countries.Thailand', 'Tailandia') },
     ]},
@@ -134,7 +134,7 @@ export default function ProductsPage() {
     { value: 'price_asc', label: t('products.sort.price_asc', 'Precio: Menor a Mayor') },
     { value: 'price_desc', label: t('products.sort.price_desc', 'Precio: Mayor a Menor') },
     { value: 'rating', label: t('products.sort.rating', 'Mejor Valorados') },
-    { value: 'newest', label: t('products.sort.newest', 'Mas Recientes') },
+    { value: 'newest', label: t('products.sort.newest', 'Más Recientes') },
   ];
 
   const setCategoryFilter = (categorySlug) => {

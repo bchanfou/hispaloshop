@@ -844,7 +844,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
 
   const startConversationWith = async (userId) => {
     if (!user) {
-      toast.error('Debes iniciar sesion');
+      toast.error('Debes iniciar sesión');
       return;
     }
     try {
@@ -875,7 +875,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
     } catch (err) {
       console.error('Error starting conversation:', err);
       if (err.response?.status === 401) {
-        toast.error('Debes iniciar sesion');
+        toast.error('Debes iniciar sesión');
       } else {
         toast.error(err.response?.data?.detail || 'Error al iniciar conversacion');
       }

@@ -46,12 +46,12 @@ const solutionCards = [
   {
     icon: BrainCircuit,
     title: 'Matching Inteligente',
-    body: 'Conectamos tu producto con influencers locales que ya venden a tu publico objetivo.',
+    body: 'Conectamos tu producto con influencers locales que ya venden a tu público objetivo.',
   },
   {
     icon: Rocket,
     title: 'Infraestructura Lista',
-    body: 'Logistica, pagos y marketing automatizado. Tu solo gestionas el producto.',
+    body: 'Logística, pagos y marketing automatizado. Tu solo gestionas el producto.',
   },
   {
     icon: TrendingUp,
@@ -73,7 +73,7 @@ const planCards = [
       'Tienda virtual personalizada',
       'Hasta 50 SKUs',
       'Acceso a catalogo B2B de productores',
-      'Comision del 20% por transaccion',
+      'Comisión del 20% por transaccion',
     ],
   },
   {
@@ -88,8 +88,8 @@ const planCards = [
       'IA para marketing: copy e imagenes',
       'Recomendaciones dinamicas de precio por mercado',
       'Analitica avanzada de ventas',
-      'Matching automatico con influencers (5 activos/mes)',
-      'Comision reducida al 18%',
+      'Matching automático con influencers (5 activos/mes)',
+      'Comisión reducida al 18%',
     ],
   },
   {
@@ -101,12 +101,12 @@ const planCards = [
     cta: 'Contactar Ventas',
     accent: 'border-slate-900',
     features: [
-      'IA avanzada de analisis de mercado por pais',
+      'IA avanzada de análisis de mercado por pais',
       'Prediccion de demanda con machine learning',
       'Deteccion de riesgo de desabastecimiento',
       'Prioridad absoluta en visibilidad dentro de la plataforma',
       'Analitica global comparativa por pais',
-      'Comision reducida al 17%',
+      'Comisión reducida al 17%',
       'Soporte prioritario 24/7',
     ],
   },
@@ -170,7 +170,7 @@ export default function ImporterLanding() {
       <SEOHead
         title="Importa y vende sin intermediarios | Hispaloshop"
         description="Como importar alimentos a Europa, vender productos importados online e importar sin distribuidor intermediario desde una sola infraestructura comercial."
-        keywords="como importar alimentos a Europa, vender productos importados online, importar sin distribuidor intermediario, marketplace B2B alimentacion, exportar productos españoles al mundo, importacion directa al consumidor"
+        keywords="como importar alimentos a Europa, vender productos importados online, importar sin distribuidor intermediario, marketplace B2B alimentacion, exportar productos españoles al mundo, importación directa al consumidor"
       />
 
       <Header />
@@ -302,7 +302,7 @@ export default function ImporterLanding() {
               </p>
               <p className="mt-4 text-lg leading-8 text-slate-600">
                 Tienes influencers locales de cualquier pais al alcance de un click, productores honestos dispuestos a
-                exportar y una comunidad que busca lo que traes. Marketplace B2B alimentacion, importacion directa al
+                exportar y una comunidad que busca lo que traes. Marketplace B2B alimentacion, importación directa al
                 consumidor y una ruta real para exportar productos espanoles al mundo sin quedarte atascado en la
                 primera frontera.
               </p>

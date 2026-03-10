@@ -16,7 +16,7 @@ const contactCards = [
     icon: Mail,
   },
   {
-    title: 'Telefono',
+    title: 'Teléfono',
     description: 'Canal directo para soporte comercial y coordinacion operativa.',
     value: '+34 612 49 28 25',
     href: 'tel:+34612492825',
@@ -24,7 +24,7 @@ const contactCards = [
   },
   {
     title: 'Centro de ayuda',
-    description: 'Resumen rapido por rol para compradores, productores, importadores e influencers.',
+    description: 'Resumen rápido por rol para compradores, productores, importadores e influencers.',
     value: 'Ir al centro de ayuda',
     href: '/help',
     icon: MessageSquare,
@@ -49,8 +49,8 @@ export default function ContactPage() {
             Habla con el equipo
           </h1>
           <p className="mt-4 max-w-3xl text-sm md:text-base leading-7 text-stone-600">
-            Esta pagina centraliza los canales visibles del producto para que ninguna llamada a la accion termine
-            en un vacio. Si necesitas soporte, prensa, colaboracion o seguimiento comercial, empieza aqui.
+            Esta página centraliza los canales visibles del producto para que ninguna llamada a la accion termine
+            en un vacio. Si necesitas soporte, prensa, colaboracion o seguimiento comercial, empieza aquí.
           </p>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {contactCards.map((card) => {

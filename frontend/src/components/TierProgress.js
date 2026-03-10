@@ -68,7 +68,7 @@ export default function TierProgress() {
           </div>
           <div>
             <span className="font-heading text-xl font-bold" style={{ color }}>{tierLabels[data.current_tier] || data.current_tier}</span>
-            <p className="text-sm text-text-muted">Comision: {(data.commission_rate * 100).toFixed(0)}% por venta</p>
+            <p className="text-sm text-text-muted">Comisión: {(data.commission_rate * 100).toFixed(0)}% por venta</p>
           </div>
         </div>
 
@@ -116,7 +116,7 @@ export default function TierProgress() {
 
         {data.next_review_date && (
           <p className="text-xs text-text-muted mt-4">
-            Proxima revision: {new Date(data.next_review_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+            Próxima revision: {new Date(data.next_review_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         )}
       </div>

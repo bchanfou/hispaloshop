@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { onboardingApi } from '../../lib/onboardingApi';
 
 const COUNTRIES = [
-  { code: 'ES', name: 'Espana' },
+  { code: 'ES', name: 'España' },
   { code: 'PT', name: 'Portugal' },
   { code: 'FR', name: 'Francia' },
   { code: 'IT', name: 'Italia' },
@@ -15,7 +15,7 @@ const COUNTRIES = [
   { code: 'CL', name: 'Chile' },
   { code: 'PE', name: 'Peru' },
   { code: 'KR', name: 'Corea del Sur' },
-  { code: 'JP', name: 'Japon' },
+  { code: 'JP', name: 'Japón' },
   { code: 'CN', name: 'China' },
   { code: 'OTHER', name: 'Otro' },
 ];
@@ -33,7 +33,7 @@ export default function LocationStep({ onNext, onBack, onError }) {
     }
 
     if (!postalCode.trim()) {
-      onError?.('Introduce tu codigo postal');
+      onError?.('Introduce tu código postal');
       return;
     }
 
@@ -59,7 +59,7 @@ export default function LocationStep({ onNext, onBack, onError }) {
           Donde estas
         </h1>
         <p className="text-stone-600">
-          Necesitamos tu pais y codigo postal para mostrar catalogo y envios disponibles.
+          Necesitamos tu pais y código postal para mostrar catalogo y envios disponibles.
         </p>
       </div>
 
@@ -84,7 +84,7 @@ export default function LocationStep({ onNext, onBack, onError }) {
 
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">
-            Codigo postal *
+            Código postal *
           </label>
           <input
             type="text"

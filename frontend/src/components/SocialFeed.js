@@ -41,12 +41,12 @@ const FEED_CATEGORY_TERMS = {
   'snacks-frutos-secos': ['snack', 'fruto seco', 'barrita'],
   quesos: ['queso', 'manchego', 'curado', 'cabra'],
   'cafe-te': ['cafe', 'te', 'infusion'],
-  'panaderia-dulces': ['pan', 'galleta', 'obrador', 'dulce'],
+  'panadería-dulces': ['pan', 'galleta', 'obrador', 'dulce'],
   'frutas-verduras': ['fruta', 'verdura', 'huerta'],
   'vinos-bebidas': ['vino', 'bebida', 'kombucha', 'zumo'],
   salsas: ['salsa', 'alioli', 'pesto', 'condimento'],
   congelados: ['congelado'],
-  'organico-eco': ['eco', 'organico', 'ecologico'],
+  'orgánico-eco': ['eco', 'orgánico', 'ecologico'],
   suplementos: ['proteina', 'suplemento', 'colageno', 'vitamina'],
 };
 

@@ -470,13 +470,13 @@ export default function InfluencerDashboard() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => { if (navigator.share) navigator.share({ title: 'Mi codigo Hispaloshop', text: `Usa mi codigo ${dashboard.discount_code} para descuento en hispaloshop.com` }); else { navigator.clipboard.writeText(`Usa mi codigo ${dashboard.discount_code} en hispaloshop.com`); toast.success('Link copiado'); }}}
+                onClick={() => { if (navigator.share) navigator.share({ title: 'Mi código Hispaloshop', text: `Usa mi código ${dashboard.discount_code} para descuento en hispaloshop.com` }); else { navigator.clipboard.writeText(`Usa mi código ${dashboard.discount_code} en hispaloshop.com`); toast.success('Link copiado'); }}}
                 className="rounded-full px-6"
               >
                 Compartir
               </Button>
             </div>
-            <p className="text-xs text-text-muted">Tu comunidad ahorra {dashboard.discount_value || 10}% con este codigo</p>
+            <p className="text-xs text-text-muted">Tu comunidad ahorra {dashboard.discount_value || 10}% con este código</p>
           </div>
         )}
 

@@ -38,7 +38,7 @@ const STEPS = [
 ];
 
 const COUNTRY_OPTIONS = [
-  'Espana',
+  'España',
   'Mexico',
   'Argentina',
   'Colombia',
@@ -353,7 +353,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                 No es un formulario corporativo. Es tu puerta de salida.
               </h2>
               <p className="mt-5 text-base leading-7 text-slate-300">
-                Tres pasos. Sin pago. Sin humo. Si eliges Hercules, entramos en activacion rapida. Si apuntas a
+                Tres pasos. Sin pago. Sin humo. Si eliges Hercules, entramos en activación rapida. Si apuntas a
                 Atenea o Zeus, hacemos revision humana en 24-48h.
               </p>
             </div>
@@ -384,7 +384,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-50">@bchanfuah</p>
-                  <p className="text-sm text-slate-300">Si quieres comprobar que soy real, ahi me tienes.</p>
+                  <p className="text-sm text-slate-300">Si quieres comprobar que soy real, ahí me tienes.</p>
                 </div>
               </div>
             </div>
@@ -432,7 +432,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                     </h3>
                     <p className="mt-5 max-w-2xl text-base leading-7 text-white/80">
                       {submittedTier === 'hercules'
-                        ? 'Hercules entra por via rapida. Hemos marcado tu perfil para activacion inmediata y siguientes pasos.'
+                        ? 'Hercules entra por via rapida. Hemos marcado tu perfil para activación inmediata y siguientes pasos.'
                         : 'Tu perfil pasa a revision humana. Si aplicaste a Atenea o Zeus, te responderemos en 24-48h con una decision real, no automatica.'}
                     </p>
 
@@ -529,7 +529,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               </label>
 
                               <label className="block">
-                                <FieldLabel>Telefono</FieldLabel>
+                                <FieldLabel>Teléfono</FieldLabel>
                                 <Input
                                   value={form.phone}
                                   onChange={(event) => updateField('phone', event.target.value)}
@@ -705,7 +705,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-500">Paso 3</p>
                               <h3 className="mt-3 text-3xl font-black text-slate-950">Elige tu camino</h3>
                               <p className="mt-3 text-base leading-7 text-slate-600">
-                                La comision es transparente: Hercules 3%, Atenea 5%, Zeus 7%, con tracking de 18 meses.
+                                La comisión es transparente: Hercules 3%, Atenea 5%, Zeus 7%, con tracking de 18 meses.
                               </p>
                             </div>
 
@@ -756,7 +756,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                                   className="mt-1 h-5 w-5 rounded-md border-fuchsia-300 data-[state=checked]:border-fuchsia-500 data-[state=checked]:bg-fuchsia-500"
                                 />
                                 <span className="text-sm leading-6 text-slate-700">
-                                  Entiendo que la comision se paga sobre el valor post-envio e impuestos.
+                                  Entiendo que la comisión se paga sobre el valor post-envio e impuestos.
                                 </span>
                               </label>
                               <FieldError>{errors.agreementCommission}</FieldError>

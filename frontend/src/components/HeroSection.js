@@ -98,7 +98,7 @@ export default function HeroSection({
                     <div>
                       <p className="text-sm font-semibold text-primary">Primero, tu zona</p>
                       <p className="mt-1 text-sm leading-6 text-stone-500">
-                        Usa tu ubicacion actual o escribe tu codigo postal para priorizar lo que tengas mas cerca.
+                        Usa tu ubicacion actual o escribe tu código postal para priorizar lo que tengas mas cerca.
                       </p>
                     </div>
                     <button
@@ -124,7 +124,7 @@ export default function HeroSection({
                       <input
                         value={postalCode}
                         onChange={(event) => setPostalCode(event.target.value)}
-                        placeholder="Codigo postal"
+                        placeholder="Código postal"
                         className="min-w-0 flex-1 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                       />
                       <button

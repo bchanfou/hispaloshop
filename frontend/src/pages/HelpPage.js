@@ -28,7 +28,7 @@ export default function HelpPage() {
               Si eres productor o importador, gestiona catalogo, pedidos, pagos y certificados desde tu panel.
             </p>
             <p>
-              Si eres influencer, consulta tu dashboard para codigo, atribucion, comisiones y retiros.
+              Si eres influencer, consulta tu dashboard para código, atribucion, comisiones y retiros.
             </p>
           </div>
         </section>

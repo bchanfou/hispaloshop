@@ -20,7 +20,7 @@ export default function InfluencerLayoutResponsive({ children }) {
 
   // Navigation items for influencer - simple layout since it's mainly one page
   const navItems = [
-    { to: '/influencer/dashboard', icon: LayoutDashboard, label: 'Mi Codigo', shortLabel: 'Codigo', end: true },
+    { to: '/influencer/dashboard', icon: LayoutDashboard, label: 'Mi Código', shortLabel: 'Código', end: true },
     { to: '/influencer/dashboard#analytics', icon: BarChart3, label: 'Mis Ventas', shortLabel: 'Ventas' },
     { to: '/influencer/dashboard#payments', icon: CreditCard, label: 'Mis Ganancias', shortLabel: 'Ganancias' },
   ];

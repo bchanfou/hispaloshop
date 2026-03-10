@@ -224,7 +224,7 @@ export default function B2BMarketplacePage() {
                 <div>
                   <p className="font-semibold text-stone-800 text-sm">Como funciona</p>
                   <p className="text-xs text-stone-600 mt-1">
-                    Indica el productor, los productos y la cantidad. El productor recibira tu solicitud y podra responderte con una oferta personalizada.
+                    Indica el productor, los productos y la cantidad. El productor recibira tu solicitud y podrá responderte con una oferta personalizada.
                   </p>
                 </div>
               </div>

@@ -78,7 +78,7 @@ const TIERS = [
     rate: '3%',
     subtitle: 'El inicio',
     description: 'Para micro-influencers de 1k a 50k empezando fuerte.',
-    bullets: ['Acceso inmediato al catalogo', 'Links personalizados', 'Dashboard basico'],
+    bullets: ['Acceso inmediato al catalogo', 'Links personalizados', 'Dashboard básico'],
     className: 'lg:translate-y-10',
     icon: Gem,
   },
@@ -154,7 +154,7 @@ export default function Landing() {
       <SEOHead
         title="Programa de influencers Hispaloshop"
         description="Landing para creadores de lifestyle, food, wellness y sostenibilidad que buscan ingresos pasivos honestos con tracking de 18 meses."
-        keywords="Como monetizar Instagram sin vender cursos, programa de afiliados alimentacion organica, ingresos pasivos para influencers, trabajar con marcas eticas como influencer, alternativa a OnlyFans para creadores de contenido, vivir de las redes sociales de forma sostenible"
+        keywords="Como monetizar Instagram sin vender cursos, programa de afiliados alimentacion orgánica, ingresos pasivos para influencers, trabajar con marcas eticas como influencer, alternativa a OnlyFans para creadores de contenido, vivir de las redes sociales de forma sostenible"
       />
 
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[rgba(10,8,20,0.72)] backdrop-blur-xl">
@@ -232,7 +232,7 @@ export default function Landing() {
                   La verdad que nadie te cuenta: el algoritmo es tu jefe, las marcas te tratan como carne de canon, y
                   tu trabajo sonado se convirtio en una carrera constante por el siguiente post viral para poder pagar
                   el wifi. Mientras tanto, ves a tus amigos con trabajos normales con nomina fija y vacaciones pagadas,
-                  y tu aqui, preguntandote si este mes podras ir al medico sin arruinarte.
+                  y tu aquí, preguntandote si este mes podras ir al medico sin arruinarte.
                 </p>
 
                 <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -254,7 +254,7 @@ export default function Landing() {
                 </div>
 
                 <p className="mt-6 text-sm uppercase tracking-[0.28em] text-fuchsia-200/80">
-                  No te voy a mentir. Esto no es facil. Pero es honesto.
+                  No te voy a mentir. Esto no es fácil. Pero es honesto.
                 </p>
               </motion.div>
 
@@ -389,7 +389,7 @@ export default function Landing() {
 
             <motion.div className="mt-14 rounded-[32px] border border-fuchsia-400/30 bg-[linear-gradient(135deg,rgba(217,70,239,0.16),rgba(251,113,133,0.10))] p-8" whileInView={{ opacity: 1, scale: 1 }} initial={{ opacity: 0, scale: 0.98 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.45 }}>
               <p className="max-w-4xl text-2xl font-black leading-tight text-white sm:text-3xl">
-                Si estas aqui no es casualidad. Es una senal. No te voy a pedir que confies en una empresa. Te pido
+                Si estas aquí no es casualidad. Es una senal. No te voy a pedir que confies en una empresa. Te pido
                 que confies en alguien que esta en el suelo contigo, construyendo la salida.
               </p>
             </motion.div>
@@ -418,7 +418,7 @@ export default function Landing() {
                 </p>
                 <p>
                   Tu mision: comparte lo que ya usas o lo que realmente usarias. Cuando un seguidor compra a traves de tu
-                  link, tu ganas entre el 3% y el 7% de la venta. Pero aqui esta la magia: ese seguidor queda vinculado a
+                  link, tu ganas entre el 3% y el 7% de la venta. Pero aquí esta la magia: ese seguidor queda vinculado a
                   ti durante <strong>18 meses</strong>. Cada vez que vuelva a comprar, tu sigues cobrando.
                 </p>
                 <p>
@@ -501,7 +501,7 @@ export default function Landing() {
                 <div>
                   <p className="text-xs uppercase tracking-[0.32em] text-fuchsia-100/80">CTA final</p>
                   <h3 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-                    No es facil. Pero es honesto. Y es tuyo si lo quieres.
+                    No es fácil. Pero es honesto. Y es tuyo si lo quieres.
                   </h3>
                   <p className="mt-4 max-w-3xl text-lg leading-8 text-white/80">
                     Si llevas tiempo sintiendo alivio y rabia al mismo tiempo, probablemente ya sabes que tu tiempo como

@@ -95,7 +95,7 @@ export const MOCK_PRODUCTS = [
   { id: "3", name: "Miel de Romero Ecológica", price: 8.90, image: "/mock/miel.jpg", seller: "Apicola del Sur", category: "mieles" },
   { id: "4", name: "Jamón Ibérico de Bellota", price: 45.00, image: "/mock/jamon.jpg", seller: "Embutidos Reyes", category: "embutidos" },
   { id: "5", name: "Vino Tinto Rioja Reserva", price: 22.90, image: "/mock/vino.jpg", seller: "Bodegas Solar", category: "vinos" },
-  { id: "6", name: "Pan Artesanal de Centeno", price: 4.50, image: "/mock/pan.jpg", seller: "Panadería La Flor", category: "panaderia" },
+  { id: "6", name: "Pan Artesanal de Centeno", price: 4.50, image: "/mock/pan.jpg", seller: "Panadería La Flor", category: "panadería" },
 ];
 
 // Type definitions (for JSDoc)

@@ -111,7 +111,7 @@ export function CommissionHistory() {
               </Button>
               
               <span className="text-sm text-gray-600">
-                Pagina {page} de {pages}
+                Página {page} de {pages}
               </span>
               
               <Button

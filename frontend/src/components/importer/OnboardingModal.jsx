@@ -27,7 +27,7 @@ const STORAGE_KEY = 'hispaloshop_importer_onboarding_v2';
 const PLAN_META = {
   free: { name: 'FREE', price: '0€/mes', badge: 'Empieza hoy', commission: '20%', summary: 'Validacion de mercado y primeras ventas.' },
   pro: { name: 'PRO', price: '79€ + IVA/mes', badge: 'Recomendado', commission: '18%', summary: 'IA, pricing y matching local.' },
-  elite: { name: 'ELITE', price: '149€ + IVA/mes', badge: 'Empresas', commission: '17%', summary: 'Analisis global y prioridad total.' },
+  elite: { name: 'ELITE', price: '149€ + IVA/mes', badge: 'Empresas', commission: '17%', summary: 'Análisis global y prioridad total.' },
 };
 const PHONE_PREFIXES = [
   { value: '+34', label: 'ES +34' },
@@ -38,7 +38,7 @@ const PHONE_PREFIXES = [
   { value: '+1', label: 'US +1' },
   { value: '+82', label: 'KR +82' },
 ];
-const PRODUCT_TYPES = ['Alimentacion', 'Bebidas', 'Gourmet', 'Organico', 'Snacks', 'Congelado', 'Premium', 'Retail'];
+const PRODUCT_TYPES = ['Alimentacion', 'Bebidas', 'Gourmet', 'Orgánico', 'Snacks', 'Congelado', 'Premium', 'Retail'];
 const VOLUME_OPTIONS = ['< 100 unidades', '100-1000', '1000-10000', '10000+'];
 const CONFETTI = Array.from({ length: 12 }, (_, index) => ({
   id: index,
@@ -326,7 +326,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       if (!validity.fullName) nextErrors.fullName = 'Necesitamos tu nombre completo.';
       if (!validity.email) nextErrors.email = 'Introduce un email valido.';
       if (!validity.password) nextErrors.password = 'Crea una contrasena de al menos 6 caracteres.';
-      if (!validity.phoneNumber) nextErrors.phoneNumber = 'Necesitamos un telefono operativo.';
+      if (!validity.phoneNumber) nextErrors.phoneNumber = 'Necesitamos un teléfono operativo.';
       if (!validity.country) nextErrors.country = 'Selecciona el pais donde vas a operar.';
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['fullName', 'email', 'password', 'phoneNumber', 'country']);
@@ -338,7 +338,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       if (formData.productTypes.length === 0) nextErrors.productTypes = 'Elige al menos un tipo de producto.';
       if (!formData.monthlyVolume) nextErrors.monthlyVolume = 'Indica tu volumen estimado.';
       if (!validity.companyName) nextErrors.companyName = 'Necesitamos el nombre fiscal o comercial.';
-      if (!validity.fiscalAddress) nextErrors.fiscalAddress = 'Necesitamos una direccion fiscal valida.';
+      if (!validity.fiscalAddress) nextErrors.fiscalAddress = 'Necesitamos una dirección fiscal valida.';
       if (!validity.vatCif) nextErrors.vatCif = 'Necesitamos VAT, CIF o NIF para darte de alta.';
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['companyName', 'fiscalAddress', 'vatCif']);
@@ -347,7 +347,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
 
     if (targetStep === 3) {
       if (selectedPlan === 'free' && !formData.acceptCommission) {
-        nextErrors.acceptCommission = 'Debes aceptar la comision del 20% sobre ventas.';
+        nextErrors.acceptCommission = 'Debes aceptar la comisión del 20% sobre ventas.';
       }
       if (isPaidPlan(selectedPlan)) {
         if (stripeLoading) nextErrors.card = 'Estamos preparando Stripe. Espera un segundo.';
@@ -456,7 +456,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       const detail = error?.response?.data?.detail;
       const message = typeof detail === 'string' ? detail : error.message || 'No pudimos completar el alta.';
       if (user?.role === 'importer' || message.toLowerCase().includes('email already registered')) {
-        setPaymentNotice('Tu cuenta ya esta creada. Solo falta activar el plan o terminar la suscripcion.');
+        setPaymentNotice('Tu cuenta ya esta creada. Solo falta activar el plan o terminar la suscripción.');
       }
       toast.error(message);
     } finally {
@@ -531,7 +531,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       </div>
 
       <div>
-        <Label htmlFor="importer-phone" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Telefono</Label>
+        <Label htmlFor="importer-phone" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Teléfono</Label>
         <div className="mt-2 grid gap-3 sm:grid-cols-[140px_1fr]">
           <select
             value={formData.phonePrefix}
@@ -547,7 +547,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               value={formData.phoneNumber}
               onChange={(event) => updateField('phoneNumber', sanitizePhone(event.target.value))}
               onBlur={() => setTouched((current) => ({ ...current, phoneNumber: true }))}
-              placeholder="Numero sin espacios"
+              placeholder="Número sin espacios"
               className={`h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`}
             />
             <StatusIcon valid={touched.phoneNumber && validity.phoneNumber} />
@@ -680,13 +680,13 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           </div>
 
           <div className="relative md:col-span-2">
-            <Label htmlFor="importer-address" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Direccion fiscal</Label>
+            <Label htmlFor="importer-address" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Dirección fiscal</Label>
             <Input
               id="importer-address"
               value={formData.fiscalAddress}
               onChange={(event) => updateField('fiscalAddress', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, fiscalAddress: true }))}
-              placeholder="Direccion completa para facturacion"
+              placeholder="Dirección completa para facturacion"
               className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.fiscalAddress), touched.fiscalAddress && validity.fiscalAddress)}`}
             />
             <StatusIcon valid={touched.fiscalAddress && validity.fiscalAddress} />
@@ -749,7 +749,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               className="mt-1 h-5 w-5 rounded-md border-amber-300 data-[state=checked]:bg-amber-500 data-[state=checked]:text-gray-900"
             />
             <div>
-              <Label htmlFor="accept-commission" className="text-sm font-semibold text-amber-950">Acepto comision del 20% sobre ventas</Label>
+              <Label htmlFor="accept-commission" className="text-sm font-semibold text-amber-950">Acepto comisión del 20% sobre ventas</Label>
               <p className="mt-2 text-sm leading-7 text-amber-900/80">Empezamos sin cuota fija. Si el mercado responde, luego decides si subes a PRO o ELITE.</p>
               {renderError('acceptCommission')}
             </div>
@@ -851,7 +851,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 <div className="mt-8 rounded-[24px] border border-white/10 bg-white/5 p-5">
                   <p className="text-sm font-semibold text-white/70">Precio</p>
                   <p className="mt-3 text-4xl font-extrabold">{activePlan.price}</p>
-                  <p className="mt-2 text-sm text-white/70">Comision sobre ventas: {activePlan.commission}</p>
+                  <p className="mt-2 text-sm text-white/70">Comisión sobre ventas: {activePlan.commission}</p>
                 </div>
                 <div className="mt-6 space-y-3 text-sm text-white/72">
                   <div className="flex items-start gap-3"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-emerald-500" /><p>Sin alerts agresivos y con guardado local del progreso.</p></div>
@@ -882,7 +882,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                             </button>
                           ) : (
                             <button type="button" onClick={submitFlow} disabled={submitting} className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-amber-500 px-6 py-3 text-sm font-semibold text-[#1a1a1a] transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-70">
-                              {submitting ? <><Loader2 className="h-4 w-4 animate-spin" />Configurando tu infraestructura...</> : selectedPlan === 'free' ? 'Crear mi cuenta GRATIS' : <><Sparkles className="h-4 w-4" />Completar suscripcion y crear cuenta</>}
+                              {submitting ? <><Loader2 className="h-4 w-4 animate-spin" />Configurando tu infraestructura...</> : selectedPlan === 'free' ? 'Crear mi cuenta GRATIS' : <><Sparkles className="h-4 w-4" />Completar suscripción y crear cuenta</>}
                             </button>
                           )}
                         </div>

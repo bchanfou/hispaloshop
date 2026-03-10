@@ -56,7 +56,7 @@ export default function RecipesPage() {
   const filtered = filter === 'all' ? recipes : recipes.filter(r => r.difficulty === filter);
   const filters = [
     { key: 'all', label: t('recipes.all', 'Todas') },
-    { key: 'easy', label: t('recipes.easy', 'Facil') },
+    { key: 'easy', label: t('recipes.easy', 'Fácil') },
     { key: 'medium', label: t('recipes.medium', 'Media') },
     { key: 'hard', label: t('recipes.hard', 'Dificil') },
   ];

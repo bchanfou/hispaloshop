@@ -8,7 +8,7 @@ export default function BlogPage() {
       description="Novedades de producto, comercio local, productores y crecimiento digital en Hispaloshop."
       url="https://www.hispaloshop.com/blog"
       eyebrow="Contenido"
-      intro="Este espacio recoge las lineas editoriales que vamos publicando sobre producto real, crecimiento de productores, discovery social y expansion comercial. Mientras cerramos el archivo completo, aqui queda centralizado lo que ya existe y lo que vamos a abrir."
+      intro="Este espacio recoge las lineas editoriales que vamos publicando sobre producto real, crecimiento de productores, discovery social y expansion comercial. Mientras cerramos el archivo completo, aquí queda centralizado lo que ya existe y lo que vamos a abrir."
       primaryCta={{ label: 'Explorar productos', to: '/products' }}
       secondaryCta={{ label: 'Ver como funciona', to: '/que-es' }}
       sections={[
@@ -18,15 +18,15 @@ export default function BlogPage() {
         },
         {
           title: 'Estado actual',
-          body: 'La pagina ya no esta muerta. Queda publicada como hub editorial basico mientras completamos el listado de articulos y la navegacion por categorias.',
+          body: 'La página ya no está muerta. Queda publicada como hub editorial básico mientras completamos el listado de articulos y la navegacion por categorías.',
         },
         {
           title: 'Si vienes a aprender a vender mejor',
-          body: 'Empieza por las rutas de productor, influencer e importador. Son las superficies donde ya estamos concentrando la informacion funcional y los CTA de alta.',
+          body: 'Empieza por las rutas de productor, influencer e importador. Son las superficies donde ya estamos concentrando la información funcional y los CTA de alta.',
         },
         {
           title: 'Siguiente paso',
-          body: 'Usa el descubrimiento de productos o la pagina de ayuda si necesitas informacion concreta sobre pedidos, catalogo o paneles de usuario.',
+          body: 'Usa el descubrimiento de productos o la página de ayuda si necesitas información concreta sobre pedidos, catalogo o paneles de usuario.',
         },
       ]}
     />

@@ -5,10 +5,10 @@ export default function PressPage() {
   return (
     <CompanyInfoPageLayout
       title="Prensa y marca"
-      description="Informacion institucional y contexto de marca de Hispaloshop para prensa y colaboraciones."
+      description="Información institucional y contexto de marca de Hispaloshop para prensa y colaboraciones."
       url="https://www.hispaloshop.com/press"
       eyebrow="Prensa"
-      intro="Hispaloshop une marketplace, trazabilidad, social commerce y operativa multirole en una sola plataforma. Esta pagina sirve como punto de entrada para medios, colaboraciones editoriales y solicitudes de contexto de marca."
+      intro="Hispaloshop une marketplace, trazabilidad, social commerce y operativa multirole en una sola plataforma. Esta página sirve como punto de entrada para medios, colaboraciones editoriales y solicitudes de contexto de marca."
       primaryCta={{ label: 'Contactar', to: '/contact' }}
       secondaryCta={{ label: 'Sobre Hispaloshop', to: '/about' }}
       sections={[
@@ -22,7 +22,7 @@ export default function PressPage() {
         },
         {
           title: 'Solicitudes de prensa',
-          body: 'Para entrevistas, contexto de producto o peticiones editoriales, usa la pagina de contacto. Asi queda una unica via visible y operativa.',
+          body: 'Para entrevistas, contexto de producto o peticiones editoriales, usa la página de contacto. Asi queda una unica via visible y operativa.',
         },
         {
           title: 'Estado actual',

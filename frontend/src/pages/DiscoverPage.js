@@ -41,12 +41,12 @@ const CATEGORIES_MINI = [
   { id: 'aceites', label: 'Aceites', icon: Droplets, color: 'var(--color-accent)' },
   { id: 'quesos', label: 'Quesos', icon: Cookie, color: 'var(--color-warning)' },
   { id: 'embutidos', label: 'Embutidos', icon: Beef, color: 'var(--color-error)' },
-  { id: 'panaderia', label: 'Panaderia', icon: Croissant, color: '#D97706' },
+  { id: 'panadería', label: 'Panadería', icon: Croissant, color: '#D97706' },
   { id: 'bebidas', label: 'Bebidas', icon: CupSoda, color: '#0891B2' },
   { id: 'bebes', label: 'Bebes', icon: Baby, color: '#EC4899' },
   { id: 'mascotas', label: 'Mascotas', icon: Dog, color: '#7C3AED' },
   { id: 'snacks', label: 'Snacks', icon: Cherry, color: '#EA580C' },
-  { id: 'organico', label: 'Organico', icon: Leaf, color: 'var(--color-success)' },
+  { id: 'orgánico', label: 'Orgánico', icon: Leaf, color: 'var(--color-success)' },
   { id: 'singluten', label: 'Sin gluten', icon: WheatOff, color: '#65A30D' },
   { id: 'packs', label: 'Packs', icon: Gift, color: '#0891B2' },
   { id: 'trending', label: 'Trending', icon: Flame, color: 'var(--color-error)' },
@@ -158,7 +158,7 @@ export default function DiscoverPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
             <input
               type="text"
-              placeholder="Que buscas?"
+              placeholder="¿Qué buscas?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
@@ -350,7 +350,7 @@ export default function DiscoverPage() {
                       <h3 className="font-medium text-gray-900 truncate">{store.name}</h3>
                       <p className="text-xs text-text-muted flex items-center gap-1 truncate">
                         <MapPin className="w-3 h-3 shrink-0" />
-                        {store.location || 'Espana'}
+                        {store.location || 'España'}
                       </p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <span className="flex items-center gap-0.5 text-xs text-text-muted">

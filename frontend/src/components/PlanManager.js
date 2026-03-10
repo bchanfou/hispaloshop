@@ -71,7 +71,7 @@ export default function PlanManager() {
               {isTrialing && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Trial</span>}
               {isPastDue && <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Pago pendiente</span>}
             </div>
-            <p className="text-sm text-text-muted">Comision: {(plan.commission_rate * 100).toFixed(0)}%</p>
+            <p className="text-sm text-text-muted">Comisión: {(plan.commission_rate * 100).toFixed(0)}%</p>
           </div>
         </div>
 
@@ -92,7 +92,7 @@ export default function PlanManager() {
         <div className="flex items-center gap-2 text-xs text-text-muted">
           <Shield className="w-3.5 h-3.5" />
           {plan.plan === 'FREE'
-            ? 'Plan basico. Upgrade para reducir comision y acceder a herramientas.'
+            ? 'Plan básico. Upgrade para reducir comisión y acceder a herramientas.'
             : `Proximo cobro: ${plan.current_period_end ? new Date(plan.current_period_end).toLocaleDateString('es-ES') : 'N/A'}`
           }
         </div>

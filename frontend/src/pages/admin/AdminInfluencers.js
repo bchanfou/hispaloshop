@@ -406,7 +406,7 @@ export default function AdminInfluencers() {
                 />
               </div>
               <div className="bg-stone-50 rounded-lg p-3 text-sm text-stone-600">
-                Comision que se aplicara: <strong>
+                Comisión que se aplicara: <strong>
                   {editForm.tier === 'hercules' ? '3%' : editForm.tier === 'atenea' ? '5%' : '7%'}
                 </strong>
               </div>

@@ -42,7 +42,7 @@ export default function useGeolocation() {
   const requestGeolocation = useCallback(() => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
       setStatus('unsupported');
-      setError('Tu navegador no permite compartir ubicacion. Usa tu codigo postal.');
+      setError('Tu navegador no permite compartir ubicacion. Usa tu código postal.');
       return Promise.resolve(null);
     }
 
@@ -64,7 +64,7 @@ export default function useGeolocation() {
         },
         () => {
           setStatus('denied');
-          setError('Prefieres no compartir tu ubicacion. Puedes escribir tu codigo postal.');
+          setError('Prefieres no compartir tu ubicacion. Puedes escribir tu código postal.');
           resolve(null);
         },
         {
@@ -82,7 +82,7 @@ export default function useGeolocation() {
 
     if (!isValid) {
       setStatus('invalid');
-      setError('Introduce un codigo postal valido.');
+      setError('Introduce un código postal valido.');
       return false;
     }
 

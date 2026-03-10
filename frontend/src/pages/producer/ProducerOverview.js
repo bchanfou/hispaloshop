@@ -526,7 +526,7 @@ export default function ProducerOverview() {
 
       setDataWarnings(warnings);
       if (warnings.length === 2) {
-        setError('No se pudieron cargar los datos principales del panel. Por favor, refresca la pagina.');
+        setError('No se pudieron cargar los datos principales del panel. Por favor, refresca la página.');
       }
     } catch (error) {
       console.error('Error fetching data:', error);

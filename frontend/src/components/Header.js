@@ -59,7 +59,7 @@ export default function Header() {
                 value={scope}
                 onChange={(e) => setScope(e.target.value)}
                 className="px-3 text-sm bg-stone-50 border-r border-stone-200 outline-none"
-                aria-label="Ambito de busqueda"
+                aria-label="Ámbito de búsqueda"
               >
                 <option value="all">Todo</option>
                 <option value="products">Productos</option>
@@ -101,7 +101,7 @@ export default function Header() {
             {!user ? (
               <>
                 <Link to="/login" className="hidden md:block">
-                  <Button variant="ghost" size="sm">Iniciar sesion</Button>
+                  <Button variant="ghost" size="sm">Iniciar sesión</Button>
                 </Link>
                 <Link to="/signup" className="hidden md:block">
                   <Button size="sm" className="bg-primary text-white hover:bg-primary-hover rounded-full">Registrarse</Button>

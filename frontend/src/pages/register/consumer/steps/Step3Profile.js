@@ -18,10 +18,10 @@ const CATEGORY_OPTIONS = [
   { value: 'quesos', label: 'Quesos', icon: Milk },
   { value: 'embutidos', label: 'Embutidos', icon: Beef },
   { value: 'conservas', label: 'Conservas', icon: Fish },
-  { value: 'panaderia', label: 'Panadería', icon: Cookie },
+  { value: 'panadería', label: 'Panadería', icon: Cookie },
   { value: 'bebidas', label: 'Bebidas', icon: Milk },
   { value: 'snacks', label: 'Snacks', icon: Nut },
-  { value: 'organico', label: 'Orgánico', icon: Leaf }
+  { value: 'orgánico', label: 'Orgánico', icon: Leaf }
 ];
 
 const Step3Profile = ({ onNext, data, onDataChange }) => {

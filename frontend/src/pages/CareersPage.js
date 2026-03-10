@@ -5,10 +5,10 @@ export default function CareersPage() {
   return (
     <CompanyInfoPageLayout
       title="Trabaja con nosotros"
-      description="Informacion sobre el tipo de perfiles y lineas de trabajo que Hispaloshop esta construyendo."
+      description="Información sobre el tipo de perfiles y lineas de trabajo que Hispaloshop esta construyendo."
       url="https://www.hispaloshop.com/careers"
       eyebrow="Carreras"
-      intro="Estamos construyendo una plataforma que mezcla ecommerce, social, IA y operativa internacional. Esta pagina deja visible el tipo de talento que buscamos y evita que la navegacion acabe en vacio."
+      intro="Estamos construyendo una plataforma que mezcla ecommerce, social, IA y operativa internacional. Esta página deja visible el tipo de talento que buscamos y evita que la navegacion acabe en vacio."
       primaryCta={{ label: 'Escribir al equipo', to: '/contact' }}
       secondaryCta={{ label: 'Ver plataforma', to: '/about' }}
       sections={[
@@ -26,7 +26,7 @@ export default function CareersPage() {
         },
         {
           title: 'Aplicaciones',
-          body: 'Por ahora centralizamos cualquier interes desde contacto. Cuando el pipeline de hiring este listo, esta pagina mostrara posiciones abiertas.',
+          body: 'Por ahora centralizamos cualquier interes desde contacto. Cuando el pipeline de hiring esté listo, esta página mostrara posiciones abiertas.',
         },
       ]}
     />

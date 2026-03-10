@@ -39,7 +39,7 @@ const CATEGORIES = [
   { icon: Droplets, label: 'Aceites', color: 'var(--color-success)' },
   { icon: Milk, label: 'Quesos', color: 'var(--color-warning)' },
   { icon: Beef, label: 'Embutidos', color: 'var(--color-error)' },
-  { icon: Cookie, label: 'Panaderia', color: '#D97706' },
+  { icon: Cookie, label: 'Panadería', color: '#D97706' },
   { icon: Coffee, label: 'Bebidas', color: '#7C3AED' },
   { icon: Baby, label: 'Bebes', color: '#EC4899' },
   { icon: Dog, label: 'Mascotas', color: '#059669' },
@@ -62,7 +62,7 @@ const FEATURES = [
   {
     icon: Cpu,
     title: 'Inteligente',
-    description: 'Tecnologia que simplifica. Desde busqueda hasta seguimiento de pedidos.',
+    description: 'Tecnologia que simplifica. Desde búsqueda hasta seguimiento de pedidos.',
     color: 'var(--color-accent)',
   },
 ];
@@ -129,7 +129,7 @@ const MARKET_FOLLOWING = [
   {
     code: 'ES',
     name: 'Carolina',
-    location: 'Barcelona, Espana',
+    location: 'Barcelona, España',
     status: 'Disponible',
     statusClass: 'bg-green-500/20 text-green-300',
     avatarClass: 'bg-green-100 text-green-700',
@@ -156,7 +156,7 @@ const MARKET_FOLLOWING = [
 ];
 
 const COUNTRY_MARKETS = [
-  { code: 'ES', name: 'Espana', flag: 'ES' },
+  { code: 'ES', name: 'España', flag: 'ES' },
   { code: 'IT', name: 'Italia', flag: 'IT' },
   { code: 'MX', name: 'Mexico', flag: 'MX' },
   { code: 'CO', name: 'Colombia', flag: 'CO' },
@@ -351,7 +351,7 @@ const QueEsPage = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Red global</h3>
               <p className="text-text-muted leading-relaxed">
-                Productores de Espana, Italia, Mexico, Colombia y mas. Una comunidad mundial de artesanos alimentarios compartiendo su trabajo.
+                Productores de España, Italia, Mexico, Colombia y mas. Una comunidad mundial de artesanos alimentarios compartiendo su trabajo.
               </p>
             </motion.div>
 
@@ -432,7 +432,7 @@ const QueEsPage = () => {
                   <span className="text-sm font-medium text-gray-200">Tu ubicacion:</span>
                   <span className="flex items-center gap-2 bg-accent/30 px-3 py-1 rounded-full text-[#B7E0BF] text-sm">
                     <MapPin className="w-4 h-4" />
-                    {detectedMarket?.name || 'Espana'}
+                    {detectedMarket?.name || 'España'}
                   </span>
                 </div>
 
@@ -461,7 +461,7 @@ const QueEsPage = () => {
                 <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20 animate-pulse-slow">
                   <p className="text-sm text-blue-200 flex items-center gap-2">
                     <Bell className="w-4 h-4" />
-                    HI AI te avisara cuando Miel de Oaxaca envie a {detectedMarket?.name || 'Espana'}
+                    HI AI te avisara cuando Miel de Oaxaca envie a {detectedMarket?.name || 'España'}
                   </p>
                 </div>
               </div>
@@ -484,7 +484,7 @@ const QueEsPage = () => {
                 <div className="flex-1 text-center md:text-left">
                   <div className="text-4xl text-[#9CC3A6] font-heading mb-2">"</div>
                   <p className="text-lg text-text-secondary leading-relaxed mb-4">
-                    Gracias al modelo multimarket, mis clientes espanoles disfrutan de mis galletas frescas, pero tambien tengo seguidores en Italia que esperan que Carolina expanda. HI AI les avisara el dia que enviemos alli. Es como tener una comunidad global que respeta lo local.
+                    Gracias al modelo multimarket, mis clientes espanoles disfrutan de mis galletas frescas, pero también tengo seguidores en Italia que esperan que Carolina expanda. HI AI les avisara el dia que enviemos allí. Es como tener una comunidad global que respeta lo local.
                   </p>
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                     <p className="font-bold text-gray-900">Helena Rodriguez</p>

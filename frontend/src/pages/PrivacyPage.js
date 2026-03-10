@@ -29,7 +29,7 @@ export default function PrivacyPage() {
               datos aplicable.
             </p>
             <p>
-              Aplicamos medidas tecnicas y organizativas para proteger tu informacion y limitar accesos no
+              Aplicamos medidas tecnicas y organizativas para proteger tu información y limitar accesos no
               autorizados.
             </p>
           </div>

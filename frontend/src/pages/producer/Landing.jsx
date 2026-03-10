@@ -49,7 +49,7 @@ const valueCards = [
   {
     icon: Plane,
     title: 'Matching con Importadores Reales',
-    body: 'Accede a compradores de Japon, Corea o USA que buscan productos autenticos y quieren conectar con importadores de alimentos serios.',
+    body: 'Accede a compradores de Japón, Corea o USA que buscan productos autenticos y quieren conectar con importadores de alimentos serios.',
   },
   {
     icon: BrainCircuit,
@@ -246,10 +246,10 @@ export default function ProducerLanding() {
                 Hispaloshop no es otro marketplace. Es tu ventana al mundo sin intermediarios que te roben el alma.
               </h2>
               <p className="mt-6 text-lg leading-8 text-slate-700">
-                He creado esta plataforma para que ningun productor honesto vuelva a sentirse invisible. Aqui puedes vender productos artesanales online y comercializar productos gourmet sin competir contra megacorporaciones por una estanteria. Este marketplace para productores locales pone tu historia delante, te ayuda a vender directo al consumidor sin intermediarios y te acompana si te preguntas como exportar alimentos espanoles con menos oscuridad y mas control.
+                He creado esta plataforma para que ningun productor honesto vuelva a sentirse invisible. Aquí puedes vender productos artesanales online y comercializar productos gourmet sin competir contra megacorporaciones por una estanteria. Este marketplace para productores locales pone tu historia delante, te ayuda a vender directo al consumidor sin intermediarios y te acompana si te preguntas como exportar alimentos espanoles con menos oscuridad y mas control.
               </p>
               <p className="mt-4 text-lg leading-8 text-slate-700">
-                Es una capa real de cooperativas agrarias online, marketing digital para pequenos productores, IA para copy y traduccion, y rutas concretas para conectar con importadores de alimentos que si entienden el valor de la artesania.
+                Es una capa real de cooperativas agrarias online, marketing digital para pequenos productores, IA para copy y traducción, y rutas concretas para conectar con importadores de alimentos que si entienden el valor de la artesania.
               </p>
             </motion.div>
 

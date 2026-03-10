@@ -150,7 +150,7 @@ export default function StorePage() {
   };
 
   const handleFollowToggle = async () => {
-    if (!user) { toast.error(t('store.loginToFollow', 'Inicia sesion para seguir tiendas')); return; }
+    if (!user) { toast.error(t('store.loginToFollow', 'Inicia sesión para seguir tiendas')); return; }
     setFollowLoading(true);
     try {
       if (isFollowing) {
@@ -373,7 +373,7 @@ export default function StorePage() {
                     variant="outline"
                     className="px-3 rounded-full"
                     onClick={() => {
-                      if (!user) { toast.error(t('store.loginToMessage', 'Inicia sesion')); return; }
+                      if (!user) { toast.error(t('store.loginToMessage', 'Inicia sesión')); return; }
                       window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId: store.producer_id } }));
                     }}
                     data-testid="message-store-btn"

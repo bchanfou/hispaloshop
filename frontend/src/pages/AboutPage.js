@@ -27,12 +27,12 @@ export default function AboutPage() {
     { value: '65+', label: 'Paises activos' },
     { value: '100%', label: 'Productos verificados' },
     { value: '24-48h', label: 'Ventana de entrega' },
-    { value: '80+', label: 'Categorias' },
+    { value: '80+', label: 'Categorías' },
   ];
 
   const features = [
-    { icon: Shield, title: 'Calidad y trazabilidad', desc: 'Productos con informacion verificable y certificado digital.', color: 'bg-emerald-50 text-emerald-600' },
-    { icon: Globe, title: 'Operacion internacional', desc: 'Catalogo unico para compra y venta en varios mercados.', color: 'bg-blue-50 text-blue-600' },
+    { icon: Shield, title: 'Calidad y trazabilidad', desc: 'Productos con información verificable y certificado digital.', color: 'bg-emerald-50 text-emerald-600' },
+    { icon: Globe, title: 'Operacion internacional', desc: 'Catalogo único para compra y venta en varios mercados.', color: 'bg-blue-50 text-blue-600' },
     { icon: Heart, title: 'Commerce + social', desc: 'Feed, posts y reels conectados con conversion real.', color: 'bg-rose-50 text-rose-600' },
     { icon: CreditCard, title: 'Pagos centralizados', desc: 'Checkout seguro, comisiones y conciliacion por operacion.', color: 'bg-amber-50 text-amber-600' },
     { icon: ChefHat, title: 'Contenido util', desc: 'Recetas, descubrimiento y comunidad alrededor del producto.', color: 'bg-orange-50 text-orange-600' },
@@ -95,7 +95,7 @@ export default function AboutPage() {
   ];
 
   const newFeatures = [
-    { icon: Layers, title: 'Catalogo limpio', desc: 'Navegacion por categorias con foco en conversion.', color: 'bg-yellow-50 text-yellow-700' },
+    { icon: Layers, title: 'Catalogo limpio', desc: 'Navegacion por categorías con foco en conversion.', color: 'bg-yellow-50 text-yellow-700' },
     { icon: ChefHat, title: 'Recetas conectadas', desc: 'Contenido util enlazado a productos reales.', color: 'bg-orange-50 text-orange-700' },
     { icon: Smartphone, title: 'Feed social', desc: 'Publicaciones y reels para descubrimiento diario.', color: 'bg-rose-50 text-rose-700' },
     { icon: Languages, title: 'Contexto local', desc: 'Idioma y moneda aplicados por preferencia.', color: 'bg-blue-50 text-blue-700' },
@@ -139,7 +139,7 @@ export default function AboutPage() {
 
         <section className="mb-12" data-testid="about-whats-new">
           <h2 className="font-heading text-2xl font-semibold text-primary text-center mb-2">Lo que ya esta activo</h2>
-          <p className="text-sm text-text-muted text-center mb-8">Funcionalidad real de producto en esta version.</p>
+          <p className="text-sm text-text-muted text-center mb-8">Funcionalidad real de producto en esta versión.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {newFeatures.map((nf, i) => (
               <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 text-center hover:shadow-md transition-all">

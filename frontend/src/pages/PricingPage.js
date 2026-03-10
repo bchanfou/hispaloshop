@@ -138,7 +138,7 @@ export default function PricingPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">Acceso a planes</p>
             <h2 className="mt-2 text-xl font-semibold text-primary">
               {isSeller
-                ? 'Gestiona tu suscripcion y cambia de plan cuando quieras.'
+                ? 'Gestiona tu suscripción y cambia de plan cuando quieras.'
                 : user
                   ? 'Tu cuenta actual no es de vendedor.'
                   : 'Crea una cuenta de vendedor para contratar un plan.'}
@@ -147,13 +147,13 @@ export default function PricingPage() {
               {isSeller
                 ? 'Si eliges un plan de pago, te llevamos directamente al checkout correspondiente.'
                 : user
-                  ? 'Estos planes estan reservados para productores e importadores. Te llevo a la pagina de vendedor para que sigas el flujo correcto.'
-                  : 'Los planes de esta pagina son para productores e importadores. El alta gratuita tambien arranca desde el registro de vendedor.'}
+                  ? 'Estos planes están reservados para productores e importadores. Te llevo a la página de vendedor para que sigas el flujo correcto.'
+                  : 'Los planes de esta página son para productores e importadores. El alta gratuita también arranca desde el registro de vendedor.'}
             </p>
           </div>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row md:mt-0">
             <Button onClick={handleSellerEntry} className="rounded-xl h-11 bg-primary hover:bg-primary-hover text-white">
-              {isSeller ? 'Ir a mi panel' : user ? 'Ver pagina de vendedor' : 'Crear cuenta de vendedor'}
+              {isSeller ? 'Ir a mi panel' : user ? 'Ver página de vendedor' : 'Crear cuenta de vendedor'}
             </Button>
             <Button variant="outline" onClick={() => navigate('/contact')} className="rounded-xl h-11">
               Hablar con ventas
@@ -229,7 +229,7 @@ export default function PricingPage() {
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
-            <p className="text-sm font-semibold text-primary">1. Suscripcion</p>
+            <p className="text-sm font-semibold text-primary">1. Suscripción</p>
             <p className="mt-2 text-sm text-text-muted">Seleccionas plan, validamos tu rol de vendedor y abrimos el flujo correcto.</p>
           </div>
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
@@ -237,8 +237,8 @@ export default function PricingPage() {
             <p className="mt-2 text-sm text-text-muted">Los planes de pago usan checkout seguro de Stripe con tarjeta y periodo de prueba si aplica.</p>
           </div>
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
-            <p className="text-sm font-semibold text-primary">3. Activacion</p>
-            <p className="mt-2 text-sm text-text-muted">Despues del pago o cambio de plan, actualizamos tu comision y el panel queda listo para operar.</p>
+            <p className="text-sm font-semibold text-primary">3. Activación</p>
+            <p className="mt-2 text-sm text-text-muted">Despues del pago o cambio de plan, actualizamos tu comisión y el panel queda listo para operar.</p>
           </div>
         </div>
 

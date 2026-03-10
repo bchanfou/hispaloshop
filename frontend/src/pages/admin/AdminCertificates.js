@@ -333,7 +333,7 @@ export default function AdminCertificates() {
   return (
     <div>
       <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary mb-2">
-        {t('certificates.management', 'Gestion de Certificados')}
+        {t('certificates.management', 'Gestión de Certificados')}
       </h1>
       <p className="text-text-muted mb-6">
         {t('certificates.reviewAndApprove', 'Revisa y aprueba los certificados de productos.')}

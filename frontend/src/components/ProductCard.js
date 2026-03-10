@@ -40,7 +40,7 @@ export default function ProductCard({ product, variant = 'default' }) {
     e.stopPropagation();
 
     if (!user) {
-      toast.error(t('errors.loginRequired', 'Inicia sesiÃ³n para aÃ±adir productos'), {
+      toast.error(t('errors.loginRequired', 'Inicia sesión para añadir productos'), {
         action: {
           label: t('auth.login', 'Login'),
           onClick: () => {
@@ -61,13 +61,13 @@ export default function ProductCard({ product, variant = 'default' }) {
       return;
     }
 
-    toast.loading(t('cart.adding', 'AÃ±adiendo...'), { id: 'add-to-cart' });
+    toast.loading(t('cart.adding', 'Añadiendo...'), { id: 'add-to-cart' });
 
     const success = await addToCart(product.product_id, 1);
     if (success) {
-      toast.success(t('success.added', 'Â¡AÃ±adido al carrito!'), { id: 'add-to-cart' });
+      toast.success(t('success.added', '¡Añadido al carrito!'), { id: 'add-to-cart' });
     } else {
-      toast.error(t('errors.generic', 'Error al aÃ±adir'), { id: 'add-to-cart' });
+      toast.error(t('errors.generic', 'Error al añadir'), { id: 'add-to-cart' });
     }
   };
 
@@ -76,7 +76,7 @@ export default function ProductCard({ product, variant = 'default' }) {
     e.stopPropagation();
 
     if (!user) {
-      toast.error(t('errors.loginRequired', 'Inicia sesiÃ³n para comprar'), {
+      toast.error(t('errors.loginRequired', 'Inicia sesión para comprar'), {
         action: {
           label: t('auth.login', 'Login'),
           onClick: () => {
@@ -291,7 +291,7 @@ export default function ProductCard({ product, variant = 'default' }) {
             disabled={isOutOfStock}
             data-testid="add-to-cart-button"
           >
-            {t('products.addShort', 'AÃ±adir')}
+            {t('products.addShort', 'Añadir')}
           </Button>
           <Button
             size="sm"

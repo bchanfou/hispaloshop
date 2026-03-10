@@ -11,14 +11,14 @@ const CATEGORIES = [
   { id: 'aceites', label: 'Aceites', emoji: '🫒' },
   { id: 'quesos', label: 'Quesos', emoji: '🧀' },
   { id: 'embutidos', label: 'Embutidos', emoji: '🥩' },
-  { id: 'panaderia', label: 'Panadería', emoji: '🍞' },
+  { id: 'panadería', label: 'Panadería', emoji: '🍞' },
   { id: 'miel', label: 'Miel', emoji: '🍯' },
   { id: 'conservas', label: 'Conservas', emoji: '🫙' },
   { id: 'vinos', label: 'Vinos', emoji: '🍷' },
   { id: 'dulces', label: 'Dulces', emoji: '🍪' },
   { id: 'bebes', label: 'Bebés', emoji: '👶' },
   { id: 'mascotas', label: 'Mascotas', emoji: '🐕' },
-  { id: 'organico', label: 'Orgánico', emoji: '🌿' },
+  { id: 'orgánico', label: 'Orgánico', emoji: '🌿' },
   { id: 'singluten', label: 'Sin gluten', emoji: '🌾' },
 ];
 

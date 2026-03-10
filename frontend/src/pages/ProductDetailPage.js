@@ -122,7 +122,7 @@ export default function ProductDetailPage() {
   };
 
   const toggleWishlist = async () => {
-    if (!user) { toast.info(t('auth.loginRequired', 'Inicia sesion para guardar')); return; }
+    if (!user) { toast.info(t('auth.loginRequired', 'Inicia sesión para guardar')); return; }
     setWishlistLoading(true);
     try {
       if (inWishlist) {

@@ -11,9 +11,9 @@ import { API } from '../../utils/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const COUNTRY_NAMES = {
-  ES: 'Espana', US: 'USA', DE: 'Alemania', FR: 'Francia', IT: 'Italia',
-  PT: 'Portugal', GB: 'Reino Unido', KR: 'Corea', JP: 'Japon', CN: 'China',
-  IN: 'India', BR: 'Brasil', MX: 'Mexico', CA: 'Canada', AU: 'Australia',
+  ES: 'España', US: 'USA', DE: 'Alemania', FR: 'Francia', IT: 'Italia',
+  PT: 'Portugal', GB: 'Reino Unido', KR: 'Corea', JP: 'Japón', CN: 'China',
+  IN: 'India', BR: 'Brasil', MX: 'Mexico', CA: 'Canadá', AU: 'Australia',
 };
 
 export default function MarketCoverage() {

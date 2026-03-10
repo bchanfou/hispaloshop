@@ -13,7 +13,7 @@ import { API } from '../utils/api';
 
 const FALLBACK_REGIONS = {
   ES: {
-    name: 'Espana',
+    name: 'España',
     regions: [
       { code: 'CT', name: 'Cataluna' },
       { code: 'MD', name: 'Madrid' },
@@ -267,10 +267,10 @@ export default function StoresListPage() {
     'PE': t('countries.Peru', 'Peru'),
     'BR': t('countries.Brazil', 'Brasil'),
     'EC': t('countries.Ecuador', 'Ecuador'),
-    'CA': t('countries.Canada', 'Canada'),
+    'CA': t('countries.Canadá', 'Canadá'),
     'CR': t('countries.CostaRica', 'Costa Rica'),
     'DO': t('countries.DominicanRepublic', 'Rep. Dominicana'),
-    'JP': t('countries.Japan', 'Japon'),
+    'JP': t('countries.Japan', 'Japón'),
     'CN': t('countries.China', 'China'),
     'IN': t('countries.India', 'India'),
     'TH': t('countries.Thailand', 'Tailandia'),
