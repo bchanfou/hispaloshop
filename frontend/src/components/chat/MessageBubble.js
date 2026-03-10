@@ -24,7 +24,7 @@ function MessageBubble({ message, roleConfig }) {
   if (isSystem) {
     return (
       <div className="flex justify-center my-3">
-        <span className="px-3 py-1 bg-[#E6A532]/15 text-[#E6A532] text-xs rounded-full">
+        <span className="px-3 py-1 bg-state-amber/15 text-state-amber text-xs rounded-full">
           {message.content}
         </span>
       </div>
@@ -53,8 +53,8 @@ function MessageBubble({ message, roleConfig }) {
         <div
           className={`px-4 py-3 rounded-2xl ${
             isUser
-              ? 'bg-[#2D5A3D] text-white rounded-br-md'
-              : 'bg-[#F5F1E8] text-[#1A1A1A] rounded-bl-md'
+              ? 'bg-accent text-white rounded-br-md'
+              : 'bg-background-subtle text-gray-900 rounded-bl-md'
           }`}
         >
           {/* Sender name for assistant */}
@@ -71,7 +71,7 @@ function MessageBubble({ message, roleConfig }) {
           />
           
           {/* Timestamp */}
-          <p className={`text-[10px] mt-1 ${isUser ? 'text-white/60' : 'text-[#6B7280]'}`}>
+          <p className={`text-[10px] mt-1 ${isUser ? 'text-white/60' : 'text-text-muted'}`}>
             {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>

@@ -607,13 +607,13 @@ export default function ProducerOverview() {
       )}
       {/* Quick Actions — 2 Big Buttons (impossible to miss) */}
       <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
-        <Link to="/producer/products" className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]" data-testid="quick-add-product">
+        <Link to="/producer/products" className="bg-primary hover:bg-primary-hover text-white rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]" data-testid="quick-add-product">
           <Package className="w-8 h-8" />
           <span className="text-sm font-semibold">{t('sellerDashboard.newProduct', 'New Product')}</span>
         </Link>
-        <Link to="/producer/orders" className="bg-white border-2 border-stone-200 hover:border-[#2D5A27] rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] relative" data-testid="quick-orders">
-          <ShoppingBag className="w-8 h-8 text-[#1C1C1C]" />
-          <span className="text-sm font-semibold text-[#1C1C1C]">{t('customerDashboard.orders', 'Orders')}</span>
+        <Link to="/producer/orders" className="bg-white border-2 border-stone-200 hover:border-accent rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] relative" data-testid="quick-orders">
+          <ShoppingBag className="w-8 h-8 text-primary" />
+          <span className="text-sm font-semibold text-primary">{t('customerDashboard.orders', 'Orders')}</span>
           {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">{stats.pending_orders}</span>}
         </Link>
       </div>
@@ -621,11 +621,11 @@ export default function ProducerOverview() {
       {/* 3 Key Metrics — Big Numbers */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
-          <p className="text-2xl font-bold text-[#2D5A27]">{payments?.total_gross?.toFixed(0) || '0'}€</p>
+          <p className="text-2xl font-bold text-accent">{payments?.total_gross?.toFixed(0) || '0'}€</p>
           <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.totalSales', 'Total sales')}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
-          <p className="text-2xl font-bold text-[#1C1C1C]">{payments?.pending_orders || 0}</p>
+          <p className="text-2xl font-bold text-primary">{payments?.pending_orders || 0}</p>
           <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.pendingShip', 'To ship')}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">

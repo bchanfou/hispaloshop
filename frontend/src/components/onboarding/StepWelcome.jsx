@@ -17,21 +17,21 @@ export default function StepWelcome({ userName }) {
       title: 'Ver mi feed',
       description: 'Descubre productos personalizados para ti',
       action: () => navigate('/'),
-      color: 'bg-[#E6A532]',
+      color: 'bg-state-amber',
     },
     {
       icon: ShoppingBag,
       title: 'Explorar productos',
       description: 'Busca entre miles de productos artesanales',
       action: () => navigate('/products'),
-      color: 'bg-[#2D5A3D]',
+      color: 'bg-accent',
     },
     {
       icon: User,
       title: 'Completar mi perfil',
       description: 'Añade más información sobre ti',
       action: () => navigate('/dashboard/profile'),
-      color: 'bg-[#0891B2]',
+      color: 'bg-cyan-600',
     },
   ];
 
@@ -40,16 +40,16 @@ export default function StepWelcome({ userName }) {
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        className="w-24 h-24 mx-auto bg-gradient-to-br from-[#E6A532] to-[#2D5A3D] rounded-full flex items-center justify-center"
+        className="w-24 h-24 mx-auto bg-gradient-to-br from-state-amber to-accent rounded-full flex items-center justify-center"
       >
         <Sparkles className="w-12 h-12 text-white" />
       </motion.div>
 
       <div>
-        <h2 className="text-3xl font-bold text-[#1A1A1A]">
+        <h2 className="text-3xl font-bold text-gray-900">
           ¡Listo{userName ? `, ${userName}` : ''}!
         </h2>
-        <p className="text-[#6B7280] mt-2">
+        <p className="text-text-muted mt-2">
           Tu feed personalizado está preparado
         </p>
       </div>
@@ -62,20 +62,20 @@ export default function StepWelcome({ userName }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             onClick={option.action}
-            className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-stone-200 hover:border-[#2D5A3D] transition-colors text-left"
+            className="w-full flex items-center gap-4 p-4 rounded-xl border-2 border-stone-200 hover:border-accent transition-colors text-left"
           >
             <div className={`w-12 h-12 ${option.color} rounded-xl flex items-center justify-center`}>
               <option.icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-[#1A1A1A]">{option.title}</h3>
-              <p className="text-sm text-[#6B7280]">{option.description}</p>
+              <h3 className="font-semibold text-gray-900">{option.title}</h3>
+              <p className="text-sm text-text-muted">{option.description}</p>
             </div>
           </motion.button>
         ))}
       </div>
 
-      <p className="text-xs text-[#6B7280]">
+      <p className="text-xs text-text-muted">
         Puedes cambiar tus preferencias en cualquier momento desde tu perfil
       </p>
     </div>

@@ -29,10 +29,10 @@ const FeatureGrid = ({ features, columns = 3 }) => {
                 <Icon className="w-6 h-6" style={{ color: feature.color || '#2D5A3D' }} />
               </div>
             )}
-            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {feature.title}
             </h3>
-            <p className="text-[#6B7280] text-sm leading-relaxed">
+            <p className="text-text-muted text-sm leading-relaxed">
               {feature.description}
             </p>
           </motion.div>

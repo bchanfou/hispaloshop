@@ -20,7 +20,7 @@ function RecipeCard({ recipe }) {
         {recipe.image_url ? <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <ChefHat className="w-10 h-10 text-stone-300 m-auto mt-12" />}
       </div>
       <div className="p-4">
-        <h3 className="font-semibold text-[#1C1C1C] text-sm mb-1">{recipe.title}</h3>
+        <h3 className="font-semibold text-primary text-sm mb-1">{recipe.title}</h3>
         <div className="flex items-center gap-3 text-xs text-text-muted">
           <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{recipe.time_minutes} min</span>
           <span className="flex items-center gap-1"><Users className="w-3 h-3" />{recipe.servings}</span>
@@ -62,16 +62,16 @@ export default function RecipesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <SEO title="Recipes | Hispaloshop" description="Discover recipes and buy ingredients with one click" />
       <Header />
       <div className="max-w-4xl mx-auto px-4 pt-6 pb-16">
         <BackButton />
         <div className="flex items-center justify-between gap-4 mb-2">
-          <h1 className="font-heading text-2xl md:text-3xl font-semibold text-[#1C1C1C]">{t('recipes.title', 'Hispalo Cocina')}</h1>
+          <h1 className="font-heading text-2xl md:text-3xl font-semibold text-primary">{t('recipes.title', 'Hispalo Cocina')}</h1>
           {user && (
             <Link to="/recipes/create">
-              <Button size="sm" className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white rounded-xl gap-1.5 shrink-0" data-testid="create-recipe-btn">
+              <Button size="sm" className="bg-primary hover:bg-primary-hover text-white rounded-xl gap-1.5 shrink-0" data-testid="create-recipe-btn">
                 <Plus className="w-4 h-4" /> {t('recipes.createRecipe')}
               </Button>
             </Link>
@@ -87,7 +87,7 @@ export default function RecipesPage() {
             placeholder={t('recipes.searchPlaceholder', 'Search recipes...')}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full h-11 pl-10 pr-4 rounded-full border border-stone-200 focus:border-[#1C1C1C] outline-none text-sm bg-white"
+            className="w-full h-11 pl-10 pr-4 rounded-full border border-stone-200 focus:border-primary outline-none text-sm bg-white"
             data-testid="recipe-search"
           />
         </div>
@@ -98,7 +98,7 @@ export default function RecipesPage() {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${filter === f.key ? 'bg-[#1C1C1C] text-white' : 'bg-white border border-stone-200 text-text-muted hover:border-stone-300'}`}
+              className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${filter === f.key ? 'bg-primary text-white' : 'bg-white border border-stone-200 text-text-muted hover:border-stone-300'}`}
               data-testid={`filter-${f.key}`}
             >
               {f.label}
@@ -112,7 +112,7 @@ export default function RecipesPage() {
           <div className="text-center py-16">
             <ChefHat className="w-16 h-16 text-stone-300 mx-auto mb-4" />
             <p className="text-text-muted">{t('recipes.empty', 'No recipes yet')}</p>
-            {user && <Link to="/recipes/create" className="text-sm text-[#1C1C1C] underline mt-2 inline-block">{t('recipes.createFirst', 'Create the first one')}</Link>}
+            {user && <Link to="/recipes/create" className="text-sm text-primary underline mt-2 inline-block">{t('recipes.createFirst', 'Create the first one')}</Link>}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

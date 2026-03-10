@@ -44,12 +44,12 @@ export default function StepInterests({ data, onUpdate, onNext }) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-[#1A1A1A]">¿Qué te gusta?</h2>
-        <p className="text-[#6B7280] mt-2">
+        <h2 className="text-2xl font-bold text-gray-900">¿Qué te gusta?</h2>
+        <p className="text-text-muted mt-2">
           Selecciona al menos 3 categorías para personalizar tu feed
         </p>
-        <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-[#2D5A3D]/10 rounded-full">
-          <span className="text-sm font-medium text-[#2D5A3D]">
+        <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-accent/10 rounded-full">
+          <span className="text-sm font-medium text-accent">
             {selected.length}/3 seleccionados
           </span>
         </div>
@@ -65,16 +65,16 @@ export default function StepInterests({ data, onUpdate, onNext }) {
               onClick={() => toggleCategory(category.id)}
               className={`relative p-4 rounded-2xl border-2 transition-all ${
                 isSelected
-                  ? 'border-[#2D5A3D] bg-[#2D5A3D]/5'
+                  ? 'border-accent bg-accent/5'
                   : 'border-stone-200 hover:border-stone-300'
               }`}
             >
               <span className="text-3xl">{category.emoji}</span>
-              <p className="mt-2 text-sm font-medium text-[#1A1A1A]">
+              <p className="mt-2 text-sm font-medium text-gray-900">
                 {category.label}
               </p>
               {isSelected && (
-                <div className="absolute top-2 right-2 w-5 h-5 bg-[#2D5A3D] rounded-full flex items-center justify-center">
+                <div className="absolute top-2 right-2 w-5 h-5 bg-accent rounded-full flex items-center justify-center">
                   <Check className="w-3 h-3 text-white" />
                 </div>
               )}
@@ -86,14 +86,14 @@ export default function StepInterests({ data, onUpdate, onNext }) {
       <div className="flex justify-between pt-4">
         <button
           onClick={() => onUpdate({ interests: selected, skipped: true })}
-          className="text-sm text-[#6B7280] hover:text-[#1A1A1A]"
+          className="text-sm text-text-muted hover:text-gray-900"
         >
           Saltar este paso
         </button>
         <button
           onClick={handleNext}
           disabled={!canProceed}
-          className="px-6 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#234a31] transition-colors"
+          className="px-6 py-3 bg-accent text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/90 transition-colors"
         >
           Siguiente
         </button>

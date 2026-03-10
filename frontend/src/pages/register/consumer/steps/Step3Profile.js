@@ -41,17 +41,17 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-[#1A1A1A] mb-1">
+        <h3 className="text-lg font-semibold text-gray-900 mb-1">
           Perfil alimentario
         </h3>
-        <p className="text-sm text-[#6B7280]">
+        <p className="text-sm text-text-muted">
           Personaliza tu experiencia
         </p>
       </div>
 
       {/* Dietary Restrictions */}
       <div>
-        <label className="block text-sm font-medium text-[#1A1A1A] mb-3">
+        <label className="block text-sm font-medium text-gray-900 mb-3">
           ¿Tienes alguna restricción alimentaria?
         </label>
         <CheckboxGroup
@@ -64,7 +64,7 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
 
       {/* Categories */}
       <div>
-        <label className="block text-sm font-medium text-[#1A1A1A] mb-3">
+        <label className="block text-sm font-medium text-gray-900 mb-3">
           ¿Qué categorías te interesan más?
         </label>
         <CheckboxGroup
@@ -88,7 +88,7 @@ const Step3Profile = ({ onNext, data, onDataChange }) => {
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 transition-colors"
       >
         Continuar
         <ArrowRight className="w-5 h-5" />

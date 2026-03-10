@@ -91,12 +91,12 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-[#1A1A1A]">Descubre a quién seguir</h2>
-        <p className="text-[#6B7280] mt-2">
+        <h2 className="text-2xl font-bold text-gray-900">Descubre a quién seguir</h2>
+        <p className="text-text-muted mt-2">
           Sigue al menos 3 productores para empezar
         </p>
-        <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-[#2D5A3D]/10 rounded-full">
-          <span className="text-sm font-medium text-[#2D5A3D]">
+        <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-accent/10 rounded-full">
+          <span className="text-sm font-medium text-accent">
             {following.length}/3 seleccionados
           </span>
         </div>
@@ -111,7 +111,7 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
               layout
               className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
                 isFollowing
-                  ? 'border-[#2D5A3D] bg-[#2D5A3D]/5'
+                  ? 'border-accent bg-accent/5'
                   : 'border-stone-200 hover:border-stone-300'
               }`}
               onClick={() => toggleFollow(producer.id)}
@@ -122,16 +122,16 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
                 className="w-14 h-14 rounded-full object-cover"
               />
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-[#1A1A1A] truncate">
+                <h3 className="font-semibold text-gray-900 truncate">
                   {producer.name}
                 </h3>
-                <p className="text-sm text-[#6B7280]">
+                <p className="text-sm text-text-muted">
                   {producer.category} • {producer.location}
                 </p>
                 <div className="flex items-center gap-1 mt-1">
-                  <Star className="w-4 h-4 fill-[#E6A532] text-[#E6A532]" />
+                  <Star className="w-4 h-4 fill-state-amber text-state-amber" />
                   <span className="text-sm font-medium">{producer.rating}</span>
-                  <span className="text-sm text-[#6B7280]">
+                  <span className="text-sm text-text-muted">
                     ({producer.products} productos)
                   </span>
                 </div>
@@ -139,8 +139,8 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   isFollowing
-                    ? 'bg-[#2D5A3D] text-white'
-                    : 'bg-stone-100 text-[#1A1A1A] hover:bg-stone-200'
+                    ? 'bg-accent text-white'
+                    : 'bg-stone-100 text-gray-900 hover:bg-stone-200'
                 }`}
               >
                 {isFollowing ? (
@@ -159,14 +159,14 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
       <div className="flex justify-between pt-4">
         <button
           onClick={onBack}
-          className="px-6 py-3 text-[#6B7280] hover:text-[#1A1A1A] font-medium"
+          className="px-6 py-3 text-text-muted hover:text-gray-900 font-medium"
         >
           ← Anterior
         </button>
         <button
           onClick={handleNext}
           disabled={!canProceed}
-          className="px-6 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#234a31] transition-colors"
+          className="px-6 py-3 bg-accent text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/90 transition-colors"
         >
           {canProceed ? 'Comenzar' : `Selecciona ${3 - following.length} más`}
         </button>

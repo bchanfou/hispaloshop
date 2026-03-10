@@ -20,12 +20,12 @@ const FAQAccordion = ({ faqs }) => {
             onClick={() => toggle(index)}
             className="w-full flex items-center justify-between p-5 text-left"
           >
-            <span className="font-medium text-[#1A1A1A] pr-4">{faq.question}</span>
+            <span className="font-medium text-gray-900 pr-4">{faq.question}</span>
             <motion.div
               animate={{ rotate: openIndex === index ? 180 : 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronDown className="w-5 h-5 text-[#6B7280] flex-shrink-0" />
+              <ChevronDown className="w-5 h-5 text-text-muted flex-shrink-0" />
             </motion.div>
           </button>
           
@@ -37,7 +37,7 @@ const FAQAccordion = ({ faqs }) => {
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="px-5 pb-5 text-[#6B7280] leading-relaxed">
+                <div className="px-5 pb-5 text-text-muted leading-relaxed">
                   {faq.answer}
                 </div>
               </motion.div>

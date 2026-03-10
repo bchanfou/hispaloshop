@@ -88,15 +88,15 @@ function DirectoryTab({ active, onClick, icon: Icon, label, count }) {
       onClick={onClick}
       className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium border-b-2 transition-all ${
         active 
-          ? 'border-[#1C1C1C] text-[#1C1C1C] bg-stone-50' 
-          : 'border-transparent text-[#7A7A7A] hover:text-[#1C1C1C] hover:bg-stone-50'
+          ? 'border-primary text-primary bg-stone-50' 
+          : 'border-transparent text-text-muted hover:text-primary hover:bg-stone-50'
       }`}
     >
       <Icon className="w-4 h-4" />
       {label}
       {count > 0 && (
         <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-          active ? 'bg-[#1C1C1C] text-white' : 'bg-stone-200 text-stone-600'
+          active ? 'bg-primary text-white' : 'bg-stone-200 text-stone-600'
         }`}>
           {count}
         </span>
@@ -123,10 +123,10 @@ function InfluencerCard({ influencer, onClick }) {
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-[#1C1C1C] truncate">{influencer.full_name}</p>
-        <p className="text-xs text-[#7A7A7A] truncate">{influencer.niche || 'Influencer'}</p>
+        <p className="font-medium text-primary truncate">{influencer.full_name}</p>
+        <p className="text-xs text-text-muted truncate">{influencer.niche || 'Influencer'}</p>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-[#7A7A7A] flex items-center gap-1">
+          <span className="text-xs text-text-muted flex items-center gap-1">
             <Users className="w-3 h-3" />
             {formatFollowers(influencer.followers)}
           </span>
@@ -138,7 +138,7 @@ function InfluencerCard({ influencer, onClick }) {
           )}
         </div>
       </div>
-      <ChevronLeft className="w-4 h-4 text-[#7A7A7A] rotate-180" />
+      <ChevronLeft className="w-4 h-4 text-text-muted rotate-180" />
     </button>
   );
 }
@@ -155,29 +155,29 @@ function ProducerCard({ producer, onClick }) {
         {producer.logo ? (
           <img src={producer.logo} alt={producer.name} className="w-full h-full object-cover" />
         ) : (
-          <Store className="w-6 h-6 text-[#7A7A7A]" />
+          <Store className="w-6 h-6 text-text-muted" />
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-[#1C1C1C] truncate">{producer.name}</p>
+        <p className="font-medium text-primary truncate">{producer.name}</p>
         {producer.location && (
-          <p className="text-xs text-[#7A7A7A] truncate flex items-center gap-1">
+          <p className="text-xs text-text-muted truncate flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             {producer.location}
           </p>
         )}
         <div className="flex items-center gap-3 mt-1">
-          <span className="text-xs text-[#7A7A7A] flex items-center gap-1">
+          <span className="text-xs text-text-muted flex items-center gap-1">
             <Users className="w-3 h-3" />
             {producer.follower_count || 0}
           </span>
-          <span className="text-xs text-[#7A7A7A] flex items-center gap-1">
+          <span className="text-xs text-text-muted flex items-center gap-1">
             <Package className="w-3 h-3" />
             {producer.product_count || 0}
           </span>
         </div>
       </div>
-      <ChevronLeft className="w-4 h-4 text-[#7A7A7A] rotate-180" />
+      <ChevronLeft className="w-4 h-4 text-text-muted rotate-180" />
     </button>
   );
 }
@@ -191,9 +191,9 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
       {/* Header with back button */}
       <div className="flex items-center gap-3 p-4 border-b border-stone-200 bg-white">
         <button onClick={onBack} className="p-1 hover:bg-stone-100 rounded-full">
-          <ChevronLeft className="w-5 h-5 text-[#1C1C1C]" />
+          <ChevronLeft className="w-5 h-5 text-primary" />
         </button>
-        <span className="font-medium text-[#1C1C1C]">Perfil de Influencer</span>
+        <span className="font-medium text-primary">Perfil de Influencer</span>
       </div>
       
       {/* Profile Content */}
@@ -207,9 +207,9 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
               influencer.full_name?.[0]?.toUpperCase() || 'I'
             )}
           </div>
-          <h3 className="font-semibold text-lg text-[#1C1C1C]">{influencer.full_name}</h3>
+          <h3 className="font-semibold text-lg text-primary">{influencer.full_name}</h3>
           {influencer.niche && (
-            <p className="text-sm text-[#7A7A7A] mt-1">{influencer.niche}</p>
+            <p className="text-sm text-text-muted mt-1">{influencer.niche}</p>
           )}
         </div>
         
@@ -217,12 +217,12 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
         <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className="text-xl font-bold text-[#1C1C1C]">{formatFollowers(influencer.followers)}</p>
-              <p className="text-xs text-[#7A7A7A]">Seguidores</p>
+              <p className="text-xl font-bold text-primary">{formatFollowers(influencer.followers)}</p>
+              <p className="text-xs text-text-muted">Seguidores</p>
             </div>
             <div>
-              <p className="text-xl font-bold text-[#1C1C1C]">€{(influencer.total_sales_generated || 0).toFixed(0)}</p>
-              <p className="text-xs text-[#7A7A7A]">Ventas generadas</p>
+              <p className="text-xl font-bold text-primary">€{(influencer.total_sales_generated || 0).toFixed(0)}</p>
+              <p className="text-xs text-text-muted">Ventas generadas</p>
             </div>
           </div>
         </div>
@@ -230,7 +230,7 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
         {/* Social Media Links */}
         {(socialMedia.instagram || socialMedia.tiktok || socialMedia.youtube || socialMedia.twitter) && (
           <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
-            <h4 className="font-medium text-[#1C1C1C] mb-3">Redes Sociales</h4>
+            <h4 className="font-medium text-primary mb-3">Redes Sociales</h4>
             <div className="space-y-2">
               {socialMedia.instagram && (
                 <a 
@@ -242,8 +242,8 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center">
                     <Instagram className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm text-[#1C1C1C] flex-1">Instagram</span>
-                  <ExternalLink className="w-4 h-4 text-[#7A7A7A]" />
+                  <span className="text-sm text-primary flex-1">Instagram</span>
+                  <ExternalLink className="w-4 h-4 text-text-muted" />
                 </a>
               )}
               {socialMedia.tiktok && (
@@ -256,8 +256,8 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
                   <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
                     <span className="text-white text-sm">📱</span>
                   </div>
-                  <span className="text-sm text-[#1C1C1C] flex-1">TikTok</span>
-                  <ExternalLink className="w-4 h-4 text-[#7A7A7A]" />
+                  <span className="text-sm text-primary flex-1">TikTok</span>
+                  <ExternalLink className="w-4 h-4 text-text-muted" />
                 </a>
               )}
               {socialMedia.youtube && (
@@ -270,8 +270,8 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
                   <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
                     <Youtube className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm text-[#1C1C1C] flex-1">YouTube</span>
-                  <ExternalLink className="w-4 h-4 text-[#7A7A7A]" />
+                  <span className="text-sm text-primary flex-1">YouTube</span>
+                  <ExternalLink className="w-4 h-4 text-text-muted" />
                 </a>
               )}
               {socialMedia.twitter && (
@@ -284,8 +284,8 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
                   <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
                     <Twitter className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm text-[#1C1C1C] flex-1">X (Twitter)</span>
-                  <ExternalLink className="w-4 h-4 text-[#7A7A7A]" />
+                  <span className="text-sm text-primary flex-1">X (Twitter)</span>
+                  <ExternalLink className="w-4 h-4 text-text-muted" />
                 </a>
               )}
             </div>
@@ -295,11 +295,11 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
         {/* Discount Code */}
         {influencer.discount_code && (
           <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200 p-4 mb-4">
-            <h4 className="font-medium text-[#1C1C1C] mb-2">Código de descuento</h4>
+            <h4 className="font-medium text-primary mb-2">Código de descuento</h4>
             <div className="bg-white rounded-lg p-3 text-center border border-purple-100">
               <p className="font-mono font-bold text-lg text-purple-600">{influencer.discount_code}</p>
               {influencer.discount_value && (
-                <p className="text-xs text-[#7A7A7A] mt-1">{influencer.discount_value}% de descuento</p>
+                <p className="text-xs text-text-muted mt-1">{influencer.discount_value}% de descuento</p>
               )}
             </div>
           </div>
@@ -308,7 +308,7 @@ function InfluencerProfile({ influencer, onBack, onStartChat }) {
         {/* Contact Button */}
         <Button 
           onClick={onStartChat}
-          className="w-full bg-[#1C1C1C] hover:bg-[#2C2C2C]"
+          className="w-full bg-primary hover:bg-primary-hover"
         >
           <MessageCircle className="w-4 h-4 mr-2" />
           Enviar mensaje
@@ -325,9 +325,9 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
       {/* Header with back button */}
       <div className="flex items-center gap-3 p-4 border-b border-stone-200 bg-white">
         <button onClick={onBack} className="p-1 hover:bg-stone-100 rounded-full">
-          <ChevronLeft className="w-5 h-5 text-[#1C1C1C]" />
+          <ChevronLeft className="w-5 h-5 text-primary" />
         </button>
-        <span className="font-medium text-[#1C1C1C]">Perfil de Productor</span>
+        <span className="font-medium text-primary">Perfil de Productor</span>
       </div>
       
       {/* Profile Content */}
@@ -338,15 +338,15 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
             {producer.logo ? (
               <img src={producer.logo} alt={producer.name} className="w-full h-full object-cover" />
             ) : (
-              <Store className="w-8 h-8 text-[#7A7A7A]" />
+              <Store className="w-8 h-8 text-text-muted" />
             )}
           </div>
-          <h3 className="font-semibold text-lg text-[#1C1C1C]">{producer.name}</h3>
+          <h3 className="font-semibold text-lg text-primary">{producer.name}</h3>
           {producer.tagline && (
-            <p className="text-sm text-[#7A7A7A] mt-1 italic">"{producer.tagline}"</p>
+            <p className="text-sm text-text-muted mt-1 italic">"{producer.tagline}"</p>
           )}
           {producer.location && (
-            <p className="text-xs text-[#7A7A7A] mt-2 flex items-center justify-center gap-1">
+            <p className="text-xs text-text-muted mt-2 flex items-center justify-center gap-1">
               <MapPin className="w-3 h-3" />
               {producer.location}
             </p>
@@ -357,19 +357,19 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
         <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
           <div className="grid grid-cols-3 gap-2 text-center">
             <div>
-              <p className="text-xl font-bold text-[#1C1C1C]">{producer.product_count || 0}</p>
-              <p className="text-xs text-[#7A7A7A]">Productos</p>
+              <p className="text-xl font-bold text-primary">{producer.product_count || 0}</p>
+              <p className="text-xs text-text-muted">Productos</p>
             </div>
             <div>
-              <p className="text-xl font-bold text-[#1C1C1C]">{producer.follower_count || 0}</p>
-              <p className="text-xs text-[#7A7A7A]">Seguidores</p>
+              <p className="text-xl font-bold text-primary">{producer.follower_count || 0}</p>
+              <p className="text-xs text-text-muted">Seguidores</p>
             </div>
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 text-amber-500 fill-current" />
-                <span className="text-xl font-bold text-[#1C1C1C]">{producer.avg_rating?.toFixed(1) || '0.0'}</span>
+                <span className="text-xl font-bold text-primary">{producer.avg_rating?.toFixed(1) || '0.0'}</span>
               </div>
-              <p className="text-xs text-[#7A7A7A]">({producer.review_count || 0})</p>
+              <p className="text-xs text-text-muted">({producer.review_count || 0})</p>
             </div>
           </div>
         </div>
@@ -377,15 +377,15 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
         {/* Story */}
         {producer.story && (
           <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
-            <h4 className="font-medium text-[#1C1C1C] mb-2">Nuestra Historia</h4>
-            <p className="text-sm text-[#7A7A7A] leading-relaxed">{producer.story}</p>
+            <h4 className="font-medium text-primary mb-2">Nuestra Historia</h4>
+            <p className="text-sm text-text-muted leading-relaxed">{producer.story}</p>
           </div>
         )}
         
         {/* Social & Contact */}
         {(producer.social_instagram || producer.social_facebook || producer.website) && (
           <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
-            <h4 className="font-medium text-[#1C1C1C] mb-3">Enlaces</h4>
+            <h4 className="font-medium text-primary mb-3">Enlaces</h4>
             <div className="space-y-2">
               {producer.social_instagram && (
                 <a 
@@ -397,8 +397,8 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center">
                     <Instagram className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm text-[#1C1C1C] flex-1">Instagram</span>
-                  <ExternalLink className="w-4 h-4 text-[#7A7A7A]" />
+                  <span className="text-sm text-primary flex-1">Instagram</span>
+                  <ExternalLink className="w-4 h-4 text-text-muted" />
                 </a>
               )}
               {producer.social_facebook && (
@@ -411,8 +411,8 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
                   <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
                     <span className="text-white text-sm font-bold">f</span>
                   </div>
-                  <span className="text-sm text-[#1C1C1C] flex-1">Facebook</span>
-                  <ExternalLink className="w-4 h-4 text-[#7A7A7A]" />
+                  <span className="text-sm text-primary flex-1">Facebook</span>
+                  <ExternalLink className="w-4 h-4 text-text-muted" />
                 </a>
               )}
               {producer.website && (
@@ -425,8 +425,8 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
                   <div className="w-8 h-8 rounded-full bg-stone-800 flex items-center justify-center">
                     <Globe className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm text-[#1C1C1C] flex-1">Sitio web</span>
-                  <ExternalLink className="w-4 h-4 text-[#7A7A7A]" />
+                  <span className="text-sm text-primary flex-1">Sitio web</span>
+                  <ExternalLink className="w-4 h-4 text-text-muted" />
                 </a>
               )}
             </div>
@@ -437,7 +437,7 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
         <div className="space-y-2">
           {producer.slug && (
             <a href={`/store/${producer.slug}`} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" className="w-full border-[#1C1C1C] text-[#1C1C1C]">
+              <Button variant="outline" className="w-full border-primary text-primary">
                 <Store className="w-4 h-4 mr-2" />
                 Ver tienda
               </Button>
@@ -445,7 +445,7 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
           )}
           <Button 
             onClick={onStartChat}
-            className="w-full bg-[#1C1C1C] hover:bg-[#2C2C2C]"
+            className="w-full bg-primary hover:bg-primary-hover"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
             Enviar mensaje
@@ -946,7 +946,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
   return (
     <div className={`${isEmbedded ? 'flex flex-col h-full' : 'fixed bottom-24 right-6 z-40 w-[400px] max-w-[calc(100vw-48px)] h-[550px]'} bg-white rounded-2xl shadow-2xl border border-stone-200 flex flex-col`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-stone-200 bg-[#1C1C1C] rounded-t-2xl">
+      <div className="flex items-center justify-between p-4 border-b border-stone-200 bg-primary rounded-t-2xl">
         <div className="flex items-center gap-3">
           {activeConversation && activeTab === 'messages' ? (
             <button 
@@ -1041,10 +1041,10 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F5F5F0] min-h-0">
               {loading ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#7A7A7A]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-text-muted" />
                 </div>
               ) : messages.length === 0 ? (
-                <p className="text-center text-[#7A7A7A] text-sm py-8">
+                <p className="text-center text-text-muted text-sm py-8">
                   No hay mensajes. ¡Empieza la conversación!
                 </p>
               ) : (
@@ -1072,7 +1072,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                       <div
                         className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                           isOwn
-                            ? 'bg-[#2D5A27] rounded-br-md'
+                            ? 'bg-accent rounded-br-md'
                             : 'bg-white rounded-bl-md border border-stone-200'
                         }`}
                       >
@@ -1088,7 +1088,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                           </div>
                         )}
                         {msg.content && msg.content !== '📷 Imagen' && (
-                          <p className={`text-sm ${isOwn ? 'text-white' : 'text-[#1A1A1A]'}`}>{msg.content}</p>
+                          <p className={`text-sm ${isOwn ? 'text-white' : 'text-gray-900'}`}>{msg.content}</p>
                         )}
                         <div className={`flex items-center justify-end gap-1 mt-1`}>
                           <span className={`text-xs ${isOwn ? 'text-white/80' : 'text-[#9CA3AF]'}`}>
@@ -1110,7 +1110,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                     <span className="w-2 h-2 bg-[#7A7A7A] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                     <span className="w-2 h-2 bg-[#7A7A7A] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span className="text-xs text-[#7A7A7A] italic">{typingUser} está escribiendo...</span>
+                  <span className="text-xs text-text-muted italic">{typingUser} está escribiendo...</span>
                 </div>
               )}
               
@@ -1155,7 +1155,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                   size="icon"
                   onClick={() => imageInputRef.current?.click()}
                   disabled={sendingMessage || uploadingImage}
-                  className="text-[#7A7A7A] hover:text-[#1C1C1C] hover:bg-stone-100"
+                  className="text-text-muted hover:text-primary hover:bg-stone-100"
                   title="Adjuntar imagen"
                 >
                   <Image className="w-5 h-5" />
@@ -1170,13 +1170,13 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                   onKeyPress={handleKeyPress}
                   placeholder="Escribe un mensaje..."
                   disabled={sendingMessage}
-                  className="flex-1 bg-white text-[#1A1A1A] border-stone-200 placeholder:text-[#9CA3AF]"
+                  className="flex-1 bg-white text-gray-900 border-stone-200 placeholder:text-[#9CA3AF]"
                 />
                 <Button
                   onClick={sendMessage}
                   disabled={sendingMessage || (!newMessage.trim() && !selectedImage)}
                   size="icon"
-                  className="bg-[#2D5A27] hover:bg-[#1F4A1A]"
+                  className="bg-accent hover:bg-accent/90"
                 >
                   {sendingMessage ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -1196,20 +1196,20 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                 <div className="mb-2 inline-flex rounded-full border border-stone-200 bg-stone-50 p-0.5">
                   <button
                     onClick={() => setDirectoryType('influencers')}
-                    className={`px-3 py-1 text-xs rounded-full ${directoryType === 'influencers' ? 'bg-white text-[#1C1C1C] shadow-sm' : 'text-[#7A7A7A]'}`}
+                    className={`px-3 py-1 text-xs rounded-full ${directoryType === 'influencers' ? 'bg-white text-primary shadow-sm' : 'text-text-muted'}`}
                   >
                     Influencers
                   </button>
                   <button
                     onClick={() => setDirectoryType('producers')}
-                    className={`px-3 py-1 text-xs rounded-full ${directoryType === 'producers' ? 'bg-white text-[#1C1C1C] shadow-sm' : 'text-[#7A7A7A]'}`}
+                    className={`px-3 py-1 text-xs rounded-full ${directoryType === 'producers' ? 'bg-white text-primary shadow-sm' : 'text-text-muted'}`}
                   >
                     Productores/Import.
                   </button>
                 </div>
               )}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A7A]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <Input
                   placeholder={activeTab === 'messages' ? 'Buscar chats...' : directoryType === 'influencers' ? 'Buscar influencers...' : 'Buscar productores o importadores...'}
                   value={searchQuery}
@@ -1222,7 +1222,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
             <div className="flex-1 overflow-y-auto">
               {activeTab === 'directory' && loadingDirectory ? (
                 <div className="flex justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#7A7A7A]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-text-muted" />
                 </div>
               ) : activeTab === 'directory' && directoryType === 'influencers' ? (
                 /* Influencers List */
@@ -1236,8 +1236,8 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                   ))
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <User className="w-12 h-12 text-[#DED7CE] mb-4" />
-                    <p className="text-[#7A7A7A] text-sm">No hay influencers disponibles</p>
+                    <User className="w-12 h-12 text-stone-300 mb-4" />
+                    <p className="text-text-muted text-sm">No hay influencers disponibles</p>
                   </div>
                 )
               ) : activeTab === 'directory' && directoryType === 'producers' ? (
@@ -1252,17 +1252,17 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                   ))
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <Store className="w-12 h-12 text-[#DED7CE] mb-4" />
-                    <p className="text-[#7A7A7A] text-sm">No hay productores o importadores disponibles</p>
+                    <Store className="w-12 h-12 text-stone-300 mb-4" />
+                    <p className="text-text-muted text-sm">No hay productores o importadores disponibles</p>
                   </div>
                 )
               ) : (
                 /* Conversations List */
                 filteredConversations.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <MessageCircle className="w-12 h-12 text-[#DED7CE] mb-4" />
-                    <p className="text-[#7A7A7A] text-sm mb-2">No tienes conversaciones</p>
-                    <p className="text-[#7A7A7A] text-xs">Usa Directorio para iniciar un chat</p>
+                    <MessageCircle className="w-12 h-12 text-stone-300 mb-4" />
+                    <p className="text-text-muted text-sm mb-2">No tienes conversaciones</p>
+                    <p className="text-text-muted text-xs">Usa Directorio para iniciar un chat</p>
                   </div>
                 ) : (
                   filteredConversations.map((conv) => (
@@ -1278,9 +1278,9 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                         <div className="relative flex-shrink-0">
                           <div className="w-12 h-12 rounded-full bg-stone-200 flex items-center justify-center">
                             {['producer', 'importer'].includes(conv.other_user_type) ? (
-                              <Store className="w-6 h-6 text-[#7A7A7A]" />
+                              <Store className="w-6 h-6 text-text-muted" />
                             ) : (
-                              <User className="w-6 h-6 text-[#7A7A7A]" />
+                              <User className="w-6 h-6 text-text-muted" />
                             )}
                           </div>
                           {/* Red dot for unread messages */}
@@ -1296,7 +1296,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <p className={`font-medium truncate ${conv.unread_count > 0 ? 'text-[#1C1C1C] font-semibold' : 'text-[#1C1C1C]'}`}>
+                              <p className={`font-medium truncate ${conv.unread_count > 0 ? 'text-primary font-semibold' : 'text-primary'}`}>
                                 {conv.other_user_name}
                               </p>
                               {/* Red dot next to name for emphasis */}
@@ -1305,18 +1305,18 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                               )}
                             </div>
                             {(conv.last_message?.created_at || conv.updated_at) && (
-                              <span className={`text-xs flex-shrink-0 ${conv.unread_count > 0 ? 'text-red-500 font-medium' : 'text-[#7A7A7A]'}`}>
+                              <span className={`text-xs flex-shrink-0 ${conv.unread_count > 0 ? 'text-red-500 font-medium' : 'text-text-muted'}`}>
                                 {formatTime(conv.last_message?.created_at || conv.updated_at)}
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-[#7A7A7A] mb-1">
+                          <p className="text-xs text-text-muted mb-1">
                             {conv.other_user_role === 'producer' ? 'Productor' : 
                              conv.other_user_role === 'importer' ? 'Importador' : 
                              conv.other_user_role === 'influencer' ? 'Influencer' : 'Usuario'}
                           </p>
                           {conv.last_message && (
-                            <p className={`text-sm truncate ${conv.unread_count > 0 ? 'text-[#1C1C1C] font-medium' : 'text-[#7A7A7A]'}`}>
+                            <p className={`text-sm truncate ${conv.unread_count > 0 ? 'text-primary font-medium' : 'text-text-muted'}`}>
                               {typeof conv.last_message === 'string' 
                                 ? conv.last_message 
                                 : conv.last_message?.content || ''}
@@ -1332,7 +1332,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
                           deleteConversation(conv.conversation_id);
                         }}
                         disabled={deletingConversation === conv.conversation_id}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-red-50 text-[#7A7A7A] hover:text-red-500"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-red-50 text-text-muted hover:text-red-500"
                         title="Eliminar conversación"
                       >
                         {deletingConversation === conv.conversation_id ? (

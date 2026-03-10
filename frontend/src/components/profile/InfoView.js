@@ -64,15 +64,15 @@ function InfoView() {
         className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#F5F1E8] flex items-center justify-center">
-            <Icon className="w-5 h-5 text-[#2D5A3D]" />
+          <div className="w-10 h-10 rounded-full bg-background-subtle flex items-center justify-center">
+            <Icon className="w-5 h-5 text-accent" />
           </div>
-          <span className="font-medium text-[#1A1A1A]">{title}</span>
+          <span className="font-medium text-gray-900">{title}</span>
         </div>
         {expandedSection === id ? (
-          <ChevronUp className="w-5 h-5 text-[#6B7280]" />
+          <ChevronUp className="w-5 h-5 text-text-muted" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-[#6B7280]" />
+          <ChevronDown className="w-5 h-5 text-text-muted" />
         )}
       </button>
       
@@ -93,7 +93,7 @@ function InfoView() {
     <div className="p-4 space-y-3">
       {/* About */}
       <Section id="about" title="Sobre nosotros" icon={MapPin}>
-        <p className="text-[#6B7280] text-sm leading-relaxed">
+        <p className="text-text-muted text-sm leading-relaxed">
           Somos Cortijo Andaluz, una empresa familiar con más de 50 años de tradición 
           dedicada a la producción de aceite de oliva virgen extra de la más alta calidad. 
           Ubicados en el corazón de Andalucía, combinamos métodos tradicionales con 
@@ -101,12 +101,12 @@ function InfoView() {
         </p>
         <div className="mt-4 space-y-2">
           <div className="flex items-center gap-2 text-sm">
-            <MapPin className="w-4 h-4 text-[#6B7280]" />
-            <span className="text-[#1A1A1A]">Córdoba, Andalucía, España</span>
+            <MapPin className="w-4 h-4 text-text-muted" />
+            <span className="text-gray-900">Córdoba, Andalucía, España</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <Globe className="w-4 h-4 text-[#6B7280]" />
-            <span className="text-[#1A1A1A]">www.cortijoandaluz.es</span>
+            <Globe className="w-4 h-4 text-text-muted" />
+            <span className="text-gray-900">www.cortijoandaluz.es</span>
           </div>
         </div>
       </Section>
@@ -116,12 +116,12 @@ function InfoView() {
         <div className="space-y-3">
           {CERTIFICATIONS.map((cert) => (
             <div key={cert.name} className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#E6A532]/10 flex items-center justify-center flex-shrink-0">
-                <cert.icon className="w-4 h-4 text-[#E6A532]" />
+              <div className="w-8 h-8 rounded-full bg-state-amber/10 flex items-center justify-center flex-shrink-0">
+                <cert.icon className="w-4 h-4 text-state-amber" />
               </div>
               <div>
-                <p className="font-medium text-sm text-[#1A1A1A]">{cert.name}</p>
-                <p className="text-xs text-[#6B7280]">{cert.description}</p>
+                <p className="font-medium text-sm text-gray-900">{cert.name}</p>
+                <p className="text-xs text-text-muted">{cert.description}</p>
               </div>
             </div>
           ))}
@@ -134,10 +134,10 @@ function InfoView() {
           {SHIPPING_INFO.map((shipping) => (
             <div key={shipping.name} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
               <div>
-                <p className="font-medium text-sm text-[#1A1A1A]">{shipping.name}</p>
-                <p className="text-xs text-[#6B7280]">{shipping.time}</p>
+                <p className="font-medium text-sm text-gray-900">{shipping.name}</p>
+                <p className="text-xs text-text-muted">{shipping.time}</p>
               </div>
-              <span className="text-sm font-medium text-[#2D5A3D]">{shipping.price}</span>
+              <span className="text-sm font-medium text-accent">{shipping.price}</span>
             </div>
           ))}
         </div>
@@ -148,8 +148,8 @@ function InfoView() {
         <div className="space-y-2">
           {BUSINESS_HOURS.map((schedule) => (
             <div key={schedule.day} className="flex items-center justify-between text-sm">
-              <span className="text-[#1A1A1A]">{schedule.day}</span>
-              <span className={schedule.hours === 'Cerrado' ? 'text-[#DC2626]' : 'text-[#6B7280]'}>
+              <span className="text-gray-900">{schedule.day}</span>
+              <span className={schedule.hours === 'Cerrado' ? 'text-state-error' : 'text-text-muted'}>
                 {schedule.hours}
               </span>
             </div>
@@ -171,32 +171,32 @@ function InfoView() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm">{review.user}</span>
-                    <span className="text-xs text-[#6B7280]">{review.date}</span>
+                    <span className="text-xs text-text-muted">{review.date}</span>
                   </div>
                   <div className="flex items-center gap-0.5 my-1">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
                         className={`w-3 h-3 ${
-                          i < review.rating ? 'fill-[#E6A532] text-[#E6A532]' : 'text-gray-300'
+                          i < review.rating ? 'fill-state-amber text-state-amber' : 'text-gray-300'
                         }`}
                       />
                     ))}
                   </div>
-                  <p className="text-sm text-[#1A1A1A]">{review.comment}</p>
-                  <p className="text-xs text-[#6B7280] mt-1">{review.product}</p>
+                  <p className="text-sm text-gray-900">{review.comment}</p>
+                  <p className="text-xs text-text-muted mt-1">{review.product}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <button className="w-full mt-4 py-2 text-sm font-medium text-[#2D5A3D] border border-[#2D5A3D] rounded-lg hover:bg-[#2D5A3D] hover:text-white transition-colors">
+        <button className="w-full mt-4 py-2 text-sm font-medium text-accent border border-accent rounded-lg hover:bg-accent hover:text-white transition-colors">
           Ver todas las opiniones
         </button>
       </Section>
 
       {/* Contact */}
-      <div className="bg-[#2D5A3D] rounded-xl p-4 text-white">
+      <div className="bg-accent rounded-xl p-4 text-white">
         <h3 className="font-medium mb-3">¿Necesitas ayuda?</h3>
         <div className="space-y-2">
           <a href="tel:+34600123456" className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity">

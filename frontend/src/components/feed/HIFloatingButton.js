@@ -39,7 +39,7 @@ function HIFloatingButton({ onClick, hasNewMessages = false }) {
         )}
         
         {/* Botón principal */}
-        <div className="w-14 h-14 bg-[#2D5A3D] rounded-2xl shadow-lg shadow-[#2D5A3D]/30 flex items-center justify-center">
+        <div className="w-14 h-14 bg-accent rounded-2xl shadow-lg shadow-[#2D5A3D]/30 flex items-center justify-center">
           <Bot className="w-7 h-7 text-white" />
         </div>
         
@@ -49,13 +49,13 @@ function HIFloatingButton({ onClick, hasNewMessages = false }) {
             initial={{ scale: 1, opacity: 0.5 }}
             animate={{ scale: 1.5, opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="absolute inset-0 bg-[#2D5A3D] rounded-2xl"
+            className="absolute inset-0 bg-accent rounded-2xl"
           />
         )}
       </motion.div>
       
       {/* Label */}
-      <span className="text-[10px] font-medium text-[#2D5A3D] bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm">
+      <span className="text-[10px] font-medium text-accent bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm">
         HI AI
       </span>
     </motion.button>

@@ -131,42 +131,42 @@ function ImporterDashboard() {
       id: 'add', 
       icon: Plus, 
       label: 'Añadir producto', 
-      color: '#2D5A3D',
+      color: 'var(--color-accent)',
       onClick: () => navigate('/importer/products/new')
     },
     { 
       id: 'orders', 
       icon: ShoppingCart, 
       label: 'Pedidos', 
-      color: '#E6A532',
+      color: 'var(--color-warning)',
       onClick: () => navigate('/importer/orders')
     },
     { 
       id: 'producers', 
       icon: Users, 
       label: 'Productores', 
-      color: '#3B82F6',
+      color: 'var(--color-info)',
       onClick: () => navigate('/b2b/producers')
     },
     { 
       id: 'analytics', 
       icon: TrendingUp, 
       label: 'Análisis', 
-      color: '#16A34A',
+      color: 'var(--color-success)',
       onClick: () => navigate('/importer/analytics')
     }
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#2D5A3D]" />
+      <div className="min-h-screen bg-background-subtle flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] p-4 pb-24">
+    <div className="min-h-screen bg-background-subtle p-4 pb-24">
       <DashboardHeader 
         userName={user?.name || 'Importador'}
         subtitle="Panel de importador"
@@ -208,8 +208,8 @@ function ImporterDashboard() {
       {/* Chart */}
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-[#1A1A1A]">Evolución de ventas</h3>
-          <p className="text-xs text-[#6B7280]">
+          <h3 className="font-semibold text-gray-900">Evolución de ventas</h3>
+          <p className="text-xs text-text-muted">
             Ingresos semanales
           </p>
         </div>
@@ -222,7 +222,7 @@ function ImporterDashboard() {
 
       {/* Quick Actions */}
       <div className="mb-6">
-        <h3 className="font-semibold text-[#1A1A1A] mb-3">Acciones rápidas</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Acciones rápidas</h3>
         <QuickActions actions={quickActions} />
       </div>
 
@@ -230,10 +230,10 @@ function ImporterDashboard() {
       {dashboardData.pendingOrders.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-[#1A1A1A]">Pedidos recientes</h3>
+            <h3 className="font-semibold text-gray-900">Pedidos recientes</h3>
             <button 
               onClick={() => navigate('/importer/orders')}
-              className="text-sm text-[#2D5A3D] font-medium"
+              className="text-sm text-accent font-medium"
             >
               Ver todos
             </button>
@@ -247,7 +247,7 @@ function ImporterDashboard() {
 
       {/* HI Suggestions */}
       <div>
-        <h3 className="font-semibold text-[#1A1A1A] mb-3">Sugerencias HI</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Sugerencias HI</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>

@@ -226,7 +226,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
                     <p className="text-white text-xs font-medium truncate">{reel.productTag.name}</p>
                     <p className="text-white/80 text-xs">€{reel.productTag.price}</p>
                   </div>
-                  <button className="px-3 py-1 bg-[#2D5A3D] text-white text-xs font-medium rounded-full">
+                  <button className="px-3 py-1 bg-accent text-white text-xs font-medium rounded-full">
                     Ver
                   </button>
                 </Link>

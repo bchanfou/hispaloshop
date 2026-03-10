@@ -48,22 +48,22 @@ const AddToCartButton = ({
 
   const variants = {
     'default': {
-      button: 'flex-1 py-3 px-4 bg-[#2D5A3D] text-white rounded-xl font-medium',
+      button: 'flex-1 py-3 px-4 bg-accent text-white rounded-xl font-medium',
       icon: 'w-5 h-5',
       text: inCartQuantity > 0 ? `${inCartQuantity} en cesta` : 'Añadir al carrito'
     },
     'small': {
-      button: 'p-2 bg-[#2D5A3D] text-white rounded-lg',
+      button: 'p-2 bg-accent text-white rounded-lg',
       icon: 'w-4 h-4',
       text: ''
     },
     'quick': {
-      button: 'w-full py-2 bg-[#2D5A3D] text-white rounded-lg text-sm font-medium',
+      button: 'w-full py-2 bg-accent text-white rounded-lg text-sm font-medium',
       icon: 'w-4 h-4',
       text: inCartQuantity > 0 ? `+${inCartQuantity}` : 'Añadir'
     },
     'buy-now': {
-      button: 'w-full py-3 bg-[#E6A532] text-white rounded-xl font-semibold',
+      button: 'w-full py-3 bg-state-amber text-white rounded-xl font-semibold',
       icon: 'w-5 h-5',
       text: 'Comprar ahora'
     }
@@ -95,15 +95,15 @@ const AddToCartButton = ({
             className="p-2 hover:bg-gray-200 rounded-l-lg transition-colors"
             disabled={state === 'loading'}
           >
-            <Minus className="w-4 h-4 text-[#1A1A1A]" />
+            <Minus className="w-4 h-4 text-gray-900" />
           </button>
-          <span className="w-10 text-center font-medium text-[#1A1A1A]">{quantity}</span>
+          <span className="w-10 text-center font-medium text-gray-900">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
             className="p-2 hover:bg-gray-200 rounded-r-lg transition-colors"
             disabled={state === 'loading'}
           >
-            <Plus className="w-4 h-4 text-[#1A1A1A]" />
+            <Plus className="w-4 h-4 text-gray-900" />
           </button>
         </div>
       )}
@@ -112,8 +112,8 @@ const AddToCartButton = ({
         onClick={handleAdd}
         disabled={state === 'loading'}
         className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-70 ${
-          state === 'success' ? 'bg-[#16A34A]' : ''
-        } ${inCartQuantity > 0 && state === 'idle' ? 'bg-[#E6A532]' : ''}`}
+          state === 'success' ? 'bg-state-success' : ''
+        } ${inCartQuantity > 0 && state === 'idle' ? 'bg-state-amber' : ''}`}
         whileTap={{ scale: 0.98 }}
       >
         <AnimatePresence mode="wait">

@@ -9,7 +9,7 @@ const CheckoutSuccess = () => {
   const { orderId, total, estimatedDelivery } = location.state || {};
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] flex flex-col">
+    <div className="min-h-screen bg-background-subtle flex flex-col">
       {/* Confetti animation background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
@@ -44,7 +44,7 @@ const CheckoutSuccess = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-          className="w-24 h-24 bg-[#16A34A] rounded-full flex items-center justify-center mb-6"
+          className="w-24 h-24 bg-state-success rounded-full flex items-center justify-center mb-6"
         >
           <Check className="w-12 h-12 text-white" />
         </motion.div>
@@ -53,7 +53,7 @@ const CheckoutSuccess = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-2xl font-bold text-[#1A1A1A] mb-2"
+          className="text-2xl font-bold text-gray-900 mb-2"
         >
           ¡Pedido confirmado!
         </motion.h1>
@@ -62,7 +62,7 @@ const CheckoutSuccess = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-[#6B7280] mb-6"
+          className="text-text-muted mb-6"
         >
           #{orderId || 'HS-001234'}
         </motion.p>
@@ -75,15 +75,15 @@ const CheckoutSuccess = () => {
           className="bg-white rounded-2xl p-6 w-full max-w-sm mb-6 shadow-sm"
         >
           <div className="flex items-center gap-3 mb-4">
-            <Package className="w-5 h-5 text-[#2D5A3D]" />
+            <Package className="w-5 h-5 text-accent" />
             <div className="text-left">
-              <p className="font-medium text-[#1A1A1A]">Llega el {estimatedDelivery || 'martes 12 marzo'}</p>
-              <p className="text-sm text-[#6B7280]">Entre 9:00 y 14:00</p>
+              <p className="font-medium text-gray-900">Llega el {estimatedDelivery || 'martes 12 marzo'}</p>
+              <p className="text-sm text-text-muted">Entre 9:00 y 14:00</p>
             </div>
           </div>
           <button 
             onClick={() => navigate('/orders')}
-            className="w-full py-2 border-2 border-[#2D5A3D] text-[#2D5A3D] rounded-xl font-medium"
+            className="w-full py-2 border-2 border-accent text-accent rounded-xl font-medium"
           >
             Seguir envío
           </button>
@@ -98,14 +98,14 @@ const CheckoutSuccess = () => {
         >
           <button 
             onClick={() => navigate('/')} 
-            className="flex-1 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-accent text-white rounded-xl font-medium flex items-center justify-center gap-2"
           >
             <Home className="w-5 h-5" />
             Volver al inicio
           </button>
           <button 
             onClick={() => navigate('/discover')}
-            className="flex-1 py-3 bg-white text-[#1A1A1A] rounded-xl font-medium flex items-center justify-center gap-2 border border-gray-200"
+            className="flex-1 py-3 bg-white text-gray-900 rounded-xl font-medium flex items-center justify-center gap-2 border border-gray-200"
           >
             <ShoppingBag className="w-5 h-5" />
             Seguir comprando
@@ -119,8 +119,8 @@ const CheckoutSuccess = () => {
           transition={{ delay: 0.6 }}
           className="mt-8 w-full max-w-sm"
         >
-          <p className="text-sm text-[#6B7280] mb-3">¿Qué te ha parecido la compra?</p>
-          <button className="flex items-center gap-2 text-[#E6A532] font-medium">
+          <p className="text-sm text-text-muted mb-3">¿Qué te ha parecido la compra?</p>
+          <button className="flex items-center gap-2 text-state-amber font-medium">
             <Star className="w-5 h-5" />
             Valorar productos
           </button>

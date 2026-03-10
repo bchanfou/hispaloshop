@@ -87,17 +87,17 @@ function StoreView() {
       <div className="px-4 pt-4 space-y-3">
         <div className="flex gap-2">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
             <input
               type="text"
               placeholder="Buscar productos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#F5F1E8] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+              className="w-full pl-10 pr-4 py-2.5 bg-background-subtle rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
-          <button className="p-2.5 bg-[#F5F1E8] rounded-xl hover:bg-[#EBE6D5] transition-colors">
-            <SlidersHorizontal className="w-5 h-5 text-[#1A1A1A]" />
+          <button className="p-2.5 bg-background-subtle rounded-xl hover:bg-[#EBE6D5] transition-colors">
+            <SlidersHorizontal className="w-5 h-5 text-gray-900" />
           </button>
         </div>
 
@@ -109,8 +109,8 @@ function StoreView() {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 activeCategory === cat
-                  ? 'bg-[#2D5A3D] text-white'
-                  : 'bg-[#F5F1E8] text-[#1A1A1A] hover:bg-[#EBE6D5]'
+                  ? 'bg-accent text-white'
+                  : 'bg-background-subtle text-gray-900 hover:bg-[#EBE6D5]'
               }`}
             >
               {cat}
@@ -120,17 +120,17 @@ function StoreView() {
 
         {/* View Toggle & Count */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-[#6B7280]">
+          <span className="text-sm text-text-muted">
             {filteredProducts.length} productos
           </span>
-          <div className="flex bg-[#F5F1E8] rounded-lg p-1">
+          <div className="flex bg-background-subtle rounded-lg p-1">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded transition-colors ${
                 viewMode === 'grid' ? 'bg-white shadow-sm' : ''
               }`}
             >
-              <Grid3X3 className="w-4 h-4 text-[#1A1A1A]" />
+              <Grid3X3 className="w-4 h-4 text-gray-900" />
             </button>
             <button
               onClick={() => setViewMode('list')}
@@ -138,7 +138,7 @@ function StoreView() {
                 viewMode === 'list' ? 'bg-white shadow-sm' : ''
               }`}
             >
-              <List className="w-4 h-4 text-[#1A1A1A]" />
+              <List className="w-4 h-4 text-gray-900" />
             </button>
           </div>
         </div>
@@ -164,7 +164,7 @@ function StoreView() {
 
       {filteredProducts.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-[#6B7280]">No se encontraron productos</p>
+          <p className="text-text-muted">No se encontraron productos</p>
         </div>
       )}
     </div>

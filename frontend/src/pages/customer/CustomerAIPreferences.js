@@ -67,7 +67,7 @@ function MultiSelect({ options, selected, onChange, label }) {
 
   return (
     <div>
-      <label className="block font-body text-sm font-medium text-[#1C1C1C] mb-3">{label}</label>
+      <label className="block font-body text-sm font-medium text-primary mb-3">{label}</label>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
           <button
@@ -76,8 +76,8 @@ function MultiSelect({ options, selected, onChange, label }) {
             onClick={() => toggleOption(option.value)}
             className={`px-4 py-2 rounded-full text-sm font-body transition-all ${
               selected.includes(option.value)
-                ? 'bg-[#1C1C1C] text-white border border-[#1C1C1C]'
-                : 'bg-white text-[#4A4A4A] border border-[#DED7CE] hover:border-[#1C1C1C]'
+                ? 'bg-primary text-white border border-primary'
+                : 'bg-white text-text-secondary border border-stone-300 hover:border-primary'
             }`}
           >
             {selected.includes(option.value) && <Check className="w-3 h-3 inline mr-1" />}
@@ -92,7 +92,7 @@ function MultiSelect({ options, selected, onChange, label }) {
 function SingleSelect({ options, selected, onChange, label }) {
   return (
     <div>
-      <label className="block font-body text-sm font-medium text-[#1C1C1C] mb-3">{label}</label>
+      <label className="block font-body text-sm font-medium text-primary mb-3">{label}</label>
       <div className="space-y-2">
         {options.map((option) => (
           <button
@@ -101,19 +101,19 @@ function SingleSelect({ options, selected, onChange, label }) {
             onClick={() => onChange(option.value)}
             className={`w-full text-left px-4 py-3 rounded-lg border transition-all ${
               selected === option.value
-                ? 'bg-[#FAF7F2] border-[#1C1C1C]'
-                : 'bg-white border-[#DED7CE] hover:border-[#1C1C1C]'
+                ? 'bg-stone-50 border-primary'
+                : 'bg-white border-stone-300 hover:border-primary'
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <span className="font-body text-sm font-medium text-[#1C1C1C]">{option.label}</span>
+                <span className="font-body text-sm font-medium text-primary">{option.label}</span>
                 {option.description && (
-                  <p className="font-body text-xs text-[#7A7A7A] mt-0.5">{option.description}</p>
+                  <p className="font-body text-xs text-text-muted mt-0.5">{option.description}</p>
                 )}
               </div>
               {selected === option.value && (
-                <Check className="w-5 h-5 text-[#1C1C1C]" />
+                <Check className="w-5 h-5 text-primary" />
               )}
             </div>
           </button>
@@ -184,8 +184,8 @@ export default function CustomerAIPreferences() {
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1C1C1C] mx-auto mb-4"></div>
-        <p className="font-body text-sm text-[#7A7A7A]">{t('common.loading', 'Cargando...')}</p>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="font-body text-sm text-text-muted">{t('common.loading', 'Cargando...')}</p>
       </div>
     );
   }
@@ -193,7 +193,7 @@ export default function CustomerAIPreferences() {
   if (!profile) {
     return (
       <div className="text-center py-12">
-        <p className="font-body text-[#7A7A7A]">{t('aiPrefs.noProfile', 'No se pudieron cargar las preferencias')}</p>
+        <p className="font-body text-text-muted">{t('aiPrefs.noProfile', 'No se pudieron cargar las preferencias')}</p>
       </div>
     );
   }
@@ -201,17 +201,17 @@ export default function CustomerAIPreferences() {
   return (
     <div data-testid="ai-preferences-page">
       <div className="mb-8">
-        <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C] uppercase tracking-[0.02em]" data-testid="ai-preferences-title">
+        <h1 className="font-heading text-2xl font-semibold text-primary uppercase tracking-[0.02em]" data-testid="ai-preferences-title">
           {t('aiPrefs.title', 'Preferencias de Hispalo AI')}
         </h1>
-        <p className="font-body text-sm text-[#7A7A7A] mt-2">
+        <p className="font-body text-sm text-text-muted mt-2">
           {t('aiPrefs.subtitle', 'Hispalo AI usa estas preferencias para personalizar tu experiencia de compra.')}
         </p>
       </div>
 
       <div className="space-y-8">
-        <div className="bg-white border border-[#DED7CE] rounded-lg p-6">
-          <h2 className="font-heading text-lg font-medium text-[#1C1C1C] mb-4 tracking-[0.02em]">
+        <div className="bg-white border border-stone-300 rounded-lg p-6">
+          <h2 className="font-heading text-lg font-medium text-primary mb-4 tracking-[0.02em]">
             {t('aiPrefs.communicationStyle', 'Estilo de comunicacion')}
           </h2>
           <SingleSelect
@@ -222,8 +222,8 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-[#DED7CE] rounded-lg p-6">
-          <h2 className="font-heading text-lg font-medium text-[#1C1C1C] mb-4 tracking-[0.02em]">
+        <div className="bg-white border border-stone-300 rounded-lg p-6">
+          <h2 className="font-heading text-lg font-medium text-primary mb-4 tracking-[0.02em]">
             {t('aiPrefs.dietaryPreferences', 'Preferencias dieteticas')}
           </h2>
           <MultiSelect
@@ -234,8 +234,8 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-[#DED7CE] rounded-lg p-6">
-          <h2 className="font-heading text-lg font-medium text-[#1C1C1C] mb-4 tracking-[0.02em]">
+        <div className="bg-white border border-stone-300 rounded-lg p-6">
+          <h2 className="font-heading text-lg font-medium text-primary mb-4 tracking-[0.02em]">
             {t('aiPrefs.allergies', 'Alergias e intolerancias')}
           </h2>
           <MultiSelect
@@ -244,13 +244,13 @@ export default function CustomerAIPreferences() {
             onChange={(value) => setProfile({ ...profile, allergies: value })}
             label={t('aiPrefs.selectAllergies', 'Selecciona tus alergias')}
           />
-          <p className="font-body text-xs text-[#7A7A7A] mt-3">
+          <p className="font-body text-xs text-text-muted mt-3">
             {t('aiPrefs.allergyNote', 'Hispalo AI nunca te recomendara productos con estos alergenos.')}
           </p>
         </div>
 
-        <div className="bg-white border border-[#DED7CE] rounded-lg p-6">
-          <h2 className="font-heading text-lg font-medium text-[#1C1C1C] mb-4 tracking-[0.02em]">
+        <div className="bg-white border border-stone-300 rounded-lg p-6">
+          <h2 className="font-heading text-lg font-medium text-primary mb-4 tracking-[0.02em]">
             {t('aiPrefs.goals', 'Objetivos')}
           </h2>
           <MultiSelect
@@ -261,8 +261,8 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-[#DED7CE] rounded-lg p-6">
-          <h2 className="font-heading text-lg font-medium text-[#1C1C1C] mb-4 tracking-[0.02em]">
+        <div className="bg-white border border-stone-300 rounded-lg p-6">
+          <h2 className="font-heading text-lg font-medium text-primary mb-4 tracking-[0.02em]">
             {t('aiPrefs.budget', 'Presupuesto')}
           </h2>
           <SingleSelect
@@ -288,7 +288,7 @@ export default function CustomerAIPreferences() {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-transparent border border-[#1C1C1C] text-[#1C1C1C] hover:bg-[#1C1C1C] hover:text-white rounded-full px-6 font-body"
+            className="bg-transparent border border-primary text-primary hover:bg-primary hover:text-white rounded-full px-6 font-body"
             data-testid="save-ai-button"
           >
             {saving ? (
@@ -305,8 +305,8 @@ export default function CustomerAIPreferences() {
           </Button>
         </div>
 
-        <div className="bg-[#FAF7F2] border border-[#E6DFD6] rounded-lg p-4 text-center">
-          <p className="font-body text-xs text-[#7A7A7A]">
+        <div className="bg-stone-50 border border-stone-200 rounded-lg p-4 text-center">
+          <p className="font-body text-xs text-text-muted">
             {t('aiPrefs.privacyNote', 'Tus preferencias se guardan de forma segura y solo se usan para personalizar tus recomendaciones.')}
             <br />
             {t('aiPrefs.privacyNote2', 'No almacenamos conversaciones completas ni datos medicos sensibles.')}

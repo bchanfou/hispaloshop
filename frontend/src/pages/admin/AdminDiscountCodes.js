@@ -201,12 +201,12 @@ export default function AdminDiscountCodes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C]">Códigos de Descuento</h1>
-          <p className="text-[#7A7A7A] text-sm mt-1">Gestiona códigos promocionales e influencers</p>
+          <h1 className="font-heading text-2xl font-semibold text-primary">Códigos de Descuento</h1>
+          <p className="text-text-muted text-sm mt-1">Gestiona códigos promocionales e influencers</p>
         </div>
         <Button
           onClick={() => setShowCreateForm(true)}
-          className="bg-[#1C1C1C] hover:bg-[#2C2C2C] text-white"
+          className="bg-primary hover:bg-primary-hover text-white"
           data-testid="create-discount-btn"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -231,11 +231,11 @@ export default function AdminDiscountCodes() {
                     <Sparkles className="w-4 h-4 text-fuchsia-600" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-[#1C1C1C] text-lg tracking-wide">{code.code}</p>
-                    <p className="text-sm text-[#7A7A7A] truncate">
+                    <p className="font-bold text-primary text-lg tracking-wide">{code.code}</p>
+                    <p className="text-sm text-text-muted truncate">
                       {code.influencer_name || 'Influencer'}{code.influencer_handle ? ` · ${code.influencer_handle}` : ''} · 10% descuento · uso ilimitado
                     </p>
-                    <p className="text-xs text-[#9A9A9A]">Solicitado: {new Date(code.created_at).toLocaleDateString('es-ES')}</p>
+                    <p className="text-xs text-text-muted">Solicitado: {new Date(code.created_at).toLocaleDateString('es-ES')}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
@@ -263,15 +263,15 @@ export default function AdminDiscountCodes() {
 
       {/* Create/Edit Form */}
       {showCreateForm && (
-        <div className="bg-white border border-[#DED7CE] rounded-lg p-6" data-testid="discount-form">
-          <h2 className="font-heading text-lg font-medium text-[#1C1C1C] mb-4">
+        <div className="bg-white border border-stone-300 rounded-lg p-6" data-testid="discount-form">
+          <h2 className="font-heading text-lg font-medium text-primary mb-4">
             {editingCode ? 'Edit Discount Code' : 'Create New Discount Code'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Code */}
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   Code <span className="text-red-500">*</span>
                 </label>
                 <Input
@@ -286,13 +286,13 @@ export default function AdminDiscountCodes() {
 
               {/* Type */}
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full border border-[#DED7CE] rounded-md px-3 py-2 text-sm"
+                  className="w-full border border-stone-300 rounded-md px-3 py-2 text-sm"
                   data-testid="discount-type-select"
                 >
                   <option value="percentage">{t('admin.percentageOff')}</option>
@@ -304,11 +304,11 @@ export default function AdminDiscountCodes() {
               {/* Value */}
               {formData.type !== 'free_shipping' && (
                 <div>
-                  <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
                     Value <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7A7A7A]">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
                       {formData.type === 'percentage' ? '%' : '$'}
                     </span>
                     <Input
@@ -329,11 +329,11 @@ export default function AdminDiscountCodes() {
 
               {/* Minimum Cart Amount */}
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   Minimum Cart Amount
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7A7A7A]">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">$</span>
                   <Input
                     type="number"
                     step="0.01"
@@ -349,7 +349,7 @@ export default function AdminDiscountCodes() {
 
               {/* Usage Limit */}
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   Usage Limit
                 </label>
                 <Input
@@ -364,7 +364,7 @@ export default function AdminDiscountCodes() {
 
               {/* Start Date */}
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   Start Date
                 </label>
                 <Input
@@ -377,7 +377,7 @@ export default function AdminDiscountCodes() {
 
               {/* End Date */}
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   End Date
                 </label>
                 <Input
@@ -395,18 +395,18 @@ export default function AdminDiscountCodes() {
                   id="active"
                   checked={formData.active}
                   onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  className="w-4 h-4 rounded border-[#DED7CE]"
+                  className="w-4 h-4 rounded border-stone-300"
                   data-testid="discount-active-checkbox"
                 />
-                <label htmlFor="active" className="text-sm text-[#4A4A4A]">
+                <label htmlFor="active" className="text-sm text-text-secondary">
                   Active
                 </label>
               </div>
             </div>
 
             {/* Form Actions */}
-            <div className="flex gap-3 pt-4 border-t border-[#E6DFD6]">
-              <Button type="submit" className="bg-[#1C1C1C] hover:bg-[#2C2C2C] text-white" data-testid="save-discount-btn">
+            <div className="flex gap-3 pt-4 border-t border-stone-200">
+              <Button type="submit" className="bg-primary hover:bg-primary-hover text-white" data-testid="save-discount-btn">
                 {editingCode ? 'Update Code' : 'Create Code'}
               </Button>
               <Button type="button" variant="outline" onClick={resetForm} data-testid="cancel-discount-btn">
@@ -419,7 +419,7 @@ export default function AdminDiscountCodes() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A7A7A]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
         <Input
           placeholder="Search discount codes..."
           value={searchTerm}
@@ -430,45 +430,45 @@ export default function AdminDiscountCodes() {
       </div>
 
       {/* Discount Codes List */}
-      <div className="bg-white border border-[#DED7CE] rounded-lg overflow-hidden">
+      <div className="bg-white border border-stone-300 rounded-lg overflow-hidden">
         <table className="w-full">
-          <thead className="bg-[#FAF7F2] border-b border-[#DED7CE]">
+          <thead className="bg-stone-50 border-b border-stone-300">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7A7A7A] uppercase tracking-wider">Code</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7A7A7A] uppercase tracking-wider">Type</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7A7A7A] uppercase tracking-wider">Value</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7A7A7A] uppercase tracking-wider">Usage</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-[#7A7A7A] uppercase tracking-wider">Status</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-[#7A7A7A] uppercase tracking-wider">Actions</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Code</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Type</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Value</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Usage</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Status</th>
+              <th className="text-right px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E6DFD6]">
+          <tbody className="divide-y divide-stone-200">
             {filteredCodes.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-6 py-12 text-center text-[#7A7A7A]">
+                <td colSpan="6" className="px-6 py-12 text-center text-text-muted">
                   {searchTerm ? 'No discount codes found' : 'No discount codes yet. Create one to get started.'}
                 </td>
               </tr>
             ) : (
               filteredCodes.map((code) => (
-                <tr key={code.code_id} className="hover:bg-[#FAF7F2]" data-testid={`discount-row-${code.code_id}`}>
+                <tr key={code.code_id} className="hover:bg-stone-50" data-testid={`discount-row-${code.code_id}`}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-[#7A7A7A]" />
-                      <span className="font-mono font-medium text-[#1C1C1C]">{code.code}</span>
+                      <Tag className="w-4 h-4 text-text-muted" />
+                      <span className="font-mono font-medium text-primary">{code.code}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-[#4A4A4A]">
+                    <div className="flex items-center gap-2 text-text-secondary">
                       {getTypeIcon(code.type)}
                       <span className="text-sm">{getTypeLabel(code.type)}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-medium text-[#1C1C1C]">{formatValue(code)}</span>
+                    <span className="font-medium text-primary">{formatValue(code)}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm text-[#4A4A4A]">
+                    <div className="flex items-center gap-1 text-sm text-text-secondary">
                       <Users className="w-4 h-4" />
                       <span>
                         {code.usage_count || 0}
@@ -501,14 +501,14 @@ export default function AdminDiscountCodes() {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => startEdit(code)}
-                        className="p-2 text-[#7A7A7A] hover:text-[#1C1C1C] hover:bg-[#FAF7F2] rounded"
+                        className="p-2 text-text-muted hover:text-primary hover:bg-stone-50 rounded"
                         data-testid={`edit-discount-${code.code_id}`}
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(code.code_id)}
-                        className="p-2 text-[#7A7A7A] hover:text-red-500 hover:bg-red-50 rounded"
+                        className="p-2 text-text-muted hover:text-red-500 hover:bg-red-50 rounded"
                         data-testid={`delete-discount-${code.code_id}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -525,40 +525,40 @@ export default function AdminDiscountCodes() {
       {/* Summary Stats */}
       {discountCodes.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white border border-[#DED7CE] rounded-lg p-4">
+          <div className="bg-white border border-stone-300 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-50 rounded-lg">
                 <Check className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="text-xs text-[#7A7A7A] uppercase tracking-wider">Active Codes</p>
-                <p className="font-heading text-xl font-semibold text-[#1C1C1C]">
+                <p className="text-xs text-text-muted uppercase tracking-wider">Active Codes</p>
+                <p className="font-heading text-xl font-semibold text-primary">
                   {discountCodes.filter(c => c.active).length}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-white border border-[#DED7CE] rounded-lg p-4">
+          <div className="bg-white border border-stone-300 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-xs text-[#7A7A7A] uppercase tracking-wider">Total Uses</p>
-                <p className="font-heading text-xl font-semibold text-[#1C1C1C]">
+                <p className="text-xs text-text-muted uppercase tracking-wider">Total Uses</p>
+                <p className="font-heading text-xl font-semibold text-primary">
                   {discountCodes.reduce((sum, c) => sum + (c.usage_count || 0), 0)}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-white border border-[#DED7CE] rounded-lg p-4">
+          <div className="bg-white border border-stone-300 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-50 rounded-lg">
                 <Tag className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-xs text-[#7A7A7A] uppercase tracking-wider">Total Codes</p>
-                <p className="font-heading text-xl font-semibold text-[#1C1C1C]">
+                <p className="text-xs text-text-muted uppercase tracking-wider">Total Codes</p>
+                <p className="font-heading text-xl font-semibold text-primary">
                   {discountCodes.length}
                 </p>
               </div>

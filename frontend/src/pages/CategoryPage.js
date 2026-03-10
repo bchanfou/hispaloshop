@@ -33,12 +33,12 @@ const CategoryPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background-subtle flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error al cargar productos</p>
           <button 
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-[#2D5A3D] text-white rounded-lg"
+            className="px-4 py-2 bg-accent text-white rounded-lg"
           >
             Reintentar
           </button>
@@ -48,7 +48,7 @@ const CategoryPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] pb-24">
+    <div className="min-h-screen bg-background-subtle pb-24">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-white shadow-sm">
         <div className="flex items-center justify-between p-4">
@@ -57,7 +57,7 @@ const CategoryPage = () => {
               onClick={() => navigate(-1)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-[#1A1A1A]" />
+              <ArrowLeft className="w-5 h-5 text-gray-900" />
             </button>
             <div className="flex items-center gap-2">
               <div 
@@ -66,7 +66,7 @@ const CategoryPage = () => {
               >
                 <Icon className="w-4 h-4" style={{ color: category.color }} />
               </div>
-              <h1 className="text-lg font-bold text-[#1A1A1A]">{category.label}</h1>
+              <h1 className="text-lg font-bold text-gray-900">{category.label}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -74,13 +74,13 @@ const CategoryPage = () => {
               onClick={() => navigate('/discover')}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <Search className="w-5 h-5 text-[#1A1A1A]" />
+              <Search className="w-5 h-5 text-gray-900" />
             </button>
             <button 
               onClick={() => setShowFilters(true)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <SlidersHorizontal className="w-5 h-5 text-[#1A1A1A]" />
+              <SlidersHorizontal className="w-5 h-5 text-gray-900" />
             </button>
           </div>
         </div>
@@ -88,7 +88,7 @@ const CategoryPage = () => {
         {/* Results count and controls */}
         <div className="px-4 pb-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-[#6B7280]">
+            <p className="text-sm text-text-muted">
               {isLoading ? 'Cargando...' : `${products.length} productos encontrados`}
             </p>
             <div className="flex items-center gap-2">
@@ -98,13 +98,13 @@ const CategoryPage = () => {
                   onClick={() => setViewMode('grid')}
                   className={`p-1.5 rounded transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm' : ''}`}
                 >
-                  <Grid3X3 className="w-4 h-4 text-[#1A1A1A]" />
+                  <Grid3X3 className="w-4 h-4 text-gray-900" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
                   className={`p-1.5 rounded transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : ''}`}
                 >
-                  <List className="w-4 h-4 text-[#1A1A1A]" />
+                  <List className="w-4 h-4 text-gray-900" />
                 </button>
               </div>
 
@@ -113,7 +113,7 @@ const CategoryPage = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none bg-gray-100 text-sm text-[#1A1A1A] pl-3 pr-8 py-1.5 rounded-lg focus:outline-none"
+                  className="appearance-none bg-gray-100 text-sm text-gray-900 pl-3 pr-8 py-1.5 rounded-lg focus:outline-none"
                 >
                   <option value="relevance">Relevancia</option>
                   <option value="price_asc">Precio: menor a mayor</option>
@@ -121,7 +121,7 @@ const CategoryPage = () => {
                   <option value="bestsellers">Más vendidos</option>
                   <option value="rated">Mejor valorados</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280] pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
               </div>
             </div>
           </div>
@@ -132,7 +132,7 @@ const CategoryPage = () => {
               {activeFilters.map((filter, index) => (
                 <span 
                   key={index}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-[#2D5A3D]/10 text-[#2D5A3D] text-xs rounded-full"
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-accent/10 text-accent text-xs rounded-full"
                 >
                   {filter}
                   <button onClick={() => removeFilter(filter)}>
@@ -142,7 +142,7 @@ const CategoryPage = () => {
               ))}
               <button 
                 onClick={() => setActiveFilters([])}
-                className="text-xs text-[#6B7280] hover:text-[#1A1A1A]"
+                className="text-xs text-text-muted hover:text-gray-900"
               >
                 Limpiar filtros
               </button>
@@ -155,22 +155,22 @@ const CategoryPage = () => {
       <div className="p-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-[#2D5A3D]" />
+            <Loader2 className="w-8 h-8 animate-spin text-accent" />
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 px-4">
             <div className="w-24 h-24 mb-6">
               <Search className="w-full h-full text-gray-300" />
             </div>
-            <h3 className="text-lg font-semibold text-[#1A1A1A] mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
               No encontramos productos
             </h3>
-            <p className="text-[#6B7280] text-center mb-6">
+            <p className="text-text-muted text-center mb-6">
               Prueba con otra categoría o ajusta tus filtros
             </p>
             <button 
               onClick={() => setActiveFilters([])}
-              className="px-6 py-3 bg-[#2D5A3D] text-white rounded-full font-medium"
+              className="px-6 py-3 bg-accent text-white rounded-full font-medium"
             >
               Quitar filtros
             </button>
@@ -198,30 +198,30 @@ const CategoryPage = () => {
                     </span>
                   )}
                   {product.is_new && (
-                    <span className="absolute top-2 right-2 bg-[#2D5A3D] text-white text-xs font-bold px-2 py-1 rounded-full">
+                    <span className="absolute top-2 right-2 bg-accent text-white text-xs font-bold px-2 py-1 rounded-full">
                       Nuevo
                     </span>
                   )}
                   <button className="absolute bottom-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow">
-                    <Heart className="w-4 h-4 text-[#1A1A1A]" />
+                    <Heart className="w-4 h-4 text-gray-900" />
                   </button>
                 </div>
                 <div className="p-3">
-                  <h3 className="text-sm font-medium text-[#1A1A1A] line-clamp-2 mb-1">
+                  <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-[#6B7280] mb-2">{product.producer_name}</p>
+                  <p className="text-xs text-text-muted mb-2">{product.producer_name}</p>
                   <div className="flex items-center gap-1 mb-2">
-                    <Star className="w-3.5 h-3.5 fill-[#E6A532] text-[#E6A532]" />
+                    <Star className="w-3.5 h-3.5 fill-state-amber text-state-amber" />
                     <span className="text-xs font-medium">{product.rating || '4.5'}</span>
-                    <span className="text-xs text-[#6B7280]">({product.reviews_count || 0})</span>
+                    <span className="text-xs text-text-muted">({product.reviews_count || 0})</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-[#2D5A3D]">
+                    <span className="text-lg font-bold text-accent">
                       {convertAndFormatPrice(product.price)}
                     </span>
                     {product.original_price && (
-                      <span className="text-sm text-[#6B7280] line-through">
+                      <span className="text-sm text-text-muted line-through">
                         {convertAndFormatPrice(product.original_price)}
                       </span>
                     )}
@@ -254,20 +254,20 @@ const CategoryPage = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-[#1A1A1A] line-clamp-2 mb-1">
+                  <h3 className="font-medium text-gray-900 line-clamp-2 mb-1">
                     {product.name}
                   </h3>
-                  <p className="text-xs text-[#6B7280] mb-1">{product.producer_name}</p>
+                  <p className="text-xs text-text-muted mb-1">{product.producer_name}</p>
                   <div className="flex items-center gap-1 mb-2">
-                    <Star className="w-3.5 h-3.5 fill-[#E6A532] text-[#E6A532]" />
+                    <Star className="w-3.5 h-3.5 fill-state-amber text-state-amber" />
                     <span className="text-xs font-medium">{product.rating || '4.5'}</span>
-                    <span className="text-xs text-[#6B7280]">({product.reviews_count || 0})</span>
+                    <span className="text-xs text-text-muted">({product.reviews_count || 0})</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-[#2D5A3D]">
+                    <span className="text-lg font-bold text-accent">
                       {convertAndFormatPrice(product.price)}
                     </span>
-                    <button className="p-2 bg-[#2D5A3D] text-white rounded-full">
+                    <button className="p-2 bg-accent text-white rounded-full">
                       <ShoppingBag className="w-4 h-4" />
                     </button>
                   </div>
@@ -287,22 +287,22 @@ const CategoryPage = () => {
             className="w-full bg-white rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-[#1A1A1A]">Filtrar</h3>
+              <h3 className="text-lg font-bold text-gray-900">Filtrar</h3>
               <button onClick={() => setShowFilters(false)}>
-                <X className="w-6 h-6 text-[#1A1A1A]" />
+                <X className="w-6 h-6 text-gray-900" />
               </button>
             </div>
 
             <div className="space-y-6">
               {/* Price Range */}
               <div>
-                <h4 className="font-medium text-[#1A1A1A] mb-3">Rango de precio</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Rango de precio</h4>
                 <div className="flex gap-2">
                   {['€0-10', '€10-25', '€25-50', '€50+'].map(range => (
                     <button
                       key={range}
                       onClick={() => setActiveFilters([...activeFilters, range])}
-                      className="flex-1 py-2 border border-gray-200 rounded-lg text-sm text-[#1A1A1A] hover:border-[#2D5A3D] hover:bg-[#2D5A3D]/5 transition-colors"
+                      className="flex-1 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 hover:border-accent hover:bg-accent/5 transition-colors"
                     >
                       {range}
                     </button>
@@ -312,13 +312,13 @@ const CategoryPage = () => {
 
               {/* Features */}
               <div>
-                <h4 className="font-medium text-[#1A1A1A] mb-3">Características</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Características</h4>
                 <div className="space-y-3">
                   {['Envío gratis', 'Producto BIO', 'De mi zona', 'Con descuento', 'Novedad'].map(feature => (
                     <label key={feature} className="flex items-center gap-3 cursor-pointer">
                       <input 
                         type="checkbox" 
-                        className="w-5 h-5 rounded border-gray-300 text-[#2D5A3D] focus:ring-[#2D5A3D]"
+                        className="w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent"
                         onChange={(e) => {
                           if (e.target.checked) {
                             setActiveFilters([...activeFilters, feature]);
@@ -327,7 +327,7 @@ const CategoryPage = () => {
                           }
                         }}
                       />
-                      <span className="text-[#1A1A1A]">{feature}</span>
+                      <span className="text-gray-900">{feature}</span>
                     </label>
                   ))}
                 </div>
@@ -335,13 +335,13 @@ const CategoryPage = () => {
 
               {/* Producer Location */}
               <div>
-                <h4 className="font-medium text-[#1A1A1A] mb-3">Ubicación del productor</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Ubicación del productor</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Andalucía', 'Cataluña', 'Castilla', 'Madrid', 'Otras'].map(location => (
                     <button
                       key={location}
                       onClick={() => setActiveFilters([...activeFilters, location])}
-                      className="px-3 py-1.5 border border-gray-200 rounded-full text-sm text-[#1A1A1A] hover:border-[#2D5A3D] hover:text-[#2D5A3D] transition-colors"
+                      className="px-3 py-1.5 border border-gray-200 rounded-full text-sm text-gray-900 hover:border-accent hover:text-accent transition-colors"
                     >
                       {location}
                     </button>
@@ -352,7 +352,7 @@ const CategoryPage = () => {
 
             <button 
               onClick={() => setShowFilters(false)}
-              className="w-full mt-6 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
+              className="w-full mt-6 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 transition-colors"
             >
               Aplicar filtros
             </button>

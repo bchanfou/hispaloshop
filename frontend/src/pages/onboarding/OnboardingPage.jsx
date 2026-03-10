@@ -97,7 +97,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] flex flex-col">
+    <div className="min-h-screen bg-background-subtle flex flex-col">
       {/* Header con progreso */}
       <div className="bg-white border-b border-stone-200 px-4 py-4">
         <div className="max-w-lg mx-auto">
@@ -106,7 +106,7 @@ export default function OnboardingPage() {
             {!isLastStep && (
               <button
                 onClick={() => navigate('/')}
-                className="text-sm text-[#6B7280] hover:text-[#1A1A1A]"
+                className="text-sm text-text-muted hover:text-gray-900"
               >
                 Saltar todo
               </button>
@@ -119,7 +119,7 @@ export default function OnboardingPage() {
                 <React.Fragment key={step.id}>
                   <div
                     className={`h-2 flex-1 rounded-full transition-colors ${
-                      index <= currentStep ? 'bg-[#2D5A3D]' : 'bg-stone-200'
+                      index <= currentStep ? 'bg-accent' : 'bg-stone-200'
                     }`}
                   />
                 </React.Fragment>
@@ -159,7 +159,7 @@ export default function OnboardingPage() {
       {saving && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-4 rounded-xl">
-            <div className="w-8 h-8 border-2 border-[#2D5A3D] border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
             <p className="text-sm mt-2">Guardando...</p>
           </div>
         </div>

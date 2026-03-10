@@ -87,7 +87,7 @@ function PostsGrid() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: index * 0.03 }}
-            className="relative aspect-square group cursor-pointer overflow-hidden bg-[#F5F1E8]"
+            className="relative aspect-square group cursor-pointer overflow-hidden bg-background-subtle"
           >
             <img
               src={post.image}

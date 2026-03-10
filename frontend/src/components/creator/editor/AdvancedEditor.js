@@ -124,7 +124,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                   max={max}
                   value={editor.filterSettings[key]}
                   onChange={(e) => editor.updateFilterSetting(key, parseInt(e.target.value))}
-                  className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#2D5A3D]"
+                  className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-accent"
                 />
               </div>
             ))}
@@ -146,7 +146,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               <button
                 onClick={editor.flipImageHorizontal}
                 className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-colors ${
-                  editor.flipHorizontal ? 'bg-[#2D5A3D] text-white' : 'bg-stone-50 hover:bg-stone-100'
+                  editor.flipHorizontal ? 'bg-accent text-white' : 'bg-stone-50 hover:bg-stone-100'
                 }`}
               >
                 <FlipHorizontal className="w-5 h-5" />
@@ -155,7 +155,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               <button
                 onClick={editor.flipImageVertical}
                 className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-colors ${
-                  editor.flipVertical ? 'bg-[#2D5A3D] text-white' : 'bg-stone-50 hover:bg-stone-100'
+                  editor.flipVertical ? 'bg-accent text-white' : 'bg-stone-50 hover:bg-stone-100'
                 }`}
               >
                 <FlipVertical className="w-5 h-5" />
@@ -172,7 +172,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                     onClick={() => setAspectRatio(ratio)}
                     className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors ${
                       aspectRatio === ratio
-                        ? 'bg-[#2D5A3D] text-white'
+                        ? 'bg-accent text-white'
                         : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                     }`}
                   >
@@ -191,7 +191,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                 step="0.1"
                 value={editor.zoom}
                 onChange={(e) => editor.setZoomLevel(parseFloat(e.target.value))}
-                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#2D5A3D]"
+                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-accent"
               />
             </div>
           </div>
@@ -248,7 +248,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
           <button 
             onClick={handlePublish}
             disabled={isPublishing}
-            className="px-4 py-2 bg-[#2D5A3D] text-white rounded-full text-sm font-medium disabled:opacity-50"
+            className="px-4 py-2 bg-accent text-white rounded-full text-sm font-medium disabled:opacity-50"
           >
             {isPublishing ? `${uploadProgress}%` : 'Publicar'}
           </button>
@@ -269,7 +269,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="Escribe una descripción..."
-            className="w-full bg-stone-800 text-white rounded-xl p-3 text-sm resize-none h-20 outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+            className="w-full bg-stone-800 text-white rounded-xl p-3 text-sm resize-none h-20 outline-none focus:ring-2 focus:ring-accent"
             maxLength={contentType === 'story' ? 150 : 2200}
           />
           <div className="flex gap-2">
@@ -278,7 +278,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Añadir ubicación"
-              className="flex-1 bg-stone-800 text-white rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+              className="flex-1 bg-stone-800 text-white rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
           {editor.stickerElements.filter(s => s.type === 'product').length > 0 && (
@@ -338,7 +338,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               <p>No hay imágenes</p>
               <button
                 onClick={handleAddMore}
-                className="mt-2 px-4 py-2 bg-[#2D5A3D] text-white rounded-full text-sm"
+                className="mt-2 px-4 py-2 bg-accent text-white rounded-full text-sm"
               >
                 Añadir imagen
               </button>
@@ -355,7 +355,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                   key={img.id}
                   onClick={() => editor.setCurrentImage(idx)}
                   className={`relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 ${
-                    editor.currentImageIndex === idx ? 'ring-2 ring-[#2D5A3D]' : ''
+                    editor.currentImageIndex === idx ? 'ring-2 ring-accent' : ''
                   }`}
                 >
                   <img src={img.src} alt="" className="w-full h-full object-cover" />
@@ -373,7 +373,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               {contentType === 'post' && editor.images.length < 10 && (
                 <button
                   onClick={handleAddMore}
-                  className="w-16 h-16 rounded-lg border-2 border-dashed border-stone-600 flex items-center justify-center text-stone-500 hover:border-[#2D5A3D] hover:text-[#2D5A3D]"
+                  className="w-16 h-16 rounded-lg border-2 border-dashed border-stone-600 flex items-center justify-center text-stone-500 hover:border-accent hover:text-accent"
                 >
                   <span className="text-2xl">+</span>
                 </button>
@@ -395,7 +395,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                 onClick={() => setActiveTool(tool.id)}
                 className={`flex items-center gap-3 px-4 py-3 md:py-4 whitespace-nowrap transition-colors ${
                   activeTool === tool.id
-                    ? 'text-[#2D5A3D] bg-[#2D5A3D]/10 border-b-2 md:border-b-0 md:border-r-2 border-[#2D5A3D]'
+                    ? 'text-accent bg-accent/10 border-b-2 md:border-b-0 md:border-r-2 border-accent'
                     : 'text-stone-600 hover:bg-stone-50'
                 }`}
               >

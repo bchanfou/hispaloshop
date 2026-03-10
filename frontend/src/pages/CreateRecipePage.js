@@ -20,7 +20,7 @@ function IngredientRow({ ingredient, index, onChange, onRemove, onLinkProduct })
       <div className="flex items-center gap-2">
         <GripVertical className="w-4 h-4 text-stone-300 shrink-0 cursor-grab hidden sm:block" />
         <Input value={ingredient.name} onChange={(e) => onChange(index, 'name', e.target.value)} placeholder={t('recipes.ingredientName')} className="flex-1 h-9 text-sm rounded-lg" />
-        <button onClick={() => onLinkProduct(index)} className={`p-1.5 rounded-lg transition-colors shrink-0 ${ingredient.product_id ? 'bg-[#2D5A27]/10 text-[#2D5A27]' : 'bg-stone-100 text-stone-400 hover:text-[#2D5A27]'}`} title={t('recipes.linkProduct')}>
+        <button onClick={() => onLinkProduct(index)} className={`p-1.5 rounded-lg transition-colors shrink-0 ${ingredient.product_id ? 'bg-accent/10 text-accent' : 'bg-stone-100 text-stone-400 hover:text-accent'}`} title={t('recipes.linkProduct')}>
           <Package className="w-4 h-4" />
         </button>
         <button onClick={() => onRemove(index)} className="p-1.5 text-stone-400 hover:text-red-500 transition-colors shrink-0">
@@ -71,7 +71,7 @@ function ProductSearchModal({ onSelect, onClose }) {
                 {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-stone-300 m-auto mt-2" />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#1C1C1C] truncate">{p.name}</p>
+                <p className="text-sm font-medium text-primary truncate">{p.name}</p>
                 <p className="text-xs text-stone-500">{p.currency || 'EUR'} {p.price}</p>
               </div>
             </button>
@@ -177,15 +177,15 @@ export default function CreateRecipePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <Header />
       <div className="max-w-2xl mx-auto px-4 py-6">
         <BackButton />
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-[#2D5A27]/10 rounded-xl flex items-center justify-center">
-            <ChefHat className="w-5 h-5 text-[#2D5A27]" />
+          <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
+            <ChefHat className="w-5 h-5 text-accent" />
           </div>
-          <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C]">{t('recipes.createRecipe')}</h1>
+          <h1 className="font-heading text-2xl font-semibold text-primary">{t('recipes.createRecipe')}</h1>
         </div>
 
         <div className="space-y-6">
@@ -234,8 +234,8 @@ export default function CreateRecipePage() {
             <div className="space-y-2 mb-3">
               {recipe.steps.map((step, i) => (
                 <div key={i} className="flex items-start gap-2" data-testid={`step-${i}`}>
-                  <span className="w-7 h-7 bg-[#2D5A27]/10 text-[#2D5A27] rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-1">{i + 1}</span>
-                  <textarea value={step} onChange={(e) => updateStep(i, e.target.value)} placeholder={t('recipes.stepPlaceholder')} className="flex-1 text-sm border border-stone-200 rounded-xl p-3 resize-none min-h-[60px] focus:ring-2 focus:ring-[#2D5A27]/20 focus:border-[#2D5A27] outline-none" />
+                  <span className="w-7 h-7 bg-accent/10 text-accent rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-1">{i + 1}</span>
+                  <textarea value={step} onChange={(e) => updateStep(i, e.target.value)} placeholder={t('recipes.stepPlaceholder')} className="flex-1 text-sm border border-stone-200 rounded-xl p-3 resize-none min-h-[60px] focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none" />
                   <button onClick={() => removeStep(i)} className="p-1.5 text-stone-400 hover:text-red-500 mt-1 shrink-0"><X className="w-4 h-4" /></button>
                 </div>
               ))}
@@ -262,7 +262,7 @@ export default function CreateRecipePage() {
           </div>
 
           {/* Submit */}
-          <Button onClick={handleSubmit} disabled={submitting} className="w-full h-12 bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white rounded-xl text-base font-semibold gap-2" data-testid="publish-recipe-btn">
+          <Button onClick={handleSubmit} disabled={submitting} className="w-full h-12 bg-primary hover:bg-primary-hover text-white rounded-xl text-base font-semibold gap-2" data-testid="publish-recipe-btn">
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChefHat className="w-5 h-5" />}
             {t('recipes.publish')}
           </Button>

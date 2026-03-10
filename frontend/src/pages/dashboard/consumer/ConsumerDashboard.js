@@ -151,42 +151,42 @@ function ConsumerDashboard() {
       id: 'reorder', 
       icon: RefreshCw, 
       label: 'Reordenar favorito', 
-      color: '#2D5A3D',
+      color: 'var(--color-accent)',
       onClick: () => navigate('/dashboard/orders')
     },
     { 
       id: 'discover', 
       icon: Gift, 
       label: 'Descubrir novedades', 
-      color: '#E6A532',
+      color: 'var(--color-warning)',
       onClick: () => navigate('/discover')
     },
     { 
       id: 'plan', 
       icon: Calendar, 
       label: 'Planificar semana', 
-      color: '#3B82F6',
+      color: 'var(--color-info)',
       onClick: () => navigate('/recipes')
     },
     { 
       id: 'stores', 
       icon: MapPin, 
       label: 'Tiendas cerca', 
-      color: '#16A34A',
+      color: 'var(--color-success)',
       onClick: () => navigate('/stores')
     }
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#2D5A3D]" />
+      <div className="min-h-screen bg-background-subtle flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] p-4 pb-24">
+    <div className="min-h-screen bg-background-subtle p-4 pb-24">
       <DashboardHeader 
         userName={user?.name?.split(' ')[0] || 'Usuario'}
         subtitle="Aquí está tu resumen de hoy"
@@ -222,8 +222,8 @@ function ConsumerDashboard() {
       {/* Chart */}
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-[#1A1A1A]">Gasto mensual</h3>
-          <span className="text-xs text-[#2D5A3D] font-medium">
+          <h3 className="font-semibold text-gray-900">Gasto mensual</h3>
+          <span className="text-xs text-accent font-medium">
             Total gastado: €{dashboardData.chart.data.reduce((a, b) => a + b, 0).toFixed(0)}
           </span>
         </div>
@@ -235,7 +235,7 @@ function ConsumerDashboard() {
 
       {/* Quick Actions */}
       <div className="mb-6">
-        <h3 className="font-semibold text-[#1A1A1A] mb-3">Acciones rápidas</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Acciones rápidas</h3>
         <QuickActions actions={quickActions} />
       </div>
 
@@ -243,10 +243,10 @@ function ConsumerDashboard() {
       {dashboardData.recentOrders.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-[#1A1A1A]">Pedidos recientes</h3>
+            <h3 className="font-semibold text-gray-900">Pedidos recientes</h3>
             <button 
               onClick={() => navigate('/dashboard/orders')}
-              className="text-sm text-[#2D5A3D] font-medium"
+              className="text-sm text-accent font-medium"
             >
               Ver todos
             </button>
@@ -257,7 +257,7 @@ function ConsumerDashboard() {
 
       {/* HI Suggestions */}
       <div>
-        <h3 className="font-semibold text-[#1A1A1A] mb-3">Sugerencias HI AI</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Sugerencias HI AI</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>

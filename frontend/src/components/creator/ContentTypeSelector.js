@@ -61,7 +61,7 @@ function ContentTypeSelector({ isOpen, onClose, onSelect }) {
           onClick={e => e.stopPropagation()}
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-heading font-semibold text-[#1A1A1A]">
+            <h2 className="text-xl font-heading font-semibold text-gray-900">
               {t('social.createContent', 'Crear contenido')}
             </h2>
             <button
@@ -87,7 +87,7 @@ function ContentTypeSelector({ isOpen, onClose, onSelect }) {
                     <Icon className="w-7 h-7 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-[#1A1A1A] group-hover:text-[#2D5A3D] transition-colors">
+                    <h3 className="font-semibold text-gray-900 group-hover:text-accent transition-colors">
                       {t(type.title, type.defaultTitle)}
                     </h3>
                     <p className="text-sm text-stone-500 mt-0.5">

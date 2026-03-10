@@ -101,11 +101,11 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
           <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-full" data-testid="close-post-panel">
             <X className="w-5 h-5 text-stone-500" />
           </button>
-            <h3 className="font-heading text-sm font-semibold text-[#1C1C1C]">{t('social.newPost', 'Nueva publicación')}</h3>
+            <h3 className="font-heading text-sm font-semibold text-primary">{t('social.newPost', 'Nueva publicación')}</h3>
           <button
             onClick={submit}
             disabled={posting || (!text.trim() && !file)}
-            className="px-4 py-1.5 bg-[#1C1C1C] hover:bg-[#2A2A2A] disabled:bg-stone-300 text-white text-xs font-semibold rounded-full transition-colors"
+            className="px-4 py-1.5 bg-primary hover:bg-primary-hover disabled:bg-stone-300 text-white text-xs font-semibold rounded-full transition-colors"
             data-testid="publish-post-btn"
           >
             {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('social.publish', 'Publicar')}
@@ -126,7 +126,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
               onChange={(e) => setText(e.target.value)}
               placeholder={t('social.whatThinking', '¿Qué estás pensando?')}
               rows={4}
-              className="flex-1 resize-none bg-transparent outline-none text-sm text-[#1C1C1C] placeholder:text-[#999] leading-relaxed"
+              className="flex-1 resize-none bg-transparent outline-none text-sm text-primary placeholder:text-text-muted leading-relaxed"
               autoFocus
               data-testid="post-text-input"
             />
@@ -147,7 +147,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
         </div>
 
         <div className="p-3 border-t border-stone-100 flex gap-2">
-          <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-stone-500 hover:bg-stone-50 hover:text-[#2D5A27] transition-colors" data-testid="post-add-image">
+          <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-stone-500 hover:bg-stone-50 hover:text-accent transition-colors" data-testid="post-add-image">
             <ImageIcon className="w-4 h-4" />
             <span>Foto o video</span>
           </button>
@@ -354,7 +354,7 @@ export default function BottomNavBar() {
                     key={item.id}
                     to={item.link}
                     aria-label={item.label}
-                    className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
+                    className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-accent' : 'text-stone-500'}`}
                     data-testid={`bottom-nav-${item.id}`}
                   >
                     <Icon className="w-5 h-5" strokeWidth={1.8} />
@@ -367,7 +367,7 @@ export default function BottomNavBar() {
                   key={item.id}
                   onClick={item.action}
                   aria-label={item.label}
-                  className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
+                  className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-accent' : 'text-stone-500'}`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
                   <Icon className="w-5 h-5" strokeWidth={1.8} />
@@ -382,7 +382,7 @@ export default function BottomNavBar() {
               className="flex items-center justify-center -mt-2 mx-1.5"
               data-testid="bottom-nav-post"
             >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 ring-1 ring-white ${activePanel === 'post' || showAdvancedEditor ? 'bg-stone-700 shadow-stone-500/20' : 'bg-[#1C1C1C] shadow-stone-900/15 hover:bg-[#2A2A2A]'}`}>
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 ring-1 ring-white ${activePanel === 'post' || showAdvancedEditor ? 'bg-stone-700 shadow-stone-500/20' : 'bg-primary shadow-stone-900/15 hover:bg-primary-hover'}`}>
                 {activePanel === 'post' || showAdvancedEditor ? <X className="w-4.5 h-4.5 text-white" strokeWidth={2.2} /> : <Plus className="w-4.5 h-4.5 text-white" strokeWidth={2.2} />}
               </div>
             </button>
@@ -413,11 +413,11 @@ export default function BottomNavBar() {
                         aria-label={item.label}
                       >
                         {profileImage ? (
-                          <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${showActiveProfile ? 'border-[#2D5A27]' : 'border-stone-200'}`}>
+                          <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${showActiveProfile ? 'border-accent' : 'border-stone-200'}`}>
                             <img src={profileImage} alt="" className="w-full h-full object-cover" />
                           </div>
                         ) : (
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center ${showActiveProfile ? 'bg-[#2D5A27] text-white' : 'bg-stone-100 text-stone-500'}`}>
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center ${showActiveProfile ? 'bg-accent text-white' : 'bg-stone-100 text-stone-500'}`}>
                             <Icon className="w-4 h-4" strokeWidth={1.5} />
                           </div>
                         )}
@@ -425,7 +425,7 @@ export default function BottomNavBar() {
                       {user && (
                         <Link
                           to={item.dashboardLink}
-                          className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${isDashboardRoute ? 'bg-[#2D5A27] text-white' : 'bg-white text-stone-500 border border-stone-200 hover:text-[#2D5A27]'}`}
+                          className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${isDashboardRoute ? 'bg-accent text-white' : 'bg-white text-stone-500 border border-stone-200 hover:text-accent'}`}
                           aria-label={t('bottomNav.dashboard', 'Panel')}
                           data-testid="bottom-nav-dashboard"
                         >
@@ -443,7 +443,7 @@ export default function BottomNavBar() {
                   key={item.id}
                   onClick={item.action}
                   aria-label={item.label}
-                  className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-[#2D5A27]' : 'text-stone-500'}`}
+                  className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-accent' : 'text-stone-500'}`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
                   {isActive ? <X className="w-5 h-5" strokeWidth={1.8} /> : <Icon className="w-5 h-5" strokeWidth={1.8} />}

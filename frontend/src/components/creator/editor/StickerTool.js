@@ -10,7 +10,7 @@ const STICKER_TYPES = [
   { id: 'organic', icon: Leaf, label: 'Orgánico', color: 'bg-emerald-500' },
   { id: 'gluten-free', icon: Wheat, label: 'Sin Gluten', color: 'bg-blue-500' },
   { id: 'local', icon: MapPin, label: 'Local', color: 'bg-orange-500' },
-  { id: 'hashtag', icon: Hash, label: 'Hashtag', color: 'bg-[#2D5A3D]' },
+  { id: 'hashtag', icon: Hash, label: 'Hashtag', color: 'bg-accent' },
   { id: 'mention', icon: AtSign, label: 'Mención', color: 'bg-purple-500' },
 ];
 
@@ -48,7 +48,7 @@ function StickerTool({ stickers, onAdd, onUpdate, onRemove }) {
                 onClick={() => setSelectedType(selectedType === sticker.id ? null : sticker.id)}
                 className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-colors ${
                   selectedType === sticker.id
-                    ? 'bg-[#2D5A3D] text-white'
+                    ? 'bg-accent text-white'
                     : 'bg-stone-50 hover:bg-stone-100 text-stone-600'
                 }`}
               >
@@ -84,12 +84,12 @@ function StickerTool({ stickers, onAdd, onUpdate, onRemove }) {
                 selectedType === 'hashtag' ? 'Hispaloshop' :
                 'usuario'
               }
-              className="flex-1 px-3 py-2 rounded-lg border border-stone-200 text-sm outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+              className="flex-1 px-3 py-2 rounded-lg border border-stone-200 text-sm outline-none focus:ring-2 focus:ring-accent"
               autoFocus
             />
             <button
               onClick={handleAdd}
-              className="px-4 py-2 bg-[#2D5A3D] text-white text-sm rounded-lg"
+              className="px-4 py-2 bg-accent text-white text-sm rounded-lg"
             >
               Añadir
             </button>
@@ -101,7 +101,7 @@ function StickerTool({ stickers, onAdd, onUpdate, onRemove }) {
       {selectedType && !['price', 'hashtag', 'mention'].includes(selectedType) && (
         <button
           onClick={handleAdd}
-          className="w-full py-3 bg-[#2D5A3D] text-white rounded-xl text-sm font-medium"
+          className="w-full py-3 bg-accent text-white rounded-xl text-sm font-medium"
         >
           Añadir {STICKER_TYPES.find(s => s.id === selectedType)?.label}
         </button>

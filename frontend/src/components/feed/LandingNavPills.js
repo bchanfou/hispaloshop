@@ -8,7 +8,7 @@ const LANDING_ITEMS = [
     id: 'que-es', 
     label: '¿Qué es Hispaloshop?', 
     icon: Sparkles, 
-    color: '#E6A532',
+    color: 'var(--color-warning)',
     bgColor: '#FEF3C7',
     path: '/que-es'
   },
@@ -24,7 +24,7 @@ const LANDING_ITEMS = [
     id: 'productor', 
     label: 'Soy Productor', 
     icon: Store, 
-    color: '#2D5A3D',
+    color: 'var(--color-accent)',
     bgColor: '#DCFCE7',
     path: '/productor'
   },
@@ -32,7 +32,7 @@ const LANDING_ITEMS = [
     id: 'importador', 
     label: 'Soy Importador', 
     icon: Building2, 
-    color: '#3B82F6',
+    color: 'var(--color-info)',
     bgColor: '#DBEAFE',
     path: '/importador'
   },

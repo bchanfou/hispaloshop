@@ -19,25 +19,25 @@ const StepProcess = ({ steps, layout = 'horizontal' }) => {
           >
             {/* Connector line */}
             {isHorizontal && index < steps.length - 1 && (
-              <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-[#2D5A3D]/20" />
+              <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-accent/20" />
             )}
 
             {/* Icon */}
             <div className={`${isHorizontal ? 'mx-auto mb-4' : 'flex-shrink-0'}`}>
-              <div className="w-16 h-16 rounded-full bg-[#2D5A3D] flex items-center justify-center relative z-10">
+              <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center relative z-10">
                 <Icon className="w-7 h-7 text-white" />
               </div>
             </div>
 
             {/* Content */}
             <div className={isHorizontal ? '' : 'flex-1'}>
-              <div className="text-sm font-semibold text-[#2D5A3D] mb-1">
+              <div className="text-sm font-semibold text-accent mb-1">
                 Paso {index + 1}
               </div>
-              <h3 className="text-lg font-semibold text-[#1A1A1A] mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 {step.title}
               </h3>
-              <p className="text-[#6B7280] text-sm leading-relaxed">
+              <p className="text-text-muted text-sm leading-relaxed">
                 {step.description}
               </p>
             </div>

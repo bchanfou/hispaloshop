@@ -36,15 +36,15 @@ const InputField = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-[#1A1A1A] mb-1.5">
+        <label className="block text-sm font-medium text-gray-900 mb-1.5">
           {label}
-          {required && <span className="text-[#DC2626] ml-1">*</span>}
+          {required && <span className="text-state-error ml-1">*</span>}
         </label>
       )}
       
       <div className="relative">
         {Icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
             <Icon className="w-5 h-5" />
           </div>
         )}
@@ -74,7 +74,7 @@ const InputField = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#1A1A1A] transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-gray-900 transition-colors"
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
@@ -82,14 +82,14 @@ const InputField = ({
 
         {/* Validation Icon */}
         {!error && valid && touched && type !== 'password' && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#16A34A]">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-state-success">
             <Check className="w-5 h-5" />
           </div>
         )}
 
         {/* Error Icon */}
         {error && touched && type !== 'password' && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#DC2626]">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-state-error">
             <X className="w-5 h-5" />
           </div>
         )}
@@ -97,7 +97,7 @@ const InputField = ({
         {/* Loading Spinner */}
         {loading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="w-5 h-5 border-2 border-[#2D5A3D] border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -111,7 +111,7 @@ const InputField = ({
 
       {/* Hint or Error Message */}
       {(hint || (error && touched)) && (
-        <div className={`flex items-center gap-1 mt-1.5 text-xs ${error && touched ? 'text-[#DC2626]' : 'text-[#6B7280]'}`}>
+        <div className={`flex items-center gap-1 mt-1.5 text-xs ${error && touched ? 'text-state-error' : 'text-text-muted'}`}>
           {error && touched && <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />}
           <span>{error && touched ? error : hint}</span>
         </div>

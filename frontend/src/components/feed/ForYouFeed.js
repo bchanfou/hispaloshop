@@ -23,8 +23,8 @@ function SuggestedProfiles() {
   return (
     <div className="bg-white p-4 mb-2">
       <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-4 h-4 text-[#E6A532]" />
-        <h3 className="text-sm font-semibold text-[#1A1A1A]">
+        <Sparkles className="w-4 h-4 text-state-amber" />
+        <h3 className="text-sm font-semibold text-gray-900">
           {t('feed.suggestedForYou', 'Sugerencias para ti')}
         </h3>
       </div>
@@ -39,11 +39,11 @@ function SuggestedProfiles() {
               alt={profile.name}
               className="w-16 h-16 rounded-full mx-auto mb-2 object-cover border border-stone-200"
             />
-            <p className="text-xs font-medium text-[#1A1A1A] truncate">{profile.name}</p>
-            <p className="text-xs text-[#6B7280]">{profile.followers}</p>
+            <p className="text-xs font-medium text-gray-900 truncate">{profile.name}</p>
+            <p className="text-xs text-text-muted">{profile.followers}</p>
             <button
               onClick={() => navigate('/discover?scope=profiles')}
-              className="mt-2 px-3 py-1 bg-[#2D5A3D] text-white text-xs rounded-full flex items-center gap-1 mx-auto hover:bg-[#234a30] transition-colors"
+              className="mt-2 px-3 py-1 bg-accent text-white text-xs rounded-full flex items-center gap-1 mx-auto hover:bg-[#234a30] transition-colors"
             >
               <UserPlus className="w-3 h-3" />
               {t('feed.follow', 'Seguir')}

@@ -83,7 +83,7 @@ const planCards = [
     price: '79€ + IVA/mes',
     audience: 'Importadores serios que quieren escalar.',
     cta: 'Elegir PRO',
-    accent: 'border-[#3b82f6] shadow-[0_18px_45px_-18px_rgba(59,130,246,0.4)]',
+    accent: 'border-blue-500 shadow-[0_18px_45px_-18px_rgba(59,130,246,0.4)]',
     features: [
       'IA para marketing: copy e imagenes',
       'Recomendaciones dinamicas de precio por mercado',
@@ -166,7 +166,7 @@ export default function ImporterLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#0f172a]">
+    <div className="min-h-screen bg-white text-slate-900">
       <SEOHead
         title="Importa y vende sin intermediarios | Hispaloshop"
         description="Como importar alimentos a Europa, vender productos importados online e importar sin distribuidor intermediario desde una sola infraestructura comercial."
@@ -181,7 +181,7 @@ export default function ImporterLanding() {
           <div className="absolute inset-0 opacity-20" aria-hidden="true">
             <div className="absolute left-[10%] top-[14%] h-48 w-48 rounded-full border border-white/10" />
             <div className="absolute right-[14%] top-[24%] h-32 w-32 rounded-full border border-white/10" />
-            <div className="absolute bottom-[16%] left-[28%] h-24 w-24 rounded-full bg-[#f59e0b]/15 blur-3xl" />
+            <div className="absolute bottom-[16%] left-[28%] h-24 w-24 rounded-full bg-amber-500/15 blur-3xl" />
           </div>
 
           <div className="relative mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
@@ -189,7 +189,7 @@ export default function ImporterLanding() {
               <div className="max-w-3xl">
                 <motion.span
                   {...fadeUp}
-                  className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-[#f59e0b]"
+                  className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-amber-500"
                 >
                   Lo he sufrido yo
                 </motion.span>
@@ -217,7 +217,7 @@ export default function ImporterLanding() {
                   <button
                     type="button"
                     onClick={() => openOnboarding('free')}
-                    className="inline-flex items-center justify-center rounded-full bg-[#f59e0b] px-7 py-4 text-base font-semibold text-[#1a1a1a] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_-16px_rgba(245,158,11,0.65)]"
+                    className="inline-flex items-center justify-center rounded-full bg-amber-500 px-7 py-4 text-base font-semibold text-[#1a1a1a] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_-16px_rgba(245,158,11,0.65)]"
                   >
                     Comenzar Gratis
                   </button>
@@ -234,9 +234,9 @@ export default function ImporterLanding() {
               <motion.aside
                 {...fadeUp}
                 transition={{ duration: 0.55, delay: 0.12 }}
-                className="rounded-[28px] border border-[#f59e0b]/40 bg-white/[0.04] p-6 shadow-[0_22px_65px_-38px_rgba(245,158,11,0.6)] backdrop-blur-sm lg:p-8"
+                className="rounded-[28px] border border-amber-500/40 bg-white/[0.04] p-6 shadow-[0_22px_65px_-38px_rgba(245,158,11,0.6)] backdrop-blur-sm lg:p-8"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#f59e0b]">Mi historia</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-500">Mi historia</p>
                 <p className="mt-4 text-[17px] leading-8 text-white/88">
                   A los 25 anos embarque un container de palomitas organicas espanolas rumbo a Corea del Sur. Inverti
                   todos mis ahorros. Al llegar, la pesadilla: ferias comerciales sin hablar coreano, distribuidores que
@@ -249,7 +249,7 @@ export default function ImporterLanding() {
                 </p>
                 <div className="mt-6 grid gap-4 sm:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <p className="text-2xl font-bold text-[#f59e0b]">15.000€</p>
+                    <p className="text-2xl font-bold text-amber-500">15.000€</p>
                     <p className="mt-1 text-sm text-white/70">Perdidos antes de encontrar una salida real</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -276,7 +276,7 @@ export default function ImporterLanding() {
                     key={item.text}
                     className="flex min-h-[108px] items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-4"
                   >
-                    <div className="mt-1 rounded-full bg-[#ef4444]/15 p-2 text-[#ef4444]">
+                    <div className="mt-1 rounded-full bg-[#ef4444]/15 p-2 text-red-500">
                       <Icon className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <p className="text-sm font-medium leading-6 text-white/88">{item.text}</p>
@@ -290,8 +290,8 @@ export default function ImporterLanding() {
         <section id="solucion" className="bg-white py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-4xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#f59e0b]">La revelacion</p>
-              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.03em] text-[#0f172a] sm:text-4xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-500">La revelacion</p>
+              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.03em] text-slate-900 sm:text-4xl">
                 Hispaloshop no es un marketplace. Es tu infraestructura comercial global lista para usar.
               </h2>
               <p className="mt-6 text-lg leading-8 text-slate-600">
@@ -320,10 +320,10 @@ export default function ImporterLanding() {
                     transition={{ duration: 0.5, delay: index * 0.08 }}
                     className="group rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_14px_34px_-26px_rgba(15,23,42,0.35)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(15,23,42,0.28)]"
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0f172a] text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white">
                       <Icon className="h-6 w-6" aria-hidden="true" />
                     </div>
-                    <h3 className="mt-5 text-xl font-bold text-[#0f172a]">{card.title}</h3>
+                    <h3 className="mt-5 text-xl font-bold text-slate-900">{card.title}</h3>
                     <p className="mt-3 text-sm leading-7 text-slate-600">{card.body}</p>
                   </motion.article>
                 );
@@ -332,11 +332,11 @@ export default function ImporterLanding() {
           </div>
         </section>
 
-        <section id="importer-plans" className="bg-[#f8fafc] py-20 sm:py-24">
+        <section id="importer-plans" className="bg-slate-50 py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-3xl text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#3b82f6]">Planes y accion</p>
-              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.03em] text-[#0f172a] sm:text-4xl">
+              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.03em] text-slate-900 sm:text-4xl">
                 Empieza con stock pequeño. Escala cuando el mercado te responda.
               </h2>
               <p className="mt-5 text-lg leading-8 text-slate-600">
@@ -355,17 +355,17 @@ export default function ImporterLanding() {
                   className={`flex h-full flex-col rounded-[30px] border bg-white p-7 shadow-[0_18px_45px_-30px_rgba(15,23,42,0.25)] transition duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_28px_60px_-32px_rgba(15,23,42,0.3)] ${plan.accent}`}
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${plan.id === 'pro' ? 'bg-[#dbeafe] text-[#2563eb]' : plan.id === 'elite' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${plan.id === 'pro' ? 'bg-blue-100 text-blue-600' : plan.id === 'elite' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'}`}>
                       {plan.badge}
                     </span>
                     <span className="text-sm font-semibold text-slate-400">{plan.name}</span>
                   </div>
-                  <p className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-[#0f172a]">{plan.price}</p>
+                  <p className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-slate-900">{plan.price}</p>
                   <p className="mt-3 text-sm leading-7 text-slate-600">{plan.audience}</p>
                   <ul className="mt-8 space-y-3 text-sm text-slate-600">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
-                        <Handshake className="mt-0.5 h-4 w-4 shrink-0 text-[#10b981]" aria-hidden="true" />
+                        <Handshake className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" aria-hidden="true" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -373,7 +373,7 @@ export default function ImporterLanding() {
                   <button
                     type="button"
                     onClick={() => openOnboarding(plan.id)}
-                    className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-semibold transition ${plan.id === 'pro' ? 'bg-[#3b82f6] text-white hover:bg-[#2563eb]' : plan.id === 'elite' ? 'bg-[#0f172a] text-white hover:bg-black' : 'bg-[#f59e0b] text-[#1a1a1a] hover:bg-[#fbbf24]'}`}
+                    className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-semibold transition ${plan.id === 'pro' ? 'bg-[#3b82f6] text-white hover:bg-[#2563eb]' : plan.id === 'elite' ? 'bg-slate-900 text-white hover:bg-slate-950' : 'bg-amber-500 text-[#1a1a1a] hover:bg-amber-400'}`}
                   >
                     {plan.cta}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />

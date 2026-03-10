@@ -38,18 +38,18 @@ const MAIN_SECTIONS = [
 ];
 
 const CATEGORIES_MINI = [
-  { id: 'aceites', label: 'Aceites', icon: Droplets, color: '#2D5A3D' },
-  { id: 'quesos', label: 'Quesos', icon: Cookie, color: '#E6A532' },
-  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: '#DC2626' },
+  { id: 'aceites', label: 'Aceites', icon: Droplets, color: 'var(--color-accent)' },
+  { id: 'quesos', label: 'Quesos', icon: Cookie, color: 'var(--color-warning)' },
+  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: 'var(--color-error)' },
   { id: 'panaderia', label: 'Panaderia', icon: Croissant, color: '#D97706' },
   { id: 'bebidas', label: 'Bebidas', icon: CupSoda, color: '#0891B2' },
   { id: 'bebes', label: 'Bebes', icon: Baby, color: '#EC4899' },
   { id: 'mascotas', label: 'Mascotas', icon: Dog, color: '#7C3AED' },
   { id: 'snacks', label: 'Snacks', icon: Cherry, color: '#EA580C' },
-  { id: 'organico', label: 'Organico', icon: Leaf, color: '#16A34A' },
+  { id: 'organico', label: 'Organico', icon: Leaf, color: 'var(--color-success)' },
   { id: 'singluten', label: 'Sin gluten', icon: WheatOff, color: '#65A30D' },
   { id: 'packs', label: 'Packs', icon: Gift, color: '#0891B2' },
-  { id: 'trending', label: 'Trending', icon: Flame, color: '#DC2626' },
+  { id: 'trending', label: 'Trending', icon: Flame, color: 'var(--color-error)' },
 ];
 
 const fallbackTrending = [
@@ -151,25 +151,25 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] pb-28 md:pb-32">
+    <div className="min-h-screen bg-background-subtle pb-28 md:pb-32">
       <div className="sticky top-0 z-50 bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-3">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280]" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
             <input
               type="text"
               placeholder="Que buscas?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-              className="w-full pl-12 pr-12 py-3 text-base bg-gray-100 rounded-full text-[#1A1A1A] placeholder:text-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+              className="w-full pl-12 pr-12 py-3 text-base bg-gray-100 rounded-full text-gray-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent"
             />
             <button
               onClick={() => setShowFilters(true)}
               className="absolute right-4 top-1/2 -translate-y-1/2"
               aria-label="Abrir filtros"
             >
-              <SlidersHorizontal className="w-5 h-5 text-[#6B7280]" />
+              <SlidersHorizontal className="w-5 h-5 text-text-muted" />
             </button>
           </div>
         </div>
@@ -186,8 +186,8 @@ export default function DiscoverPage() {
                   onClick={() => handleSectionClick(section.id)}
                   className={`shrink-0 snap-start flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#2D5A3D] text-white'
-                      : 'bg-stone-100 text-[#1A1A1A] hover:bg-stone-200'
+                      ? 'bg-accent text-white'
+                      : 'bg-stone-100 text-gray-900 hover:bg-stone-200'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -210,8 +210,8 @@ export default function DiscoverPage() {
                   onClick={() => handleCategoryClick(cat.id)}
                   className={`shrink-0 snap-start flex items-center gap-1.5 px-3 py-2 rounded-full border whitespace-nowrap transition-all ${
                     isSelected
-                      ? 'border-[#2D5A3D] bg-[#2D5A3D] text-white'
-                      : 'border-stone-200 bg-white text-[#1A1A1A] hover:border-[#2D5A3D]'
+                      ? 'border-accent bg-accent text-white'
+                      : 'border-stone-200 bg-white text-gray-900 hover:border-accent'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" style={{ color: isSelected ? 'white' : cat.color }} />
@@ -226,18 +226,18 @@ export default function DiscoverPage() {
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-8">
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-[#2D5A3D]" />
-            <h2 className="text-lg font-bold text-[#1A1A1A]">Tendencias</h2>
+            <TrendingUp className="w-5 h-5 text-accent" />
+            <h2 className="text-lg font-bold text-gray-900">Tendencias</h2>
           </div>
           <div className="flex flex-wrap gap-2 md:gap-3">
             {trendingHashtags.map((item, index) => (
               <button
                 key={index}
                 onClick={() => navigate(`/products?hashtag=${item.tag}`)}
-                className="shrink-0 px-4 py-2 bg-white rounded-full border border-stone-200 hover:border-[#2D5A3D] transition-colors"
+                className="shrink-0 px-4 py-2 bg-white rounded-full border border-stone-200 hover:border-accent transition-colors"
               >
-                <span className="text-sm font-medium text-[#1A1A1A]">#{item.tag}</span>
-                <span className="text-xs text-[#6B7280] ml-2">{item.count.toLocaleString()}</span>
+                <span className="text-sm font-medium text-gray-900">#{item.tag}</span>
+                <span className="text-xs text-text-muted ml-2">{item.count.toLocaleString()}</span>
                 {item.growth > 0 && (
                   <span className="text-xs text-green-600 ml-1">+{item.growth}%</span>
                 )}
@@ -249,10 +249,10 @@ export default function DiscoverPage() {
         {(activeTab === 'todo' || activeTab === 'productos') && (
           <section>
             <div className="flex items-center justify-between gap-4 mb-4">
-              <h2 className="text-lg font-bold text-[#1A1A1A]">Productos destacados</h2>
+              <h2 className="text-lg font-bold text-gray-900">Productos destacados</h2>
               <button
                 onClick={() => navigate('/products')}
-                className="shrink-0 text-sm text-[#2D5A3D] font-medium flex items-center gap-1"
+                className="shrink-0 text-sm text-accent font-medium flex items-center gap-1"
               >
                 Ver todo <ArrowRight className="w-4 h-4" />
               </button>
@@ -291,9 +291,9 @@ export default function DiscoverPage() {
                       className="w-full h-32 sm:h-40 object-cover"
                     />
                     <div className="p-3">
-                      <p className="text-sm font-medium text-[#1A1A1A] truncate">{product.name}</p>
-                      <p className="text-xs text-[#6B7280] truncate">{product.producer_name || product.producer_id}</p>
-                      <p className="text-sm font-bold text-[#2D5A3D] mt-1">EUR {product.price?.toFixed(2)}</p>
+                      <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                      <p className="text-xs text-text-muted truncate">{product.producer_name || product.producer_id}</p>
+                      <p className="text-sm font-bold text-accent mt-1">EUR {product.price?.toFixed(2)}</p>
                     </div>
                   </motion.button>
                 ))}
@@ -305,10 +305,10 @@ export default function DiscoverPage() {
         {(activeTab === 'todo' || activeTab === 'tiendas') && (
           <section>
             <div className="flex items-center justify-between gap-4 mb-4">
-              <h2 className="text-lg font-bold text-[#1A1A1A]">Tiendas destacadas</h2>
+              <h2 className="text-lg font-bold text-gray-900">Tiendas destacadas</h2>
               <button
                 onClick={() => navigate('/stores')}
-                className="shrink-0 text-sm text-[#2D5A3D] font-medium flex items-center gap-1"
+                className="shrink-0 text-sm text-accent font-medium flex items-center gap-1"
               >
                 Ver todo <ArrowRight className="w-4 h-4" />
               </button>
@@ -347,17 +347,17 @@ export default function DiscoverPage() {
                       className="w-16 h-16 rounded-xl object-cover flex-shrink-0"
                     />
                     <div className="flex-1 text-left min-w-0">
-                      <h3 className="font-medium text-[#1A1A1A] truncate">{store.name}</h3>
-                      <p className="text-xs text-[#6B7280] flex items-center gap-1 truncate">
+                      <h3 className="font-medium text-gray-900 truncate">{store.name}</h3>
+                      <p className="text-xs text-text-muted flex items-center gap-1 truncate">
                         <MapPin className="w-3 h-3 shrink-0" />
                         {store.location || 'Espana'}
                       </p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <span className="flex items-center gap-0.5 text-xs text-[#6B7280]">
-                          <Star className="w-3 h-3 fill-[#E6A532] text-[#E6A532]" />
+                        <span className="flex items-center gap-0.5 text-xs text-text-muted">
+                          <Star className="w-3 h-3 fill-state-amber text-state-amber" />
                           {store.rating || '4.5'}
                         </span>
-                        <span className="text-xs text-[#6B7280]">
+                        <span className="text-xs text-text-muted">
                           {store.product_count || 0} productos
                         </span>
                       </div>
@@ -372,10 +372,10 @@ export default function DiscoverPage() {
         {(activeTab === 'todo' || activeTab === 'recetas') && (
           <section>
             <div className="flex items-center justify-between gap-4 mb-4">
-              <h2 className="text-lg font-bold text-[#1A1A1A]">Recetas populares</h2>
+              <h2 className="text-lg font-bold text-gray-900">Recetas populares</h2>
               <button
                 onClick={() => navigate('/recipes')}
-                className="shrink-0 text-sm text-[#2D5A3D] font-medium flex items-center gap-1"
+                className="shrink-0 text-sm text-accent font-medium flex items-center gap-1"
               >
                 Ver todo <ArrowRight className="w-4 h-4" />
               </button>
@@ -408,9 +408,9 @@ export default function DiscoverPage() {
                       className="w-full h-24 sm:h-28 object-cover"
                     />
                     <div className="p-2">
-                      <p className="text-sm font-medium text-[#1A1A1A] truncate">{recipe.name}</p>
-                      <p className="text-xs text-[#6B7280] truncate">Por {recipe.author}</p>
-                      <p className="text-xs text-[#2D5A3D]">{recipe.time}</p>
+                      <p className="text-sm font-medium text-gray-900 truncate">{recipe.name}</p>
+                      <p className="text-xs text-text-muted truncate">Por {recipe.author}</p>
+                      <p className="text-xs text-accent">{recipe.time}</p>
                     </div>
                   </motion.button>
                 ))}
@@ -428,20 +428,20 @@ export default function DiscoverPage() {
             className="w-full bg-white rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-[#1A1A1A]">Filtrar</h3>
+              <h3 className="text-lg font-bold text-gray-900">Filtrar</h3>
               <button onClick={() => setShowFilters(false)} aria-label="Cerrar filtros">
-                <X className="w-6 h-6 text-[#1A1A1A]" />
+                <X className="w-6 h-6 text-gray-900" />
               </button>
             </div>
 
             <div className="space-y-6">
               <div>
-                <h4 className="font-medium text-[#1A1A1A] mb-3">Rango de precio</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Rango de precio</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {['EUR 0-10', 'EUR 10-25', 'EUR 25-50', 'EUR 50+'].map((range) => (
                     <button
                       key={range}
-                      className="py-2 border border-gray-200 rounded-lg text-sm text-[#1A1A1A] hover:border-[#2D5A3D] hover:bg-[#2D5A3D]/5 transition-colors"
+                      className="py-2 border border-gray-200 rounded-lg text-sm text-gray-900 hover:border-accent hover:bg-accent/5 transition-colors"
                     >
                       {range}
                     </button>
@@ -450,15 +450,15 @@ export default function DiscoverPage() {
               </div>
 
               <div>
-                <h4 className="font-medium text-[#1A1A1A] mb-3">Caracteristicas</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Caracteristicas</h4>
                 <div className="space-y-3">
                   {['Envio gratis', 'Producto BIO', 'De mi zona', 'Con descuento', 'Novedad'].map((feature) => (
                     <label key={feature} className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        className="w-5 h-5 rounded border-gray-300 text-[#2D5A3D] focus:ring-[#2D5A3D]"
+                        className="w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent"
                       />
-                      <span className="text-[#1A1A1A]">{feature}</span>
+                      <span className="text-gray-900">{feature}</span>
                     </label>
                   ))}
                 </div>
@@ -467,7 +467,7 @@ export default function DiscoverPage() {
 
             <button
               onClick={() => setShowFilters(false)}
-              className="w-full mt-6 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] transition-colors"
+              className="w-full mt-6 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 transition-colors"
             >
               Aplicar filtros
             </button>

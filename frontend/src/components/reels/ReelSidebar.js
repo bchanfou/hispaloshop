@@ -138,7 +138,7 @@ function ReelSidebar({
           onClick={onOpenProduct}
           className="flex flex-col items-center gap-0.5"
         >
-          <div className="w-12 h-12 rounded-full bg-[#E6A532] flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 rounded-full bg-state-amber flex items-center justify-center shadow-lg">
             <ShoppingBag className="w-6 h-6 text-white" />
           </div>
           <span className="text-white text-[10px] font-medium drop-shadow-lg">Producto</span>

@@ -45,7 +45,7 @@ export default function PlanManager() {
   if (!plan) return null;
 
   const icons = { FREE: Star, PRO: Zap, ELITE: Crown };
-  const colors = { FREE: 'text-stone-500', PRO: 'text-[#2D5A27]', ELITE: 'text-amber-600' };
+  const colors = { FREE: 'text-stone-500', PRO: 'text-accent', ELITE: 'text-amber-600' };
   const Icon = icons[plan.plan] || Star;
   const isTrialing = plan.plan_status === 'trialing';
   const isPastDue = plan.plan_status === 'past_due';
@@ -54,7 +54,7 @@ export default function PlanManager() {
     <div className="space-y-4" data-testid="plan-manager">
       <div className="flex items-center justify-between">
         <h2 className="font-heading text-lg font-bold text-text-primary">Mi Plan</h2>
-        <a href="/pricing" className="text-xs text-[#2D5A27] hover:underline flex items-center gap-1">
+        <a href="/pricing" className="text-xs text-accent hover:underline flex items-center gap-1">
           Ver detalle de comisiones <ArrowRight className="w-3 h-3" />
         </a>
       </div>
@@ -102,7 +102,7 @@ export default function PlanManager() {
       {plan.plan !== 'ELITE' && (
         <div className="flex gap-2">
           {plan.plan === 'FREE' && (
-            <Button onClick={() => handleUpgrade('PRO')} disabled={changing} className="flex-1 bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white rounded-xl h-10 text-sm" data-testid="upgrade-pro">
+            <Button onClick={() => handleUpgrade('PRO')} disabled={changing} className="flex-1 bg-primary hover:bg-primary-hover text-white rounded-xl h-10 text-sm" data-testid="upgrade-pro">
               {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Zap className="w-4 h-4 mr-1" /> Upgrade a PRO (18%)</>}
             </Button>
           )}

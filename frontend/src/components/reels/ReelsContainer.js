@@ -211,7 +211,7 @@ function ReelsContainer() {
           <p className="text-sm text-white/70 mb-4">Vuelve más tarde para ver más contenido</p>
           <button
             onClick={() => { setCurrentIndex(0); scrollToReel(0); }}
-            className="px-6 py-2 bg-[#2D5A3D] rounded-full text-sm font-medium"
+            className="px-6 py-2 bg-accent rounded-full text-sm font-medium"
           >
             Volver al inicio
           </button>

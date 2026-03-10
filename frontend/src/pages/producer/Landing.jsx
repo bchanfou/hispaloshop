@@ -300,7 +300,7 @@ export default function ProducerLanding() {
                   className={`flex h-full flex-col rounded-[30px] border-t-4 p-7 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_70px_-36px_rgba(0,0,0,0.24)] ${plan.accentClass}`}
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${plan.key === 'pro' ? 'bg-[#fffbeb] text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${plan.key === 'pro' ? 'bg-amber-50 text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}`}>
                       {plan.badge}
                     </span>
                     <span className="text-sm font-semibold text-stone-400">{plan.name}</span>

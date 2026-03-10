@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 const PLAN_ICONS = { PRO: Zap, ELITE: Crown };
 const PLAN_COLORS = {
-  PRO: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', btn: 'bg-[#2D5A27] hover:bg-[#1F4A1A]' },
+  PRO: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', btn: 'bg-accent hover:bg-accent/90' },
   ELITE: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', btn: 'bg-amber-600 hover:bg-amber-700' },
 };
 

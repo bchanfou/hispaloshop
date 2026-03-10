@@ -14,7 +14,7 @@ const CartButton = ({ className = '', onClick }) => {
       className={`relative p-2 rounded-full hover:bg-stone-100 transition-colors ${className}`}
       aria-label="Abrir carrito"
     >
-      <ShoppingBag className="w-6 h-6 text-[#1A1A1A]" />
+      <ShoppingBag className="w-6 h-6 text-gray-900" />
       
       <AnimatePresence>
         {totalItems > 0 && !loading && (
@@ -24,7 +24,7 @@ const CartButton = ({ className = '', onClick }) => {
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
             transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-            className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 bg-[#DC2626] text-white text-xs font-bold rounded-full flex items-center justify-center"
+            className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 bg-state-error text-white text-xs font-bold rounded-full flex items-center justify-center"
           >
             {totalItems > 9 ? '9+' : totalItems}
           </motion.span>

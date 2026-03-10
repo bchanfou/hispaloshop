@@ -195,14 +195,14 @@ export default function FinancialDashboard() {
             type="date"
             value={dateFrom}
             onChange={e => setDateFrom(e.target.value)}
-            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-[#444] focus:outline-none focus:ring-1 focus:ring-stone-400"
+            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-stone-400"
             title="Desde"
           />
           <input
             type="date"
             value={dateTo}
             onChange={e => setDateTo(e.target.value)}
-            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-[#444] focus:outline-none focus:ring-1 focus:ring-stone-400"
+            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-stone-400"
             title="Hasta"
           />
           <Button

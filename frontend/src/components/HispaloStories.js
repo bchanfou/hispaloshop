@@ -49,7 +49,7 @@ export function StoriesRow() {
             data-testid={`story-circle-${group.user_id}`}
           >
             <div className={`w-16 h-16 rounded-full p-[2px] ${
-              group.is_own ? 'bg-gradient-to-br from-[#2D5A27] to-emerald-400' : 'bg-gradient-to-br from-orange-400 to-pink-500'
+              group.is_own ? 'bg-gradient-to-br from-accent to-emerald-400' : 'bg-gradient-to-br from-orange-400 to-pink-500'
             }`}>
               <div className="w-full h-full rounded-full overflow-hidden bg-white p-[2px]">
                 {group.profile_image ? (
@@ -226,10 +226,10 @@ function StoryViewer({ group, onClose }) {
             {productMatch && (
               <Link to={`/products/${productMatch[1]}`} onClick={onClose} className="absolute bottom-20 left-4 right-4 z-[6]">
                 <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 flex items-center gap-2 shadow-lg">
-                  <ShoppingBag className="w-4 h-4 text-[#2D5A27] shrink-0" />
+                  <ShoppingBag className="w-4 h-4 text-accent shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-stone-900 truncate">{productMatch[2]}</p>
-                    <p className="text-xs text-[#2D5A27] font-bold">{productMatch[3]}€</p>
+                    <p className="text-xs text-accent font-bold">{productMatch[3]}€</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-stone-400" />
                 </div>
@@ -409,10 +409,10 @@ function StoryUploadModal({ onClose, onPublished }) {
               {taggedProduct && (
                 <div className="absolute bottom-3 left-3 right-3 pointer-events-none">
                   <div className="bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 flex items-center gap-2 shadow-lg">
-                    <ShoppingBag className="w-4 h-4 text-[#1C1C1C] shrink-0" />
+                    <ShoppingBag className="w-4 h-4 text-primary shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-stone-900 truncate">{taggedProduct.name}</p>
-                      <p className="text-xs text-[#1C1C1C] font-bold">{taggedProduct.price?.toFixed(2)}€</p>
+                      <p className="text-xs text-primary font-bold">{taggedProduct.price?.toFixed(2)}€</p>
                     </div>
                   </div>
                 </div>
@@ -437,12 +437,12 @@ function StoryUploadModal({ onClose, onPublished }) {
           {preview && (
             <div className="flex gap-2 mb-3">
               <button onClick={() => setShowTextInput(!showTextInput)}
-                className={`flex-1 py-2 text-xs font-medium rounded-lg border transition-colors ${showTextInput ? 'bg-[#1C1C1C] text-white border-[#1C1C1C]' : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'}`}
+                className={`flex-1 py-2 text-xs font-medium rounded-lg border transition-colors ${showTextInput ? 'bg-primary text-white border-primary' : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'}`}
                 data-testid="story-text-btn">
                 Aa {t('stories.addText', 'Texto')}
               </button>
               <button onClick={() => setShowProductSearch(!showProductSearch)}
-                className={`flex-1 py-2 text-xs font-medium rounded-lg border transition-colors ${showProductSearch ? 'bg-[#1C1C1C] text-white border-[#1C1C1C]' : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'}`}
+                className={`flex-1 py-2 text-xs font-medium rounded-lg border transition-colors ${showProductSearch ? 'bg-primary text-white border-primary' : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'}`}
                 data-testid="story-product-btn">
                 <span className="inline-flex items-center gap-1"><ShoppingBag className="w-3 h-3" /> {t('stories.tagProduct', 'Producto')}</span>
               </button>
@@ -454,7 +454,7 @@ function StoryUploadModal({ onClose, onPublished }) {
             <div className="flex gap-2 mb-3">
               <input type="text" value={newText} onChange={(e) => setNewText(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTextOverlay()}
                 placeholder={t('stories.textOverlay', 'Escribe y arrastra...')} className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-sm outline-none focus:border-stone-400" maxLength={60} autoFocus data-testid="story-overlay-input" />
-              <button onClick={addTextOverlay} disabled={!newText.trim()} className="px-3 py-2 bg-[#1C1C1C] text-white text-xs font-medium rounded-xl disabled:opacity-40">+</button>
+              <button onClick={addTextOverlay} disabled={!newText.trim()} className="px-3 py-2 bg-primary text-white text-xs font-medium rounded-xl disabled:opacity-40">+</button>
             </div>
           )}
 
@@ -479,12 +479,12 @@ function StoryUploadModal({ onClose, onPublished }) {
                 <button key={p.product_id} onClick={() => { setTaggedProduct(p); setShowProductSearch(false); setProductSearch(''); setProductResults([]); }}
                   className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-stone-50 text-left">
                   {p.images?.[0] && <img src={p.images[0]} alt="" className="w-8 h-8 rounded object-cover" />}
-                  <div className="flex-1 min-w-0"><p className="text-xs font-medium truncate">{p.name}</p><p className="text-xs text-[#1C1C1C]">{p.price?.toFixed(2)}€</p></div>
+                  <div className="flex-1 min-w-0"><p className="text-xs font-medium truncate">{p.name}</p><p className="text-xs text-primary">{p.price?.toFixed(2)}€</p></div>
                 </button>
               ))}
               {taggedProduct && (
                 <div className="flex items-center gap-2 p-2 bg-stone-100 rounded-lg mt-1">
-                  <ShoppingBag className="w-4 h-4 text-[#1C1C1C]" />
+                  <ShoppingBag className="w-4 h-4 text-primary" />
                   <span className="text-xs font-medium flex-1 truncate">{taggedProduct.name}</span>
                   <button onClick={() => setTaggedProduct(null)} className="p-0.5"><X className="w-3 h-3 text-stone-400" /></button>
                 </div>
@@ -498,7 +498,7 @@ function StoryUploadModal({ onClose, onPublished }) {
 
           {/* Publish */}
           <button onClick={handleSubmit} disabled={!file || uploading}
-            className="w-full py-3 bg-[#1C1C1C] text-white rounded-xl font-medium text-sm hover:bg-[#2A2A2A] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-primary text-white rounded-xl font-medium text-sm hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             data-testid="story-publish-btn">
             {uploading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('stories.uploading')}</> : t('stories.uploadStory')}
           </button>

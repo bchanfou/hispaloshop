@@ -48,10 +48,10 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-[#1A1A1A] mb-1">
+        <h3 className="text-lg font-semibold text-gray-900 mb-1">
           Datos básicos
         </h3>
-        <p className="text-sm text-[#6B7280]">
+        <p className="text-sm text-text-muted">
           Completa tu información personal
         </p>
       </div>
@@ -120,14 +120,14 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
             type="checkbox"
             checked={acceptTerms}
             onChange={(e) => setAcceptTerms(e.target.checked)}
-            className="mt-0.5 w-5 h-5 rounded border-gray-300 text-[#2D5A3D] focus:ring-[#2D5A3D]"
+            className="mt-0.5 w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent"
           />
-          <span className="text-sm text-[#6B7280]">
+          <span className="text-sm text-text-muted">
             Acepto los{' '}
-            <a href="/terms" className="text-[#2D5A3D] hover:underline">términos</a>
+            <a href="/terms" className="text-accent hover:underline">términos</a>
             {' '}y la{' '}
-            <a href="/privacy" className="text-[#2D5A3D] hover:underline">privacidad</a>
-            <span className="text-[#DC2626]"> *</span>
+            <a href="/privacy" className="text-accent hover:underline">privacidad</a>
+            <span className="text-state-error"> *</span>
           </span>
         </label>
 
@@ -136,9 +136,9 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
             type="checkbox"
             checked={acceptMarketing}
             onChange={(e) => setAcceptMarketing(e.target.checked)}
-            className="mt-0.5 w-5 h-5 rounded border-gray-300 text-[#2D5A3D] focus:ring-[#2D5A3D]"
+            className="mt-0.5 w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent"
           />
-          <span className="text-sm text-[#6B7280]">
+          <span className="text-sm text-text-muted">
             Quiero recibir ofertas y novedades (opcional)
           </span>
         </label>
@@ -148,7 +148,7 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
       <button
         onClick={handleSubmit}
         disabled={!acceptTerms}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-[#2D5A3D] text-white rounded-xl font-medium hover:bg-[#234a31] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
       >
         Continuar
         <ArrowRight className="w-5 h-5" />

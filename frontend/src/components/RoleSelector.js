@@ -24,7 +24,7 @@ export const ROLE_OPTIONS = [
     previewIcon: Sprout,
     previewTitle: 'Compra con contexto, no a ciegas',
     previewCopy: 'Empieza por productores cercanos y guarda tu zona para ver una home cada vez mas afin.',
-    cardClassName: 'bg-gradient-to-br from-emerald-50 via-[#F4F6EE] to-white border-emerald-100',
+    cardClassName: 'bg-gradient-to-br from-emerald-50 via-stone-50 to-white border-emerald-100',
     iconColor: 'text-emerald-700',
     previewColor: 'bg-emerald-50',
     seoTitle: 'Comprar producto local y autentico',
@@ -101,12 +101,12 @@ export default function RoleSelector({
       <div className="mx-auto max-w-5xl px-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7A7A7A]">Elige tu rol</p>
-            <h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-[#1C1C1C]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-text-muted">Elige tu rol</p>
+            <h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-primary">
               Entra por el camino que mas te conviene hoy
             </h2>
           </div>
-          <p className="max-w-xl text-sm leading-6 text-[#5E5851]">
+          <p className="max-w-xl text-sm leading-6 text-stone-500">
             Guardamos tu preferencia para que la home futura empiece donde mas valor te da.
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function RoleSelector({
             transition={{ duration: 0.24, ease: 'easeOut' }}
             className="mt-4 rounded-[1.5rem] border border-stone-200 bg-white/85 p-4 shadow-sm"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#7A7A7A]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-muted">
               Preferencia activa
             </p>
             <p className="mt-2 text-sm leading-6 text-[#3D3934]">

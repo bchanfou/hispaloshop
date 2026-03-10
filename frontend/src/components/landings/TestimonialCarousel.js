@@ -28,8 +28,8 @@ const TestimonialCarousel = ({ testimonials }) => {
             transition={{ duration: 0.3 }}
             className="bg-white rounded-2xl p-8 shadow-sm"
           >
-            <Quote className="w-10 h-10 text-[#E6A532] mb-4" />
-            <p className="text-xl text-[#1A1A1A] leading-relaxed mb-6">
+            <Quote className="w-10 h-10 text-state-amber mb-4" />
+            <p className="text-xl text-gray-900 leading-relaxed mb-6">
               "{testimonials[current].quote}"
             </p>
             <div className="flex items-center gap-4">
@@ -41,8 +41,8 @@ const TestimonialCarousel = ({ testimonials }) => {
                 />
               )}
               <div>
-                <p className="font-semibold text-[#1A1A1A]">{testimonials[current].name}</p>
-                <p className="text-sm text-[#6B7280]">{testimonials[current].role}</p>
+                <p className="font-semibold text-gray-900">{testimonials[current].name}</p>
+                <p className="text-sm text-text-muted">{testimonials[current].role}</p>
               </div>
             </div>
           </motion.div>
@@ -55,7 +55,7 @@ const TestimonialCarousel = ({ testimonials }) => {
           onClick={prev}
           className="p-2 rounded-full bg-white shadow-sm hover:shadow-md transition-shadow"
         >
-          <ChevronLeft className="w-5 h-5 text-[#1A1A1A]" />
+          <ChevronLeft className="w-5 h-5 text-gray-900" />
         </button>
         
         <div className="flex gap-2">
@@ -64,7 +64,7 @@ const TestimonialCarousel = ({ testimonials }) => {
               key={index}
               onClick={() => goTo(index)}
               className={`w-2 h-2 rounded-full transition-colors ${
-                index === current ? 'bg-[#2D5A3D]' : 'bg-gray-300'
+                index === current ? 'bg-accent' : 'bg-gray-300'
               }`}
             />
           ))}
@@ -74,7 +74,7 @@ const TestimonialCarousel = ({ testimonials }) => {
           onClick={next}
           className="p-2 rounded-full bg-white shadow-sm hover:shadow-md transition-shadow"
         >
-          <ChevronRight className="w-5 h-5 text-[#1A1A1A]" />
+          <ChevronRight className="w-5 h-5 text-gray-900" />
         </button>
       </div>
     </div>

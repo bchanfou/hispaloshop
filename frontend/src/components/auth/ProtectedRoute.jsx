@@ -13,8 +13,8 @@ export default function ProtectedRoute({
 
   if (!initialized || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F1E8]">
-        <div className="w-8 h-8 border-2 border-[#2D5A3D] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background-subtle">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }

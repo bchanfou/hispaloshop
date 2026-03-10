@@ -52,16 +52,16 @@ export default function HeroSection({
       <div className="mx-auto max-w-6xl px-4">
         <div className="rounded-[2rem] border border-stone-200/70 bg-white/88 px-5 py-7 md:px-8 md:py-9">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-[#FDFCF8] px-3 py-1.5 text-xs font-medium text-[#5E5851]">
-              <MapPin className="h-3.5 w-3.5 text-[#2D5A27]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-medium text-stone-500">
+              <MapPin className="h-3.5 w-3.5 text-accent" />
               {locationLabel}
             </div>
 
-            <h1 className="mt-5 font-serif text-4xl font-semibold tracking-tight text-[#111111] md:text-6xl">
+            <h1 className="mt-5 font-serif text-4xl font-semibold tracking-tight text-primary md:text-6xl">
               Lo Bueno Esta Mas Cerca
             </h1>
 
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium tracking-[0.08em] text-[#6D655E] uppercase md:text-[11px]">
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium tracking-[0.08em] text-stone-500 uppercase md:text-[11px]">
               {HERO_STATS.map((stat) => (
                 <span key={stat}>{stat}</span>
               ))}
@@ -71,7 +71,7 @@ export default function HeroSection({
               <button
                 type="button"
                 onClick={handlePrimaryClick}
-                className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full bg-[#111111] px-6 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-[#232323]"
+                className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-hover"
               >
                 <LocateFixed className="h-4 w-4" />
                 Descubrir Cerca de Mi
@@ -79,7 +79,7 @@ export default function HeroSection({
               <Link
                 to="/info/productor"
                 onClick={onSecondaryCtaClick}
-                className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-stone-300 bg-transparent px-6 py-3 text-sm font-medium text-[#111111] transition-colors duration-200 hover:border-stone-400 hover:bg-white"
+                className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-stone-300 bg-transparent px-6 py-3 text-sm font-medium text-primary transition-colors duration-200 hover:border-stone-400 hover:bg-white"
               >
                 Quiero Vender
               </Link>
@@ -92,12 +92,12 @@ export default function HeroSection({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="mx-auto mt-5 max-w-2xl rounded-[1.5rem] border border-stone-200 bg-[#FDFCF8] p-4 text-left"
+                  className="mx-auto mt-5 max-w-2xl rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4 text-left"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-[#1C1C1C]">Primero, tu zona</p>
-                      <p className="mt-1 text-sm leading-6 text-[#5E5851]">
+                      <p className="text-sm font-semibold text-primary">Primero, tu zona</p>
+                      <p className="mt-1 text-sm leading-6 text-stone-500">
                         Usa tu ubicacion actual o escribe tu codigo postal para priorizar lo que tengas mas cerca.
                       </p>
                     </div>
@@ -114,7 +114,7 @@ export default function HeroSection({
                     <button
                       type="button"
                       onClick={handleUseLocation}
-                      className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-medium text-[#1C1C1C] transition-colors hover:bg-stone-100"
+                      className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-medium text-primary transition-colors hover:bg-stone-100"
                     >
                       <LocateFixed className="h-4 w-4" />
                       {geolocationStatus === 'requesting' ? 'Buscando tu ubicacion...' : 'Usar mi ubicacion'}
@@ -125,11 +125,11 @@ export default function HeroSection({
                         value={postalCode}
                         onChange={(event) => setPostalCode(event.target.value)}
                         placeholder="Codigo postal"
-                        className="min-w-0 flex-1 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-[#1C1C1C]"
+                        className="min-w-0 flex-1 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-primary"
                       />
                       <button
                         type="submit"
-                        className="inline-flex min-h-[46px] items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-medium text-[#1C1C1C] transition-colors hover:bg-stone-50"
+                        className="inline-flex min-h-[46px] items-center justify-center rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-medium text-primary transition-colors hover:bg-stone-50"
                       >
                         Guardar
                       </button>
@@ -137,7 +137,7 @@ export default function HeroSection({
                   </div>
 
                   {geolocationError && (
-                    <p className="mt-3 text-sm text-[#8B5E34]">{geolocationError}</p>
+                    <p className="mt-3 text-sm text-amber-800">{geolocationError}</p>
                   )}
                 </motion.div>
               )}

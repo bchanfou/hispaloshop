@@ -19,8 +19,8 @@ function FollowButton({ isFollowing, onToggle }) {
       onClick={onToggle}
       className={`flex-1 py-2.5 px-4 rounded-full font-medium text-sm transition-colors ${
         isFollowing
-          ? 'bg-stone-100 text-[#1A1A1A] border border-stone-200'
-          : 'bg-[#2D5A3D] text-white'
+          ? 'bg-stone-100 text-gray-900 border border-stone-200'
+          : 'bg-accent text-white'
       }`}
     >
       {isFollowing ? 'Siguiendo' : 'Seguir'}
@@ -86,7 +86,7 @@ function ProfileHeader({ profile, isOwner = false }) {
             {profile.displayName}
             {profile.verified && <VerificationBadge />}
           </h1>
-          <p className="text-sm text-[#6B7280] capitalize">
+          <p className="text-sm text-text-muted capitalize">
             {profile.type === 'producer' ? 'Productor' : profile.type === 'importer' ? 'Importador' : 'Consumidor'}
             {profile.location && ` · ${profile.location.city}, ${profile.location.country}`}
           </p>
@@ -95,25 +95,25 @@ function ProfileHeader({ profile, isOwner = false }) {
         {/* Stats */}
         <div className="flex justify-center gap-6 mb-4">
           <div className="text-center">
-            <div className="flex items-center gap-1 text-[#E6A532]">
-              <Star className="w-4 h-4 fill-[#E6A532]" />
+            <div className="flex items-center gap-1 text-state-amber">
+              <Star className="w-4 h-4 fill-state-amber" />
               <span className="font-bold">{profile.stats.rating}</span>
             </div>
-            <span className="text-xs text-[#6B7280]">{profile.stats.reviews} reseñas</span>
+            <span className="text-xs text-text-muted">{profile.stats.reviews} reseñas</span>
           </div>
           <div className="text-center">
             <div className="flex items-center gap-1">
-              <Package className="w-4 h-4 text-[#2D5A3D]" />
+              <Package className="w-4 h-4 text-accent" />
               <span className="font-bold">{profile.stats.sales >= 1000 ? `${(profile.stats.sales / 1000).toFixed(1)}k` : profile.stats.sales}</span>
             </div>
-            <span className="text-xs text-[#6B7280]">ventas</span>
+            <span className="text-xs text-text-muted">ventas</span>
           </div>
           <div className="text-center">
             <div className="flex items-center gap-1">
-              <Users className="w-4 h-4 text-[#2D5A3D]" />
+              <Users className="w-4 h-4 text-accent" />
               <span className="font-bold">{profile.stats.followers >= 1000 ? `${(profile.stats.followers / 1000).toFixed(1)}k` : profile.stats.followers}</span>
             </div>
-            <span className="text-xs text-[#6B7280]">seguidores</span>
+            <span className="text-xs text-text-muted">seguidores</span>
           </div>
         </div>
 
@@ -123,13 +123,13 @@ function ProfileHeader({ profile, isOwner = false }) {
             <>
               <Link
                 to="/dashboard/store/edit"
-                className="flex-1 py-2.5 px-4 rounded-full font-medium text-sm bg-[#2D5A3D] text-white text-center"
+                className="flex-1 py-2.5 px-4 rounded-full font-medium text-sm bg-accent text-white text-center"
               >
                 Editar perfil
               </Link>
               <Link
                 to="/dashboard"
-                className="flex-1 py-2.5 px-4 rounded-full font-medium text-sm bg-stone-100 text-[#1A1A1A] text-center"
+                className="flex-1 py-2.5 px-4 rounded-full font-medium text-sm bg-stone-100 text-gray-900 text-center"
               >
                 Ver stats
               </Link>
@@ -137,7 +137,7 @@ function ProfileHeader({ profile, isOwner = false }) {
           ) : (
             <>
               <FollowButton isFollowing={isFollowing} onToggle={handleFollow} />
-              <button className="flex-1 py-2.5 px-4 rounded-full font-medium text-sm bg-stone-100 text-[#1A1A1A]">
+              <button className="flex-1 py-2.5 px-4 rounded-full font-medium text-sm bg-stone-100 text-gray-900">
                 Contactar
               </button>
             </>
@@ -145,7 +145,7 @@ function ProfileHeader({ profile, isOwner = false }) {
         </div>
 
         {/* Bio */}
-        <p className="text-sm text-[#1A1A1A] text-center mb-3">
+        <p className="text-sm text-gray-900 text-center mb-3">
           {profile.bio}
         </p>
 
@@ -156,19 +156,19 @@ function ProfileHeader({ profile, isOwner = false }) {
               href={profile.links.web}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[#2D5A3D]"
+              className="flex items-center gap-1 text-accent"
             >
               <LinkIcon className="w-4 h-4" />
               <span>Web</span>
             </a>
           )}
           {profile.location && (
-            <span className="flex items-center gap-1 text-[#6B7280]">
+            <span className="flex items-center gap-1 text-text-muted">
               <MapPin className="w-4 h-4" />
               {profile.location.city}
             </span>
           )}
-          <button className="flex items-center gap-1 text-[#6B7280]">
+          <button className="flex items-center gap-1 text-text-muted">
             <Mail className="w-4 h-4" />
             <span>Email</span>
           </button>

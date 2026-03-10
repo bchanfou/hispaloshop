@@ -123,18 +123,18 @@
 
 /* Selection styling for all browsers */
 ::-moz-selection {
-  background: #1C1C1C;
+  background: var(--color-primary);
   color: #FFFFFF;
 }
 
 ::selection {
-  background: #1C1C1C;
+  background: var(--color-primary);
   color: #FFFFFF;
 }
 
 /* Focus styles for accessibility */
 *:focus-visible {
-  outline: 2px solid #1C1C1C;
+  outline: 2px solid var(--color-brand-red);
   outline-offset: 2px;
 }
 
@@ -145,7 +145,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #F5F1EB;
+  background: var(--bg-subtle);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -160,5 +160,5 @@
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #C4B9A9 #F5F1EB;
+  scrollbar-color: #C4B9A9 var(--bg-subtle);
 }

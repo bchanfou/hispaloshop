@@ -41,7 +41,7 @@ function ChatContainer() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#FAFAFA]">
+    <div className="flex flex-col h-screen bg-stone-50">
       {/* Header */}
       <div 
         className="flex items-center justify-between px-4 py-3 border-b sticky top-0 z-10"
@@ -50,9 +50,9 @@ function ChatContainer() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate(-1)}
-            className="p-2 -ml-2 hover:bg-black/5 rounded-full transition-colors"
+            className="p-2 -ml-2 hover:bg-slate-950/5 rounded-full transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-[#1A1A1A]" />
+            <ArrowLeft className="w-5 h-5 text-gray-900" />
           </button>
           
           <div className="flex items-center gap-2">
@@ -63,8 +63,8 @@ function ChatContainer() {
               {roleConfig.avatar}
             </div>
             <div>
-              <h1 className="font-semibold text-[#1A1A1A]">{roleConfig.name}</h1>
-              <p className="text-xs text-[#6B7280]">Tu asistente personal</p>
+              <h1 className="font-semibold text-gray-900">{roleConfig.name}</h1>
+              <p className="text-xs text-text-muted">Tu asistente personal</p>
             </div>
           </div>
         </div>
@@ -84,9 +84,9 @@ function ChatContainer() {
           <div className="relative">
             <button 
               onClick={() => setShowOptions(!showOptions)}
-              className="p-2 hover:bg-black/5 rounded-full transition-colors"
+              className="p-2 hover:bg-slate-950/5 rounded-full transition-colors"
             >
-              <MoreVertical className="w-5 h-5 text-[#6B7280]" />
+              <MoreVertical className="w-5 h-5 text-text-muted" />
             </button>
 
             {/* Options dropdown */}
@@ -144,7 +144,7 @@ function ChatContainer() {
                 >
                   {roleConfig.avatar}
                 </div>
-                <div className="bg-[#F5F1E8] rounded-2xl rounded-bl-md px-4 py-3">
+                <div className="bg-background-subtle rounded-2xl rounded-bl-md px-4 py-3">
                   <TypingIndicator color={roleConfig.color} />
                 </div>
               </div>

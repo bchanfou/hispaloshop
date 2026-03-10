@@ -3,16 +3,16 @@ import { motion } from 'framer-motion';
 import { ChevronRight, Package, CheckCircle, Clock, Truck } from 'lucide-react';
 
 const STATUS_ICONS = {
-  pending: { icon: Clock, color: '#E6A532' },
-  processing: { icon: Package, color: '#3B82F6' },
-  shipped: { icon: Truck, color: '#2D5A3D' },
-  delivered: { icon: CheckCircle, color: '#16A34A' }
+  pending: { icon: Clock, color: 'var(--color-warning)' },
+  processing: { icon: Package, color: 'var(--color-info)' },
+  shipped: { icon: Truck, color: 'var(--color-accent)' },
+  delivered: { icon: CheckCircle, color: 'var(--color-success)' }
 };
 
 function ActivityList({ items, emptyMessage = "No hay actividad reciente" }) {
   if (!items || items.length === 0) {
     return (
-      <div className="text-center py-8 text-[#6B7280]">
+      <div className="text-center py-8 text-text-muted">
         <p className="text-sm">{emptyMessage}</p>
       </div>
     );
@@ -41,17 +41,17 @@ function ActivityList({ items, emptyMessage = "No hay actividad reciente" }) {
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-[#1A1A1A] truncate">{item.title}</p>
-                <span className="text-sm font-semibold text-[#1A1A1A]">{item.amount}</span>
+                <p className="text-sm font-medium text-gray-900 truncate">{item.title}</p>
+                <span className="text-sm font-semibold text-gray-900">{item.amount}</span>
               </div>
-              <p className="text-xs text-[#6B7280]">{item.subtitle}</p>
-              <p className="text-xs text-[#6B7280] mt-0.5">{item.description}</p>
+              <p className="text-xs text-text-muted">{item.subtitle}</p>
+              <p className="text-xs text-text-muted mt-0.5">{item.description}</p>
             </div>
             
             {item.actionLabel && (
               <button 
                 onClick={item.onAction}
-                className="flex items-center gap-1 text-xs font-medium text-[#2D5A3D] hover:text-[#234a31] whitespace-nowrap"
+                className="flex items-center gap-1 text-xs font-medium text-accent hover:text-accent/90 whitespace-nowrap"
               >
                 {item.actionLabel}
                 <ChevronRight className="w-3 h-3" />

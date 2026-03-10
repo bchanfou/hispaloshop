@@ -106,15 +106,15 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-[#1C1C1C]">Hispalo AI Creativo</h3>
-            <p className="text-xs text-[#7A7A7A]">Asistente de Contenido</p>
+            <h3 className="font-semibold text-primary">Hispalo AI Creativo</h3>
+            <p className="text-xs text-text-muted">Asistente de Contenido</p>
           </div>
         </div>
         <button
           onClick={handleClose}
           className="p-2 hover:bg-stone-100 rounded-full transition-colors"
         >
-          <X className="w-5 h-5 text-[#7A7A7A]" />
+          <X className="w-5 h-5 text-text-muted" />
         </button>
       </div>
 
@@ -129,7 +129,7 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
               className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                 msg.role === 'user'
                   ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-br-md'
-                  : 'bg-stone-100 text-[#1C1C1C] rounded-bl-md'
+                  : 'bg-stone-100 text-primary rounded-bl-md'
               }`}
             >
               <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -151,7 +151,7 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
         <div className="px-4 pb-2">
           <button
             onClick={() => setShowPrompts(!showPrompts)}
-            className="flex items-center gap-1 text-xs text-[#7A7A7A] mb-2"
+            className="flex items-center gap-1 text-xs text-text-muted mb-2"
           >
             Ideas rápidas
             {showPrompts ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}

@@ -7,8 +7,8 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const isDark = variant === 'dark';
-  const textColor = isDark ? 'text-white' : 'text-[#1A1A1A]';
-  const bgColor = isDark ? 'bg-[#2D5A3D]' : 'bg-white';
+  const textColor = isDark ? 'text-white' : 'text-gray-900';
+  const bgColor = isDark ? 'bg-accent' : 'bg-white';
   
   const navLinks = [
     { label: 'Descubrir', href: '/discover' },
@@ -67,7 +67,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
             </button>
             <button
               onClick={() => navigate('/register/new')}
-              className="px-4 py-2 bg-[#2D5A3D] text-white text-sm font-medium rounded-full hover:bg-[#234a31] transition-colors"
+              className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-full hover:bg-accent/90 transition-colors"
             >
               Registrarse
             </button>
@@ -91,7 +91,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
               <button
                 key={link.label}
                 onClick={() => handleNav(link.href)}
-                className="block w-full text-left py-2 text-[#1A1A1A] font-medium"
+                className="block w-full text-left py-2 text-gray-900 font-medium"
               >
                 {link.label}
               </button>
@@ -99,13 +99,13 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
             <hr className="my-2" />
             <button
               onClick={() => { navigate('/login'); setIsOpen(false); }}
-              className="block w-full text-left py-2 text-[#1A1A1A] font-medium"
+              className="block w-full text-left py-2 text-gray-900 font-medium"
             >
               Iniciar sesión
             </button>
             <button
               onClick={() => { navigate('/register/new'); setIsOpen(false); }}
-              className="w-full py-2 bg-[#2D5A3D] text-white font-medium rounded-lg"
+              className="w-full py-2 bg-accent text-white font-medium rounded-lg"
             >
               Registrarse
             </button>

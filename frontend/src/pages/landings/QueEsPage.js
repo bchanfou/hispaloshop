@@ -36,9 +36,9 @@ import FAQAccordion from '../../components/landings/FAQAccordion';
 import StepProcess from '../../components/landings/StepProcess';
 
 const CATEGORIES = [
-  { icon: Droplets, label: 'Aceites', color: '#16A34A' },
-  { icon: Milk, label: 'Quesos', color: '#E6A532' },
-  { icon: Beef, label: 'Embutidos', color: '#DC2626' },
+  { icon: Droplets, label: 'Aceites', color: 'var(--color-success)' },
+  { icon: Milk, label: 'Quesos', color: 'var(--color-warning)' },
+  { icon: Beef, label: 'Embutidos', color: 'var(--color-error)' },
   { icon: Cookie, label: 'Panaderia', color: '#D97706' },
   { icon: Coffee, label: 'Bebidas', color: '#7C3AED' },
   { icon: Baby, label: 'Bebes', color: '#EC4899' },
@@ -51,19 +51,19 @@ const FEATURES = [
     icon: Leaf,
     title: 'Real',
     description: 'Productos de verdad, hechos por gente de verdad. Sin intermediarios, sin historias inventadas.',
-    color: '#16A34A',
+    color: 'var(--color-success)',
   },
   {
     icon: User,
     title: 'Personal',
     description: 'HI AI conoce tus gustos y necesidades. Recomendaciones que mejoran cada dia.',
-    color: '#E6A532',
+    color: 'var(--color-warning)',
   },
   {
     icon: Cpu,
     title: 'Inteligente',
     description: 'Tecnologia que simplifica. Desde busqueda hasta seguimiento de pedidos.',
-    color: '#2D5A3D',
+    color: 'var(--color-accent)',
   },
 ];
 
@@ -187,7 +187,7 @@ const QueEsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8]">
+    <div className="min-h-screen bg-background-subtle">
       <SEOHead
         title="Hispaloshop - Tu mercado local de productos artesanales"
         description="Descubre y compra productos artesanales directo de productores. Aceites, quesos, embutidos y mas con envio a domicilio."
@@ -197,27 +197,27 @@ const QueEsPage = () => {
       <NavbarLanding extraLinks={multimarketNav} />
       <LandingSectionNav />
 
-      <section className="bg-[#F5F1E8] pt-10 sm:pt-12 pb-16 sm:pb-20">
+      <section className="bg-background-subtle pt-10 sm:pt-12 pb-16 sm:pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1A1A1A] leading-tight mb-6">
-                Tu mercado local, <span className="text-[#2D5A3D]">sin limites</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+                Tu mercado local, <span className="text-accent">sin limites</span>
               </h1>
-              <p className="text-lg text-[#6B7280] mb-8 leading-relaxed">
+              <p className="text-lg text-text-muted mb-8 leading-relaxed">
                 Descubre productos artesanales de personas reales. Compra directo y conoce la historia detras de cada sabor.
               </p>
               <div className="flex flex-col sm:flex-row flex-wrap gap-4">
                 <button
                   onClick={() => navigate('/register/new')}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#2D5A3D] text-white rounded-full font-medium hover:bg-[#234a31] transition-colors"
+                  className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-full font-medium hover:bg-accent/90 transition-colors"
                 >
                   Explorar productos
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => navigate('/discover')}
-                  className="px-6 py-3 border-2 border-[#2D5A3D] text-[#2D5A3D] rounded-full font-medium hover:bg-[#2D5A3D] hover:text-white transition-colors"
+                  className="px-6 py-3 border-2 border-accent text-accent rounded-full font-medium hover:bg-accent hover:text-white transition-colors"
                 >
                   Descargar app
                 </button>
@@ -249,23 +249,23 @@ const QueEsPage = () => {
 
       <section className="bg-white py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-[#1A1A1A] mb-6">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
             Te cansaste de no saber de donde viene tu comida?
           </h2>
           <div className="grid md:grid-cols-2 gap-6 text-left mb-8">
-            <div className="space-y-4 text-[#6B7280]">
+            <div className="space-y-4 text-text-muted">
               <p>- Etiquetas que no entiendes</p>
               <p>- Productos que viajan miles de km</p>
             </div>
-            <div className="space-y-4 text-[#6B7280]">
+            <div className="space-y-4 text-text-muted">
               <p>- Sabores industrializados</p>
               <p>- Historias inventadas en marketing</p>
             </div>
           </div>
-          <p className="text-xl text-[#2D5A3D] font-medium">
+          <p className="text-xl text-accent font-medium">
             Hispaloshop nace de una pregunta simple:
             <br />
-            <span className="text-[#1A1A1A]">Y si conocieras a quien hace tu comida?</span>
+            <span className="text-gray-900">Y si conocieras a quien hace tu comida?</span>
           </p>
         </div>
       </section>
@@ -297,7 +297,7 @@ const QueEsPage = () => {
               sin intermediarios que inflan el precio y borran la historia.
             </p>
             <div className="pt-2 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#2D5A3D] flex items-center justify-center text-white font-bold text-xs shrink-0">BC</div>
+              <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-white font-bold text-xs shrink-0">BC</div>
               <div>
                 <p className="text-white font-semibold text-sm">Bil Chanfou — Fundador</p>
                 <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-[#9CC3A6] hover:text-white transition-colors">@bchanfuah</a>
@@ -307,24 +307,24 @@ const QueEsPage = () => {
         </div>
       </section>
 
-      <section className="bg-[#F5F1E8] py-20">
+      <section className="bg-background-subtle py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">Cómo funciona</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Cómo funciona</h2>
           <StepProcess steps={STEPS} layout="horizontal" />
         </div>
       </section>
 
       <section className="bg-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">Nuestros 3 pilares</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Nuestros 3 pilares</h2>
           <FeatureGrid features={FEATURES} columns={3} />
         </div>
       </section>
 
       <section id="multimarket" className="py-24 bg-white relative overflow-hidden scroll-mt-24">
         <div className="absolute inset-0 pointer-events-none opacity-[0.035]">
-          <div className="absolute left-1/2 top-16 h-[420px] w-[820px] -translate-x-1/2 rounded-full border border-[#2D5A3D]" />
-          <div className="absolute left-1/2 top-28 h-[300px] w-[620px] -translate-x-1/2 rounded-full border border-[#2D5A3D]" />
+          <div className="absolute left-1/2 top-16 h-[420px] w-[820px] -translate-x-1/2 rounded-full border border-accent" />
+          <div className="absolute left-1/2 top-28 h-[300px] w-[620px] -translate-x-1/2 rounded-full border border-accent" />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -333,10 +333,10 @@ const QueEsPage = () => {
               <Globe className="w-4 h-4 mr-2" />
               Infraestructura global
             </span>
-            <h2 className="font-heading text-4xl lg:text-5xl font-bold text-[#1A1A1A] mb-4">
+            <h2 className="font-heading text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               Un mercado, mil historias locales
             </h2>
-            <p className="text-xl text-[#6B7280] max-w-3xl mx-auto">
+            <p className="text-xl text-text-muted max-w-3xl mx-auto">
               Hispaloshop conecta productores y consumidores en todo el mundo, con la inteligencia de mostrarte solo lo que puedes disfrutar donde vives.
             </p>
           </motion.div>
@@ -349,8 +349,8 @@ const QueEsPage = () => {
               <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
                 <Globe2 className="w-7 h-7 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-[#1A1A1A] mb-3">Red global</h3>
-              <p className="text-[#6B7280] leading-relaxed">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Red global</h3>
+              <p className="text-text-muted leading-relaxed">
                 Productores de Espana, Italia, Mexico, Colombia y mas. Una comunidad mundial de artesanos alimentarios compartiendo su trabajo.
               </p>
             </motion.div>
@@ -361,10 +361,10 @@ const QueEsPage = () => {
               className="rounded-2xl p-8 border border-[#DCE8DE] bg-gradient-to-br from-[#EEF7F0] to-white shadow-card hover:-translate-y-1 hover:shadow-card-hover transition-all duration-300"
             >
               <div className="w-14 h-14 bg-[#DCE8DE] rounded-xl flex items-center justify-center mb-6">
-                <MapPin className="w-7 h-7 text-[#2D5A3D]" />
+                <MapPin className="w-7 h-7 text-accent" />
               </div>
-              <h3 className="text-xl font-bold text-[#1A1A1A] mb-3">Compra local</h3>
-              <p className="text-[#6B7280] leading-relaxed">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Compra local</h3>
+              <p className="text-text-muted leading-relaxed">
                 Ves solo productos disponibles en tu pais. Envios nacionales garantizados, frescura real y apoyo a la economia local. Sin sorpresas de aduanas ni envios imposibles.
               </p>
             </motion.div>
@@ -377,8 +377,8 @@ const QueEsPage = () => {
               <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
                 <HeartHandshake className="w-7 h-7 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold text-[#1A1A1A] mb-3">Conexion sin fronteras</h3>
-              <p className="text-[#6B7280] leading-relaxed">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Conexion sin fronteras</h3>
+              <p className="text-text-muted leading-relaxed">
                 Sigue a un productor italiano hoy. Cuando venda en tu pais, <span className="font-semibold text-purple-700">HI AI te avisa automaticamente</span>. Conecta global, consume local.
               </p>
             </motion.div>
@@ -389,7 +389,7 @@ const QueEsPage = () => {
             className="bg-[#111827] rounded-3xl p-8 lg:p-12 text-white relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-screen blur-3xl opacity-20" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#2D5A3D] rounded-full mix-blend-screen blur-3xl opacity-25" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent rounded-full mix-blend-screen blur-3xl opacity-25" />
 
             <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
               <div>
@@ -430,7 +430,7 @@ const QueEsPage = () => {
               <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm border border-white/15">
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10 gap-4">
                   <span className="text-sm font-medium text-gray-200">Tu ubicacion:</span>
-                  <span className="flex items-center gap-2 bg-[#2D5A3D]/30 px-3 py-1 rounded-full text-[#B7E0BF] text-sm">
+                  <span className="flex items-center gap-2 bg-accent/30 px-3 py-1 rounded-full text-[#B7E0BF] text-sm">
                     <MapPin className="w-4 h-4" />
                     {detectedMarket?.name || 'Espana'}
                   </span>
@@ -483,15 +483,15 @@ const QueEsPage = () => {
                 </div>
                 <div className="flex-1 text-center md:text-left">
                   <div className="text-4xl text-[#9CC3A6] font-heading mb-2">"</div>
-                  <p className="text-lg text-[#4A4A4A] leading-relaxed mb-4">
+                  <p className="text-lg text-text-secondary leading-relaxed mb-4">
                     Gracias al modelo multimarket, mis clientes espanoles disfrutan de mis galletas frescas, pero tambien tengo seguidores en Italia que esperan que Carolina expanda. HI AI les avisara el dia que enviemos alli. Es como tener una comunidad global que respeta lo local.
                   </p>
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                    <p className="font-bold text-[#1A1A1A]">Helena Rodriguez</p>
+                    <p className="font-bold text-gray-900">Helena Rodriguez</p>
                     <span className="hidden md:inline text-gray-400">|</span>
-                    <p className="text-[#2D5A3D] font-medium">Fundadora, Carolina Honest Food</p>
+                    <p className="text-accent font-medium">Fundadora, Carolina Honest Food</p>
                   </div>
-                  <div className="mt-3 flex items-center justify-center md:justify-start gap-4 text-sm text-[#6B7280] flex-wrap">
+                  <div className="mt-3 flex items-center justify-center md:justify-start gap-4 text-sm text-text-muted flex-wrap">
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
                       25.000 seguidores
@@ -507,16 +507,16 @@ const QueEsPage = () => {
           </motion.div>
 
           <motion.div {...fadeUp} className="mt-12 text-center">
-            <p className="text-[#6B7280] mb-4">Quieres saber que productores hay en tu pais?</p>
+            <p className="text-text-muted mb-4">Quieres saber que productores hay en tu pais?</p>
             <button
               onClick={detectCountry}
-              className="bg-[#2D5A3D] text-white px-8 py-3 rounded-full font-semibold inline-flex items-center gap-2 hover:bg-[#234a31] transition-colors"
+              className="bg-accent text-white px-8 py-3 rounded-full font-semibold inline-flex items-center gap-2 hover:bg-accent/90 transition-colors"
             >
               <Compass className="w-5 h-5" />
               Explorar mi mercado local
             </button>
             {detectedMarket && (
-              <p className="mt-4 text-sm text-[#2D5A3D]">
+              <p className="mt-4 text-sm text-accent">
                 Mercado detectado: {detectedMarket.name}. Conecta con productores globales, compra solo lo disponible en tu pais.
               </p>
             )}
@@ -524,17 +524,17 @@ const QueEsPage = () => {
         </div>
       </section>
 
-      <section className="bg-[#F5F1E8] py-20">
+      <section className="bg-background-subtle py-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">Lo que dicen nuestros usuarios</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Lo que dicen nuestros usuarios</h2>
           <TestimonialCarousel testimonials={TESTIMONIALS} />
         </div>
       </section>
 
       <section className="bg-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-4">Descubre por categoria</h2>
-          <p className="text-center text-[#6B7280] mb-12">Sin productos frescos ni alcohol. Calidad que dura.</p>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">Descubre por categoria</h2>
+          <p className="text-center text-text-muted mb-12">Sin productos frescos ni alcohol. Calidad que dura.</p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
             {CATEGORIES.map((cat, index) => {
@@ -553,7 +553,7 @@ const QueEsPage = () => {
                   <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ backgroundColor: `${cat.color}15` }}>
                     <Icon className="w-6 h-6" style={{ color: cat.color }} />
                   </div>
-                  <span className="text-xs font-medium text-[#1A1A1A] text-center">{cat.label}</span>
+                  <span className="text-xs font-medium text-gray-900 text-center">{cat.label}</span>
                 </motion.button>
               );
             })}
@@ -561,21 +561,21 @@ const QueEsPage = () => {
         </div>
       </section>
 
-      <section className="bg-[#F5F1E8] py-20">
+      <section className="bg-background-subtle py-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-[#1A1A1A] mb-12">Preguntas frecuentes</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Preguntas frecuentes</h2>
           <FAQAccordion faqs={FAQS} />
         </div>
       </section>
 
-      <section className="bg-[#2D5A3D] py-20">
+      <section className="bg-accent py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Unete a la comunidad</h2>
           <p className="text-white/80 mb-8 text-lg">Descubre productos unicos y apoya a productores locales</p>
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={() => navigate('/register/new')}
-              className="px-8 py-4 bg-white text-[#2D5A3D] rounded-full font-semibold hover:bg-gray-100 transition-colors"
+              className="px-8 py-4 bg-white text-accent rounded-full font-semibold hover:bg-gray-100 transition-colors"
             >
               Registrarme gratis
             </button>

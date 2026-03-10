@@ -14,16 +14,16 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
           onClick={() => navigate(-1)}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
-          <ArrowLeft className="w-5 h-5 text-[#1A1A1A]" />
+          <ArrowLeft className="w-5 h-5 text-gray-900" />
         </button>
-        <h2 className="text-xl font-bold text-[#1A1A1A]">Crear cuenta</h2>
+        <h2 className="text-xl font-bold text-gray-900">Crear cuenta</h2>
       </div>
 
       <div className="text-center py-4">
-        <h3 className="text-lg font-semibold text-[#1A1A1A] mb-2">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
           ¿Cómo quieres empezar?
         </h3>
-        <p className="text-sm text-[#6B7280]">
+        <p className="text-sm text-text-muted">
           Elige tu método de registro preferido
         </p>
       </div>
@@ -32,24 +32,24 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
       <div className="space-y-3">
         <button
           onClick={() => { onMethodSelect('email'); onNext(); }}
-          className="w-full flex items-center gap-3 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-[#2D5A3D] transition-colors"
+          className="w-full flex items-center gap-3 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-accent transition-colors"
         >
-          <div className="w-10 h-10 rounded-full bg-[#2D5A3D]/10 flex items-center justify-center">
-            <Mail className="w-5 h-5 text-[#2D5A3D]" />
+          <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+            <Mail className="w-5 h-5 text-accent" />
           </div>
-          <span className="flex-1 text-left font-medium text-[#1A1A1A]">
+          <span className="flex-1 text-left font-medium text-gray-900">
             Continuar con email
           </span>
         </button>
 
         <button
           onClick={() => { onMethodSelect('phone'); onNext(); }}
-          className="w-full flex items-center gap-3 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-[#2D5A3D] transition-colors"
+          className="w-full flex items-center gap-3 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-accent transition-colors"
         >
-          <div className="w-10 h-10 rounded-full bg-[#E6A532]/10 flex items-center justify-center">
-            <Phone className="w-5 h-5 text-[#E6A532]" />
+          <div className="w-10 h-10 rounded-full bg-state-amber/10 flex items-center justify-center">
+            <Phone className="w-5 h-5 text-state-amber" />
           </div>
-          <span className="flex-1 text-left font-medium text-[#1A1A1A]">
+          <span className="flex-1 text-left font-medium text-gray-900">
             Continuar con teléfono
           </span>
         </button>
@@ -58,7 +58,7 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
       {/* Divider */}
       <div className="flex items-center gap-4">
         <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-sm text-[#6B7280]">o</span>
+        <span className="text-sm text-text-muted">o</span>
         <div className="flex-1 h-px bg-gray-200" />
       </div>
 
@@ -70,11 +70,11 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
       />
 
       {/* Login Link */}
-      <p className="text-center text-sm text-[#6B7280]">
+      <p className="text-center text-sm text-text-muted">
         ¿Ya tienes cuenta?{' '}
         <button 
           onClick={() => navigate('/login')}
-          className="text-[#2D5A3D] font-medium hover:underline"
+          className="text-accent font-medium hover:underline"
         >
           Inicia sesión
         </button>

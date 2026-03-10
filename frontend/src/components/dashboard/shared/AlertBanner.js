@@ -52,7 +52,7 @@ function AlertBanner({ type = 'warning', message, actionLabel, onAction, onDismi
       {onDismiss && (
         <button 
           onClick={onDismiss}
-          className="p-1 hover:bg-black/5 rounded-full transition-colors"
+          className="p-1 hover:bg-slate-950/5 rounded-full transition-colors"
         >
           <X className={`w-4 h-4 ${variant.iconColor}`} />
         </button>

@@ -137,20 +137,20 @@ export default function EscalationChat() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-6 h-6 animate-spin text-[#7A7A7A]" />
+        <RefreshCw className="w-6 h-6 animate-spin text-text-muted" />
       </div>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-80px)] flex flex-col md:flex-row gap-0 bg-[#FAF7F2]">
+    <div className="h-[calc(100vh-80px)] flex flex-col md:flex-row gap-0 bg-stone-50">
       {/* ── SIDEBAR: super admin sees all escalations ──────── */}
       {isSuperAdmin && (
         <aside className="w-full md:w-72 border-r border-stone-200 bg-white flex flex-col overflow-hidden">
           <div className="p-4 border-b border-stone-200">
             <div className="flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-red-500" />
-              <h2 className="font-semibold text-[#1C1C1C]">Escalaciones</h2>
+              <h2 className="font-semibold text-primary">Escalaciones</h2>
               <span className="ml-auto text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">
                 {escalations.filter(e => (e.unread_count || 0) > 0).length} sin leer
               </span>
@@ -158,7 +158,7 @@ export default function EscalationChat() {
           </div>
           <div className="flex-1 overflow-y-auto divide-y divide-stone-100">
             {escalations.length === 0 ? (
-              <p className="p-6 text-sm text-[#7A7A7A] text-center">Sin escalaciones activas</p>
+              <p className="p-6 text-sm text-text-muted text-center">Sin escalaciones activas</p>
             ) : escalations.map(conv => {
               const other = conv.participants?.find(p => p.role !== 'super_admin') || conv.participants?.[0];
               return (
@@ -172,8 +172,8 @@ export default function EscalationChat() {
                       <User className="w-4 h-4 text-red-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1C1C1C] truncate">{other?.name || 'Admin'}</p>
-                      <p className="text-xs text-[#7A7A7A] truncate">
+                      <p className="text-sm font-medium text-primary truncate">{other?.name || 'Admin'}</p>
+                      <p className="text-xs text-text-muted truncate">
                         {conv.last_message?.content || 'Sin mensajes'}
                       </p>
                     </div>
@@ -195,14 +195,14 @@ export default function EscalationChat() {
         {/* Header */}
         <div className="bg-white border-b border-stone-200 px-4 py-3 flex items-center gap-3">
           {isSuperAdmin && activeConvId && (
-            <button onClick={() => setActiveConvId(null)} className="md:hidden p-1 text-[#7A7A7A]">
+            <button onClick={() => setActiveConvId(null)} className="md:hidden p-1 text-text-muted">
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
           <ShieldAlert className="w-5 h-5 text-red-500 shrink-0" />
           <div>
-            <h1 className="font-semibold text-[#1C1C1C] text-sm">Canal de Escalación Privado</h1>
-            <p className="text-xs text-[#7A7A7A] flex items-center gap-1">
+            <h1 className="font-semibold text-primary text-sm">Canal de Escalación Privado</h1>
+            <p className="text-xs text-text-muted flex items-center gap-1">
               <Lock className="w-3 h-3" /> Cifrado AES-256 · Solo visible para admins y superadmins
             </p>
           </div>
@@ -213,7 +213,7 @@ export default function EscalationChat() {
           <div className="flex-1 flex items-center justify-center text-center p-8">
             <div>
               <ShieldAlert className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-              <p className="text-[#7A7A7A]">Selecciona una escalación para ver los mensajes</p>
+              <p className="text-text-muted">Selecciona una escalación para ver los mensajes</p>
             </div>
           </div>
         )}
@@ -224,9 +224,9 @@ export default function EscalationChat() {
             <div className="max-w-md w-full bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <ShieldAlert className="w-6 h-6 text-red-500" />
-                <h2 className="font-semibold text-[#1C1C1C]">Escalar a SuperAdmin</h2>
+                <h2 className="font-semibold text-primary">Escalar a SuperAdmin</h2>
               </div>
-              <p className="text-sm text-[#7A7A7A] mb-4">
+              <p className="text-sm text-text-muted mb-4">
                 Usa este canal para reportar problemas críticos, disputas no resueltas o situaciones que requieren intervención de nivel superior.
                 El mensaje está cifrado de extremo a extremo en base de datos.
               </p>
@@ -254,7 +254,7 @@ export default function EscalationChat() {
           <>
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
               {messages.length === 0 && (
-                <p className="text-center text-sm text-[#7A7A7A] mt-8">Sin mensajes todavía</p>
+                <p className="text-center text-sm text-text-muted mt-8">Sin mensajes todavía</p>
               )}
               {messages.map(msg => {
                 const isMe = msg.sender_id === user?.user_id;
@@ -263,13 +263,13 @@ export default function EscalationChat() {
                     <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
                       isMe
                         ? 'bg-red-600 text-white rounded-br-sm'
-                        : 'bg-white border border-stone-200 text-[#1C1C1C] rounded-bl-sm'
+                        : 'bg-white border border-stone-200 text-primary rounded-bl-sm'
                     }`}>
                       {!isMe && (
                         <p className="text-xs font-medium mb-1 text-red-600">{msg.sender_name} · {msg.sender_role}</p>
                       )}
                       <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                      <p className={`text-xs mt-1 ${isMe ? 'text-red-200' : 'text-[#7A7A7A]'}`}>
+                      <p className={`text-xs mt-1 ${isMe ? 'text-red-200' : 'text-text-muted'}`}>
                         {new Date(msg.created_at).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
@@ -298,7 +298,7 @@ export default function EscalationChat() {
                   <Send className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-xs text-[#7A7A7A] mt-1.5 flex items-center gap-1">
+              <p className="text-xs text-text-muted mt-1.5 flex items-center gap-1">
                 <Lock className="w-3 h-3" /> Cifrado AES-256-GCM en base de datos
               </p>
             </div>

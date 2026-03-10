@@ -153,7 +153,7 @@ export default function ProductCard({ product, variant = 'default' }) {
           {!isOutOfStock && !isUnavailableInCountry && (
             <button
               onClick={handleAddToCart}
-              className="absolute top-2 right-2 w-8 h-8 bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white rounded-full flex items-center justify-center shadow-md transition-all active:scale-90 touch-manipulation md:opacity-0 md:group-hover:opacity-100"
+              className="absolute top-2 right-2 w-8 h-8 bg-primary hover:bg-primary-hover text-white rounded-full flex items-center justify-center shadow-md transition-all active:scale-90 touch-manipulation md:opacity-0 md:group-hover:opacity-100"
               style={{ opacity: undefined }}
               data-testid={`quick-add-${product.product_id}`}
               aria-label={t('products.addToCart')}

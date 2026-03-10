@@ -13,74 +13,96 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        heading: ['Cinzel', 'serif'],
+        heading: ['Playfair Display', 'serif'],
         body: ['Inter', 'sans-serif'],
       },
       colors: {
-        // New Design System Colors
-        'ds': {
-          'primary': '#1A1A1A',
-          'secondary': '#F5F5F0',
-          'accent': '#2D5A27',
-          'alert': '#C41E3A',
-          'neutral': {
-            100: '#FFFFFF',
-            200: '#E5E5E5',
-            300: '#CCCCCC',
-            600: '#666666',
-            900: '#1A1A1A',
-          },
+        // ─── HISPALOSHOP DESIGN SYSTEM ─────────────────────────────────
+        brand: {
+          red:          '#C83A2A',
+          'red-hover':  '#B23324',
+          olive:        '#4F7A53',
+          'olive-hover':'#3F6243',
+          terracotta:   '#E07A5F',
         },
+
+        // Gray scale (DS)
+        gray: {
+          100: '#F7F7F7',
+          200: '#EAEAEA',
+          300: '#D2D2D2',
+          500: '#7A7A7A',
+          700: '#4A4A4A',
+          900: '#1A1A1A',
+        },
+
+        // Dark (DS)
+        dark: {
+          graphite: '#1C1C1E',
+          bg:       '#0F0F10',
+        },
+
+        // State (DS)
+        state: {
+          success: '#2E9B5D',
+          warning: '#F4A261',
+          amber:   '#E6A532',
+          error:   '#E63946',
+          info:    '#3A86FF',
+        },
+
+        // ─── LEGACY (backward compat) ──────────────────────────────────
         // Primary brand colors
         primary: {
-          DEFAULT: '#1C1C1C',
+          DEFAULT:    '#1C1C1C',
           foreground: '#F4EFE9',
-          hover: '#2A2A2A',
+          hover:      '#2A2A2A',
         },
         // Secondary colors
         secondary: {
-          DEFAULT: '#FAF7F2',
+          DEFAULT:    '#FAF7F2',
           foreground: '#1C1C1C',
-          hover: '#F4EFE9',
+          hover:      '#F4EFE9',
         },
-        // Accent colors (limited use)
+        // Accent colors
         accent: {
-          DEFAULT: '#2D5A27',
+          DEFAULT:  '#2D5A27',
           foreground: '#FFFFFF',
-          olive: '#6B7A4A',
-          rust: '#9C4A3A',
-          success: '#2D5A27',
+          olive:    '#6B7A4A',
+          rust:     '#9C4A3A',
+          success:  '#2D5A27',
         },
         // Background system
         background: {
-          DEFAULT: '#F5F5F0',
-          paper: '#FFFFFF',
+          DEFAULT:   '#F3EFEA',
+          paper:     '#FFFFFF',
           secondary: '#FAF7F2',
-          subtle: '#F4EFE9',
+          subtle:    '#F4EFE9',
+          dark:      '#0F0F10',
         },
         // Text system
         text: {
-          primary: '#1A1A1A',
+          primary:   '#1A1A1A',
           secondary: '#4A4A4A',
-          muted: '#666666',
-          inverted: '#F5F5F0',
+          muted:     '#7A7A7A',
+          inverted:  '#F5F5F0',
         },
         // Border system
         border: {
-          DEFAULT: '#E5E5E5',
-          divider: '#E6DFD6',
-          focus: '#2D5A27',
+          DEFAULT: '#D2D2D2',
+          divider: '#EAEAEA',
+          focus:   '#C83A2A',
         },
-        // Status colors (muted)
+        // Status colors
         status: {
-          success: '#2D5A27',
-          warning: '#B8860B',
-          error: '#C41E3A',
-          info: '#5A6A7A',
+          success: '#2E9B5D',
+          warning: '#F4A261',
+          error:   '#E63946',
+          info:    '#3A86FF',
         },
-        // Stone palette for backgrounds
+        // Stone palette
         stone: {
-          50: '#FAF7F2',
+          50:  '#FAF7F2',
           100: '#F5F5F0',
           200: '#E6DFD6',
           300: '#DED7CE',
@@ -91,70 +113,126 @@ module.exports = {
           800: '#2A2A2A',
           900: '#1A1A1A',
         },
+        // DS namespace (legacy)
+        'ds': {
+          'primary':   '#1A1A1A',
+          'secondary': '#F5F5F0',
+          'accent':    '#2D5A27',
+          'alert':     '#C41E3A',
+          'neutral': {
+            100: '#FFFFFF',
+            200: '#E5E5E5',
+            300: '#CCCCCC',
+            600: '#666666',
+            900: '#1A1A1A',
+          },
+        },
       },
+
       borderRadius: {
-        'pill': '999px',
-        'xl': '16px',
-        'lg': '12px',
-        'md': '8px',
-        'sm': '4px',
+        'pill':   '999px',
+        'avatar': '9999px',
+        '2xl':    '20px',
+        'xl':     '16px',
+        'lg':     '12px',
+        'md':     '8px',
+        'sm':     '6px',
+        'xs':     '4px',
       },
+
       boxShadow: {
-        'card': '0 2px 8px rgba(0, 0, 0, 0.04)',
-        'card-hover': '0 8px 24px rgba(0, 0, 0, 0.08)',
-        'floating': '0 16px 48px rgba(0, 0, 0, 0.12)',
-        'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
-        'sm': '0 2px 4px rgba(0, 0, 0, 0.02)',
-        'md': '0 4px 12px rgba(0, 0, 0, 0.04)',
-        'lg': '0 8px 24px rgba(0, 0, 0, 0.06)',
-        'hover': '0 6px 16px rgba(0, 0, 0, 0.05)',
-        'none': 'none',
+        // DS shadows
+        'card':  '0 4px 12px rgba(0,0,0,0.08)',
+        'hover': '0 8px 24px rgba(0,0,0,0.12)',
+        'modal': '0 20px 40px rgba(0,0,0,0.18)',
+        // Legacy
+        'card-hover': '0 8px 24px rgba(0,0,0,0.08)',
+        'floating':   '0 16px 48px rgba(0,0,0,0.12)',
+        'soft':       '0 2px 8px rgba(0,0,0,0.04)',
+        'sm':         '0 2px 4px rgba(0,0,0,0.02)',
+        'md':         '0 4px 12px rgba(0,0,0,0.04)',
+        'lg':         '0 8px 24px rgba(0,0,0,0.06)',
+        'none':       'none',
       },
+
       spacing: {
+        // DS spacing scale
+        'ds-xs':   '4px',
+        'ds-sm':   '8px',
+        'ds-md':   '16px',
+        'ds-lg':   '24px',
+        'ds-xl':   '32px',
+        'ds-xxl':  '48px',
+        'ds-xxxl': '64px',
+        // Legacy
         '18': '4.5rem',
         '22': '5.5rem',
         '30': '7.5rem',
         'safe-bottom': 'env(safe-area-inset-bottom)',
       },
+
       letterSpacing: {
         'editorial': '0.02em',
-        'label': '0.05em',
+        'label':     '0.05em',
       },
+
       lineHeight: {
         'editorial': '1.6',
+        'heading-1': '56px',
+        'heading-2': '1.2',
+        'heading-3': '1.3',
       },
+
+      fontSize: {
+        // DS typography scale
+        'h1':      ['48px', { lineHeight: '56px',  fontWeight: '700' }],
+        'h2':      ['36px', { lineHeight: '1.2',   fontWeight: '700' }],
+        'h3':      ['28px', { lineHeight: '1.3',   fontWeight: '600' }],
+        'h4':      ['22px', { lineHeight: '1.4',   fontWeight: '600' }],
+        'body-lg': ['18px', { lineHeight: '1.6',   fontWeight: '400' }],
+        'body':    ['16px', { lineHeight: '1.6',   fontWeight: '400' }],
+        'body-sm': ['14px', { lineHeight: '1.5',   fontWeight: '400' }],
+        'caption': ['12px', { lineHeight: '1.4',   fontWeight: '400' }],
+        'btn':     ['16px', { lineHeight: '1',     fontWeight: '500' }],
+      },
+
       maxWidth: {
         'editorial': '1200px',
+        'content':   '800px',
       },
+
       minHeight: {
-        'touch': '48px',
+        'touch':    '48px',
         'touch-lg': '56px',
       },
+
       animation: {
-        'slide-up': 'slideUp 0.3s ease-out',
+        'slide-up':   'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.3s ease-out',
-        'fade-in': 'fadeIn 0.2s ease-out',
-        'ripple': 'ripple 0.6s linear',
+        'fade-in':    'fadeIn 0.2s ease-out',
+        'ripple':     'ripple 0.6s linear',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
+
       keyframes: {
         slideUp: {
-          '0%': { transform: 'translateY(100%)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
+          '0%':   { transform: 'translateY(100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)',    opacity: '1' },
         },
         slideDown: {
-          '0%': { transform: 'translateY(-100%)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
+          '0%':   { transform: 'translateY(-100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)',     opacity: '1' },
         },
         fadeIn: {
-          '0%': { opacity: '0' },
+          '0%':   { opacity: '0' },
           '100%': { opacity: '1' },
         },
         ripple: {
-          '0%': { transform: 'scale(0)', opacity: '1' },
+          '0%':   { transform: 'scale(0)', opacity: '1' },
           '100%': { transform: 'scale(4)', opacity: '0' },
         },
       },
+
       transitionDuration: {
         '200': '200ms',
         '300': '300ms',

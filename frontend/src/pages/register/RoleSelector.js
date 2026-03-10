@@ -10,7 +10,7 @@ const ROLES = [
     subtitle: 'Consumidor',
     description: 'Descubre y compra productos artesanales directamente de productores',
     icon: User,
-    color: '#2D5A3D',
+    color: 'var(--color-accent)',
     path: '/register/consumer'
   },
   {
@@ -19,7 +19,7 @@ const ROLES = [
     subtitle: 'Influencer',
     description: 'Monetiza tu audiencia recomendando productos que te gustan',
     icon: Camera,
-    color: '#E6A532',
+    color: 'var(--color-warning)',
     path: '/register/influencer'
   },
   {
@@ -28,7 +28,7 @@ const ROLES = [
     subtitle: 'Productor',
     description: 'Vende directo a consumidores y expande tu negocio',
     icon: Store,
-    color: '#16A34A',
+    color: 'var(--color-success)',
     path: '/productor/registro'
   },
   {
@@ -37,7 +37,7 @@ const ROLES = [
     subtitle: 'Importador',
     description: 'Conecta con productores españoles para tu mercado',
     icon: Globe,
-    color: '#3B82F6',
+    color: 'var(--color-info)',
     path: '/register/importer'
   }
 ];
@@ -46,13 +46,13 @@ const RoleSelector = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8]">
+    <div className="min-h-screen bg-background-subtle">
       <div className="max-w-md mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
             ¿Cómo quieres usar Hispaloshop?
           </h1>
-          <p className="text-[#6B7280]">
+          <p className="text-text-muted">
             Selecciona el perfil que mejor se adapte a ti
           </p>
         </div>
@@ -83,21 +83,21 @@ const RoleSelector = () => {
                   >
                     {role.subtitle}
                   </span>
-                  <h3 className="font-semibold text-[#1A1A1A]">{role.title}</h3>
-                  <p className="text-sm text-[#6B7280] truncate">{role.description}</p>
+                  <h3 className="font-semibold text-gray-900">{role.title}</h3>
+                  <p className="text-sm text-text-muted truncate">{role.description}</p>
                 </div>
 
-                <ArrowRight className="w-5 h-5 text-[#6B7280] flex-shrink-0" />
+                <ArrowRight className="w-5 h-5 text-text-muted flex-shrink-0" />
               </motion.button>
             );
           })}
         </div>
 
-        <p className="text-center text-sm text-[#6B7280] mt-8">
+        <p className="text-center text-sm text-text-muted mt-8">
           ¿Ya tienes cuenta?{' '}
           <button 
             onClick={() => navigate('/login')}
-            className="text-[#2D5A3D] font-medium hover:underline"
+            className="text-accent font-medium hover:underline"
           >
             Inicia sesión
           </button>

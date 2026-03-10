@@ -6,17 +6,17 @@ const ProgressBar = ({ currentStep, totalSteps, stepLabels = [] }) => {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-[#1A1A1A]">
+        <span className="text-sm font-medium text-gray-900">
           Paso {currentStep} de {totalSteps}
         </span>
-        <span className="text-sm text-[#6B7280]">
+        <span className="text-sm text-text-muted">
           {stepLabels[currentStep - 1] || ''}
         </span>
       </div>
       
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
         <div 
-          className="h-full bg-[#2D5A3D] rounded-full transition-all duration-500 ease-out"
+          className="h-full bg-accent rounded-full transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -32,7 +32,7 @@ const ProgressBar = ({ currentStep, totalSteps, stepLabels = [] }) => {
             <div 
               key={stepNumber}
               className={`w-2 h-2 rounded-full transition-colors ${
-                isCompleted || isCurrent ? 'bg-[#2D5A3D]' : 'bg-gray-300'
+                isCompleted || isCurrent ? 'bg-accent' : 'bg-gray-300'
               }`}
             />
           );

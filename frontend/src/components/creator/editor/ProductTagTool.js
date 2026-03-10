@@ -26,10 +26,10 @@ function ProductTagTool({ tags, onAdd, onUpdate, onRemove }) {
       {/* Header con contador */}
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-sm text-stone-700 flex items-center gap-2">
-          <ShoppingBag className="w-4 h-4 text-[#2D5A3D]" />
+          <ShoppingBag className="w-4 h-4 text-accent" />
           Productos etiquetados
         </h3>
-        <span className="text-xs bg-[#2D5A3D] text-white px-2 py-0.5 rounded-full">
+        <span className="text-xs bg-accent text-white px-2 py-0.5 rounded-full">
           {tags.length}/5
         </span>
       </div>
@@ -38,7 +38,7 @@ function ProductTagTool({ tags, onAdd, onUpdate, onRemove }) {
       {tags.length < 5 && (
         <button
           onClick={() => setShowProductList(true)}
-          className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-[#2D5A3D] text-[#2D5A3D] hover:bg-[#2D5A3D]/5 transition-colors"
+          className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-accent text-accent hover:bg-accent/5 transition-colors"
         >
           <Plus className="w-5 h-5" />
           <span className="text-sm font-medium">Etiquetar producto</span>
@@ -66,7 +66,7 @@ function ProductTagTool({ tags, onAdd, onUpdate, onRemove }) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-stone-800 truncate">{tag.productName}</p>
-                  <p className="text-xs text-[#2D5A3D] font-semibold">€{tag.productPrice}</p>
+                  <p className="text-xs text-accent font-semibold">€{tag.productPrice}</p>
                 </div>
                 <button
                   onClick={() => onRemove(tag.id)}
@@ -123,7 +123,7 @@ function ProductTagTool({ tags, onAdd, onUpdate, onRemove }) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar producto..."
-                    className="w-full pl-10 pr-4 py-3 bg-stone-50 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+                    className="w-full pl-10 pr-4 py-3 bg-stone-50 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent"
                     autoFocus
                   />
                 </div>
@@ -148,9 +148,9 @@ function ProductTagTool({ tags, onAdd, onUpdate, onRemove }) {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-stone-800 truncate">{product.name}</p>
                         <p className="text-xs text-stone-500">{product.seller}</p>
-                        <p className="text-sm font-semibold text-[#2D5A3D] mt-0.5">€{product.price}</p>
+                        <p className="text-sm font-semibold text-accent mt-0.5">€{product.price}</p>
                       </div>
-                      <Plus className="w-5 h-5 text-[#2D5A3D]" />
+                      <Plus className="w-5 h-5 text-accent" />
                     </button>
                   ))}
                   {filteredProducts.length === 0 && (

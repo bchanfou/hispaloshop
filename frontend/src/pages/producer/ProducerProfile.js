@@ -122,7 +122,7 @@ export default function ProducerProfile() {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-[#7A7A7A]">
+      <div className="text-center py-12 text-text-muted">
         {t('common.loading', 'Loading...')}
       </div>
     );
@@ -130,21 +130,21 @@ export default function ProducerProfile() {
 
   return (
     <div>
-      <h1 className="font-heading text-3xl font-semibold text-[#1C1C1C] mb-2">
+      <h1 className="font-heading text-3xl font-semibold text-primary mb-2">
         {t('producer.profile', 'Company Profile')}
       </h1>
-      <p className="text-[#7A7A7A] font-body mb-6">
+      <p className="text-text-muted font-body mb-6">
         {t('producer.profileDescription', 'Manage your company information and addresses.')}
       </p>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-[#E6DFD6]">
+      <div className="flex gap-4 mb-6 border-b border-stone-200">
         <button
           onClick={() => setActiveTab('company')}
           className={`pb-4 px-2 font-medium flex items-center gap-2 transition-colors ${
             activeTab === 'company' 
-              ? 'text-[#1C1C1C] border-b-2 border-[#1C1C1C]' 
-              : 'text-[#7A7A7A] hover:text-[#1C1C1C]'
+              ? 'text-primary border-b-2 border-primary' 
+              : 'text-text-muted hover:text-primary'
           }`}
           data-testid="tab-company"
         >
@@ -154,8 +154,8 @@ export default function ProducerProfile() {
           onClick={() => setActiveTab('addresses')}
           className={`pb-4 px-2 font-medium flex items-center gap-2 transition-colors ${
             activeTab === 'addresses' 
-              ? 'text-[#1C1C1C] border-b-2 border-[#1C1C1C]' 
-              : 'text-[#7A7A7A] hover:text-[#1C1C1C]'
+              ? 'text-primary border-b-2 border-primary' 
+              : 'text-text-muted hover:text-primary'
           }`}
           data-testid="tab-addresses"
         >
@@ -165,8 +165,8 @@ export default function ProducerProfile() {
           onClick={() => setActiveTab('account')}
           className={`pb-4 px-2 font-medium flex items-center gap-2 transition-colors ${
             activeTab === 'account' 
-              ? 'text-[#1C1C1C] border-b-2 border-[#1C1C1C]' 
-              : 'text-[#7A7A7A] hover:text-[#1C1C1C]'
+              ? 'text-primary border-b-2 border-primary' 
+              : 'text-text-muted hover:text-primary'
           }`}
           data-testid="tab-account"
         >
@@ -176,57 +176,57 @@ export default function ProducerProfile() {
 
       {/* Company Info Tab */}
       {activeTab === 'company' && (
-        <div className="bg-white rounded-xl border border-[#DED7CE] p-6 max-w-2xl">
-          <h3 className="font-medium text-[#1C1C1C] mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl border border-stone-300 p-6 max-w-2xl">
+          <h3 className="font-medium text-primary mb-4 flex items-center gap-2">
             <Building2 className="w-5 h-5" /> {t('producer.companyDetails', 'Company Details')}
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+              <label className="block text-sm font-medium text-text-secondary mb-1">
                 {t('producer.companyName', 'Company Name')}
               </label>
-              <Input value={profile.company_name} disabled className="bg-[#FAF7F2]" />
+              <Input value={profile.company_name} disabled className="bg-stone-50" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+              <label className="block text-sm font-medium text-text-secondary mb-1">
                 {t('producer.vatCif', 'VAT/CIF')}
               </label>
-              <Input value={profile.vat_cif} disabled className="bg-[#FAF7F2]" />
+              <Input value={profile.vat_cif} disabled className="bg-stone-50" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+              <label className="block text-sm font-medium text-text-secondary mb-1">
                 {t('producer.contactPerson', 'Contact Person')}
               </label>
-              <Input value={profile.contact_person} disabled className="bg-[#FAF7F2]" />
+              <Input value={profile.contact_person} disabled className="bg-stone-50" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+              <label className="block text-sm font-medium text-text-secondary mb-1">
                 <Mail className="w-4 h-4 inline mr-1" /> {t('common.email', 'Email')}
               </label>
-              <Input value={user?.email || ''} disabled className="bg-[#FAF7F2]" />
+              <Input value={user?.email || ''} disabled className="bg-stone-50" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+              <label className="block text-sm font-medium text-text-secondary mb-1">
                 <Phone className="w-4 h-4 inline mr-1" /> {t('common.phone', 'Phone')}
               </label>
-              <Input value={profile.phone} disabled className="bg-[#FAF7F2]" />
+              <Input value={profile.phone} disabled className="bg-stone-50" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+              <label className="block text-sm font-medium text-text-secondary mb-1">
                 WhatsApp
               </label>
-              <Input value={profile.whatsapp} disabled className="bg-[#FAF7F2]" />
+              <Input value={profile.whatsapp} disabled className="bg-stone-50" />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+              <label className="block text-sm font-medium text-text-secondary mb-1">
                 {t('producer.fiscalAddress', 'Fiscal Address')}
               </label>
-              <Input value={profile.fiscal_address} disabled className="bg-[#FAF7F2]" />
+              <Input value={profile.fiscal_address} disabled className="bg-stone-50" />
             </div>
           </div>
 
-          <p className="text-sm text-[#7A7A7A] mt-4">
+          <p className="text-sm text-text-muted mt-4">
             {t('producer.contactAdminToUpdate', 'Contact admin to update company information.')}
           </p>
         </div>
@@ -236,17 +236,17 @@ export default function ProducerProfile() {
       {activeTab === 'addresses' && (
         <div className="space-y-6">
           {/* Office Address */}
-          <div className="bg-white rounded-xl border border-[#DED7CE] p-6" data-testid="office-address-section">
-            <h3 className="font-medium text-[#1C1C1C] mb-4 flex items-center gap-2">
+          <div className="bg-white rounded-xl border border-stone-300 p-6" data-testid="office-address-section">
+            <h3 className="font-medium text-primary mb-4 flex items-center gap-2">
               <Building2 className="w-5 h-5" /> {t('producer.officeAddress', 'Office Address')}
             </h3>
-            <p className="text-sm text-[#7A7A7A] mb-4">
+            <p className="text-sm text-text-muted mb-4">
               {t('producer.officeAddressDescription', 'Your main business address for official correspondence.')}
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.fullName', 'Contact Name')}
                 </label>
                 <Input
@@ -257,7 +257,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('common.phone', 'Phone')}
                 </label>
                 <Input
@@ -268,7 +268,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.street', 'Street')}
                 </label>
                 <Input
@@ -279,7 +279,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.city', 'City')}
                 </label>
                 <Input
@@ -290,7 +290,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.zip', 'Postal Code')}
                 </label>
                 <Input
@@ -301,7 +301,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.country', 'Country')}
                 </label>
                 <Input
@@ -315,17 +315,17 @@ export default function ProducerProfile() {
           </div>
 
           {/* Warehouse Address */}
-          <div className="bg-white rounded-xl border border-[#DED7CE] p-6" data-testid="warehouse-address-section">
-            <h3 className="font-medium text-[#1C1C1C] mb-4 flex items-center gap-2">
+          <div className="bg-white rounded-xl border border-stone-300 p-6" data-testid="warehouse-address-section">
+            <h3 className="font-medium text-primary mb-4 flex items-center gap-2">
               <Warehouse className="w-5 h-5" /> {t('producer.warehouseAddress', 'Warehouse Address')}
             </h3>
-            <p className="text-sm text-[#7A7A7A] mb-4">
+            <p className="text-sm text-text-muted mb-4">
               {t('producer.warehouseAddressDescription', 'Address where products are stored and shipped from.')}
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.fullName', 'Contact Name')}
                 </label>
                 <Input
@@ -336,7 +336,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('common.phone', 'Phone')}
                 </label>
                 <Input
@@ -347,7 +347,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.street', 'Street')}
                 </label>
                 <Input
@@ -358,7 +358,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.city', 'City')}
                 </label>
                 <Input
@@ -369,7 +369,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.zip', 'Postal Code')}
                 </label>
                 <Input
@@ -380,7 +380,7 @@ export default function ProducerProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#4A4A4A] mb-1">
+                <label className="block text-sm font-medium text-text-secondary mb-1">
                   {t('checkout.country', 'Country')}
                 </label>
                 <Input
@@ -398,7 +398,7 @@ export default function ProducerProfile() {
             <Button
               onClick={saveAddresses}
               disabled={saving}
-              className="bg-[#1C1C1C] hover:bg-[#333] text-white"
+              className="bg-primary hover:bg-primary-hover text-white"
               data-testid="save-addresses-btn"
             >
               <Save className="w-4 h-4 mr-2" />
@@ -445,18 +445,18 @@ export default function ProducerProfile() {
               <div className="p-3 bg-red-100 rounded-full">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
-              <h2 className="font-heading text-xl font-bold text-[#1C1C1C]">
+              <h2 className="font-heading text-xl font-bold text-primary">
                 {t('profile.confirmDeleteTitle', 'Delete Account')}
               </h2>
             </div>
             
-            <p className="text-[#7A7A7A] mb-4">
+            <p className="text-text-muted mb-4">
               {t('profile.confirmDeleteProducerDescription', 'Your products will be deactivated and your account deleted. Orders history will be kept for accounting purposes.')}
             </p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#1C1C1C] mb-1">
+                <label className="block text-sm font-medium text-primary mb-1">
                   {t('profile.enterPassword', 'Enter your password')}
                 </label>
                 <Input
@@ -469,7 +469,7 @@ export default function ProducerProfile() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-[#1C1C1C] mb-1">
+                <label className="block text-sm font-medium text-primary mb-1">
                   {t('profile.typeDelete', 'Type DELETE to confirm')}
                 </label>
                 <Input

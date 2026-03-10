@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { User, TrendingUp, Globe, Sparkles } from 'lucide-react';
 
 const ROLES = [
-  { id: 'consumer', name: 'Nutrición', icon: User, color: '#2D5A3D', description: 'Tu nutricionista personal' },
-  { id: 'producer', name: 'Ventas', icon: TrendingUp, color: '#E6A532', description: 'Asistente de ventas' },
+  { id: 'consumer', name: 'Nutrición', icon: User, color: 'var(--color-accent)', description: 'Tu nutricionista personal' },
+  { id: 'producer', name: 'Ventas', icon: TrendingUp, color: 'var(--color-warning)', description: 'Asistente de ventas' },
   { id: 'importer', name: 'Import', icon: Globe, color: '#2563EB', description: 'Analista de mercado' },
   { id: 'influencer', name: 'Creator', icon: Sparkles, color: '#9333EA', description: 'Creativo de contenido' },
 ];
@@ -35,10 +35,10 @@ function RoleSelector({ activeRole, onSwitch, isOpen, onClose }) {
           <div className="w-10 h-1 bg-stone-300 rounded-full" />
         </div>
 
-        <h2 className="text-lg font-bold text-[#1A1A1A] mb-2">
+        <h2 className="text-lg font-bold text-gray-900 mb-2">
           Cambiar modo HI
         </h2>
-        <p className="text-sm text-[#6B7280] mb-6">
+        <p className="text-sm text-text-muted mb-6">
           Selecciona cómo quieres usar HI según lo que necesites ahora
         </p>
 
@@ -72,8 +72,8 @@ function RoleSelector({ activeRole, onSwitch, isOpen, onClose }) {
                   <Icon className="w-6 h-6" style={{ color: role.color }} />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="font-semibold text-[#1A1A1A]">{role.name}</p>
-                  <p className="text-sm text-[#6B7280]">{role.description}</p>
+                  <p className="font-semibold text-gray-900">{role.name}</p>
+                  <p className="text-sm text-text-muted">{role.description}</p>
                 </div>
                 {isActive && (
                   <div
@@ -92,7 +92,7 @@ function RoleSelector({ activeRole, onSwitch, isOpen, onClose }) {
 
         <button
           onClick={onClose}
-          className="w-full mt-6 py-3 text-[#6B7280] font-medium"
+          className="w-full mt-6 py-3 text-text-muted font-medium"
         >
           Cancelar
         </button>

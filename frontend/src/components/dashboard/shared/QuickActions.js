@@ -19,7 +19,7 @@ function QuickActions({ actions }) {
           >
             <action.icon className="w-5 h-5" style={{ color: action.color }} />
           </div>
-          <span className="text-sm font-medium text-[#1A1A1A]">{action.label}</span>
+          <span className="text-sm font-medium text-gray-900">{action.label}</span>
         </motion.button>
       ))}
     </div>

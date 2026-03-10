@@ -163,7 +163,7 @@ export default function LocaleSelector({ compact = false }) {
     renderItem,
   }) => (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm max-h-[80vh] bg-[#FAF7F2]">
+      <DialogContent className="max-w-sm max-h-[80vh] bg-stone-50">
         <DialogHeader>
           <DialogTitle className="font-heading text-lg">{title}</DialogTitle>
         </DialogHeader>
@@ -375,7 +375,7 @@ export default function LocaleSelector({ compact = false }) {
               >
                 <CountryFlag countryCode={code} size="md" />
                 <span className="flex-1">{data.name}</span>
-                {country === code && <Check className="w-4 h-4 text-[#2D5A27]" />}
+                {country === code && <Check className="w-4 h-4 text-accent" />}
               </button>
             ))}
           </DesktopMenu>
@@ -390,7 +390,7 @@ export default function LocaleSelector({ compact = false }) {
               >
                 <span className="uppercase font-semibold text-xs w-7">{code}</span>
                 <span className="flex-1">{data.native}</span>
-                {language === code && <Check className="w-4 h-4 text-[#2D5A27]" />}
+                {language === code && <Check className="w-4 h-4 text-accent" />}
               </button>
             ))}
           </DesktopMenu>
@@ -405,7 +405,7 @@ export default function LocaleSelector({ compact = false }) {
               >
                 <span className="text-base w-6">{data.symbol}</span>
                 <span className="flex-1">{code}</span>
-                {currency === code && <Check className="w-4 h-4 text-[#2D5A27]" />}
+                {currency === code && <Check className="w-4 h-4 text-accent" />}
               </button>
             ))}
           </DesktopMenu>
@@ -413,12 +413,12 @@ export default function LocaleSelector({ compact = false }) {
       )}
 
       <AlertDialog open={showCountryWarning} onOpenChange={setShowCountryWarning}>
-        <AlertDialogContent className="bg-[#FAF7F2] border-[#DED7CE]">
+        <AlertDialogContent className="bg-stone-50 border-stone-300">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-heading text-xl text-[#1C1C1C]">
+            <AlertDialogTitle className="font-heading text-xl text-primary">
               {t('locale.countryChange')}
             </AlertDialogTitle>
-            <AlertDialogDescription className="font-body text-[#4A4A4A]">
+            <AlertDialogDescription className="font-body text-text-secondary">
               {unavailableItems.length > 0 && (
                 <>
                   <p className="mb-3 flex items-center gap-2 flex-wrap">
@@ -452,7 +452,7 @@ export default function LocaleSelector({ compact = false }) {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => confirmCountryChange(pendingCountry)}
-              className="font-body bg-[#1C1C1C] text-white hover:bg-[#1C1C1C]/90"
+              className="font-body bg-primary text-white hover:bg-primary/90"
             >
               {t('common.continue')}
             </AlertDialogAction>

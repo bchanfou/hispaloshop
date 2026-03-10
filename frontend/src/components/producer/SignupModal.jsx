@@ -263,7 +263,7 @@ function fieldClass(hasError, isValid) {
     return 'border-[#dc2626] focus-visible:border-[#dc2626] focus-visible:ring-4 focus-visible:ring-[#dc2626]/15';
   }
   if (isValid) {
-    return 'border-[#10b981] focus-visible:border-[#10b981] focus-visible:ring-4 focus-visible:ring-[#10b981]/15';
+    return 'border-emerald-500 focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-[#10b981]/15';
   }
   return 'border-[#d6d3d1] focus-visible:border-[#14532d] focus-visible:ring-4 focus-visible:ring-[#14532d]/15';
 }
@@ -272,7 +272,7 @@ function StatusIcon({ valid }) {
   if (!valid) {
     return null;
   }
-  return <CheckCircle2 className="pointer-events-none absolute right-3 top-[42px] h-4 w-4 text-[#10b981]" aria-hidden="true" />;
+  return <CheckCircle2 className="pointer-events-none absolute right-3 top-[42px] h-4 w-4 text-emerald-500" aria-hidden="true" />;
 }
 
 function PlanPill({ label, selected, accent }) {
@@ -892,7 +892,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               key={option}
               type="button"
               onClick={() => updateField('exportStage', option)}
-              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${formData.exportStage === option ? 'border-[#d97706] bg-[#fffbeb] text-[#92400e]' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${formData.exportStage === option ? 'border-[#d97706] bg-amber-50 text-[#92400e]' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
             >
               {option}
             </button>
@@ -961,7 +961,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 <PlanPill
                   label={plan.badge}
                   selected={selectedPlan === plan.key}
-                  accent={plan.key === 'pro' ? 'bg-[#fffbeb] text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}
+                  accent={plan.key === 'pro' ? 'bg-amber-50 text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}
                 />
                 <div>
                   <p className="text-base font-bold text-stone-900">{plan.name}</p>
@@ -980,7 +980,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                   <PlanPill
                     label={plan.badge}
                     selected={true}
-                    accent={plan.key === 'pro' ? 'bg-[#fffbeb] text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}
+                    accent={plan.key === 'pro' ? 'bg-amber-50 text-[#b45309]' : plan.key === 'elite' ? 'bg-[#eef2ff] text-[#4338ca]' : 'bg-[#ecfdf5] text-[#166534]'}
                   />
                   <h3 className="mt-4 text-3xl font-bold tracking-[-0.03em] text-stone-900">{plan.name}</h3>
                   <p className="mt-2 text-sm leading-7 text-stone-600">{plan.summary}</p>
@@ -1073,7 +1073,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
         className="rounded-[32px] border border-stone-200 bg-white p-8 shadow-[0_28px_70px_-40px_rgba(0,0,0,0.22)] sm:p-10"
       >
         <div className="mx-auto max-w-2xl">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#ecfdf5] text-[#10b981] shadow-[0_18px_44px_-26px_rgba(16,185,129,0.45)]">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#ecfdf5] text-emerald-500 shadow-[0_18px_44px_-26px_rgba(16,185,129,0.45)]">
             <CircleCheckBig className="h-10 w-10" />
           </div>
           <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#d6d3d1] bg-stone-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
@@ -1177,7 +1177,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 </div>
                 <div className="mt-6 space-y-4 text-sm text-white/74">
                   <div className="flex items-start gap-3">
-                    <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#10b981]" />
+                    <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-500" />
                     <p>Guardamos el progreso en localStorage con la clave `hispalo_producer_signup`.</p>
                   </div>
                   <div className="flex items-start gap-3">

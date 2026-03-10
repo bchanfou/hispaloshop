@@ -39,7 +39,7 @@ function FeedContainer() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-stone-50">
       {/* Toggle Siguiendo/Para ti */}
       <TabToggle activeTab={activeTab} onChange={setActiveTab} />
 
@@ -56,7 +56,7 @@ function FeedContainer() {
       {isRefreshing && (
         <div className="flex items-center justify-center py-4 bg-white">
           <div className="w-5 h-5 border-2 border-stone-200 border-t-[#2D5A3D] rounded-full animate-spin" />
-          <span className="ml-2 text-sm text-[#6B7280]">{t('feed.refreshing', 'Actualizando...')}</span>
+          <span className="ml-2 text-sm text-text-muted">{t('feed.refreshing', 'Actualizando...')}</span>
         </div>
       )}
 

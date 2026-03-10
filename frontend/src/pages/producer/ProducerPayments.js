@@ -309,7 +309,7 @@ export default function ProducerPayments() {
               <span className="w-3 h-3 rounded-sm bg-[#d4c5a9]" /> Bruto
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-[#2D5A27]" /> Neto
+              <span className="w-3 h-3 rounded-sm bg-accent" /> Neto
             </span>
           </div>
         </div>

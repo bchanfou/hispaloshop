@@ -38,7 +38,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
               exit={{ opacity: 0, x: 20 }}
               onClick={() => setSelectedTextId(text.id)}
               className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
-                selectedTextId === text.id ? 'bg-[#2D5A3D]/10 ring-1 ring-[#2D5A3D]' : 'bg-stone-50 hover:bg-stone-100'
+                selectedTextId === text.id ? 'bg-accent/10 ring-1 ring-accent' : 'bg-stone-50 hover:bg-stone-100'
               }`}
             >
               <span className="text-sm truncate flex-1" style={{ fontFamily: text.fontFamily }}>
@@ -63,7 +63,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
       {!showAddForm ? (
         <button
           onClick={() => setShowAddForm(true)}
-          className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-stone-300 text-stone-500 hover:border-[#2D5A3D] hover:text-[#2D5A3D] transition-colors"
+          className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-stone-300 text-stone-500 hover:border-accent hover:text-accent transition-colors"
         >
           <Plus className="w-5 h-5" />
           <span className="text-sm font-medium">Añadir texto</span>
@@ -75,7 +75,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
             placeholder="Escribe tu texto..."
-            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+            className="w-full px-3 py-2 rounded-lg border border-stone-200 text-sm outline-none focus:ring-2 focus:ring-accent"
             autoFocus
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           />
@@ -89,7 +89,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             <button
               onClick={handleAdd}
               disabled={!newText.trim()}
-              className="flex-1 py-2 bg-[#2D5A3D] text-white text-sm rounded-lg disabled:opacity-50"
+              className="flex-1 py-2 bg-accent text-white text-sm rounded-lg disabled:opacity-50"
             >
               Añadir
             </button>
@@ -114,7 +114,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                   onClick={() => onUpdate(selectedText.id, { fontFamily: font.id })}
                   className={`px-3 py-2 rounded-lg text-xs whitespace-nowrap transition-colors ${
                     selectedText.fontFamily === font.id
-                      ? 'bg-[#2D5A3D] text-white'
+                      ? 'bg-accent text-white'
                       : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                   }`}
                   style={{ fontFamily: font.id }}
@@ -134,7 +134,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
               max="72"
               value={selectedText.fontSize}
               onChange={(e) => onUpdate(selectedText.id, { fontSize: parseInt(e.target.value) })}
-              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#2D5A3D]"
+              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-accent"
             />
           </div>
 
@@ -149,7 +149,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                   key={color}
                   onClick={() => onUpdate(selectedText.id, { color })}
                   className={`w-8 h-8 rounded-full border-2 ${
-                    selectedText.color === color ? 'border-[#2D5A3D] scale-110' : 'border-stone-200'
+                    selectedText.color === color ? 'border-accent scale-110' : 'border-stone-200'
                   }`}
                   style={{ backgroundColor: color }}
                 />
@@ -162,7 +162,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             <button
               onClick={() => onUpdate(selectedText.id, { hasOutline: !selectedText.hasOutline })}
               className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors ${
-                selectedText.hasOutline ? 'bg-[#2D5A3D] text-white' : 'bg-stone-100 text-stone-600'
+                selectedText.hasOutline ? 'bg-accent text-white' : 'bg-stone-100 text-stone-600'
               }`}
             >
               Sombra
@@ -170,7 +170,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             <button
               onClick={() => onUpdate(selectedText.id, { hasBackground: !selectedText.hasBackground })}
               className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
-                selectedText.hasBackground ? 'bg-[#2D5A3D] text-white' : 'bg-stone-100 text-stone-600'
+                selectedText.hasBackground ? 'bg-accent text-white' : 'bg-stone-100 text-stone-600'
               }`}
             >
               <Square className="w-3 h-3" /> Fondo
@@ -184,7 +184,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                   key={bg}
                   onClick={() => onUpdate(selectedText.id, { backgroundColor: bg })}
                   className={`w-8 h-8 rounded-lg ${
-                    selectedText.backgroundColor === bg ? 'ring-2 ring-[#2D5A3D]' : ''
+                    selectedText.backgroundColor === bg ? 'ring-2 ring-accent' : ''
                   }`}
                   style={{ backgroundColor: bg }}
                 />

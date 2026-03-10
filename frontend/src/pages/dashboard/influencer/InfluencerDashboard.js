@@ -126,42 +126,42 @@ function InfluencerDashboard() {
       id: 'links', 
       icon: LinkIcon, 
       label: 'Mis enlaces', 
-      color: '#2D5A3D',
+      color: 'var(--color-accent)',
       onClick: () => navigate('/influencer/links')
     },
     { 
       id: 'opportunities', 
       icon: TrendingUp, 
       label: 'Oportunidades', 
-      color: '#E6A532',
+      color: 'var(--color-warning)',
       onClick: () => navigate('/influencer/opportunities')
     },
     { 
       id: 'earnings', 
       icon: Euro, 
       label: 'Mis ganancias', 
-      color: '#3B82F6',
+      color: 'var(--color-info)',
       onClick: () => navigate('/influencer/earnings')
     },
     { 
       id: 'perks', 
       icon: Gift, 
       label: 'Beneficios', 
-      color: '#16A34A',
+      color: 'var(--color-success)',
       onClick: () => navigate('/influencer/perks')
     }
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#2D5A3D]" />
+      <div className="min-h-screen bg-background-subtle flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] p-4 pb-24">
+    <div className="min-h-screen bg-background-subtle p-4 pb-24">
       <DashboardHeader 
         userName={user?.name?.split(' ')[0] || 'Influencer'}
         subtitle={`Nivel: ${dashboardData.tier}`}
@@ -203,8 +203,8 @@ function InfluencerDashboard() {
       {/* Chart */}
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-[#1A1A1A]">Ganancias semanales</h3>
-          <p className="text-xs text-[#6B7280]">
+          <h3 className="font-semibold text-gray-900">Ganancias semanales</h3>
+          <p className="text-xs text-text-muted">
             Evolución de tus comisiones
           </p>
         </div>
@@ -217,7 +217,7 @@ function InfluencerDashboard() {
 
       {/* Quick Actions */}
       <div className="mb-6">
-        <h3 className="font-semibold text-[#1A1A1A] mb-3">Acciones rápidas</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Acciones rápidas</h3>
         <QuickActions actions={quickActions} />
       </div>
 
@@ -225,10 +225,10 @@ function InfluencerDashboard() {
       {dashboardData.recentConversions.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-[#1A1A1A]">Ventas recientes</h3>
+            <h3 className="font-semibold text-gray-900">Ventas recientes</h3>
             <button 
               onClick={() => navigate('/influencer/earnings')}
-              className="text-sm text-[#2D5A3D] font-medium"
+              className="text-sm text-accent font-medium"
             >
               Ver todas
             </button>
@@ -242,7 +242,7 @@ function InfluencerDashboard() {
 
       {/* HI Suggestions */}
       <div>
-        <h3 className="font-semibold text-[#1A1A1A] mb-3">Sugerencias</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Sugerencias</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>

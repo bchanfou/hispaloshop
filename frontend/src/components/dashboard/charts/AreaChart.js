@@ -68,7 +68,7 @@ function AreaChart({ data, labels, height = 160, color = '#2D5A3D', fillColor = 
       {/* Labels */}
       <div className="flex justify-between mt-2 px-1">
         {labels.map((label, index) => (
-          <span key={index} className="text-xs text-[#6B7280]">{label}</span>
+          <span key={index} className="text-xs text-text-muted">{label}</span>
         ))}
       </div>
     </div>

@@ -161,10 +161,10 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
         {/* Header */}
         <div className="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
           <div>
-            <h2 className="font-heading text-xl font-semibold text-[#1C1C1C]">
+            <h2 className="font-heading text-xl font-semibold text-primary">
               Manage Variants & Packs
             </h2>
-            <p className="text-sm text-[#7A7A7A]">{product.name}</p>
+            <p className="text-sm text-text-muted">{product.name}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-stone-100 rounded-lg">
             <X className="w-5 h-5" />
@@ -177,10 +177,10 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
           {variants.length === 0 ? (
             <div className="text-center py-8 bg-stone-50 rounded-lg border border-dashed border-stone-300">
               <Package className="w-8 h-8 text-stone-400 mx-auto mb-2" />
-              <p className="text-[#7A7A7A] mb-4">No variants yet</p>
+              <p className="text-text-muted mb-4">No variants yet</p>
               <Button 
                 onClick={() => setShowAddVariant(true)}
-                className="bg-[#1C1C1C] hover:bg-[#2C2C2C] text-white"
+                className="bg-primary hover:bg-primary-hover text-white"
               >
                 <Plus className="w-4 h-4 mr-2" /> Add First Variant
               </Button>
@@ -208,14 +208,14 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                         <ChevronRight className="w-4 h-4 text-stone-400" />
                       )}
                       <div className="text-left">
-                        <span className="font-medium text-[#1C1C1C]">{variant.name}</span>
+                        <span className="font-medium text-primary">{variant.name}</span>
                         {variant.sku && (
-                          <span className="ml-2 text-xs text-[#7A7A7A]">SKU: {variant.sku}</span>
+                          <span className="ml-2 text-xs text-text-muted">SKU: {variant.sku}</span>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-[#7A7A7A]">
+                      <span className="text-xs text-text-muted">
                         {variant.packs?.length || 0} packs
                       </span>
                       <button
@@ -244,7 +244,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-[#7A7A7A] text-center py-2">
+                        <p className="text-sm text-text-muted text-center py-2">
                           No packs for this variant
                         </p>
                       )}
@@ -287,7 +287,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                             <Button 
                               onClick={() => handleAddPack(variant.variant_id)}
                               disabled={saving}
-                              className="bg-[#1C1C1C] hover:bg-[#2C2C2C] text-white"
+                              className="bg-primary hover:bg-primary-hover text-white"
                             >
                               {saving ? 'Adding...' : 'Add Pack'}
                             </Button>
@@ -305,7 +305,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                       ) : (
                         <button
                           onClick={() => setAddingPack(variant.variant_id)}
-                          className="w-full py-2 text-sm text-[#7A7A7A] border border-dashed border-stone-300 rounded-lg hover:border-stone-400 hover:text-[#4A4A4A]"
+                          className="w-full py-2 text-sm text-text-muted border border-dashed border-stone-300 rounded-lg hover:border-stone-400 hover:text-text-secondary"
                         >
                           <Plus className="w-4 h-4 inline mr-1" /> Add Pack
                         </button>
@@ -320,7 +320,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
           {/* Add Variant Form */}
           {showAddVariant && (
             <div className="p-4 bg-stone-50 rounded-lg border border-stone-200 space-y-3">
-              <h3 className="font-medium text-[#1C1C1C]">New Variant</h3>
+              <h3 className="font-medium text-primary">New Variant</h3>
               <div className="grid grid-cols-2 gap-3">
                 <Input
                   placeholder="Variant name (e.g., Tomato, 500g)"
@@ -337,7 +337,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                 <Button 
                   onClick={handleAddVariant}
                   disabled={saving}
-                  className="bg-[#1C1C1C] hover:bg-[#2C2C2C] text-white"
+                  className="bg-primary hover:bg-primary-hover text-white"
                 >
                   {saving ? 'Creating...' : 'Create Variant'}
                 </Button>
@@ -359,7 +359,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
           {variants.length > 0 && !showAddVariant && (
             <button
               onClick={() => setShowAddVariant(true)}
-              className="w-full py-3 text-sm text-[#7A7A7A] border border-dashed border-stone-300 rounded-lg hover:border-stone-400 hover:text-[#4A4A4A]"
+              className="w-full py-3 text-sm text-text-muted border border-dashed border-stone-300 rounded-lg hover:border-stone-400 hover:text-text-secondary"
             >
               <Plus className="w-4 h-4 inline mr-1" /> Add Another Variant
             </button>
@@ -368,7 +368,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-stone-200">
-          <Button onClick={onClose} className="w-full bg-[#1C1C1C] hover:bg-[#2C2C2C] text-white">
+          <Button onClick={onClose} className="w-full bg-primary hover:bg-primary-hover text-white">
             Done
           </Button>
         </div>
@@ -440,11 +440,11 @@ function PackRow({ pack, onUpdate, onDelete }) {
       data-testid={`pack-${pack.pack_id}`}
     >
       <div className="flex items-center gap-4">
-        <span className="font-medium text-sm text-[#1C1C1C]">{pack.label}</span>
-        <span className="text-xs text-[#7A7A7A]">{pack.units} unit(s)</span>
+        <span className="font-medium text-sm text-primary">{pack.label}</span>
+        <span className="text-xs text-text-muted">{pack.units} unit(s)</span>
       </div>
       <div className="flex items-center gap-4">
-        <span className="font-medium text-[#1C1C1C]">${pack.price.toFixed(2)}</span>
+        <span className="font-medium text-primary">${pack.price.toFixed(2)}</span>
         <span className={`text-xs px-2 py-1 rounded-full ${
           pack.stock <= 0 
             ? 'bg-red-50 text-red-600' 
@@ -457,7 +457,7 @@ function PackRow({ pack, onUpdate, onDelete }) {
         <div className="flex items-center gap-1">
           <button 
             onClick={() => setEditing(true)}
-            className="p-1 text-stone-400 hover:text-[#1C1C1C] hover:bg-stone-100 rounded"
+            className="p-1 text-stone-400 hover:text-primary hover:bg-stone-100 rounded"
           >
             <Edit2 className="w-4 h-4" />
           </button>

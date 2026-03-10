@@ -29,7 +29,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#FAFAFA]">
+    <div className="relative min-h-screen overflow-x-hidden bg-stone-50">
       <SEO
         title="Hispaloshop - Descubre productos reales"
         description="Productos artesanales de tu zona y delicatessen importadas con pago seguro y trazabilidad real."

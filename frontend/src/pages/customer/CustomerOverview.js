@@ -85,12 +85,12 @@ export default function CustomerOverview() {
       {/* Quick Actions - Horizontal scrollable */}
       <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1" data-testid="quick-actions">
         {[
-          { to: '/products', icon: Search, label: t('customerDashboard.explore'), color: 'text-[#1C1C1C]', bg: 'bg-stone-50' },
-          { to: '/dashboard/orders', icon: Package, label: t('customerDashboard.orders'), color: 'text-[#1C1C1C]', bg: 'bg-stone-50' },
+          { to: '/products', icon: Search, label: t('customerDashboard.explore'), color: 'text-primary', bg: 'bg-stone-50' },
+          { to: '/dashboard/orders', icon: Package, label: t('customerDashboard.orders'), color: 'text-primary', bg: 'bg-stone-50' },
           { to: '/dashboard/followed-stores', icon: Heart, label: t('customerDashboard.saved'), color: 'text-red-400', bg: 'bg-red-50' },
           { to: '/recipes', icon: Star, label: t('nav.recipes', 'Recetas'), color: 'text-amber-500', bg: 'bg-amber-50' },
-          { to: '/stores', icon: Store, label: t('nav.stores', 'Tiendas'), color: 'text-[#1C1C1C]', bg: 'bg-stone-50' },
-          { to: '/discover', icon: Compass, label: t('customerDashboard.discoverProducers'), color: 'text-[#1C1C1C]', bg: 'bg-stone-50' },
+          { to: '/stores', icon: Store, label: t('nav.stores', 'Tiendas'), color: 'text-primary', bg: 'bg-stone-50' },
+          { to: '/discover', icon: Compass, label: t('customerDashboard.discoverProducers'), color: 'text-primary', bg: 'bg-stone-50' },
         ].map(a => (
           <Link key={a.to} to={a.to} className={`shrink-0 flex items-center gap-2 ${a.bg} rounded-full px-4 py-2.5 border border-stone-200/80 hover:shadow-sm transition-all`}>
             <a.icon className={`w-4 h-4 ${a.color}`} />
@@ -107,7 +107,7 @@ export default function CustomerOverview() {
               <Zap className="w-4 h-4 text-stone-900" />
               <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider">Predict</h2>
             </div>
-            <Link to="/dashboard/predictions" className="text-xs text-[#1C1C1C] hover:underline flex items-center gap-0.5">
+            <Link to="/dashboard/predictions" className="text-xs text-primary hover:underline flex items-center gap-0.5">
               {t('customerDashboard.seeAll')} <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -144,7 +144,7 @@ export default function CustomerOverview() {
             <Star className="w-4 h-4 text-amber-400" />
             <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider">{t('customerDashboard.forYou')}</h2>
           </div>
-          <Link to="/products" className="text-xs text-[#1C1C1C] hover:underline flex items-center gap-0.5">{t('customerDashboard.seeAll')} <ChevronRight className="w-3 h-3" /></Link>
+          <Link to="/products" className="text-xs text-primary hover:underline flex items-center gap-0.5">{t('customerDashboard.seeAll')} <ChevronRight className="w-3 h-3" /></Link>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
           {recommended.map(p => (
@@ -154,7 +154,7 @@ export default function CustomerOverview() {
               </div>
               <div className="p-2.5">
                 <p className="text-xs font-medium text-text-primary truncate">{p.name}</p>
-                <p className="text-sm font-bold text-[#1C1C1C]">{(p.display_price || p.price)?.toFixed(2)}€</p>
+                <p className="text-sm font-bold text-primary">{(p.display_price || p.price)?.toFixed(2)}€</p>
               </div>
             </Link>
           ))}
@@ -166,7 +166,7 @@ export default function CustomerOverview() {
         <div data-testid="followed-stores">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider">{t('customerDashboard.storesYouFollow')}</h2>
-            <Link to="/stores" className="text-xs text-[#1C1C1C] hover:underline">{t('customerDashboard.seeAll')}</Link>
+            <Link to="/stores" className="text-xs text-primary hover:underline">{t('customerDashboard.seeAll')}</Link>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
             {followedStores.map(s => (
@@ -201,7 +201,7 @@ export default function CustomerOverview() {
                   <p className="text-sm font-medium text-text-primary truncate">{p.name}</p>
                   <p className="text-xs text-text-muted">{p.store_name || ''}</p>
                 </div>
-                <p className="text-sm font-bold text-[#1C1C1C] shrink-0">{(p.display_price || p.price)?.toFixed(2)}€</p>
+                <p className="text-sm font-bold text-primary shrink-0">{(p.display_price || p.price)?.toFixed(2)}€</p>
               </Link>
             ))}
           </div>
@@ -209,7 +209,7 @@ export default function CustomerOverview() {
       )}
 
       {/* Continue Shopping CTA */}
-      <Link to="/products" className="block bg-[#1C1C1C] rounded-2xl p-5 text-center hover:bg-[#2A2A2A] transition-all" data-testid="continue-shopping-cta">
+      <Link to="/products" className="block bg-primary rounded-2xl p-5 text-center hover:bg-primary-hover transition-all" data-testid="continue-shopping-cta">
         <ShoppingBag className="w-7 h-7 mx-auto text-white mb-2" />
         <p className="text-sm font-semibold text-white">{t('customerDashboard.continueShopping', 'Seguir comprando')}</p>
         <p className="text-xs text-stone-400 mt-0.5">{t('customerDashboard.discoverNew', 'Descubre productos nuevos')}</p>

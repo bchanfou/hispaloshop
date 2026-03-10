@@ -441,7 +441,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                         href="https://instagram.com/bchanfuah"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-[#581c87] transition-transform hover:scale-[1.02]"
+                        className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-purple-900 transition-transform hover:scale-[1.02]"
                       >
                         <Instagram className="h-4 w-4" aria-hidden="true" />
                         Seguir a @bchanfuah

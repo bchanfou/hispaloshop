@@ -45,12 +45,12 @@ export default function Header() {
     setMobileSearchOpen(false);
   };
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF7F2]/95 backdrop-blur border-b border-stone-200" data-testid="main-header">
+    <header className="sticky top-0 z-50 bg-stone-50/95 backdrop-blur border-b border-stone-200" data-testid="main-header">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6">
         <div className="h-14 md:h-16 flex items-center gap-2 md:gap-4">
           <Link to="/" className="flex items-center gap-2 shrink-0" data-testid="logo-link">
             <img src="/logo.png" alt="Hispaloshop" className="w-7 h-7 md:w-8 md:h-8 object-contain" />
-            <span className="font-heading text-lg md:text-xl font-semibold text-[#1C1C1C] tracking-[0.02em]">Hispaloshop</span>
+            <span className="font-heading text-lg md:text-xl font-semibold text-primary tracking-[0.02em]">Hispaloshop</span>
           </Link>
 
           <form onSubmit={runSearch} className="hidden md:flex flex-1 max-w-2xl ml-3">
@@ -104,7 +104,7 @@ export default function Header() {
                   <Button variant="ghost" size="sm">Iniciar sesion</Button>
                 </Link>
                 <Link to="/signup" className="hidden md:block">
-                  <Button size="sm" className="bg-[#1C1C1C] text-white hover:bg-[#2A2A2A] rounded-full">Registrarse</Button>
+                  <Button size="sm" className="bg-primary text-white hover:bg-primary-hover rounded-full">Registrarse</Button>
                 </Link>
               </>
             ) : (

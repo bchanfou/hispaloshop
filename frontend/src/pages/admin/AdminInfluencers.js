@@ -136,7 +136,7 @@ export default function AdminInfluencers() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1C1C1C]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -146,11 +146,11 @@ export default function AdminInfluencers() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-display font-medium">Influencers</h1>
-          <p className="text-[#7A7A7A] font-body">Manage influencer commissions and payouts</p>
+          <p className="text-text-muted font-body">Manage influencer commissions and payouts</p>
         </div>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button className="bg-[#1C1C1C] hover:bg-[#2A2A2A]">
+            <Button className="bg-primary hover:bg-primary-hover">
               <Plus className="h-4 w-4 mr-2" />
               Add Influencer
             </Button>
@@ -183,7 +183,7 @@ export default function AdminInfluencers() {
                   <select
                     value={newInfluencer.tier}
                     onChange={(e) => setNewInfluencer({...newInfluencer, tier: e.target.value})}
-                    className="w-full border border-[#DED7CE] rounded-md p-2"
+                    className="w-full border border-stone-300 rounded-md p-2"
                   >
                     <option value="hercules">Hercules · 3%</option>
                     <option value="atenea">Atenea · 5%</option>
@@ -219,7 +219,7 @@ export default function AdminInfluencers() {
                   />
                 </div>
               </div>
-              <Button onClick={createInfluencer} className="w-full bg-[#1C1C1C] hover:bg-[#2A2A2A]">
+              <Button onClick={createInfluencer} className="w-full bg-primary hover:bg-primary-hover">
                 Create Influencer
               </Button>
             </div>
@@ -232,26 +232,26 @@ export default function AdminInfluencers() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-[#7A7A7A]">Total Influencers</p>
+              <p className="text-sm text-text-muted">Total Influencers</p>
               <p className="text-2xl font-display font-medium">{stats.total_influencers}</p>
               <p className="text-xs text-green-600">{stats.active_influencers} active</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-[#7A7A7A]">Total Sales</p>
+              <p className="text-sm text-text-muted">Total Sales</p>
               <p className="text-2xl font-display font-medium">€{stats.total_sales_generated.toFixed(2)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-[#7A7A7A]">Total Commissions</p>
+              <p className="text-sm text-text-muted">Total Commissions</p>
               <p className="text-2xl font-display font-medium">€{stats.total_commissions_earned.toFixed(2)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-[#7A7A7A]">Pending Payouts</p>
+              <p className="text-sm text-text-muted">Pending Payouts</p>
               <p className="text-2xl font-display font-medium text-orange-600">€{stats.total_pending_payouts.toFixed(2)}</p>
             </CardContent>
           </Card>
@@ -267,24 +267,24 @@ export default function AdminInfluencers() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[#E6DFD6]">
-                  <th className="text-left py-3 px-4 font-body font-medium text-[#7A7A7A]">Name</th>
-                  <th className="text-left py-3 px-4 font-body font-medium text-[#7A7A7A]">Status</th>
-                  <th className="text-left py-3 px-4 font-body font-medium text-[#7A7A7A]">Commission</th>
-                  <th className="text-left py-3 px-4 font-body font-medium text-[#7A7A7A]">Sales</th>
-                  <th className="text-left py-3 px-4 font-body font-medium text-[#7A7A7A]">Earned</th>
-                  <th className="text-left py-3 px-4 font-body font-medium text-[#7A7A7A]">Balance</th>
-                  <th className="text-left py-3 px-4 font-body font-medium text-[#7A7A7A]">Stripe</th>
-                  <th className="text-left py-3 px-4 font-body font-medium text-[#7A7A7A]">Actions</th>
+                <tr className="border-b border-stone-200">
+                  <th className="text-left py-3 px-4 font-body font-medium text-text-muted">Name</th>
+                  <th className="text-left py-3 px-4 font-body font-medium text-text-muted">Status</th>
+                  <th className="text-left py-3 px-4 font-body font-medium text-text-muted">Commission</th>
+                  <th className="text-left py-3 px-4 font-body font-medium text-text-muted">Sales</th>
+                  <th className="text-left py-3 px-4 font-body font-medium text-text-muted">Earned</th>
+                  <th className="text-left py-3 px-4 font-body font-medium text-text-muted">Balance</th>
+                  <th className="text-left py-3 px-4 font-body font-medium text-text-muted">Stripe</th>
+                  <th className="text-left py-3 px-4 font-body font-medium text-text-muted">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {influencers.map((inf) => (
-                  <tr key={inf.influencer_id} className="border-b border-[#F5F1EB]">
+                  <tr key={inf.influencer_id} className="border-b border-stone-100">
                     <td className="py-3 px-4">
                       <div>
                         <p className="font-medium">{inf.full_name}</p>
-                        <p className="text-sm text-[#7A7A7A]">{inf.email}</p>
+                        <p className="text-sm text-text-muted">{inf.email}</p>
                       </div>
                     </td>
                     <td className="py-3 px-4">
@@ -310,7 +310,7 @@ export default function AdminInfluencers() {
                       ) : inf.stripe_account_id ? (
                         <span className="text-amber-600 text-sm">Pending</span>
                       ) : (
-                        <span className="text-[#7A7A7A] text-sm">Not connected</span>
+                        <span className="text-text-muted text-sm">Not connected</span>
                       )}
                     </td>
                     <td className="py-3 px-4">
@@ -380,16 +380,16 @@ export default function AdminInfluencers() {
           {editInfluencer && (
             <div className="space-y-4 pt-4">
               <div>
-                <p className="text-sm text-[#7A7A7A] mb-1">Influencer</p>
+                <p className="text-sm text-text-muted mb-1">Influencer</p>
                 <p className="font-medium">{editInfluencer.full_name}</p>
-                <p className="text-sm text-[#7A7A7A]">{editInfluencer.email}</p>
+                <p className="text-sm text-text-muted">{editInfluencer.email}</p>
               </div>
               <div>
                 <Label>Tier</Label>
                 <select
                   value={editForm.tier}
                   onChange={(e) => setEditForm({ ...editForm, tier: e.target.value })}
-                  className="w-full border border-[#DED7CE] rounded-md p-2 mt-1"
+                  className="w-full border border-stone-300 rounded-md p-2 mt-1"
                 >
                   <option value="hercules">Hercules · 3%</option>
                   <option value="atenea">Atenea · 5%</option>
@@ -410,7 +410,7 @@ export default function AdminInfluencers() {
                   {editForm.tier === 'hercules' ? '3%' : editForm.tier === 'atenea' ? '5%' : '7%'}
                 </strong>
               </div>
-              <Button onClick={saveEdit} className="w-full bg-[#1C1C1C] hover:bg-[#2A2A2A]">
+              <Button onClick={saveEdit} className="w-full bg-primary hover:bg-primary-hover">
                 Guardar cambios
               </Button>
             </div>
@@ -428,19 +428,19 @@ export default function AdminInfluencers() {
             <div className="space-y-4 pt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-[#7A7A7A]">Name</p>
+                  <p className="text-sm text-text-muted">Name</p>
                   <p className="font-medium">{selectedInfluencer.full_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[#7A7A7A]">Email</p>
+                  <p className="text-sm text-text-muted">Email</p>
                   <p className="font-medium">{selectedInfluencer.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[#7A7A7A]">Discount Code</p>
+                  <p className="text-sm text-text-muted">Discount Code</p>
                   <p className="font-mono font-bold">{selectedInfluencer.discount_code_info?.code || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[#7A7A7A]">Customer Discount</p>
+                  <p className="text-sm text-text-muted">Customer Discount</p>
                   <p className="font-medium">{selectedInfluencer.discount_code_info?.value}%</p>
                 </div>
               </div>
@@ -460,7 +460,7 @@ export default function AdminInfluencers() {
                       </thead>
                       <tbody>
                         {selectedInfluencer.recent_commissions.map((c) => (
-                          <tr key={c.commission_id} className="border-b border-[#F5F1EB]">
+                          <tr key={c.commission_id} className="border-b border-stone-100">
                             <td className="py-2 font-mono text-xs">{c.order_id}</td>
                             <td className="py-2">€{c.order_total?.toFixed(2)}</td>
                             <td className="py-2 text-green-600">€{c.commission_amount?.toFixed(2)}</td>

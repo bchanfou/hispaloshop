@@ -51,15 +51,15 @@ function FollowedStoreCard({ store, onUnfollow }) {
       <div className="p-4 pt-8">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="font-heading font-semibold text-[#1C1C1C] truncate">{store.name}</h3>
+            <h3 className="font-heading font-semibold text-primary truncate">{store.name}</h3>
             {store.tagline && (
-              <p className="text-xs text-[#7A7A7A] mt-0.5 line-clamp-1 font-body">{store.tagline}</p>
+              <p className="text-xs text-text-muted mt-0.5 line-clamp-1 font-body">{store.tagline}</p>
             )}
           </div>
         </div>
         
         {/* Stats */}
-        <div className="flex items-center gap-3 mt-3 text-xs text-[#7A7A7A] font-body">
+        <div className="flex items-center gap-3 mt-3 text-xs text-text-muted font-body">
           {store.location && (
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
@@ -105,7 +105,7 @@ function FollowedStoreCard({ store, onUnfollow }) {
 
         {/* Followed since */}
         {store.followed_at && (
-          <p className="text-xs text-[#7A7A7A] mt-3 font-body">
+          <p className="text-xs text-text-muted mt-3 font-body">
             {t('followedStores.followedSince', 'Siguiendo desde')} {new Date(store.followed_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
           </p>
         )}
@@ -142,7 +142,7 @@ export default function CustomerFollowedStores() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A7A7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-text-muted" />
       </div>
     );
   }
@@ -151,10 +151,10 @@ export default function CustomerFollowedStores() {
     <div data-testid="followed-stores-page">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C] tracking-[0.02em]">
+        <h1 className="font-heading text-2xl font-semibold text-primary tracking-[0.02em]">
           {t('followedStores.title', 'Tiendas Seguidas')}
         </h1>
-        <p className="font-body text-sm text-[#7A7A7A] mt-1">
+        <p className="font-body text-sm text-text-muted mt-1">
           {t('followedStores.subtitle', 'Recibe notificaciones cuando tus tiendas favoritas añadan nuevos productos')}
         </p>
       </div>
@@ -163,16 +163,16 @@ export default function CustomerFollowedStores() {
         <Card>
           <CardContent className="py-12 text-center">
             <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-8 h-8 text-[#DED7CE]" />
+              <Heart className="w-8 h-8 text-stone-300" />
             </div>
-            <h3 className="font-heading font-semibold text-[#1C1C1C] mb-2">
+            <h3 className="font-heading font-semibold text-primary mb-2">
               {t('followedStores.noStores', 'No sigues ninguna tienda')}
             </h3>
-            <p className="text-sm text-[#7A7A7A] font-body mb-6 max-w-sm mx-auto">
+            <p className="text-sm text-text-muted font-body mb-6 max-w-sm mx-auto">
               {t('followedStores.noStoresDesc', 'Explora nuestras tiendas y sigue a tus favoritas para recibir notificaciones de nuevos productos.')}
             </p>
             <Link to="/stores">
-              <Button className="bg-[#1C1C1C] hover:bg-[#2C2C2C]">
+              <Button className="bg-primary hover:bg-primary-hover">
                 <Store className="w-4 h-4 mr-2" />
                 {t('followedStores.exploreStores', 'Explorar tiendas')}
               </Button>
@@ -186,14 +186,14 @@ export default function CustomerFollowedStores() {
             <CardContent className="py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#1C1C1C]/10 flex items-center justify-center">
-                    <Bell className="w-5 h-5 text-[#1C1C1C]" />
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-heading font-semibold text-[#1C1C1C]">
+                    <p className="font-heading font-semibold text-primary">
                       {stores.length} {stores.length === 1 ? t('followedStores.store', 'tienda') : t('followedStores.storesPlural', 'tiendas')}
                     </p>
-                    <p className="text-xs text-[#7A7A7A] font-body">
+                    <p className="text-xs text-text-muted font-body">
                       {t('followedStores.notificationsActive', 'Recibirás notificaciones de nuevos productos')}
                     </p>
                   </div>

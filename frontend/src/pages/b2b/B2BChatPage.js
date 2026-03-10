@@ -13,7 +13,7 @@ import { api } from '../../lib/api';
 function Avatar({ name, size = 'md' }) {
   const cls = size === 'sm' ? 'w-8 h-8 text-sm' : 'w-10 h-10 text-base';
   return (
-    <div className={`${cls} rounded-full bg-[#2D5A3D]/10 flex items-center justify-center font-bold text-[#2D5A3D] flex-shrink-0`}>
+    <div className={`${cls} rounded-full bg-accent/10 flex items-center justify-center font-bold text-accent flex-shrink-0`}>
       {(name || '?')[0].toUpperCase()}
     </div>
   );
@@ -29,7 +29,7 @@ function ConvRow({ conv, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full px-4 py-3 flex items-start gap-3 border-b border-stone-100 text-left transition-colors ${active ? 'bg-[#2D5A3D]/5' : 'hover:bg-stone-50'}`}
+      className={`w-full px-4 py-3 flex items-start gap-3 border-b border-stone-100 text-left transition-colors ${active ? 'bg-accent/5' : 'hover:bg-stone-50'}`}
     >
       <Avatar name={name} />
       <div className="flex-1 min-w-0">
@@ -40,7 +40,7 @@ function ConvRow({ conv, active, onClick }) {
         <p className="text-xs text-stone-500 truncate mt-0.5">{preview}</p>
       </div>
       {conv.unread_count > 0 && (
-        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#2D5A3D] text-white text-[10px] flex items-center justify-center">
+        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent text-white text-[10px] flex items-center justify-center">
           {conv.unread_count}
         </span>
       )}
@@ -63,7 +63,7 @@ function Bubble({ msg, myId }) {
     : '';
   return (
     <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mb-2`}>
-      <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${isMine ? 'bg-[#2D5A3D] text-white rounded-br-sm' : 'bg-stone-100 text-stone-800 rounded-bl-sm'}`}>
+      <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${isMine ? 'bg-accent text-white rounded-br-sm' : 'bg-stone-100 text-stone-800 rounded-bl-sm'}`}>
         <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
         <p className={`text-[10px] mt-1 ${isMine ? 'text-white/60' : 'text-stone-400'}`}>{time}</p>
       </div>
@@ -118,12 +118,12 @@ function MessageThread({ convId, myId }) {
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handleSend(e); }}
           rows={1}
           placeholder="Escribe un mensaje..."
-          className="flex-1 resize-none border border-stone-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]/30 max-h-32"
+          className="flex-1 resize-none border border-stone-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 max-h-32"
         />
         <button
           type="submit"
           disabled={!text.trim() || sendMutation.isPending}
-          className="w-10 h-10 rounded-xl bg-[#2D5A3D] text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0"
+          className="w-10 h-10 rounded-xl bg-accent text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0"
         >
           {sendMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </button>
@@ -202,7 +202,7 @@ export default function B2BChatPage() {
           </p>
           <button
             onClick={() => navigate('/b2b/marketplace')}
-            className="mt-4 px-4 py-2 bg-[#2D5A3D] text-white rounded-xl text-sm"
+            className="mt-4 px-4 py-2 bg-accent text-white rounded-xl text-sm"
           >
             Ir al Marketplace
           </button>

@@ -269,7 +269,7 @@ export default function ProductCountryManagement() {
       {markets.length > 0 && (
         <div className="flex justify-end gap-3 pt-2">
           <Button variant="outline" onClick={() => navigate('/producer/products')}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving} className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white" data-testid="save-markets-btn">
+          <Button onClick={handleSave} disabled={saving} className="bg-primary hover:bg-primary-hover text-white" data-testid="save-markets-btn">
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
             Guardar mercados
           </Button>

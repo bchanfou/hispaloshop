@@ -22,13 +22,13 @@ function ProductCard({ product, viewMode = 'grid', index = 0 }) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
         {product.badge && (
-          <div className="absolute top-2 left-2 bg-[#E6A532] text-white text-xs font-bold px-2 py-1 rounded-full">
+          <div className="absolute top-2 left-2 bg-state-amber text-white text-xs font-bold px-2 py-1 rounded-full">
             {product.badge}
           </div>
         )}
         {!isList && (
           <button className="absolute top-2 right-2 p-1.5 bg-white/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white">
-            <Heart className="w-4 h-4 text-[#1A1A1A]" />
+            <Heart className="w-4 h-4 text-gray-900" />
           </button>
         )}
       </div>
@@ -37,16 +37,16 @@ function ProductCard({ product, viewMode = 'grid', index = 0 }) {
       <div className={`flex-1 ${!isList && 'p-3'}`}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-[#1A1A1A] text-sm line-clamp-2">
+            <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
               {product.name}
             </h3>
             {product.category && (
-              <p className="text-xs text-[#6B7280] mt-0.5">{product.category}</p>
+              <p className="text-xs text-text-muted mt-0.5">{product.category}</p>
             )}
           </div>
           {isList && (
-            <button className="p-2 hover:bg-[#F5F1E8] rounded-full transition-colors">
-              <Heart className="w-4 h-4 text-[#6B7280]" />
+            <button className="p-2 hover:bg-background-subtle rounded-full transition-colors">
+              <Heart className="w-4 h-4 text-text-muted" />
             </button>
           )}
         </div>
@@ -54,19 +54,19 @@ function ProductCard({ product, viewMode = 'grid', index = 0 }) {
         <div className="flex items-end justify-between mt-2">
           <div>
             <div className="flex items-baseline gap-1">
-              <span className="text-lg font-bold text-[#1A1A1A]">
+              <span className="text-lg font-bold text-gray-900">
                 €{product.price.toFixed(2)}
               </span>
               {product.originalPrice && (
-                <span className="text-xs text-[#6B7280] line-through">
+                <span className="text-xs text-text-muted line-through">
                   €{product.originalPrice.toFixed(2)}
                 </span>
               )}
             </div>
-            <span className="text-xs text-[#6B7280]">{product.unit}</span>
+            <span className="text-xs text-text-muted">{product.unit}</span>
           </div>
 
-          <button className="flex items-center gap-1 bg-[#2D5A3D] text-white px-3 py-1.5 rounded-full text-sm font-medium hover:bg-[#234a31] transition-colors">
+          <button className="flex items-center gap-1 bg-accent text-white px-3 py-1.5 rounded-full text-sm font-medium hover:bg-accent/90 transition-colors">
             <Plus className="w-4 h-4" />
             {!isList && <span>Añadir</span>}
           </button>
@@ -74,9 +74,9 @@ function ProductCard({ product, viewMode = 'grid', index = 0 }) {
 
         {product.rating && (
           <div className="flex items-center gap-1 mt-2">
-            <Star className="w-3.5 h-3.5 fill-[#E6A532] text-[#E6A532]" />
+            <Star className="w-3.5 h-3.5 fill-state-amber text-state-amber" />
             <span className="text-xs font-medium">{product.rating}</span>
-            <span className="text-xs text-[#6B7280]">({product.reviews})</span>
+            <span className="text-xs text-text-muted">({product.reviews})</span>
           </div>
         )}
       </div>

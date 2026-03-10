@@ -62,11 +62,11 @@ export default function CategoryNav({
       <div className="mx-auto max-w-6xl px-4">
         <div className="mb-3 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7A7A7A]">Categorias reales</p>
-            <h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-[#1C1C1C]">{title}</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-text-muted">Categorias reales</p>
+            <h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-primary">{title}</h2>
           </div>
           {variant !== 'home-minimal' && (
-            <p className="hidden max-w-md text-sm leading-6 text-[#5E5851] md:block">
+            <p className="hidden max-w-md text-sm leading-6 text-stone-500 md:block">
               Producto local e importado ya disponible en Espana, sin relatos inflados ni categorias de relleno.
             </p>
           )}
@@ -87,18 +87,18 @@ export default function CategoryNav({
                     onSelectCategory(category.slug);
                   }
                 }}
-                className={`group relative snap-start shrink-0 rounded-[1.5rem] border bg-white/85 p-3 transition-all duration-200 hover:bg-white ${category.border} ${isActive ? 'ring-1 ring-[#1C1C1C]/20' : ''} ${variant === 'home-minimal' ? 'w-[92px]' : 'w-[154px]'}`}
+                className={`group relative snap-start shrink-0 rounded-[1.5rem] border bg-white/85 p-3 transition-all duration-200 hover:bg-white ${category.border} ${isActive ? 'ring-1 ring-primary/20' : ''} ${variant === 'home-minimal' ? 'w-[92px]' : 'w-[154px]'}`}
                 data-testid={`category-nav-${category.slug}`}
               >
                 <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${category.bg}`}>
                   <Icon className={`h-6 w-6 ${category.color}`} strokeWidth={1.7} />
                 </div>
-                <p className={`mt-2 text-center text-xs font-medium leading-4 text-[#1C1C1C] transition-all duration-200 ${variant === 'home-minimal' ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : ''}`}>
+                <p className={`mt-2 text-center text-xs font-medium leading-4 text-primary transition-all duration-200 ${variant === 'home-minimal' ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : ''}`}>
                   {category.shortLabel}
                 </p>
-                {variant !== 'home-minimal' && <p className="mt-1 text-center text-xs text-[#6C655E]">({category.count})</p>}
+                {variant !== 'home-minimal' && <p className="mt-1 text-center text-xs text-stone-500">({category.count})</p>}
                 {variant !== 'home-minimal' && category.hasNew && (
-                  <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#1C1C1C] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
+                  <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
                     <Sparkles className="h-3 w-3" />
                     Novedad
                   </span>
@@ -116,8 +116,8 @@ export default function CategoryNav({
                     sideOffset={12}
                     className={`z-50 hidden rounded-[1.5rem] border border-stone-200 bg-white/95 p-4 shadow-[0_24px_60px_rgba(28,28,28,0.14)] backdrop-blur md:block ${variant === 'home-minimal' ? 'w-[240px]' : 'w-[320px]'}`}
                   >
-                    <p className="text-sm font-semibold text-[#1C1C1C]">{category.label}</p>
-                    <p className="mt-1 text-xs leading-5 text-[#5E5851]">{category.description}</p>
+                    <p className="text-sm font-semibold text-primary">{category.label}</p>
+                    <p className="mt-1 text-xs leading-5 text-stone-500">{category.description}</p>
                     <div className="mt-3 space-y-2">
                       {category.previewProducts.length > 0 ? category.previewProducts.map((product) => (
                         <Link
@@ -133,12 +133,12 @@ export default function CategoryNav({
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-[#1C1C1C]">{product.name}</p>
-                            <p className="truncate text-xs text-[#6C655E]">{product.description}</p>
+                            <p className="truncate text-sm font-medium text-primary">{product.name}</p>
+                            <p className="truncate text-xs text-stone-500">{product.description}</p>
                           </div>
                         </Link>
                       )) : (
-                        <div className="rounded-2xl bg-stone-50 p-3 text-xs leading-5 text-[#6C655E]">
+                        <div className="rounded-2xl bg-stone-50 p-3 text-xs leading-5 text-stone-500">
                           {category.description}
                         </div>
                       )}

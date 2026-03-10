@@ -23,14 +23,14 @@ function TabToggle({ activeTab, onChange }) {
             key={tab.id}
             onClick={() => onChange(tab.id)}
             className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
-              activeTab === tab.id ? 'text-[#1A1A1A]' : 'text-[#6B7280]'
+              activeTab === tab.id ? 'text-gray-900' : 'text-text-muted'
             }`}
           >
             {tab.label}
             {activeTab === tab.id && (
               <motion.div
                 layoutId="activeTabIndicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2D5A3D]"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent"
                 initial={false}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />

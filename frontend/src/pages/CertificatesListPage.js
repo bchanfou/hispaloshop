@@ -32,7 +32,7 @@ export default function CertificatesListPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
         <BackButton />

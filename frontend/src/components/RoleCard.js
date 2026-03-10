@@ -30,7 +30,7 @@ export default function RoleCard({
             <div className="relative flex items-start justify-between gap-3">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-black/55">{role.eyebrow}</p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1C1C1C]">{role.headline}</h2>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-primary">{role.headline}</h2>
               </div>
               <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-white/70 bg-white/70 ${role.iconColor}`}>
                 <Icon className="h-5 w-5" />
@@ -40,7 +40,7 @@ export default function RoleCard({
             <p className="relative mt-4 text-sm leading-6 text-black/75">{role.copy}</p>
 
             {role.badge && (
-              <span className="relative mt-4 inline-flex w-fit rounded-full border border-white/70 bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#1C1C1C] shadow-sm">
+              <span className="relative mt-4 inline-flex w-fit rounded-full border border-white/70 bg-white/80 px-3 py-1 text-[11px] font-semibold text-primary shadow-sm">
                 {role.badge}
               </span>
             )}
@@ -52,8 +52,8 @@ export default function RoleCard({
             )}
 
             <div className="relative mt-5 flex items-center justify-between border-t border-black/10 pt-4">
-              <span className="text-sm font-semibold text-[#1C1C1C]">{role.cta}</span>
-              <ArrowRight className="h-4 w-4 text-[#1C1C1C] transition-transform duration-200 group-hover:translate-x-1" />
+              <span className="text-sm font-semibold text-primary">{role.cta}</span>
+              <ArrowRight className="h-4 w-4 text-primary transition-transform duration-200 group-hover:translate-x-1" />
             </div>
           </Link>
         </HoverCard.Trigger>
@@ -70,7 +70,7 @@ export default function RoleCard({
                 <PreviewIcon className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-[#1C1C1C]">{role.previewTitle}</p>
+                <p className="text-sm font-semibold text-primary">{role.previewTitle}</p>
                 <p className="mt-1 text-xs leading-5 text-stone-600">{role.previewCopy}</p>
               </div>
             </div>

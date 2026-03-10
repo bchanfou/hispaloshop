@@ -49,19 +49,19 @@ function ChatInput({ onSend, isLoading, roleColor }) {
     <div className="bg-white border-t border-stone-100 p-3 pb-safe">
       {/* Quick actions */}
       <div className="flex gap-3 mb-2 px-1">
-        <button className="flex items-center gap-1 text-xs text-[#6B7280] hover:text-[#2D5A3D] transition-colors">
+        <button className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors">
           <Paperclip className="w-4 h-4" />
           <span>Adjuntar</span>
         </button>
-        <button className="flex items-center gap-1 text-xs text-[#6B7280] hover:text-[#2D5A3D] transition-colors">
+        <button className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors">
           <Image className="w-4 h-4" />
           <span>Foto</span>
         </button>
-        <button className="flex items-center gap-1 text-xs text-[#6B7280] hover:text-[#2D5A3D] transition-colors">
+        <button className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors">
           <ShoppingBag className="w-4 h-4" />
           <span>Producto</span>
         </button>
-        <button className="flex items-center gap-1 text-xs text-[#6B7280] hover:text-[#2D5A3D] transition-colors">
+        <button className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors">
           <Bookmark className="w-4 h-4" />
           <span>Guardado</span>
         </button>
@@ -77,7 +77,7 @@ function ChatInput({ onSend, isLoading, roleColor }) {
           className={`p-3 rounded-full transition-colors ${
             isRecording 
               ? 'bg-red-500 text-white animate-pulse' 
-              : 'bg-stone-100 text-[#6B7280] hover:bg-stone-200'
+              : 'bg-stone-100 text-text-muted hover:bg-stone-200'
           }`}
         >
           <Mic className="w-5 h-5" />
@@ -92,7 +92,7 @@ function ChatInput({ onSend, isLoading, roleColor }) {
             onKeyDown={handleKeyDown}
             placeholder="Escribe un mensaje..."
             rows={1}
-            className="w-full bg-stone-100 rounded-2xl px-4 py-3 pr-12 text-sm outline-none focus:ring-2 focus:ring-[#2D5A3D]/20 resize-none max-h-32"
+            className="w-full bg-stone-100 rounded-2xl px-4 py-3 pr-12 text-sm outline-none focus:ring-2 focus:ring-accent/20 resize-none max-h-32"
             style={{ minHeight: '44px' }}
           />
           

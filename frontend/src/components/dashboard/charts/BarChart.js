@@ -27,7 +27,7 @@ function BarChart({ data, labels, height = 160, color = '#2D5A3D' }) {
       {/* Labels */}
       <div className="flex justify-between mt-2">
         {labels.map((label, index) => (
-          <span key={index} className="text-xs text-[#6B7280] flex-1 text-center">
+          <span key={index} className="text-xs text-text-muted flex-1 text-center">
             {label}
           </span>
         ))}

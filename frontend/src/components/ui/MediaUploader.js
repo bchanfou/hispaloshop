@@ -251,7 +251,7 @@ export default function MediaUploader({
                 }}
               />
             </div>
-            <p style={{ fontSize: '13px', color: '#7c3aed', margin: 0 }}>Subiendo... {progress}%</p>
+            <p style={{ fontSize: '13px', color: 'var(--color-purple)', margin: 0 }}>Subiendo... {progress}%</p>
           </div>
         )}
 
@@ -299,7 +299,7 @@ export default function MediaUploader({
           onClick={(e) => { e.stopPropagation(); reset(); }}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: '12px', color: '#7c3aed', marginTop: '4px', padding: 0,
+            fontSize: '12px', color: 'var(--color-purple)', marginTop: '4px', padding: 0,
           }}
         >
           Cambiar archivo

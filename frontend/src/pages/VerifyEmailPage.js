@@ -52,30 +52,30 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4EFE9]">
+    <div className="min-h-screen bg-background-subtle">
       <Header />
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
         <BackButton />
         {status === 'verifying' && (
           <div>
-            <Loader2 className="w-16 h-16 text-[#1C1C1C] mx-auto mb-6 animate-spin" />
-            <h1 className="font-heading text-3xl font-bold text-[#1C1C1C] mb-4">
+            <Loader2 className="w-16 h-16 text-primary mx-auto mb-6 animate-spin" />
+            <h1 className="font-heading text-3xl font-bold text-primary mb-4">
               Verifying Email...
             </h1>
-            <p className="text-[#7A7A7A]">Please wait while we verify your email address</p>
+            <p className="text-text-muted">Please wait while we verify your email address</p>
           </div>
         )}
 
         {status === 'success' && (
           <div>
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-6" />
-            <h1 className="font-heading text-4xl font-bold text-[#1C1C1C] mb-4">
+            <h1 className="font-heading text-4xl font-bold text-primary mb-4">
               Email Verified!
             </h1>
-            <p className="text-[#4A4A4A] mb-8">{message}</p>
-            <p className="text-[#7A7A7A] mb-6">Redirecting to login...</p>
+            <p className="text-text-secondary mb-8">{message}</p>
+            <p className="text-text-muted mb-6">Redirecting to login...</p>
             <Link to="/login">
-              <Button className="bg-[#1C1C1C] hover:bg-[#4A4A4A] text-white rounded-full">
+              <Button className="bg-primary hover:bg-text-secondary text-white rounded-full">
                 Go to Login
               </Button>
             </Link>
@@ -85,18 +85,18 @@ export default function VerifyEmailPage() {
         {status === 'error' && (
           <div>
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-6" />
-            <h1 className="font-heading text-3xl font-bold text-[#1C1C1C] mb-4">
+            <h1 className="font-heading text-3xl font-bold text-primary mb-4">
               Verification Failed
             </h1>
-            <p className="text-[#4A4A4A] mb-8">{message}</p>
+            <p className="text-text-secondary mb-8">{message}</p>
             <div className="flex gap-4 justify-center">
               <Link to="/login">
-                <Button variant="outline" className="rounded-full border-[#DED7CE]">
+                <Button variant="outline" className="rounded-full border-stone-300">
                   Go to Login
                 </Button>
               </Link>
               <Link to="/register">
-                <Button className="bg-[#1C1C1C] hover:bg-[#4A4A4A] text-white rounded-full">
+                <Button className="bg-primary hover:bg-text-secondary text-white rounded-full">
                   Register Again
                 </Button>
               </Link>

@@ -5,7 +5,7 @@ function DrawTool({ paths, onAddPath, onClear }) {
   return (
     <div className="p-4 space-y-4">
       <div className="text-center">
-        <div className="inline-flex items-center gap-2 p-3 bg-[#2D5A3D]/10 rounded-xl text-[#2D5A3D]">
+        <div className="inline-flex items-center gap-2 p-3 bg-accent/10 rounded-xl text-accent">
           <Pencil className="w-5 h-5" />
           <span className="text-sm font-medium">Modo dibujo activado</span>
         </div>
@@ -30,22 +30,22 @@ function DrawTool({ paths, onAddPath, onClear }) {
       <div className="p-3 bg-stone-50 rounded-xl">
         <div className="flex items-center justify-between text-sm">
           <span className="text-stone-500">Trazos dibujados</span>
-          <span className="font-semibold text-[#2D5A3D]">{paths.length}</span>
+          <span className="font-semibold text-accent">{paths.length}</span>
         </div>
       </div>
 
       {/* Instrucciones */}
       <div className="space-y-2 text-xs text-stone-500">
         <p className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-[#2D5A3D] rounded-full" />
+          <span className="w-1.5 h-1.5 bg-accent rounded-full" />
           Selecciona el color y grosor desde el panel inferior del canvas
         </p>
         <p className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-[#2D5A3D] rounded-full" />
+          <span className="w-1.5 h-1.5 bg-accent rounded-full" />
           Haz clic y arrastra para dibujar
         </p>
         <p className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-[#2D5A3D] rounded-full" />
+          <span className="w-1.5 h-1.5 bg-accent rounded-full" />
           Los trazos se guardan automáticamente
         </p>
       </div>

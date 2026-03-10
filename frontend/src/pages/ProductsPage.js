@@ -195,7 +195,7 @@ export default function ProductsPage() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative">
           <select
-            className="min-w-[150px] appearance-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 pr-8 text-sm outline-none transition-all focus:border-[#2D5A27] focus:ring-2 focus:ring-[#2D5A27]/20"
+            className="min-w-[150px] appearance-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 pr-8 text-sm outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/20"
             value={filters.origin_country}
             onChange={(event) => setFilters({ ...filters, origin_country: event.target.value })}
             data-testid="country-filter"
@@ -221,14 +221,14 @@ export default function ProductsPage() {
 
         <button
           onClick={() => setFilters({ ...filters, freeShipping: !filters.freeShipping })}
-          className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all ${filters.freeShipping ? 'border-[#2D5A27] bg-[#2D5A27] text-white shadow-sm' : 'border-stone-200 bg-white text-stone-600 hover:border-[#2D5A27]/40 hover:text-[#2D5A27]'}`}
+          className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all ${filters.freeShipping ? 'border-accent bg-accent text-white shadow-sm' : 'border-stone-200 bg-white text-stone-600 hover:border-accent/40 hover:text-accent'}`}
           data-testid="free-shipping-filter"
         >
           <Truck className="h-4 w-4" />
           {t('products.freeShipping')}
         </button>
 
-        <Button variant="ghost" size="sm" className="gap-1.5 rounded-xl text-stone-600 hover:text-[#2D5A27]" onClick={() => setShowMoreFilters(!showMoreFilters)}>
+        <Button variant="ghost" size="sm" className="gap-1.5 rounded-xl text-stone-600 hover:text-accent" onClick={() => setShowMoreFilters(!showMoreFilters)}>
           <SlidersHorizontal className="h-4 w-4" />
           {showMoreFilters ? t('products.lessFilters') : t('products.moreFilters')}
         </Button>
@@ -249,7 +249,7 @@ export default function ProductsPage() {
               <button
                 key={cert.id}
                 onClick={() => handleCertificationToggle(cert.id)}
-                className={`rounded-full px-3 py-1.5 text-sm transition-all ${filters.certifications.includes(cert.id) ? 'bg-[#2D5A27] text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                className={`rounded-full px-3 py-1.5 text-sm transition-all ${filters.certifications.includes(cert.id) ? 'bg-accent text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
               >
                 {cert.label}
               </button>
@@ -265,7 +265,7 @@ export default function ProductsPage() {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowMobileFilters(false)} />
       <div className="absolute right-0 top-0 bottom-0 flex w-[320px] max-w-[85vw] flex-col bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
-          <h2 className="font-heading text-lg font-semibold text-[#1C1C1C]">{t('products.filters')}</h2>
+          <h2 className="font-heading text-lg font-semibold text-primary">{t('products.filters')}</h2>
           <button onClick={() => setShowMobileFilters(false)} className="rounded-full p-1.5 transition-colors hover:bg-stone-100">
             <X className="h-5 w-5 text-stone-500" />
           </button>
@@ -274,7 +274,7 @@ export default function ProductsPage() {
         <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
           <button
             onClick={() => setFilters({ ...filters, freeShipping: !filters.freeShipping })}
-            className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all ${filters.freeShipping ? 'border-[#2D5A27] bg-[#2D5A27] text-white' : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-[#2D5A27]/40'}`}
+            className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-all ${filters.freeShipping ? 'border-accent bg-accent text-white' : 'border-stone-200 bg-stone-50 text-stone-700 hover:border-accent/40'}`}
           >
             <Truck className="h-4 w-4" />
             <span className="text-sm font-medium">{t('products.freeShipping')}</span>
@@ -287,7 +287,7 @@ export default function ProductsPage() {
                 <button
                   key={cert.id}
                   onClick={() => handleCertificationToggle(cert.id)}
-                  className={`rounded-xl border px-3.5 py-2 text-sm font-medium transition-all ${filters.certifications.includes(cert.id) ? 'border-[#2D5A27] bg-[#2D5A27] text-white shadow-sm' : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'}`}
+                  className={`rounded-xl border px-3.5 py-2 text-sm font-medium transition-all ${filters.certifications.includes(cert.id) ? 'border-accent bg-accent text-white shadow-sm' : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'}`}
                 >
                   {cert.label}
                 </button>
@@ -299,7 +299,7 @@ export default function ProductsPage() {
             <Label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-500">{t('products.originCountry')}</Label>
             <div className="relative">
               <select
-                className="w-full appearance-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 pr-8 text-sm outline-none focus:border-[#2D5A27] focus:ring-2 focus:ring-[#2D5A27]/20"
+                className="w-full appearance-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 pr-8 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 value={filters.origin_country}
                 onChange={(event) => setFilters({ ...filters, origin_country: event.target.value })}
               >
@@ -323,7 +323,7 @@ export default function ProductsPage() {
               {t('products.clearFilters')}
             </Button>
           )}
-          <Button className="h-11 flex-1 rounded-xl bg-[#1C1C1C] text-white hover:bg-[#2A2A2A]" onClick={() => setShowMobileFilters(false)}>
+          <Button className="h-11 flex-1 rounded-xl bg-primary text-white hover:bg-primary-hover" onClick={() => setShowMobileFilters(false)}>
             {t('products.applyFilters', 'Aplicar')} ({products.length})
           </Button>
         </div>
@@ -332,14 +332,14 @@ export default function ProductsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <Header />
       <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
         <BackButton />
         <Breadcrumbs className="mb-4" />
 
         <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <h1 className="font-heading text-2xl font-semibold text-[#1C1C1C] md:text-3xl" data-testid="products-page-title">
+          <h1 className="font-heading text-2xl font-semibold text-primary md:text-3xl" data-testid="products-page-title">
             {t('products.title')}
           </h1>
           <div className="flex items-center gap-3">
@@ -365,7 +365,7 @@ export default function ProductsPage() {
                   setFilters((prev) => ({ ...prev, sort: nextValue }));
                   updateSearchParams({ sort: nextValue === 'relevance' ? '' : nextValue });
                 }}
-                className="appearance-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 pr-8 text-sm focus:border-[#2D5A27] focus:outline-none"
+                className="appearance-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 pr-8 text-sm focus:border-accent focus:outline-none"
               >
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -400,10 +400,10 @@ export default function ProductsPage() {
               </span>
             )}
             {filters.freeShipping && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#2D5A27]/10 px-2.5 py-1 text-xs font-medium text-[#2D5A27]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
                 <Truck className="h-3 w-3" />
                 {t('products.freeShipping')}
-                <button onClick={() => setFilters({ ...filters, freeShipping: false })} className="rounded-full p-0.5 hover:bg-[#2D5A27]/20"><X className="h-3 w-3" /></button>
+                <button onClick={() => setFilters({ ...filters, freeShipping: false })} className="rounded-full p-0.5 hover:bg-accent/20"><X className="h-3 w-3" /></button>
               </span>
             )}
             {filters.origin_country && (
@@ -419,7 +419,7 @@ export default function ProductsPage() {
 
         {loading ? (
           <div className="py-16 text-center" data-testid="loading-spinner">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-[#2D5A27]" />
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-accent" />
             <p className="text-stone-400">{t('common.loading', 'Cargando...')}</p>
           </div>
         ) : products.length === 0 ? (
@@ -427,7 +427,7 @@ export default function ProductsPage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
               <Search className="h-8 w-8 text-stone-300" />
             </div>
-            <p className="mb-2 text-lg font-medium text-[#1C1C1C]">{t('products.noProducts')}</p>
+            <p className="mb-2 text-lg font-medium text-primary">{t('products.noProducts')}</p>
             <p className="mb-4 text-sm text-stone-400">{t('products.tryDifferentFilters')}</p>
             {hasActiveFilters && <Button variant="outline" onClick={clearFilters} className="rounded-xl">{t('products.clearFilters')}</Button>}
           </div>

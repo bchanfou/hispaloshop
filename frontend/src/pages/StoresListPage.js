@@ -296,7 +296,7 @@ export default function StoresListPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <Header />
 
       {/* Hero Section - Compact on mobile */}
@@ -554,7 +554,7 @@ export default function StoresListPage() {
 
               {/* Stores List (Sidebar) - Below map on mobile */}
               <div className="lg:col-span-1 lg:order-1 space-y-3 max-h-[400px] lg:max-h-[650px] overflow-y-auto pr-2">
-                <p className="text-sm text-stone-600 mb-2 sticky top-0 bg-[#FAF7F2] py-1">
+                <p className="text-sm text-stone-600 mb-2 sticky top-0 bg-stone-50 py-1">
                   {filteredStores.length} {t('stores.storesFound', 'tiendas encontradas')}
                 </p>
                 {loading ? (

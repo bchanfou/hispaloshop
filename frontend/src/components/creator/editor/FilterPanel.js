@@ -12,7 +12,7 @@ function FilterPanel({ settings, appliedFilter, onSettingChange, onFilterSelect,
           <h3 className="font-semibold text-sm text-stone-700">Filtros</h3>
           <button
             onClick={onReset}
-            className="flex items-center gap-1 text-xs text-stone-500 hover:text-[#2D5A3D]"
+            className="flex items-center gap-1 text-xs text-stone-500 hover:text-accent"
           >
             <RotateCcw className="w-3 h-3" />
             Reset
@@ -31,7 +31,7 @@ function FilterPanel({ settings, appliedFilter, onSettingChange, onFilterSelect,
             >
               <div 
                 className={`w-16 h-16 rounded-xl overflow-hidden ${
-                  appliedFilter === filter.id ? 'ring-2 ring-[#2D5A3D] ring-offset-2' : ''
+                  appliedFilter === filter.id ? 'ring-2 ring-accent ring-offset-2' : ''
                 }`}
                 style={{
                   background: `linear-gradient(135deg, 
@@ -41,7 +41,7 @@ function FilterPanel({ settings, appliedFilter, onSettingChange, onFilterSelect,
                   filter: `contrast(${100 + filter.settings.contrast}%) brightness(${100 + filter.settings.exposure}%)`,
                 }}
               />
-              <span className={`text-xs ${appliedFilter === filter.id ? 'font-medium text-[#2D5A3D]' : 'text-stone-500'}`}>
+              <span className={`text-xs ${appliedFilter === filter.id ? 'font-medium text-accent' : 'text-stone-500'}`}>
                 {filter.name}
               </span>
             </motion.button>
@@ -72,7 +72,7 @@ function FilterPanel({ settings, appliedFilter, onSettingChange, onFilterSelect,
               max={max}
               value={settings[key]}
               onChange={(e) => onSettingChange(key, parseInt(e.target.value))}
-              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[#2D5A3D]"
+              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-accent"
             />
           </div>
         ))}

@@ -4,20 +4,20 @@ import { Sparkles, Droplets, Milk, Beef, Croissant, CupSoda, Baby, Dog, Cherry, 
 
 const CATEGORIES = [
   { id: 'para-ti', label: 'Para ti', icon: Sparkles, color: '#FFFFFF', bgColor: '#2D5A3D', textColor: '#FFFFFF', isSpecial: true },
-  { id: 'aceites', label: 'Aceites', icon: Droplets, color: '#2D5A3D', bgColor: '#F5F1E8', textColor: '#1A1A1A' },
+  { id: 'aceites', label: 'Aceites', icon: Droplets, color: 'var(--color-accent)', bgColor: '#F5F1E8', textColor: '#1A1A1A' },
   { id: 'quesos', label: 'Quesos', icon: Milk, color: '#D97706', bgColor: '#FEF3C7', textColor: '#1A1A1A' },
-  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: '#DC2626', bgColor: '#FEE2E2', textColor: '#1A1A1A' },
+  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: 'var(--color-error)', bgColor: '#FEE2E2', textColor: '#1A1A1A' },
   { id: 'panaderia', label: 'Panadería', icon: Croissant, color: '#D97706', bgColor: '#FEF3C7', textColor: '#1A1A1A' },
   { id: 'bebidas', label: 'Bebidas', icon: CupSoda, color: '#2563EB', bgColor: '#DBEAFE', textColor: '#1A1A1A' },
   { id: 'bebes', label: 'Bebés', icon: Baby, color: '#DB2777', bgColor: '#FCE7F3', textColor: '#1A1A1A' },
   { id: 'mascotas', label: 'Mascotas', icon: Dog, color: '#4F46E5', bgColor: '#E0E7FF', textColor: '#1A1A1A' },
   { id: 'snacks', label: 'Snacks', icon: Cherry, color: '#D97706', bgColor: '#FEF3C7', textColor: '#1A1A1A' },
-  { id: 'organico', label: 'Orgánico', icon: Leaf, color: '#16A34A', bgColor: '#DCFCE7', textColor: '#1A1A1A' },
+  { id: 'organico', label: 'Orgánico', icon: Leaf, color: 'var(--color-success)', bgColor: '#DCFCE7', textColor: '#1A1A1A' },
   { id: 'singluten', label: 'Sin gluten', icon: WheatOff, color: '#9333EA', bgColor: '#F3E8FF', textColor: '#1A1A1A' },
-  { id: 'packs', label: 'Packs', icon: Gift, color: '#E6A532', bgColor: '#F5F1E8', textColor: '#1A1A1A' },
-  { id: 'novedades', label: 'Novedades', icon: Sparkle, color: '#2D5A3D', bgColor: '#F5F1E8', textColor: '#1A1A1A', badge: 'Nuevo' },
-  { id: 'trending', label: 'Trending', icon: Flame, color: '#DC2626', bgColor: '#FEE2E2', textColor: '#1A1A1A', badge: 'Hot' },
-  { id: 'locales', label: 'Locales', icon: MapPin, color: '#16A34A', bgColor: '#DCFCE7', textColor: '#1A1A1A' },
+  { id: 'packs', label: 'Packs', icon: Gift, color: 'var(--color-warning)', bgColor: '#F5F1E8', textColor: '#1A1A1A' },
+  { id: 'novedades', label: 'Novedades', icon: Sparkle, color: 'var(--color-accent)', bgColor: '#F5F1E8', textColor: '#1A1A1A', badge: 'Nuevo' },
+  { id: 'trending', label: 'Trending', icon: Flame, color: 'var(--color-error)', bgColor: '#FEE2E2', textColor: '#1A1A1A', badge: 'Hot' },
+  { id: 'locales', label: 'Locales', icon: MapPin, color: 'var(--color-success)', bgColor: '#DCFCE7', textColor: '#1A1A1A' },
 ];
 
 function CategoryPills({ selectedCategory, onSelect }) {
@@ -76,7 +76,7 @@ function CategoryPills({ selectedCategory, onSelect }) {
                 {/* Badge */}
                 {category.badge && (
                   <span className={`absolute -top-1 -right-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    category.badge === 'Hot' ? 'bg-red-500 text-white' : 'bg-[#2D5A3D] text-white'
+                    category.badge === 'Hot' ? 'bg-red-500 text-white' : 'bg-accent text-white'
                   }`}>
                     {category.badge}
                   </span>
@@ -85,7 +85,7 @@ function CategoryPills({ selectedCategory, onSelect }) {
               
               <span 
                 className={`text-xs md:text-sm font-medium whitespace-nowrap ${
-                  isSelected ? 'text-[#2D5A3D]' : 'text-[#1A1A1A]'
+                  isSelected ? 'text-accent' : 'text-gray-900'
                 }`}
               >
                 {category.label}

@@ -6,7 +6,7 @@ const ROLE_CONFIG = {
   consumer: {
     name: 'HI Nutrición',
     avatar: '🍎',
-    color: '#2D5A3D',
+    color: 'var(--color-accent)',
     welcomeMessage: '¡Hola! Soy HI, tu nutricionista personal. ¿En qué puedo ayudarte hoy?',
     suggestions: [
       { id: 'meal_plan', label: '🍽️ Planificar comidas', action: 'meal_plan' },
@@ -18,7 +18,7 @@ const ROLE_CONFIG = {
   producer: {
     name: 'HI Ventas',
     avatar: '📈',
-    color: '#E6A532',
+    color: 'var(--color-warning)',
     welcomeMessage: '¡Hola! Soy HI, tu asistente de ventas. ¿Qué quieres analizar hoy?',
     suggestions: [
       { id: 'sales', label: '📈 Analizar ventas', action: 'sales_analysis' },

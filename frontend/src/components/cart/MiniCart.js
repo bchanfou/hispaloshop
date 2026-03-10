@@ -55,14 +55,14 @@ const MiniCart = ({ isOpen, onClose }) => {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
               <div>
-                <h2 className="text-lg font-bold text-[#1A1A1A]">Tu cesta</h2>
-                <p className="text-sm text-[#6B7280]">{totalItems} artículos</p>
+                <h2 className="text-lg font-bold text-gray-900">Tu cesta</h2>
+                <p className="text-sm text-text-muted">{totalItems} artículos</p>
               </div>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-[#1A1A1A]" />
+                <X className="w-5 h-5 text-gray-900" />
               </button>
             </div>
 
@@ -70,22 +70,22 @@ const MiniCart = ({ isOpen, onClose }) => {
             <div className="flex-1 overflow-y-auto">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="w-8 h-8 border-4 border-[#2D5A3D] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : cartItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                  <div className="w-24 h-24 bg-[#F5F1E8] rounded-full flex items-center justify-center mb-4">
-                    <ShoppingBag className="w-10 h-10 text-[#6B7280]" />
+                  <div className="w-24 h-24 bg-background-subtle rounded-full flex items-center justify-center mb-4">
+                    <ShoppingBag className="w-10 h-10 text-text-muted" />
                   </div>
-                  <h3 className="text-lg font-semibold text-[#1A1A1A] mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     Tu cesta está vacía
                   </h3>
-                  <p className="text-[#6B7280] mb-6">
+                  <p className="text-text-muted mb-6">
                     ¿Buscas algo en particular?
                   </p>
                   <button
                     onClick={() => { onClose(); navigate('/discover'); }}
-                    className="px-6 py-3 bg-[#2D5A3D] text-white rounded-full font-medium"
+                    className="px-6 py-3 bg-accent text-white rounded-full font-medium"
                   >
                     Explorar productos
                   </button>
@@ -109,10 +109,10 @@ const MiniCart = ({ isOpen, onClose }) => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div>
-                            <h4 className="font-medium text-[#1A1A1A] text-sm line-clamp-2">
+                            <h4 className="font-medium text-gray-900 text-sm line-clamp-2">
                               {item.name || item.product?.name}
                             </h4>
-                            <p className="text-xs text-[#6B7280]">
+                            <p className="text-xs text-text-muted">
                               {item.producer || item.product?.producer?.name}
                             </p>
                           </div>
@@ -120,7 +120,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                             onClick={() => handleRemove(item.id)}
                             className="p-1 hover:bg-gray-200 rounded-full transition-colors"
                           >
-                            <Trash2 className="w-4 h-4 text-[#6B7280]" />
+                            <Trash2 className="w-4 h-4 text-text-muted" />
                           </button>
                         </div>
                         
@@ -130,7 +130,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                               onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                               className="p-1.5 hover:bg-gray-100 rounded-l-lg"
                             >
-                              <Minus className="w-4 h-4 text-[#1A1A1A]" />
+                              <Minus className="w-4 h-4 text-gray-900" />
                             </button>
                             <span className="w-8 text-center text-sm font-medium">
                               {item.quantity}
@@ -139,10 +139,10 @@ const MiniCart = ({ isOpen, onClose }) => {
                               onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                               className="p-1.5 hover:bg-gray-100 rounded-r-lg"
                             >
-                              <Plus className="w-4 h-4 text-[#1A1A1A]" />
+                              <Plus className="w-4 h-4 text-gray-900" />
                             </button>
                           </div>
-                          <span className="font-semibold text-[#2D5A3D]">
+                          <span className="font-semibold text-accent">
                             €{((item.price || item.product?.price) * item.quantity).toFixed(2)}
                           </span>
                         </div>
@@ -158,13 +158,13 @@ const MiniCart = ({ isOpen, onClose }) => {
               <div className="border-t p-4 space-y-4">
                 {/* Shipping progress */}
                 {subtotal < 50 && (
-                  <div className="bg-[#F5F1E8] rounded-lg p-3 text-sm">
-                    <p className="text-[#1A1A1A]">
-                      Añade <span className="font-semibold text-[#2D5A3D]">€{(50 - subtotal).toFixed(2)}</span> más para envío gratis
+                  <div className="bg-background-subtle rounded-lg p-3 text-sm">
+                    <p className="text-gray-900">
+                      Añade <span className="font-semibold text-accent">€{(50 - subtotal).toFixed(2)}</span> más para envío gratis
                     </p>
                     <div className="mt-2 h-2 bg-white rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-[#2D5A3D] rounded-full transition-all"
+                        className="h-full bg-accent rounded-full transition-all"
                         style={{ width: `${Math.min(100, (subtotal / 50) * 100)}%` }}
                       />
                     </div>
@@ -173,18 +173,18 @@ const MiniCart = ({ isOpen, onClose }) => {
 
                 {/* Summary */}
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between text-[#6B7280]">
+                  <div className="flex justify-between text-text-muted">
                     <span>Subtotal</span>
                     <span>€{subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-[#6B7280]">
+                  <div className="flex justify-between text-text-muted">
                     <span className="flex items-center gap-1">
                       <Truck className="w-4 h-4" />
                       Envío
                     </span>
                     <span>{shipping === 0 ? 'GRATIS' : `€${shipping.toFixed(2)}`}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold text-[#1A1A1A] pt-2 border-t">
+                  <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t">
                     <span>Total</span>
                     <span>€{total.toFixed(2)}</span>
                   </div>
@@ -194,7 +194,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 <button
                   onClick={handleCheckout}
                   disabled={isProcessing}
-                  className="w-full py-3 bg-[#2D5A3D] text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-[#234a31] transition-colors disabled:opacity-70"
+                  className="w-full py-3 bg-accent text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-accent/90 transition-colors disabled:opacity-70"
                 >
                   Pagar ahora
                   <ArrowRight className="w-5 h-5" />
@@ -202,7 +202,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 
                 <button
                   onClick={onClose}
-                  className="w-full py-3 border-2 border-gray-200 text-[#1A1A1A] rounded-xl font-medium hover:border-[#2D5A3D] hover:text-[#2D5A3D] transition-colors"
+                  className="w-full py-3 border-2 border-gray-200 text-gray-900 rounded-xl font-medium hover:border-accent hover:text-accent transition-colors"
                 >
                   Seguir comprando
                 </button>

@@ -357,7 +357,7 @@ export default function StorePage() {
                     disabled={followLoading}
                     variant={isFollowing ? "outline" : "default"}
                     className={`flex-1 flex items-center justify-center gap-2 rounded-full text-sm ${
-                      isFollowing ? 'border-primary text-primary' : 'bg-[#1C1C1C] text-white'
+                      isFollowing ? 'border-primary text-primary' : 'bg-primary text-white'
                     }`}
                     data-testid="follow-store-btn-mobile"
                   >

@@ -47,10 +47,10 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF7F2]">
+      <div className="min-h-screen bg-stone-50">
         <Header />
         <div className="flex h-[60vh] items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#2D5A3D]" />
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
         </div>
       </div>
     );
@@ -58,14 +58,14 @@ export default function PostDetailPage() {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-[#FAF7F2]">
+      <div className="min-h-screen bg-stone-50">
         <Header />
         <div className="flex h-[60vh] flex-col items-center justify-center gap-3 px-4 text-center">
-          <p className="text-lg font-semibold text-[#1C1C1C]">Publicacion no disponible</p>
-          <p className="text-sm text-[#7A7A7A]">{error || 'No se encontro la publicacion solicitada.'}</p>
+          <p className="text-lg font-semibold text-primary">Publicacion no disponible</p>
+          <p className="text-sm text-text-muted">{error || 'No se encontro la publicacion solicitada.'}</p>
           <button
             onClick={() => navigate(-1)}
-            className="rounded-full bg-[#1C1C1C] px-4 py-2 text-sm font-medium text-white hover:bg-[#2A2A2A]"
+            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
           >
             Volver
           </button>
@@ -75,7 +75,7 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <Header />
       <PostViewer
         post={post}

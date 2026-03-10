@@ -407,7 +407,7 @@ export default function Landing() {
             <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
               <div>
                 <p className="text-xs uppercase tracking-[0.32em] text-fuchsia-600">La salida</p>
-                <h2 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-[-0.03em] text-[#581c87] sm:text-5xl">
+                <h2 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-[-0.03em] text-purple-900 sm:text-5xl">
                   Deja de vender tu alma por un CPM de mierda. Empieza a ganar dinero mientras duermes durante 18 meses.
                 </h2>
               </div>
@@ -457,7 +457,7 @@ export default function Landing() {
                         <p className="text-xs uppercase tracking-[0.28em] text-fuchsia-500">{tier.subtitle}</p>
                         <h3 className="mt-2 text-3xl font-black text-slate-950">{tier.title}</h3>
                       </div>
-                      <p className="text-4xl font-black text-[#581c87]">{tier.rate}</p>
+                      <p className="text-4xl font-black text-purple-900">{tier.rate}</p>
                     </div>
                     <p className="mt-5 text-base leading-7 text-slate-700">{tier.description}</p>
                     <ul className="mt-6 space-y-3 text-sm leading-6 text-slate-600">
@@ -513,7 +513,7 @@ export default function Landing() {
                   <button
                     type="button"
                     onClick={() => handleApplyState(true)}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-4 font-semibold text-[#581c87] transition-transform hover:scale-[1.02]"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-4 font-semibold text-purple-900 transition-transform hover:scale-[1.02]"
                   >
                     Unirme al movimiento
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />

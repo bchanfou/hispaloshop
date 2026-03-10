@@ -31,10 +31,10 @@ function ProductTag({ product }) {
       to={`/products/${productId}`}
       className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg flex items-center gap-2 hover:bg-white transition-colors"
     >
-      <ShoppingBag className="w-4 h-4 text-[#2D5A3D]" />
+      <ShoppingBag className="w-4 h-4 text-accent" />
       <div>
-        <p className="text-xs font-medium text-[#1A1A1A] truncate max-w-[120px]">{product.name}</p>
-        <p className="text-xs font-bold text-[#2D5A3D]">€{product.price?.toFixed(2)}</p>
+        <p className="text-xs font-medium text-gray-900 truncate max-w-[120px]">{product.name}</p>
+        <p className="text-xs font-bold text-accent">€{product.price?.toFixed(2)}</p>
       </div>
     </Link>
   );
@@ -140,7 +140,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
             />
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-[#1A1A1A]">
+            <p className="text-sm font-semibold text-gray-900">
               {post.user?.name || post.user_name}
             </p>
             {post.user?.verified && (
@@ -150,7 +150,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
             )}
           </div>
         </Link>
-        <button className="p-1 text-[#6B7280] hover:text-[#1A1A1A]">
+        <button className="p-1 text-text-muted hover:text-gray-900">
           <MoreHorizontal className="w-5 h-5" />
         </button>
       </div>
@@ -211,21 +211,21 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
           <motion.button
             whileTap={{ scale: 0.85 }}
             onClick={handleLike}
-            className={`transition-colors ${liked ? 'text-red-500' : 'text-[#1A1A1A]'}`}
+            className={`transition-colors ${liked ? 'text-red-500' : 'text-gray-900'}`}
           >
             <Heart className={`w-6 h-6 ${liked ? 'fill-current' : ''}`} />
           </motion.button>
-          <button onClick={handleComment} className="text-[#1A1A1A]">
+          <button onClick={handleComment} className="text-gray-900">
             <MessageCircle className="w-6 h-6" />
           </button>
-          <button onClick={handleShare} className="text-[#1A1A1A]">
+          <button onClick={handleShare} className="text-gray-900">
             <Share2 className="w-6 h-6" />
           </button>
         </div>
         <motion.button
           whileTap={{ scale: 0.85 }}
           onClick={handleSave}
-          className="text-[#1A1A1A]"
+          className="text-gray-900"
         >
           <Bookmark className={`w-6 h-6 ${saved ? 'fill-current' : ''}`} />
         </motion.button>
@@ -233,26 +233,26 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
 
       {/* Info */}
       <div className="px-4 pb-4">
-        <p className="text-sm font-semibold text-[#1A1A1A]">
+        <p className="text-sm font-semibold text-gray-900">
           {likeCount.toLocaleString()} {t('feed.likes', 'me gusta')}
         </p>
         
         {post.caption && (
           <div className="mt-1">
-            <span className="text-sm font-semibold text-[#1A1A1A]">
+            <span className="text-sm font-semibold text-gray-900">
               {post.user?.name || post.user_name}
             </span>{' '}
-            <span className="text-sm text-[#1A1A1A]">{post.caption}</span>
+            <span className="text-sm text-gray-900">{post.caption}</span>
           </div>
         )}
 
         {post.comments > 0 && (
-          <button onClick={handleComment} className="text-sm text-[#6B7280] mt-1 block">
+          <button onClick={handleComment} className="text-sm text-text-muted mt-1 block">
             {t('feed.viewComments', 'Ver los {{count}} comentarios', { count: post.comments })}
           </button>
         )}
 
-        <p className="text-xs text-[#6B7280] mt-1 uppercase tracking-wide">
+        <p className="text-xs text-text-muted mt-1 uppercase tracking-wide">
           {formatTimeAgo(post.timestamp || post.created_at)}
         </p>
       </div>

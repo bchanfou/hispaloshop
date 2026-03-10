@@ -48,7 +48,7 @@ function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] pb-20">
+    <div className="min-h-screen bg-background-subtle pb-20">
       {/* Cover Image */}
       <div className="relative h-32 overflow-hidden">
         <img
@@ -60,10 +60,10 @@ function ProfilePage() {
         
         {/* Top Actions */}
         <div className="absolute top-4 right-4 flex gap-2">
-          <button className="p-2 bg-black/30 backdrop-blur-md rounded-full text-white hover:bg-black/40 transition-colors">
+          <button className="p-2 bg-black/30 backdrop-blur-md rounded-full text-white hover:bg-slate-950/40 transition-colors">
             <Share2 className="w-5 h-5" />
           </button>
-          <button className="p-2 bg-black/30 backdrop-blur-md rounded-full text-white hover:bg-black/40 transition-colors">
+          <button className="p-2 bg-black/30 backdrop-blur-md rounded-full text-white hover:bg-slate-950/40 transition-colors">
             <Settings className="w-5 h-5" />
           </button>
         </div>
@@ -81,7 +81,7 @@ function ProfilePage() {
             />
           </div>
           {PROFILE_DATA.isVerified && (
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#E6A532] rounded-full flex items-center justify-center border-2 border-white">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-state-amber rounded-full flex items-center justify-center border-2 border-white">
               <CheckCircle2 className="w-4 h-4 text-white" />
             </div>
           )}
@@ -89,19 +89,19 @@ function ProfilePage() {
 
         {/* Name & Handle */}
         <div className="mt-3">
-          <h1 className="text-xl font-bold text-[#1A1A1A] flex items-center gap-2">
+          <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             {PROFILE_DATA.name}
           </h1>
-          <p className="text-[#6B7280]">{PROFILE_DATA.handle}</p>
+          <p className="text-text-muted">{PROFILE_DATA.handle}</p>
         </div>
 
         {/* Bio */}
-        <p className="mt-2 text-sm text-[#1A1A1A] whitespace-pre-line">
+        <p className="mt-2 text-sm text-gray-900 whitespace-pre-line">
           {PROFILE_DATA.bio}
         </p>
 
         {/* Location */}
-        <div className="flex items-center gap-1 mt-2 text-sm text-[#6B7280]">
+        <div className="flex items-center gap-1 mt-2 text-sm text-text-muted">
           <MapPin className="w-4 h-4" />
           <span>{PROFILE_DATA.location}</span>
         </div>
@@ -110,26 +110,26 @@ function ProfilePage() {
         <div className="flex items-center gap-6 mt-4 py-3 border-y border-stone-200">
           <div className="text-center">
             <div className="flex items-center gap-1 justify-center">
-              <Star className="w-4 h-4 fill-[#E6A532] text-[#E6A532]" />
-              <span className="font-bold text-[#1A1A1A]">{PROFILE_DATA.rating}</span>
+              <Star className="w-4 h-4 fill-state-amber text-state-amber" />
+              <span className="font-bold text-gray-900">{PROFILE_DATA.rating}</span>
             </div>
-            <span className="text-xs text-[#6B7280]">Valoración</span>
+            <span className="text-xs text-text-muted">Valoración</span>
           </div>
           <div className="text-center">
-            <span className="font-bold text-[#1A1A1A]">
+            <span className="font-bold text-gray-900">
               {PROFILE_DATA.sales >= 1000 ? `${(PROFILE_DATA.sales / 1000).toFixed(1)}k` : PROFILE_DATA.sales}
             </span>
-            <span className="text-xs text-[#6B7280] block">Ventas</span>
+            <span className="text-xs text-text-muted block">Ventas</span>
           </div>
           <div className="text-center">
-            <span className="font-bold text-[#1A1A1A]">
+            <span className="font-bold text-gray-900">
               {PROFILE_DATA.followers >= 1000 ? `${(PROFILE_DATA.followers / 1000).toFixed(1)}k` : PROFILE_DATA.followers}
             </span>
-            <span className="text-xs text-[#6B7280] block">Seguidores</span>
+            <span className="text-xs text-text-muted block">Seguidores</span>
           </div>
           <div className="text-center">
-            <span className="font-bold text-[#1A1A1A]">{PROFILE_DATA.following}</span>
-            <span className="text-xs text-[#6B7280] block">Siguiendo</span>
+            <span className="font-bold text-gray-900">{PROFILE_DATA.following}</span>
+            <span className="text-xs text-text-muted block">Siguiendo</span>
           </div>
         </div>
 
@@ -139,16 +139,16 @@ function ProfilePage() {
             onClick={handleFollow}
             className={`flex-1 py-2.5 rounded-full font-medium text-sm transition-colors ${
               isFollowing
-                ? 'bg-[#F5F1E8] text-[#1A1A1A] border border-stone-300'
-                : 'bg-[#2D5A3D] text-white'
+                ? 'bg-background-subtle text-gray-900 border border-stone-300'
+                : 'bg-accent text-white'
             }`}
           >
             {isFollowing ? 'Siguiendo' : 'Seguir'}
           </button>
-          <button className="flex-1 py-2.5 bg-[#F5F1E8] text-[#1A1A1A] rounded-full font-medium text-sm border border-stone-300 hover:bg-[#EBE6D5] transition-colors">
+          <button className="flex-1 py-2.5 bg-background-subtle text-gray-900 rounded-full font-medium text-sm border border-stone-300 hover:bg-[#EBE6D5] transition-colors">
             Mensaje
           </button>
-          <button className="px-3 py-2.5 bg-[#F5F1E8] text-[#1A1A1A] rounded-full border border-stone-300 hover:bg-[#EBE6D5] transition-colors">
+          <button className="px-3 py-2.5 bg-background-subtle text-gray-900 rounded-full border border-stone-300 hover:bg-[#EBE6D5] transition-colors">
             <MoreHorizontal className="w-5 h-5" />
           </button>
         </div>
@@ -157,21 +157,21 @@ function ProfilePage() {
         <div className="flex gap-4 mt-6 overflow-x-auto pb-2 scrollbar-hide">
           {HIGHLIGHTS.map((highlight) => (
             <button key={highlight.id} className="flex flex-col items-center gap-1 flex-shrink-0">
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#2D5A3D] p-0.5">
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-accent p-0.5">
                 <img
                   src={highlight.image}
                   alt={highlight.name}
                   className="w-full h-full rounded-full object-cover"
                 />
               </div>
-              <span className="text-xs text-[#1A1A1A]">{highlight.name}</span>
+              <span className="text-xs text-gray-900">{highlight.name}</span>
             </button>
           ))}
           <button className="flex flex-col items-center gap-1 flex-shrink-0">
             <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#6B7280] flex items-center justify-center">
-              <Plus className="w-6 h-6 text-[#6B7280]" />
+              <Plus className="w-6 h-6 text-text-muted" />
             </div>
-            <span className="text-xs text-[#6B7280]">Nueva</span>
+            <span className="text-xs text-text-muted">Nueva</span>
           </button>
         </div>
       </div>

@@ -23,10 +23,10 @@ function KPICard({ icon: Icon, value, label, subtext, trend, trendUp, onClick, a
       </div>
       
       <div className="mt-3">
-        <p className="text-2xl font-bold text-[#1A1A1A]">{value}</p>
-        <p className="text-sm text-[#6B7280]">{label}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className="text-sm text-text-muted">{label}</p>
         {subtext && (
-          <p className="text-xs text-[#2D5A3D] mt-1">{subtext}</p>
+          <p className="text-xs text-accent mt-1">{subtext}</p>
         )}
       </div>
     </motion.div>

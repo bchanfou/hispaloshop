@@ -119,31 +119,31 @@ export default function PricingPage() {
   const icons = { FREE: Star, PRO: Zap, ELITE: Crown };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#FAF7F2]"><Header /><div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div></div>
+    <div className="min-h-screen bg-stone-50"><Header /><div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div></div>
   );
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <Header />
       <div className="max-w-5xl mx-auto px-4 py-10">
         <BackButton />
         <div className="text-center mb-10">
-          <p className="text-xs font-semibold text-[#2D5A27] uppercase tracking-widest mb-2">{t('pricing.tagline')}</p>
-          <h1 className="font-heading text-3xl md:text-4xl font-semibold text-[#1C1C1C] mb-3">{t('pricing.title')}</h1>
-          <p className="text-[#666] text-sm max-w-lg mx-auto">{t('pricing.subtitle')}</p>
+          <p className="text-xs font-semibold text-accent uppercase tracking-widest mb-2">{t('pricing.tagline')}</p>
+          <h1 className="font-heading text-3xl md:text-4xl font-semibold text-primary mb-3">{t('pricing.title')}</h1>
+          <p className="text-text-muted text-sm max-w-lg mx-auto">{t('pricing.subtitle')}</p>
         </div>
 
         <div className="mb-10 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm md:flex md:items-center md:justify-between md:gap-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#2D5A27]">Acceso a planes</p>
-            <h2 className="mt-2 text-xl font-semibold text-[#1C1C1C]">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">Acceso a planes</p>
+            <h2 className="mt-2 text-xl font-semibold text-primary">
               {isSeller
                 ? 'Gestiona tu suscripcion y cambia de plan cuando quieras.'
                 : user
                   ? 'Tu cuenta actual no es de vendedor.'
                   : 'Crea una cuenta de vendedor para contratar un plan.'}
             </h2>
-            <p className="mt-2 text-sm text-[#666] max-w-2xl">
+            <p className="mt-2 text-sm text-text-muted max-w-2xl">
               {isSeller
                 ? 'Si eliges un plan de pago, te llevamos directamente al checkout correspondiente.'
                 : user
@@ -152,7 +152,7 @@ export default function PricingPage() {
             </p>
           </div>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row md:mt-0">
-            <Button onClick={handleSellerEntry} className="rounded-xl h-11 bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white">
+            <Button onClick={handleSellerEntry} className="rounded-xl h-11 bg-primary hover:bg-primary-hover text-white">
               {isSeller ? 'Ir a mi panel' : user ? 'Ver pagina de vendedor' : 'Crear cuenta de vendedor'}
             </Button>
             <Button variant="outline" onClick={() => navigate('/contact')} className="rounded-xl h-11">
@@ -171,12 +171,12 @@ export default function PricingPage() {
               <div
                 key={plan.key}
                 className={`relative bg-white rounded-2xl border-2 p-6 flex flex-col ${
-                  isRecommended ? 'border-[#2D5A27] shadow-lg scale-[1.02]' : 'border-stone-200'
-                } ${isCurrent ? 'ring-2 ring-[#2D5A27]/30' : ''}`}
+                  isRecommended ? 'border-accent shadow-lg scale-[1.02]' : 'border-stone-200'
+                } ${isCurrent ? 'ring-2 ring-accent/30' : ''}`}
                 data-testid={`plan-${plan.key}`}
               >
                 {isRecommended && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2D5A27] text-white text-xs font-semibold px-4 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-semibold px-4 py-1 rounded-full">
                     {t('pricing.mostPopular')}
                   </div>
                 )}
@@ -187,22 +187,22 @@ export default function PricingPage() {
                 )}
 
                 <div className="mb-4">
-                  <Icon className={`w-8 h-8 mb-3 ${isRecommended ? 'text-[#2D5A27]' : 'text-[#666]'}`} />
-                  <h3 className="font-heading text-xl font-semibold text-[#1C1C1C]">{plan.label}</h3>
+                  <Icon className={`w-8 h-8 mb-3 ${isRecommended ? 'text-accent' : 'text-text-muted'}`} />
+                  <h3 className="font-heading text-xl font-semibold text-primary">{plan.label}</h3>
                   <div className="flex items-baseline gap-1 mt-2">
-                    <span className="text-3xl font-bold text-[#1C1C1C]">{plan.price === 0 ? 'Gratis' : `${plan.price} €`}</span>
-                    {plan.price > 0 && <span className="text-sm text-[#666]">/{t('pricing.month')} + IVA</span>}
+                    <span className="text-3xl font-bold text-primary">{plan.price === 0 ? 'Gratis' : `${plan.price} €`}</span>
+                    {plan.price > 0 && <span className="text-sm text-text-muted">/{t('pricing.month')} + IVA</span>}
                   </div>
                   {plan.price_with_vat && (
-                    <p className="text-xs text-[#999] mt-0.5">~{plan.price_with_vat.toFixed(2)} € con IVA</p>
+                    <p className="text-xs text-text-muted mt-0.5">~{plan.price_with_vat.toFixed(2)} € con IVA</p>
                   )}
-                  <p className="text-sm text-[#2D5A27] font-medium mt-1">{t('pricing.commission')}: {plan.commission}</p>
+                  <p className="text-sm text-accent font-medium mt-1">{t('pricing.commission')}: {plan.commission}</p>
                 </div>
 
                 <ul className="space-y-2 mb-6 flex-1">
                   {plan.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#444]">
-                      <CheckCircle className="w-4 h-4 text-[#2D5A27] mt-0.5 shrink-0" />
+                    <li key={i} className="flex items-start gap-2 text-sm text-text-primary">
+                      <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" />
                       {f}
                     </li>
                   ))}
@@ -215,7 +215,7 @@ export default function PricingPage() {
                     onClick={() => handleSubscribe(plan.key)}
                     disabled={subscribing === plan.key}
                     variant={plan.key === 'FREE' ? 'outline' : 'default'}
-                    className={`w-full rounded-xl h-11 ${plan.key === 'FREE' ? '' : isRecommended ? 'bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white' : 'bg-[#1C1C1C] hover:bg-[#333] text-white'}`}
+                    className={`w-full rounded-xl h-11 ${plan.key === 'FREE' ? '' : isRecommended ? 'bg-primary hover:bg-primary-hover text-white' : 'bg-primary hover:bg-primary-hover text-white'}`}
                   >
                     {subscribing === plan.key ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                       <>{getPlanActionLabel(plan.key)} <ArrowRight className="w-4 h-4 ml-1" /></>
@@ -229,20 +229,20 @@ export default function PricingPage() {
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
-            <p className="text-sm font-semibold text-[#1C1C1C]">1. Suscripcion</p>
-            <p className="mt-2 text-sm text-[#666]">Seleccionas plan, validamos tu rol de vendedor y abrimos el flujo correcto.</p>
+            <p className="text-sm font-semibold text-primary">1. Suscripcion</p>
+            <p className="mt-2 text-sm text-text-muted">Seleccionas plan, validamos tu rol de vendedor y abrimos el flujo correcto.</p>
           </div>
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
-            <p className="text-sm font-semibold text-[#1C1C1C]">2. Pago seguro</p>
-            <p className="mt-2 text-sm text-[#666]">Los planes de pago usan checkout seguro de Stripe con tarjeta y periodo de prueba si aplica.</p>
+            <p className="text-sm font-semibold text-primary">2. Pago seguro</p>
+            <p className="mt-2 text-sm text-text-muted">Los planes de pago usan checkout seguro de Stripe con tarjeta y periodo de prueba si aplica.</p>
           </div>
           <div className="rounded-2xl border border-stone-200 bg-white p-5">
-            <p className="text-sm font-semibold text-[#1C1C1C]">3. Activacion</p>
-            <p className="mt-2 text-sm text-[#666]">Despues del pago o cambio de plan, actualizamos tu comision y el panel queda listo para operar.</p>
+            <p className="text-sm font-semibold text-primary">3. Activacion</p>
+            <p className="mt-2 text-sm text-text-muted">Despues del pago o cambio de plan, actualizamos tu comision y el panel queda listo para operar.</p>
           </div>
         </div>
 
-        <div className="mt-10 text-center text-xs text-[#999]">
+        <div className="mt-10 text-center text-xs text-text-muted">
           <p>{t('pricing.trialNote')}</p>
           <p className="mt-1">{t('pricing.commissionNote')}</p>
         </div>

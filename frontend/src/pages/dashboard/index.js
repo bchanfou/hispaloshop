@@ -11,7 +11,7 @@ function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
+      <div className="min-h-screen bg-background-subtle flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-stone-300 border-t-stone-700 animate-spin" />
       </div>
     );

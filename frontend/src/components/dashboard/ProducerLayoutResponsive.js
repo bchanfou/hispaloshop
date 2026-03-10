@@ -259,7 +259,7 @@ export default function ProducerLayout() {
                 end={item.end}
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0 ${
-                    isActive ? 'border-[#1C1C1C] text-[#1C1C1C]' : 'border-transparent text-stone-500'
+                    isActive ? 'border-primary text-primary' : 'border-transparent text-stone-500'
                   }`
                 }
                 data-testid={`mobile-nav-${item.shortLabel.toLowerCase()}`}

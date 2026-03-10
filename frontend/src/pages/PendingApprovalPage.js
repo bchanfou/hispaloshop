@@ -22,7 +22,7 @@ export default function PendingApprovalPage() {
           </p>
           <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 text-left max-w-xl mx-auto mb-8">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-[#2D5A27] mt-0.5" />
+              <ShieldCheck className="w-5 h-5 text-accent mt-0.5" />
               <div className="space-y-1 text-sm text-text-secondary">
                 <p>Recibiras acceso completo cuando el equipo valide tu alta.</p>
                 <p>Mientras tanto, algunas funciones comerciales seguiran restringidas.</p>
@@ -31,7 +31,7 @@ export default function PendingApprovalPage() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button asChild className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white">
+            <Button asChild className="bg-primary hover:bg-primary-hover text-white">
               <Link to="/">Volver al inicio</Link>
             </Button>
             <Button asChild variant="outline">

@@ -29,12 +29,12 @@ const Toaster = ({ ...props }) => {
           duration: 3000,
           classNames: {
             toast:
-              "group toast group-[.toaster]:bg-white group-[.toaster]:text-[#1C1C1C] group-[.toaster]:border-stone-200 group-[.toaster]:shadow-lg group-[.toaster]:rounded-xl group-[.toaster]:pointer-events-auto group-[.toaster]:text-sm",
-            description: "group-[.toast]:text-[#7A7A7A]",
+              "group toast group-[.toaster]:bg-white group-[.toaster]:text-primary group-[.toaster]:border-stone-200 group-[.toaster]:shadow-lg group-[.toaster]:rounded-xl group-[.toaster]:pointer-events-auto group-[.toaster]:text-sm",
+            description: "group-[.toast]:text-text-muted",
             actionButton:
-              "group-[.toast]:bg-[#1C1C1C] group-[.toast]:text-white",
+              "group-[.toast]:bg-primary group-[.toast]:text-white",
             cancelButton:
-              "group-[.toast]:bg-stone-100 group-[.toast]:text-[#7A7A7A]",
+              "group-[.toast]:bg-stone-100 group-[.toast]:text-text-muted",
           },
         }}
         containerStyle={{

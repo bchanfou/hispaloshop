@@ -618,7 +618,7 @@ export default function RegisterPage() {
 
             <div className="mt-4 text-center text-xs text-text-muted space-y-1">
               {fixedRole !== 'producer' && (
-                <p>{t('register.isProducer')} <Link to="/productor/registro" className="text-[#2D5A27] font-medium hover:underline">{t('register.registerSeller')}</Link></p>
+                <p>{t('register.isProducer')} <Link to="/productor/registro" className="text-accent font-medium hover:underline">{t('register.registerSeller')}</Link></p>
               )}
               {fixedRole !== 'influencer' && (
                 <p>{t('register.isInfluencer')} <Link to="/influencer/aplicar" className="text-amber-600 font-medium hover:underline">{t('register.joinProgram')}</Link></p>

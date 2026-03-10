@@ -16,7 +16,7 @@ function ReelOverlay({ reel }) {
         return (
           <span 
             key={i} 
-            className="text-[#E6A532] cursor-pointer hover:underline"
+            className="text-state-amber cursor-pointer hover:underline"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/discover?hashtag=${part.slice(1)}`);

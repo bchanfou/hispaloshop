@@ -21,7 +21,7 @@ export default function Footer() {
   };
   
   return (
-    <footer className="bg-[#171717] text-white mt-14" data-testid="main-footer">
+    <footer className="bg-dark-graphite text-white mt-14" data-testid="main-footer">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
         <div className="mb-10 rounded-2xl border border-stone-700/80 bg-gradient-to-r from-stone-900/70 to-stone-800/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
@@ -153,7 +153,7 @@ export default function Footer() {
 
         {/* Language Dialog for Mobile */}
         <Dialog open={showLanguageDialog} onOpenChange={setShowLanguageDialog}>
-          <DialogContent className="max-w-sm max-h-[80vh] bg-[#1C1C1C] border-stone-700">
+          <DialogContent className="max-w-sm max-h-[80vh] bg-primary border-stone-700">
             <DialogHeader>
               <DialogTitle className="font-heading text-lg text-white">
                 {t('locale.selectLanguage', 'Seleccionar idioma')}

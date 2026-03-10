@@ -58,7 +58,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
               onClick={onClose}
               className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur-sm rounded-full"
             >
-              <X className="w-5 h-5 text-[#6B7280]" />
+              <X className="w-5 h-5 text-text-muted" />
             </button>
             
             {/* Product Image */}
@@ -74,13 +74,13 @@ function ProductDrawer({ isOpen, onClose, product }) {
             <div className="p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-[#1A1A1A]">{product.name}</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{product.name}</h2>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-2xl font-bold text-[#2D5A3D]">
+                    <span className="text-2xl font-bold text-accent">
                       €{product.price.toFixed(2)}
                     </span>
                     {product.originalPrice && (
-                      <span className="text-[#6B7280] line-through text-sm">
+                      <span className="text-text-muted line-through text-sm">
                         €{product.originalPrice.toFixed(2)}
                       </span>
                     )}
@@ -91,10 +91,10 @@ function ProductDrawer({ isOpen, onClose, product }) {
               {/* Rating */}
               <div className="flex items-center gap-2 mt-3">
                 <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-[#E6A532] fill-[#E6A532]" />
+                  <Star className="w-4 h-4 text-state-amber fill-state-amber" />
                   <span className="font-semibold text-sm">{product.rating || '4.8'}</span>
                 </div>
-                <span className="text-[#6B7280] text-sm">
+                <span className="text-text-muted text-sm">
                   ({product.reviews || '124'} valoraciones)
                 </span>
               </div>
@@ -104,20 +104,20 @@ function ProductDrawer({ isOpen, onClose, product }) {
                 onClick={handleViewStore}
                 className="flex items-center gap-3 mt-4 p-3 bg-stone-50 rounded-xl cursor-pointer hover:bg-stone-100 transition-colors"
               >
-                <div className="w-10 h-10 rounded-full bg-[#2D5A3D] flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold">
                   {product.seller?.[0] || 'V'}
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-sm">{product.seller || 'Vendedor'}</p>
-                  <p className="text-xs text-[#6B7280]">Ver tienda completa</p>
+                  <p className="text-xs text-text-muted">Ver tienda completa</p>
                 </div>
-                <Store className="w-5 h-5 text-[#6B7280]" />
+                <Store className="w-5 h-5 text-text-muted" />
               </div>
               
               {/* Description */}
               <div className="mt-4">
                 <h3 className="font-semibold text-sm mb-2">Descripción</h3>
-                <p className="text-sm text-[#6B7280] leading-relaxed">
+                <p className="text-sm text-text-muted leading-relaxed">
                   {product.description || 'Producto artesanal de alta calidad elaborado con ingredientes seleccionados. Envío en 24-48h.'}
                 </p>
               </div>
@@ -127,7 +127,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
                 {['Envío gratis', 'Garantía', 'Devolución 14d'].map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-[#2D5A3D]/10 text-[#2D5A3D] text-xs font-medium rounded-full"
+                    className="px-3 py-1 bg-accent/10 text-accent text-xs font-medium rounded-full"
                   >
                     {tag}
                   </span>
@@ -142,7 +142,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
                 className={`w-full py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors ${
                   addedToCart
                     ? 'bg-green-500 text-white'
-                    : 'bg-[#2D5A3D] text-white hover:bg-[#2D5A3D]/90'
+                    : 'bg-accent text-white hover:bg-accent/90'
                 }`}
               >
                 {addedToCart ? (
@@ -160,7 +160,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
               
               <button
                 onClick={() => toast.info('Chat con vendedor próximamente')}
-                className="w-full py-3.5 rounded-xl font-semibold border-2 border-[#2D5A3D] text-[#2D5A3D] flex items-center justify-center gap-2 hover:bg-[#2D5A3D]/5"
+                className="w-full py-3.5 rounded-xl font-semibold border-2 border-accent text-accent flex items-center justify-center gap-2 hover:bg-accent/5"
               >
                 <MessageCircle className="w-5 h-5" />
                 Consultar al vendedor
@@ -168,7 +168,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
               
               <button
                 onClick={handleViewProduct}
-                className="w-full py-3 text-[#6B7280] text-sm font-medium"
+                className="w-full py-3 text-text-muted text-sm font-medium"
               >
                 Ver ficha completa del producto
               </button>

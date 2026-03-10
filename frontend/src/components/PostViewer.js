@@ -224,15 +224,15 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
               </div>
             </Link>
             <div className="flex-1 min-w-0">
-              <Link to={`/user/${post.user_id}`} onClick={onClose} className="font-semibold text-sm text-[#1C1C1C] hover:underline">
+              <Link to={`/user/${post.user_id}`} onClick={onClose} className="font-semibold text-sm text-primary hover:underline">
                 {post.user_name || profile?.name}
               </Link>
-              {post.location && <p className="text-xs text-[#7A7A7A]">{post.location}</p>}
+              {post.location && <p className="text-xs text-text-muted">{post.location}</p>}
             </div>
             {(isOwner || isAdmin) && (
               <div className="relative" ref={menuRef}>
                 <button onClick={() => setShowMenu(!showMenu)} className="p-1.5 hover:bg-stone-100 rounded-full" data-testid="post-viewer-menu">
-                  <MoreHorizontal className="w-5 h-5 text-[#7A7A7A]" />
+                  <MoreHorizontal className="w-5 h-5 text-text-muted" />
                 </button>
                 {showMenu && (
                   <div className="absolute right-0 top-full mt-1 bg-white border border-stone-200 rounded-xl shadow-lg z-20 py-1 min-w-[150px]">
@@ -259,22 +259,22 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
                 </Link>
                 <div>
                   <p className="text-sm">
-                    <Link to={`/user/${post.user_id}`} onClick={onClose} className="font-semibold text-[#1C1C1C] hover:underline mr-1.5">
+                    <Link to={`/user/${post.user_id}`} onClick={onClose} className="font-semibold text-primary hover:underline mr-1.5">
                       {post.user_name || profile?.name}
                     </Link>
-                    <span className="text-[#1C1C1C]">{post.caption}</span>
+                    <span className="text-primary">{post.caption}</span>
                   </p>
-                  <span className="text-[10px] text-[#7A7A7A]">{timeAgo(post.created_at)}</span>
+                  <span className="text-[10px] text-text-muted">{timeAgo(post.created_at)}</span>
                 </div>
               </div>
             )}
 
             {loadingComments ? (
               <div className="flex justify-center py-4">
-                <Loader2 className="w-5 h-5 animate-spin text-[#7A7A7A]" />
+                <Loader2 className="w-5 h-5 animate-spin text-text-muted" />
               </div>
             ) : comments.length === 0 ? (
-              <p className="text-sm text-[#7A7A7A] text-center py-4">{t('social.noComments')}</p>
+              <p className="text-sm text-text-muted text-center py-4">{t('social.noComments')}</p>
             ) : (
               comments.map(c => (
                 <div key={c.comment_id} className="flex gap-2.5" data-testid={`comment-${c.comment_id}`}>
@@ -285,12 +285,12 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
                   </Link>
                   <div className="flex-1">
                     <p className="text-sm">
-                      <Link to={`/user/${c.user_id}`} onClick={onClose} className="font-semibold text-[#1C1C1C] hover:underline mr-1.5">
+                      <Link to={`/user/${c.user_id}`} onClick={onClose} className="font-semibold text-primary hover:underline mr-1.5">
                         {c.user_name}
                       </Link>
-                      <span className="text-[#1C1C1C]">{c.text}</span>
+                      <span className="text-primary">{c.text}</span>
                     </p>
-                    <span className="text-[10px] text-[#7A7A7A]">{timeAgo(c.created_at)}</span>
+                    <span className="text-[10px] text-text-muted">{timeAgo(c.created_at)}</span>
                   </div>
                 </div>
               ))
@@ -302,26 +302,26 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-4">
                 <button onClick={handleLike} className="group active:scale-125 transition-transform" data-testid="post-viewer-like">
-                  <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-red-500 text-red-500' : 'text-[#1C1C1C] group-hover:text-red-400'}`} />
+                  <Heart className={`w-6 h-6 transition-all ${liked ? 'fill-red-500 text-red-500' : 'text-primary group-hover:text-red-400'}`} />
                 </button>
                 <button onClick={() => commentInputRef.current?.focus()} className="group" data-testid="post-viewer-comment-focus">
-                  <MessageCircle className="w-6 h-6 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />
+                  <MessageCircle className="w-6 h-6 text-primary group-hover:text-accent transition-colors" />
                 </button>
                 <button onClick={handleShare} className="group">
-                  <Share2 className="w-5 h-5 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />
+                  <Share2 className="w-5 h-5 text-primary group-hover:text-accent transition-colors" />
                 </button>
               </div>
               <button onClick={handleBookmark} className="group" data-testid="post-viewer-bookmark">
                 {saved
-                  ? <BookmarkCheck className="w-6 h-6 text-[#2D5A27] fill-[#2D5A27]" />
-                  : <Bookmark className="w-6 h-6 text-[#1C1C1C] group-hover:text-[#2D5A27] transition-colors" />
+                  ? <BookmarkCheck className="w-6 h-6 text-accent fill-accent" />
+                  : <Bookmark className="w-6 h-6 text-primary group-hover:text-accent transition-colors" />
                 }
               </button>
             </div>
             {likesCount > 0 && (
-              <p className="text-sm font-semibold text-[#1C1C1C] mb-1">{likesCount} {t('social.likes')}</p>
+              <p className="text-sm font-semibold text-primary mb-1">{likesCount} {t('social.likes')}</p>
             )}
-            <p className="text-[10px] text-[#7A7A7A] uppercase">{timeAgo(post.created_at)}</p>
+            <p className="text-[10px] text-text-muted uppercase">{timeAgo(post.created_at)}</p>
           </div>
 
           {/* Comment input */}
@@ -334,13 +334,13 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
                 onChange={e => setCommentText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && submitComment()}
                 placeholder={t('social.writeComment')}
-                className="flex-1 text-sm bg-transparent outline-none placeholder:text-[#999]"
+                className="flex-1 text-sm bg-transparent outline-none placeholder:text-text-muted"
                 data-testid="post-viewer-comment-input"
               />
               <button
                 onClick={submitComment}
                 disabled={!commentText.trim() || sendingComment}
-                className="text-[#2D5A27] font-semibold text-sm disabled:opacity-30 hover:text-[#1F4A1A] p-1"
+                className="text-accent font-semibold text-sm disabled:opacity-30 hover:text-accent/90 p-1"
                 data-testid="post-viewer-send-comment"
               >
                 {sendingComment ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

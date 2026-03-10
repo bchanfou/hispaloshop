@@ -65,25 +65,25 @@ function CreatePostModal({ onClose, onPostCreated }) {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white rounded-2xl w-full max-w-lg shadow-2xl" data-testid="create-post-modal">
         <div className="flex items-center justify-between p-4 border-b border-stone-200">
-          <h3 className="font-semibold text-[#1C1C1C]">{t('social.newPost')}</h3>
+          <h3 className="font-semibold text-primary">{t('social.newPost')}</h3>
           <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-full"><X className="w-5 h-5" /></button>
         </div>
         <div className="p-4 space-y-4">
           {preview ? (
             <div className="relative">
               <img src={preview} alt="Preview" className="w-full max-h-80 object-cover rounded-xl" />
-              <button onClick={() => { setFile(null); setPreview(null); }} className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full hover:bg-black/80">
+              <button onClick={() => { setFile(null); setPreview(null); }} className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full hover:bg-slate-950/80">
                 <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
             <button
               onClick={() => fileRef.current?.click()}
-              className="w-full h-48 border-2 border-dashed border-stone-300 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-[#2D5A27] hover:bg-stone-50 transition-colors"
+              className="w-full h-48 border-2 border-dashed border-stone-300 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-stone-50 transition-colors"
               data-testid="select-image-btn"
             >
               <ImagePlus className="w-10 h-10 text-stone-400" />
-              <span className="text-sm text-[#7A7A7A]">{t('social.selectImage')}</span>
+              <span className="text-sm text-text-muted">{t('social.selectImage')}</span>
             </button>
           )}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
@@ -91,13 +91,13 @@ function CreatePostModal({ onClose, onPostCreated }) {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder={t('social.writeCaption')}
-            className="w-full p-3 border border-stone-200 rounded-xl text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-[#2D5A27]/30 focus:border-[#2D5A27]"
+            className="w-full p-3 border border-stone-200 rounded-xl text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
             data-testid="post-caption-input"
           />
           <Button
             onClick={handleSubmit}
             disabled={!file || uploading}
-            className="w-full bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white rounded-xl h-11"
+            className="w-full bg-primary hover:bg-primary-hover text-white rounded-xl h-11"
             data-testid="submit-post-btn"
           >
             {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
@@ -265,17 +265,17 @@ export default function UserProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF7F2]">
+      <div className="min-h-screen bg-stone-50">
         <Header />
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#7A7A7A]" />
+          <Loader2 className="w-8 h-8 animate-spin text-text-muted" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <Header />
 
       {/* Profile Header */}
@@ -305,7 +305,7 @@ export default function UserProfilePage() {
                 <>
                   <button 
                     onClick={() => avatarInputRef.current?.click()}
-                    className="absolute bottom-2 right-2 bg-[#1C1C1C] text-white p-2 rounded-full hover:bg-[#2C2C2C] transition-colors"
+                    className="absolute bottom-2 right-2 bg-primary text-white p-2 rounded-full hover:bg-primary-hover transition-colors"
                     data-testid="change-avatar-btn"
                   >
                     <Camera className="w-4 h-4" />
@@ -318,7 +318,7 @@ export default function UserProfilePage() {
             {/* Profile Info */}
             <div className="flex-1 text-center md:text-left">
               <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
-                <h1 className="text-2xl font-bold text-[#1C1C1C]">{profile?.name}</h1>
+                <h1 className="text-2xl font-bold text-primary">{profile?.name}</h1>
                 {profile?.username && (
                   <span className="text-sm text-text-muted">@{profile.username}</span>
                 )}
@@ -345,8 +345,8 @@ export default function UserProfilePage() {
                       onClick={handleFollow}
                       className={`${
                         isFollowing 
-                          ? 'bg-stone-200 text-[#1C1C1C] hover:bg-stone-300' 
-                          : 'bg-[#2D5A27] text-white hover:bg-[#1F4A1A]'
+                          ? 'bg-stone-200 text-primary hover:bg-stone-300' 
+                          : 'bg-accent text-white hover:bg-accent/90'
                       }`}
                       data-testid="follow-btn"
                     >
@@ -375,7 +375,7 @@ export default function UserProfilePage() {
                     <Link to={dashboardUrl}>
                       <Button
                         variant="outline"
-                        className="border-stone-300 bg-white text-[#1C1C1C] hover:bg-stone-50"
+                        className="border-stone-300 bg-white text-primary hover:bg-stone-50"
                         data-testid="profile-dashboard-btn"
                       >
                         <Settings className="w-4 h-4 mr-2" />
@@ -384,7 +384,7 @@ export default function UserProfilePage() {
                     </Link>
                     <Button
                       onClick={() => setShowCreatePost(true)}
-                      className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white"
+                      className="bg-primary hover:bg-primary-hover text-white"
                       data-testid="create-post-btn"
                     >
                       <Camera className="w-4 h-4 mr-2" />
@@ -396,7 +396,7 @@ export default function UserProfilePage() {
                 <Button
                   variant="ghost"
                   onClick={handleShare}
-                  className="text-[#7A7A7A] hover:text-[#1C1C1C]"
+                  className="text-text-muted hover:text-primary"
                   data-testid="share-profile-btn"
                 >
                   <Share2 className="w-4 h-4" />
@@ -406,27 +406,27 @@ export default function UserProfilePage() {
               {/* Stats */}
               <div className="flex justify-center md:justify-start gap-8 mb-4">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-[#1C1C1C]">{posts.length}</p>
-                  <p className="text-sm text-[#7A7A7A]">{t('social.posts')}</p>
+                  <p className="text-xl font-bold text-primary">{posts.length}</p>
+                  <p className="text-sm text-text-muted">{t('social.posts')}</p>
                 </div>
                 <div className="text-center cursor-pointer hover:opacity-70">
-                  <p className="text-xl font-bold text-[#1C1C1C]">{followersCount}</p>
-                  <p className="text-sm text-[#7A7A7A]">{t('social.followers')}</p>
+                  <p className="text-xl font-bold text-primary">{followersCount}</p>
+                  <p className="text-sm text-text-muted">{t('social.followers')}</p>
                 </div>
                 <div className="text-center cursor-pointer hover:opacity-70">
-                  <p className="text-xl font-bold text-[#1C1C1C]">{followingCount}</p>
-                  <p className="text-sm text-[#7A7A7A]">{t('social.following')}</p>
+                  <p className="text-xl font-bold text-primary">{followingCount}</p>
+                  <p className="text-sm text-text-muted">{t('social.following')}</p>
                 </div>
               </div>
 
-              {profile?.bio && <p className="text-[#1C1C1C] max-w-md">{profile.bio}</p>}
+              {profile?.bio && <p className="text-primary max-w-md">{profile.bio}</p>}
               {profile?.location && (
-                <div className="flex items-center gap-1 text-[#7A7A7A] mt-2">
+                <div className="flex items-center gap-1 text-text-muted mt-2">
                   <MapPin className="w-4 h-4" /><span className="text-sm">{profile.location}</span>
                 </div>
               )}
               {profile?.created_at && (
-                <div className="flex items-center gap-1 text-[#7A7A7A] mt-1">
+                <div className="flex items-center gap-1 text-text-muted mt-1">
                   <Calendar className="w-4 h-4" />
                   <span className="text-sm">
                     Miembro desde {new Date(profile.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
@@ -443,26 +443,26 @@ export default function UserProfilePage() {
 
               {/* Seller Stats Card */}
               {profile?.seller_stats && (
-                <div className="mt-4 bg-[#FAF7F2] rounded-xl p-4 border border-stone-200" data-testid="seller-stats-card">
+                <div className="mt-4 bg-stone-50 rounded-xl p-4 border border-stone-200" data-testid="seller-stats-card">
                   <div className="grid grid-cols-3 gap-3 text-center">
                     <div>
                       <div className="flex items-center justify-center gap-1">
                         <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                        <span className="text-lg font-bold text-[#1C1C1C]">{profile.seller_stats.avg_rating || '-'}</span>
+                        <span className="text-lg font-bold text-primary">{profile.seller_stats.avg_rating || '-'}</span>
                       </div>
-                      <p className="text-[11px] text-[#7A7A7A] uppercase tracking-wider">{profile.seller_stats.review_count} Reviews</p>
+                      <p className="text-[11px] text-text-muted uppercase tracking-wider">{profile.seller_stats.review_count} Reviews</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-[#1C1C1C]">{profile.seller_stats.total_products}</p>
-                      <p className="text-[11px] text-[#7A7A7A] uppercase tracking-wider">Productos</p>
+                      <p className="text-lg font-bold text-primary">{profile.seller_stats.total_products}</p>
+                      <p className="text-[11px] text-text-muted uppercase tracking-wider">Productos</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-[#1C1C1C]">{followersCount}</p>
-                      <p className="text-[11px] text-[#7A7A7A] uppercase tracking-wider">Seguidores</p>
+                      <p className="text-lg font-bold text-primary">{followersCount}</p>
+                      <p className="text-[11px] text-text-muted uppercase tracking-wider">Seguidores</p>
                     </div>
                   </div>
                   {profile.seller_stats.verified && (
-                    <div className="flex items-center gap-1.5 mt-3 text-xs text-[#2D5A27] font-medium">
+                    <div className="flex items-center gap-1.5 mt-3 text-xs text-accent font-medium">
                       <Star className="w-3.5 h-3.5" /> {t('social.verifiedSeller')}
                     </div>
                   )}
@@ -491,16 +491,16 @@ export default function UserProfilePage() {
                   </div>
                   {profile.seller_stats.featured_products?.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-stone-200">
-                      <p className="text-[10px] text-[#7A7A7A] uppercase tracking-wider mb-2">{t('social.featuredProducts')}</p>
+                      <p className="text-[10px] text-text-muted uppercase tracking-wider mb-2">{t('social.featuredProducts')}</p>
                       <div className="flex gap-2 overflow-x-auto">
                         {profile.seller_stats.featured_products.map(p => (
                           <Link key={p.product_id} to={`/products/${p.product_id}`} className="shrink-0 w-16">
-                            <div className="w-16 h-16 rounded-lg bg-stone-100 overflow-hidden border border-stone-200 hover:border-[#2D5A27] transition-colors">
+                            <div className="w-16 h-16 rounded-lg bg-stone-100 overflow-hidden border border-stone-200 hover:border-accent transition-colors">
                               {p.images?.[0] ? (
                                 <img src={p.images[0].startsWith('http') ? p.images[0] : `${API}${p.images[0]}`} alt="" className="w-full h-full object-cover" />
                               ) : <ShoppingBag className="w-5 h-5 text-stone-300 m-auto mt-5" />}
                             </div>
-                            <p className="text-[10px] text-[#1C1C1C] truncate mt-0.5">{p.name}</p>
+                            <p className="text-[10px] text-primary truncate mt-0.5">{p.name}</p>
                           </Link>
                         ))}
                       </div>
@@ -522,15 +522,15 @@ export default function UserProfilePage() {
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-center mb-3">
                     <div>
-                      <p className="text-lg font-bold text-[#1C1C1C]">{followersCount}</p>
+                      <p className="text-lg font-bold text-primary">{followersCount}</p>
                       <p className="text-[10px] text-text-muted uppercase">Seguidores</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-[#1C1C1C]">{profile.posts_count || 0}</p>
+                      <p className="text-lg font-bold text-primary">{profile.posts_count || 0}</p>
                       <p className="text-[10px] text-text-muted uppercase">Posts</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-[#1C1C1C]">{profile.social_followers || '-'}</p>
+                      <p className="text-lg font-bold text-primary">{profile.social_followers || '-'}</p>
                       <p className="text-[10px] text-text-muted uppercase">Social</p>
                     </div>
                   </div>
@@ -540,7 +540,7 @@ export default function UserProfilePage() {
                       <a href={`https://instagram.com/${profile.instagram}`} target="_blank" rel="noopener noreferrer" className="text-xs text-pink-600 bg-pink-50 px-2.5 py-1 rounded-full hover:bg-pink-100">@{profile.instagram}</a>
                     )}
                     {profile.tiktok && (
-                      <a href={`https://tiktok.com/@${profile.tiktok}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#1C1C1C] bg-stone-100 px-2.5 py-1 rounded-full hover:bg-stone-200">TikTok</a>
+                      <a href={`https://tiktok.com/@${profile.tiktok}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary bg-stone-100 px-2.5 py-1 rounded-full hover:bg-stone-200">TikTok</a>
                     )}
                     {profile.youtube && (
                       <a href={profile.youtube} target="_blank" rel="noopener noreferrer" className="text-xs text-red-600 bg-red-50 px-2.5 py-1 rounded-full hover:bg-red-100">YouTube</a>
@@ -580,7 +580,7 @@ export default function UserProfilePage() {
               <button
                 onClick={() => setActiveTab('products')}
                 className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                  activeTab === 'products' ? 'border-[#1C1C1C] text-[#1C1C1C]' : 'border-transparent text-[#7A7A7A] hover:text-[#1C1C1C]'
+                  activeTab === 'products' ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-primary'
                 }`}
               >
                 <Package className="w-4 h-4" />
@@ -590,7 +590,7 @@ export default function UserProfilePage() {
             <button
               onClick={() => setActiveTab('posts')}
               className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                activeTab === 'posts' ? 'border-[#1C1C1C] text-[#1C1C1C]' : 'border-transparent text-[#7A7A7A] hover:text-[#1C1C1C]'
+                activeTab === 'posts' ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-primary'
               }`}
             >
               <Grid3X3 className="w-4 h-4" />
@@ -599,7 +599,7 @@ export default function UserProfilePage() {
             <button
               onClick={() => setActiveTab('liked')}
               className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                activeTab === 'liked' ? 'border-[#1C1C1C] text-[#1C1C1C]' : 'border-transparent text-[#7A7A7A] hover:text-[#1C1C1C]'
+                activeTab === 'liked' ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-primary'
               }`}
             >
               <Heart className="w-4 h-4" />
@@ -609,7 +609,7 @@ export default function UserProfilePage() {
               <button
                 onClick={() => setActiveTab('saved')}
                 className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                  activeTab === 'saved' ? 'border-[#1C1C1C] text-[#1C1C1C]' : 'border-transparent text-[#7A7A7A] hover:text-[#1C1C1C]'
+                  activeTab === 'saved' ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-primary'
                 }`}
               >
                 <ShoppingBag className="w-4 h-4" />
@@ -619,7 +619,7 @@ export default function UserProfilePage() {
             <button
               onClick={() => setActiveTab('badges')}
               className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                activeTab === 'badges' ? 'border-[#1C1C1C] text-[#1C1C1C]' : 'border-transparent text-[#7A7A7A] hover:text-[#1C1C1C]'
+                activeTab === 'badges' ? 'border-primary text-primary' : 'border-transparent text-text-muted hover:text-primary'
               }`}
               data-testid="badges-tab"
             >
@@ -638,22 +638,22 @@ export default function UserProfilePage() {
             {sellerProducts.length === 0 ? (
               <div className="text-center py-16">
                 <Package className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">{t('social.noProducts')}</h3>
-                <p className="text-[#7A7A7A]">Este perfil aun no tiene productos publicados</p>
+                <h3 className="text-xl font-semibold text-primary mb-2">{t('social.noProducts')}</h3>
+                <p className="text-text-muted">Este perfil aun no tiene productos publicados</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {sellerProducts.map(p => (
                   <Link key={p.product_id} to={`/products/${p.product_id}`} className="group" data-testid={`seller-product-${p.product_id}`}>
-                    <div className="aspect-square rounded-xl bg-stone-100 overflow-hidden border border-stone-200 group-hover:border-[#2D5A27] transition-colors">
+                    <div className="aspect-square rounded-xl bg-stone-100 overflow-hidden border border-stone-200 group-hover:border-accent transition-colors">
                       {p.images?.[0] ? (
                         <img src={getImageUrl(p.images[0])} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-stone-300"><Package className="w-10 h-10" /></div>
                       )}
                     </div>
-                    <p className="text-sm font-medium text-[#1C1C1C] mt-2 truncate">{p.name}</p>
-                    <p className="text-sm font-bold text-[#2D5A27]">{(p.display_price || p.price)?.toFixed(2)}€</p>
+                    <p className="text-sm font-medium text-primary mt-2 truncate">{p.name}</p>
+                    <p className="text-sm font-bold text-accent">{(p.display_price || p.price)?.toFixed(2)}€</p>
                   </Link>
                 ))}
               </div>
@@ -666,17 +666,17 @@ export default function UserProfilePage() {
         posts.length === 0 ? (
           <div className="text-center py-16">
             <Grid3X3 className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">
+            <h3 className="text-xl font-semibold text-primary mb-2">
               {isOwnProfile ? t('social.shareFirstPost') : t('social.noPosts')}
             </h3>
-            <p className="text-[#7A7A7A]">
+            <p className="text-text-muted">
               {isOwnProfile 
                 ? 'Comparte fotos de tus productos favoritos con la comunidad'
                 : t('social.userNoPosts')}
             </p>
             {isOwnProfile && (
               <Button 
-                className="mt-4 bg-[#2D5A27] hover:bg-[#1F4A1A]"
+                className="mt-4 bg-accent hover:bg-accent/90"
                 onClick={() => setShowCreatePost(true)}
                 data-testid="create-first-post-btn"
               >
@@ -727,8 +727,8 @@ export default function UserProfilePage() {
             ) : (
               <div className="text-center py-16">
                 <Trophy className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-[#1C1C1C] mb-2">{t('badges.noBadges', 'Sin logros aun')}</h3>
-                <p className="text-[#7A7A7A]">{t('badges.noBadgesDesc', 'Completa acciones en Hispaloshop para ganar insignias')}</p>
+                <h3 className="text-xl font-semibold text-primary mb-2">{t('badges.noBadges', 'Sin logros aun')}</h3>
+                <p className="text-text-muted">{t('badges.noBadgesDesc', 'Completa acciones en Hispaloshop para ganar insignias')}</p>
               </div>
             )}
           </div>

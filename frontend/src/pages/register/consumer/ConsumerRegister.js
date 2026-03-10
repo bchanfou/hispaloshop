@@ -89,7 +89,7 @@ const ConsumerRegister = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8]">
+    <div className="min-h-screen bg-background-subtle">
       <div className="max-w-md mx-auto px-4 py-6">
         {/* Progress */}
         {currentStep < 5 && (

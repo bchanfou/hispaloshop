@@ -127,14 +127,14 @@ function loadStripeJs() {
 }
 
 function fieldClass(hasError, isValid) {
-  if (hasError) return 'border-[#ef4444] focus-visible:border-[#ef4444] focus-visible:ring-2 focus-visible:ring-[#ef4444]/20';
-  if (isValid) return 'border-[#10b981] focus-visible:border-[#10b981] focus-visible:ring-2 focus-visible:ring-[#10b981]/20';
-  return 'border-slate-300 focus-visible:border-[#3b82f6] focus-visible:ring-2 focus-visible:ring-[#3b82f6]/20';
+  if (hasError) return 'border-red-500 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20';
+  if (isValid) return 'border-emerald-500 focus-visible:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500/20';
+  return 'border-slate-300 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/20';
 }
 
 function StatusIcon({ valid }) {
   if (!valid) return null;
-  return <CheckCircle2 className="pointer-events-none absolute right-3 top-11 h-4 w-4 text-[#10b981]" aria-hidden="true" />;
+  return <CheckCircle2 className="pointer-events-none absolute right-3 top-11 h-4 w-4 text-emerald-500" aria-hidden="true" />;
 }
 
 export default function OnboardingModal({ open, onOpenChange, initialPlan = 'free' }) {
@@ -473,7 +473,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
   };
 
   const renderError = (field) => (
-    errors[field] ? <p className="mt-2 text-sm text-[#ef4444]" role="alert">{errors[field]}</p> : null
+    errors[field] ? <p className="mt-2 text-sm text-red-500" role="alert">{errors[field]}</p> : null
   );
 
   const closeModal = () => {
@@ -536,7 +536,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           <select
             value={formData.phonePrefix}
             onChange={(event) => updateField('phonePrefix', event.target.value)}
-            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-900 focus:border-[#3b82f6] focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/20"
+            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
             {PHONE_PREFIXES.map((prefix) => <option key={prefix.value} value={prefix.value}>{prefix.label}</option>)}
           </select>
@@ -584,7 +584,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               ref={index === 0 ? secondRef : undefined}
               type="button"
               onClick={() => updateField('tradeStage', option)}
-              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.tradeStage === option ? 'border-[#3b82f6] bg-[#eff6ff] text-[#1d4ed8]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
+              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.tradeStage === option ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
             >
               {option}
             </button>
@@ -603,7 +603,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 key={type}
                 type="button"
                 onClick={() => toggleProductType(type)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-[#0f172a] bg-[#0f172a] text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
               >
                 {type}
               </button>
@@ -621,7 +621,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               key={option}
               type="button"
               onClick={() => updateField('monthlyVolume', option)}
-              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.monthlyVolume === option ? 'border-[#3b82f6] bg-[#eff6ff] text-[#1d4ed8]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
+              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.monthlyVolume === option ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
             >
               {option}
             </button>
@@ -642,7 +642,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 key={option.label}
                 type="button"
                 onClick={() => updateField('hasCompany', option.value)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${formData.hasCompany === option.value ? 'bg-[#0f172a] text-white' : 'text-slate-600'}`}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${formData.hasCompany === option.value ? 'bg-slate-900 text-white' : 'text-slate-600'}`}
               >
                 {option.label}
               </button>
@@ -708,10 +708,10 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               ref={key === 'free' ? thirdRef : undefined}
               type="button"
               onClick={() => updateField('plan', key)}
-              className={`rounded-[26px] border px-5 py-5 text-left transition ${selectedPlan === key ? key === 'pro' ? 'border-[#3b82f6] bg-[#eff6ff]' : key === 'elite' ? 'border-[#0f172a] bg-slate-900 text-white' : 'border-[#f59e0b] bg-[#fffbeb]' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
+              className={`rounded-[26px] border px-5 py-5 text-left transition ${selectedPlan === key ? key === 'pro' ? 'border-blue-500 bg-blue-50' : key === 'elite' ? 'border-slate-900 bg-slate-900 text-white' : 'border-amber-500 bg-amber-50' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
             >
               <div className="flex items-center justify-between gap-3">
-                <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${key === 'pro' ? 'bg-[#dbeafe] text-[#2563eb]' : key === 'elite' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${key === 'pro' ? 'bg-blue-100 text-blue-600' : key === 'elite' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'}`}>
                   {plan.badge}
                 </span>
                 <span className="text-sm font-semibold">{plan.name}</span>
@@ -728,12 +728,12 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl bg-white p-4">
             <p className="text-sm text-slate-500">Plan</p>
-            <p className="mt-2 text-2xl font-extrabold text-[#0f172a]">{activePlan.name}</p>
+            <p className="mt-2 text-2xl font-extrabold text-slate-900">{activePlan.name}</p>
             <p className="mt-1 text-sm text-slate-600">{activePlan.price}</p>
           </div>
           <div className="rounded-2xl bg-white p-4">
             <p className="text-sm text-slate-500">Perfil</p>
-            <p className="mt-2 text-lg font-bold text-[#0f172a]">{formData.companyName || 'Importador en construccion'}</p>
+            <p className="mt-2 text-lg font-bold text-slate-900">{formData.companyName || 'Importador en construccion'}</p>
             <p className="mt-1 text-sm text-slate-600">{formData.country || 'Sin pais'}</p>
           </div>
         </div>
@@ -746,7 +746,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               id="accept-commission"
               checked={formData.acceptCommission}
               onCheckedChange={(checked) => updateField('acceptCommission', Boolean(checked))}
-              className="mt-1 h-5 w-5 rounded-md border-amber-300 data-[state=checked]:bg-[#f59e0b] data-[state=checked]:text-[#1a1a1a]"
+              className="mt-1 h-5 w-5 rounded-md border-amber-300 data-[state=checked]:bg-amber-500 data-[state=checked]:text-gray-900"
             />
             <div>
               <Label htmlFor="accept-commission" className="text-sm font-semibold text-amber-950">Acepto comision del 20% sobre ventas</Label>
@@ -760,10 +760,10 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Pago seguro</p>
-              <h4 className="mt-2 text-xl font-extrabold tracking-[-0.02em] text-[#0f172a]">Tarjeta segura inline</h4>
+              <h4 className="mt-2 text-xl font-extrabold tracking-[-0.02em] text-slate-900">Tarjeta segura inline</h4>
               <p className="mt-2 text-sm leading-7 text-slate-600">Pago seguro. Cancela cuando quieras. No te sacamos del flujo.</p>
             </div>
-            <div className="rounded-2xl bg-[#eff6ff] p-3 text-[#2563eb]">
+            <div className="rounded-2xl bg-blue-50 p-3 text-blue-600">
               <CreditCard className="h-5 w-5" />
             </div>
           </div>
@@ -772,7 +772,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
             <div ref={cardMountRef} className={`${stripeLoading ? 'hidden' : 'block'} min-h-[48px]`} />
           </div>
           {renderError('card')}
-          {stripeError && !errors.card ? <p className="mt-3 text-sm text-[#ef4444]">{stripeError}</p> : null}
+          {stripeError && !errors.card ? <p className="mt-3 text-sm text-red-500">{stripeError}</p> : null}
         </div>
       )}
     </div>
@@ -786,8 +786,8 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
         ))}
       </div>
       <div className="relative z-10 max-w-2xl">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#dcfce7] text-[#10b981]"><CircleCheckBig className="h-9 w-9" /></div>
-        <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-[#0f172a]">Bienvenido a la revolucion.</h3>
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-emerald-500"><CircleCheckBig className="h-9 w-9" /></div>
+        <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-slate-900">Bienvenido a la revolucion.</h3>
         <p className="mt-4 text-lg leading-8 text-slate-600">Revisa tu email para verificar tu cuenta. Ya tienes la infraestructura que a mi me habria ahorrado perder dinero y tiempo.</p>
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
           <button
@@ -798,7 +798,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               clearFlow();
               redirectAfterAuth(activeUser, navigate);
             }}
-            className="rounded-2xl bg-[#0f172a] px-6 py-4 text-sm font-semibold text-white transition hover:bg-black"
+            className="rounded-2xl bg-slate-900 px-6 py-4 text-sm font-semibold text-white transition hover:bg-slate-950"
           >
             Ir a mi Dashboard
           </button>
@@ -827,7 +827,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Onboarding importador</p>
-                <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-[#0f172a]">{successState ? 'Infraestructura activada' : step === 1 ? 'Quien eres' : step === 2 ? 'Tu negocio' : 'Confirma tu plan'}</h2>
+                <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-slate-900">{successState ? 'Infraestructura activada' : step === 1 ? 'Quien eres' : step === 2 ? 'Tu negocio' : 'Confirma tu plan'}</h2>
               </div>
               <button type="button" onClick={closeModal} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900">Cerrar</button>
             </div>
@@ -837,15 +837,15 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 <span>{progress}%</span>
               </div>
               <div className="mt-3 h-2 rounded-full bg-slate-200">
-                <motion.div initial={false} animate={{ width: `${progress}%` }} transition={{ duration: 0.35, ease: 'easeOut' }} className="h-2 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#f59e0b]" />
+                <motion.div initial={false} animate={{ width: `${progress}%` }} transition={{ duration: 0.35, ease: 'easeOut' }} className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-amber-500" />
               </div>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-[#f8fafc]">
+          <div className="flex-1 overflow-y-auto bg-slate-50">
             <div className="mx-auto flex h-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:flex-row lg:gap-12 lg:px-10 lg:py-10">
-              <aside className="w-full rounded-[28px] bg-[#0f172a] p-6 text-white lg:max-w-[340px]">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#f59e0b]">Plan elegido</p>
+              <aside className="w-full rounded-[28px] bg-slate-900 p-6 text-white lg:max-w-[340px]">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-500">Plan elegido</p>
                 <h3 className="mt-4 text-3xl font-extrabold tracking-[-0.03em]">{successState ? 'Listo para salir al mercado' : activePlan.name}</h3>
                 <p className="mt-4 text-sm leading-7 text-white/78">{successState ? 'La cuenta ya esta creada y ahora tienes una infraestructura real para vender sin intermediarios.' : activePlan.summary}</p>
                 <div className="mt-8 rounded-[24px] border border-white/10 bg-white/5 p-5">
@@ -854,9 +854,9 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                   <p className="mt-2 text-sm text-white/70">Comision sobre ventas: {activePlan.commission}</p>
                 </div>
                 <div className="mt-6 space-y-3 text-sm text-white/72">
-                  <div className="flex items-start gap-3"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-[#10b981]" /><p>Sin alerts agresivos y con guardado local del progreso.</p></div>
+                  <div className="flex items-start gap-3"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-emerald-500" /><p>Sin alerts agresivos y con guardado local del progreso.</p></div>
                   <div className="flex items-start gap-3"><LockKeyhole className="mt-1 h-4 w-4 shrink-0 text-[#3b82f6]" /><p>Tu contrasena no se persiste en localStorage.</p></div>
-                  <div className="flex items-start gap-3"><CreditCard className="mt-1 h-4 w-4 shrink-0 text-[#f59e0b]" /><p>PRO y ELITE usan Stripe inline. FREE crea la cuenta al instante.</p></div>
+                  <div className="flex items-start gap-3"><CreditCard className="mt-1 h-4 w-4 shrink-0 text-amber-500" /><p>PRO y ELITE usan Stripe inline. FREE crea la cuenta al instante.</p></div>
                 </div>
               </aside>
 
@@ -876,12 +876,12 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                         <div className="flex flex-col gap-3 sm:flex-row">
                           {step > 1 ? <button type="button" onClick={() => setStep((current) => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900"><ArrowLeft className="h-4 w-4" />Atras</button> : null}
                           {step < 3 ? (
-                            <button type="button" onClick={proceed} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0f172a] px-5 py-3 text-sm font-semibold text-white transition hover:bg-black">
+                            <button type="button" onClick={proceed} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-950">
                               Continuar
                               <ArrowRight className="h-4 w-4" />
                             </button>
                           ) : (
-                            <button type="button" onClick={submitFlow} disabled={submitting} className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-[#f59e0b] px-6 py-3 text-sm font-semibold text-[#1a1a1a] transition hover:bg-[#fbbf24] disabled:cursor-not-allowed disabled:opacity-70">
+                            <button type="button" onClick={submitFlow} disabled={submitting} className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-amber-500 px-6 py-3 text-sm font-semibold text-[#1a1a1a] transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-70">
                               {submitting ? <><Loader2 className="h-4 w-4 animate-spin" />Configurando tu infraestructura...</> : selectedPlan === 'free' ? 'Crear mi cuenta GRATIS' : <><Sparkles className="h-4 w-4" />Completar suscripcion y crear cuenta</>}
                             </button>
                           )}

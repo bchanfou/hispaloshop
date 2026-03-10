@@ -449,9 +449,9 @@ export default function AdminProducts() {
         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
           <div className="flex items-center gap-3 mb-4">
             <ClipboardList className="w-6 h-6 text-amber-600" />
-            <h2 className="text-lg font-semibold text-[#1C1C1C]">Checklist de Aprobación</h2>
+            <h2 className="text-lg font-semibold text-primary">Checklist de Aprobación</h2>
           </div>
-          <p className="text-sm text-[#7A7A7A] mb-5">
+          <p className="text-sm text-text-muted mb-5">
             Verifica que el producto <strong>{checklistProduct.name}</strong> cumple todos los requisitos antes de aprobar.
           </p>
           <div className="space-y-3 mb-6">
@@ -470,7 +470,7 @@ export default function AdminProducts() {
                   onChange={(e) => setChecklistItems(prev => ({ ...prev, [key]: e.target.checked }))}
                   className="mt-0.5 w-4 h-4 accent-green-600"
                 />
-                <span className={`text-sm ${checklistItems[key] ? 'text-[#1C1C1C]' : 'text-[#7A7A7A]'}`}>
+                <span className={`text-sm ${checklistItems[key] ? 'text-primary' : 'text-text-muted'}`}>
                   {label}
                   {checklistItems[key] === false && <span className="ml-1 text-amber-500 text-xs">(falta)</span>}
                 </span>

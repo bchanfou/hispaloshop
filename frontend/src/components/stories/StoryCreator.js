@@ -128,7 +128,7 @@ const StoryCreator = () => {
           <button
             onClick={handlePublish}
             disabled={isUploading}
-            className="px-6 py-2 bg-[#2D5A3D] text-white rounded-full font-semibold disabled:opacity-50"
+            className="px-6 py-2 bg-accent text-white rounded-full font-semibold disabled:opacity-50"
           >
             {isUploading ? 'Publicando...' : 'Publicar historia'}
           </button>
@@ -241,7 +241,7 @@ const StoryCreator = () => {
               />
               <div className="flex gap-3 mt-4">
                 <button onClick={() => setShowTextInput(false)} className="flex-1 py-3 bg-white/10 rounded-xl text-white">Cancelar</button>
-                <button onClick={handleTextSubmit} className="flex-1 py-3 bg-[#2D5A3D] rounded-xl text-white font-semibold">Añadir</button>
+                <button onClick={handleTextSubmit} className="flex-1 py-3 bg-accent rounded-xl text-white font-semibold">Añadir</button>
               </div>
             </div>
           </motion.div>

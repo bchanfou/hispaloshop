@@ -6,7 +6,7 @@ import SEO from '../components/SEO';
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#FAF7F2]">
+    <div className="min-h-screen bg-stone-50">
       <SEO
         title="Politica de Privacidad - Hispaloshop"
         description="Como recopilamos, usamos y protegemos tus datos en Hispaloshop."
@@ -16,10 +16,10 @@ export default function PrivacyPage() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <BackButton />
         <section className="bg-white border border-stone-200 rounded-2xl p-6 md:p-8 mt-3">
-          <h1 className="font-heading text-2xl md:text-3xl font-semibold text-[#1C1C1C] mb-4">
+          <h1 className="font-heading text-2xl md:text-3xl font-semibold text-primary mb-4">
             Politica de Privacidad
           </h1>
-          <div className="space-y-4 text-sm text-[#4A4A4A] leading-relaxed">
+          <div className="space-y-4 text-sm text-text-secondary leading-relaxed">
             <p>
               Tratamos datos de cuenta, actividad y transacciones para operar el marketplace, procesar pedidos
               y mejorar la experiencia.

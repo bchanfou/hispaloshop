@@ -7,18 +7,18 @@ import {
 } from 'lucide-react';
 
 export const MINI_CATEGORIES = [
-  { id: 'aceites', label: 'Aceites', icon: Droplets, color: '#2D5A3D' },
-  { id: 'quesos', label: 'Quesos', icon: Cookie, color: '#E6A532' },
-  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: '#DC2626' },
+  { id: 'aceites', label: 'Aceites', icon: Droplets, color: 'var(--color-accent)' },
+  { id: 'quesos', label: 'Quesos', icon: Cookie, color: 'var(--color-warning)' },
+  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: 'var(--color-error)' },
   { id: 'panaderia', label: 'Panadería', icon: Croissant, color: '#D97706' },
   { id: 'bebidas', label: 'Bebidas', icon: CupSoda, color: '#0891B2' },
   { id: 'bebes', label: 'Bebés', icon: Baby, color: '#EC4899' },
   { id: 'mascotas', label: 'Mascotas', icon: Dog, color: '#7C3AED' },
   { id: 'snacks', label: 'Snacks', icon: Cherry, color: '#EA580C' },
-  { id: 'organico', label: 'Orgánico', icon: Leaf, color: '#16A34A' },
+  { id: 'organico', label: 'Orgánico', icon: Leaf, color: 'var(--color-success)' },
   { id: 'singluten', label: 'Sin gluten', icon: WheatOff, color: '#65A30D' },
   { id: 'packs', label: 'Packs', icon: Gift, color: '#0891B2' },
-  { id: 'trending', label: 'Trending', icon: Flame, color: '#DC2626' },
+  { id: 'trending', label: 'Trending', icon: Flame, color: 'var(--color-error)' },
 ];
 
 const MiniCategoryPills = ({ selectedCategory, onSelect }) => {
@@ -50,8 +50,8 @@ const MiniCategoryPills = ({ selectedCategory, onSelect }) => {
               onClick={() => handleClick(category.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full flex-shrink-0 snap-start transition-all ${
                 isSelected 
-                  ? 'bg-[#2D5A3D] text-white' 
-                  : 'bg-white text-[#1A1A1A] hover:bg-stone-100'
+                  ? 'bg-accent text-white' 
+                  : 'bg-white text-gray-900 hover:bg-stone-100'
               }`}
             >
               <Icon 

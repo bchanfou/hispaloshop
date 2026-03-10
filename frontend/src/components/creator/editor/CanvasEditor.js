@@ -155,7 +155,7 @@ function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
         {editor.textElements.map((text) => (
           <motion.div
             key={text.id}
-            className={`absolute cursor-move select-none ${readOnly ? '' : 'hover:ring-2 hover:ring-[#2D5A3D]/50'}`}
+            className={`absolute cursor-move select-none ${readOnly ? '' : 'hover:ring-2 hover:ring-accent/50'}`}
             style={{
               left: text.x,
               top: text.y,
@@ -322,7 +322,7 @@ function StickerElement({ sticker, onMouseDown, readOnly }) {
     switch (sticker.type) {
       case 'price':
         return (
-          <div className="bg-[#E6A532] text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-lg">
+          <div className="bg-state-amber text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-lg">
             €{sticker.content || '0.00'}
           </div>
         );
@@ -365,13 +365,13 @@ function StickerElement({ sticker, onMouseDown, readOnly }) {
         );
       case 'hashtag':
         return (
-          <div className="bg-[#2D5A3D] text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg">
+          <div className="bg-accent text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg">
             #{sticker.content || 'Hispaloshop'}
           </div>
         );
       case 'mention':
         return (
-          <div className="bg-white text-[#2D5A3D] px-3 py-1.5 rounded-full text-sm font-medium shadow-lg border border-[#2D5A3D]">
+          <div className="bg-white text-accent px-3 py-1.5 rounded-full text-sm font-medium shadow-lg border border-accent">
             @{sticker.content || 'usuario'}
           </div>
         );
@@ -396,7 +396,7 @@ function StickerElement({ sticker, onMouseDown, readOnly }) {
             </div>
             <div className="p-2">
               <p className="text-xs font-medium text-stone-800 truncate">{sticker.productName}</p>
-              <p className="text-xs text-[#2D5A3D] font-bold">€{sticker.productPrice}</p>
+              <p className="text-xs text-accent font-bold">€{sticker.productPrice}</p>
             </div>
           </div>
         );
@@ -407,7 +407,7 @@ function StickerElement({ sticker, onMouseDown, readOnly }) {
 
   return (
     <motion.div
-      className={`absolute cursor-move ${readOnly ? '' : 'hover:ring-2 hover:ring-[#2D5A3D]/50'}`}
+      className={`absolute cursor-move ${readOnly ? '' : 'hover:ring-2 hover:ring-accent/50'}`}
       style={{
         left: sticker.x,
         top: sticker.y,

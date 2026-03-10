@@ -69,15 +69,15 @@ const CheckoutPage = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-background-subtle flex flex-col items-center justify-center p-4">
         <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4">
-          <ShoppingBag className="w-10 h-10 text-[#6B7280]" />
+          <ShoppingBag className="w-10 h-10 text-text-muted" />
         </div>
-        <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">Tu carrito está vacío</h2>
-        <p className="text-[#6B7280] mb-6">Añade productos para continuar</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Tu carrito está vacío</h2>
+        <p className="text-text-muted mb-6">Añade productos para continuar</p>
         <button 
           onClick={() => navigate('/discover')}
-          className="px-6 py-3 bg-[#2D5A3D] text-white rounded-full font-medium"
+          className="px-6 py-3 bg-accent text-white rounded-full font-medium"
         >
           Explorar productos
         </button>
@@ -86,7 +86,7 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8] pb-24">
+    <div className="min-h-screen bg-background-subtle pb-24">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-white shadow-sm">
         <div className="flex items-center justify-between p-4">
@@ -95,11 +95,11 @@ const CheckoutPage = () => {
               onClick={() => navigate(-1)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-[#1A1A1A]" />
+              <ArrowLeft className="w-5 h-5 text-gray-900" />
             </button>
-            <h1 className="text-lg font-bold text-[#1A1A1A]">Checkout</h1>
+            <h1 className="text-lg font-bold text-gray-900">Checkout</h1>
           </div>
-          <div className="flex items-center gap-1 text-sm text-[#16A34A]">
+          <div className="flex items-center gap-1 text-sm text-state-success">
             <Lock className="w-4 h-4" />
             <span>Seguro</span>
           </div>
@@ -109,38 +109,38 @@ const CheckoutPage = () => {
       <div className="max-w-lg mx-auto p-4 space-y-6">
         {/* Progress indicator */}
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-[#2D5A3D] font-medium">1. Envío</span>
-          <span className="text-[#6B7280]">→</span>
-          <span className="text-[#2D5A3D] font-medium">2. Pago</span>
-          <span className="text-[#6B7280]">→</span>
-          <span className="text-[#6B7280]">3. Confirmar</span>
+          <span className="text-accent font-medium">1. Envío</span>
+          <span className="text-text-muted">→</span>
+          <span className="text-accent font-medium">2. Pago</span>
+          <span className="text-text-muted">→</span>
+          <span className="text-text-muted">3. Confirmar</span>
         </div>
 
         {/* 1. Address */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
-          <h2 className="text-lg font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-[#2D5A3D]" />
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-accent" />
             Dirección de envío
           </h2>
           
           {selectedAddress && !showAddressForm ? (
-            <div className="bg-[#F5F1E8] rounded-xl p-4 border-2 border-[#2D5A3D]">
+            <div className="bg-background-subtle rounded-xl p-4 border-2 border-accent">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-[#1A1A1A]">{selectedAddress.name}</span>
+                    <span className="font-semibold text-gray-900">{selectedAddress.name}</span>
                     {selectedAddress.isDefault && (
-                      <span className="text-xs bg-[#2D5A3D] text-white px-2 py-0.5 rounded-full">Predeterminada</span>
+                      <span className="text-xs bg-accent text-white px-2 py-0.5 rounded-full">Predeterminada</span>
                     )}
                   </div>
-                  <p className="text-sm text-[#1A1A1A]">{selectedAddress.recipient}</p>
-                  <p className="text-sm text-[#6B7280]">{selectedAddress.street}</p>
-                  <p className="text-sm text-[#6B7280]">{selectedAddress.city}</p>
-                  <p className="text-sm text-[#6B7280]">{selectedAddress.phone}</p>
+                  <p className="text-sm text-gray-900">{selectedAddress.recipient}</p>
+                  <p className="text-sm text-text-muted">{selectedAddress.street}</p>
+                  <p className="text-sm text-text-muted">{selectedAddress.city}</p>
+                  <p className="text-sm text-text-muted">{selectedAddress.phone}</p>
                 </div>
                 <button 
                   onClick={() => setShowAddressForm(true)}
-                  className="text-sm text-[#2D5A3D] font-medium"
+                  className="text-sm text-accent font-medium"
                 >
                   Cambiar
                 </button>
@@ -151,33 +151,33 @@ const CheckoutPage = () => {
               <input 
                 type="text" 
                 placeholder="Nombre completo" 
-                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <input 
                 type="text" 
                 placeholder="Calle y número" 
-                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <div className="flex gap-3">
                 <input 
                   type="text" 
                   placeholder="Código postal" 
-                  className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+                  className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent"
                 />
                 <input 
                   type="text" 
                   placeholder="Ciudad" 
-                  className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+                  className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
               <input 
                 type="tel" 
                 placeholder="Teléfono" 
-                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D5A3D]"
+                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <button 
                 onClick={() => setShowAddressForm(false)}
-                className="w-full py-3 bg-[#2D5A3D] text-white rounded-xl font-medium"
+                className="w-full py-3 bg-accent text-white rounded-xl font-medium"
               >
                 Guardar dirección
               </button>
@@ -185,7 +185,7 @@ const CheckoutPage = () => {
           )}
 
           {!showAddressForm && (
-            <button className="flex items-center gap-2 mt-3 text-sm text-[#2D5A3D] font-medium">
+            <button className="flex items-center gap-2 mt-3 text-sm text-accent font-medium">
               <Plus className="w-4 h-4" />
               Añadir nueva dirección
             </button>
@@ -194,8 +194,8 @@ const CheckoutPage = () => {
 
         {/* 2. Shipping Method */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
-          <h2 className="text-lg font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
-            <Truck className="w-5 h-5 text-[#2D5A3D]" />
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Truck className="w-5 h-5 text-accent" />
             Método de envío
           </h2>
           
@@ -205,7 +205,7 @@ const CheckoutPage = () => {
                 key={method.id}
                 className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-colors ${
                   selectedShipping.id === method.id 
-                    ? 'border-[#2D5A3D] bg-[#2D5A3D]/5' 
+                    ? 'border-accent bg-accent/5' 
                     : 'border-gray-100 hover:border-gray-200'
                 }`}
               >
@@ -215,14 +215,14 @@ const CheckoutPage = () => {
                     name="shipping"
                     checked={selectedShipping.id === method.id}
                     onChange={() => setSelectedShipping(method)}
-                    className="w-5 h-5 text-[#2D5A3D] focus:ring-[#2D5A3D]"
+                    className="w-5 h-5 text-accent focus:ring-accent"
                   />
                   <div>
-                    <p className="font-medium text-[#1A1A1A]">{method.name}</p>
-                    <p className="text-sm text-[#6B7280]">{method.time}</p>
+                    <p className="font-medium text-gray-900">{method.name}</p>
+                    <p className="text-sm text-text-muted">{method.time}</p>
                   </div>
                 </div>
-                <span className={`font-semibold ${method.price === 0 ? 'text-[#16A34A]' : 'text-[#1A1A1A]'}`}>
+                <span className={`font-semibold ${method.price === 0 ? 'text-state-success' : 'text-gray-900'}`}>
                   {method.price === 0 ? 'GRATIS' : `€${method.price.toFixed(2)}`}
                 </span>
               </label>
@@ -232,8 +232,8 @@ const CheckoutPage = () => {
 
         {/* 3. Payment */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
-          <h2 className="text-lg font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-[#2D5A3D]" />
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-accent" />
             Pago
           </h2>
 
@@ -254,7 +254,7 @@ const CheckoutPage = () => {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200"></div>
             </div>
-            <span className="relative bg-white px-4 text-sm text-[#6B7280]">O pagar con tarjeta</span>
+            <span className="relative bg-white px-4 text-sm text-text-muted">O pagar con tarjeta</span>
           </div>
 
           {/* Saved cards */}
@@ -263,7 +263,7 @@ const CheckoutPage = () => {
               key={card.id}
               className={`flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer mb-2 ${
                 selectedPayment === 'card' 
-                  ? 'border-[#2D5A3D] bg-[#2D5A3D]/5' 
+                  ? 'border-accent bg-accent/5' 
                   : 'border-gray-100'
               }`}
             >
@@ -273,20 +273,20 @@ const CheckoutPage = () => {
                   name="payment"
                   checked={selectedPayment === 'card'}
                   onChange={() => setSelectedPayment('card')}
-                  className="w-5 h-5 text-[#2D5A3D]"
+                  className="w-5 h-5 text-accent"
                 />
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-6 bg-gray-100 rounded flex items-center justify-center text-xs font-bold">
                     VISA
                   </div>
-                  <span className="text-[#1A1A1A]">•••• {card.last4}</span>
+                  <span className="text-gray-900">•••• {card.last4}</span>
                 </div>
               </div>
-              <span className="text-sm text-[#6B7280]">{card.expMonth}/{card.expYear}</span>
+              <span className="text-sm text-text-muted">{card.expMonth}/{card.expYear}</span>
             </label>
           ))}
 
-          <button className="flex items-center gap-2 mt-3 text-sm text-[#2D5A3D] font-medium">
+          <button className="flex items-center gap-2 mt-3 text-sm text-accent font-medium">
             <Plus className="w-4 h-4" />
             Añadir nueva tarjeta
           </button>
@@ -294,28 +294,28 @@ const CheckoutPage = () => {
 
         {/* Order Summary */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
-          <h2 className="text-lg font-bold text-[#1A1A1A] mb-4">Resumen del pedido</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Resumen del pedido</h2>
           
           {/* Items summary */}
           <div className="space-y-2 mb-4">
             {items.map((item) => (
               <div key={item.id} className="flex justify-between text-sm">
-                <span className="text-[#6B7280]">{item.name} x{item.quantity}</span>
-                <span className="text-[#1A1A1A]">€{(item.price * item.quantity).toFixed(2)}</span>
+                <span className="text-text-muted">{item.name} x{item.quantity}</span>
+                <span className="text-gray-900">€{(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
 
           <div className="border-t pt-4 space-y-2">
-            <div className="flex justify-between text-sm text-[#6B7280]">
+            <div className="flex justify-between text-sm text-text-muted">
               <span>Subtotal ({items.reduce((a, b) => a + b.quantity, 0)} productos)</span>
               <span>€{subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm text-[#6B7280]">
+            <div className="flex justify-between text-sm text-text-muted">
               <span>Envío ({selectedShipping.name})</span>
               <span>{shipping === 0 ? 'GRATIS' : `€${shipping.toFixed(2)}`}</span>
             </div>
-            <div className="flex justify-between text-xl font-bold text-[#1A1A1A] pt-2 border-t">
+            <div className="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t">
               <span>Total</span>
               <span>€{total.toFixed(2)}</span>
             </div>
@@ -327,16 +327,16 @@ const CheckoutPage = () => {
               type="checkbox"
               checked={saveForLater}
               onChange={(e) => setSaveForLater(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 text-[#2D5A3D] focus:ring-[#2D5A3D]"
+              className="w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent"
             />
-            <span className="text-sm text-[#6B7280]">Guardar datos para próximas compras</span>
+            <span className="text-sm text-text-muted">Guardar datos para próximas compras</span>
           </label>
 
           {/* Pay button */}
           <button
             onClick={handlePayment}
             disabled={isProcessing}
-            className="w-full mt-6 py-4 bg-[#2D5A3D] text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-[#234a31] disabled:opacity-70 transition-colors"
+            className="w-full mt-6 py-4 bg-accent text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-70 transition-colors"
           >
             {isProcessing ? (
               <>
@@ -348,7 +348,7 @@ const CheckoutPage = () => {
             )}
           </button>
 
-          <div className="flex items-center justify-center gap-2 mt-4 text-sm text-[#6B7280]">
+          <div className="flex items-center justify-center gap-2 mt-4 text-sm text-text-muted">
             <Lock className="w-4 h-4" />
             <span>Pago seguro por Stripe</span>
           </div>

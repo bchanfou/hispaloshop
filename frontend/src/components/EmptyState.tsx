@@ -30,11 +30,11 @@ export function EmptyState({
   return (
     <div className={`flex flex-col items-center justify-center p-8 text-center ${className}`}>
       <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mb-4">
-        <Icon className="w-8 h-8 text-[#7A7A7A]" />
+        <Icon className="w-8 h-8 text-text-muted" />
       </div>
-      <h3 className="text-base font-semibold text-[#1C1C1C]">{title}</h3>
+      <h3 className="text-base font-semibold text-primary">{title}</h3>
       {description && (
-        <p className="text-sm text-[#7A7A7A] mt-2 max-w-xs">{description}</p>
+        <p className="text-sm text-text-muted mt-2 max-w-xs">{description}</p>
       )}
       {action && <div className="mt-4">{action}</div>}
     </div>
@@ -51,7 +51,7 @@ export function EmptyProducts({ onBrowse }: { onBrowse?: () => void }) {
       action={onBrowse && (
         <button
           onClick={onBrowse}
-          className="px-4 py-2 bg-[#2D5A27] text-white text-sm font-medium rounded-full hover:bg-[#1e3d1a] transition-colors"
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-full hover:bg-accent/90 transition-colors"
         >
           Ver todos los productos
         </button>
@@ -69,7 +69,7 @@ export function EmptyCart({ onBrowse }: { onBrowse?: () => void }) {
       action={onBrowse && (
         <button
           onClick={onBrowse}
-          className="px-4 py-2 bg-[#2D5A27] text-white text-sm font-medium rounded-full hover:bg-[#1e3d1a] transition-colors"
+          className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-full hover:bg-accent/90 transition-colors"
         >
           Descubrir productos
         </button>
