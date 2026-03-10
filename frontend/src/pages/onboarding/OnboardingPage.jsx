@@ -14,8 +14,8 @@ import StepInterests from '../../components/onboarding/StepInterests';
 import StepLocation from '../../components/onboarding/StepLocation';
 import StepFollow from '../../components/onboarding/StepFollow';
 import StepWelcome from '../../components/onboarding/StepWelcome';
-import { api } from '../../lib/api';
 import { toast } from 'sonner';
+import { useSaveOnboardingMutation } from '../../features/onboarding/queries';
 
 const STEPS = [
   { id: 1, name: 'Intereses', component: StepInterests },
@@ -27,6 +27,7 @@ const STEPS = [
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
+  const saveOnboardingMutation = useSaveOnboardingMutation();
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState({
     interests: [],
@@ -34,7 +35,7 @@ export default function OnboardingPage() {
     city: '',
     following: [],
   });
-  const [saving, setSaving] = useState(false);
+  const saving = saveOnboardingMutation.isPending;
 
   const updateData = (newData) => {
     setData((prev) => ({ ...prev, ...newData }));
@@ -54,10 +55,8 @@ export default function OnboardingPage() {
   };
 
   const saveOnboardingData = async () => {
-    setSaving(true);
     try {
-      // Llamada al backend para guardar onboarding
-      await api.post('/user/onboarding', {
+      await saveOnboardingMutation.mutateAsync({
         interests: data.interests,
         location: {
           zipCode: data.zipCode,
@@ -82,8 +81,6 @@ export default function OnboardingPage() {
     } catch (error) {
       toast.error('Error guardando preferencias');
       console.error(error);
-    } finally {
-      setSaving(false);
     }
   };
 

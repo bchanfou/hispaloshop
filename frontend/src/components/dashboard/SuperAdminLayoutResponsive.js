@@ -9,16 +9,19 @@ import LanguageSwitcher from '../LanguageSwitcher';
 import GlobalSearch from '../GlobalSearch';
 import { useTranslation } from 'react-i18next';
 import BottomSheet from './BottomSheet';
+import { useDashboardLogout } from '../../features/dashboard/queries';
 
 export default function SuperAdminLayoutResponsive() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const logoutMutation = useDashboardLogout();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    await logoutMutation.mutateAsync();
+    navigate('/login');
+    window.location.reload();
   };
 
   // All navigation items

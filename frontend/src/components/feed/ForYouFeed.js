@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useMemo, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,8 +6,7 @@ import { Sparkles, UserPlus, AlertCircle } from 'lucide-react';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
 import FeedSkeleton from './FeedSkeleton';
-import { useFeed } from '@/hooks/useFeed';
-import { api } from '@/lib/api';
+import { useForYouFeed, useLikePost } from '@/features/feed/queries';
 
 // Sugerencias de perfiles (mantener hasta tener endpoint real)
 const SUGGESTED_PROFILES = [
@@ -58,17 +57,16 @@ function SuggestedProfiles() {
 export default function ForYouFeed() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [cursor, setCursor] = useState(null);
-  const { posts, nextCursor, hasMore, isLoading, error } = useFeed({ cursor });
-  const [allPosts, setAllPosts] = useState([]);
+  const feedQuery = useForYouFeed();
+  const likeMutation = useLikePost();
   const observerRef = useRef();
-
-  // Accumulate posts
-  useEffect(() => {
-    if (posts.length > 0) {
-      setAllPosts(prev => cursor ? [...prev, ...posts] : posts);
-    }
-  }, [posts, cursor]);
+  const allPosts = useMemo(
+    () => (feedQuery.data?.pages || []).flatMap((page) => page?.items || []),
+    [feedQuery.data]
+  );
+  const hasMore = Boolean(feedQuery.hasNextPage);
+  const isLoading = feedQuery.isLoading || feedQuery.isFetchingNextPage;
+  const error = feedQuery.error;
 
   // Infinite scroll
   const lastPostRef = useCallback((node) => {
@@ -77,22 +75,22 @@ export default function ForYouFeed() {
     
     observerRef.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && hasMore) {
-        setCursor(nextCursor);
+        feedQuery.fetchNextPage();
       }
     });
     
     if (node) observerRef.current.observe(node);
-  }, [isLoading, hasMore, nextCursor]);
+  }, [feedQuery.fetchNextPage, hasMore, isLoading]);
 
   const handleLike = async (postId) => {
+    const targetPost = allPosts.find((post) => post.id === postId);
+    if (!targetPost) return;
+
     try {
-      await api.toggleLikePost(postId);
-      // Optimistic update
-      setAllPosts(prev => prev.map(post => 
-        post.id === postId 
-          ? { ...post, is_liked: !post.is_liked, likes_count: post.is_liked ? post.likes_count - 1 : post.likes_count + 1 }
-          : post
-      ));
+      await likeMutation.mutateAsync({
+        postId,
+        liked: Boolean(targetPost.is_liked || targetPost.liked),
+      });
     } catch (error) {
       console.error('Error liking post:', error);
     }
@@ -119,7 +117,7 @@ export default function ForYouFeed() {
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
         <p className="text-stone-600 text-center">{t('feed.error', 'Error al cargar el feed')}</p>
         <button 
-          onClick={() => window.location.reload()}
+          onClick={() => feedQuery.refetch()}
           className="mt-4 px-4 py-2 bg-stone-900 text-white rounded-lg"
         >
           {t('common.retry', 'Reintentar')}
@@ -221,7 +219,7 @@ export default function ForYouFeed() {
             );
           })}
           
-          {isLoading && <FeedSkeleton count={2} />}
+          {feedQuery.isFetchingNextPage && <FeedSkeleton count={2} />}
         </>
       )}
     </motion.div>
