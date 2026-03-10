@@ -19,7 +19,7 @@ from services.subscriptions import (
     recalculate_influencer_tier, GRACE_PERIOD_DAYS,
     list_subscription_plans, has_tier_access,
     calculate_dynamic_commission, get_user_subscription_doc,
-    record_subscription_event,
+    record_subscription_event, get_seller_plan_price, get_seller_plan_currency,
 )
 from config import INFLUENCER_TIER_ORDER, normalize_influencer_tier
 
@@ -37,6 +37,46 @@ def require_subscription(min_tier: str):
             raise HTTPException(status_code=403, detail=f"Requiere plan {min_tier} o superior")
         return user
     return checker
+
+
+def _ensure_stripe_ready():
+    if not stripe.api_key:
+        raise HTTPException(status_code=503, detail="Stripe no esta configurado")
+
+
+def _get_seller_success_route(user: User) -> str:
+    return "/importer/dashboard" if str(user.role).lower() == "importer" else "/producer"
+
+
+def _to_iso_from_unix(timestamp: int | None) -> str | None:
+    if not timestamp:
+        return None
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
+
+
+def _extract_payment_intent(subscription: dict):
+    latest_invoice = subscription.get("latest_invoice")
+    if hasattr(latest_invoice, "get"):
+        return latest_invoice.get("payment_intent")
+    return None
+
+
+async def _persist_subscription_state(user: User, plan_key: str, subscription: dict, customer_id: str | None = None, plan_status: str | None = None):
+    payload = {
+        "subscription.plan": plan_key,
+        "subscription.billing_cycle": "monthly",
+        "subscription.commission_rate": get_seller_commission_rate(plan_key),
+        "subscription.plan_status": plan_status or subscription.get("status", "active"),
+        "subscription.stripe_subscription_id": subscription.get("id"),
+        "subscription.current_period_start": _to_iso_from_unix(subscription.get("current_period_start")),
+        "subscription.current_period_end": _to_iso_from_unix(subscription.get("current_period_end")),
+        "subscription.cancel_at_period_end": bool(subscription.get("cancel_at_period_end", False)),
+        "subscription.updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if customer_id:
+        payload["subscription.stripe_customer_id"] = customer_id
+
+    await db.users.update_one({"user_id": user.user_id}, {"$set": payload})
 
 
 @router.get("/subscriptions/plans")
@@ -185,6 +225,7 @@ async def get_my_plan(user: User = Depends(get_current_user)):
 async def create_subscription(request: Request, user: User = Depends(get_current_user)):
     """Create a Stripe Checkout session for plan subscription."""
     await require_role(user, ["producer", "importer"])
+    _ensure_stripe_ready()
     body = await request.json()
     plan_key = body.get("plan", "PRO").upper()
 
@@ -211,6 +252,7 @@ async def create_subscription(request: Request, user: User = Depends(get_current
         )
 
     origin = request.headers.get("origin", "https://www.hispaloshop.com")
+    success_route = _get_seller_success_route(user)
 
     session = stripe.checkout.Session.create(
         customer=customer_id,
@@ -218,18 +260,171 @@ async def create_subscription(request: Request, user: User = Depends(get_current
         payment_method_types=["card"],
         line_items=[{"price": plan["stripe_price_id"], "quantity": 1}],
         subscription_data={"trial_period_days": 30, "metadata": {"user_id": user.user_id, "plan": plan_key}},
-        success_url=f"{origin}/producer?subscription=success",
-        cancel_url=f"{origin}/producer?subscription=cancel",
+        success_url=f"{origin}{success_route}?subscription=success",
+        cancel_url=f"{origin}{success_route}?subscription=cancel",
         metadata={"user_id": user.user_id, "plan": plan_key},
     )
 
     return {"checkout_url": session.url, "session_id": session.id}
 
 
+@router.post("/sellers/me/plan/subscribe-inline")
+async def create_inline_subscription(request: Request, user: User = Depends(get_current_user)):
+    """Create a seller subscription without redirecting to Stripe Checkout."""
+    await require_role(user, ["producer", "importer"])
+    _ensure_stripe_ready()
+    body = await request.json()
+    plan_key = str(body.get("plan", "")).upper()
+    payment_method_id = body.get("payment_method_id")
+    billing_name = body.get("billing_name") or user.name
+    billing_email = body.get("billing_email") or user.email
+    billing_phone = body.get("billing_phone")
+
+    if plan_key not in SELLER_PLANS or plan_key == "FREE":
+        raise HTTPException(status_code=400, detail="Plan invalido. Usa PRO o ELITE.")
+    if not payment_method_id:
+        raise HTTPException(status_code=400, detail="Falta el metodo de pago")
+
+    user_doc = await db.users.find_one(
+        {"user_id": user.user_id},
+        {"_id": 0, "subscription": 1, "email": 1, "name": 1}
+    ) or {}
+    subscription_doc = user_doc.get("subscription", {})
+    customer_id = subscription_doc.get("stripe_customer_id")
+
+    if not customer_id:
+        customer = stripe.Customer.create(
+            email=billing_email,
+            name=billing_name,
+            phone=billing_phone,
+            metadata={"user_id": user.user_id, "role": user.role},
+        )
+        customer_id = customer.id
+
+    try:
+        stripe.PaymentMethod.attach(payment_method_id, customer=customer_id)
+    except stripe.error.InvalidRequestError as exc:
+        message = str(exc).lower()
+        if "already been attached" not in message and "already attached" not in message:
+            raise HTTPException(status_code=400, detail=exc.user_message or "No se pudo adjuntar la tarjeta.") from exc
+
+    stripe.Customer.modify(
+        customer_id,
+        name=billing_name,
+        email=billing_email,
+        phone=billing_phone,
+        invoice_settings={"default_payment_method": payment_method_id},
+        metadata={"user_id": user.user_id, "role": user.role},
+    )
+
+    try:
+        subscription = stripe.Subscription.create(
+            customer=customer_id,
+            items=[{
+                "price_data": {
+                    "currency": get_seller_plan_currency(plan_key),
+                    "unit_amount": int(round(get_seller_plan_price(plan_key) * 100)),
+                    "recurring": {"interval": "month"},
+                    "product_data": {
+                        "name": f"Hispaloshop {str(user.role).capitalize()} {plan_key}",
+                        "metadata": {"user_id": user.user_id, "plan": plan_key},
+                    },
+                }
+            }],
+            default_payment_method=payment_method_id,
+            payment_behavior="default_incomplete",
+            payment_settings={
+                "payment_method_types": ["card"],
+                "save_default_payment_method": "on_subscription",
+            },
+            metadata={"user_id": user.user_id, "plan": plan_key, "role": user.role},
+            expand=["latest_invoice.payment_intent"],
+        )
+    except stripe.error.StripeError as exc:
+        raise HTTPException(status_code=400, detail=exc.user_message or "No se pudo crear la suscripcion en Stripe.") from exc
+
+    payment_intent = _extract_payment_intent(subscription)
+    payment_status = payment_intent.get("status") if payment_intent else None
+
+    if payment_status in {"requires_payment_method", "canceled"}:
+        last_error = None
+        if hasattr(payment_intent, "get"):
+            last_error = (payment_intent.get("last_payment_error") or {}).get("message")
+        raise HTTPException(status_code=400, detail=last_error or "Stripe rechazo el pago. Revisa la tarjeta e intentalo otra vez.")
+
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {
+            "subscription.plan": plan_key,
+            "subscription.billing_cycle": "monthly",
+            "subscription.commission_rate": get_seller_commission_rate(plan_key),
+            "subscription.plan_status": "pending_payment" if payment_status in {"requires_action", "requires_confirmation"} else subscription.get("status", "active"),
+            "subscription.stripe_customer_id": customer_id,
+            "subscription.stripe_subscription_id": subscription.get("id"),
+            "subscription.updated_at": datetime.now(timezone.utc).isoformat(),
+        }}
+    )
+
+    if payment_status in {"requires_action", "requires_confirmation"}:
+        return {
+            "requires_action": True,
+            "subscription_id": subscription.get("id"),
+            "client_secret": payment_intent.get("client_secret"),
+        }
+
+    await _persist_subscription_state(user, plan_key, subscription, customer_id=customer_id)
+    await record_subscription_event(db, user.user_id, "inline_subscription_created", {"plan": plan_key, "subscription_id": subscription.get("id")})
+    return {
+        "success": True,
+        "subscription_id": subscription.get("id"),
+        "plan": plan_key,
+        "status": subscription.get("status", "active"),
+    }
+
+
+@router.post("/sellers/me/plan/subscribe-inline/confirm")
+async def confirm_inline_subscription(request: Request, user: User = Depends(get_current_user)):
+    """Finalize seller subscription after Stripe SCA confirmation."""
+    await require_role(user, ["producer", "importer"])
+    _ensure_stripe_ready()
+    body = await request.json()
+    subscription_id = body.get("subscription_id")
+    plan_key = str(body.get("plan", "")).upper()
+
+    if not subscription_id or plan_key not in SELLER_PLANS or plan_key == "FREE":
+        raise HTTPException(status_code=400, detail="Datos de confirmacion invalidos")
+
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "subscription": 1}) or {}
+    customer_id = user_doc.get("subscription", {}).get("stripe_customer_id")
+
+    try:
+        subscription = stripe.Subscription.retrieve(subscription_id, expand=["latest_invoice.payment_intent"])
+    except stripe.error.StripeError as exc:
+        raise HTTPException(status_code=400, detail=exc.user_message or "No se pudo recuperar la suscripcion.") from exc
+
+    if customer_id and str(subscription.get("customer")) != str(customer_id):
+        raise HTTPException(status_code=403, detail="La suscripcion no pertenece al usuario actual")
+
+    payment_intent = _extract_payment_intent(subscription)
+    payment_status = payment_intent.get("status") if payment_intent else None
+    subscription_status = subscription.get("status")
+
+    if payment_status not in {"succeeded", "processing"} and subscription_status not in {"active", "trialing"}:
+        raise HTTPException(status_code=400, detail="El pago todavia no esta confirmado")
+
+    await _persist_subscription_state(user, plan_key, subscription, customer_id=customer_id)
+    await record_subscription_event(db, user.user_id, "inline_subscription_confirmed", {"plan": plan_key, "subscription_id": subscription_id})
+    return {
+        "success": True,
+        "plan": plan_key,
+        "status": subscription_status or payment_status or "active",
+    }
+
+
 @router.post("/sellers/me/plan/change")
 async def change_plan(request: Request, user: User = Depends(get_current_user)):
     """Change seller plan (upgrade/downgrade)."""
-    await require_role(user, ["producer"])
+    await require_role(user, ["producer", "importer"])
     body = await request.json()
     new_plan = body.get("plan", "").upper()
 
@@ -247,6 +442,7 @@ async def change_plan(request: Request, user: User = Depends(get_current_user)):
     # Downgrade to FREE
     if new_plan == "FREE":
         if stripe_sub_id:
+            _ensure_stripe_ready()
             try:
                 stripe.Subscription.modify(stripe_sub_id, cancel_at_period_end=True)
             except Exception as e:
@@ -261,8 +457,12 @@ async def change_plan(request: Request, user: User = Depends(get_current_user)):
         )
         return {"message": "Plan cambiado a FREE al final del periodo actual"}
 
+    if not stripe_sub_id:
+        raise HTTPException(status_code=400, detail="No hay una suscripcion Stripe activa para cambiar de plan")
+
     # Upgrade/change paid plan
     if stripe_sub_id:
+        _ensure_stripe_ready()
         try:
             sub = stripe.Subscription.retrieve(stripe_sub_id)
             plan = SELLER_PLANS[new_plan]

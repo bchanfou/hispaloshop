@@ -110,10 +110,10 @@ def _is_secure_request(request: Request) -> bool:
 
 def _get_public_auth_backend_url(request: Request) -> str:
     configured = (settings.AUTH_BACKEND_URL or "").rstrip("/")
+    if configured:
+        return configured
     request_origin = _get_request_origin(request)
-    if request_origin and not _is_local_origin(request_origin):
-        return request_origin
-    return configured or request_origin
+    return request_origin
 
 
 def _get_public_frontend_url(request: Request) -> str:
@@ -122,6 +122,28 @@ def _get_public_frontend_url(request: Request) -> str:
     if header_origin and _is_trusted_frontend_origin(header_origin):
         return header_origin
     return configured or header_origin or _get_request_origin(request)
+
+
+def _flat_user_doc(user_doc: dict) -> dict:
+    """Return a flat, JSON-safe user dict identical in shape to auth.py's _sanitize_user_doc."""
+    from datetime import datetime as _dt
+    def _json_safe(v):
+        if isinstance(v, _dt):
+            return v.isoformat()
+        if isinstance(v, dict):
+            return {k: _json_safe(i) for k, i in v.items()}
+        if isinstance(v, list):
+            return [_json_safe(i) for i in v]
+        return v
+    doc = {k: _json_safe(v) for k, v in user_doc.items()}
+    if doc.get("role") == "customer":
+        doc["onboarding_completed"] = bool(doc.get("onboarding_completed", False))
+        doc["onboarding_step"] = int(doc.get("onboarding_step", 1) or 1)
+    else:
+        doc["onboarding_completed"] = bool(doc.get("onboarding_completed", True))
+        doc["onboarding_step"] = int(doc.get("onboarding_step", 0) or 0)
+    doc.setdefault("followers_count", len(doc.get("followers", [])))
+    return doc
 
 
 async def _resolve_current_user(request: Request, authorization: Optional[str]) -> Optional[object]:
@@ -269,9 +291,15 @@ async def get_locale_config(
     )
 
 
-@router.get("/auth/me", response_model=Optional[UserOut])
+@router.get("/auth/me")
 async def get_me(request: Request, authorization: Optional[str] = Header(default=None)):
-    return await _serialize_user_from_request(request, authorization)
+    user = await _resolve_current_user(request, authorization)
+    if not user:
+        return None
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "password_hash": 0})
+    if not user_doc:
+        return None
+    return _flat_user_doc(user_doc)
 
 
 @router.get("/exchange-rates", response_model=ExchangeRatesOut)

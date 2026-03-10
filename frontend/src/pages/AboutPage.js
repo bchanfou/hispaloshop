@@ -89,7 +89,7 @@ export default function AboutPage() {
         'Panel de pedidos, pagos y operacion',
       ],
       cta: 'Ser Importador',
-      to: '/importer/register',
+      to: '/importer/onboarding',
       border: 'border-amber-200 bg-amber-50/30',
     },
   ];

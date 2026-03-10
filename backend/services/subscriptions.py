@@ -20,9 +20,9 @@ STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 # ── Plan definitions ──────────────────────────────────────────
 
 SELLER_PLANS = {
-    "FREE":  {"price_monthly_usd": 0,   "commission_rate": 0.20, "label": "Free",  "stripe_price_id": None},
-    "PRO":   {"price_monthly_usd": 54,  "commission_rate": 0.18, "label": "Pro",   "stripe_price_id": None},
-    "ELITE": {"price_monthly_usd": 108, "commission_rate": 0.17, "label": "Elite", "stripe_price_id": None},
+    "FREE":  {"price_monthly": 0,   "currency": "eur", "commission_rate": 0.20, "label": "Free",  "stripe_price_id": None},
+    "PRO":   {"price_monthly": 79,  "currency": "eur", "commission_rate": 0.18, "label": "Pro",   "stripe_price_id": None},
+    "ELITE": {"price_monthly": 149, "currency": "eur", "commission_rate": 0.17, "label": "Elite", "stripe_price_id": None},
 }
 
 INFLUENCER_TIERS = {
@@ -133,6 +133,16 @@ def list_subscription_plans(user_type: Optional[str] = None) -> List[Dict[str, A
     return plans
 
 
+def get_seller_plan_price(plan: str) -> float:
+    normalized_plan = str(plan or "FREE").upper()
+    return float(SELLER_PLANS.get(normalized_plan, SELLER_PLANS["FREE"]).get("price_monthly", 0))
+
+
+def get_seller_plan_currency(plan: str) -> str:
+    normalized_plan = str(plan or "FREE").upper()
+    return str(SELLER_PLANS.get(normalized_plan, SELLER_PLANS["FREE"]).get("currency", "eur")).lower()
+
+
 def has_tier_access(current_tier: str, min_tier: str) -> bool:
     return SUBSCRIPTION_TIER_ORDER.get(current_tier, 0) >= SUBSCRIPTION_TIER_ORDER.get(min_tier, 10)
 
@@ -208,12 +218,12 @@ async def ensure_stripe_products(db):
 
         price_ids = {}
         for plan_key, plan in SELLER_PLANS.items():
-            if plan["price_monthly_usd"] == 0:
+            if plan["price_monthly"] == 0:
                 continue
             price = stripe.Price.create(
                 product=product.id,
-                unit_amount=int(plan["price_monthly_usd"] * 100),
-                currency="usd",
+                unit_amount=int(plan["price_monthly"] * 100),
+                currency=plan.get("currency", "eur"),
                 recurring={"interval": "month"},
                 metadata={"plan": plan_key},
             )

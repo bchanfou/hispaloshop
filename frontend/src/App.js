@@ -53,7 +53,7 @@ const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
-const ImporterLandingPage = lazy(() => import('./pages/landings/ImportadorLanding'));
+const ImporterLandingPage = lazy(() => import('./pages/importer/Landing'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
 const B2BChatPage = lazy(() => import('./pages/b2b/B2BChatPage'));
@@ -245,6 +245,8 @@ function AppRouter() {
               <Route path="/ser-productor" element={<Navigate to="/productor" replace />} />
               <Route path="/importador" element={<ImporterLandingPage />} />
               <Route path="/importer" element={<ImporterLandingPage />} />
+              <Route path="/importador/onboarding" element={<Navigate to="/importador?onboarding=1&plan=free" replace />} />
+              <Route path="/importer/onboarding" element={<Navigate to="/importer?onboarding=1&plan=free" replace />} />
               <Route path="/ser-importador" element={<Navigate to="/importador" replace />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/seller/login" element={<LoginPage />} />
@@ -255,7 +257,7 @@ function AppRouter() {
               <Route path="/register/consumer" element={<Navigate to="/register?role=customer" replace />} />
               <Route path="/register/influencer" element={<Navigate to="/register?role=influencer" replace />} />
               <Route path="/register/producer" element={<Navigate to="/register?role=producer" replace />} />
-              <Route path="/register/importer" element={<Navigate to="/register?role=importer" replace />} />
+              <Route path="/register/importer" element={<Navigate to="/importer/onboarding" replace />} />
               <Route path="/seller/register" element={<RegisterPage />} />
               <Route path="/influencer/register" element={<RegisterPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />
@@ -271,7 +273,7 @@ function AppRouter() {
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/importer/register" element={<RegisterPage />} />
+              <Route path="/importer/register" element={<Navigate to="/importer/onboarding" replace />} />
               <Route
                 path="/importer/dashboard"
                 element={(
