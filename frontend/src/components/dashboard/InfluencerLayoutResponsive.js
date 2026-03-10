@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -7,16 +7,15 @@ import {
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
 import InfluencerAIAssistant from '../InfluencerAIAssistant';
 import InternalChat from '../InternalChat';
-
-import { API } from '../../utils/api';
+import { useDashboardLogout } from '../../features/dashboard/queries';
 
 export default function InfluencerLayoutResponsive({ children }) {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const logoutMutation = useDashboardLogout();
 
   // Navigation items for influencer - simple layout since it's mainly one page
   const navItems = [
@@ -27,7 +26,7 @@ export default function InfluencerLayoutResponsive({ children }) {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      await logoutMutation.mutateAsync();
       navigate('/login');
       window.location.reload();
     } catch (error) {

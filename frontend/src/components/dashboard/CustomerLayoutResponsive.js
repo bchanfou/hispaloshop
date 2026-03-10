@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
 import { 
   ShoppingBag, User, LayoutDashboard, ArrowLeft, LogOut, 
   Store, Sparkles, Heart, MoreHorizontal, Zap, Bookmark
@@ -9,30 +8,19 @@ import {
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import BottomSheet from './BottomSheet';
-
-import { API } from '../../utils/api';
+import {
+  useCustomerDashboardStats,
+  useDashboardLogout,
+} from '../../features/dashboard/queries';
 
 export default function CustomerLayoutResponsive() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [badges, setBadges] = useState({ pending_orders: 0 });
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      fetchBadges();
-    }
-  }, [user]);
-
-  const fetchBadges = async () => {
-    try {
-      const response = await axios.get(`${API}/customer/stats`, { withCredentials: true });
-      setBadges({ pending_orders: response.data.pending_orders || 0 });
-    } catch (error) {
-      console.error('Error fetching badges:', error);
-    }
-  };
+  const { data: stats } = useCustomerDashboardStats(Boolean(user));
+  const logoutMutation = useDashboardLogout();
+  const badges = { pending_orders: stats?.pending_orders || 0 };
 
   // All navigation items
   const allNavItems = [
@@ -50,7 +38,7 @@ export default function CustomerLayoutResponsive() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      await logoutMutation.mutateAsync();
       navigate('/login');
       window.location.reload();
     } catch (error) {
@@ -89,20 +77,16 @@ export default function CustomerLayoutResponsive() {
 
   // Redirect non-customers to their appropriate dashboards
   if (user.role === 'producer' || user.role === 'importer') {
-    navigate('/producer', { replace: true });
-    return null;
+    return <Navigate to="/producer" replace />;
   }
   if (user.role === 'admin') {
-    navigate('/admin', { replace: true });
-    return null;
+    return <Navigate to="/admin" replace />;
   }
   if (user.role === 'super_admin') {
-    navigate('/super-admin', { replace: true });
-    return null;
+    return <Navigate to="/super-admin" replace />;
   }
   if (user.role === 'influencer') {
-    navigate('/influencer/dashboard', { replace: true });
-    return null;
+    return <Navigate to="/influencer/dashboard" replace />;
   }
 
   return (

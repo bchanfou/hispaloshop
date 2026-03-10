@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
 import {
   Users, Package, FileCheck, ShoppingBag,
   LayoutDashboard, ArrowLeft, LogOut, Tag, Star,
@@ -10,37 +9,22 @@ import {
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import BottomSheet from './BottomSheet';
-
-import { API } from '../../utils/api';
+import {
+  useAdminDashboardStats,
+  useDashboardLogout,
+} from '../../features/dashboard/queries';
 
 export default function AdminLayoutResponsive() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [badges, setBadges] = useState({
-    producers: 0,
-    products: 0,
-    certificates: 0
-  });
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-
-  useEffect(() => {
-    if (user?.role === 'admin') {
-      fetchBadges();
-    }
-  }, [user]);
-
-  const fetchBadges = async () => {
-    try {
-      const response = await axios.get(`${API}/admin/stats`, { withCredentials: true });
-      setBadges({
-        producers: response.data.pending_producers || 0,
-        products: response.data.pending_products || 0,
-        certificates: response.data.pending_certificates || 0
-      });
-    } catch (error) {
-      console.error('Error fetching badges:', error);
-    }
+  const { data: stats } = useAdminDashboardStats(Boolean(user) && user?.role === 'admin');
+  const logoutMutation = useDashboardLogout();
+  const badges = {
+    producers: stats?.pending_producers || 0,
+    products: stats?.pending_products || 0,
+    certificates: stats?.pending_certificates || 0,
   };
 
   // All navigation items
@@ -68,7 +52,7 @@ export default function AdminLayoutResponsive() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      await logoutMutation.mutateAsync();
       navigate('/login');
       window.location.reload();
     } catch (error) {

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
 import {
   Package, FileCheck, ShoppingBag, CreditCard,
   LayoutDashboard, ArrowLeft, LogOut, AlertTriangle,
@@ -13,9 +12,11 @@ import SellerAIAssistant from '../SellerAIAssistant';
 import InternalChat from '../InternalChat';
 import MobileBottomNav from './MobileBottomNav';
 import BottomSheet from './BottomSheet';
-
-import { API } from '../../utils/api';
 import { ProducerPlanProvider, useProducerPlan } from '../../context/ProducerPlanContext';
+import {
+  useDashboardLogout,
+  useProducerDashboardStats,
+} from '../../features/dashboard/queries';
 
 function PlanGatedAIAssistant() {
   const { hasAccess } = useProducerPlan();
@@ -28,23 +29,10 @@ export default function ProducerLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const [badges, setBadges] = useState({ pending_products: 0 });
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-
-  useEffect(() => {
-    if (user?.role === 'producer' || user?.role === 'importer') {
-      fetchBadges();
-    }
-  }, [user]);
-
-  const fetchBadges = async () => {
-    try {
-      const response = await axios.get(`${API}/producer/stats`, { withCredentials: true });
-      setBadges({ pending_products: response.data.pending_products || 0 });
-    } catch (error) {
-      console.error('Error fetching badges:', error);
-    }
-  };
+  const { data: stats } = useProducerDashboardStats(Boolean(user) && ['producer', 'importer'].includes(user.role));
+  const logoutMutation = useDashboardLogout();
+  const badges = { pending_products: stats?.pending_products || 0 };
 
   // All navigation items
   const allNavItems = [
@@ -67,7 +55,7 @@ export default function ProducerLayout() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      await logoutMutation.mutateAsync();
       navigate('/login');
       window.location.reload();
     } catch (error) {
