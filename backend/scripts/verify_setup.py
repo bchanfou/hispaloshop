@@ -44,10 +44,13 @@ async def verify():
             print("   [OK] MONGO_URL: OK")
         
         # Validar Stripe
-        if not settings.STRIPE_SECRET_KEY.startswith(("sk_test_", "sk_live_")):
-            errors.append("STRIPE_SECRET_KEY debe empezar con sk_test_ o sk_live_")
+        if settings.STRIPE_SECRET_KEY:
+            if not settings.STRIPE_SECRET_KEY.startswith(("sk_test_", "sk_live_")):
+                errors.append("STRIPE_SECRET_KEY debe empezar con sk_test_ o sk_live_")
+            else:
+                print("   [OK] STRIPE_SECRET_KEY: OK")
         else:
-            print("   [OK] STRIPE_SECRET_KEY: OK")
+            warnings.append("STRIPE_SECRET_KEY no configurada; checkout, suscripciones y payouts Stripe devolveran 503")
         
         # Validar CORS
         origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]

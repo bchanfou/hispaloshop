@@ -12,17 +12,27 @@ from fastapi.responses import RedirectResponse
 
 from core.database import db
 from core.auth import get_current_user, require_role
-from core.config import PLATFORM_COMMISSION, settings
+from core.config import PLATFORM_COMMISSION, settings, STRIPE_SECRET_KEY
 from core.models import User, InfluencerApplication, CreateInfluencerCodeInput, WithdrawalRequest
 from config import normalize_influencer_tier, settings as legacy_settings
 from routes.orders import check_and_notify_influencer_withdrawal_available
 
 logger = logging.getLogger(__name__)
 
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+stripe.api_key = STRIPE_SECRET_KEY
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://auth-rework.preview.emergentagent.com")
 
 router = APIRouter()
+
+
+def _stripe_ready() -> bool:
+    key = STRIPE_SECRET_KEY or ""
+    return key.startswith(("sk_test_", "sk_live_"))
+
+
+def _ensure_stripe_ready() -> None:
+    if not _stripe_ready():
+        raise HTTPException(status_code=503, detail="Stripe no esta configurado")
 
 @router.post("/influencer/apply")
 async def apply_as_influencer(input: InfluencerApplication):
@@ -437,6 +447,7 @@ async def connect_influencer_stripe(request: Request, user: User = Depends(get_c
     influencer = await db.influencers.find_one({"email": user.email.lower()})
     if not influencer:
         raise HTTPException(status_code=404, detail="You are not registered as an influencer")
+    _ensure_stripe_ready()
     
     origin = request.headers.get('origin', str(request.base_url).rstrip('/'))
     
@@ -509,6 +520,17 @@ async def get_influencer_stripe_status(user: User = Depends(get_current_user)):
             "payouts_enabled": False,
             "charges_enabled": False
         }
+
+    if not _stripe_ready():
+        onboarding_complete = influencer.get("stripe_onboarding_complete", False)
+        return {
+            "connected": onboarding_complete,
+            "stripe_account_id": stripe_account_id,
+            "payouts_enabled": onboarding_complete,
+            "charges_enabled": onboarding_complete,
+            "onboarding_complete": onboarding_complete,
+            "status": "not_configured",
+        }
     
     try:
         account = stripe.Account.retrieve(stripe_account_id)
@@ -546,6 +568,7 @@ async def get_influencer_stripe_status(user: User = Depends(get_current_user)):
 async def process_influencer_payout(influencer_id: str, user: User = Depends(get_current_user)):
     """Process payout to influencer (Admin only)"""
     await require_role(user, ["admin"])
+    _ensure_stripe_ready()
     
     influencer = await db.influencers.find_one({"influencer_id": influencer_id})
     if not influencer:
@@ -627,6 +650,7 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
         raise HTTPException(status_code=400, detail="Metodo de retiro invalido. Usa 'stripe' o 'bank_transfer'.")
 
     if payout_method == "stripe":
+        _ensure_stripe_ready()
         if not influencer.get("stripe_account_id"):
             raise HTTPException(status_code=400, detail="Debes conectar tu cuenta de Stripe primero")
         if not influencer.get("stripe_onboarding_complete"):

@@ -42,9 +42,9 @@ class Settings(BaseSettings):
     DB_NAME: str = Field(default="hispaloshop")
     
     # ============================================
-    # PAGOS - Stripe obligatorio
+    # PAGOS - Stripe opcional en startup; requerido para checkout y payouts
     # ============================================
-    STRIPE_SECRET_KEY: str = Field(...)
+    STRIPE_SECRET_KEY: str = Field(default="")
     STRIPE_WEBHOOK_SECRET: str = Field(default="")
     STRIPE_PUBLISHABLE_KEY: str = Field(default="")
     
@@ -133,9 +133,9 @@ class Settings(BaseSettings):
     @field_validator('STRIPE_SECRET_KEY')
     @classmethod
     def validate_stripe_key(cls, v):
-        """STRIPE_SECRET_KEY debe empezar con sk_test_ o sk_live_"""
+        """Permitir vacio para arrancar sin pagos; validar si viene informado."""
         if not v:
-            raise ValueError("STRIPE_SECRET_KEY es obligatoria")
+            return ""
         if not v.startswith(("sk_test_", "sk_live_")):
             raise ValueError("STRIPE_SECRET_KEY debe empezar con sk_test_ o sk_live_")
         return v

@@ -31,6 +31,16 @@ def _round_money(amount: float) -> float:
     return round(float(amount or 0), 2)
 
 
+def _stripe_ready() -> bool:
+    key = STRIPE_SECRET_KEY or ""
+    return key.startswith(("sk_test_", "sk_live_"))
+
+
+def _ensure_stripe_ready() -> None:
+    if not _stripe_ready():
+        raise HTTPException(status_code=503, detail="Stripe no esta configurado")
+
+
 def _get_producer_financial_snapshot(order: dict, producer_id: str) -> dict:
     producer_subtotal = 0
     producer_items = []
@@ -606,6 +616,7 @@ async def get_producer_follower_stats(user: User = Depends(get_current_user), da
 async def create_stripe_connect_account(request: Request, user: User = Depends(get_current_user)):
     """Create a Stripe Connect Express account for the producer"""
     await require_role(user, ["producer", "importer"])
+    _ensure_stripe_ready()
     
     # Country name to ISO 3166-1 alpha-2 code mapping
     COUNTRY_TO_ISO = {
@@ -738,6 +749,15 @@ async def get_stripe_connect_status(user: User = Depends(get_current_user)):
             "payouts_enabled": False,
             "charges_enabled": False
         }
+
+    if not _stripe_ready():
+        return {
+            "connected": user_doc.get("stripe_connect_status") == "connected",
+            "status": "not_configured",
+            "stripe_account_id": stripe_account_id,
+            "payouts_enabled": bool(user_doc.get("stripe_payouts_enabled", False)),
+            "charges_enabled": bool(user_doc.get("stripe_charges_enabled", False)),
+        }
     
     try:
         # Fetch the account status from Stripe
@@ -779,6 +799,7 @@ async def get_stripe_connect_status(user: User = Depends(get_current_user)):
 async def create_stripe_login_link(user: User = Depends(get_current_user)):
     """Create a login link to the Stripe Express dashboard"""
     await require_role(user, ["producer", "importer"])
+    _ensure_stripe_ready()
     
     user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
     stripe_account_id = user_doc.get("stripe_account_id")
