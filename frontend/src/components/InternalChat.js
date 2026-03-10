@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { 
@@ -10,8 +9,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-
-import { API } from '../utils/api';
+import { useInternalChatData } from '../features/chat/hooks';
 const WS_URL = typeof window !== 'undefined'
   ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
   : '';
@@ -458,28 +456,36 @@ function ProducerProfile({ producer, onBack, onStartChat }) {
 
 export default function InternalChat({ userType, isEmbedded = false, onClose = null, initialChatUserId = null }) {
   const { user } = useAuth();
+  const {
+    conversations,
+    influencers,
+    producers,
+    loadingDirectory,
+    reloadConversations,
+    fetchMessages: fetchMessagesRequest,
+    uploadImage,
+    sendHttpMessage,
+    startConversation,
+    deleteConversation: deleteConversationRequest,
+    loadInfluencerProfile,
+    loadProducerProfile,
+    deletingConversation,
+    uploadingImage,
+    sendingMessage,
+  } = useInternalChatData();
   const [isOpen, setIsOpen] = useState(isEmbedded);
   const [activeTab, setActiveTab] = useState('messages'); // 'messages' | 'directory'
   const [directoryType, setDirectoryType] = useState('influencers'); // 'influencers' | 'producers'
-  const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sendingMessage, setSendingMessage] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [deletingConversation, setDeletingConversation] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-  
-  // Directory state
-  const [influencers, setInfluencers] = useState([]);
-  const [producers, setProducers] = useState([]);
   const [selectedInfluencer, setSelectedInfluencer] = useState(null);
   const [selectedProducer, setSelectedProducer] = useState(null);
-  const [loadingDirectory, setLoadingDirectory] = useState(false);
   
   const messagesEndRef = useRef(null);
   const pollInterval = useRef(null);
@@ -519,50 +525,34 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
   const sendMessageWithImage = async () => {
     if ((!newMessage.trim() && !selectedImage) || !activeConversation) return;
     
-    setSendingMessage(true);
     try {
       let imageUrl = null;
       
       // Upload image if selected
       if (selectedImage) {
-        setUploadingImage(true);
-        const formData = new FormData();
-        formData.append('file', selectedImage);
-        formData.append('conversation_id', activeConversation.conversation_id);
-        
-        const uploadRes = await axios.post(
-          `${API}/internal-chat/upload-image`,
-          formData,
-          { 
-            withCredentials: true,
-            headers: { 'Content-Type': 'multipart/form-data' }
-          }
-        );
-        imageUrl = uploadRes.data.image_url;
-        setUploadingImage(false);
+        const uploadRes = await uploadImage({
+          file: selectedImage,
+          conversationId: activeConversation.conversation_id,
+        });
+        imageUrl = uploadRes.image_url;
       }
       
       // Send message
-      const res = await axios.post(
-        `${API}/internal-chat/messages`,
+      const res = await sendHttpMessage(
         { 
           conversation_id: activeConversation.conversation_id,
-          content: newMessage || (imageUrl ? '📷 Imagen' : ''),
+          content: newMessage || (imageUrl ? 'Imagen' : ''),
           image_url: imageUrl
-        },
-        { withCredentials: true }
+        }
       );
       
-      setMessages(prev => [...prev, res.data]);
+      setMessages(prev => [...prev, res]);
       setNewMessage('');
       clearSelectedImage();
-      fetchConversations();
+      reloadConversations();
     } catch (err) {
       console.error('Error sending message:', err);
       toast.error('Error al enviar mensaje');
-    } finally {
-      setSendingMessage(false);
-      setUploadingImage(false);
     }
   };
 
@@ -617,10 +607,8 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
   const deleteConversation = async (conversationId) => {
     if (!confirm('¿Estás seguro de que quieres eliminar esta conversación?')) return;
     
-    setDeletingConversation(conversationId);
     try {
-      await axios.delete(`${API}/internal-chat/conversations/${conversationId}`, { withCredentials: true });
-      setConversations(prev => prev.filter(c => c.conversation_id !== conversationId));
+      await deleteConversationRequest(conversationId);
       if (activeConversation?.conversation_id === conversationId) {
         setActiveConversation(null);
         setMessages([]);
@@ -629,8 +617,6 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
     } catch (err) {
       console.error('Error deleting conversation:', err);
       toast.error('Error al eliminar conversación');
-    } finally {
-      setDeletingConversation(null);
     }
   };
 
@@ -642,14 +628,13 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
 
   useEffect(() => {
     if ((isOpen || isEmbedded) && user) {
-      fetchConversations();
-      fetchDirectory();
-      pollInterval.current = setInterval(fetchConversations, 10000);
+      reloadConversations();
+      pollInterval.current = setInterval(reloadConversations, 10000);
     }
     return () => {
       if (pollInterval.current) clearInterval(pollInterval.current);
     };
-  }, [isOpen, isEmbedded, user]);
+  }, [isOpen, isEmbedded, user, reloadConversations]);
 
   // Auto-start conversation when initialChatUserId is set
   useEffect(() => {
@@ -706,7 +691,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
             }
           }
           // Refresh conversations list
-          fetchConversations();
+          reloadConversations();
         } else if (data.type === 'message_read' || data.type === 'messages_read') {
           // Update message status
           setMessages(prev => prev.map(m => 
@@ -746,7 +731,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
     } catch (err) {
       console.error('[WS] Connection error:', err);
     }
-  }, [user, isOpen, isEmbedded, activeConversation]);
+  }, [user, isOpen, isEmbedded, activeConversation, notificationsEnabled, reloadConversations]);
 
   useEffect(() => {
     if ((isOpen || isEmbedded) && user) {
@@ -770,26 +755,10 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const fetchDirectory = async () => {
-    setLoadingDirectory(true);
-    try {
-      const [infRes, prodRes] = await Promise.all([
-        axios.get(`${API}/directory/influencers`),
-        axios.get(`${API}/directory/producers`)
-      ]);
-      setInfluencers(infRes.data || []);
-      setProducers(prodRes.data || []);
-    } catch (err) {
-      console.error('Error fetching directory:', err);
-    } finally {
-      setLoadingDirectory(false);
-    }
-  };
-
   const fetchInfluencerProfile = async (influencerId) => {
     try {
-      const res = await axios.get(`${API}/directory/influencers/${influencerId}`);
-      setSelectedInfluencer(res.data);
+      const res = await loadInfluencerProfile(influencerId);
+      setSelectedInfluencer(res);
     } catch (err) {
       console.error('Error fetching influencer profile:', err);
       toast.error('Error al cargar perfil');
@@ -798,28 +767,19 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
 
   const fetchProducerProfile = async (storeId) => {
     try {
-      const res = await axios.get(`${API}/directory/producers/${storeId}`);
-      setSelectedProducer(res.data);
+      const res = await loadProducerProfile(storeId);
+      setSelectedProducer(res);
     } catch (err) {
       console.error('Error fetching producer profile:', err);
       toast.error('Error al cargar perfil');
     }
   };
 
-  const fetchConversations = async () => {
-    try {
-      const res = await axios.get(`${API}/internal-chat/conversations`, { withCredentials: true });
-      setConversations(res.data || []);
-    } catch (err) {
-      console.error('Error fetching conversations:', err);
-    }
-  };
-
   const fetchMessages = async (conversationId) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/internal-chat/conversations/${conversationId}/messages`, { withCredentials: true });
-      setMessages(res.data || []);
+      const res = await fetchMessagesRequest(conversationId);
+      setMessages(res || []);
       // Mark as read via WebSocket
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({
@@ -827,7 +787,7 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
           conversation_id: conversationId
         }));
       }
-      fetchConversations();
+      reloadConversations();
     } catch (err) {
       console.error('Error fetching messages:', err);
       toast.error('Error al cargar mensajes');
@@ -848,17 +808,13 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
       return;
     }
     try {
-      const res = await axios.post(
-        `${API}/internal-chat/start-conversation`,
-        { other_user_id: userId },
-        { withCredentials: true }
-      );
+      const res = await startConversation(userId);
       
-      const conversationId = res.data.conversation_id;
+      const conversationId = res.conversation_id;
       
-      await fetchConversations();
-      const convs = await axios.get(`${API}/internal-chat/conversations`, { withCredentials: true });
-      const newConv = convs.data.find(c => c.conversation_id === conversationId);
+      const convsResult = await reloadConversations();
+      const convs = convsResult.data || conversations;
+      const newConv = convs.find(c => c.conversation_id === conversationId);
       
       if (newConv) {
         setActiveConversation(newConv);
@@ -869,15 +825,15 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
       setSelectedInfluencer(null);
       setSelectedProducer(null);
       
-      if (res.data.is_new) {
+      if (res.is_new) {
         toast.success('Conversacion iniciada');
       }
     } catch (err) {
       console.error('Error starting conversation:', err);
-      if (err.response?.status === 401) {
+      if (err?.status === 401) {
         toast.error('Debes iniciar sesión');
       } else {
-        toast.error(err.response?.data?.detail || 'Error al iniciar conversacion');
+        toast.error(err?.message || 'Error al iniciar conversacion');
       }
     }
   };

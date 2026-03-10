@@ -241,68 +241,24 @@ function CreateCodeCard({ onCodeCreated }) {
 export default function InfluencerDashboard() {
   const { user, refreshUser } = useAuth();
   const { t } = useTranslation();
-  const [dashboard, setDashboard] = useState(null);
-  const [stripeStatus, setStripeStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { dashboard, loading, refetchDashboard } = useInfluencerProfile();
+  const { stripeStatus, connectingStripe, connectStripe: connectStripeAccount } = useInfluencerStripeStatus();
   const [copied, setCopied] = useState(false);
-  const [connectingStripe, setConnectingStripe] = useState(false);
   const [emailVerified, setEmailVerified] = useState(user?.email_verified);
 
   useEffect(() => {
     if (user) {
       setEmailVerified(user.email_verified);
-      fetchDashboard();
-      fetchStripeStatus();
-      // Trigger withdrawal notification check when dashboard loads
-      checkWithdrawalNotification();
     }
   }, [user]);
-
-  const checkWithdrawalNotification = async () => {
-    try {
-      await axios.post(`${API}/influencer/check-withdrawal-notification`, {}, { withCredentials: true });
-    } catch (err) {
-      // Silent fail - not critical
-      console.log('Notification check completed');
-    }
-  };
-
-  const fetchDashboard = async () => {
-    try {
-      const res = await axios.get(`${API}/influencer/dashboard`, { withCredentials: true });
-      setDashboard(res.data);
-    } catch (err) {
-      if (err.response?.status === 404) {
-        setDashboard(null);
-      } else {
-        toast.error(t('influencer.loadError', 'Error al cargar el dashboard'));
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchStripeStatus = async () => {
-    try {
-      const res = await axios.get(`${API}/influencer/stripe/status`, { withCredentials: true });
-      setStripeStatus(res.data);
-    } catch (err) {
-      console.error('Error fetching Stripe status:', err);
-    }
-  };
 
   const handleEmailVerified = () => {
     setEmailVerified(true);
     if (refreshUser) refreshUser();
   };
 
-  const handleCodeCreated = (newCode) => {
-    setDashboard(prev => ({
-      ...prev,
-      discount_code: newCode,
-      discount_code_active: false,
-      discount_code_approval_status: 'pending',
-    }));
+  const handleCodeCreated = (_newCode) => {
+    refetchDashboard();
   };
 
   const scrollToWithdrawals = () => {
@@ -320,15 +276,13 @@ export default function InfluencerDashboard() {
   };
 
   const connectStripe = async () => {
-    setConnectingStripe(true);
     try {
-      const res = await axios.post(`${API}/influencer/stripe/connect`, {}, { withCredentials: true });
-      if (res.data.url) {
-        window.location.href = res.data.url;
+      const res = await connectStripeAccount();
+      if (res?.url) {
+        window.location.href = res.url;
       }
     } catch (err) {
       toast.error(t('influencer.stripeError', 'Error al conectar con Stripe'));
-      setConnectingStripe(false);
     }
   };
 
@@ -748,7 +702,7 @@ export default function InfluencerDashboard() {
             <WithdrawalCard 
               availableToWithdraw={dashboard.payment_schedule.available_to_withdraw}
               stripeConnected={stripeStatus?.connected && stripeStatus?.onboarding_complete}
-              onWithdrawSuccess={fetchDashboard}
+              onWithdrawSuccess={refetchDashboard}
             />
           </div>
         )}
