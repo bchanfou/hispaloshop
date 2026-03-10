@@ -291,11 +291,11 @@ export default function AdminProducers() {
           <table className="w-full" data-testid="producers-table">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.company')}</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.contact')}</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">Tipo</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.status')}</th>
-                <th className="text-right px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.actions')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.company')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.contact')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">Tipo</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.status')}</th>
+                <th scope="col" className="text-right px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200">

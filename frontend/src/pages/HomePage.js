@@ -39,7 +39,7 @@ export default function HomePage() {
 
       <Header />
 
-      <main className="pt-14">
+      <main id="main-content" className="pt-14">
         <FeedContainer />
       </main>
 

@@ -189,6 +189,7 @@ export default function AdminLayoutResponsive() {
             <button
               onClick={handleLogout}
               className="p-2 text-text-muted hover:text-red-600 transition-colors"
+              aria-label="Cerrar sesión"
               title="Cerrar sesión"
               data-testid="desktop-logout-button"
             >

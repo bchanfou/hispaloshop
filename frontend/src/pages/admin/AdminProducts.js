@@ -329,11 +329,11 @@ export default function AdminProducts() {
           <table className="w-full" data-testid="products-table">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.product')}</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.producer')}</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.price')}</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.status')}</th>
-                <th className="text-right px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.actions')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.product')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.producer')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.price')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.status')}</th>
+                <th scope="col" className="text-right px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200">
@@ -388,6 +388,7 @@ export default function AdminProducts() {
                         <button
                           onClick={() => setEditingProduct(product.product_id)}
                           className="text-text-muted hover:text-primary"
+                          aria-label={`${t('common.edit')} ${t('adminProducts.table.price')}`}
                           title={t('common.edit')}
                         >
                           <Edit className="w-4 h-4" />
@@ -409,9 +410,10 @@ export default function AdminProducts() {
                           size="sm"
                           className="bg-green-600 hover:bg-green-700"
                           onClick={() => openApprovalChecklist(product)}
+                          aria-label={`${t('adminProducts.table.pending')} — ${product.name}`}
                           data-testid={`approve-${product.product_id}`}
                         >
-                          <ClipboardList className="w-4 h-4" />
+                          <ClipboardList className="w-4 h-4" aria-hidden="true" />
                         </Button>
                       )}
                       {product.approved && (
@@ -420,8 +422,9 @@ export default function AdminProducts() {
                           variant="outline"
                           className="border-amber-300 text-amber-600"
                           onClick={() => approveProduct(product.product_id, false)}
+                          aria-label={`${t('adminProducts.messages.productRejected')} — ${product.name}`}
                         >
-                          <XCircle className="w-4 h-4" />
+                          <XCircle className="w-4 h-4" aria-hidden="true" />
                         </Button>
                       )}
                       <Button
@@ -429,9 +432,10 @@ export default function AdminProducts() {
                         variant="outline"
                         className="border-red-300 text-red-600 hover:bg-red-50"
                         onClick={() => deleteProduct(product.product_id)}
+                        aria-label={`${t('adminProducts.messages.confirmDelete')} — ${product.name}`}
                         data-testid={`delete-${product.product_id}`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </Button>
                     </div>
                   </td>
@@ -445,11 +449,16 @@ export default function AdminProducts() {
 
     {/* Approval Checklist Modal */}
     {checklistProduct && (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="checklist-title"
+      >
         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
           <div className="flex items-center gap-3 mb-4">
-            <ClipboardList className="w-6 h-6 text-amber-600" />
-            <h2 className="text-lg font-semibold text-primary">Checklist de Aprobación</h2>
+            <ClipboardList className="w-6 h-6 text-amber-600" aria-hidden="true" />
+            <h2 id="checklist-title" className="text-lg font-semibold text-primary">Checklist de Aprobación</h2>
           </div>
           <p className="text-sm text-text-muted mb-5">
             Verifica que el producto <strong>{checklistProduct.name}</strong> cumple todos los requisitos antes de aprobar.

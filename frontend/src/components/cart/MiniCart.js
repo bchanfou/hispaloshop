@@ -51,16 +51,20 @@ const MiniCart = ({ isOpen, onClose }) => {
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="minicart-title"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">Tu cesta</h2>
+                <h2 id="minicart-title" className="text-lg font-bold text-gray-900">Tu cesta</h2>
                 <p className="text-sm text-text-muted">{totalItems} artículos</p>
               </div>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Cerrar carrito"
               >
                 <X className="w-5 h-5 text-gray-900" />
               </button>
@@ -119,6 +123,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                           <button
                             onClick={() => handleRemove(item.id)}
                             className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                            aria-label={`Eliminar ${item.name || item.product?.name}`}
                           >
                             <Trash2 className="w-4 h-4 text-text-muted" />
                           </button>
@@ -129,15 +134,17 @@ const MiniCart = ({ isOpen, onClose }) => {
                             <button
                               onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                               className="p-1.5 hover:bg-gray-100 rounded-l-lg"
+                              aria-label={`Disminuir cantidad de ${item.name || item.product?.name}`}
                             >
                               <Minus className="w-4 h-4 text-gray-900" />
                             </button>
-                            <span className="w-8 text-center text-sm font-medium">
+                            <span className="w-8 text-center text-sm font-medium" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                               className="p-1.5 hover:bg-gray-100 rounded-r-lg"
+                              aria-label={`Aumentar cantidad de ${item.name || item.product?.name}`}
                             >
                               <Plus className="w-4 h-4 text-gray-900" />
                             </button>
@@ -209,13 +216,13 @@ const MiniCart = ({ isOpen, onClose }) => {
 
                 {/* Express pay options */}
                 <div className="flex gap-2">
-                  <button className="flex-1 py-2 bg-black text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2">
-                    <span>🍎</span> Pay
+                  <button aria-label="Pagar con Apple Pay" className="flex-1 py-2 bg-black text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+                    <span aria-hidden="true">🍎</span> Pay
                   </button>
-                  <button className="flex-1 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
-                    <span className="text-blue-500">G</span> Pay
+                  <button aria-label="Pagar con Google Pay" className="flex-1 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+                    <span aria-hidden="true" className="text-blue-500">G</span> Pay
                   </button>
-                  <button className="flex-1 py-2 bg-[#00A4E0] text-white rounded-lg text-sm font-medium">
+                  <button aria-label="Pagar con Bizum" className="flex-1 py-2 bg-[#00A4E0] text-white rounded-lg text-sm font-medium">
                     Bizum
                   </button>
                 </div>

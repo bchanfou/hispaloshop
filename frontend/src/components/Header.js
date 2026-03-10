@@ -45,6 +45,10 @@ export default function Header() {
     setMobileSearchOpen(false);
   };
   return (
+    <>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:rounded focus:shadow-lg focus:outline-none">
+        Saltar al contenido principal
+      </a>
     <header className="sticky top-0 z-50 bg-stone-50/95 backdrop-blur border-b border-stone-200" data-testid="main-header">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6">
         <div className="h-14 md:h-16 flex items-center gap-2 md:gap-4">
@@ -84,15 +88,22 @@ export default function Header() {
               type="button"
               onClick={() => setMobileSearchOpen((p) => !p)}
               className="md:hidden p-2 rounded-full hover:bg-stone-100"
+              aria-label="Buscar"
+              aria-expanded={mobileSearchOpen}
               data-testid="mobile-search-toggle"
             >
               <Search className="w-5 h-5 text-stone-700" />
             </button>
 
-            <Link to="/cart" className="relative p-2 rounded-full hover:bg-stone-100" data-testid="cart-button">
+            <Link
+              to="/cart"
+              className="relative p-2 rounded-full hover:bg-stone-100"
+              aria-label={getTotalItems() > 0 ? `Cesta, ${getTotalItems()} artículos` : 'Cesta'}
+              data-testid="cart-button"
+            >
               <ShoppingCart className="w-5 h-5 text-stone-700" />
               {getTotalItems() > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
                   {getTotalItems() > 9 ? '9+' : getTotalItems()}
                 </span>
               )}
@@ -117,6 +128,8 @@ export default function Header() {
               type="button"
               onClick={() => setMenuOpen((p) => !p)}
               className={`p-2 rounded-full transition-colors ${menuOpen ? 'bg-stone-200' : 'hover:bg-stone-100'}`}
+              aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={menuOpen}
               data-testid="hamburger-menu-button"
             >
               {menuOpen ? <X className="w-5 h-5 text-stone-700" /> : <Menu className="w-5 h-5 text-stone-700" />}
@@ -159,6 +172,7 @@ export default function Header() {
         )}
       </div>
     </header>
+    </>
   );
 }
 
