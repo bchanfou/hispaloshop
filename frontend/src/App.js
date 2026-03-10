@@ -76,6 +76,7 @@ const AdminDiscountCodes = lazy(() => import('./pages/admin/AdminDiscountCodes')
 const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
 const AdminInfluencers = lazy(() => import('./pages/admin/AdminInfluencers'));
 const AdminManagement = lazy(() => import('./pages/admin/AdminManagement'));
+const AdminCategories = lazy(() => import('./pages/admin/CategoriesPage'));
 const EscalationChat = lazy(() => import('./pages/admin/EscalationChat'));
 const InsightsDashboard = lazy(() => import('./pages/super-admin/InsightsDashboard'));
 const UserManagement = lazy(() => import('./pages/super-admin/UserManagement'));
@@ -343,6 +344,7 @@ function AppRouter() {
                 <Route path="discount-codes" element={<AdminDiscountCodes />} />
                 <Route path="reviews" element={<AdminReviews />} />
                 <Route path="influencers" element={<AdminInfluencers />} />
+                <Route path="categories" element={<AdminCategories />} />
                 <Route path="escalation" element={<EscalationChat />} />
               </Route>
               <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />

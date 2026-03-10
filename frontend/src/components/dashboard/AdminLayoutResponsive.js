@@ -5,7 +5,7 @@ import axios from 'axios';
 import {
   Users, Package, FileCheck, ShoppingBag,
   LayoutDashboard, ArrowLeft, LogOut, Tag, Star,
-  UserCheck, Menu, X, MoreHorizontal, Settings, ShieldAlert
+  UserCheck, Menu, X, MoreHorizontal, Settings, ShieldAlert, FolderOpen
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +53,7 @@ export default function AdminLayoutResponsive() {
     { to: '/admin/discount-codes', icon: Tag, label: t('admin.discountCodes', 'Discounts'), shortLabel: 'Descuentos' },
     { to: '/admin/influencers', icon: UserCheck, label: t('admin.influencers', 'Influencers'), shortLabel: 'Influencers' },
     { to: '/admin/reviews', icon: Star, label: t('admin.reviews', 'Reviews'), shortLabel: 'Reseñas' },
+    { to: '/admin/categories', icon: FolderOpen, label: t('admin.categories', 'Categorías'), shortLabel: 'Categ.' },
     { to: '/admin/escalation', icon: ShieldAlert, label: 'Escalar a SA', shortLabel: 'Escalar' },
   ];
 
