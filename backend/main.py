@@ -2,11 +2,17 @@
 Hispaloshop API - Stack MongoDB (Activo)
 Fase 0: Seguridad reforzada, PostgreSQL congelado en _future_postgres/
 """
+import sys
+from pathlib import Path
+
+_BACKEND_DIR = Path(__file__).resolve().parent
+if str(_BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_DIR))
+
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
 import logging
 
 # === IMPORTAR NUEVO SISTEMA DE CONFIGURACION ===
