@@ -1,16 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 
-const TestimonialCarousel = ({ testimonials }) => {
+const TestimonialCarousel = ({ testimonials = [] }) => {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
+    if (testimonials.length <= 1) {
+      return undefined;
+    }
+
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % testimonials.length);
     }, 5000);
+
     return () => clearInterval(timer);
   }, [testimonials.length]);
+
+  if (!testimonials.length) {
+    return (
+      <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
+        <p className="text-lg font-medium text-stone-950">Próximamente</p>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Cuando tengamos voces reales de la comunidad, aparecerán aquí.
+        </p>
+      </div>
+    );
+  }
 
   const goTo = (index) => setCurrent(index);
   const prev = () => setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
@@ -26,57 +42,62 @@ const TestimonialCarousel = ({ testimonials }) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.3 }}
-            className="bg-white rounded-2xl p-8 shadow-sm"
+            className="rounded-2xl border border-stone-200 bg-white p-8 shadow-sm"
           >
-            <Quote className="w-10 h-10 text-state-amber mb-4" />
-            <p className="text-xl text-gray-900 leading-relaxed mb-6">
+            <Quote className="mb-4 h-10 w-10 text-stone-900" />
+            <p className="mb-6 text-xl leading-relaxed text-stone-950">
               "{testimonials[current].quote}"
             </p>
             <div className="flex items-center gap-4">
-              {testimonials[current].image && (
+              {testimonials[current].image ? (
                 <img
                   src={testimonials[current].image}
                   alt={testimonials[current].name}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="h-12 w-12 rounded-full object-cover"
                 />
+              ) : (
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 text-sm font-semibold text-stone-900">
+                  {testimonials[current].name?.slice(0, 1) || '?'}
+                </div>
               )}
               <div>
-                <p className="font-semibold text-gray-900">{testimonials[current].name}</p>
-                <p className="text-sm text-text-muted">{testimonials[current].role}</p>
+                <p className="font-semibold text-stone-950">{testimonials[current].name}</p>
+                <p className="text-sm text-stone-600">{testimonials[current].role}</p>
               </div>
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Navigation */}
-      <div className="flex items-center justify-center gap-4 mt-6">
-        <button
-          onClick={prev}
-          className="p-2 rounded-full bg-white shadow-sm hover:shadow-md transition-shadow"
-        >
-          <ChevronLeft className="w-5 h-5 text-gray-900" />
-        </button>
-        
-        <div className="flex gap-2">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goTo(index)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index === current ? 'bg-accent' : 'bg-gray-300'
-              }`}
-            />
-          ))}
+      {testimonials.length > 1 ? (
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <button
+            onClick={prev}
+            className="rounded-full border border-stone-200 bg-white p-2 transition-shadow hover:shadow-md"
+          >
+            <ChevronLeft className="h-5 w-5 text-stone-950" />
+          </button>
+
+          <div className="flex gap-2">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goTo(index)}
+                className={`h-2 w-2 rounded-full transition-colors ${
+                  index === current ? 'bg-stone-900' : 'bg-stone-300'
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={next}
+            className="rounded-full border border-stone-200 bg-white p-2 transition-shadow hover:shadow-md"
+          >
+            <ChevronRight className="h-5 w-5 text-stone-950" />
+          </button>
         </div>
-        
-        <button
-          onClick={next}
-          className="p-2 rounded-full bg-white shadow-sm hover:shadow-md transition-shadow"
-        >
-          <ChevronRight className="w-5 h-5 text-gray-900" />
-        </button>
-      </div>
+      ) : null}
     </div>
   );
 };

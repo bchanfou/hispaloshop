@@ -7,8 +7,8 @@ const FooterLanding = () => {
 
   const footerLinks = {
     producto: [
-      { label: 'Como funciona', href: '/que-es' },
-      { label: 'Para empresas', href: '/productor' },
+      { label: 'Cómo funciona', href: '/que-es' },
+      { label: 'Para productores', href: '/productor' },
       { label: 'Para influencers', href: '/influencer' },
       { label: 'Para importadores', href: '/importador' },
     ],
@@ -21,7 +21,7 @@ const FooterLanding = () => {
     soporte: [
       { label: 'Centro de ayuda', href: '/help' },
       { label: 'Contacto', href: '/contact' },
-      { label: 'Terminos', href: '/terms' },
+      { label: 'Términos', href: '/terms' },
       { label: 'Privacidad', href: '/privacy' },
     ],
   };
@@ -34,26 +34,26 @@ const FooterLanding = () => {
   ];
 
   return (
-    <footer className="bg-[#1A1A1A] text-white">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+    <footer className="border-t border-stone-200 bg-stone-950 text-white">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
-            <h3 className="text-xl font-bold mb-4">Hispaloshop</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Tu mercado local de productos artesanales. Conectamos productores con consumidores.
+            <h3 className="mb-4 text-xl font-bold">Hispaloshop</h3>
+            <p className="mb-4 text-sm text-stone-400">
+              Una forma más clara de descubrir, entender y comprar comida con contexto.
             </p>
             <div className="flex gap-4">
-              {socialLinks.map((social, index) => {
+              {socialLinks.map((social) => {
                 const Icon = social.icon;
                 return (
                   <a
-                    key={index}
+                    key={social.href}
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-stone-400 transition-colors hover:text-white"
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="h-5 w-5" />
                   </a>
                 );
               })}
@@ -62,14 +62,14 @@ const FooterLanding = () => {
 
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
-              <h4 className="font-semibold mb-4 capitalize">{title}</h4>
+              <h4 className="mb-4 font-semibold capitalize text-white">{title}</h4>
               <ul className="space-y-2">
                 {links.map((link) => (
                   <li key={link.label}>
                     <button
                       type="button"
                       onClick={() => navigate(link.href)}
-                      className="text-gray-400 text-sm hover:text-white transition-colors"
+                      className="text-sm text-stone-400 transition-colors hover:text-white"
                     >
                       {link.label}
                     </button>
@@ -80,7 +80,7 @@ const FooterLanding = () => {
           ))}
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400 text-sm">
+        <div className="mt-12 border-t border-stone-800 pt-8 text-center text-sm text-stone-400">
           Copyright {new Date().getFullYear()} Hispaloshop. Todos los derechos reservados.
         </div>
       </div>
