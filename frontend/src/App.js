@@ -67,7 +67,7 @@ const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
 const SuperAdminLayout = lazy(() => import('./components/dashboard/SuperAdminLayoutResponsive'));
-const AdminOverview = lazy(() => import('./pages/admin/AdminOverviewResponsive'));
+const AdminOverview = lazy(() => import('./pages/admin/AdminOverview'));
 const AdminProducers = lazy(() => import('./pages/admin/AdminProducers'));
 const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
 const AdminCertificates = lazy(() => import('./pages/admin/AdminCertificates'));
@@ -85,7 +85,7 @@ const MarketCoverage = lazy(() => import('./pages/super-admin/MarketCoverage'));
 const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdminOverview'));
 
 const ProducerLayout = lazy(() => import('./components/dashboard/ProducerLayoutResponsive'));
-const ProducerOverview = lazy(() => import('./pages/producer/ProducerOverviewResponsive'));
+const ProducerOverview = lazy(() => import('./pages/producer/ProducerOverview'));
 const ProducerProducts = lazy(() => import('./pages/producer/ProducerProducts'));
 const ProducerCertificates = lazy(() => import('./pages/producer/ProducerCertificates'));
 const ProducerOrders = lazy(() => import('./pages/producer/ProducerOrders'));

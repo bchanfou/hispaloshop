@@ -2,62 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
-import { Package, FileCheck, ShoppingBag, CreditCard, AlertCircle, CheckCircle, ExternalLink, Loader2, Users, TrendingUp, Heart, Star, Zap, Target } from 'lucide-react';
+import { 
+  Package, FileCheck, ShoppingBag, CreditCard, 
+  AlertCircle, Users, TrendingUp, Heart, Star, 
+  Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle
+} from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import PlanManager from '../../components/PlanManager';
+import LockedFeature from '../../components/LockedFeature';
+import { useProducerPlan } from '../../context/ProducerPlanContext';
 import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import HealthScoreHero from '../../components/dashboard/HealthScoreHero';
+import StatCardMobile from '../../components/dashboard/StatCardMobile';
+import QuickActionsMobile from '../../components/dashboard/QuickActionsMobile';
 
-
-
-function StatCard({ icon: Icon, label, value, sublabel, linkTo }) {
-  return (
-    <Link 
-      to={linkTo}
-      className="bg-white rounded-xl border border-stone-200 p-6 hover:shadow-md transition-shadow"
-      data-testid={`stat-${label.toLowerCase().replace(/\s+/g, '-')}`}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-text-muted text-sm mb-1">{label}</p>
-          <p className="text-3xl font-bold text-text-primary">{value}</p>
-          {sublabel && (
-            <p className="text-sm text-text-muted mt-1">{sublabel}</p>
-          )}
-        </div>
-        <div className="p-3 rounded-lg bg-primary/10">
-          <Icon className="w-6 h-6 text-primary" />
-        </div>
-      </div>
-    </Link>
-  );
-}
-
+// ===== STRIPE CONNECT COMPONENT =====
 function StripeConnectSection() {
   const { t } = useTranslation();
   const [stripeStatus, setStripeStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
-  const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     fetchStripeStatus();
-    
-    // Check if returning from Stripe onboarding
     if (searchParams.get('stripe_return') === 'true') {
-      toast.success('Stripe onboarding completed! Checking status...');
-      // Refresh status after a brief delay
-      setTimeout(fetchStripeStatus, 1000);
-    } else if (searchParams.get('stripe_refresh') === 'true') {
-      toast.info('Please complete Stripe onboarding to receive payouts.');
+      toast.success('Stripe onboarding completado. Verificando estado...');
+      setTimeout(fetchStripeStatus, 800);
+    }
+    if (searchParams.get('stripe_refresh') === 'true') {
+      toast.info('Debes completar los datos pendientes en Stripe.');
     }
   }, [searchParams]);
 
   const fetchStripeStatus = async () => {
     try {
-      setError(null);
       const response = await axios.get(`${API}/producer/stripe/status`, { withCredentials: true });
       setStripeStatus({
         has_account: Boolean(response.data?.stripe_account_id),
@@ -70,8 +52,6 @@ function StripeConnectSection() {
       });
     } catch (error) {
       console.error('Error fetching Stripe status:', error);
-      setError('Unable to check Stripe status');
-      // Set default status so UI still renders
       setStripeStatus({
         has_account: false,
         onboarding_completed: false,
@@ -94,8 +74,7 @@ function StripeConnectSection() {
         await fetchStripeStatus();
       }
     } catch (error) {
-      console.error('Error connecting Stripe:', error);
-      toast.error(error.response?.data?.detail || 'Failed to start Stripe onboarding');
+      toast.error(error.response?.data?.detail || 'Error al conectar Stripe');
     } finally {
       setConnecting(false);
     }
@@ -104,88 +83,90 @@ function StripeConnectSection() {
   const handleViewStripeDashboard = async () => {
     try {
       const response = await axios.post(`${API}/producer/stripe/create-login-link`, {}, { withCredentials: true });
-      
       if (response.data.url) {
         window.open(response.data.url, '_blank');
       }
     } catch (error) {
-      console.error('Error creating login link:', error);
-      toast.error('Failed to open Stripe dashboard');
+      toast.error('Error al abrir Stripe dashboard');
     }
   };
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8">
+      <div className="dashboard-card p-4 md:p-6">
         <div className="flex items-center gap-2 text-text-muted">
           <Loader2 className="w-4 h-4 animate-spin" />
-          <span>{t('producer.loadingStripe')}</span>
+          <span className="text-sm">Cargando estado de Stripe...</span>
         </div>
       </div>
     );
   }
 
   const isConnected = Boolean(stripeStatus?.onboarding_completed);
+  const pendingRequirements = stripeStatus?.requirements_due || [];
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8" data-testid="stripe-connect-section">
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <div className={`p-3 rounded-lg ${isConnected ? 'bg-green-100' : 'bg-amber-100'}`}>
-            <CreditCard className={`w-6 h-6 ${isConnected ? 'text-green-600' : 'text-amber-600'}`} />
+    <div 
+      className={`dashboard-card p-4 md:p-6 ${isConnected ? 'border-green-200 bg-green-50/50' : 'border-amber-200 bg-amber-50/50'}`}
+      data-testid="stripe-connect-section"
+    >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className={`p-2.5 rounded-lg ${isConnected ? 'bg-green-100' : 'bg-amber-100'}`}>
+            <CreditCard className={`w-5 h-5 ${isConnected ? 'text-green-600' : 'text-amber-600'}`} />
           </div>
           <div>
-            <h3 className="font-semibold text-text-primary text-lg mb-1">Stripe Payouts</h3>
-            {isConnected ? (
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-green-700 font-medium">Stripe connected</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-amber-600" />
-                <span className="text-amber-700 font-medium">Stripe not connected</span>
-              </div>
-            )}
-            <p className="text-text-muted text-sm mt-2">
-              {isConnected 
-                ? 'Your account is connected. You will automatically receive 82% of each sale.'
-                : 'Connect your Stripe account to receive automatic payouts for your sales.'}
+            <h3 className="font-medium text-text-primary">Stripe Payouts</h3>
+            <p className={`text-sm flex items-center gap-1 ${isConnected ? 'text-green-700' : 'text-amber-700'}`}>
+              {isConnected ? (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  Conectado
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="w-4 h-4" />
+                  Sin conectar
+                </>
+              )}
             </p>
-            {stripeStatus?.status === 'pending' && stripeStatus?.account_id && (
-              <p className="text-amber-600 text-sm mt-1">
-                Onboarding incomplete. Please complete your Stripe profile to enable payouts.
+            <p className="text-xs text-text-muted mt-1">
+              {isConnected 
+                ? 'Recibirás el 82% de cada venta automáticamente.'
+                : 'Conecta Stripe para recibir pagos.'}
+            </p>
+            {!isConnected && pendingRequirements.length > 0 && (
+              <p className="text-xs text-amber-700 mt-1">
+                Pendientes: {pendingRequirements.length} requisito(s) en Stripe.
               </p>
             )}
           </div>
         </div>
-        <div>
+        
+        <div className="ml-10 md:ml-0">
           {isConnected ? (
             <Button
               variant="outline"
+              size="sm"
               onClick={handleViewStripeDashboard}
               className="flex items-center gap-2"
               data-testid="view-stripe-dashboard"
             >
               <ExternalLink className="w-4 h-4" />
-              {t('producer.stripeConnect.viewDashboard')}
+              <span className="hidden sm:inline">Ver Dashboard</span>
             </Button>
           ) : (
             <Button
               onClick={handleConnectStripe}
               disabled={connecting}
-              className="bg-primary hover:bg-primary-hover text-white"
+              size="sm"
+              className="bg-ds-accent hover:bg-ds-accent/90 text-white"
               data-testid="connect-stripe-button"
             >
               {connecting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t('producer.stripeConnect.connecting')}
-                </>
-              ) : stripeStatus?.has_account ? (
-                t('producer.stripeConnect.completeSetup')
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                t('producer.stripeConnect.connectAccount')
+                'Conectar Stripe'
               )}
             </Button>
           )}
@@ -195,6 +176,203 @@ function StripeConnectSection() {
   );
 }
 
+// ===== HEALTH SCORE COMPONENT =====
+function HealthScoreCard() {
+  const { t } = useTranslation();
+  const [healthData, setHealthData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHealthScore();
+  }, []);
+
+  const fetchHealthScore = async () => {
+    try {
+      const response = await axios.get(`${API}/producer/health-score`, { withCredentials: true });
+      setHealthData(response.data);
+    } catch (error) {
+      console.error('Error fetching health score:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="health-score-hero health-score-good">
+        <div className="flex items-center justify-center h-32">
+          <Loader2 className="w-6 h-6 animate-spin text-white" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!healthData) return null;
+
+  return (
+    <div data-testid="health-score-section">
+      {/* Mobile View - Hero Style */}
+      <div className="md:hidden">
+        <HealthScoreHero
+          score={healthData.total_score}
+          label={healthData.status_label}
+          breakdown={healthData.breakdown}
+        />
+        
+        {/* Metrics Summary - Mobile */}
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          <div className="dashboard-card p-3 text-center">
+            <div className="text-xl font-bold text-text-primary">{healthData.metrics.orders_30d}</div>
+            <div className="text-[10px] text-text-muted uppercase tracking-wider">{t('customerDashboard.orders', 'Orders')}</div>
+          </div>
+          <div className="dashboard-card p-3 text-center">
+            <div className="text-xl font-bold text-text-primary">€{healthData.metrics.revenue_30d.toFixed(0)}</div>
+            <div className="text-[10px] text-text-muted uppercase tracking-wider">Ventas</div>
+          </div>
+          <div className="dashboard-card p-3 text-center">
+            <div className="flex items-center justify-center gap-1">
+              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+              <span className="text-xl font-bold text-text-primary">{healthData.metrics.avg_rating || '-'}</span>
+            </div>
+            <div className="text-[10px] text-text-muted uppercase tracking-wider">{healthData.metrics.review_count} Reviews</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop View - Card Style */}
+      <div className="hidden md:block">
+        <DesktopHealthScore healthData={healthData} t={t} />
+      </div>
+    </div>
+  );
+}
+
+// Desktop health score (original style enhanced)
+function DesktopHealthScore({ healthData, t }) {
+  const getStatusBgColor = (color) => {
+    const colors = {
+      green: 'bg-green-50 border-green-200',
+      blue: 'bg-blue-50 border-blue-200',
+      yellow: 'bg-yellow-50 border-yellow-200',
+      orange: 'bg-orange-50 border-orange-200',
+      red: 'bg-red-50 border-red-200'
+    };
+    return colors[color] || 'bg-gray-50 border-gray-200';
+  };
+
+  const getStatusColor = (color) => {
+    const colors = {
+      green: 'bg-green-500',
+      blue: 'bg-blue-500',
+      yellow: 'bg-yellow-500',
+      orange: 'bg-orange-500',
+      red: 'bg-red-500'
+    };
+    return colors[color] || 'bg-gray-500';
+  };
+
+  const getStatusTextColor = (color) => {
+    const colors = {
+      green: 'text-green-700',
+      blue: 'text-blue-700',
+      yellow: 'text-yellow-700',
+      orange: 'text-orange-700',
+      red: 'text-red-700'
+    };
+    return colors[color] || 'text-gray-700';
+  };
+
+  return (
+    <div className={`dashboard-card p-6 ${getStatusBgColor(healthData.status_color)}`}>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Heart className="w-5 h-5 text-red-500" />
+            <h2 className="font-heading font-semibold text-text-primary">{t('producer.healthScore.title')}</h2>
+          </div>
+          <p className="text-sm text-text-muted">{t('producer.healthScore.subtitle')}</p>
+        </div>
+        <div className="text-right">
+          <div className="text-4xl font-bold text-text-primary">{healthData.total_score}</div>
+          <div className={`text-sm font-medium ${getStatusTextColor(healthData.status_color)}`}>
+            {healthData.status_label}
+          </div>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="mb-6">
+        <div className="h-3 bg-white rounded-full overflow-hidden">
+          <div 
+            className={`h-full ${getStatusColor(healthData.status_color)} transition-all duration-500`}
+            style={{ width: `${healthData.total_score}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Breakdown */}
+      <div className="grid grid-cols-5 gap-3 mb-6">
+        {Object.entries(healthData.breakdown).map(([key, item]) => (
+          <div key={key} className="bg-white rounded-lg p-3 text-center">
+            <div className="text-lg font-bold text-text-primary">{item.score}</div>
+            <div className="text-xs text-text-muted">/{item.max}</div>
+            <div className="text-xs font-medium text-text-secondary mt-1">{item.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Metrics Summary */}
+      <div className="grid grid-cols-3 gap-4 py-4 border-y border-stone-200">
+        <div className="text-center">
+          <div className="text-xl font-bold text-text-primary">{healthData.metrics.orders_30d}</div>
+          <div className="text-xs text-text-muted">{t('producer.healthScore.orders30d')}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-xl font-bold text-text-primary">€{healthData.metrics.revenue_30d.toFixed(0)}</div>
+          <div className="text-xs text-text-muted">{t('producer.healthScore.revenue30d')}</div>
+        </div>
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-1">
+            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+            <span className="text-xl font-bold text-text-primary">{healthData.metrics.avg_rating || '-'}</span>
+          </div>
+          <div className="text-xs text-text-muted">{healthData.metrics.review_count} {t('producer.healthScore.reviews')}</div>
+        </div>
+      </div>
+
+      {/* Recommendations */}
+      {healthData.recommendations?.length > 0 && (
+        <div className="mt-4">
+          <h3 className="font-medium text-text-primary mb-3 flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            {t('producer.healthScore.recommendations')}
+          </h3>
+          <div className="space-y-2">
+            {healthData.recommendations.map((rec, idx) => (
+              <div 
+                key={idx}
+                className={`flex items-start gap-3 p-3 rounded-lg bg-white ${
+                  rec.priority === 'high' ? 'border-l-4 border-red-400' :
+                  rec.priority === 'medium' ? 'border-l-4 border-yellow-400' :
+                  'border-l-4 border-blue-400'
+                }`}
+              >
+                <Zap className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
+                  rec.priority === 'high' ? 'text-red-500' :
+                  rec.priority === 'medium' ? 'text-yellow-500' :
+                  'text-blue-500'
+                }`} />
+                <p className="text-sm text-text-secondary">{rec.message}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== FOLLOWER CHART COMPONENT =====
 function FollowerGrowthChart() {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
@@ -218,25 +396,27 @@ function FollowerGrowthChart() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8">
+      <div className="dashboard-card p-4 md:p-6">
         <div className="flex items-center justify-center h-48">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          <Loader2 className="w-6 h-6 animate-spin text-ds-accent" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="dashboard-card p-4 md:p-6">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-text-primary">{t('producer.followerGrowth.title')}</h2>
+          <TrendingUp className="w-5 h-5 text-ds-accent" />
+          <h2 className="font-medium text-text-primary text-sm md:text-base">
+            {t('producer.followerGrowth.title')}
+          </h2>
         </div>
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          className="text-sm border border-stone-200 rounded-lg px-3 py-1.5"
+          className="text-xs md:text-sm border border-border-default rounded-lg px-2 md:px-3 py-1.5 bg-white"
         >
           <option value={7}>{t('producer.followerGrowth.last7Days')}</option>
           <option value={30}>{t('producer.followerGrowth.last30Days')}</option>
@@ -245,205 +425,54 @@ function FollowerGrowthChart() {
       </div>
       
       {data.length > 0 ? (
-        <ResponsiveContainer width="100%" height={200}>
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorFollowers" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8B7355" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#8B7355" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-            <XAxis 
-              dataKey="date" 
-              tick={{ fontSize: 11 }} 
-              tickFormatter={(val) => {
-                const d = new Date(val);
-                return `${d.getDate()}/${d.getMonth()+1}`;
-              }}
-            />
-            <YAxis tick={{ fontSize: 11 }} />
-            <Tooltip
-              contentStyle={{ borderRadius: '8px', border: '1px solid #e5e5e5' }}
-              labelFormatter={(val) => new Date(val).toLocaleDateString()}
-              formatter={(val, name) => [val, name === 'followers' ? t('producer.followerGrowth.totalFollowers') : t('producer.followerGrowth.newFollowers')]}
-            />
-            <Area 
-              type="monotone" 
-              dataKey="followers" 
-              stroke="#8B7355" 
-              fillOpacity={1} 
-              fill="url(#colorFollowers)" 
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        <div className="chart-container-mobile md:chart-container-desktop">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data}>
+              <defs>
+                <linearGradient id="colorFollowers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#2D5A27" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#2D5A27" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 10 }} 
+                tickFormatter={(val) => {
+                  const d = new Date(val);
+                  return `${d.getDate()}/${d.getMonth()+1}`;
+                }}
+                hide={window.innerWidth < 768}
+              />
+              <YAxis tick={{ fontSize: 10 }} hide={window.innerWidth < 768} />
+              <Tooltip
+                contentStyle={{ borderRadius: '8px', border: '1px solid #e5e5e5', fontSize: '12px' }}
+                labelFormatter={(val) => new Date(val).toLocaleDateString()}
+                formatter={(val, name) => [val, name === 'followers' ? 'Total' : 'Nuevos']}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="followers" 
+                stroke="#2D5A27" 
+                fillOpacity={1} 
+                fill="url(#colorFollowers)" 
+                strokeWidth={2}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-48 text-text-muted">
           <Users className="w-12 h-12 mb-2 opacity-30" />
-          <p>{t('producer.followerGrowth.noFollowers')}</p>
-          <p className="text-sm">{t('producer.followerGrowth.shareStore')}</p>
+          <p className="text-sm">{t('producer.followerGrowth.noFollowers')}</p>
+          <p className="text-xs">{t('producer.followerGrowth.shareStore')}</p>
         </div>
       )}
     </div>
   );
 }
 
-function HealthScoreCard() {
-  const { t } = useTranslation();
-  const [healthData, setHealthData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchHealthScore();
-  }, []);
-
-  const fetchHealthScore = async () => {
-    try {
-      const response = await axios.get(`${API}/producer/health-score`, { withCredentials: true });
-      setHealthData(response.data);
-    } catch (error) {
-      console.error('Error fetching health score:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8">
-        <div className="flex items-center justify-center h-48">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!healthData) return null;
-
-  const getStatusColor = (color) => {
-    const colors = {
-      green: 'bg-green-500',
-      blue: 'bg-blue-500',
-      yellow: 'bg-yellow-500',
-      orange: 'bg-orange-500',
-      red: 'bg-red-500'
-    };
-    return colors[color] || 'bg-gray-500';
-  };
-
-  const getStatusBgColor = (color) => {
-    const colors = {
-      green: 'bg-green-50 border-green-200',
-      blue: 'bg-blue-50 border-blue-200',
-      yellow: 'bg-yellow-50 border-yellow-200',
-      orange: 'bg-orange-50 border-orange-200',
-      red: 'bg-red-50 border-red-200'
-    };
-    return colors[color] || 'bg-gray-50 border-gray-200';
-  };
-
-  const getStatusTextColor = (color) => {
-    const colors = {
-      green: 'text-green-700',
-      blue: 'text-blue-700',
-      yellow: 'text-yellow-700',
-      orange: 'text-orange-700',
-      red: 'text-red-700'
-    };
-    return colors[color] || 'text-gray-700';
-  };
-
-  return (
-    <div className={`rounded-xl border p-6 mb-8 ${getStatusBgColor(healthData.status_color)}`} data-testid="health-score-card">
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Heart className="w-5 h-5 text-red-500" />
-            <h2 className="font-heading font-semibold text-[#1C1C1C]">{t('producer.healthScore.title')}</h2>
-          </div>
-          <p className="text-sm text-[#7A7A7A]">{t('producer.healthScore.subtitle')}</p>
-        </div>
-        <div className="text-right">
-          <div className="text-4xl font-bold text-[#1C1C1C]">{healthData.total_score}</div>
-          <div className={`text-sm font-medium ${getStatusTextColor(healthData.status_color)}`}>
-            {healthData.status_label}
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="mb-6">
-        <div className="h-3 bg-white rounded-full overflow-hidden">
-          <div 
-            className={`h-full ${getStatusColor(healthData.status_color)} transition-all duration-500`}
-            style={{ width: `${healthData.total_score}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Breakdown */}
-      <div className="grid grid-cols-5 gap-3 mb-6">
-        {Object.entries(healthData.breakdown).map(([key, item]) => (
-          <div key={key} className="bg-white rounded-lg p-3 text-center">
-            <div className="text-lg font-bold text-[#1C1C1C]">{item.score}</div>
-            <div className="text-xs text-[#7A7A7A]">/{item.max}</div>
-            <div className="text-xs font-medium text-[#4A4A4A] mt-1">{item.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Metrics Summary */}
-      <div className="grid grid-cols-3 gap-4 mb-6 py-4 border-y border-stone-200">
-        <div className="text-center">
-          <div className="text-xl font-bold text-[#1C1C1C]">{healthData.metrics.orders_30d}</div>
-          <div className="text-xs text-[#7A7A7A]">{t('producer.healthScore.orders30d')}</div>
-        </div>
-        <div className="text-center">
-          <div className="text-xl font-bold text-[#1C1C1C]">€{healthData.metrics.revenue_30d.toFixed(0)}</div>
-          <div className="text-xs text-[#7A7A7A]">{t('producer.healthScore.revenue30d')}</div>
-        </div>
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-1">
-            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-            <span className="text-xl font-bold text-[#1C1C1C]">{healthData.metrics.avg_rating || '-'}</span>
-          </div>
-          <div className="text-xs text-[#7A7A7A]">{healthData.metrics.review_count} {t('producer.healthScore.reviews')}</div>
-        </div>
-      </div>
-
-      {/* Recommendations */}
-      {healthData.recommendations && healthData.recommendations.length > 0 && (
-        <div>
-          <h3 className="font-medium text-[#1C1C1C] mb-3 flex items-center gap-2">
-            <Target className="w-4 h-4" />
-            {t('producer.healthScore.recommendations')}
-          </h3>
-          <div className="space-y-2">
-            {healthData.recommendations.map((rec, idx) => (
-              <div 
-                key={idx}
-                className={`flex items-start gap-3 p-3 rounded-lg bg-white ${
-                  rec.priority === 'high' ? 'border-l-4 border-red-400' :
-                  rec.priority === 'medium' ? 'border-l-4 border-yellow-400' :
-                  'border-l-4 border-blue-400'
-                }`}
-              >
-                <Zap className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                  rec.priority === 'high' ? 'text-red-500' :
-                  rec.priority === 'medium' ? 'text-yellow-500' :
-                  'text-blue-500'
-                }`} />
-                <p className="text-sm text-[#4A4A4A]">{rec.message}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
+// ===== MAIN COMPONENT =====
 export default function ProducerOverview() {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -451,6 +480,7 @@ export default function ProducerOverview() {
   const [payments, setPayments] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dataWarnings, setDataWarnings] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -459,38 +489,73 @@ export default function ProducerOverview() {
   const fetchData = async () => {
     try {
       setError(null);
-      const [statsRes, paymentsRes] = await Promise.all([
+      setDataWarnings([]);
+      const [statsRes, paymentsRes] = await Promise.allSettled([
         axios.get(`${API}/producer/stats`, { withCredentials: true }),
         axios.get(`${API}/producer/payments`, { withCredentials: true })
       ]);
-      setStats(statsRes.data);
-      setPayments(paymentsRes.data);
+      const warnings = [];
+
+      if (statsRes.status === 'fulfilled') {
+        setStats(statsRes.value.data);
+      } else {
+        setStats({
+          total_products: 0,
+          approved_products: 0,
+          total_orders: 0,
+          follower_count: 0,
+          low_stock_products: [],
+          recent_reviews: [],
+        });
+        warnings.push('No se pudieron cargar las metricas del catalogo y la tienda.');
+      }
+
+      if (paymentsRes.status === 'fulfilled') {
+        setPayments(paymentsRes.value.data);
+      } else {
+        setPayments({
+          total_gross: 0,
+          total_net: 0,
+          total_sold: 0,
+          producer_share: 0,
+          pending_orders: 0,
+          stripe_connected: false,
+        });
+        warnings.push('No se pudo cargar el resumen de pagos.');
+      }
+
+      setDataWarnings(warnings);
+      if (warnings.length === 2) {
+        setError('No se pudieron cargar los datos principales del panel. Por favor, refresca la pagina.');
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
-      setError('Failed to load dashboard data. Please refresh the page.');
+      setError('Error al cargar datos. Por favor, refresca la página.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Show loading state
+  // Loading state
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-text-muted">{t('producer.loadingDashboard')}</p>
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-ds-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-text-muted">{t('producer.loadingDashboard')}</p>
+        </div>
       </div>
     );
   }
 
-  // Show error state with retry option
+  // Error state
   if (error) {
     return (
-      <div className="text-center py-12">
-        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-red-600 mb-4">{t('producer.errorLoading')}</p>
-        <Button onClick={fetchData} className="bg-primary hover:bg-primary-hover text-white">
-          {t('producer.retry')}
+      <div className="flex flex-col items-center justify-center py-12 px-4">
+        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+        <p className="text-red-600 mb-4 text-center">{error}</p>
+        <Button onClick={fetchData} className="bg-ds-accent hover:bg-ds-accent/90 text-white">
+          Reintentar
         </Button>
       </div>
     );
@@ -498,100 +563,224 @@ export default function ProducerOverview() {
 
   const isPending = !user?.approved;
 
+  // Quick actions data
+  const quickActions = [
+    { 
+      icon: Package, 
+      label: t('producer.createNewProduct'), 
+      description: 'Añadir nuevo producto',
+      to: '/producer/products',
+      bgColor: '#2D5A27',
+      iconColor: '#FFFFFF'
+    },
+    { 
+      icon: FileCheck, 
+      label: t('producer.manageCertificates'), 
+      description: 'Certificaciones de calidad',
+      to: '/producer/certificates',
+      bgColor: '#EFF6FF',
+      iconColor: '#2563EB'
+    },
+    { 
+      icon: ShoppingBag, 
+      label: t('producer.viewOrders'), 
+      description: 'Gestionar pedidos',
+      to: '/producer/orders',
+      bgColor: '#F0FDF4',
+      iconColor: '#16A34A'
+    },
+  ];
+
   return (
-    <div>
-      <h1 className="font-heading text-3xl font-bold text-text-primary mb-2" data-testid="producer-title">
-        {t('producer.welcome')}, {user?.company_name || user?.name}
-      </h1>
-      <p className="text-text-muted mb-8">{t('producer.manageProductsAndSales')}</p>
+    <div className="space-y-4 md:space-y-6">
+      {dataWarnings.length > 0 && !error && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+            <div className="space-y-1 text-sm text-amber-800">
+              {dataWarnings.map((warning) => (
+                <p key={warning}>{warning}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Quick Actions — 2 Big Buttons (impossible to miss) */}
+      <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
+        <Link to="/producer/products" className="bg-[#1C1C1C] hover:bg-[#2A2A2A] text-white rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]" data-testid="quick-add-product">
+          <Package className="w-8 h-8" />
+          <span className="text-sm font-semibold">{t('sellerDashboard.newProduct', 'New Product')}</span>
+        </Link>
+        <Link to="/producer/orders" className="bg-white border-2 border-stone-200 hover:border-[#2D5A27] rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] relative" data-testid="quick-orders">
+          <ShoppingBag className="w-8 h-8 text-[#1C1C1C]" />
+          <span className="text-sm font-semibold text-[#1C1C1C]">{t('customerDashboard.orders', 'Orders')}</span>
+          {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">{stats.pending_orders}</span>}
+        </Link>
+      </div>
+
+      {/* 3 Key Metrics — Big Numbers */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
+          <p className="text-2xl font-bold text-[#2D5A27]">{payments?.total_gross?.toFixed(0) || '0'}€</p>
+          <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.totalSales', 'Total sales')}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
+          <p className="text-2xl font-bold text-[#1C1C1C]">{payments?.pending_orders || 0}</p>
+          <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.pendingShip', 'To ship')}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
+          <p className="text-2xl font-bold text-emerald-600">{payments?.total_net?.toFixed(0) || '0'}€</p>
+          <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.earned', 'Earned')}</p>
+        </div>
+      </div>
+
+      {/* Header */}
+      <div className="mb-0">
+        <h1 
+          className="font-heading text-xl md:text-2xl font-bold text-text-primary"
+          data-testid="producer-title"
+        >
+          {user?.company_name || user?.name}
+        </h1>
+      </div>
+
+      {/* Plan Manager */}
+      <PlanManager />
+
+      {/* Low Stock Alert */}
+      {stats?.low_stock_products?.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4" data-testid="low-stock-alert">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle className="w-4 h-4 text-red-600" />
+            <span className="text-sm font-semibold text-red-800">{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
+          </div>
+          <div className="space-y-1">
+            {stats.low_stock_products.slice(0, 3).map(p => (
+              <Link key={p.product_id} to={`/producer/products`} className="flex items-center justify-between text-xs py-1.5 border-t border-red-100 first:border-0">
+                <span className="text-red-700 truncate flex-1">{p.name}</span>
+                <span className="text-red-600 font-bold ml-2">{p.stock} uds</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Reviews */}
+      {stats?.recent_reviews?.length > 0 && (
+        <div className="bg-white rounded-xl border border-stone-200 p-4" data-testid="recent-reviews">
+          <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">{t('sellerDashboard.latestReviews')}</h3>
+          <div className="space-y-2">
+            {stats.recent_reviews.slice(0, 3).map((r, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs">
+                <div className="flex items-center gap-0.5 bg-yellow-50 px-1.5 py-0.5 rounded text-yellow-700 shrink-0">
+                  <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" /> {r.rating}
+                </div>
+                <p className="text-text-secondary line-clamp-2">{r.comment || t('sellerDashboard.noComment')}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Pending Warning */}
       {isPending && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="w-6 h-6 text-amber-600 mt-0.5" />
+        <div className="dashboard-card p-4 bg-amber-50 border-amber-200">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-amber-900 mb-1">{t('producer.accountPending')}</h3>
-              <p className="text-amber-800">
-                {t('producer.accountPendingDesc')}
-              </p>
+              <h3 className="font-medium text-amber-900">{t('producer.accountPending')}</h3>
+              <p className="text-sm text-amber-800">{t('producer.accountPendingDesc')}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Stripe Connect Section */}
+      {/* Stripe Connect */}
       <StripeConnectSection />
 
-      {/* Health Score Card */}
-      <HealthScoreCard />
+      {/* Health Score — PRO+ */}
+      <LockedFeature requiredPlan="PRO" featureName="health-score">
+        <HealthScoreCard />
+      </LockedFeature>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        <StatCard
+      {/* Stats Grid - Mobile: 2x2, Desktop: 5 columns */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+        <StatCardMobile
           icon={Package}
           label={t('producer.totalProducts')}
           value={stats?.total_products || 0}
-          sublabel={t('producer.approvedProducts', { count: stats?.approved_products || 0 })}
+          sublabel={`${stats?.approved_products || 0} aprobados`}
           linkTo="/producer/products"
+          color="primary"
         />
-        <StatCard
+        <StatCardMobile
           icon={ShoppingBag}
           label={t('producer.orders')}
           value={stats?.total_orders || 0}
           linkTo="/producer/orders"
+          color="info"
         />
-        <StatCard
+        <StatCardMobile
           icon={Users}
           label={t('producer.followers')}
           value={stats?.follower_count || 0}
-          sublabel={t('producer.ofYourStore')}
           linkTo="/producer/store"
+          color="success"
         />
-        <StatCard
+        <StatCardMobile
           icon={CreditCard}
           label={t('producer.totalSold')}
-          value={`€${payments?.total_sold?.toFixed(2) || '0.00'}`}
+          value={`€${payments?.total_sold?.toFixed(0) || '0'}`}
           linkTo="/producer/payments"
+          color="warning"
         />
-        <StatCard
-          icon={CreditCard}
-          label={t('producer.yourEarnings')}
-          value={`€${payments?.producer_share?.toFixed(2) || '0.00'}`}
-          linkTo="/producer/payments"
-        />
+        {/* 5th stat only on desktop */}
+        <div className="hidden md:block">
+          <StatCardMobile
+            icon={CreditCard}
+            label={t('producer.yourEarnings')}
+            value={`€${payments?.producer_share?.toFixed(0) || '0'}`}
+            linkTo="/producer/payments"
+            color="success"
+          />
+        </div>
       </div>
 
-      {/* Follower Growth Chart */}
-      <FollowerGrowthChart />
+      {/* Follower Chart — PRO+ */}
+      <LockedFeature requiredPlan="PRO" featureName="follower-chart">
+        <FollowerGrowthChart />
+      </LockedFeature>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl border border-stone-200 p-6">
+      {/* Quick Actions - Mobile: List, Desktop: Grid */}
+      <div className="md:hidden">
+        <QuickActionsMobile 
+          actions={quickActions}
+          title={t('producer.quickActions')}
+        />
+      </div>
+      
+      {/* Desktop Quick Actions */}
+      <div className="hidden md:block dashboard-card p-6">
         <h2 className="font-heading text-lg font-semibold text-text-primary mb-4">
           {t('producer.quickActions')}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            to="/producer/products"
-            className="flex items-center gap-3 p-4 bg-primary/5 rounded-lg border border-primary/20 hover:bg-primary/10 transition-colors"
-          >
-            <Package className="w-5 h-5 text-primary" />
-            <span className="text-primary font-medium">{t('producer.createNewProduct')}</span>
-          </Link>
-          <Link
-            to="/producer/certificates"
-            className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
-          >
-            <FileCheck className="w-5 h-5 text-blue-600" />
-            <span className="text-blue-800 font-medium">{t('producer.manageCertificates')}</span>
-          </Link>
-          <Link
-            to="/producer/orders"
-            className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors"
-          >
-            <ShoppingBag className="w-5 h-5 text-green-600" />
-            <span className="text-green-800 font-medium">{t('producer.viewOrders')}</span>
-          </Link>
+        <div className="grid grid-cols-3 gap-4">
+          {quickActions.map((action, idx) => (
+            <Link
+              key={idx}
+              to={action.to}
+              className="flex items-center gap-3 p-4 rounded-lg border border-border-default hover:border-ds-accent/30 hover:bg-ds-accent/5 transition-colors"
+              data-testid={`desktop-quick-action-${idx}`}
+            >
+              <div 
+                className="p-2.5 rounded-lg"
+                style={{ backgroundColor: action.bgColor }}
+              >
+                <action.icon className="w-5 h-5" style={{ color: action.iconColor }} />
+              </div>
+              <span className="font-medium text-text-primary">{action.label}</span>
+            </Link>
+          ))}
         </div>
       </div>
     </div>
