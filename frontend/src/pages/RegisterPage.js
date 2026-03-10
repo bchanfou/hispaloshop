@@ -104,6 +104,12 @@ export default function RegisterPage() {
     }));
   }, [fixedRole, currentLanguage]);
 
+  useEffect(() => {
+    if (fixedRole === 'producer') {
+      navigate('/productor/registro', { replace: true });
+    }
+  }, [fixedRole, navigate]);
+
   const validateForm = () => {
     const errors = {};
 
@@ -612,7 +618,7 @@ export default function RegisterPage() {
 
             <div className="mt-4 text-center text-xs text-text-muted space-y-1">
               {fixedRole !== 'producer' && (
-                <p>{t('register.isProducer')} <Link to="/vender/registro" className="text-[#2D5A27] font-medium hover:underline">{t('register.registerSeller')}</Link></p>
+                <p>{t('register.isProducer')} <Link to="/productor/registro" className="text-[#2D5A27] font-medium hover:underline">{t('register.registerSeller')}</Link></p>
               )}
               {fixedRole !== 'influencer' && (
                 <p>{t('register.isInfluencer')} <Link to="/influencers/registro" className="text-amber-600 font-medium hover:underline">{t('register.joinProgram')}</Link></p>

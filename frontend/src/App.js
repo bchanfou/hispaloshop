@@ -37,8 +37,7 @@ import MiniCart from './components/cart/MiniCart';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
-const SellerLandingPage = lazy(() => import('./pages/SellerLandingPage'));
-const ProductorLandingPage = lazy(() => import('./pages/landings/ProductorLanding'));
+const ProductorLandingPage = lazy(() => import('./pages/producer/Landing'));
 const InfluencerLandingPage = lazy(() => import('./pages/landings/InfluencerLanding'));
 const RecipesPage = lazy(() => import('./pages/RecipesPage'));
 const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
@@ -211,13 +210,14 @@ function AppRouter() {
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/vender" element={<SellerLandingPage />} />
+              <Route path="/vender" element={<Navigate to="/productor" replace />} />
               <Route path="/productor" element={<ProductorLandingPage />} />
-              <Route path="/info/productor" element={<ProductorLandingPage />} />
-              <Route path="/registro/productor" element={<Navigate to="/register?role=producer" replace />} />
-              <Route path="/vender/registro" element={<RegisterPage />} />
+              <Route path="/productor/registro" element={<ProductorLandingPage />} />
+              <Route path="/info/productor" element={<Navigate to="/productor" replace />} />
+              <Route path="/registro/productor" element={<Navigate to="/productor/registro" replace />} />
+              <Route path="/vender/registro" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/vender/login" element={<LoginPage />} />
-              <Route path="/vender/planes" element={<Navigate to="/vender/registro" replace />} />
+              <Route path="/vender/planes" element={<Navigate to="/productor" replace />} />
               <Route path="/influencers" element={<InfluencerLandingPage />} />
               <Route path="/influencer" element={<InfluencerLandingPage />} />
               <Route path="/influencers/registro" element={<RegisterPage />} />
@@ -235,7 +235,7 @@ function AppRouter() {
               <Route path="/certificate/:productId" element={<CertificatePage />} />
               <Route path="/certificates" element={<CertificatesListPage />} />
               <Route path="/become-influencer" element={<Navigate to="/influencers/registro" replace />} />
-              <Route path="/become-seller" element={<Navigate to="/vender/registro" replace />} />
+              <Route path="/become-seller" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/stores" element={<StoresListPage />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/discover" element={<DiscoverPage />} />
@@ -256,9 +256,9 @@ function AppRouter() {
               <Route path="/register/new" element={<RoleSelector />} />
               <Route path="/register/consumer" element={<Navigate to="/register?role=customer" replace />} />
               <Route path="/register/influencer" element={<Navigate to="/register?role=influencer" replace />} />
-              <Route path="/register/producer" element={<Navigate to="/register?role=producer" replace />} />
+              <Route path="/register/producer" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/register/importer" element={<Navigate to="/importer/onboarding" replace />} />
-              <Route path="/seller/register" element={<RegisterPage />} />
+              <Route path="/seller/register" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/influencer/register" element={<RegisterPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />
               <Route
@@ -293,6 +293,7 @@ function AppRouter() {
               <Route path="/profile" element={<LegacyProfileRedirect />} />
               <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/legal" element={<Navigate to="/terms" replace />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/help" element={<HelpPage />} />
               <Route path="/blog" element={<BlogPage />} />

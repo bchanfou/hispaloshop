@@ -209,7 +209,7 @@ export default function LoginPage() {
 
             <div className="mt-4 md:mt-6 text-center">
               <Link
-                to="/register?role=producer"
+                to="/productor/registro"
                 className="inline-block text-sm text-primary hover:text-primary-hover py-2 px-4 rounded-lg hover:bg-primary/5 transition-colors"
                 data-testid="producer-signup-link"
               >

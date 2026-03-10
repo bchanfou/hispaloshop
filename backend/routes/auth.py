@@ -2,7 +2,7 @@
 Auth routes: register, login, logout, verify-email, password reset, session.
 """
 from fastapi import APIRouter, HTTPException, Depends, Request, Response
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 from typing import Any, Optional
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlencode, urlparse
@@ -68,10 +68,12 @@ def _is_secure_request(request: Request) -> bool:
 
 def _get_public_auth_backend_url(request: Request) -> str:
     configured = (settings.AUTH_BACKEND_URL or "").rstrip("/")
-    if configured:
-        return configured
     request_origin = _get_request_origin(request)
-    return request_origin
+    # For non-local requests (production/Vercel), use the actual request origin
+    # from x-forwarded-host — this correctly resolves to hispaloshop.com.
+    if request_origin and not _is_local_origin(request_origin):
+        return request_origin
+    return configured or request_origin
 
 
 def _get_public_frontend_url(request: Request) -> str:
@@ -1009,6 +1011,17 @@ async def google_auth_callback(
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     
-    redirect_response = _build_frontend_auth_callback_response(request, token="google")
-    _set_session_cookie(redirect_response, request, session_token)
-    return redirect_response
+    # Use an HTML response (not a redirect) so that Set-Cookie is forwarded
+    # correctly by Vercel's proxy edge (which may strip cookies from 3xx redirects).
+    frontend_url = _get_public_frontend_url(request)
+    target_url = f"{frontend_url}/auth/callback?token=google"
+    html_content = (
+        "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+        "<script>window.location.replace(\"" + target_url + "\");</script>"
+        "</head><body>Redirecting...</body></html>"
+    )
+    html_response = HTMLResponse(content=html_content)
+    _set_session_cookie(html_response, request, session_token)
+    html_response.delete_cookie("oauth_state", path="/")
+    html_response.delete_cookie("oauth_frontend_origin", path="/")
+    return html_response

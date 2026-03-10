@@ -627,7 +627,7 @@ export default function StoresListPage() {
           <p className="text-white/70 mb-4 md:mb-5 text-xs md:text-sm max-w-lg mx-auto">
             {t('stores.ctaText', 'Unete a nuestra comunidad de productores')}
           </p>
-          <Link to="/vender/registro">
+          <Link to="/productor/registro">
             <Button className="bg-white text-stone-900 hover:bg-stone-100 rounded-full px-5 md:px-6 h-10 md:h-11 text-sm md:text-base">
               {t('stores.ctaButton', 'Ser Productor')}
             </Button>

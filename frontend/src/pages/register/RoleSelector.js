@@ -29,7 +29,7 @@ const ROLES = [
     description: 'Vende directo a consumidores y expande tu negocio',
     icon: Store,
     color: '#16A34A',
-    path: '/register/producer'
+    path: '/productor/registro'
   },
   {
     id: 'importer',

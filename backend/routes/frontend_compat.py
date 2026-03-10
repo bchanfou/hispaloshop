@@ -110,10 +110,10 @@ def _is_secure_request(request: Request) -> bool:
 
 def _get_public_auth_backend_url(request: Request) -> str:
     configured = (settings.AUTH_BACKEND_URL or "").rstrip("/")
-    if configured:
-        return configured
     request_origin = _get_request_origin(request)
-    return request_origin
+    if request_origin and not _is_local_origin(request_origin):
+        return request_origin
+    return configured or request_origin
 
 
 def _get_public_frontend_url(request: Request) -> str:

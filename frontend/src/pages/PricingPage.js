@@ -20,7 +20,7 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(null);
   const isSeller = user?.role === 'producer' || user?.role === 'importer';
-  const sellerSignupPath = '/vender/registro?redirect=/pricing';
+  const sellerSignupPath = '/productor/registro';
 
   useEffect(() => {
     fetchPlans();
@@ -46,7 +46,7 @@ export default function PricingPage() {
 
   const handleSellerEntry = () => {
     if (!user) {
-      navigate(sellerSignupPath);
+      navigate(`/productor/registro?plan=${String(planKey || 'free').toLowerCase()}`);
       return;
     }
 

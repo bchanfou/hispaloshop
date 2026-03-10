@@ -63,7 +63,7 @@ export default function AboutPage() {
         'Configurar envio y catalogo internacional',
       ],
       cta: 'Ser Productor',
-      to: '/vender/registro',
+      to: '/productor/registro',
       border: 'border-blue-200 bg-blue-50/30',
     },
     {

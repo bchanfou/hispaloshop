@@ -89,7 +89,7 @@ export default function Footer() {
             <h4 className="font-heading text-[13px] uppercase tracking-wider text-stone-400 mb-4">Unete</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/vender/registro" className="text-sm text-stone-300 hover:text-white transition-colors">
+                <Link to="/productor/registro" className="text-sm text-stone-300 hover:text-white transition-colors">
                   Ser Productor
                 </Link>
               </li>

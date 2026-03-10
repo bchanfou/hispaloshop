@@ -13,7 +13,7 @@ import AdvancedEditor from './creator/editor/AdvancedEditor';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
-  '/signup', '/vender/registro', '/vender/login', '/influencers/registro', '/influencers/login',
+  '/signup', '/vender/registro', '/vender/login', '/productor/registro', '/influencers/registro', '/influencers/login',
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
 ];
 const HIDDEN_ON_PREFIXES = [
@@ -29,6 +29,8 @@ const HIDDEN_ON_PREFIXES = [
   '/influencer/tiers',
   '/influencer/discount',
   '/influencer/payouts',
+  '/productor',
+  '/vender',
 ];
 
 // Editor simple legacy para fallback rápido
