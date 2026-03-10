@@ -145,7 +145,7 @@ export default function HomePage() {
               </h2>
             </div>
           </div>
-          <div className="overflow-hidden rounded-[32px] border border-stone-200 bg-white shadow-[0_14px_40px_rgba(15,15,15,0.05)]">
+          <div className="overflow-clip rounded-[32px] border border-stone-200 bg-white shadow-[0_14px_40px_rgba(15,15,15,0.05)]">
             <FeedContainer />
           </div>
         </section>

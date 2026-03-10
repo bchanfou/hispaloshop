@@ -1,14 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 function TabToggle({ activeTab, onChange }) {
   const { t } = useTranslation();
-
-  // Persistir preferencia en localStorage
-  useEffect(() => {
-    localStorage.setItem('feedTab', activeTab);
-  }, [activeTab]);
 
   const tabs = [
     { id: 'following', label: t('feed.following', 'Siguiendo') },
@@ -16,27 +11,32 @@ function TabToggle({ activeTab, onChange }) {
   ];
 
   return (
-    <div className="sticky top-14 z-40 bg-white border-b border-stone-100">
-      <div className="flex">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onChange(tab.id)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors relative ${
-              activeTab === tab.id ? 'text-gray-900' : 'text-text-muted'
-            }`}
-          >
-            {tab.label}
-            {activeTab === tab.id && (
-              <motion.div
-                layoutId="activeTabIndicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent"
-                initial={false}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-              />
-            )}
-          </button>
-        ))}
+    <div className="sticky top-16 z-30 border-b border-stone-200/80 bg-white/95 px-4 py-3 backdrop-blur-xl md:top-[76px]">
+      <div className="mx-auto max-w-3xl">
+        <div className="grid grid-cols-2 rounded-full bg-stone-100 p-1">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onChange(tab.id)}
+                className={`relative rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                  isActive ? 'text-white' : 'text-stone-600 hover:text-stone-950'
+                }`}
+              >
+                {isActive ? (
+                  <motion.span
+                    layoutId="feed-tab-pill"
+                    className="absolute inset-0 rounded-full bg-stone-950"
+                    transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                  />
+                ) : null}
+                <span className="relative z-[1]">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

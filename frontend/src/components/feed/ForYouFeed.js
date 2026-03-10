@@ -1,58 +1,13 @@
-import React, { useMemo, useRef, useCallback } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, UserPlus, AlertCircle } from 'lucide-react';
+import { AlertCircle, Sparkles } from 'lucide-react';
+import { Button } from '../ui/button';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
 import FeedSkeleton from './FeedSkeleton';
 import { useForYouFeed, useLikePost } from '@/features/feed/queries';
-
-// Sugerencias de perfiles (mantener hasta tener endpoint real)
-const SUGGESTED_PROFILES = [
-  { id: 's1', name: 'Panadería Artesanal', avatar: 'https://i.pravatar.cc/150?u=6', followers: '12.5k' },
-  { id: 's2', name: 'Conservas Doña Maria', avatar: 'https://i.pravatar.cc/150?u=7', followers: '8.2k' },
-  { id: 's3', name: 'Chocolates Finos', avatar: 'https://i.pravatar.cc/150?u=8', followers: '15.1k' },
-];
-
-function SuggestedProfiles() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  
-  return (
-    <div className="bg-white p-4 mb-2">
-      <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-4 h-4 text-state-amber" />
-        <h3 className="text-sm font-semibold text-gray-900">
-          {t('feed.suggestedForYou', 'Sugerencias para ti')}
-        </h3>
-      </div>
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-        {SUGGESTED_PROFILES.map((profile) => (
-          <div
-            key={profile.id}
-            className="flex-shrink-0 w-24 text-center"
-          >
-            <img
-              src={profile.avatar}
-              alt={profile.name}
-              className="w-16 h-16 rounded-full mx-auto mb-2 object-cover border border-stone-200"
-            />
-            <p className="text-xs font-medium text-gray-900 truncate">{profile.name}</p>
-            <p className="text-xs text-text-muted">{profile.followers}</p>
-            <button
-              onClick={() => navigate('/discover?scope=profiles')}
-              className="mt-2 px-3 py-1 bg-accent text-white text-xs rounded-full flex items-center gap-1 mx-auto hover:bg-[#234a30] transition-colors"
-            >
-              <UserPlus className="w-3 h-3" />
-              {t('feed.follow', 'Seguir')}
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function ForYouFeed() {
   const { t } = useTranslation();
@@ -68,19 +23,21 @@ export default function ForYouFeed() {
   const isLoading = feedQuery.isLoading || feedQuery.isFetchingNextPage;
   const error = feedQuery.error;
 
-  // Infinite scroll
-  const lastPostRef = useCallback((node) => {
-    if (isLoading) return;
-    if (observerRef.current) observerRef.current.disconnect();
-    
-    observerRef.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore) {
-        feedQuery.fetchNextPage();
-      }
-    });
-    
-    if (node) observerRef.current.observe(node);
-  }, [feedQuery.fetchNextPage, hasMore, isLoading]);
+  const lastPostRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          feedQuery.fetchNextPage();
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [feedQuery.fetchNextPage, hasMore, isLoading]
+  );
 
   const handleLike = async (postId) => {
     const targetPost = allPosts.find((post) => post.id === postId);
@@ -91,8 +48,8 @@ export default function ForYouFeed() {
         postId,
         liked: Boolean(targetPost.is_liked || targetPost.liked),
       });
-    } catch (error) {
-      console.error('Error liking post:', error);
+    } catch {
+      // Query layer handles rollback and error state.
     }
   };
 
@@ -100,28 +57,34 @@ export default function ForYouFeed() {
     navigate(`/posts/${postId}`);
   };
 
-  const handleShare = (postId) => {
-    // Implement share functionality
-    if (navigator.share) {
-      navigator.share({
-        title: 'Hispaloshop',
-        text: 'Mira este post en Hispaloshop',
-        url: `${window.location.origin}/posts/${postId}`,
-      });
-    }
+  const handleShare = async (postId) => {
+    if (!navigator.share) return;
+
+    await navigator.share({
+      title: 'Hispaloshop',
+      text: 'Mira esta publicación en Hispaloshop',
+      url: `${window.location.origin}/posts/${postId}`,
+    });
   };
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4">
-        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <p className="text-stone-600 text-center">{t('feed.error', 'Error al cargar el feed')}</p>
-        <button 
-          onClick={() => feedQuery.refetch()}
-          className="mt-4 px-4 py-2 bg-stone-900 text-white rounded-lg"
-        >
-          {t('common.retry', 'Reintentar')}
-        </button>
+      <div className="px-4 py-12">
+        <div className="mx-auto flex max-w-md flex-col items-center rounded-[28px] border border-stone-200 bg-white px-6 py-8 text-center">
+          <AlertCircle className="mb-4 h-12 w-12 text-stone-300" />
+          <p className="text-base font-medium text-stone-950">
+            {t('feed.error', 'Error al cargar el feed')}
+          </p>
+          <p className="mt-2 text-sm text-stone-600">
+            No hemos podido cargar las publicaciones ahora mismo.
+          </p>
+          <Button
+            onClick={() => feedQuery.refetch()}
+            className="mt-5 h-11 rounded-full bg-stone-950 px-6 text-white hover:bg-stone-800"
+          >
+            {t('common.retry', 'Reintentar')}
+          </Button>
+        </div>
       </div>
     );
   }
@@ -130,39 +93,38 @@ export default function ForYouFeed() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.25 }}
       className="pb-20"
     >
-      {/* Sugerencias de perfiles */}
-      <SuggestedProfiles />
-
-      {/* Feed content */}
       {isLoading && allPosts.length === 0 ? (
         <FeedSkeleton count={3} />
       ) : allPosts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-          <Sparkles className="w-12 h-12 text-stone-300 mb-4" />
-          <h3 className="text-lg font-medium text-stone-900 mb-2">
-            {t('feed.empty.title', 'Tu feed está vacío')}
-          </h3>
-          <p className="text-stone-500 max-w-sm">
-            {t('feed.empty.description', 'Sigue a productores e influencers para ver su contenido aquí')}
-          </p>
-          <button
-            onClick={() => navigate('/discover')}
-            className="mt-4 px-6 py-2 bg-stone-900 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors"
-          >
-            {t('feed.explore', 'Descubrir')}
-          </button>
+        <div className="px-4 py-12">
+          <div className="mx-auto flex max-w-md flex-col items-center rounded-[28px] border border-stone-200 bg-white px-6 py-8 text-center">
+            <Sparkles className="mb-4 h-12 w-12 text-stone-300" />
+            <h3 className="text-lg font-semibold text-stone-950">
+              {t('feed.empty.title', 'Tu feed está vacío')}
+            </h3>
+            <p className="mt-2 max-w-sm text-sm leading-6 text-stone-600">
+              {t(
+                'feed.empty.description',
+                'Sigue a productores e influencers para empezar a ver publicaciones útiles aquí.'
+              )}
+            </p>
+            <Button
+              onClick={() => navigate('/discover')}
+              className="mt-5 h-11 rounded-full bg-stone-950 px-6 text-white hover:bg-stone-800"
+            >
+              {t('feed.explore', 'Descubrir')}
+            </Button>
+          </div>
         </div>
       ) : (
         <>
           {allPosts.map((post, index) => {
             const isLast = index === allPosts.length - 1;
-            
-            // Determine if post is a reel (video) or regular post
             const isReel = post.video_url || post.type === 'reel';
-            
+
             if (isReel) {
               return (
                 <div ref={isLast ? lastPostRef : null} key={post.id}>
@@ -191,7 +153,7 @@ export default function ForYouFeed() {
                 </div>
               );
             }
-            
+
             return (
               <div ref={isLast ? lastPostRef : null} key={post.id}>
                 <PostCard
@@ -218,8 +180,8 @@ export default function ForYouFeed() {
               </div>
             );
           })}
-          
-          {feedQuery.isFetchingNextPage && <FeedSkeleton count={2} />}
+
+          {feedQuery.isFetchingNextPage ? <FeedSkeleton count={2} /> : null}
         </>
       )}
     </motion.div>

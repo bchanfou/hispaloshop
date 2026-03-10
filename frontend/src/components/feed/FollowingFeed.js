@@ -1,7 +1,8 @@
-import React, { useMemo, useRef, useCallback } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Users, AlertCircle } from 'lucide-react';
+import { AlertCircle, Users } from 'lucide-react';
+import { Button } from '../ui/button';
 import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import FeedSkeleton from './FeedSkeleton';
@@ -10,24 +11,29 @@ import { useFollowingFeed, useLikePost } from '@/features/feed/queries';
 function EmptyFollowing() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  
+
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mb-6">
-        <Users className="w-10 h-10 text-stone-400" />
+    <div className="px-4 py-12">
+      <div className="mx-auto flex max-w-md flex-col items-center rounded-[28px] border border-stone-200 bg-white px-6 py-8 text-center">
+        <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-stone-100">
+          <Users className="h-9 w-9 text-stone-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-stone-950">
+          {t('feed.following.empty.title', 'No sigues a nadie todavía')}
+        </h3>
+        <p className="mt-2 max-w-sm text-sm leading-6 text-stone-600">
+          {t(
+            'feed.following.empty.description',
+            'Sigue a productores, importadores e influencers para ver su contenido aquí.'
+          )}
+        </p>
+        <Button
+          onClick={() => navigate('/discover')}
+          className="mt-5 h-11 rounded-full bg-stone-950 px-6 text-white hover:bg-stone-800"
+        >
+          {t('feed.discoverUsers', 'Descubrir usuarios')}
+        </Button>
       </div>
-      <h3 className="text-lg font-medium text-stone-900 mb-2">
-        {t('feed.following.empty.title', 'No sigues a nadie todavía')}
-      </h3>
-      <p className="text-stone-500 max-w-sm mb-6">
-        {t('feed.following.empty.description', 'Sigue a productores, importadores e influencers para ver su contenido en esta sección')}
-      </p>
-      <button
-        onClick={() => navigate('/discover')}
-        className="px-6 py-2 bg-stone-900 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors"
-      >
-        {t('feed.discoverUsers', 'Descubrir usuarios')}
-      </button>
     </div>
   );
 }
@@ -46,19 +52,21 @@ function FollowingFeed() {
   const isLoading = feedQuery.isLoading || feedQuery.isFetchingNextPage;
   const error = feedQuery.error;
 
-  // Infinite scroll
-  const lastPostRef = useCallback((node) => {
-    if (isLoading) return;
-    if (observerRef.current) observerRef.current.disconnect();
-    
-    observerRef.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore) {
-        feedQuery.fetchNextPage();
-      }
-    });
-    
-    if (node) observerRef.current.observe(node);
-  }, [feedQuery.fetchNextPage, hasMore, isLoading]);
+  const lastPostRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          feedQuery.fetchNextPage();
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [feedQuery.fetchNextPage, hasMore, isLoading]
+  );
 
   const handleLike = async (postId) => {
     const targetPost = allPosts.find((post) => post.id === postId);
@@ -69,8 +77,8 @@ function FollowingFeed() {
         postId,
         liked: Boolean(targetPost.is_liked || targetPost.liked),
       });
-    } catch (error) {
-      console.error('Error liking post:', error);
+    } catch {
+      // Query layer handles rollback and error state.
     }
   };
 
@@ -78,32 +86,38 @@ function FollowingFeed() {
     navigate(`/posts/${postId}`);
   };
 
-  const handleShare = (postId) => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Hispaloshop',
-        text: 'Mira este post en Hispaloshop',
-        url: `${window.location.origin}/posts/${postId}`,
-      });
-    }
+  const handleShare = async (postId) => {
+    if (!navigator.share) return;
+
+    await navigator.share({
+      title: 'Hispaloshop',
+      text: 'Mira esta publicación en Hispaloshop',
+      url: `${window.location.origin}/posts/${postId}`,
+    });
   };
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4">
-        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <p className="text-stone-600 text-center">{t('feed.error', 'Error al cargar el feed')}</p>
-        <button 
-          onClick={() => feedQuery.refetch()}
-          className="mt-4 px-4 py-2 bg-stone-900 text-white rounded-lg"
-        >
-          {t('common.retry', 'Reintentar')}
-        </button>
+      <div className="px-4 py-12">
+        <div className="mx-auto flex max-w-md flex-col items-center rounded-[28px] border border-stone-200 bg-white px-6 py-8 text-center">
+          <AlertCircle className="mb-4 h-12 w-12 text-stone-300" />
+          <p className="text-base font-medium text-stone-950">
+            {t('feed.error', 'Error al cargar el feed')}
+          </p>
+          <p className="mt-2 text-sm text-stone-600">
+            No hemos podido cargar las publicaciones ahora mismo.
+          </p>
+          <Button
+            onClick={() => feedQuery.refetch()}
+            className="mt-5 h-11 rounded-full bg-stone-950 px-6 text-white hover:bg-stone-800"
+          >
+            {t('common.retry', 'Reintentar')}
+          </Button>
+        </div>
       </div>
     );
   }
 
-  // Show empty state only when not loading and no posts
   if (!feedQuery.isLoading && allPosts.length === 0) {
     return <EmptyFollowing />;
   }
@@ -117,7 +131,7 @@ function FollowingFeed() {
           {allPosts.map((post, index) => {
             const isLast = index === allPosts.length - 1;
             const isReel = post.video_url || post.type === 'reel';
-            
+
             if (isReel) {
               return (
                 <div ref={isLast ? lastPostRef : null} key={post.id}>
@@ -146,7 +160,7 @@ function FollowingFeed() {
                 </div>
               );
             }
-            
+
             return (
               <div ref={isLast ? lastPostRef : null} key={post.id}>
                 <PostCard
@@ -173,8 +187,8 @@ function FollowingFeed() {
               </div>
             );
           })}
-          
-          {feedQuery.isFetchingNextPage && <FeedSkeleton count={2} />}
+
+          {feedQuery.isFetchingNextPage ? <FeedSkeleton count={2} /> : null}
         </>
       )}
     </div>
