@@ -342,9 +342,9 @@ export default function BottomNavBar() {
 
       <input ref={galleryRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />
 
-      <nav className="fixed bottom-2 md:bottom-5 left-0 right-0 z-40 pointer-events-none" data-testid="bottom-nav-bar">
-        <div className="max-w-xl mx-auto px-2 sm:px-3 pointer-events-auto">
-          <div className="grid grid-cols-[1fr_1fr_auto_1fr_1fr] items-center h-[68px] px-2 rounded-2xl border border-stone-200/90 bg-white/95 shadow-[0_10px_35px_rgba(0,0,0,0.12)] backdrop-blur-md">
+      <nav className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none md:bottom-5" data-testid="bottom-nav-bar">
+        <div className="mx-auto max-w-xl px-2 sm:px-3 pointer-events-auto">
+          <div className="grid h-[76px] grid-cols-[1fr_1fr_auto_1fr_1fr] items-center rounded-[28px] border border-stone-200/90 bg-white/96 px-2 shadow-[0_16px_40px_rgba(15,15,15,0.12)] backdrop-blur-xl">
             {navItems.slice(0, 2).map((item) => {
               const Icon = item.icon;
               const isActive = item.match ? item.match(location) : location.pathname === item.link;
@@ -354,11 +354,17 @@ export default function BottomNavBar() {
                     key={item.id}
                     to={item.link}
                     aria-label={item.label}
-                    className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-accent' : 'text-stone-500'}`}
+                    className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors ${
+                      isActive ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
+                    }`}
                     data-testid={`bottom-nav-${item.id}`}
                   >
-                    <Icon className="w-5 h-5" strokeWidth={1.8} />
-                    <span className="sr-only">{item.label}</span>
+                    <div className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                      isActive ? 'bg-stone-950 text-white' : 'bg-transparent text-current'
+                    }`}>
+                      <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
+                    </div>
+                    <span className="max-w-full truncate text-[11px] font-medium">{item.label}</span>
                   </Link>
                 );
               }
@@ -367,11 +373,17 @@ export default function BottomNavBar() {
                   key={item.id}
                   onClick={item.action}
                   aria-label={item.label}
-                  className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-accent' : 'text-stone-500'}`}
+                  className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors ${
+                    isActive ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
+                  }`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
-                  <Icon className="w-5 h-5" strokeWidth={1.8} />
-                  <span className="sr-only">{item.label}</span>
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                    isActive ? 'bg-stone-950 text-white' : 'bg-transparent text-current'
+                  }`}>
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
+                  </div>
+                  <span className="max-w-full truncate text-[11px] font-medium">{item.label}</span>
                 </button>
               );
             })}
@@ -379,12 +391,19 @@ export default function BottomNavBar() {
             <button
               onClick={handlePostButton}
               aria-label={t('bottomNav.create', 'Crear')}
-              className="flex items-center justify-center -mt-2 mx-1.5"
+              className="mx-1.5 flex flex-col items-center justify-center gap-1"
               data-testid="bottom-nav-post"
             >
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 ring-1 ring-white ${activePanel === 'post' || showAdvancedEditor ? 'bg-stone-700 shadow-stone-500/20' : 'bg-primary shadow-stone-900/15 hover:bg-primary-hover'}`}>
-                {activePanel === 'post' || showAdvancedEditor ? <X className="w-4.5 h-4.5 text-white" strokeWidth={2.2} /> : <Plus className="w-4.5 h-4.5 text-white" strokeWidth={2.2} />}
+              <div className={`flex h-11 w-11 items-center justify-center rounded-full shadow-[0_10px_25px_rgba(15,15,15,0.2)] transition-all active:scale-95 ${
+                activePanel === 'post' || showAdvancedEditor ? 'bg-stone-700' : 'bg-stone-950 hover:bg-stone-800'
+              }`}>
+                {activePanel === 'post' || showAdvancedEditor ? (
+                  <X className="h-5 w-5 text-white" strokeWidth={2.2} />
+                ) : (
+                  <Plus className="h-5 w-5 text-white" strokeWidth={2.2} />
+                )}
               </div>
+              <span className="text-[11px] font-medium text-stone-600">{t('bottomNav.create', 'Crear')}</span>
             </button>
 
             {navItems.slice(2).map((item) => {
@@ -403,37 +422,47 @@ export default function BottomNavBar() {
                   <div
                     key={item.id}
                     aria-label={item.label}
-                    className="flex items-center justify-center py-1"
+                    className="flex min-w-0 flex-col items-center justify-center gap-1 py-2"
                     data-testid={`bottom-nav-${item.id}`}
                   >
-                    <div className="flex items-center gap-1.5 rounded-full bg-stone-50/90 px-1.5 py-1">
+                    <div className={`flex items-center gap-1.5 rounded-full px-1.5 py-1 transition-colors ${
+                      showActiveProfile ? 'bg-stone-950/6' : 'bg-stone-50/90'
+                    }`}>
                       <Link
                         to={item.link}
                         className="flex items-center justify-center"
                         aria-label={item.label}
                       >
                         {profileImage ? (
-                          <div className={`w-7 h-7 rounded-full overflow-hidden border-2 ${showActiveProfile ? 'border-accent' : 'border-stone-200'}`}>
+                          <div className={`h-8 w-8 overflow-hidden rounded-full border-2 ${
+                            showActiveProfile ? 'border-stone-950' : 'border-stone-200'
+                          }`}>
                             <img src={profileImage} alt="" className="w-full h-full object-cover" />
                           </div>
                         ) : (
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center ${showActiveProfile ? 'bg-accent text-white' : 'bg-stone-100 text-stone-500'}`}>
-                            <Icon className="w-4 h-4" strokeWidth={1.5} />
+                          <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                            showActiveProfile ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'
+                          }`}>
+                            <Icon className="h-4 w-4" strokeWidth={1.6} />
                           </div>
                         )}
                       </Link>
                       {user && (
                         <Link
                           to={item.dashboardLink}
-                          className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${isDashboardRoute ? 'bg-accent text-white' : 'bg-white text-stone-500 border border-stone-200 hover:text-accent'}`}
+                          className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
+                            isDashboardRoute
+                              ? 'border-stone-950 bg-stone-950 text-white'
+                              : 'border-stone-200 bg-white text-stone-500 hover:text-stone-950'
+                          }`}
                           aria-label={t('bottomNav.dashboard', 'Panel')}
                           data-testid="bottom-nav-dashboard"
                         >
-                          <LayoutDashboard className="w-4 h-4" strokeWidth={1.8} />
+                          <LayoutDashboard className="h-4 w-4" strokeWidth={1.8} />
                         </Link>
                       )}
                     </div>
-                    <span className="sr-only">{item.label}</span>
+                    <span className="max-w-full truncate text-[11px] font-medium text-stone-600">{item.label}</span>
                   </div>
                 );
               }
@@ -443,11 +472,17 @@ export default function BottomNavBar() {
                   key={item.id}
                   onClick={item.action}
                   aria-label={item.label}
-                  className={`flex items-center justify-center py-1 transition-colors ${isActive ? 'text-accent' : 'text-stone-500'}`}
+                  className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors ${
+                    isActive ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
+                  }`}
                   data-testid={`bottom-nav-${item.id}`}
                 >
-                  {isActive ? <X className="w-5 h-5" strokeWidth={1.8} /> : <Icon className="w-5 h-5" strokeWidth={1.8} />}
-                  <span className="sr-only">{item.label}</span>
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                    isActive ? 'bg-stone-950 text-white' : 'bg-transparent text-current'
+                  }`}>
+                    {isActive ? <X className="h-[18px] w-[18px]" strokeWidth={1.8} /> : <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} />}
+                  </div>
+                  <span className="max-w-full truncate text-[11px] font-medium">{item.label}</span>
                 </button>
               );
             })}

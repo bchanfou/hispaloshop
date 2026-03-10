@@ -21,6 +21,7 @@
 
   /* ── Legacy accent (green) — kept for backward compat */
   --color-accent:             #2D5A27;
+  --ds-accent:                var(--color-accent);
 
   /* ── Primary/Dark ───────────────────────────────────── */
   --color-primary:            #1C1C1C;
