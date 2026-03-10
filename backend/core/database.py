@@ -3,6 +3,7 @@ MongoDB database connection con pooling, timeouts e índices optimizados.
 Fase 0: Configuración robusta para producción.
 """
 import asyncio
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 from .config import settings
 
@@ -25,6 +26,7 @@ async def connect_db():
         socketTimeoutMS=20000,
         retryWrites=True,
         retryReads=True,
+        tlsCAFile=certifi.where(),
     )
     db = client[settings.DB_NAME]
     
@@ -177,6 +179,7 @@ if settings.ENV == "development":
             maxPoolSize=20,
             minPoolSize=2,
             serverSelectionTimeoutMS=5000,
+            tlsCAFile=certifi.where(),
         )
         db = client[settings.DB_NAME]
     except Exception as e:
