@@ -76,7 +76,7 @@ export default function AboutPage() {
         'Monetizacion en posts y reels',
       ],
       cta: 'Ser Influencer',
-      to: '/influencers/registro',
+      to: '/influencer/aplicar',
       border: 'border-purple-200 bg-purple-50/30',
     },
     {

@@ -38,7 +38,7 @@ import MiniCart from './components/cart/MiniCart';
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const ProductorLandingPage = lazy(() => import('./pages/producer/Landing'));
-const InfluencerLandingPage = lazy(() => import('./pages/landings/InfluencerLanding'));
+const InfluencerLandingPage = lazy(() => import('./pages/influencer/Landing'));
 const RecipesPage = lazy(() => import('./pages/RecipesPage'));
 const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
 const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
@@ -220,7 +220,9 @@ function AppRouter() {
               <Route path="/vender/planes" element={<Navigate to="/productor" replace />} />
               <Route path="/influencers" element={<InfluencerLandingPage />} />
               <Route path="/influencer" element={<InfluencerLandingPage />} />
-              <Route path="/influencers/registro" element={<RegisterPage />} />
+              <Route path="/influencer/aplicar" element={<InfluencerLandingPage />} />
+              <Route path="/influencers/aplicar" element={<Navigate to="/influencer/aplicar" replace />} />
+              <Route path="/influencers/registro" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/influencers/login" element={<LoginPage />} />
               <Route path="/signup" element={<RegisterPage />} />
               <Route path="/recipes" element={<RecipesPage />} />
@@ -234,7 +236,7 @@ function AppRouter() {
               <Route path="/store/:storeSlug" element={<StorePage />} />
               <Route path="/certificate/:productId" element={<CertificatePage />} />
               <Route path="/certificates" element={<CertificatesListPage />} />
-              <Route path="/become-influencer" element={<Navigate to="/influencers/registro" replace />} />
+              <Route path="/become-influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/become-seller" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/stores" element={<StoresListPage />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
@@ -242,6 +244,10 @@ function AppRouter() {
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/que-es" element={<QueEsPage />} />
               <Route path="/ser-influencer" element={<Navigate to="/influencer" replace />} />
+              <Route path="/creator" element={<Navigate to="/influencer" replace />} />
+              <Route path="/creator/*" element={<Navigate to="/influencer" replace />} />
+              <Route path="/affiliate-old" element={<Navigate to="/influencer" replace />} />
+              <Route path="/affiliate-program" element={<Navigate to="/influencer" replace />} />
               <Route path="/ser-productor" element={<Navigate to="/productor" replace />} />
               <Route path="/importador" element={<ImporterLandingPage />} />
               <Route path="/importer" element={<ImporterLandingPage />} />
@@ -255,11 +261,11 @@ function AppRouter() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/register/new" element={<RoleSelector />} />
               <Route path="/register/consumer" element={<Navigate to="/register?role=customer" replace />} />
-              <Route path="/register/influencer" element={<Navigate to="/register?role=influencer" replace />} />
+              <Route path="/register/influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/register/producer" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/register/importer" element={<Navigate to="/importer/onboarding" replace />} />
               <Route path="/seller/register" element={<Navigate to="/productor/registro" replace />} />
-              <Route path="/influencer/register" element={<RegisterPage />} />
+              <Route path="/influencer/register" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/auth/register" element={<RegisterPage />} />
               <Route
                 path="/onboarding"

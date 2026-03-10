@@ -14,6 +14,7 @@ import AdvancedEditor from './creator/editor/AdvancedEditor';
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
   '/signup', '/vender/registro', '/vender/login', '/productor/registro', '/influencers/registro', '/influencers/login',
+  '/influencer/aplicar', '/influencers/aplicar',
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
 ];
 const HIDDEN_ON_PREFIXES = [
@@ -29,6 +30,8 @@ const HIDDEN_ON_PREFIXES = [
   '/influencer/tiers',
   '/influencer/discount',
   '/influencer/payouts',
+  '/influencer',
+  '/influencers',
   '/productor',
   '/vender',
 ];

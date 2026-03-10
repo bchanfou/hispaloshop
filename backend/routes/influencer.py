@@ -35,6 +35,7 @@ def _ensure_stripe_ready() -> None:
         raise HTTPException(status_code=503, detail="Stripe no esta configurado")
 
 @router.post("/influencer/apply")
+@router.post("/influencers/apply")
 async def apply_as_influencer(input: InfluencerApplication):
     """Submit application to become an influencer"""
     email_lower = input.email.lower()
@@ -49,16 +50,39 @@ async def apply_as_influencer(input: InfluencerApplication):
         raise HTTPException(status_code=409, detail="Application already pending")
     
     # Create application
+    desired_tier = (input.desired_tier or "hercules").strip().lower()
+    review_mode = "instant" if desired_tier == "hercules" else "manual_review"
+    normalized_instagram = input.instagram_handle or input.instagram
+    normalized_followers = input.follower_range or input.followers
+    normalized_niches = input.niches or ([input.niche] if input.niche else [])
+
     application = {
         "application_id": f"app_{uuid.uuid4().hex[:12]}",
-        "name": input.name,
+        "name": input.artist_name or input.name,
         "email": email_lower,
-        "instagram": input.instagram,
+        "instagram": normalized_instagram,
+        "instagram_handle": normalized_instagram,
         "youtube": input.youtube,
         "twitter": input.twitter,
-        "followers": input.followers,
-        "niche": input.niche,
+        "followers": normalized_followers,
+        "follower_range": input.follower_range,
+        "niche": input.niche or ", ".join(normalized_niches),
+        "niches": normalized_niches,
         "message": input.message,
+        "phone": input.phone,
+        "residence_country": input.residence_country,
+        "residence_city": input.residence_city,
+        "age_range": input.age_range,
+        "audience_country": input.audience_country,
+        "best_content_url": input.best_content_url,
+        "desired_tier": desired_tier,
+        "review_mode": review_mode,
+        "tracking_months": 18,
+        "commission_tiers": {"hercules": 3, "atenea": 5, "zeus": 7},
+        "agreements": input.agreements or {},
+        "referred_by": input.referred_by,
+        "application_source": input.application_source or "influencer_landing",
+        "requested_path": input.requested_path,
         "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
@@ -69,14 +93,19 @@ async def apply_as_influencer(input: InfluencerApplication):
         "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
         "type": "influencer_application",
         "title": "Nueva solicitud de influencer",
-        "message": f"{input.name} ha solicitado ser influencer",
+        "message": f"{input.artist_name or input.name} ha solicitado ser influencer ({desired_tier})",
         "link": "/admin/influencers",
         "read": False,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.admin_notifications.insert_one(admin_notif)
     
-    return {"message": "Application submitted successfully"}
+    return {
+        "message": "Application submitted successfully",
+        "desired_tier": desired_tier,
+        "review_mode": review_mode,
+        "tracking_months": 18,
+    }
 
 @router.get("/influencer/dashboard")
 async def get_influencer_dashboard(user: User = Depends(get_current_user)):

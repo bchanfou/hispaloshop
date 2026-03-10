@@ -693,6 +693,21 @@ class InfluencerApplication(BaseModel):
     followers: Optional[str] = None
     niche: Optional[str] = None
     message: Optional[str] = None
+    artist_name: Optional[str] = None
+    instagram_handle: Optional[str] = None
+    phone: Optional[str] = None
+    residence_country: Optional[str] = None
+    residence_city: Optional[str] = None
+    age_range: Optional[str] = None
+    niches: Optional[List[str]] = None
+    follower_range: Optional[str] = None
+    audience_country: Optional[str] = None
+    best_content_url: Optional[str] = None
+    desired_tier: Optional[str] = None
+    agreements: Optional[Dict[str, bool]] = None
+    referred_by: Optional[str] = None
+    application_source: Optional[str] = None
+    requested_path: Optional[str] = None
 
 
 class CreateInfluencerCodeInput(BaseModel):

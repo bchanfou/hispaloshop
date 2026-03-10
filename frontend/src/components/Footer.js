@@ -94,7 +94,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/influencers/registro" className="text-sm text-stone-300 hover:text-white transition-colors">
+                <Link to="/influencer/aplicar" className="text-sm text-stone-300 hover:text-white transition-colors">
                   Ser Influencer
                 </Link>
               </li>
