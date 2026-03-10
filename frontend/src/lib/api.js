@@ -319,6 +319,26 @@ class HispaloAPI {
   }
 
   // ==========================================
+  // STORES
+  // ==========================================
+
+  getStores(params = {}) {
+    return this.get('/stores', params);
+  }
+
+  getStore(slug) {
+    return this.get(`/stores/${slug}`);
+  }
+
+  // ==========================================
+  // SOCIAL / TRENDING
+  // ==========================================
+
+  getTrendingHashtags() {
+    return this.get('/feed/trending-hashtags');
+  }
+
+  // ==========================================
   // WEBSOCKET
   // ==========================================
 

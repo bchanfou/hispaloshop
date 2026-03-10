@@ -131,13 +131,11 @@ export function useLikePost() {
       await queryClient.cancelQueries({ queryKey: ['feed'] });
       await queryClient.cancelQueries({ queryKey: ['post', postId] });
 
-      const previousFeed = queryClient.getQueryData(feedKeys.forYou);
+      const previousForYou = queryClient.getQueryData(feedKeys.forYou);
+      const previousFollowing = queryClient.getQueryData(feedKeys.following);
 
-      queryClient.setQueryData(feedKeys.forYou, (old) => {
-        if (!old) {
-          return old;
-        }
-
+      const applyLikeUpdate = (old) => {
+        if (!old) return old;
         return {
           ...old,
           pages: old.pages.map((page) => ({
@@ -147,21 +145,28 @@ export function useLikePost() {
                 return {
                   ...item,
                   liked: !liked,
+                  is_liked: !liked,
                   likes: (item.likes || 0) + (liked ? -1 : 1),
+                  likes_count: (item.likes_count || 0) + (liked ? -1 : 1),
                 };
               }
-
               return item;
             }),
           })),
         };
-      });
+      };
 
-      return { previousFeed };
+      queryClient.setQueryData(feedKeys.forYou, applyLikeUpdate);
+      queryClient.setQueryData(feedKeys.following, applyLikeUpdate);
+
+      return { previousForYou, previousFollowing };
     },
     onError: (error, variables, context) => {
-      if (context?.previousFeed) {
-        queryClient.setQueryData(feedKeys.forYou, context.previousFeed);
+      if (context?.previousForYou) {
+        queryClient.setQueryData(feedKeys.forYou, context.previousForYou);
+      }
+      if (context?.previousFollowing) {
+        queryClient.setQueryData(feedKeys.following, context.previousFollowing);
       }
     },
     onSettled: (data, error, variables) => {

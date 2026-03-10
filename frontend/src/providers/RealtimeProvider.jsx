@@ -5,6 +5,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { api } from '../lib/api';
+import { getToken } from '../lib/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -14,6 +15,13 @@ export function RealtimeProvider({ children }) {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Connect WebSocket if user is already logged in at app startup
+  useEffect(() => {
+    if (getToken()) {
+      api.connectWebSocket();
+    }
+  }, []);
 
   // Manejar mensajes WebSocket
   useEffect(() => {
