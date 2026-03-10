@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { z } from 'zod';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -13,6 +14,50 @@ import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
 import { redirectAfterAuth } from '../lib/navigation';
+
+// ─── Zod schemas per role ──────────────────────────────────────────────────
+const baseSchema = z.object({
+  email: z.string().email('Email no válido'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  name: z.string().min(1, 'El nombre es obligatorio'),
+  country: z.string().min(1, 'El país es obligatorio'),
+});
+
+const customerSchema = baseSchema.extend({
+  analytics_consent: z.literal(true, { errorMap: () => ({ message: 'Debes aceptar el tratamiento de datos para continuar' }) }),
+});
+
+const producerSchema = baseSchema.extend({
+  company_name: z.string().min(1, 'El nombre de la empresa es obligatorio'),
+  phone: z.string().min(1, 'El teléfono es obligatorio'),
+  fiscal_address: z.string().min(5, 'La dirección fiscal es obligatoria'),
+  vat_cif: z.string().min(1, 'El CIF/NIF es obligatorio'),
+});
+
+const influencerSchema = baseSchema.extend({
+  followers: z.preprocess(
+    (v) => parseInt(String(v).replace(/[^0-9]/g, ''), 10),
+    z.number({ invalid_type_error: 'Número de seguidores requerido' }).min(1000, 'Necesitas al menos 1.000 seguidores')
+  ),
+});
+
+function getSchemaForRole(role) {
+  if (role === 'producer' || role === 'importer') return producerSchema;
+  if (role === 'influencer') return influencerSchema;
+  return customerSchema;
+}
+
+const COUNTRY_OPTIONS = [
+  { code: 'ES', name: 'España' }, { code: 'PT', name: 'Portugal' },
+  { code: 'FR', name: 'Francia' }, { code: 'DE', name: 'Alemania' },
+  { code: 'IT', name: 'Italia' }, { code: 'GB', name: 'Reino Unido' },
+  { code: 'US', name: 'Estados Unidos' }, { code: 'MX', name: 'México' },
+  { code: 'AR', name: 'Argentina' }, { code: 'CO', name: 'Colombia' },
+  { code: 'CL', name: 'Chile' }, { code: 'PE', name: 'Perú' },
+  { code: 'BR', name: 'Brasil' }, { code: 'JP', name: 'Japón' },
+  { code: 'KR', name: 'Corea' }, { code: 'CN', name: 'China' },
+  { code: 'IN', name: 'India' }, { code: 'AU', name: 'Australia' },
+];
 
 const FIELD_MESSAGES = {
   email: 'Introduce un email valido.',
@@ -111,39 +156,19 @@ export default function RegisterPage() {
   }, [fixedRole, navigate]);
 
   const validateForm = () => {
+    const schema = getSchemaForRole(formData.role);
+    const result = schema.safeParse(formData);
+    if (result.success) {
+      setFormErrors({});
+      return true;
+    }
     const errors = {};
-
-    if (!formData.email) errors.email = 'Email is required';
-    if (!formData.password) errors.password = 'Password is required';
-    if (formData.password && formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
+    for (const issue of result.error.issues) {
+      const field = issue.path[0];
+      if (field && !errors[field]) errors[field] = issue.message;
     }
-    if (!formData.name) errors.name = 'Name is required';
-    if (!formData.country) errors.country = 'Country is required';
-
-    if (formData.role === 'customer' && !formData.analytics_consent) {
-      errors.analytics_consent = 'You must accept the data processing terms to continue';
-    }
-
-    if (formData.role === 'producer' || formData.role === 'importer') {
-      if (!formData.company_name) errors.company_name = 'Company name is required';
-      if (!formData.phone) errors.phone = 'Phone number is required';
-      if (!formData.fiscal_address) errors.fiscal_address = 'Fiscal address is required';
-      if (!formData.vat_cif) errors.vat_cif = 'VAT/CIF is required';
-    }
-
-    if (formData.role === 'influencer') {
-      if (!formData.followers) {
-        errors.followers = 'Número de seguidores requerido';
-      }
-      const followerCount = parseInt(String(formData.followers).replace(/[^0-9]/g, ''), 10);
-      if (Number.isNaN(followerCount) || followerCount < 1000) {
-        errors.followers = 'Necesitas al menos 1.000 seguidores';
-      }
-    }
-
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    return false;
   };
 
   const handleSubmit = async (e) => {
@@ -326,16 +351,19 @@ export default function RegisterPage() {
 
               <div>
                 <Label htmlFor="country" className="text-sm font-medium">{t('register.country')} *</Label>
-                <Input
+                <select
                   id="country"
                   name="country"
-                  required
                   value={formData.country}
                   onChange={handleChange}
-                  className={`mt-2 h-12 md:h-10 text-base md:text-sm rounded-xl md:rounded-lg ${formErrors.country ? 'border-red-500' : ''}`}
-                  placeholder="España"
+                  className={`mt-2 w-full h-12 md:h-10 text-base md:text-sm rounded-xl md:rounded-lg border px-3 bg-white ${formErrors.country ? 'border-red-500' : 'border-stone-200'}`}
                   data-testid="country-input"
-                />
+                >
+                  <option value="">{t('register.selectCountry', 'Selecciona tu país')}</option>
+                  {COUNTRY_OPTIONS.map(c => (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  ))}
+                </select>
                 {formErrors.country && <p className="text-red-500 text-xs md:text-sm mt-1" data-testid="country-error">{formErrors.country}</p>}
               </div>
 

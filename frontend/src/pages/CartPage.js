@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
@@ -13,6 +16,18 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Check } from 'lucide-react';
 import { API } from '../utils/api';
+
+// ─── Zod schema for new address ────────────────────────────────────────────
+const addressSchema = z.object({
+  name: z.string().optional(),
+  full_name: z.string().min(2, 'Nombre completo requerido'),
+  phone: z.string().optional(),
+  street: z.string().min(5, 'Dirección requerida'),
+  city: z.string().min(2, 'Ciudad requerida'),
+  postal_code: z.string().regex(/^\d{4,10}$/, 'Código postal no válido'),
+  country: z.string().min(2, 'País requerido'),
+  is_default: z.boolean().optional(),
+});
 
 
 
@@ -43,17 +58,18 @@ export default function CartPage() {
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
-  const [newAddress, setNewAddress] = useState({
-    name: '',
-    full_name: '',
-    street: '',
-    city: '',
-    postal_code: '',
-    country: '',
-    phone: '',
-    is_default: false
-  });
   const [savingAddress, setSavingAddress] = useState(false);
+
+  // Address form (react-hook-form + zod)
+  const {
+    register: registerAddr,
+    handleSubmit: handleAddrSubmit,
+    reset: resetAddr,
+    formState: { errors: addrErrors },
+  } = useForm({
+    resolver: zodResolver(addressSchema),
+    defaultValues: { country: 'ES', is_default: false },
+  });
 
   useEffect(() => {
     // Only redirect if auth has finished loading and user is not logged in
@@ -90,33 +106,17 @@ export default function CartPage() {
     }
   };
 
-  const handleSaveNewAddress = async () => {
-    if (!newAddress.full_name || !newAddress.street || !newAddress.city || !newAddress.postal_code || !newAddress.country) {
-      toast.error(t('checkout.fillAllFields') || 'Please fill in all required fields');
-      return;
-    }
-    
+  const handleSaveNewAddress = async (data) => {
     setSavingAddress(true);
     try {
-      const response = await axios.post(`${API}/customer/addresses`, {
-        ...newAddress,
-        name: newAddress.name || t('checkout.newAddress') || 'New Address'
+      await axios.post(`${API}/customer/addresses`, {
+        ...data,
+        name: data.name || t('checkout.newAddress') || 'Nueva dirección',
+        is_default: data.is_default ?? false,
       }, { withCredentials: true });
-      
-      const savedAddr = response.data;
-      setSavedAddresses([...savedAddresses, savedAddr]);
-      setSelectedAddressId(savedAddr.address_id);
+      await fetchSavedAddresses();
       setShowNewAddressForm(false);
-      setNewAddress({
-        name: '',
-        full_name: '',
-        street: '',
-        city: '',
-        postal_code: '',
-        country: '',
-        phone: '',
-        is_default: false
-      });
+      resetAddr({ country: 'ES', is_default: false });
       toast.success(t('success.saved'));
     } catch (error) {
       toast.error(error.response?.data?.detail || t('errors.generic'));
@@ -260,22 +260,7 @@ export default function CartPage() {
       return;
     }
 
-    // If adding new address, save it first
-    if (showNewAddressForm) {
-      if (!newAddress.full_name || !newAddress.street || !newAddress.city || !newAddress.postal_code || !newAddress.country) {
-        toast.error(t('checkout.fillAllFields') || 'Please fill in all required address fields');
-        return;
-      }
-    }
-
-    const addressToUse = showNewAddressForm ? {
-      full_name: newAddress.full_name,
-      street: newAddress.street,
-      city: newAddress.city,
-      postal_code: newAddress.postal_code,
-      country: newAddress.country,
-      phone: newAddress.phone || ''
-    } : {
+    const addressToUse = {
       full_name: selectedAddress.full_name,
       street: selectedAddress.street,
       city: selectedAddress.city,
@@ -538,15 +523,18 @@ export default function CartPage() {
 
                 {/* New Address Form */}
                 {showNewAddressForm && (
-                  <div className="space-y-4 p-4 border border-stone-200 rounded-lg" data-testid="new-address-form">
+                  <form
+                    onSubmit={handleAddrSubmit(handleSaveNewAddress)}
+                    className="space-y-4 p-4 border border-stone-200 rounded-lg"
+                    data-testid="new-address-form"
+                  >
                     <div>
                       <label className="block text-sm font-medium text-text-primary mb-1">
-                        {t('checkout.addressName') || 'Address Name'}
+                        {t('checkout.addressName') || 'Nombre de dirección'}
                       </label>
                       <Input
-                        placeholder={t('checkout.addressNamePlaceholder') || 'e.g., Home, Office'}
-                        value={newAddress.name}
-                        onChange={(e) => setNewAddress({...newAddress, name: e.target.value})}
+                        {...registerAddr('name')}
+                        placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'}
                         data-testid="new-address-name"
                       />
                     </div>
@@ -556,20 +544,21 @@ export default function CartPage() {
                           {t('checkout.fullName')} <span className="text-red-500">*</span>
                         </label>
                         <Input
+                          {...registerAddr('full_name')}
                           placeholder={t('checkout.fullName')}
-                          value={newAddress.full_name}
-                          onChange={(e) => setNewAddress({...newAddress, full_name: e.target.value})}
+                          className={addrErrors.full_name ? 'border-red-500' : ''}
                           data-testid="new-address-fullname"
                         />
+                        {addrErrors.full_name && <p className="text-red-500 text-xs mt-1">{addrErrors.full_name.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-text-primary mb-1">
                           {t('common.phone')}
                         </label>
                         <Input
+                          {...registerAddr('phone')}
+                          type="tel"
                           placeholder={t('common.phone')}
-                          value={newAddress.phone}
-                          onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
                           data-testid="new-address-phone"
                         />
                       </div>
@@ -579,11 +568,12 @@ export default function CartPage() {
                         {t('checkout.street')} <span className="text-red-500">*</span>
                       </label>
                       <Input
+                        {...registerAddr('street')}
                         placeholder={t('checkout.street')}
-                        value={newAddress.street}
-                        onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
+                        className={addrErrors.street ? 'border-red-500' : ''}
                         data-testid="new-address-street"
                       />
+                      {addrErrors.street && <p className="text-red-500 text-xs mt-1">{addrErrors.street.message}</p>}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -591,50 +581,62 @@ export default function CartPage() {
                           {t('checkout.city')} <span className="text-red-500">*</span>
                         </label>
                         <Input
+                          {...registerAddr('city')}
                           placeholder={t('checkout.city')}
-                          value={newAddress.city}
-                          onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
+                          className={addrErrors.city ? 'border-red-500' : ''}
                           data-testid="new-address-city"
                         />
+                        {addrErrors.city && <p className="text-red-500 text-xs mt-1">{addrErrors.city.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-text-primary mb-1">
                           {t('checkout.zip')} <span className="text-red-500">*</span>
                         </label>
                         <Input
+                          {...registerAddr('postal_code')}
                           placeholder={t('checkout.zip')}
-                          value={newAddress.postal_code}
-                          onChange={(e) => setNewAddress({...newAddress, postal_code: e.target.value})}
+                          className={addrErrors.postal_code ? 'border-red-500' : ''}
                           data-testid="new-address-postal"
                         />
+                        {addrErrors.postal_code && <p className="text-red-500 text-xs mt-1">{addrErrors.postal_code.message}</p>}
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-text-primary mb-1">
                         {t('checkout.country')} <span className="text-red-500">*</span>
                       </label>
-                      <Input
-                        placeholder={t('checkout.country')}
-                        value={newAddress.country}
-                        onChange={(e) => setNewAddress({...newAddress, country: e.target.value})}
+                      <select
+                        {...registerAddr('country')}
+                        className={`w-full px-4 py-2 rounded-lg border bg-white text-sm ${addrErrors.country ? 'border-red-500' : 'border-stone-200'}`}
                         data-testid="new-address-country"
-                      />
+                      >
+                        <option value="ES">España</option>
+                        <option value="PT">Portugal</option>
+                        <option value="FR">Francia</option>
+                        <option value="DE">Alemania</option>
+                        <option value="IT">Italia</option>
+                        <option value="GB">Reino Unido</option>
+                        <option value="US">Estados Unidos</option>
+                        <option value="MX">México</option>
+                        <option value="AR">Argentina</option>
+                        <option value="CO">Colombia</option>
+                      </select>
+                      {addrErrors.country && <p className="text-red-500 text-xs mt-1">{addrErrors.country.message}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
                         id="is_default"
-                        checked={newAddress.is_default}
-                        onChange={(e) => setNewAddress({...newAddress, is_default: e.target.checked})}
+                        {...registerAddr('is_default')}
                         className="rounded border-stone-300"
                       />
                       <label htmlFor="is_default" className="text-sm text-text-muted">
-                        {t('checkout.setAsDefault') || 'Set as default address'}
+                        {t('checkout.setAsDefault') || 'Establecer como predeterminada'}
                       </label>
                     </div>
                     <div className="flex gap-3">
                       <Button
-                        onClick={handleSaveNewAddress}
+                        type="submit"
                         disabled={savingAddress}
                         className="flex-1 bg-primary hover:bg-primary-hover"
                         data-testid="save-new-address-btn"
@@ -643,15 +645,16 @@ export default function CartPage() {
                       </Button>
                       {savedAddresses.length > 0 && (
                         <Button
+                          type="button"
                           variant="outline"
-                          onClick={() => setShowNewAddressForm(false)}
+                          onClick={() => { setShowNewAddressForm(false); resetAddr({ country: 'ES', is_default: false }); }}
                           data-testid="cancel-new-address-btn"
                         >
                           {t('common.cancel')}
                         </Button>
                       )}
                     </div>
-                  </div>
+                  </form>
                 )}
               </div>
             </div>
