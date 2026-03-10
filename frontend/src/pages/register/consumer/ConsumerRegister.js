@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import ProgressBar from '../../../components/forms/ProgressBar';
 import useStepProgress from '../../../hooks/useStepProgress';
 import Step1Method from './steps/Step1Method';
@@ -7,6 +8,7 @@ import Step2Basic from './steps/Step2Basic';
 import Step3Profile from './steps/Step3Profile';
 import Step4Preferences from './steps/Step4Preferences';
 import Step5Welcome from './steps/Step5Welcome';
+import { useAuth } from '../../../context/AuthContext';
 
 const STEP_LABELS = [
   'Método de registro',
@@ -18,6 +20,8 @@ const STEP_LABELS = [
 
 const ConsumerRegister = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     currentStep,
     data,
@@ -31,10 +35,30 @@ const ConsumerRegister = () => {
     updateData({ [`step${currentStep}`]: stepData });
   };
 
-  const handleComplete = () => {
-    // Here you would submit all data to the API
-    console.log('Registration complete:', data);
-    clearProgress();
+  const handleComplete = async () => {
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        email: data.step2?.email,
+        password: data.step2?.password,
+        name: `${data.step2?.firstName || ''} ${data.step2?.lastName || ''}`.trim(),
+        role: 'customer',
+        analytics_consent: data.step2?.acceptTerms || false,
+        marketing_consent: data.step2?.acceptMarketing || false,
+        dietary_restrictions: data.step3?.dietaryRestrictions || [],
+        preferred_categories: data.step3?.categories || [],
+        postal_code: data.step3?.postalCode || '',
+        discovery_method: data.step4?.discoveryMethod || 'personalized',
+        purchase_frequency: data.step4?.frequency || 'weekly',
+      };
+      await register(payload);
+      clearProgress();
+      navigate('/');
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || 'Error al crear la cuenta. Inténtalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {
@@ -81,6 +105,7 @@ const ConsumerRegister = () => {
               ...data.step4
             }}
             onComplete={handleComplete}
+            isSubmitting={isSubmitting}
           />
         );
       default:

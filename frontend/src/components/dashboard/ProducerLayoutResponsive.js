@@ -114,9 +114,10 @@ export default function ProducerLayout() {
     <div className="min-h-screen bg-background">
       {/* ===== MOBILE HEADER ===== */}
       <header className="mobile-header md:hidden">
-        <button 
+        <button
           onClick={() => navigate('/')}
           className="p-2 -ml-2 text-text-muted hover:text-text-primary transition-colors"
+          aria-label="Volver al inicio"
           data-testid="mobile-back-button"
         >
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
@@ -206,6 +207,7 @@ export default function ProducerLayout() {
             <button
               onClick={handleLogout}
               className="p-2 text-text-muted hover:text-red-600 transition-colors"
+              aria-label="Cerrar sesión"
               title="Cerrar sesión"
               data-testid="desktop-logout-button"
             >

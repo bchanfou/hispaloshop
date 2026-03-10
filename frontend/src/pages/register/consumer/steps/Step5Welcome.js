@@ -1,10 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Rocket, User, Store, CheckCircle } from 'lucide-react';
+import { Rocket, Store, CheckCircle, Loader2 } from 'lucide-react';
 
-const Step5Welcome = ({ data, onComplete }) => {
-  const navigate = useNavigate();
+const Step5Welcome = ({ data, onComplete, isSubmitting }) => {
   const firstName = data.firstName || 'Usuario';
 
   return (
@@ -46,19 +44,16 @@ const Step5Welcome = ({ data, onComplete }) => {
         className="space-y-3 pt-4"
       >
         <button
-          onClick={() => { onComplete(); navigate('/'); }}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 transition-colors"
+          onClick={onComplete}
+          disabled={isSubmitting}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 disabled:opacity-70 transition-colors"
         >
-          <Rocket className="w-5 h-5" />
-          Explorar productos
-        </button>
-
-        <button
-          onClick={() => { onComplete(); navigate('/profile/edit'); }}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-white border-2 border-gray-200 text-gray-900 rounded-xl font-medium hover:border-accent transition-colors"
-        >
-          <User className="w-5 h-5" />
-          Completar mi perfil
+          {isSubmitting ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Rocket className="w-5 h-5" />
+          )}
+          {isSubmitting ? 'Creando cuenta...' : 'Explorar productos'}
         </button>
       </motion.div>
 
