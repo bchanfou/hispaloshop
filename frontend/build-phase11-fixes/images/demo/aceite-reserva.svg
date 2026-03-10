@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#173a2d"/>
+      <stop offset="55%" stop-color="#476f3a"/>
+      <stop offset="100%" stop-color="#d4a63d"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <ellipse cx="400" cy="620" rx="180" ry="46" fill="#0b1d17" opacity=".18"/>
+  <rect x="300" y="170" width="200" height="420" rx="88" fill="#203926"/>
+  <rect x="328" y="110" width="144" height="108" rx="26" fill="#111d15"/>
+  <rect x="354" y="82" width="92" height="56" rx="14" fill="#d5b56f"/>
+  <rect x="334" y="244" width="132" height="212" rx="24" fill="#e7c96e"/>
+  <rect x="352" y="272" width="96" height="156" rx="18" fill="#f9efc2"/>
+  <text x="400" y="720" text-anchor="middle" font-family="Georgia, serif" font-size="48" fill="#fff8df">AOVE Reserva</text>
+</svg>

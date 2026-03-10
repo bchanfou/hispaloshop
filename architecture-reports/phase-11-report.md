@@ -118,3 +118,22 @@ Changes implemented:
 - default build path failed before that with:
   - Windows `EBUSY` lock on `frontend/build/static/js/3047.dbdf7073.chunk.js`
 - no browser QA was possible from this CLI environment
+
+## Review Fix Addendum
+
+After Claude review, Phase 11 was updated with the following corrections before any Phase 12 work:
+
+- disabled the discover filter controls and CTA as `Próximamente` instead of leaving a deceptive non-functional apply flow
+- removed the dead discover category selection state update before route navigation
+- replaced the hardcoded discover background hex values with DS-safe `stone` tokens
+- restored Spanish accent characters in the discover copy and taxonomy labels
+- changed the global focus ring utility from green accent to primary black
+- changed `.mobile-bottom-nav-item.active` from green accent to primary black
+- changed the loading spinner top border from green accent to primary black
+- made the profile/dashboard nav cluster background more visible by replacing `bg-stone-950/6` with `bg-stone-100`
+- removed the ineffective `aria-label` from the non-interactive profile wrapper div in the bottom nav
+
+Additional verification after these review fixes:
+
+- production build succeeded with:
+  - `npm --prefix frontend run build` using `BUILD_PATH=build-phase11-fixes`

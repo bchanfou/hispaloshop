@@ -421,12 +421,11 @@ export default function BottomNavBar() {
                 return (
                   <div
                     key={item.id}
-                    aria-label={item.label}
                     className="flex min-w-0 flex-col items-center justify-center gap-1 py-2"
                     data-testid={`bottom-nav-${item.id}`}
                   >
                     <div className={`flex items-center gap-1.5 rounded-full px-1.5 py-1 transition-colors ${
-                      showActiveProfile ? 'bg-stone-950/6' : 'bg-stone-50/90'
+                      showActiveProfile ? 'bg-stone-100' : 'bg-stone-50/90'
                     }`}>
                       <Link
                         to={item.link}

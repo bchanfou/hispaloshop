@@ -47,18 +47,18 @@ const CATEGORIES_MINI = [
   { id: 'miel', label: 'Miel', icon: Sparkles },
   { id: 'quesos', label: 'Quesos', icon: Star },
   { id: 'kombucha', label: 'Kombucha', icon: Flame },
-  { id: 'bebe', label: 'Bebe', icon: Baby },
+  { id: 'bebe', label: 'Bebé', icon: Baby },
   { id: 'mascotas', label: 'Mascotas', icon: Dog },
-  { id: 'ecologico', label: 'Ecologico', icon: Leaf },
+  { id: 'ecologico', label: 'Ecológico', icon: Leaf },
   { id: 'sin-gluten', label: 'Sin gluten', icon: WheatOff },
   { id: 'packs', label: 'Packs', icon: Gift },
 ];
 
 const FILTER_FEATURES = [
-  'Envio rapido',
-  'Producto ecologico',
+  'Envío rápido',
+  'Producto ecológico',
   'De temporada',
-  'Pequenos productores',
+  'Pequeños productores',
   'Listo para regalar',
 ];
 
@@ -132,9 +132,6 @@ export default function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('todo');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedRange, setSelectedRange] = useState(null);
-  const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
@@ -173,8 +170,6 @@ export default function DiscoverPage() {
   };
 
   const handleCategoryClick = (categoryId) => {
-    const nextCategory = categoryId === selectedCategory ? null : categoryId;
-    setSelectedCategory(nextCategory);
     navigate(`/category/${categoryId}`);
   };
 
@@ -197,16 +192,8 @@ export default function DiscoverPage() {
     setActiveTab(sectionId);
   };
 
-  const toggleFeature = (feature) => {
-    setSelectedFeatures((current) =>
-      current.includes(feature)
-        ? current.filter((item) => item !== feature)
-        : [...current, feature]
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-[#f7f5f2] pb-28 md:pb-32">
+    <div className="min-h-screen bg-stone-50 pb-28 md:pb-32">
       <div className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/95 backdrop-blur-xl">
         <div className="mx-auto max-w-5xl px-4 py-4">
           <div className="mb-4 flex items-start justify-between gap-4">
@@ -227,7 +214,7 @@ export default function DiscoverPage() {
             <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
-              placeholder="Que buscas hoy"
+              placeholder="¿Qué buscas hoy?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
@@ -267,21 +254,16 @@ export default function DiscoverPage() {
           </div>
         </div>
 
-        <div className="border-t border-stone-100 bg-[#fcfbf9]">
+        <div className="border-t border-stone-100 bg-stone-50">
           <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
             {CATEGORIES_MINI.map((category) => {
               const Icon = category.icon;
-              const isSelected = selectedCategory === category.id;
 
               return (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category.id)}
-                  className={`flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition-colors ${
-                    isSelected
-                      ? 'bg-stone-950 text-white'
-                      : 'bg-white text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100 hover:text-stone-950'
-                  }`}
+                  className="flex shrink-0 items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-700 ring-1 ring-stone-200 transition-colors hover:bg-stone-100 hover:text-stone-950"
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {category.label}
@@ -298,20 +280,20 @@ export default function DiscoverPage() {
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div className="max-w-2xl">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                  Seleccion editorial
+                  Selección editorial
                 </p>
                 <h2 className="font-body text-xl font-semibold text-stone-950">
-                  Lo mejor del dia para comprar con contexto
+                  Una selección clara para comprar mejor hoy
                 </h2>
                 <p className="mt-2 text-sm text-stone-600">
-                  Priorizamos trazabilidad, productores pequenos y categorias utiles para el dia a dia.
+                  Productos con buena trazabilidad, productores pequeños y categorías útiles para el día a día.
                 </p>
               </div>
               <Button
                 onClick={() => navigate('/products')}
                 className="h-11 rounded-full bg-stone-950 px-6 text-sm font-medium text-white hover:bg-stone-800"
               >
-                Ver catalogo
+                Ver catálogo
               </Button>
             </div>
           </CardContent>
@@ -373,8 +355,8 @@ export default function DiscoverPage() {
                 <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
                   <Package className="h-10 w-10 text-stone-300" />
                   <div>
-                    <p className="text-base font-medium text-stone-950">Todavia no hay productos visibles</p>
-                    <p className="text-sm text-stone-600">Prueba de nuevo cuando el catalogo reciba nuevas publicaciones.</p>
+                    <p className="text-base font-medium text-stone-950">Todavía no hay productos visibles</p>
+                    <p className="text-sm text-stone-600">Vuelve dentro de poco. En cuanto entren nuevos productos aparecerán aquí.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -435,8 +417,8 @@ export default function DiscoverPage() {
                 <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
                   <Store className="h-10 w-10 text-stone-300" />
                   <div>
-                    <p className="text-base font-medium text-stone-950">Todavia no hay tiendas destacadas</p>
-                    <p className="text-sm text-stone-600">Cuando haya productores activos apareceran aqui.</p>
+                    <p className="text-base font-medium text-stone-950">Todavía no hay tiendas destacadas</p>
+                    <p className="text-sm text-stone-600">Cuando entren nuevos productores activos los verás aquí.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -458,7 +440,7 @@ export default function DiscoverPage() {
                       <h3 className="truncate text-sm font-semibold text-stone-950">{store.name}</h3>
                       <p className="mt-1 flex items-center gap-1 text-xs text-stone-500">
                         <MapPin className="h-3 w-3 shrink-0" />
-                        <span className="truncate">{store.location || 'Espana'}</span>
+                        <span className="truncate">{store.location || 'España'}</span>
                       </p>
                       <div className="mt-2 flex items-center gap-3 text-xs text-stone-500">
                         <span className="inline-flex items-center gap-1">
@@ -529,10 +511,10 @@ export default function DiscoverPage() {
         <SheetContent side="bottom" className="rounded-t-[28px] border-stone-200 bg-white px-0 pb-8">
           <SheetHeader className="px-6 text-left">
             <SheetTitle className="font-body text-xl font-semibold text-stone-950">
-              Ajusta tu exploracion
+              Ajusta tu exploración
             </SheetTitle>
             <SheetDescription className="text-sm text-stone-600">
-              Usa filtros rapidos para llegar antes a los productos que encajan contigo.
+              Los filtros avanzados llegarán en la próxima mejora de esta pantalla.
             </SheetDescription>
           </SheetHeader>
 
@@ -543,12 +525,8 @@ export default function DiscoverPage() {
                 {PRICE_RANGES.map((range) => (
                   <button
                     key={range}
-                    onClick={() => setSelectedRange(range)}
-                    className={`rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
-                      selectedRange === range
-                        ? 'bg-stone-950 text-white'
-                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200 hover:text-stone-950'
-                    }`}
+                    disabled
+                    className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-400"
                   >
                     {range}
                   </button>
@@ -557,33 +535,25 @@ export default function DiscoverPage() {
             </div>
 
             <div>
-              <p className="mb-3 text-sm font-medium text-stone-950">Lo que mas te importa</p>
+              <p className="mb-3 text-sm font-medium text-stone-950">Lo que más te importa</p>
               <div className="flex flex-wrap gap-2">
-                {FILTER_FEATURES.map((feature) => {
-                  const isSelected = selectedFeatures.includes(feature);
-
-                  return (
-                    <button
-                      key={feature}
-                      onClick={() => toggleFeature(feature)}
-                      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                        isSelected
-                          ? 'bg-stone-950 text-white'
-                          : 'bg-stone-100 text-stone-700 hover:bg-stone-200 hover:text-stone-950'
-                      }`}
-                    >
-                      {feature}
-                    </button>
-                  );
-                })}
+                {FILTER_FEATURES.map((feature) => (
+                  <button
+                    key={feature}
+                    disabled
+                    className="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-400"
+                  >
+                    {feature}
+                  </button>
+                ))}
               </div>
             </div>
 
             <Button
-              onClick={() => setShowFilters(false)}
-              className="h-12 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800"
+              disabled
+              className="h-12 w-full rounded-full bg-stone-200 text-stone-500 hover:bg-stone-200"
             >
-              Aplicar filtros
+              Filtros próximamente
             </Button>
           </div>
         </SheetContent>
