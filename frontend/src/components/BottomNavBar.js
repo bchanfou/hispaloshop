@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2, Search } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,7 @@ import AdvancedEditor from './creator/editor/AdvancedEditor';
 import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
+import { useUnreadNotifications } from '../hooks/api/useNotifications';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
@@ -201,6 +202,10 @@ export default function BottomNavBar() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
   const [profileAvatarError, setProfileAvatarError] = useState(false);
+
+  // Unread notification count for badge on profile tab
+  const { data: unreadData } = useUnreadNotifications();
+  const unreadCount = user ? (unreadData?.count ?? 0) : 0;
 
   useEffect(() => {
     activePanelRef.current = activePanel;
@@ -427,10 +432,10 @@ export default function BottomNavBar() {
   const profileImage = user?.profile_image || user?.avatar_url || null;
 
   const navItems = [
-    { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
-    { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover?tab=feeds', match: (loc) => loc.pathname === '/discover' && (new URLSearchParams(loc.search).get('tab') !== 'reels') },
-    { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
-    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Perfil'), link: profileUrl, isProfile: true },
+    { id: 'home',    icon: Home,          label: t('bottomNav.home',    'Inicio'),  link: '/' },
+    { id: 'search',  icon: Search,        label: t('bottomNav.search',  'Buscar'),  link: '/search' },
+    { id: 'chat',    icon: MessageCircle, label: t('bottomNav.chat',    'Chat'),    action: () => user ? togglePanel('chat') : navigate('/login') },
+    { id: 'profile', icon: User,          label: t('bottomNav.profile', 'Perfil'),  link: profileUrl, isProfile: true },
   ];
 
   return (
@@ -552,7 +557,7 @@ export default function BottomNavBar() {
                   >
                     <Link
                       to={item.link}
-                      className="flex items-center justify-center"
+                      className="relative flex items-center justify-center"
                       aria-label={item.label}
                     >
                       {profileImage && !profileAvatarError ? (
@@ -572,6 +577,12 @@ export default function BottomNavBar() {
                         }`}>
                           <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
                         </div>
+                      )}
+                      {/* Notification badge */}
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-stone-950 text-white text-[9px] font-bold flex items-center justify-center px-1 leading-none">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
                       )}
                     </Link>
                     <span className="max-w-full truncate text-[11px] font-medium text-stone-600">{item.label}</span>

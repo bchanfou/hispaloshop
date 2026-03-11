@@ -87,7 +87,7 @@ function NotifRow({ notif, onRead, onDelete }) {
     >
       {/* Icon circle */}
       <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${meta.bg}`}>
-        <Icon className={`w-4.5 h-4.5 ${meta.text}`} strokeWidth={1.8} />
+        <Icon className={`w-5 h-5 ${meta.text}`} strokeWidth={1.8} />
       </div>
 
       {/* Content */}

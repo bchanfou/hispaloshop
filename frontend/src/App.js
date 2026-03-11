@@ -119,6 +119,8 @@ const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDash
 const InfluencerInsights = lazy(() => import('./pages/influencer/InfluencerInsights'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
 
 // Checkout
 
@@ -254,6 +256,8 @@ function AppRouter() {
               <Route path="/stores" element={<StoresListPage />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/que-es" element={<QueEsPage />} />
               <Route path="/ser-influencer" element={<Navigate to="/influencer" replace />} />
