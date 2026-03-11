@@ -226,6 +226,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
               <motion.button
                 whileTap={{ scale: 0.88 }}
                 onClick={handleLike}
+                aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
                 className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
                   liked ? 'text-red-500' : 'text-stone-900 hover:bg-stone-100'
                 }`}
@@ -234,12 +235,14 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
               </motion.button>
               <button
                 onClick={handleComment}
+                aria-label="Ver comentarios"
                 className="flex h-10 w-10 items-center justify-center rounded-full text-stone-900 transition-colors hover:bg-stone-100"
               >
                 <MessageCircle className="h-5 w-5" />
               </button>
               <button
                 onClick={handleShare}
+                aria-label="Compartir publicación"
                 className="flex h-10 w-10 items-center justify-center rounded-full text-stone-900 transition-colors hover:bg-stone-100"
               >
                 <Share2 className="h-5 w-5" />
@@ -249,6 +252,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
             <motion.button
               whileTap={{ scale: 0.88 }}
               onClick={handleSave}
+              aria-label={saved ? 'Quitar guardado' : 'Guardar publicación'}
               className="flex h-10 w-10 items-center justify-center rounded-full text-stone-900 transition-colors hover:bg-stone-100"
             >
               <Bookmark className={`h-5 w-5 ${saved ? 'fill-current' : ''}`} />

@@ -4,7 +4,7 @@ import { ArrowRight, MapPin, Sparkles, Star, TrendingUp } from 'lucide-react';
 const DISCOVERY_OPTIONS = [
   {
     value: 'personalized',
-    label: 'Recomendaciones personalizadas HI',
+    label: 'Recomendaciones personalizadas',
     description: 'Sugerencias ajustadas a tus intereses y tu actividad.',
     icon: Sparkles,
   },

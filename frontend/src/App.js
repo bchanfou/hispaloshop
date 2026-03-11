@@ -126,6 +126,7 @@ const ImporterCertificatesPage = lazy(() => import('./pages/importer/ImporterCer
 
 // Registration flows
 const RoleSelector = lazy(() => import('./pages/register/RoleSelector'));
+const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
 
 function RouteLoader() {
   return (
@@ -263,7 +264,7 @@ function AppRouter() {
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/register/new" element={<RoleSelector />} />
-              <Route path="/register/consumer" element={<Navigate to="/register?role=customer" replace />} />
+              <Route path="/register/consumer" element={<ConsumerRegister />} />
               <Route path="/register/influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/register/producer" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/register/importer" element={<Navigate to="/importer/onboarding" replace />} />

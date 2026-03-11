@@ -73,16 +73,20 @@ const TestimonialCarousel = ({ testimonials = [] }) => {
         <div className="mt-6 flex items-center justify-center gap-4">
           <button
             onClick={prev}
+            aria-label="Testimonio anterior"
             className="rounded-full border border-stone-200 bg-white p-2 transition-shadow hover:shadow-md"
           >
             <ChevronLeft className="h-5 w-5 text-stone-950" />
           </button>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2" role="tablist" aria-label="Testimonios">
             {testimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goTo(index)}
+                role="tab"
+                aria-selected={index === current}
+                aria-label={`Testimonio ${index + 1}`}
                 className={`h-2 w-2 rounded-full transition-colors ${
                   index === current ? 'bg-stone-900' : 'bg-stone-300'
                 }`}
@@ -92,6 +96,7 @@ const TestimonialCarousel = ({ testimonials = [] }) => {
 
           <button
             onClick={next}
+            aria-label="Siguiente testimonio"
             className="rounded-full border border-stone-200 bg-white p-2 transition-shadow hover:shadow-md"
           >
             <ChevronRight className="h-5 w-5 text-stone-950" />

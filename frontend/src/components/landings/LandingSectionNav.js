@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const DEFAULT_ITEMS = [
   { label: 'Descubrir', href: '/discover' },
   { label: 'Ser Influencer', href: '/influencer' },
-  { label: 'Ser Vendedor', href: '/productor' },
+  { label: 'Ser Productor', href: '/productor' },
   { label: 'Historia', href: '/que-es#historia' },
 ];
 

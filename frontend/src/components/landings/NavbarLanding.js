@@ -22,7 +22,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
   const navLinks = [
     { label: 'Descubrir', href: '/discover' },
     { label: 'Ser Influencer', href: '/influencer' },
-    { label: 'Ser Vendedor', href: '/productor' },
+    { label: 'Ser Productor', href: '/productor' },
     ...extraLinks,
   ];
 
@@ -121,7 +121,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
                 navigate('/register/new');
                 setIsOpen(false);
               }}
-              className={`w-full rounded-2xl py-3 font-medium transition-colors ${mobileCtaClass}`}
+              className={`w-full rounded-full py-3 font-medium transition-colors ${mobileCtaClass}`}
             >
               Registrarse
             </button>

@@ -64,35 +64,6 @@ const FILTER_FEATURES = [
 
 const PRICE_RANGES = ['0-10 EUR', '10-25 EUR', '25-50 EUR', '50+ EUR'];
 
-const fallbackTrending = [
-  { tag: 'AOVE', count: 12500, growth: 45 },
-  { tag: 'MielCruda', count: 8900, growth: 23 },
-  { tag: 'SinGluten', count: 6700, growth: 67 },
-];
-
-const fallbackRecipes = [
-  {
-    id: 1,
-    name: 'Tarta de queso',
-    author: 'Maria L.',
-    time: '45 min',
-    image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600',
-  },
-  {
-    id: 2,
-    name: 'Gazpacho andaluz',
-    author: 'Cortijo A.',
-    time: '15 min',
-    image: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=600',
-  },
-  {
-    id: 3,
-    name: 'Croquetas caseras',
-    author: 'La Antigua',
-    time: '60 min',
-    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600',
-  },
-];
 
 const formatPrice = (value) => {
   const amount = Number(value);
@@ -144,16 +115,16 @@ export default function DiscoverPage() {
       try {
         try {
           const trending = await api.getTrendingHashtags();
-          setTrendingHashtags(trending?.hashtags?.slice(0, 5) || fallbackTrending);
+          setTrendingHashtags(trending?.hashtags?.slice(0, 5) || []);
         } catch {
-          setTrendingHashtags(fallbackTrending);
+          setTrendingHashtags([]);
         }
 
         try {
           const recipesData = await api.request('/recipes?limit=3');
-          setRecipes(recipesData?.recipes || fallbackRecipes);
+          setRecipes(recipesData?.recipes || []);
         } catch {
-          setRecipes(fallbackRecipes);
+          setRecipes([]);
         }
       } finally {
         setLoadingRecipes(false);
@@ -299,32 +270,34 @@ export default function DiscoverPage() {
           </CardContent>
         </Card>
 
-        <section className="mb-8">
-          <div className="mb-4 flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-stone-950" />
-            <h2 className="font-body text-lg font-semibold text-stone-950">Tendencias</h2>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            {trendingHashtags.map((item, index) => (
-              <button
-                key={`${item.tag}-${index}`}
-                onClick={() => navigate(`/products?hashtag=${item.tag}`)}
-                className="min-w-[168px] shrink-0 rounded-2xl border border-stone-200 bg-white p-4 text-left shadow-sm transition-transform hover:-translate-y-0.5"
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="inline-flex rounded-full bg-stone-950 px-3 py-1 text-xs font-medium text-white">
-                    #{item.tag}
-                  </span>
-                  <Compass className="h-4 w-4 text-stone-400" />
-                </div>
-                <p className="text-sm font-semibold text-stone-950">{formatCount(item.count)} vistas</p>
-                <p className="mt-1 text-xs text-stone-600">
-                  {item.growth > 0 ? `+${item.growth}% esta semana` : 'Movimiento estable'}
-                </p>
-              </button>
-            ))}
-          </div>
-        </section>
+        {trendingHashtags.length > 0 && (
+          <section className="mb-8">
+            <div className="mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-stone-950" />
+              <h2 className="font-body text-lg font-semibold text-stone-950">Tendencias</h2>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {trendingHashtags.map((item, index) => (
+                <button
+                  key={`${item.tag}-${index}`}
+                  onClick={() => navigate(`/products?hashtag=${item.tag}`)}
+                  className="min-w-[168px] shrink-0 rounded-2xl border border-stone-200 bg-white p-4 text-left shadow-sm transition-transform hover:-translate-y-0.5"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="inline-flex rounded-full bg-stone-950 px-3 py-1 text-xs font-medium text-white">
+                      #{item.tag}
+                    </span>
+                    <Compass className="h-4 w-4 text-stone-400" />
+                  </div>
+                  <p className="text-sm font-semibold text-stone-950">{formatCount(item.count)} vistas</p>
+                  <p className="mt-1 text-xs text-stone-600">
+                    {item.growth > 0 ? `+${item.growth}% esta semana` : 'Movimiento estable'}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
         {(activeTab === 'todo' || activeTab === 'productos') && (
           <section className="mb-8">
@@ -377,7 +350,7 @@ export default function DiscoverPage() {
                     <div className="p-4">
                       <p className="mb-1 text-sm font-semibold text-stone-950 line-clamp-2">{product.name}</p>
                       <p className="text-xs text-stone-500 truncate">
-                        {product.producer_name || product.producer_id || 'Productor verificado'}
+                        {product.producer_name || 'Productor'}
                       </p>
                       <p className="mt-3 text-sm font-semibold text-stone-950">{formatPrice(product.price)}</p>
                     </div>
@@ -443,10 +416,12 @@ export default function DiscoverPage() {
                         <span className="truncate">{store.location || 'España'}</span>
                       </p>
                       <div className="mt-2 flex items-center gap-3 text-xs text-stone-500">
-                        <span className="inline-flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-stone-950 text-stone-950" />
-                          {store.rating || '4.5'}
-                        </span>
+                        {store.rating ? (
+                          <span className="inline-flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-stone-950 text-stone-950" />
+                            {store.rating}
+                          </span>
+                        ) : null}
                         <span>{store.product_count || 0} productos</span>
                       </div>
                     </div>
@@ -480,6 +455,16 @@ export default function DiscoverPage() {
                   </div>
                 ))}
               </div>
+            ) : recipes.length === 0 ? (
+              <Card className="rounded-[24px] border-dashed border-stone-300 bg-white">
+                <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+                  <Package className="h-10 w-10 text-stone-300" />
+                  <div>
+                    <p className="text-base font-medium text-stone-950">Todavía no hay recetas disponibles</p>
+                    <p className="text-sm text-stone-600">Vuelve dentro de poco. Las recetas aparecerán aquí en cuanto estén listas.</p>
+                  </div>
+                </CardContent>
+              </Card>
             ) : (
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-3 md:overflow-visible">
                 {recipes.map((recipe) => (

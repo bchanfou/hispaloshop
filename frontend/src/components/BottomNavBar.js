@@ -98,14 +98,14 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
     <div className="fixed inset-0 md:inset-auto md:bottom-[82px] md:left-1/2 md:-translate-x-1/2 z-50" data-testid="create-post-panel">
       <div className="h-full md:h-auto md:max-h-[500px] md:w-[420px] bg-white md:rounded-2xl shadow-2xl flex flex-col md:border md:border-stone-200">
         <div className="flex items-center justify-between p-4 border-b border-stone-100">
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-full" data-testid="close-post-panel">
+          <button onClick={onClose} aria-label="Cerrar" className="p-1 hover:bg-stone-100 rounded-full" data-testid="close-post-panel">
             <X className="w-5 h-5 text-stone-500" />
           </button>
-            <h3 className="font-heading text-sm font-semibold text-primary">{t('social.newPost', 'Nueva publicación')}</h3>
+            <h3 className="text-sm font-semibold text-stone-950">{t('social.newPost', 'Nueva publicación')}</h3>
           <button
             onClick={submit}
             disabled={posting || (!text.trim() && !file)}
-            className="px-4 py-1.5 bg-primary hover:bg-primary-hover disabled:bg-stone-300 text-white text-xs font-semibold rounded-full transition-colors"
+            className="px-4 py-1.5 bg-stone-950 hover:bg-black disabled:bg-stone-300 text-white text-xs font-semibold rounded-full transition-colors"
             data-testid="publish-post-btn"
           >
             {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('social.publish', 'Publicar')}
@@ -116,7 +116,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
           <div className="flex gap-3">
             <div className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden border border-stone-100 shrink-0">
               {user?.profile_image ? (
-                <img src={user.profile_image.startsWith('http') ? user.profile_image : user.profile_image} alt="" className="w-full h-full object-cover" />
+                <img src={user.profile_image} alt="" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-stone-400 font-bold text-sm">{(user?.name || 'U')[0].toUpperCase()}</div>
               )}
@@ -126,7 +126,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
               onChange={(e) => setText(e.target.value)}
               placeholder={t('social.whatThinking', '¿Qué estás pensando?')}
               rows={4}
-              className="flex-1 resize-none bg-transparent outline-none text-sm text-primary placeholder:text-text-muted leading-relaxed"
+              className="flex-1 resize-none bg-transparent outline-none text-sm text-stone-950 placeholder:text-stone-400 leading-relaxed"
               autoFocus
               data-testid="post-text-input"
             />
@@ -147,7 +147,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
         </div>
 
         <div className="p-3 border-t border-stone-100 flex gap-2">
-          <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-stone-500 hover:bg-stone-50 hover:text-accent transition-colors" data-testid="post-add-image">
+          <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-stone-500 hover:bg-stone-50 hover:text-stone-950 transition-colors" data-testid="post-add-image">
             <ImageIcon className="w-4 h-4" />
             <span>Foto o video</span>
           </button>
@@ -255,8 +255,6 @@ export default function BottomNavBar() {
       const fd = new FormData();
       
       if (publishData.contentType === 'reel') {
-        // Para reels, necesitaríamos el video original
-        // Por ahora, subimos como post
         fd.append('video', selectedFiles[0]);
         fd.append('content', publishData.caption);
         fd.append('cover_frame_seconds', '1');
@@ -281,7 +279,6 @@ export default function BottomNavBar() {
         window.location.reload();
       }
     } catch (err) {
-      console.error('Error publishing:', err);
       toast.error(err.response?.data?.detail || 'Error al publicar');
     }
   };

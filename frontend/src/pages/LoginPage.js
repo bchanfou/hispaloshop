@@ -72,6 +72,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => navigate('/')}
+            aria-label="Volver al inicio"
             className="-ml-2 rounded-full p-2 text-stone-950 transition-colors hover:bg-stone-100"
             data-testid="mobile-back-btn"
           >

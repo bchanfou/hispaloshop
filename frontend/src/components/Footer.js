@@ -77,18 +77,18 @@ export default function Footer() {
             <div className="space-y-3 text-sm text-stone-300">
               <div className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
-                <span>{t('footer.address')}</span>
+                <span>{t('footer.address', 'Sevilla, España')}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 shrink-0 text-stone-400" />
                 <a href="tel:+34612492825" className="transition-colors hover:text-white">
-                  {t('footer.phone')}
+                  {t('footer.phone', '+34 612 492 825')}
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 shrink-0 text-stone-400" />
                 <a href="mailto:bil.chanfu@hispalotrade.com" className="transition-colors hover:text-white">
-                  {t('footer.email')}
+                  {t('footer.email', 'bil.chanfu@hispalotrade.com')}
                 </a>
               </div>
             </div>
@@ -96,12 +96,12 @@ export default function Footer() {
 
           <div>
             <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-              {t('footer.shop')}
+              {t('footer.shop', 'Comprar')}
             </h4>
             <ul className="space-y-3">
               <li>
                 <Link to="/products" className="text-sm text-stone-300 transition-colors hover:text-white">
-                  {t('footer.allProducts')}
+                  {t('footer.allProducts', 'Todos los productos')}
                 </Link>
               </li>
               <li>
@@ -147,19 +147,19 @@ export default function Footer() {
 
           <div>
             <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-              {t('footer.workingHours')}
+              {t('footer.workingHours', 'Horario')}
             </h4>
             <div className="mb-6 flex items-start gap-3 text-sm text-stone-300">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
               <div>
-                <p>{t('footer.weekdays')}</p>
-                <p>{t('footer.saturday')}</p>
-                <p>{t('footer.sunday')}</p>
+                <p>{t('footer.weekdays', 'Lun – Vie: 9:00 – 18:00')}</p>
+                <p>{t('footer.saturday', 'Sáb: 10:00 – 14:00')}</p>
+                <p>{t('footer.sunday', 'Dom: Cerrado')}</p>
               </div>
             </div>
 
             <h4 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-              {t('footer.followUs')}
+              {t('footer.followUs', 'Síguenos')}
             </h4>
             <a
               href="https://instagram.com/hispaloshop"
@@ -227,19 +227,19 @@ export default function Footer() {
               to="/terms"
               className="rounded-full border border-white/10 px-3 py-1.5 text-stone-300 transition-colors hover:bg-white/[0.06] hover:text-white"
             >
-              {t('footer.terms')}
+              {t('footer.terms', 'Términos')}
             </Link>
             <Link
               to="/privacy"
               className="rounded-full border border-white/10 px-3 py-1.5 text-stone-300 transition-colors hover:bg-white/[0.06] hover:text-white"
             >
-              {t('footer.privacy')}
+              {t('footer.privacy', 'Privacidad')}
             </Link>
             <Link
               to="/help"
               className="rounded-full border border-white/10 px-3 py-1.5 text-stone-300 transition-colors hover:bg-white/[0.06] hover:text-white"
             >
-              {t('footer.help')}
+              {t('footer.help', 'Ayuda')}
             </Link>
           </div>
         </div>

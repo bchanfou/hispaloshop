@@ -58,7 +58,7 @@ const PricingTable = ({ plans, highlighted = 1 }) => {
 
           <button
             onClick={plan.onCta}
-            className={`w-full rounded-xl py-3 font-medium transition-colors ${
+            className={`w-full rounded-full py-3 font-medium transition-colors ${
               index === highlighted
                 ? 'bg-white text-stone-950 hover:bg-stone-100'
                 : 'bg-stone-950 text-white hover:bg-black'

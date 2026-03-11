@@ -170,12 +170,14 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
           <div className="absolute left-0 right-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/65 to-transparent p-4 pt-safe">
             <button
               onClick={() => window.history.back()}
+              aria-label="Cerrar reel"
               className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
             >
               <X className="h-5 w-5" />
             </button>
             <button
               onClick={toggleMute}
+              aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
             >
               {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
@@ -191,7 +193,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
               />
             </Link>
 
-            <motion.button whileTap={{ scale: 0.88 }} onClick={handleLike} className="flex flex-col items-center gap-1">
+            <motion.button whileTap={{ scale: 0.88 }} onClick={handleLike} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'} className="flex flex-col items-center gap-1">
               <Heart className={`h-7 w-7 ${liked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
               <span className="text-xs font-medium text-white">{formatCount(likeCount)}</span>
             </motion.button>

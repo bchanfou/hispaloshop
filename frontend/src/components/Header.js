@@ -209,7 +209,7 @@ export default function Header() {
                       Iniciar sesión
                     </Button>
                   </Link>
-                  <Link to="/register" className="hidden md:block">
+                  <Link to="/register/new" className="hidden md:block">
                     <Button size="sm" className="h-10 rounded-full bg-stone-950 px-5 text-sm text-white hover:bg-stone-800">
                       Crear cuenta
                     </Button>
@@ -284,7 +284,7 @@ export default function Header() {
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <Link to="/register" onClick={() => setMenuOpen(false)}>
+                        <Link to="/register/new" onClick={() => setMenuOpen(false)}>
                           <Button className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800">
                             Crear cuenta
                           </Button>

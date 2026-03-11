@@ -11,6 +11,7 @@ const Step1Method = ({ onNext, onMethodSelect }) => {
         <button
           type="button"
           onClick={() => navigate('/register/new')}
+          aria-label="Volver a selección de rol"
           className="rounded-full p-2 transition-colors hover:bg-stone-100"
         >
           <ArrowLeft className="h-5 w-5 text-stone-900" />

@@ -10,7 +10,7 @@ const ROLES = [
     subtitle: 'Consumidor',
     description: 'Encuentra productos claros, guarda tus favoritos y compra con más información.',
     icon: User,
-    path: '/register?role=customer',
+    path: '/register/consumer',
   },
   {
     id: 'influencer',
