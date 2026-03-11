@@ -56,3 +56,8 @@ async def get_optional_user(request: Request) -> Optional[User]:
         return await get_current_user(request, authorization=auth_header)
     except (HTTPException, Exception):
         return None
+
+
+async def get_current_user_optional(request: Request) -> Optional[User]:
+    """Backward-compatible alias used by older route modules."""
+    return await get_optional_user(request)
