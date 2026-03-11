@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2, LayoutDashboard } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../utils/api';
-import { getDefaultRoute } from '../lib/navigation';
 import InternalChat from './InternalChat';
 import ContentTypeSelector from './creator/ContentTypeSelector';
 import AdvancedEditor from './creator/editor/AdvancedEditor';
@@ -293,14 +292,13 @@ export default function BottomNavBar() {
   };
 
   const profileUrl = user ? `/user/${user.user_id}` : '/login';
-  const dashboardUrl = user ? getDefaultRoute(user, user.onboarding_completed) : '/login';
   const profileImage = user?.profile_image;
 
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
     { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover?tab=feeds', match: (loc) => loc.pathname === '/discover' && (new URLSearchParams(loc.search).get('tab') !== 'reels') },
     { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
-    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, dashboardLink: dashboardUrl, isProfile: true },
+    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, isProfile: true },
   ];
 
   return (
@@ -409,11 +407,7 @@ export default function BottomNavBar() {
               const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;
 
               if (item.isProfile) {
-                const isOwnProfileRoute = item.link && location.pathname === item.link;
-                const isDashboardRoute = item.dashboardLink
-                  ? location.pathname === item.dashboardLink || location.pathname.startsWith(`${item.dashboardLink}/`)
-                  : false;
-                const showActiveProfile = isOwnProfileRoute || isDashboardRoute;
+                const isActive = item.link && location.pathname === item.link;
 
                 return (
                   <div
@@ -421,43 +415,25 @@ export default function BottomNavBar() {
                     className="flex min-w-0 flex-col items-center justify-center gap-1 py-2"
                     data-testid={`bottom-nav-${item.id}`}
                   >
-                    <div className={`flex items-center gap-1.5 rounded-full px-1.5 py-1 transition-colors ${
-                      showActiveProfile ? 'bg-stone-100' : 'bg-stone-50/90'
-                    }`}>
-                      <Link
-                        to={item.link}
-                        className="flex items-center justify-center"
-                        aria-label={item.label}
-                      >
-                        {profileImage ? (
-                          <div className={`h-8 w-8 overflow-hidden rounded-full border-2 ${
-                            showActiveProfile ? 'border-stone-950' : 'border-stone-200'
-                          }`}>
-                            <img src={profileImage} alt="" className="w-full h-full object-cover" />
-                          </div>
-                        ) : (
-                          <div className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                            showActiveProfile ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'
-                          }`}>
-                            <Icon className="h-4 w-4" strokeWidth={1.6} />
-                          </div>
-                        )}
-                      </Link>
-                      {user && (
-                        <Link
-                          to={item.dashboardLink}
-                          className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
-                            isDashboardRoute
-                              ? 'border-stone-950 bg-stone-950 text-white'
-                              : 'border-stone-200 bg-white text-stone-500 hover:text-stone-950'
-                          }`}
-                          aria-label={t('bottomNav.dashboard', 'Panel')}
-                          data-testid="bottom-nav-dashboard"
-                        >
-                          <LayoutDashboard className="h-4 w-4" strokeWidth={1.8} />
-                        </Link>
+                    <Link
+                      to={item.link}
+                      className="flex items-center justify-center"
+                      aria-label={item.label}
+                    >
+                      {profileImage ? (
+                        <div className={`h-9 w-9 overflow-hidden rounded-full border-2 ${
+                          isActive ? 'border-stone-950' : 'border-stone-200'
+                        }`}>
+                          <img src={profileImage} alt="" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                          isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'
+                        }`}>
+                          <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
+                        </div>
                       )}
-                    </div>
+                    </Link>
                     <span className="max-w-full truncate text-[11px] font-medium text-stone-600">{item.label}</span>
                   </div>
                 );
