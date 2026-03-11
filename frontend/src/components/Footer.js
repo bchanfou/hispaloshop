@@ -44,16 +44,16 @@ export default function Footer() {
               <p className="mt-3 max-w-xl text-sm leading-6 text-stone-300">
                 {t(
                   'footer.heroDescription',
-                  'Unimos productores, importadores, creadores y consumidores en una experiencia más clara y útil.'
+                  'Unimos productores, importadores, creadores y consumidores en una experiencia más clara y útil.',
                 )}
               </p>
             </div>
 
             <Link
-              to="/about"
+              to="/que-es"
               className="inline-flex h-11 items-center justify-center rounded-full border border-white/15 px-5 text-sm font-medium text-white transition-colors hover:bg-white/10"
             >
-              {t('footer.howItWorks', 'Ver cómo funciona')}
+              {t('footer.whatIsHispaloshop', 'Qué es Hispaloshop')}
             </Link>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function Footer() {
             <p className="mb-5 text-sm leading-6 text-stone-300">
               {t(
                 'footer.description',
-                'Una plataforma para descubrir productos honestos, seguir a productores reales y comprar con más contexto.'
+                'Una plataforma para descubrir productos honestos, seguir a productores reales y comprar con más contexto.',
               )}
             </p>
 

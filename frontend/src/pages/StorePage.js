@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   Award,
@@ -133,6 +133,7 @@ function PostTile({ post, onOpen }) {
 
 export default function StorePage() {
   const { storeSlug } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const { user } = useAuth();
   const { convertAndFormatPrice } = useLocale();
@@ -140,6 +141,7 @@ export default function StorePage() {
   const [productSort, setProductSort] = useState('featured');
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const requestedProductId = searchParams.get('product');
 
   const storeQuery = useQuery({
     queryKey: ['store', storeSlug],
@@ -157,7 +159,7 @@ export default function StorePage() {
 
   const productsQuery = useQuery({
     queryKey: ['store', storeSlug, 'products', productSort],
-    queryFn: () => apiClient.get(`/store/${storeSlug}/products`, { params: { sort: productSort, limit: 50 } }),
+    queryFn: () => apiClient.get(`/store/${storeSlug}/products`, { params: { sort: productSort, limit: 100 } }),
     enabled: Boolean(storeSlug),
   });
 
@@ -218,6 +220,16 @@ export default function StorePage() {
 
   const formatPrice = (product) =>
     convertAndFormatPrice(product.display_price || product.price || 0, product.display_currency || product.currency || 'EUR');
+
+  useEffect(() => {
+    if (!requestedProductId || products.length === 0) return;
+
+    const matchedProduct = products.find((product) => product.product_id === requestedProductId);
+    if (!matchedProduct) return;
+
+    setActiveTab('products');
+    setSelectedProduct((current) => (current?.product_id === matchedProduct.product_id ? current : matchedProduct));
+  }, [products, requestedProductId]);
 
   if (storeQuery.isLoading) {
     return (
@@ -394,9 +406,9 @@ export default function StorePage() {
 
             <section className="rounded-[32px] border border-stone-100 bg-white p-5 shadow-sm">
               <div className="flex flex-wrap gap-2">
-                <TabButton active={activeTab === 'posts'} onClick={() => setActiveTab('posts')} icon={SquareLibrary} label="Posts" count={posts.length} />
-                <TabButton active={activeTab === 'products'} onClick={() => setActiveTab('products')} icon={ShoppingBag} label="Products" count={productTotal} />
-                <TabButton active={activeTab === 'certificates'} onClick={() => setActiveTab('certificates')} icon={Award} label="Certificates" count={certificates.length} />
+                <TabButton active={activeTab === 'posts'} onClick={() => setActiveTab('posts')} icon={SquareLibrary} label="Publicaciones" count={posts.length} />
+                <TabButton active={activeTab === 'products'} onClick={() => setActiveTab('products')} icon={ShoppingBag} label="Productos" count={productTotal} />
+                <TabButton active={activeTab === 'certificates'} onClick={() => setActiveTab('certificates')} icon={Award} label="Certificados" count={certificates.length} />
               </div>
 
               <div className="mt-6">
@@ -594,7 +606,14 @@ export default function StorePage() {
           store={store}
           reviews={reviews}
           certificates={certificates}
-          onClose={() => setSelectedProduct(null)}
+          onClose={() => {
+            setSelectedProduct(null);
+            if (requestedProductId) {
+              const nextParams = new URLSearchParams(searchParams);
+              nextParams.delete('product');
+              setSearchParams(nextParams, { replace: true });
+            }
+          }}
         />
       ) : null}
 

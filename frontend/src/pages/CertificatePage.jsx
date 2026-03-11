@@ -1,392 +1,327 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { Button } from '../components/ui/button';
+import React, { useMemo } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { AlertTriangle, Award, ChevronRight, FileCheck, MapPin, Shield } from 'lucide-react';
+import BackButton from '../components/BackButton';
 import Breadcrumbs from '../components/Breadcrumbs';
-import LanguageSwitcher from '../components/LanguageSwitcher';
-import CountryFlag from '../components/CountryFlag';
-import { useLocale } from '../context/LocaleContext';
-import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ShoppingCart, Shield, Award, Leaf, MapPin, FileCheck, Star, Check } from 'lucide-react';
-import { getIngredientEmoji } from '../utils/helpers';
+import Footer from '../components/Footer';
+import Header from '../components/Header';
+import { Button } from '../components/ui/button';
+import { useProductDetail } from '../features/products/hooks/useProductDetail';
 
-import { API } from '../utils/api';
+function SectionCard({ title, subtitle, children }) {
+  return (
+    <section className="rounded-[28px] border border-stone-100 bg-white p-5 shadow-sm sm:p-6">
+      <div className="mb-5">
+        <h2 className="text-xl font-semibold tracking-tight text-stone-950">{title}</h2>
+        {subtitle ? <p className="mt-1 text-sm text-stone-500">{subtitle}</p> : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function normalizeList(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (typeof value === 'string') {
+    return value
+      .split(/,|\n/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function normalizeIngredientOrigins(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'object') {
+    return Object.entries(value).map(([ingredient, origin]) => ({ ingredient, origin }));
+  }
+  if (typeof value === 'string') {
+    return value
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [ingredient, origin] = line.split(':');
+        return {
+          ingredient: ingredient?.trim(),
+          origin: origin?.trim(),
+        };
+      })
+      .filter((item) => item.ingredient && item.origin);
+  }
+  return [];
+}
 
 export default function CertificatePage() {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { language } = useLocale();
-  const { t, i18n } = useTranslation();
-  const [certificate, setCertificate] = useState(null);
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { product, certificate, storeInfo, isLoading } = useProductDetail(productId);
 
-  const currentLang = i18n.language || language || 'es';
+  const productImage = product?.images?.[0] || product?.image_url || null;
+  const nutrition = certificate?.data?.nutritional_info || certificate?.data?.nutrition_info || null;
+  const ingredients = useMemo(() => normalizeList(product?.ingredients), [product?.ingredients]);
+  const allergens = useMemo(() => normalizeList(product?.allergens || certificate?.data?.allergens), [certificate?.data?.allergens, product?.allergens]);
+  const ingredientOrigins = useMemo(() => normalizeIngredientOrigins(certificate?.data?.ingredient_origins), [certificate?.data?.ingredient_origins]);
+  const certifications = product?.certifications || [certificate?.certificate_type].filter(Boolean);
+  const canBuyFromStore = Boolean(storeInfo?.slug);
 
-  const handleBack = () => {
-    navigate(-1);
+  const handleBuy = () => {
+    if (!canBuyFromStore) {
+      navigate(`/products/${productId}`);
+      return;
+    }
+
+    navigate(`/store/${storeInfo.slug}?product=${productId}`);
   };
 
-  useEffect(() => {
-    const fetchCertificate = async () => {
-      setLoading(true);
-      try {
-        const [certRes, prodRes] = await Promise.all([
-          axios.get(`${API}/certificates/product/${productId}?lang=${currentLang}`),
-          axios.get(`${API}/products/${productId}?lang=${currentLang}`)
-        ]);
-        setCertificate(certRes.data);
-        setProduct(prodRes.data);
-      } catch (error) {
-        console.error('Error fetching certificate:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchCertificate();
-  }, [productId, currentLang]);
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-stone-50 to-background-subtle flex items-center justify-center" data-testid="certificate-loading">
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-stone-300 rounded-full"></div>
-            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+      <div className="min-h-screen bg-stone-50">
+        <Header />
+        <div className="flex items-center justify-center py-24" data-testid="certificate-loading">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-b-2 border-stone-950" />
+            <p className="text-sm text-stone-500">Cargando certificado...</p>
           </div>
-          <p className="font-body text-sm text-text-muted mt-4">{t('common.loading')}</p>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (!certificate || !product) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-stone-50 to-background-subtle flex items-center justify-center" data-testid="certificate-not-found">
-        <div className="text-center bg-white p-12 rounded-2xl shadow-lg max-w-md">
-          <FileCheck className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-          <p className="font-heading text-xl text-primary mb-2">{t('errors.notFound')}</p>
-          <p className="text-text-muted mb-6">{t('certificate.notFoundDesc', 'This certificate could not be found')}</p>
-          <Link to="/certificates">
-            <Button className="bg-primary hover:bg-text-secondary text-white rounded-full px-8">
-              {t('common.back')}
-            </Button>
-          </Link>
+      <div className="min-h-screen bg-stone-50">
+        <Header />
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center" data-testid="certificate-not-found">
+          <div className="rounded-[32px] border border-stone-100 bg-white p-10 shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 text-stone-500">
+              <FileCheck className="h-6 w-6" />
+            </div>
+            <h1 className="mt-5 text-2xl font-semibold text-stone-950">Certificado no encontrado</h1>
+            <p className="mt-2 text-sm text-stone-500">
+              No hemos encontrado la ficha de confianza de este producto.
+            </p>
+            <Link to="/certificates" className="mt-6 inline-flex">
+              <Button className="rounded-full bg-stone-950 text-white hover:bg-stone-800">
+                Volver a certificados
+              </Button>
+            </Link>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
-  const productImage = product.images && product.images.length > 0 ? product.images[0] : 'https://images.unsplash.com/photo-1541401154946-62f8d84bd284?w=600';
-  const hasIngredients = product.ingredients && product.ingredients.length > 0;
-  const hasCertifications = product.certifications && product.certifications.length > 0;
-  const nutritionalInfo = certificate?.data?.nutritional_info || certificate?.data?.nutrition_info;
-  
-  // Parse ingredient origins from certificate data
-  const ingredientOrigins = {};
-  if (certificate?.data?.ingredient_origins) {
-    const lines = certificate.data.ingredient_origins.split('\n');
-    lines.forEach(line => {
-      const parts = line.split(':');
-      if (parts.length === 2) {
-        ingredientOrigins[parts[0].trim()] = parts[1].trim();
-      }
-    });
-  }
-
-  // Nutritional labels translation map
-  const nutritionLabels = {
-    energy: t('certificate.nutritionLabels.energy', 'Energy'),
-    calories: t('certificate.nutritionLabels.calories', 'Calories'),
-    fat: t('certificate.nutritionLabels.fat', 'Fat'),
-    saturated_fat: t('certificate.nutritionLabels.saturatedFat', 'Saturated Fat'),
-    carbohydrates: t('certificate.nutritionLabels.carbohydrates', 'Carbohydrates'),
-    sugars: t('certificate.nutritionLabels.sugars', 'Sugars'),
-    fiber: t('certificate.nutritionLabels.fiber', 'Fiber'),
-    protein: t('certificate.nutritionLabels.protein', 'Protein'),
-    salt: t('certificate.nutritionLabels.salt', 'Salt'),
-    sodium: t('certificate.nutritionLabels.sodium', 'Sodium'),
-  };
-
-  const getNutritionLabel = (key) => {
-    const normalizedKey = key.toLowerCase().replace(/\s+/g, '_');
-    return nutritionLabels[normalizedKey] || key.replace(/_/g, ' ');
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-background-subtle" data-testid="certificate-page">
-      <div className="max-w-[1000px] mx-auto px-4 sm:px-6 py-8 md:py-12">
-        {/* Top Bar */}
-        <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={handleBack}
-            className="inline-flex items-center gap-2 font-body text-sm text-text-muted hover:text-primary transition-colors group"
-            data-testid="back-button"
-          >
-            <ArrowLeft className="w-4 h-4 stroke-[1.5] group-hover:-translate-x-1 transition-transform" />
-            <span>{t('common.back')}</span>
-          </button>
-          
-          <LanguageSwitcher variant="default" />
-        </div>
-        
-        {/* Breadcrumbs */}
-        <Breadcrumbs 
-          className="mb-8"
-          customItems={[
-            { label: t('breadcrumbs.certificates'), href: '/certificates' },
-            { label: product.name }
-          ]}
-        />
+    <div className="min-h-screen bg-stone-50" data-testid="certificate-page">
+      <Header />
 
-        {/* Certificate Document */}
-        <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-stone-300">
-          
-          {/* Header with Product Image */}
-          <div className="relative bg-gradient-to-br from-primary to-text-secondary p-8 md:p-12">
-            {/* Decorative pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-4 right-4 w-32 h-32 border border-white rounded-full"></div>
-              <div className="absolute bottom-4 left-4 w-24 h-24 border border-white rounded-full"></div>
-            </div>
-            
-            <div className="relative flex flex-col md:flex-row items-center gap-8">
-              {/* Product Image */}
-              <div className="relative">
-                <div className="w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden border-4 border-white shadow-2xl">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <BackButton />
+        <Breadcrumbs />
+
+        <div className="mt-5 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <section className="rounded-[32px] border border-stone-100 bg-white p-6 shadow-sm sm:p-8">
+            <div className="rounded-[28px] bg-stone-50 p-6 sm:p-10">
+              <div className="flex min-h-[320px] items-center justify-center">
+                {productImage ? (
                   <img
                     src={productImage}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    className="max-h-[360px] w-full object-contain"
                     data-testid="certificate-product-image"
                   />
-                </div>
-                {/* Verified Badge */}
-                <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
-                  <Check className="w-6 h-6 text-white stroke-[3]" />
-                </div>
+                ) : (
+                  <div className="flex h-48 w-48 items-center justify-center rounded-full bg-white text-stone-500">
+                    <FileCheck className="h-10 w-10" />
+                  </div>
+                )}
               </div>
-              
-              {/* Product Info */}
-              <div className="text-center md:text-left">
-                <div className="inline-flex items-center gap-2 bg-white/20 text-white px-4 py-1.5 rounded-full text-sm mb-4">
-                  <Shield className="w-4 h-4" />
-                  <span>{t('certificate.productDossier')}</span>
-                </div>
-                <h1 className="font-heading text-3xl md:text-4xl font-bold text-white mb-2" data-testid="certificate-title">
-                  {product.name}
-                </h1>
-                <p className="text-white/70 text-lg">
-                  {t('products.byProducer', { producer: product.producer_name })}
+            </div>
+          </section>
+
+          <section className="rounded-[32px] border border-stone-100 bg-white p-6 shadow-sm sm:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-700">
+              <Shield className="h-4 w-4" />
+              Producto verificado
+            </div>
+            <h1 className="mt-5 text-3xl font-semibold tracking-tight text-stone-950" data-testid="certificate-title">
+              {product.name}
+            </h1>
+            <p className="mt-3 text-base leading-relaxed text-stone-700">
+              {product.short_description || product.description || 'Ficha de confianza y trazabilidad del producto.'}
+            </p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-400">Productor</p>
+                <p className="mt-2 text-sm font-medium text-stone-950">{storeInfo?.name || product.producer_name || 'Hispaloshop'}</p>
+              </div>
+              <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-400">Origen</p>
+                <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-stone-950">
+                  <MapPin className="h-4 w-4 text-stone-500" />
+                  {product.country_origin || 'Origen no especificado'}
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Quick Stats Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-stone-50 border-b border-stone-200">
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-white mx-auto mb-2 flex items-center justify-center shadow-sm">
-                <MapPin className="w-5 h-5 text-primary" />
-              </div>
-              <p className="text-xs text-text-muted uppercase tracking-wider">{t('productDetail.origin')}</p>
-              <p className="font-semibold text-primary">{product.country_origin}</p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {certifications.map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-700"
+                >
+                  <Award className="h-4 w-4" />
+                  {item}
+                </span>
+              ))}
             </div>
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-white mx-auto mb-2 flex items-center justify-center shadow-sm">
-                <Leaf className="w-5 h-5 text-green-600" />
-              </div>
-              <p className="text-xs text-text-muted uppercase tracking-wider">{t('productDetail.ingredients')}</p>
-              <p className="font-semibold text-primary">{product.ingredients?.length || 0}</p>
-            </div>
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-white mx-auto mb-2 flex items-center justify-center shadow-sm">
-                <Award className="w-5 h-5 text-amber-500" />
-              </div>
-              <p className="text-xs text-text-muted uppercase tracking-wider">{t('productDetail.certifications')}</p>
-              <p className="font-semibold text-primary">{product.certifications?.length || 0}</p>
-            </div>
-            <div className="text-center">
-              <div className="w-10 h-10 rounded-full bg-white mx-auto mb-2 flex items-center justify-center shadow-sm">
-                <Star className="w-5 h-5 text-primary" />
-              </div>
-              <p className="text-xs text-text-muted uppercase tracking-wider">{t('certificate.status', 'Status')}</p>
-              <p className="font-semibold text-green-600">{t('certificate.verifiedStatus', 'Verified')}</p>
-            </div>
-          </div>
 
-          {/* Ingredients & Origin */}
-          <section className="p-8 md:p-12 border-b border-stone-200" data-testid="ingredient-origin-section">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                <Leaf className="w-5 h-5 text-white" />
-              </div>
-              <h2 className="font-heading text-2xl font-bold text-primary">
-                {t('productDetail.ingredients')} & {t('productDetail.origin')}
-              </h2>
-            </div>
-            
-            {hasIngredients ? (
-              <div className="grid gap-3">
-                {product.ingredients.map((ingredient, idx) => {
-                  const origin = ingredientOrigins[ingredient] || product.country_origin;
-                  const countryCode = origin.length === 2 ? origin.toUpperCase() : '';
-                  
-                  return (
-                    <div 
-                      key={idx} 
-                      className="flex items-center justify-between p-4 bg-stone-50 rounded-xl hover:bg-background-subtle transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-                          <Leaf className="w-4 h-4 text-accent" />
-                        </div>
-                        <span className="font-body text-lg text-primary font-medium">
-                          {ingredient}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-body text-base text-text-secondary">
-                          {origin}
-                        </span>
-                        {countryCode ? (
-                          <CountryFlag countryCode={countryCode} size="lg" />
-                        ) : (
-                          <MapPin className="w-6 h-6 text-gray-400" />
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-stone-50 rounded-xl">
-                <p className="text-text-muted">{t('common.noData')}</p>
-              </div>
-            )}
-          </section>
-
-          {/* Nutritional Information */}
-          <section className="p-8 md:p-12 border-b border-stone-200" data-testid="nutritional-table-section">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                <FileCheck className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="font-heading text-2xl font-bold text-primary">
-                  {t('certificate.nutritionalInfo', 'Nutritional Information')}
-                </h2>
-                <p className="text-sm text-text-muted">{t('certificate.per100g', 'Per 100g')}</p>
-              </div>
-            </div>
-            
-            <div className="bg-stone-50 rounded-2xl overflow-hidden">
-              {nutritionalInfo && typeof nutritionalInfo === 'object' ? (
-                <div className="divide-y divide-stone-200">
-                  {Object.entries(nutritionalInfo).map(([key, value], idx) => (
-                    <div 
-                      key={key} 
-                      className={`flex items-center justify-between p-4 ${idx % 2 === 0 ? 'bg-white' : 'bg-stone-50'}`}
-                    >
-                      <span className="font-medium text-text-secondary capitalize">
-                        {getNutritionLabel(key)}
-                      </span>
-                      <span className="font-bold text-primary text-lg">
-                        {value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-text-muted">{t('common.noData')}</p>
-                </div>
-              )}
+            <div className="mt-8">
+              <Link to="/certificates" className="inline-flex">
+                <Button type="button" variant="outline" className="rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50">
+                  Ver más certificados
+                </Button>
+              </Link>
             </div>
           </section>
+        </div>
 
-          {/* Certifications */}
-          <section className="p-8 md:p-12 border-b border-stone-200" data-testid="dietary-labels-section">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                <Award className="w-5 h-5 text-white" />
-              </div>
-              <h2 className="font-heading text-2xl font-bold text-primary">
-                {t('productDetail.certifications')}
-              </h2>
-            </div>
-            
-            {hasCertifications ? (
-              <div className="flex flex-wrap gap-3">
-                {product.certifications.map((cert, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-text-secondary text-white px-6 py-3 rounded-full text-base font-semibold shadow-md hover:shadow-lg transition-shadow"
-                  >
-                    <Shield className="w-4 h-4" />
-                    {cert}
-                  </span>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <SectionCard title="Valores nutricionales" subtitle="Lectura clara por cada 100 g o 100 ml cuando aplica.">
+            {nutrition && typeof nutrition === 'object' && Object.keys(nutrition).length > 0 ? (
+              <div className="divide-y divide-stone-100 rounded-2xl border border-stone-100">
+                {Object.entries(nutrition).map(([key, value]) => (
+                  <div key={key} className="flex items-center justify-between px-4 py-3 text-sm">
+                    <span className="capitalize text-stone-500">{String(key).replace(/_/g, ' ')}</span>
+                    <span className="font-medium text-stone-950">{String(value)}</span>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 bg-stone-50 rounded-xl">
-                <p className="text-text-muted">{t('common.noData')}</p>
-              </div>
+              <p className="text-sm text-stone-500">No hay valores nutricionales visibles en este momento.</p>
             )}
-          </section>
+          </SectionCard>
 
-          {/* Country & Producer */}
-          <section className="p-8 md:p-12 bg-gradient-to-br from-stone-50 to-white border-b border-stone-200" data-testid="producer-story-section">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="mb-4 flex justify-center">
-                <CountryFlag 
-                  countryCode={product.country_origin?.substring(0, 2).toUpperCase()} 
-                  size="xl" 
-                  className="transform scale-150"
-                />
+          <SectionCard title="Ingredientes" subtitle="Qué contiene el producto y cómo se compone.">
+            {ingredients.length > 0 ? (
+              <div className="space-y-2">
+                {ingredients.map((ingredient) => (
+                  <div key={ingredient} className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 text-sm text-stone-700">
+                    {ingredient}
+                  </div>
+                ))}
               </div>
-              <h2 className="font-heading text-2xl font-bold text-primary mb-4">
-                {t('certificate.madeIn', 'Proudly Made in')} {product.country_origin}
-              </h2>
-              <p className="text-lg text-text-secondary leading-relaxed">
-                {product.description || t('certificate.producerDescription', {
-                  producer: product.producer_name || 'Hispaloshop',
-                  country: product.country_origin
-                })}
+            ) : (
+              <p className="text-sm text-stone-500">No hay ingredientes declarados.</p>
+            )}
+          </SectionCard>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <SectionCard title="Origen de los ingredientes" subtitle="Trazabilidad adicional cuando la ficha lo permite.">
+            {ingredientOrigins.length > 0 ? (
+              <div className="space-y-3">
+                {ingredientOrigins.map((item) => (
+                  <div key={`${item.ingredient}-${item.origin}`} className="flex items-center justify-between gap-4 rounded-2xl border border-stone-100 bg-white px-4 py-3 text-sm">
+                    <span className="font-medium text-stone-950">{item.ingredient}</span>
+                    <span className="text-stone-500">{item.origin}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-stone-500">No hay origen detallado para cada ingrediente.</p>
+            )}
+          </SectionCard>
+
+          <SectionCard title="Alérgenos" subtitle="Lectura rápida y visible sin dramatizar el diseño.">
+            {allergens.length > 0 ? (
+              <div className="space-y-2">
+                {allergens.map((allergen) => (
+                  <div key={allergen} className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-700">
+                    <AlertTriangle className="h-4 w-4 text-stone-700" />
+                    {allergen}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-stone-500">Sin alérgenos declarados.</p>
+            )}
+          </SectionCard>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <SectionCard title="Certificados" subtitle="Señales de confianza presentadas con una lectura sobria.">
+            <div className="space-y-3">
+              {certifications.map((item) => (
+                <div key={item} className="flex items-center gap-3 rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-stone-700">
+                    <Shield className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-stone-950">{item}</p>
+                    <p className="text-sm text-stone-500">Certificación asociada al producto.</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard title="La historia detrás del producto" subtitle="Contexto humano y de origen para entender por qué importa.">
+            <div className="rounded-[24px] border border-stone-100 bg-stone-50 p-5">
+              <p className="text-sm font-medium text-stone-950">
+                {storeInfo?.name || product.producer_name || 'Productor independiente'}
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-stone-700">
+                {storeInfo?.story || storeInfo?.tagline || product.description || 'Este producto forma parte de una selección con trazabilidad visible y una narrativa de origen más clara.'}
+              </p>
+              {product.country_origin ? (
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-600">
+                  <MapPin className="h-4 w-4" />
+                  {product.country_origin}
+                </div>
+              ) : null}
+              {canBuyFromStore ? (
+                <button
+                  type="button"
+                  onClick={handleBuy}
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-stone-950 transition-colors hover:text-stone-700"
+                >
+                  Ir a la tienda y abrir producto
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              ) : null}
+            </div>
+          </SectionCard>
+        </div>
+
+        <section className="mt-6 rounded-[28px] border border-stone-100 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-stone-950">Comprar</h2>
+              <p className="mt-1 text-sm text-stone-500">
+                Abre la tienda del productor y entra directamente al detalle del producto.
               </p>
             </div>
-          </section>
-
-          {/* Buy CTA */}
-          <div className="p-8 md:p-12 text-center">
-            <Link to={`/products/${productId}`}>
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-text-secondary text-white rounded-full px-12 py-6 font-semibold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
-                data-testid="buy-online-button"
-              >
-                <ShoppingCart className="mr-3 w-5 h-5 stroke-[2]" />
-                {t('products.buyNow')}
-              </Button>
-            </Link>
+            <Button
+              type="button"
+              onClick={handleBuy}
+              className="rounded-full bg-stone-950 text-white hover:bg-stone-800"
+              data-testid="buy-online-button"
+            >
+              Comprar
+            </Button>
           </div>
-
-          {/* Footer */}
-          <div className="p-8 bg-primary text-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <Shield className="w-5 h-5 text-green-400" />
-              <span className="text-white font-medium">{t('certificate.verified', 'Verified & Transparent')}</span>
-            </div>
-            <p className="font-body text-xs text-white/60 mb-1">
-              {t('certificate.certificateId', 'Certificate ID')}: {certificate.certificate_id}
-            </p>
-            <p className="font-body text-xs text-white/60">
-              {t('footer.copyright')}
-            </p>
-          </div>
-        </div>
+        </section>
       </div>
+
+      <Footer />
     </div>
   );
 }
