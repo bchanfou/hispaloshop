@@ -395,9 +395,9 @@ export default function DiscoverPage() {
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {products.slice(0, 4).map((product) => (
                   <motion.button
-                    key={product.id}
+                    key={product.product_id || product.id}
                     whileTap={{ scale: 0.985 }}
-                    onClick={() => navigate(`/products/${product.id}`)}
+                    onClick={() => navigate(`/products/${product.product_id || product.id}`)}
                     className="overflow-hidden rounded-[24px] border border-stone-200 bg-white text-left shadow-sm transition-shadow hover:shadow-md"
                   >
                     <img

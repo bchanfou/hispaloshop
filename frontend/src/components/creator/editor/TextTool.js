@@ -55,7 +55,7 @@ const TEXT_PRESETS = [
   {
     id: 'story',
     name: 'Story',
-    hint: 'Mas emocional',
+    hint: 'Más emocional',
     fontFamily: 'handwritten',
     fontSize: 38,
     fontWeight: 600,
@@ -68,7 +68,7 @@ const TEXT_PRESETS = [
   {
     id: 'serif',
     name: 'Serif',
-    hint: 'Mas sofisticado',
+    hint: 'Más sofisticado',
     fontFamily: 'serif',
     fontSize: 34,
     fontWeight: 600,
@@ -81,7 +81,7 @@ const TEXT_PRESETS = [
   {
     id: 'label',
     name: 'Label',
-    hint: 'Compacto y util',
+    hint: 'Compacto y útil',
     fontFamily: 'sans',
     fontSize: 24,
     fontWeight: 600,
@@ -210,7 +210,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-stone-950 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-stone-800"
           >
             <Plus className="h-4 w-4" />
-            Anadir
+                  Añadir
           </button>
         ) : (
           <div className="mt-4 space-y-3 rounded-2xl border border-stone-200 bg-white p-3">
@@ -261,7 +261,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
         <div className="mt-4 space-y-2">
           {texts.length === 0 ? (
             <div className="rounded-2xl bg-stone-50 px-4 py-5 text-base text-stone-500">
-              Toca Anadir.
+              Toca Añadir.
             </div>
           ) : (
             texts.map((text) => (
@@ -329,7 +329,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Presets rapidos</label>
+          <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Presets rápidos</label>
             <div className="grid grid-cols-2 gap-2">
               {TEXT_PRESETS.map((preset) => (
                 <button

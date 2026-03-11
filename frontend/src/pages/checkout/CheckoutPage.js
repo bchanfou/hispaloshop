@@ -322,7 +322,7 @@ const CheckoutPage = () => {
             >
               <ArrowLeft className="w-5 h-5 text-stone-950" />
             </button>
-            <h1 className="text-lg font-bold text-stone-950">Checkout</h1>
+            <h1 className="text-lg font-bold text-stone-950">Finalizar compra</h1>
           </div>
           <div className="flex items-center gap-1 text-sm text-state-success">
             <Lock className="w-4 h-4" />

@@ -184,7 +184,7 @@ export default function CartPage() {
     }
     const selectedAddress = getSelectedAddress();
     if (!selectedAddress) {
-      toast.error(t('checkout.selectAddress') || 'Please select a shipping address');
+      toast.error(t('checkout.selectAddress') || 'Selecciona una dirección de envío');
       return;
     }
     const addressToUse = {
@@ -567,11 +567,11 @@ export default function CartPage() {
                     : stockIssues.length > 0
                       ? t('errors.generic')
                       : (!getSelectedAddress() && !showNewAddressForm)
-                        ? (t('checkout.selectAddress') || 'Select Address')
+                        ? (t('checkout.selectAddress') || 'Selecciona una dirección')
                         : t('cart.checkout')}
               </Button>
 
-              {!emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Email verification required'}</p>}
+              {!emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Debes verificar tu correo electrónico'}</p>}
               {stockIssues.length > 0 && <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.stockIssues') || 'Algunos productos no tienen stock suficiente'}</p>}
               {!getSelectedAddress() && !showNewAddressForm && emailVerified && stockIssues.length === 0 && (
                 <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.pleaseSelectAddress') || 'Selecciona o añade una dirección de envío'}</p>

@@ -34,6 +34,8 @@ import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
 import { useStoreFollow } from '../features/products/hooks';
 
+const normalizeEntityId = (value) => (value == null ? '' : String(value));
+
 function TabButton({ active, onClick, icon: Icon, label, count }) {
   return (
     <button
@@ -224,11 +226,17 @@ export default function StorePage() {
   useEffect(() => {
     if (!requestedProductId || products.length === 0) return;
 
-    const matchedProduct = products.find((product) => product.product_id === requestedProductId);
+    const matchedProduct = products.find(
+      (product) => normalizeEntityId(product.product_id || product.id) === normalizeEntityId(requestedProductId),
+    );
     if (!matchedProduct) return;
 
     setActiveTab('products');
-    setSelectedProduct((current) => (current?.product_id === matchedProduct.product_id ? current : matchedProduct));
+    setSelectedProduct((current) => (
+      normalizeEntityId(current?.product_id || current?.id) === normalizeEntityId(matchedProduct.product_id || matchedProduct.id)
+        ? current
+        : matchedProduct
+    ));
   }, [products, requestedProductId]);
 
   if (storeQuery.isLoading) {

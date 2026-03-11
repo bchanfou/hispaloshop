@@ -272,7 +272,7 @@ export default function ProducerPayments() {
             <div>
               <h3 className="font-medium text-amber-900 text-sm">Conecta Stripe para recibir pagos</h3>
               <p className="text-xs text-amber-700 mt-0.5">
-                Tus ganancias se acumulan pero necesitas Stripe Connect para recibir transferencias automaticas.
+                Tus ganancias se acumulan, pero necesitas Stripe Connect para recibir transferencias automáticas.
               </p>
             </div>
           </div>
@@ -384,11 +384,11 @@ export default function ProducerPayments() {
       {/* Info footer */}
       <div className="bg-stone-50 border border-stone-200 rounded-xl p-5 text-sm text-text-muted">
         <p>
-          <strong className="text-text-secondary">Como funcionan los pagos:</strong> Cada venta se divide automaticamente.
-          Tu recibes el <strong>{100 - commissionPct}%</strong> y la plataforma retiene el <strong>{commissionPct}%</strong> de comisión.
+          <strong className="text-text-secondary">Cómo funcionan los pagos:</strong> Cada venta se divide automáticamente.
+          Tú recibes el <strong>{100 - commissionPct}%</strong> y la plataforma retiene el <strong>{commissionPct}%</strong> de comisión.
           {data.stripe_connected 
-            ? ' Las transferencias se procesan automaticamente a tu cuenta bancaria via Stripe.'
-            : ' Conecta Stripe Connect para activar las transferencias automaticas.'}
+            ? ' Las transferencias se procesan automáticamente a tu cuenta bancaria vía Stripe.'
+            : ' Conecta Stripe Connect para activar las transferencias automáticas.'}
         </p>
       </div>
     </div>

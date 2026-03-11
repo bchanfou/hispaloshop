@@ -32,7 +32,7 @@ function ProducerDashboard() {
     const warnings = [];
 
     if (!dashboardQuery.data?.stats) {
-      warnings.push('Las metricas avanzadas no estan disponibles ahora mismo.');
+      warnings.push('Las métricas avanzadas no están disponibles ahora mismo.');
     }
     if (!dashboardQuery.data?.products) {
       warnings.push('No se pudo cargar el stock de productos para las alertas.');
@@ -45,7 +45,7 @@ function ProducerDashboard() {
         order.status === 'pending'
           ? 'Nuevo'
           : order.status === 'processing'
-            ? 'En preparacion'
+            ? 'En preparación'
             : `Pedido ${order.status}`,
       description: order.items?.map((item) => item.product_name).join(', ') || 'Productos',
       amount: `EUR ${order.total_amount?.toFixed(2) || '0.00'}`,
@@ -88,8 +88,8 @@ function ProducerDashboard() {
           {
             id: 1,
             title: 'Optimiza tus ventas',
-            description: 'Anade mas productos para aumentar tu visibilidad',
-            actionLabel: 'Anadir producto',
+            description: 'Añade más productos para aumentar tu visibilidad',
+            actionLabel: 'Añadir producto',
             onAction: () => navigate('/producer/products')
           },
           {
@@ -108,7 +108,7 @@ function ProducerDashboard() {
     {
       id: 'add',
       icon: Plus,
-      label: 'Anadir producto',
+      label: 'Añadir producto',
       color: 'var(--color-accent)',
       onClick: () => navigate('/producer/products')
     },

@@ -26,6 +26,8 @@ const COUNTRIES = {
   AU: { name: 'Australia', currency: 'AUD' },
 };
 
+const normalizeEntityId = (value) => (value == null ? '' : String(value));
+
 function MarketRow({ market, onChange, onRemove }) {
   const country = COUNTRIES[market.country_code] || { name: market.country_code, currency: 'EUR' };
   const isValid = market.active ? (market.stock > 0 && market.delivery_sla_hours <= 48 && market.price > 0) : true;
@@ -143,7 +145,7 @@ export default function ProductCountryManagement() {
         axios.get(`${API}/producer/products`, { withCredentials: true }),
       ]);
       setMarkets(marketsRes.data || []);
-      setProduct((productsRes.data || []).find(p => p.product_id === productId));
+      setProduct((productsRes.data || []).find((p) => normalizeEntityId(p.product_id || p.id) === normalizeEntityId(productId)) || null);
     } catch (err) {
       toast.error('Error cargando mercados');
     } finally {

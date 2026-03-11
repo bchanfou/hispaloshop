@@ -223,9 +223,9 @@ export default function B2BMarketplacePage() {
               <div className="flex items-start gap-3">
                 <Tag className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-stone-800 text-sm">Como funciona</p>
+                  <p className="font-semibold text-stone-800 text-sm">Cómo funciona</p>
                   <p className="text-xs text-stone-600 mt-1">
-                    Indica el productor, los productos y la cantidad. El productor recibira tu solicitud y podrá responderte con una oferta personalizada.
+                    Indica el productor, los productos y la cantidad. El productor recibirá tu solicitud y podrá responderte con una oferta personalizada.
                   </p>
                 </div>
               </div>

@@ -76,7 +76,7 @@ export default function GlobalSearch() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('search.placeholder', 'Search users, products, orders...')}
+              placeholder={t('search.placeholder', 'Buscar usuarios, productos y pedidos...')}
               className="flex-1 py-4 text-sm bg-transparent outline-none placeholder:text-text-muted"
               data-testid="search-input"
             />
@@ -89,7 +89,7 @@ export default function GlobalSearch() {
           {/* Results */}
           <div className="max-h-[50vh] overflow-y-auto">
             {results.length === 0 && query.length >= 2 && !loading && (
-              <div className="py-8 text-center text-sm text-text-muted">{t('search.noResults', 'No results for')} "{query}"</div>
+              <div className="py-8 text-center text-sm text-text-muted">{t('search.noResults', 'No hay resultados para')} "{query}"</div>
             )}
             {results.map((r, i) => {
               const Icon = typeIcons[r.type] || Package;

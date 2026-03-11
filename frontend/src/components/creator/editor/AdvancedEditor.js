@@ -755,7 +755,7 @@ function PostEditStage({
                   type="button"
                   onClick={onAddMore}
                   className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[22px] border border-dashed border-stone-300 bg-stone-50 text-stone-500 transition-colors hover:border-stone-950 hover:text-stone-950"
-                  aria-label="Anadir foto"
+                    aria-label="Añadir foto"
                 >
                   <ImagePlus className="h-5 w-5" />
                 </button>
@@ -1261,7 +1261,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                 onChange={(event) => editor.updateFilterSetting('contrast', parseInt(event.target.value, 10))}
               />
               <RangeField
-                label="Saturacion"
+                          label="Saturación"
                 value={editor.filterSettings.saturate}
                 min={0}
                 max={200}
@@ -1681,7 +1681,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white">
                   <ImagePlus className="h-7 w-7" />
                 </div>
-                <h2 className="mt-5 text-xl font-semibold text-white">Anade un archivo</h2>
+                <h2 className="mt-5 text-xl font-semibold text-white">Añade un archivo</h2>
                 <p className="mt-2 text-sm text-white/60">Toca Elegir para empezar.</p>
                 <button
                   type="button"
@@ -1758,7 +1758,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                     type="button"
                     onClick={handleAddMore}
                     className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-dashed border-white/20 text-white/70 transition-colors hover:border-white/40 hover:text-white"
-                    aria-label="Anadir otro archivo"
+                          aria-label="Añadir otro archivo"
                   >
                     <ImagePlus className="h-5 w-5" />
                   </button>

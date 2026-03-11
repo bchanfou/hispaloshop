@@ -58,7 +58,7 @@ export default function HeroSection({
             </div>
 
             <h1 className="mt-5 font-serif text-4xl font-semibold tracking-tight text-primary md:text-6xl">
-              Lo Bueno Esta Mas Cerca
+            Lo Bueno Está Más Cerca
             </h1>
 
             <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium tracking-[0.08em] text-stone-500 uppercase md:text-[11px]">
@@ -74,14 +74,14 @@ export default function HeroSection({
                 className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-primary-hover"
               >
                 <LocateFixed className="h-4 w-4" />
-                Descubrir Cerca de Mi
+              Descubrir Cerca de Mí
               </button>
               <Link
                 to="/info/productor"
                 onClick={onSecondaryCtaClick}
                 className="inline-flex min-h-[46px] items-center justify-center rounded-full border border-stone-300 bg-transparent px-6 py-3 text-sm font-medium text-primary transition-colors duration-200 hover:border-stone-400 hover:bg-white"
               >
-                Quiero Vender
+              Quiero vender
               </Link>
             </div>
 
@@ -98,7 +98,7 @@ export default function HeroSection({
                     <div>
                       <p className="text-sm font-semibold text-primary">Primero, tu zona</p>
                       <p className="mt-1 text-sm leading-6 text-stone-500">
-                        Usa tu ubicacion actual o escribe tu código postal para priorizar lo que tengas mas cerca.
+            Usa tu ubicación actual o escribe tu código postal para priorizar lo que tengas más cerca.
                       </p>
                     </div>
                     <button
@@ -117,7 +117,7 @@ export default function HeroSection({
                       className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-medium text-primary transition-colors hover:bg-stone-100"
                     >
                       <LocateFixed className="h-4 w-4" />
-                      {geolocationStatus === 'requesting' ? 'Buscando tu ubicacion...' : 'Usar mi ubicacion'}
+                {geolocationStatus === 'requesting' ? 'Buscando tu ubicación...' : 'Usar mi ubicación'}
                     </button>
 
                     <form onSubmit={handlePostalSubmit} className="flex flex-1 gap-2">

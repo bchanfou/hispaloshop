@@ -8,6 +8,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useLocale } from '../../context/LocaleContext';
 
+const normalizeEntityId = (value) => (value == null ? '' : String(value));
+
 function formatDate(value) {
   if (!value) return '';
   try {
@@ -56,6 +58,7 @@ export default function ProductDetailOverlay({
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice } = useLocale();
+  const productId = product?.product_id || product?.id;
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -79,8 +82,12 @@ export default function ProductDetailOverlay({
     return [];
   }, [product.image_url, product.images]);
 
-  const relatedCertificates = certificates.filter((certificate) => certificate.product_id === product.product_id);
-  const relatedReviews = reviews.filter((review) => review.product_id === product.product_id);
+  const relatedCertificates = certificates.filter(
+    (certificate) => normalizeEntityId(certificate.product_id) === normalizeEntityId(productId),
+  );
+  const relatedReviews = reviews.filter(
+    (review) => normalizeEntityId(review.product_id) === normalizeEntityId(productId),
+  );
   const price = convertAndFormatPrice(product.display_price || product.price || 0, product.display_currency || product.currency || 'EUR');
 
   const handleAddToCart = async () => {
@@ -89,14 +96,14 @@ export default function ProductDetailOverlay({
       return;
     }
 
-    toast.loading('Añadiendo...', { id: `overlay-add-${product.product_id}` });
-    const success = await addToCart(product.product_id, 1);
+    toast.loading('Añadiendo...', { id: `overlay-add-${productId}` });
+    const success = await addToCart(productId, 1);
     if (success) {
-      toast.success('Añadido al carrito', { id: `overlay-add-${product.product_id}` });
+      toast.success('Añadido al carrito', { id: `overlay-add-${productId}` });
       return;
     }
 
-    toast.error('No hemos podido completar la acción', { id: `overlay-add-${product.product_id}` });
+    toast.error('No hemos podido completar la acción', { id: `overlay-add-${productId}` });
   };
 
   const handleBuyNow = async () => {
@@ -105,15 +112,15 @@ export default function ProductDetailOverlay({
       return;
     }
 
-    toast.loading('Procesando...', { id: `overlay-buy-${product.product_id}` });
-    const success = await addToCart(product.product_id, 1);
+    toast.loading('Procesando...', { id: `overlay-buy-${productId}` });
+    const success = await addToCart(productId, 1);
     if (success) {
-      toast.dismiss(`overlay-buy-${product.product_id}`);
+      toast.dismiss(`overlay-buy-${productId}`);
       window.location.href = '/cart';
       return;
     }
 
-    toast.error('No hemos podido completar la acción', { id: `overlay-buy-${product.product_id}` });
+    toast.error('No hemos podido completar la acción', { id: `overlay-buy-${productId}` });
   };
 
   return (

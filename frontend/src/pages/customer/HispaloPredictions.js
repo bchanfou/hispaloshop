@@ -156,7 +156,7 @@ export default function HispaloPredictions() {
         <Zap className="w-10 h-10 text-stone-300 mx-auto mb-3" />
         <h3 className="font-heading font-semibold text-stone-700 mb-1">Hispalo Predict</h3>
         <p className="text-sm text-stone-500">
-          {t('predict.empty', 'Compra algunos productos y te predeciremos cuando necesitaras recomprarlos.')}
+          {t('predict.empty', 'Compra algunos productos y te predeciremos cuándo necesitarás recomprarlos.')}
         </p>
       </div>
     );

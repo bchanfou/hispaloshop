@@ -4,6 +4,8 @@ import { ShoppingBag, Check, Loader2, Plus, Minus, Zap } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 
+const getProductId = (product) => product?.product_id || product?.id || null;
+
 const AddToCartButton = ({ 
   product, 
   variant = 'default', // 'default', 'small', 'quick', 'buy-now'
@@ -15,18 +17,19 @@ const AddToCartButton = ({
   const { addToCart, cartItems } = useCart();
   const [state, setState] = useState('idle'); // idle, loading, success
   const [quantity, setQuantity] = useState(1);
+  const productId = getProductId(product);
 
   // Check if product is already in cart
-  const existingItem = cartItems.find(item => item.product_id === product.id);
+  const existingItem = cartItems.find((item) => String(item.product_id) === String(productId));
   const inCartQuantity = existingItem?.quantity || 0;
 
   const handleAdd = async () => {
-    if (state === 'loading') return;
+    if (state === 'loading' || !productId) return;
     
     setState('loading');
     
     try {
-      await addToCart(product.id, quantity);
+      await addToCart(productId, quantity);
       setState('success');
       
       if (onAdd) onAdd(product);

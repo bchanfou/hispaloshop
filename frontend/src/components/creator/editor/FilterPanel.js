@@ -4,12 +4,12 @@ import { PREDEFINED_FILTERS } from '../types/editor.types';
 
 const FILTER_NOTES = {
   natural: 'Equilibrado',
-  warm: 'Mas calido',
-  fresh: 'Mas aire',
+  warm: 'Más cálido',
+  fresh: 'Más aire',
   artisan: 'Contraste suave',
-  soft: 'Mas luz',
-  vivid: 'Mas intensidad',
-  night: 'Mas profundidad',
+  soft: 'Más luz',
+  vivid: 'Más intensidad',
+  night: 'Más profundidad',
   classic: 'Monocromo',
 };
 
@@ -51,7 +51,7 @@ function FilterPanel({
           <div>
             <h3 className="text-sm font-semibold text-stone-950">Filtros editoriales</h3>
             <p className="mt-1 text-xs leading-5 text-stone-500">
-              Menos efecto demo, mas atmosfera. Elige un tono base y regula su presencia con una intensidad corta.
+        Menos efecto demo, más atmósfera. Elige un tono base y regula su presencia con una intensidad corta.
             </p>
           </div>
           <button
@@ -114,7 +114,7 @@ function FilterPanel({
               className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
             />
             <p className="mt-2 text-xs text-stone-500">
-              Baja la intensidad cuando quieras mantener el look mas natural.
+          Baja la intensidad cuando quieras mantener el look más natural.
             </p>
           </div>
         ) : null}
@@ -122,7 +122,7 @@ function FilterPanel({
 
       <div className="rounded-2xl border border-stone-100 bg-white p-4">
         <h4 className="text-xs font-medium uppercase tracking-[0.22em] text-stone-500">
-          Ajuste rapido
+          Ajuste rápido
         </h4>
         <div className="mt-4 space-y-4">
           <RangeRow
@@ -142,7 +142,7 @@ function FilterPanel({
             onChange={(event) => onSettingChange('contrast', parseInt(event.target.value, 10))}
           />
           <RangeRow
-            label="Saturacion"
+            label="Saturación"
             value={settings.saturate}
             min={0}
             max={200}

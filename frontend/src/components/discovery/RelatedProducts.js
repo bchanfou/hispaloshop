@@ -5,6 +5,8 @@ import { ArrowRight } from 'lucide-react';
 import axios from 'axios';
 import { API } from '../../utils/api';
 
+const getProductId = (product) => product?.product_id || product?.id || null;
+
 const formatPrice = (value) => {
   const amount = Number(value);
   if (Number.isNaN(amount)) return 'Consultar precio';
@@ -63,9 +65,13 @@ export default function RelatedProducts({ productId, title = 'Productos relacion
           ? [...Array(6)].map((_, i) => <ProductSkeleton key={i} />)
           : products.map((product) => (
               <motion.button
-                key={product.id}
+                key={getProductId(product) || product.name}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => navigate(`/products/${product.id}`)}
+                onClick={() => {
+                  const nextProductId = getProductId(product);
+                  if (!nextProductId) return;
+                  navigate(`/products/${nextProductId}`);
+                }}
                 className="min-w-[148px] shrink-0 overflow-hidden rounded-[20px] border border-stone-200 bg-white text-left shadow-sm transition-shadow hover:shadow-md md:min-w-0"
               >
                 <img

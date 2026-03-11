@@ -13,10 +13,13 @@ const formatNumber = (value) => {
   return Number(value).toLocaleString('es-ES');
 };
 
+const getProductId = (product) => product?.product_id || product?.id || null;
+
 export default function ProductCard({ product, variant = 'default' }) {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice, t } = useLocale();
+  const productId = getProductId(product);
 
   const basePrice = product.display_price || product.price || 0;
   const baseCurrency = product.display_currency || product.currency || 'EUR';
@@ -62,15 +65,20 @@ export default function ProductCard({ product, variant = 'default' }) {
       return;
     }
 
-    toast.loading(t('cart.adding', 'Añadiendo...'), { id: `add-to-cart-${product.product_id}` });
-    const success = await addToCart(product.product_id, 1);
-
-    if (success) {
-      toast.success(t('success.added', 'Añadido al carrito'), { id: `add-to-cart-${product.product_id}` });
+    if (!productId) {
+      toast.error(t('errors.generic', 'No hemos podido completar la acción'));
       return;
     }
 
-    toast.error(t('errors.generic', 'No hemos podido completar la acción'), { id: `add-to-cart-${product.product_id}` });
+    toast.loading(t('cart.adding', 'Añadiendo...'), { id: `add-to-cart-${productId}` });
+    const success = await addToCart(productId, 1);
+
+    if (success) {
+      toast.success(t('success.added', 'Añadido al carrito'), { id: `add-to-cart-${productId}` });
+      return;
+    }
+
+    toast.error(t('errors.generic', 'No hemos podido completar la acción'), { id: `add-to-cart-${productId}` });
   };
 
   const handleBuyNow = async (event) => {
@@ -87,24 +95,29 @@ export default function ProductCard({ product, variant = 'default' }) {
       return;
     }
 
-    toast.loading(t('cart.processing', 'Procesando...'), { id: `buy-now-${product.product_id}` });
-    const success = await addToCart(product.product_id, 1);
+    if (!productId) {
+      toast.error(t('errors.generic', 'No hemos podido completar la acción'));
+      return;
+    }
+
+    toast.loading(t('cart.processing', 'Procesando...'), { id: `buy-now-${productId}` });
+    const success = await addToCart(productId, 1);
 
     if (success) {
-      toast.dismiss(`buy-now-${product.product_id}`);
+      toast.dismiss(`buy-now-${productId}`);
       window.location.href = '/cart';
       return;
     }
 
-    toast.error(t('errors.generic', 'No hemos podido completar la acción'), { id: `buy-now-${product.product_id}` });
+    toast.error(t('errors.generic', 'No hemos podido completar la acción'), { id: `buy-now-${productId}` });
   };
 
   if (variant === 'compact') {
     return (
       <Link
-        to={`/products/${product.product_id}`}
+        to={`/products/${productId}`}
         className="group relative overflow-hidden rounded-2xl border border-stone-100 bg-white p-3 shadow-sm transition-all duration-150 ease-out hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-sm"
-        data-testid={`product-card-${product.product_id}`}
+        data-testid={`product-card-${productId}`}
       >
         <div className={`relative aspect-square overflow-hidden rounded-xl bg-stone-100 ${isOutOfStock || isUnavailableInCountry ? 'opacity-60' : ''}`}>
           <ProductImage
@@ -139,7 +152,7 @@ export default function ProductCard({ product, variant = 'default' }) {
               type="button"
               onClick={handleAddToCart}
               className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-stone-950 text-white shadow-sm transition-all active:scale-[0.99] md:opacity-0 md:group-hover:opacity-100"
-              data-testid={`quick-add-${product.product_id}`}
+              data-testid={`quick-add-${productId}`}
               aria-label={t('products.addToCart', 'Añadir al carrito')}
             >
               <Plus className="h-4 w-4" />
@@ -160,9 +173,9 @@ export default function ProductCard({ product, variant = 'default' }) {
 
   return (
     <Link
-      to={`/products/${product.product_id}`}
+      to={`/products/${productId}`}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-stone-100 bg-white p-4 shadow-sm transition-all duration-150 ease-out hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950/15"
-      data-testid={`product-card-${product.product_id}`}
+      data-testid={`product-card-${productId}`}
     >
       <div className={`relative aspect-square overflow-hidden rounded-xl bg-stone-100 ${isOutOfStock || isUnavailableInCountry ? 'opacity-60' : ''}`}>
         <ProductImage

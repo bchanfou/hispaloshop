@@ -212,7 +212,7 @@ function ProductSelector({ onSelect, onCancel }) {
       </div>
       <div className="max-h-40 overflow-y-auto">
         {loading && <div className="p-3 text-center"><Loader2 className="w-4 h-4 animate-spin mx-auto text-text-muted" /></div>}
-        {!loading && results.length === 0 && <p className="p-3 text-xs text-text-muted text-center">No results</p>}
+        {!loading && results.length === 0 && <p className="p-3 text-xs text-text-muted text-center">No hay resultados</p>}
         {results.map((p) => (
           <button key={p.product_id} onClick={() => onSelect(p)} className="flex items-center gap-3 w-full px-3 py-2 hover:bg-stone-50 transition-colors text-left" data-testid={`product-option-${p.product_id}`}>
             <div className="w-10 h-10 rounded-lg bg-stone-100 overflow-hidden shrink-0">
