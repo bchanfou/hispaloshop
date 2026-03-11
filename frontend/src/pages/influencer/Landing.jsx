@@ -80,7 +80,7 @@ export default function Landing() {
 
           <nav className="hidden items-center gap-6 lg:flex">
             {NAV_ITEMS.map((item) => (
-              <button key={item.href} type="button" onClick={() => scrollToId(item.href.slice(1))} className="text-sm text-stone-300 transition-colors hover:text-white">
+              <button key={item.href} type="button" onClick={() => scrollToId(item.href.slice(1))} className="text-sm text-white/80 transition-colors hover:text-white" aria-label={`Ir a la sección ${item.label}`}>
                 {item.label}
               </button>
             ))}
@@ -98,14 +98,14 @@ export default function Landing() {
           <div className="mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
             <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
               <motion.div {...fadeUp}>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-stone-300">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/80">
                   <Coffee className="h-4 w-4" />
                   Lo vi de cerca
                 </div>
-                <h1 className="mt-8 max-w-4xl text-5xl font-black leading-[0.98] tracking-[-0.04em] sm:text-6xl lg:text-[4rem]">
+                <h1 className="mt-8 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
                   He visto a creadores con mucha audiencia aceptar colaboraciones que les daban vergüenza solo para llegar a fin de mes.
                 </h1>
-                <p className="mt-8 max-w-3xl text-xl leading-8 text-stone-300 sm:text-[22px]">
+                <p className="mt-8 max-w-2xl text-lg leading-8 text-white/80 sm:text-[22px]">
                   Esta parte de Hispaloshop nace para ofrecer una salida más limpia: productos que puedes recomendar con criterio, relaciones más estables y una monetización que no dependa solo del siguiente post.
                 </p>
 
@@ -119,26 +119,26 @@ export default function Landing() {
                   </button>
                 </div>
 
-                <p className="mt-6 text-sm uppercase tracking-[0.28em] text-stone-400">
+                <p className="mt-6 text-sm uppercase tracking-[0.28em] text-white/70">
                   No prometo humo. Propongo una relación más limpia con tu audiencia.
                 </p>
               </motion.div>
 
-              <motion.aside {...fadeUp} transition={{ duration: 0.5, delay: 0.08 }} className="rounded-[32px] border border-white/10 bg-white/5 p-6 shadow-[0_25px_70px_rgba(0,0,0,0.24)] backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.28em] text-stone-400">Mi contexto</p>
-                <div className="mt-6 space-y-4 text-base leading-7 text-stone-300">
+              <motion.aside {...fadeUp} transition={{ duration: 0.5, delay: 0.08 }} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur">
+                <p className="text-xs uppercase tracking-[0.28em] text-white/70">Mi contexto</p>
+                <div className="mt-6 space-y-4 text-base leading-7 text-white/80">
                   <p>En Corea del Sur vi muy de cerca lo que pasa con muchos creadores. Desde fuera parece libertad; por dentro muchas veces es dependencia, ansiedad y acuerdos que te vacían.</p>
                   <p>Lo que saqué claro es que el problema no era el talento. Era el sistema: pagos frágiles, campañas poco alineadas y cero continuidad si desapareces una semana.</p>
                   <p>Por eso aquí el mínimo no es la fama. Es la conexión real. Si sabes recomendar con criterio, puedes construir un ingreso más estable.</p>
                 </div>
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
-                    <p className="text-sm uppercase tracking-[0.24em] text-stone-400">18 meses</p>
-                    <p className="mt-3 text-sm leading-6 text-stone-300">El seguidor que compra a través de ti puede seguir vinculado durante 18 meses.</p>
+                  <div className="rounded-2xl border border-white/10 bg-black/80 p-5">
+                    <p className="text-sm uppercase tracking-[0.24em] text-white/70">18 meses</p>
+                    <p className="mt-3 text-sm leading-6 text-white/80">El seguidor que compra a través de ti puede seguir vinculado durante 18 meses.</p>
                   </div>
-                  <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
-                    <p className="text-sm uppercase tracking-[0.24em] text-stone-400">Enfoque</p>
-                    <p className="mt-3 text-sm leading-6 text-stone-300">Experiencia real, no discurso de agencia.</p>
+                  <div className="rounded-2xl border border-white/10 bg-black/80 p-5">
+                    <p className="text-sm uppercase tracking-[0.24em] text-white/70">Enfoque</p>
+                    <p className="mt-3 text-sm leading-6 text-white/80">Experiencia real, no discurso de agencia.</p>
                   </div>
                 </div>
               </motion.aside>
@@ -148,12 +148,12 @@ export default function Landing() {
               {PAIN_POINTS.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <motion.article key={item.title} {...fadeUp} className="rounded-[28px] border border-white/10 bg-white/5 p-6 backdrop-blur">
+                  <motion.article key={item.title} {...fadeUp} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white">
                       <Icon className="h-5 w-5" />
                     </div>
                     <h3 className="mt-5 text-xl font-semibold text-white">{item.title}</h3>
-                    <p className="mt-3 text-base leading-7 text-stone-300">{item.body}</p>
+                    <p className="mt-3 text-base leading-7 text-white/80">{item.body}</p>
                   </motion.article>
                 );
               })}
@@ -166,7 +166,7 @@ export default function Landing() {
             <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
               <div>
                 <p className="text-xs uppercase tracking-[0.32em] text-stone-500">La salida</p>
-                <h2 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-[-0.03em] text-stone-950 sm:text-5xl">
+                <h2 className="mt-5 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-stone-950 md:text-5xl">
                   Quiero que puedas recomendar algo con orgullo y seguir cobrando cuando ese vínculo funcione de verdad.
                 </h2>
               </div>
@@ -188,16 +188,16 @@ export default function Landing() {
               {TIERS.map((tier) => {
                 const Icon = tier.icon;
                 return (
-                  <motion.article key={tier.key} {...fadeUp} className="rounded-[32px] border border-stone-200 bg-white p-7 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
+                  <motion.article key={tier.key} {...fadeUp} className="rounded-2xl border border-stone-100 bg-white p-7 shadow-sm">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 text-stone-900">
                       <Icon className="h-6 w-6" />
                     </div>
                     <div className="mt-6 flex items-end justify-between gap-4">
                       <div>
                         <p className="text-xs uppercase tracking-[0.28em] text-stone-500">{tier.subtitle}</p>
-                        <h3 className="mt-2 text-3xl font-black text-stone-950">{tier.title}</h3>
+                        <h3 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">{tier.title}</h3>
                       </div>
-                      <p className="text-4xl font-black text-stone-950">{tier.rate}</p>
+                      <p className="text-4xl font-semibold tracking-tight text-stone-950">{tier.rate}</p>
                     </div>
                     <p className="mt-5 text-base leading-7 text-stone-700">{tier.description}</p>
                     <ul className="mt-6 space-y-3 text-sm leading-6 text-stone-600">
@@ -217,21 +217,21 @@ export default function Landing() {
               {BENEFITS.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <motion.article key={item.title} {...fadeUp} className="rounded-[30px] border border-stone-200 bg-white p-7 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+                  <motion.article key={item.title} {...fadeUp} className="rounded-2xl border border-stone-100 bg-white p-7 shadow-sm">
                     <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-stone-100 text-stone-900">
                       <Icon className="h-7 w-7" />
                     </div>
-                    <h3 className="mt-6 text-2xl font-black text-stone-950">{item.title}</h3>
+                    <h3 className="mt-6 text-2xl font-semibold tracking-tight text-stone-950">{item.title}</h3>
                     <p className="mt-4 text-base leading-7 text-stone-700">{item.body}</p>
                   </motion.article>
                 );
               })}
             </div>
 
-            <div id="aplicar" className="mt-16 rounded-[36px] bg-stone-950 p-8 text-white shadow-[0_30px_80px_rgba(15,23,42,0.18)] sm:p-10">
+            <div id="aplicar" className="mt-16 rounded-2xl bg-stone-950 p-8 text-white shadow-md sm:p-10">
               <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
-                  <h3 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
+                  <h3 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
                     Si tu audiencia confía en ti, quiero que esa confianza también te dé estabilidad.
                   </h3>
                   <p className="mt-4 max-w-3xl text-lg leading-8 text-white/80">
@@ -244,7 +244,7 @@ export default function Landing() {
                     Aplicar ahora
                     <ArrowRight className="h-4 w-4" />
                   </button>
-                  <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-4 font-semibold text-white transition-colors hover:bg-white/15">
+                  <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-4 font-semibold text-white transition-colors hover:bg-white/15" aria-label="Seguir a Bil Chanfou en Instagram">
                     <Instagram className="h-4 w-4" />
                     Seguir a @bchanfuah
                   </a>

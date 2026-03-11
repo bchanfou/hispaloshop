@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 
 export default function AboutPage() {
+  const [founderAvatarError, setFounderAvatarError] = useState(false);
   const stats = [
     { value: '65+', label: 'Paises activos' },
     { value: '100%', label: 'Productos verificados' },
@@ -198,14 +199,27 @@ export default function AboutPage() {
           <p className="text-sm text-text-muted text-center mb-8">La historia real detrás del proyecto.</p>
           <div className="bg-primary rounded-2xl p-6 sm:p-8 text-white">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold text-sm shrink-0">BC</div>
+              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
+                {!founderAvatarError ? (
+                  <img
+                    src="/images/bil-founder.jpg"
+                    alt="Bil Chanfou - fundador de Hispaloshop"
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                    onError={() => setFounderAvatarError(true)}
+                  />
+                ) : null}
+                {founderAvatarError ? (
+                  <div className="flex h-full w-full items-center justify-center bg-white text-sm font-bold text-stone-950">BC</div>
+                ) : null}
+              </div>
               <div>
                 <p className="font-semibold text-white text-sm">Bil Chanfou</p>
-                <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-stone-400 hover:text-white transition-colors">@bchanfuah</a>
+                <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-white/70 hover:text-white transition-colors" aria-label="Seguir a Bil Chanfou en Instagram">@bchanfuah</a>
               </div>
               <span className="ml-auto text-xs text-stone-500 uppercase tracking-widest">Fundador</span>
             </div>
-            <div className="space-y-4 text-sm leading-7 text-stone-300">
+            <div className="space-y-4 text-sm leading-7 text-white/80">
               <p>
                 Tenía 22 años cuando estaba en Seúl haciendo de extra en videoclips de K-pop. Conocí a <strong className="text-white">Alberto</strong> —300.000 seguidores en Instagram— destruido: vendiendo productos que no usaba solo para pagar el piso. Y a <strong className="text-white">Rebeca</strong>, con apenas 2.000 seguidores y una dedicación brutal, soñando con vivir de crear contenido dignamente. El sistema no estaba hecho para ninguno de los dos.
               </p>
@@ -243,7 +257,7 @@ export default function AboutPage() {
 
         <section className="bg-primary rounded-2xl p-8 text-center" data-testid="about-cta">
           <h2 className="font-heading text-2xl font-semibold text-white mb-3">Empieza hoy</h2>
-          <p className="text-sm text-stone-400 mb-6">Entra como comprador, productor, influencer o importador.</p>
+          <p className="mb-6 text-sm text-white/80">Entra como comprador, productor, influencer o importador.</p>
           <div className="flex justify-center gap-3">
             <Link to="/signup">
               <Button className="bg-primary hover:bg-primary-hover text-white rounded-full px-7 h-11">
@@ -251,7 +265,7 @@ export default function AboutPage() {
               </Button>
             </Link>
             <Link to="/products">
-              <Button variant="outline" className="rounded-full px-7 h-11 border-stone-600 text-stone-300 hover:bg-stone-800">
+              <Button variant="outline" className="h-11 rounded-full border-stone-600 px-7 text-white/80 hover:bg-stone-800 hover:text-white">
                 Solo explorar
               </Button>
             </Link>

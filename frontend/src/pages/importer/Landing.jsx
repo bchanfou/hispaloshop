@@ -121,13 +121,13 @@ export default function ImporterLanding() {
           <div className="relative mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
             <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
               <div className="max-w-3xl">
-                <motion.span {...fadeUp} className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-stone-300">
+                <motion.span {...fadeUp} className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/80">
                   Lo perdí en primera persona
                 </motion.span>
-                <motion.h1 {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="mt-6 max-w-4xl text-4xl font-extrabold leading-[0.94] tracking-[-0.03em] sm:text-5xl lg:text-[56px]">
+                <motion.h1 {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
                   No monté Hispaloshop porque importar me pareciera glamuroso. Lo monté después de perder dinero por hacerlo a ciegas.
                 </motion.h1>
-                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="mt-6 max-w-3xl text-lg leading-8 text-white/88 sm:text-2xl">
+                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="mt-6 max-w-2xl text-lg leading-8 text-white/80 sm:text-2xl">
                   Cuando importas sin canal, sin validación y sin red local, cualquier pedido puede convertirse en stock muerto. Lo viví en primera persona y no quiero romantizarlo.
                 </motion.p>
                 <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.15 }} className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -140,24 +140,24 @@ export default function ImporterLanding() {
                 </motion.div>
               </div>
 
-              <motion.aside {...fadeUp} transition={{ duration: 0.55, delay: 0.12 }} className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_22px_65px_-38px_rgba(15,23,42,0.45)] backdrop-blur-sm lg:p-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-300">Mi historia</p>
-                <p className="mt-4 text-[17px] leading-8 text-white/88">
+              <motion.aside {...fadeUp} transition={{ duration: 0.55, delay: 0.12 }} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-md backdrop-blur-sm lg:p-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">Mi historia</p>
+                <p className="mt-4 text-[17px] leading-8 text-white/80">
                   A los 25 años embarqué un contenedor de palomitas ecológicas españolas rumbo a Corea del Sur. Invertí dinero prestado, tiempo y demasiada ingenuidad.
                 </p>
-                <p className="mt-4 text-[17px] leading-8 text-white/88">
+                <p className="mt-4 text-[17px] leading-8 text-white/80">
                   Durante meses ese stock se quedó en mi salón de Seúl mientras intentaba abrir puertas sin idioma, sin red y sin una infraestructura comercial real. Perdí 15.000 EUR.
                 </p>
                 <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-2xl border border-white/10 bg-black/80 p-4">
                     <p className="text-2xl font-bold text-white">15.000 EUR</p>
                     <p className="mt-1 text-sm text-white/70">Perdidos antes de encontrar una salida real</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-2xl border border-white/10 bg-black/80 p-4">
                     <p className="text-2xl font-bold text-white">6 meses</p>
                     <p className="mt-1 text-sm text-white/70">Con stock muriendo dentro de casa</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-2xl border border-white/10 bg-black/80 p-4">
                     <p className="text-2xl font-bold text-white">1 lección</p>
                     <p className="mt-1 text-sm text-white/70">Sin canal y sin estructura, importas a ciegas</p>
                   </div>
@@ -173,7 +173,7 @@ export default function ImporterLanding() {
                     <div className="mt-1 rounded-full bg-white/10 p-2 text-white">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <p className="text-sm font-medium leading-6 text-white/88">{item.text}</p>
+                    <p className="text-sm font-medium leading-6 text-white/80">{item.text}</p>
                   </article>
                 );
               })}
@@ -185,7 +185,7 @@ export default function ImporterLanding() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-4xl text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-stone-500">La solución</p>
-              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.03em] text-stone-950 sm:text-4xl">
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
                 Lo que estoy construyendo aquí es la infraestructura que yo habría necesitado antes de meter un solo euro.
               </h2>
               <p className="mt-6 text-lg leading-8 text-stone-700">
@@ -200,7 +200,7 @@ export default function ImporterLanding() {
               {solutionCards.map((card, index) => {
                 const Icon = card.icon;
                 return (
-                  <motion.article key={card.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className="group rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_14px_34px_-26px_rgba(15,23,42,0.35)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(15,23,42,0.28)]">
+                  <motion.article key={card.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className="group rounded-2xl border border-stone-100 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-900 text-white">
                       <Icon className="h-6 w-6" />
                     </div>
@@ -217,7 +217,7 @@ export default function ImporterLanding() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-3xl text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-stone-500">Planes y acción</p>
-              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.03em] text-stone-950 sm:text-4xl">
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
                 Empieza pequeño. Escala cuando el mercado responda de verdad.
               </h2>
               <p className="mt-5 text-lg leading-8 text-stone-700">
@@ -227,14 +227,14 @@ export default function ImporterLanding() {
 
             <div className="mt-14 grid gap-6 xl:grid-cols-3">
               {planCards.map((plan, index) => (
-                <motion.article key={plan.id} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className={`flex h-full flex-col rounded-[30px] border bg-white p-7 shadow-[0_18px_45px_-30px_rgba(15,23,42,0.25)] transition duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_28px_60px_-32px_rgba(15,23,42,0.3)] ${plan.accent}`}>
+                <motion.article key={plan.id} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className={`flex h-full flex-col rounded-2xl border bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:scale-[1.01] ${plan.accent}`}>
                   <div className="flex items-center justify-between gap-4">
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${plan.id === 'pro' ? 'bg-stone-200 text-stone-900' : 'bg-stone-900 text-white'}`}>
                       {plan.badge}
                     </span>
                     <span className="text-sm font-semibold text-stone-500">{plan.name}</span>
                   </div>
-                  <p className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-stone-950">{plan.price}</p>
+                  <p className="mt-6 text-4xl font-semibold tracking-tight text-stone-950">{plan.price}</p>
                   <p className="mt-3 text-sm leading-7 text-stone-700">{plan.audience}</p>
                   <ul className="mt-8 space-y-3 text-sm text-stone-700">
                     {plan.features.map((feature) => (

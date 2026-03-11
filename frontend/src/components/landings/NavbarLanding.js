@@ -8,12 +8,12 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
 
   const isDark = variant === 'dark';
   const textColor = isDark ? 'text-white' : 'text-stone-950';
-  const navTextColor = isDark ? 'text-stone-300' : 'text-stone-700';
+  const navTextColor = isDark ? 'text-white/80' : 'text-stone-700';
   const navHoverColor = isDark ? 'hover:text-white' : 'hover:text-stone-950';
   const bgColor = isDark ? 'bg-stone-950/95' : 'bg-white/95';
   const borderColor = isDark ? 'border-stone-800' : 'border-stone-200';
   const mobilePanelBgColor = isDark ? 'bg-stone-950 text-white' : 'bg-white text-stone-950';
-  const mobileItemTextColor = isDark ? 'text-stone-300 hover:text-white' : 'text-stone-950';
+  const mobileItemTextColor = isDark ? 'text-white/80 hover:text-white' : 'text-stone-950';
   const mobileItemHoverColor = isDark ? 'hover:bg-white/5' : 'hover:bg-stone-50';
   const mobileCtaClass = isDark
     ? 'bg-white text-stone-950 hover:bg-stone-100'

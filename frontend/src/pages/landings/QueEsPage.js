@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Compass, Globe, MessageCircle, Package, Search, Wheat } from 'lucide-react';
@@ -9,6 +9,8 @@ import FooterLanding from '../../components/landings/FooterLanding';
 import FeatureGrid from '../../components/landings/FeatureGrid';
 import FAQAccordion from '../../components/landings/FAQAccordion';
 import StepProcess from '../../components/landings/StepProcess';
+
+const FOUNDER_AVATAR = '/images/bil-founder.jpg';
 
 const FEATURES = [
   {
@@ -71,6 +73,7 @@ const fadeUp = {
 const QueEsPage = () => {
   const navigate = useNavigate();
   const extraLinks = useMemo(() => [{ label: 'Historia', href: '#historia' }], []);
+  const [founderAvatarError, setFounderAvatarError] = useState(false);
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-950">
@@ -89,7 +92,7 @@ const QueEsPage = () => {
             <span className="inline-flex rounded-full border border-stone-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">
               Social commerce alimentario
             </span>
-            <h1 className="mt-6 text-4xl font-black leading-tight tracking-[-0.03em] text-stone-950 md:text-5xl lg:text-6xl">
+            <h1 className="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-stone-950 md:text-5xl">
               Comida real, contexto suficiente y una forma más limpia de comprar.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-700">
@@ -120,9 +123,9 @@ const QueEsPage = () => {
                 src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=900&auto=format&fit=crop"
                 alt="Botellas de aceite de oliva artesanal"
                 loading="lazy"
-                className="h-[220px] w-full rounded-[28px] object-cover shadow-[0_18px_40px_-28px_rgba(15,23,42,0.3)] sm:h-[280px]"
+                className="h-[220px] w-full rounded-2xl object-cover shadow-md sm:h-[280px]"
               />
-              <div className="rounded-[28px] border border-stone-200 bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border border-stone-100 bg-white p-5 shadow-sm">
                 <p className="text-sm font-semibold text-stone-950">Compra con contexto</p>
                 <p className="mt-2 text-sm leading-6 text-stone-700">Menos ruido, más señales reales sobre producto, origen y recomendación.</p>
               </div>
@@ -132,11 +135,11 @@ const QueEsPage = () => {
                 src="https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=900&auto=format&fit=crop"
                 alt="Queso artesanal en una mesa de producto"
                 loading="lazy"
-                className="h-[280px] w-full rounded-[28px] object-cover shadow-[0_18px_40px_-28px_rgba(15,23,42,0.3)] sm:h-[340px]"
+                className="h-[280px] w-full rounded-2xl object-cover shadow-md sm:h-[340px]"
               />
-              <div className="rounded-[28px] bg-stone-950 p-5 text-white shadow-[0_24px_50px_-30px_rgba(15,23,42,0.45)]">
-                <p className="text-sm font-semibold">Un solo flujo</p>
-                <p className="mt-2 text-sm leading-6 text-stone-300">Descubrir, conversar y comprar sin saltar entre experiencias rotas.</p>
+              <div className="rounded-2xl bg-stone-950 p-5 text-white shadow-md">
+                <p className="text-sm font-semibold text-white">Un solo flujo</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/80">Descubrir, conversar y comprar sin saltar entre experiencias rotas.</p>
               </div>
             </div>
           </motion.div>
@@ -145,7 +148,7 @@ const QueEsPage = () => {
 
       <section className="bg-white py-20">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-black tracking-[-0.03em] text-stone-950 sm:text-4xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
             Nació de una frustración concreta: ver buen producto escondido dentro de un sistema que no explica nada.
           </h2>
           <div className="mt-10 grid gap-4 text-left md:grid-cols-2">
@@ -171,11 +174,11 @@ const QueEsPage = () => {
       <section id="historia" className="bg-stone-950 py-20 text-white">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">La historia detrás</p>
-            <h2 className="text-3xl font-black tracking-[-0.03em]">Por qué existe Hispaloshop</h2>
-            <p className="mt-4 text-lg leading-8 text-stone-300">No salió de un estudio de mercado. Salió de lo que vi y de lo que perdí.</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-white/70">La historia detrás</p>
+            <h2 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Por qué existe Hispaloshop</h2>
+            <p className="mt-4 text-lg leading-8 text-white/80">No salió de un estudio de mercado. Salió de lo que vi y de lo que perdí.</p>
           </div>
-          <div className="space-y-5 rounded-[32px] border border-white/10 bg-white/5 p-6 text-base leading-8 text-stone-300 sm:p-8">
+          <div className="space-y-5 rounded-2xl border border-white/10 bg-white/5 p-6 text-base leading-relaxed text-white/80 shadow-md sm:p-8">
             <p>Tenía 24 años y recorría España de fábrica en fábrica. Conocí a productores que hacían las cosas bien y que seguían siendo invisibles para casi todo el mundo.</p>
             <p>
               Intenté llevar esos productos fuera. Fracasé. Perdí 15.000 EUR y entendí algo que ya no se me olvidó:
@@ -183,10 +186,23 @@ const QueEsPage = () => {
             </p>
             <p>Por eso hice Hispaloshop. Para que puedas comprar con más verdad, para que el productor honesto no desaparezca en un lineal y para que el creador no tenga que elegir entre dignidad e ingresos.</p>
             <div className="flex items-center gap-3 pt-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xs font-bold text-stone-950">BC</div>
+              <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
+                {!founderAvatarError ? (
+                  <img
+                    src={FOUNDER_AVATAR}
+                    alt="Bil Chanfou - fundador de Hispaloshop"
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                    onError={() => setFounderAvatarError(true)}
+                  />
+                ) : null}
+                {founderAvatarError ? (
+                  <div className="flex h-full w-full items-center justify-center bg-white text-xs font-bold text-stone-950">BC</div>
+                ) : null}
+              </div>
               <div>
                 <p className="text-sm font-semibold text-white">Bil Chanfou · Fundador</p>
-                <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-stone-400 transition-colors hover:text-white">
+                <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-white/70 transition-colors hover:text-white" aria-label="Seguir a Bil Chanfou en Instagram">
                   @bchanfuah
                 </a>
               </div>
@@ -197,25 +213,25 @@ const QueEsPage = () => {
 
       <section className="bg-stone-50 py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-12 text-center text-3xl font-black tracking-[-0.03em] text-stone-950">Cómo funciona</h2>
+          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Cómo funciona</h2>
           <StepProcess steps={STEPS} layout="horizontal" />
         </div>
       </section>
 
       <section className="bg-white py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-12 text-center text-3xl font-black tracking-[-0.03em] text-stone-950">Tres pilares del producto</h2>
+          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Tres pilares del producto</h2>
           <FeatureGrid features={FEATURES} columns={3} />
         </div>
       </section>
 
       <section className="bg-white py-20">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="rounded-[32px] border border-stone-200 bg-stone-50 p-8 sm:p-10">
+          <div className="rounded-2xl border border-stone-100 bg-stone-50 p-8 shadow-sm sm:p-10">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-950 text-white">
               <Compass className="h-6 w-6" />
             </div>
-            <h2 className="mt-6 text-3xl font-black tracking-[-0.03em] text-stone-950">Empieza por mirar mejor lo que compras</h2>
+            <h2 className="mt-6 text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Empieza por mirar mejor lo que compras</h2>
             <p className="mt-4 text-lg leading-8 text-stone-700">
               Después ya decidirás si quieres seguir, comprar o construir tu perfil dentro de Hispaloshop.
             </p>
@@ -233,7 +249,7 @@ const QueEsPage = () => {
 
       <section className="bg-stone-50 py-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-12 text-center text-3xl font-black tracking-[-0.03em] text-stone-950">Preguntas frecuentes</h2>
+          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Preguntas frecuentes</h2>
           <FAQAccordion faqs={FAQS} />
         </div>
       </section>

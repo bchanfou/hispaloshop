@@ -41,17 +41,17 @@ const valueCards = [
 
 function HeroStory({ expanded, onToggle }) {
   return (
-    <div className="rounded-[28px] border border-white/10 bg-black/15 p-5 shadow-[0_22px_60px_-34px_rgba(0,0,0,0.45)] backdrop-blur-sm sm:p-7">
+    <div className="rounded-2xl border border-white/10 bg-black/80 p-5 shadow-md backdrop-blur-sm sm:p-7">
       <div className="border-l-4 border-white/30 pl-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-300">Verano de 2024</p>
-        <p className="mt-4 text-sm leading-7 text-stone-50/88 sm:text-[15px]">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">Verano de 2024</p>
+        <p className="mt-4 text-sm leading-7 text-white/80 sm:text-[15px]">
           Recorrí España de fábrica en fábrica y vi algo muy concreto: productores honestos haciendo las cosas bien y muy poca estructura alrededor para ayudarles a llegar lejos.
         </p>
         <div className={`${expanded ? 'block' : 'hidden md:block'}`}>
-          <p className="mt-4 text-sm leading-7 text-stone-50/88 sm:text-[15px]">
+          <p className="mt-4 text-sm leading-7 text-white/80 sm:text-[15px]">
             Luego me fui a Corea con muestras, reuniones y demasiadas puertas cerradas. Perdí dinero, tiempo y orgullo, pero entendí algo útil: el problema no era vuestro producto. Era el sistema alrededor.
           </p>
-          <p className="mt-4 text-sm leading-7 text-stone-50/88 sm:text-[15px]">
+          <p className="mt-4 text-sm leading-7 text-white/80 sm:text-[15px]">
             Esta página sale de ahí. No de una teoría. De haber visto cómo el buen producto se queda esperando mientras el mercado favorece a quien mejor negocia, no siempre a quien mejor hace las cosas.
           </p>
         </div>
@@ -60,7 +60,7 @@ function HeroStory({ expanded, onToggle }) {
       <button
         type="button"
         onClick={onToggle}
-        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-stone-300 md:hidden"
+        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white/80 md:hidden"
       >
         {expanded ? 'Cerrar historia' : 'Leer toda la historia'}
         <ArrowRight className={`h-4 w-4 transition ${expanded ? 'rotate-90' : ''}`} />
@@ -102,7 +102,7 @@ export default function ProducerLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-800">
+    <div className="min-h-screen bg-stone-50 text-stone-950">
       <SEO
         title="Vende tu producto artesanal al mundo | Hispaloshop para Productores"
         description="Landing para productores que quieren vender con más contexto, mejor margen y una infraestructura más clara."
@@ -130,13 +130,13 @@ export default function ProducerLanding() {
           <div className="relative mx-auto flex min-h-[calc(100svh-56px)] max-w-7xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
             <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
               <div className="max-w-3xl">
-                <motion.span {...fadeUp} className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-stone-300">
+                <motion.span {...fadeUp} className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80">
                   Lo he visto de cerca
                 </motion.span>
-                <motion.h1 {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="mt-6 max-w-4xl text-[32px] font-extrabold leading-[1.05] tracking-[-0.04em] sm:text-5xl lg:text-[62px]">
+                <motion.h1 {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
                   Si has hecho un producto bueno de verdad, no deberías sentir que todo el sistema está diseñado para dejarte sin margen y sin voz.
                 </motion.h1>
-                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="mt-6 max-w-3xl text-base leading-8 text-stone-50/92 sm:text-[22px]">
+                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-[22px]">
                   He hablado con productores que trabajan mejor de lo que cobran. Obradores, cooperativas y pequeñas marcas que sostienen calidad real, pero llegan al mercado tarde, mal y negociando siempre desde abajo.
                 </motion.p>
                 <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.16 }} className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -148,7 +148,7 @@ export default function ProducerLanding() {
                     Ver planes
                   </button>
                 </motion.div>
-                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.2 }} className="mt-8 max-w-3xl text-base leading-8 text-stone-50/88">
+                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.2 }} className="mt-8 max-w-2xl text-base leading-8 text-white/80">
                   Yo también he visto lo que pasa cuando el producto tiene alma pero el canal no acompaña. Por eso esta página no es un pitch deck: es la infraestructura que me habría gustado poner delante de esos productores desde el primer día.
                 </motion.p>
               </div>
@@ -157,11 +157,11 @@ export default function ProducerLanding() {
                 <HeroStory expanded={storyExpanded} onToggle={() => setStoryExpanded((current) => !current)} />
                 <div className="grid gap-3 sm:grid-cols-2">
                   {painPoints.map((point) => (
-                    <article key={point} className="flex min-h-[120px] items-start gap-3 rounded-[22px] border border-white/10 bg-white/[0.06] px-4 py-4">
+                    <article key={point} className="flex min-h-[120px] items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4">
                       <div className="mt-1 rounded-full bg-white/10 p-2 text-white">
                         <Leaf className="h-4 w-4" />
                       </div>
-                      <p className="text-sm leading-7 text-stone-50/88">{point}</p>
+                      <p className="text-sm leading-7 text-white/80">{point}</p>
                     </article>
                   ))}
                 </div>
@@ -174,7 +174,7 @@ export default function ProducerLanding() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-4xl text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">La infraestructura</p>
-              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-stone-950 sm:text-[42px]">
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
                 No quiero que vuelvas a depender solo de ferias, distribuidores opacos o promesas que llegan demasiado tarde.
               </h2>
               <p className="mt-6 text-lg leading-8 text-stone-600">
@@ -189,11 +189,11 @@ export default function ProducerLanding() {
               {valueCards.map((card, index) => {
                 const Icon = card.icon;
                 return (
-                  <motion.article key={card.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className="group rounded-[28px] border border-stone-200 bg-white p-6 shadow-[0_18px_50px_-34px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-stone-900 hover:shadow-[0_26px_65px_-34px_rgba(15,23,42,0.22)]">
+                  <motion.article key={card.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className="group rounded-2xl border border-stone-100 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-stone-900">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-950 text-white">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <h3 className="mt-5 text-xl font-bold text-stone-800">{card.title}</h3>
+                    <h3 className="mt-5 text-xl font-semibold text-stone-950">{card.title}</h3>
                     <p className="mt-3 text-sm leading-7 text-stone-600">{card.body}</p>
                   </motion.article>
                 );
@@ -206,7 +206,7 @@ export default function ProducerLanding() {
           <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="mx-auto max-w-3xl text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">Planes y acción</p>
-              <h2 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-stone-800 sm:text-[40px]">
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
                 Entra con el nivel de riesgo que puedas asumir hoy.
               </h2>
               <p className="mt-5 text-lg leading-8 text-stone-600">
@@ -216,14 +216,14 @@ export default function ProducerLanding() {
 
             <div className="mt-12 grid gap-6 lg:grid-cols-3">
               {Object.values(PRODUCER_PLANS).map((plan, index) => (
-                <motion.article key={plan.key} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className={`flex h-full flex-col rounded-[30px] border-t-4 p-7 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_70px_-36px_rgba(0,0,0,0.24)] ${plan.accentClass}`}>
+                <motion.article key={plan.key} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className={`flex h-full flex-col rounded-2xl border-t-4 p-7 shadow-sm transition duration-300 hover:-translate-y-1 ${plan.accentClass}`}>
                   <div className="flex items-center justify-between gap-4">
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${plan.key === 'pro' ? 'bg-stone-200 text-stone-900' : plan.key === 'elite' ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-700'}`}>
                       {plan.badge}
                     </span>
-                    <span className="text-sm font-semibold text-stone-400">{plan.name}</span>
+                    <span className="text-sm font-semibold text-stone-500">{plan.name}</span>
                   </div>
-                  <p className="mt-6 text-4xl font-extrabold tracking-[-0.04em] text-stone-800">{plan.price}</p>
+                  <p className="mt-6 text-4xl font-semibold tracking-tight text-stone-950">{plan.price}</p>
                   <p className="mt-4 text-sm leading-7 text-stone-600">{plan.summary}</p>
                   <ul className="mt-7 space-y-3 text-sm text-stone-600">
                     {plan.features.map((feature) => (
