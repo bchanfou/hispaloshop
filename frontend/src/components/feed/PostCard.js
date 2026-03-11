@@ -6,7 +6,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
+  Image as ImageIcon,
   MessageCircle,
+  MoreHorizontal,
   Share2,
   ShoppingBag,
 } from 'lucide-react';
@@ -49,17 +51,11 @@ function ProductTag({ product }) {
   return (
     <Link
       to={`/products/${productId}`}
-      className="absolute bottom-4 left-4 rounded-2xl border border-stone-200 bg-white/96 px-3 py-2 shadow-[0_10px_24px_rgba(15,15,15,0.14)] backdrop-blur-sm transition-colors hover:bg-white"
+      className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white/96 px-3 py-1.5 shadow-[0_8px_20px_rgba(15,15,15,0.12)] backdrop-blur-sm transition-colors hover:bg-white"
     >
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-stone-950 text-white">
-          <ShoppingBag className="h-4 w-4" />
-        </div>
-        <div className="min-w-0">
-          <p className="max-w-[140px] truncate text-xs font-semibold text-stone-950">{product.name}</p>
-          {price ? <p className="text-xs text-stone-600">{price}</p> : null}
-        </div>
-      </div>
+      <ShoppingBag className="h-3.5 w-3.5 shrink-0 text-stone-950" />
+      <span className="truncate max-w-[160px] text-xs font-medium text-stone-950">{product.name}</span>
+      {price ? <span className="shrink-0 text-xs text-stone-500">{price}</span> : null}
     </Link>
   );
 }
@@ -71,6 +67,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
   const [likeCount, setLikeCount] = useState(post.likes || 0);
   const [showLikeAnimation, setShowLikeAnimation] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showOptions, setShowOptions] = useState(false);
   const lastTapRef = useRef(0);
 
   const images = post.media || [{ url: post.image_url || post.media_url, ratio: '1:1' }];
@@ -78,6 +75,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
   const authorName = post.user?.name || post.user_name;
   const authorAvatar = post.user?.avatar || post.user_profile_image || '/default-avatar.png';
   const authorVerified = post.user?.verified || post.user_verified;
+  const currentImageUrl = images[currentImageIndex]?.url;
 
   const handleImageTap = () => {
     const now = Date.now();
@@ -106,6 +104,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
   };
 
   const handleShare = async () => {
+    setShowOptions(false);
     if (onShare) {
       await onShare();
       return;
@@ -150,12 +149,18 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
   };
 
   return (
-    <article className="border-b border-stone-100 bg-white">
+    <article className="mb-0.5 border-b border-stone-100 bg-white">
       <div className="mx-auto max-w-3xl">
+        {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
           <Link to={`/user/${post.user?.id || post.user_id}`} className="flex min-w-0 items-center gap-3">
             <div className="h-10 w-10 overflow-hidden rounded-full border border-stone-200 bg-stone-100">
-              <img src={authorAvatar} alt={authorName} className="h-full w-full object-cover" />
+              <img
+                src={authorAvatar}
+                alt={authorName}
+                className="h-full w-full object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -170,18 +175,70 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
             </div>
           </Link>
 
-          <div className="h-9 w-9" aria-hidden="true" />
+          {/* Options button */}
+          <div className="relative">
+            <button
+              aria-label="Opciones de la publicación"
+              onClick={() => setShowOptions((v) => !v)}
+              className="p-2 rounded-full hover:bg-stone-100 transition-colors"
+            >
+              <MoreHorizontal className="w-5 h-5 text-stone-500" />
+            </button>
+
+            <AnimatePresence>
+              {showOptions && (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setShowOptions(false)}
+                    className="fixed inset-0 z-30"
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                    transition={{ duration: 0.12 }}
+                    className="absolute right-0 top-full mt-1 z-40 w-44 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-[0_12px_30px_rgba(15,15,15,0.12)]"
+                  >
+                    <Link
+                      to={`/posts/${post.id}`}
+                      onClick={() => setShowOptions(false)}
+                      className="flex w-full items-center px-4 py-3 text-sm text-stone-700 hover:bg-stone-50 transition-colors"
+                    >
+                      Ver publicación
+                    </Link>
+                    <button
+                      onClick={handleShare}
+                      className="flex w-full items-center px-4 py-3 text-sm text-stone-700 hover:bg-stone-50 transition-colors border-t border-stone-100"
+                    >
+                      Compartir
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
+        {/* Media */}
         <div className="relative overflow-hidden bg-stone-100" onClick={handleImageTap}>
           <div className="relative aspect-square w-full">
             <LikeAnimation show={showLikeAnimation} />
 
-            <img
-              src={images[currentImageIndex]?.url}
-              alt={post.caption || 'Post'}
-              className="h-full w-full object-cover"
-            />
+            {currentImageUrl ? (
+              <img
+                src={currentImageUrl}
+                alt={post.caption || 'Imagen de la publicación'}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-stone-100">
+                <ImageIcon className="w-8 h-8 text-stone-400" />
+              </div>
+            )}
 
             {post.productTag ? <ProductTag product={post.productTag} /> : null}
 
@@ -190,6 +247,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
                 {currentImageIndex > 0 ? (
                   <button
                     onClick={prevImage}
+                    aria-label="Imagen anterior"
                     className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/35 text-white"
                   >
                     <ChevronLeft className="h-5 w-5" />
@@ -199,6 +257,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
                 {currentImageIndex < images.length - 1 ? (
                   <button
                     onClick={nextImage}
+                    aria-label="Imagen siguiente"
                     className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/35 text-white"
                   >
                     <ChevronRight className="h-5 w-5" />
@@ -220,6 +279,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
           </div>
         </div>
 
+        {/* Actions */}
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
@@ -259,9 +319,12 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
             </motion.button>
           </div>
 
-          <p className="text-sm font-semibold text-stone-950">
-            {likeCount.toLocaleString()} {t('feed.likes', 'me gusta')}
-          </p>
+          {/* Like count — hide if zero */}
+          {likeCount > 0 && (
+            <p className="text-sm font-semibold text-stone-950">
+              {likeCount === 1 ? '1 me gusta' : `${likeCount.toLocaleString('es-ES')} me gusta`}
+            </p>
+          )}
 
           {post.caption ? (
             <div className="mt-2 text-sm leading-6 text-stone-700">
@@ -271,7 +334,10 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
           ) : null}
 
           {post.comments > 0 ? (
-            <button onClick={handleComment} className="mt-2 text-sm text-stone-500 transition-colors hover:text-stone-800">
+            <button
+              onClick={handleComment}
+              className="mt-2 text-sm text-stone-500 transition-colors hover:text-stone-800"
+            >
               {t('feed.viewComments', 'Ver los {{count}} comentarios', { count: post.comments })}
             </button>
           ) : null}
