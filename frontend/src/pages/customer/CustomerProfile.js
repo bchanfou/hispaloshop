@@ -850,7 +850,7 @@ export default function CustomerProfile() {
                 <Input
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value.toUpperCase())}
-                  placeholder="DELETE"
+                  placeholder="BORRAR"
                   className="font-mono"
                   data-testid="delete-confirmation-input"
                 />

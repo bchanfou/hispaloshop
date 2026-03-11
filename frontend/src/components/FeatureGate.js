@@ -37,7 +37,7 @@ export default function FeatureGate({ requiredPlan, currentPlan, featureName, ch
           </p>
           <Link to="/pricing">
             <Button size="sm" className="bg-primary hover:bg-primary-hover text-white rounded-xl gap-1.5 text-xs h-8 px-4">
-              <Zap className="w-3 h-3" /> {t('plans.upgrade', 'Upgrade')} <ArrowRight className="w-3 h-3" />
+              <Zap className="w-3 h-3" /> {t('plans.upgrade', 'Mejorar plan')} <ArrowRight className="w-3 h-3" />
             </Button>
           </Link>
         </div>

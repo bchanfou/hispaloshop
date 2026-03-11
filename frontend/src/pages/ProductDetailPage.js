@@ -88,7 +88,7 @@ export default function ProductDetailPage() {
 
   const handleFollowStore = async () => {
     if (!user) {
-      toast.error(t('errors.unauthorized', 'Inicia sesion para seguir tiendas'));
+      toast.error(t('errors.unauthorized', 'Inicia sesión para seguir tiendas'));
       return;
     }
 
@@ -106,7 +106,7 @@ export default function ProductDetailPage() {
 
   const handleSubmitReview = async () => {
     if (!reviewComment.trim()) {
-      toast.error('Please write a comment');
+      toast.error('Escribe un comentario antes de enviar la reseña');
       return;
     }
 
@@ -117,18 +117,18 @@ export default function ProductDetailPage() {
         comment: reviewComment,
       });
 
-      toast.success('Review submitted successfully!');
+      toast.success('Reseña enviada correctamente');
       setShowReviewForm(false);
       setReviewComment('');
       setReviewRating(5);
     } catch (error) {
-      toast.error(error.response?.data?.detail || error.message || 'Failed to submit review');
+      toast.error(error.response?.data?.detail || error.message || 'No hemos podido enviar la reseña');
     }
   };
 
   const toggleWishlist = async () => {
     if (!user) {
-      toast.info(t('auth.loginRequired', 'Inicia sesion para guardar'));
+      toast.info(t('auth.loginRequired', 'Inicia sesión para guardar'));
       return;
     }
 
@@ -148,7 +148,7 @@ export default function ProductDetailPage() {
     if (!user) {
       toast.error(t('errors.loginRequired', 'Inicia sesión para añadir productos'), {
         action: {
-          label: t('auth.login', 'Login'),
+          label: t('auth.login', 'Entrar'),
           onClick: () => window.location.href = '/login'
         }
       });
@@ -177,7 +177,7 @@ export default function ProductDetailPage() {
     if (!user) {
       toast.error(t('errors.loginRequired', 'Inicia sesión para comprar'), {
         action: {
-          label: t('auth.login', 'Login'),
+          label: t('auth.login', 'Entrar'),
           onClick: () => window.location.href = '/login'
         }
       });
@@ -205,11 +205,11 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-stone-50">
         <Header />
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-12 md:py-20 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ds-primary mx-auto mb-4"></div>
-          <p className="text-text-muted">{t('productDetail.loading')}</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950 mx-auto mb-4"></div>
+          <p className="text-stone-500">{t('productDetail.loading')}</p>
         </div>
         <Footer />
       </div>
@@ -218,12 +218,12 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-stone-50">
         <Header />
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-12 md:py-20 text-center">
-          <p className="text-text-muted text-lg mb-4">{t('productDetail.notFound')}</p>
+          <p className="text-stone-500 text-lg mb-4">{t('productDetail.notFound')}</p>
           <Link to="/products">
-            <Button className="rounded-full bg-ds-primary text-white">{t('productDetail.backToProducts')}</Button>
+            <Button className="rounded-full bg-stone-950 text-white hover:bg-black">{t('productDetail.backToProducts')}</Button>
           </Link>
         </div>
         <Footer />
@@ -235,7 +235,7 @@ export default function ProductDetailPage() {
   const isFreeShipping = !product.shipping_cost || product.shipping_cost === 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-stone-50">
       <SEO
         title={product?.name || 'Producto'}
         description={product?.description?.slice(0, 160) || ''}
@@ -276,7 +276,7 @@ export default function ProductDetailPage() {
                 {product.certifications.map((cert, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium border border-green-200"
+                    className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-700 md:px-2.5 md:py-1 md:text-xs"
                     data-testid={`cert-badge-${cert}`}
                   >
                     <Shield className="w-2.5 h-2.5 md:w-3 md:h-3" />
@@ -287,21 +287,21 @@ export default function ProductDetailPage() {
             )}
 
             {/* Product Title */}
-            <h1 className="font-heading text-xl md:text-2xl lg:text-3xl font-semibold text-text-primary mb-2 md:mb-3 leading-tight" data-testid="product-title">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-stone-950 mb-2 md:mb-3 leading-tight" data-testid="product-title">
               {product.name}
             </h1>
 
             {/* Rating */}
             <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4 flex-wrap">
               <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 md:w-5 md:h-5 fill-amber-400 stroke-amber-400" />
-                <span className="font-semibold text-text-primary text-sm md:text-base">{averageRating?.toFixed(1) || '0.0'}</span>
+                <Star className="w-4 h-4 md:w-5 md:h-5 fill-stone-950 stroke-stone-950" />
+                <span className="font-semibold text-stone-950 text-sm md:text-base">{averageRating?.toFixed(1) || '0.0'}</span>
               </div>
-              <span className="text-text-muted text-xs md:text-sm">({totalReviews} {t('productDetail.reviews', 'reviews')})</span>
+              <span className="text-stone-500 text-xs md:text-sm">({totalReviews} {t('productDetail.reviews', 'reseñas')})</span>
               {product.units_sold > 0 && (
                 <>
                   <span className="text-stone-300 hidden md:inline">·</span>
-                  <span className="text-text-muted text-xs md:text-sm">{product.units_sold} {t('products.sold', 'vendidos')}</span>
+                  <span className="text-stone-500 text-xs md:text-sm">{product.units_sold} {t('products.sold', 'vendidos')}</span>
                 </>
               )}
             </div>
@@ -314,31 +314,31 @@ export default function ProductDetailPage() {
               </div>
             )}
             {isLowStock && (
-              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 md:px-4 py-2 mb-3 md:mb-4">
-                <AlertCircle className="w-4 h-4 text-amber-500" />
-                <span className="text-amber-700 text-xs md:text-sm font-medium">{t('productDetail.lowStockWarning', { count: stock })}</span>
+              <div className="mb-3 flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-100 px-3 py-2 md:mb-4 md:px-4">
+                <AlertCircle className="h-4 w-4 text-stone-700" />
+                <span className="text-xs font-medium text-stone-700 md:text-sm">{t('productDetail.lowStockWarning', { count: stock })}</span>
               </div>
             )}
 
             {/* Price - Larger on mobile since it's key info */}
             <div className="mb-4 md:mb-6">
-              <span className="font-heading text-2xl md:text-3xl font-bold text-text-primary" data-testid="product-price">
+              <span className="text-2xl md:text-3xl font-bold text-stone-950" data-testid="product-price">
                 {convertAndFormatPrice(currentPrice || product.price, product.currency || 'EUR')}
               </span>
             </div>
 
             {/* Shipping Info */}
-            <div className="flex items-center gap-2 mb-4 md:mb-6 p-2.5 md:p-3 bg-white rounded-lg border border-border-default">
-              <Truck className={`w-4 h-4 md:w-5 md:h-5 ${isFreeShipping ? 'text-green-600' : 'text-text-muted'}`} />
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-stone-200 bg-white p-2.5 md:mb-6 md:p-3">
+              <Truck className={`w-4 h-4 md:w-5 md:h-5 ${isFreeShipping ? 'text-stone-950' : 'text-stone-500'}`} />
               {isFreeShipping ? (
-                <span className="text-green-600 font-medium text-sm">{t('products.freeShipping', 'Envío gratis')}</span>
+                <span className="text-sm font-medium text-stone-950">{t('products.freeShipping', 'Envío gratis')}</span>
               ) : (
                 <div className="text-xs md:text-sm">
-                  <span className="text-text-secondary font-medium">
+                  <span className="font-medium text-stone-700">
                     {t('products.shippingCost', 'Envío')}: {convertAndFormatPrice(product.shipping_cost, 'EUR')}
                   </span>
                   {product.free_shipping_min_qty && (
-                    <span className="text-text-muted ml-1 md:ml-2">
+                    <span className="ml-1 text-stone-500 md:ml-2">
                       ({t('products.freeFrom', 'gratis desde')} {product.free_shipping_min_qty} uds)
                     </span>
                   )}
@@ -348,8 +348,8 @@ export default function ProductDetailPage() {
 
             {/* Description */}
             <div className="mb-4 md:mb-6">
-              <h3 className="font-medium text-text-primary mb-2 text-sm md:text-base">{t('productDetail.description', 'Descripción')}</h3>
-              <p className="text-text-secondary text-xs md:text-sm leading-relaxed" data-testid="product-description">
+              <h3 className="mb-2 text-sm font-medium text-stone-950 md:text-base">{t('productDetail.description', 'Descripción')}</h3>
+              <p className="text-xs leading-relaxed text-stone-600 md:text-sm" data-testid="product-description">
                 {product.description}
               </p>
             </div>
@@ -358,7 +358,7 @@ export default function ProductDetailPage() {
             {currentIngredients && currentIngredients.length > 0 && (
               <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6" data-testid="ingredients-section">
                 <h3 className="font-medium text-stone-900 mb-3 flex items-center gap-2">
-                  <Leaf className="w-4 h-4 text-green-600" />
+                  <Leaf className="w-4 h-4 text-stone-700" />
                   {t('productDetail.ingredients', 'Ingredientes')}
                   {selectedVariant && (
                     <span className="text-xs text-stone-500 font-normal">({selectedVariant.name})</span>
@@ -368,13 +368,13 @@ export default function ProductDetailPage() {
                   {currentIngredients.map((ingredient, idx) => (
                     <span 
                       key={idx} 
-                      className="inline-flex items-center gap-1 bg-green-50 text-green-800 px-3 py-1.5 rounded-full text-sm border border-green-200"
+                      className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-3 py-1.5 text-sm text-stone-700"
                     >
                       {typeof ingredient === 'object' ? (
                         <>
                           <span className="font-medium">{stripEmoji(ingredient.name)}</span>
                           {ingredient.origin && (
-                            <span className="text-green-600 text-xs">({stripEmoji(ingredient.origin)})</span>
+                            <span className="text-xs text-stone-500">({stripEmoji(ingredient.origin)})</span>
                           )}
                         </>
                       ) : (
@@ -457,16 +457,16 @@ export default function ProductDetailPage() {
 
             {/* Allergens */}
             {currentAllergens && currentAllergens.length > 0 && (
-              <div className="bg-amber-50 rounded-xl border border-amber-200 p-4 mb-6" data-testid="allergens-section">
-                <h3 className="font-medium text-amber-900 mb-2 flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <div className="mb-6 rounded-xl border border-stone-200 bg-stone-100 p-4" data-testid="allergens-section">
+                <h3 className="mb-2 flex items-center gap-2 font-medium text-stone-900">
+                  <AlertTriangle className="h-4 w-4 text-stone-700" />
                   {t('productDetail.allergens', 'Alérgenos')}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {currentAllergens.map((allergen, idx) => (
                     <span 
                       key={idx} 
-                      className="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium"
+                      className="rounded-full bg-white px-2 py-1 text-xs font-medium text-stone-700"
                     >
                       {allergen}
                     </span>
@@ -508,8 +508,8 @@ export default function ProductDetailPage() {
                       data-testid={`variant-button-${variant.variant_id}`}
                       className={`px-4 py-2 rounded-full text-sm transition-all ${
                         selectedVariant?.variant_id === variant.variant_id
-                          ? 'bg-amber-500 text-white border border-amber-500'
-                          : 'bg-white text-stone-700 border border-stone-200 hover:border-amber-400'
+                          ? 'border border-stone-950 bg-stone-950 text-white'
+                          : 'border border-stone-200 bg-white text-stone-700 hover:border-stone-400'
                       }`}
                     >
                       {variant.name}
@@ -540,7 +540,7 @@ export default function ProductDetailPage() {
                         }}
                         className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-all ${
                           isSelected
-                            ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/20'
+                            ? 'border-stone-950 bg-stone-100 ring-2 ring-stone-950/10'
                             : 'bg-white border-stone-200 hover:border-stone-400'
                         }`}
                         data-testid={`pack-option-${pack.pack_id || idx}`}
@@ -549,7 +549,7 @@ export default function ProductDetailPage() {
                           {/* Checkbox indicator */}
                           <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
                             isSelected 
-                              ? 'bg-amber-500 border-amber-500' 
+                              ? 'border-stone-950 bg-stone-950' 
                               : 'border-stone-300'
                           }`}>
                             {isSelected && (
@@ -560,7 +560,7 @@ export default function ProductDetailPage() {
                           </div>
                           <span className="text-sm font-medium">{pack.label || `${pack.units || pack.quantity || 1} unidades`}</span>
                           {calculateSavings(pack, selectedVariant) && (
-                            <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                            <span className="rounded-full bg-stone-950 px-2 py-0.5 text-xs text-white">
                               {t('productDetail.savingsNote', 'Ahorra')} €{calculateSavings(pack, selectedVariant).toFixed(2)}
                             </span>
                           )}
@@ -627,7 +627,7 @@ export default function ProductDetailPage() {
                     data-testid="add-to-cart-button"
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    {t('products.addToCart', 'Anadir al carrito')}
+                    {t('products.addToCart', 'Añadir al carrito')}
                   </Button>
                   <Button
                     onClick={toggleWishlist}
@@ -644,11 +644,11 @@ export default function ProductDetailPage() {
                 {/* Trust Signals */}
                 <div className="mt-4 pt-4 border-t border-stone-100 space-y-2">
                   <div className="flex items-center gap-2 text-xs text-stone-500">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <CheckCircle className="w-4 h-4 text-stone-700" />
                     <span>{t('productDetail.securePayment', 'Pago 100% seguro')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-stone-500">
-                    <Truck className="w-4 h-4 text-green-500" />
+                    <Truck className="w-4 h-4 text-stone-700" />
                     <span>{t('productDetail.fastShipping', 'Envío en 24-48h')}</span>
                   </div>
                 </div>
@@ -694,7 +694,7 @@ export default function ProductDetailPage() {
                     <div className="grid grid-cols-3 gap-2 mb-4 text-center">
                       <div className="bg-stone-50 rounded-lg p-2">
                         <div className="flex items-center justify-center gap-1">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 stroke-amber-400" />
+                          <Star className="w-3.5 h-3.5 fill-stone-950 stroke-stone-950" />
                           <span className="font-semibold text-stone-900 text-sm">{storeInfo.rating?.toFixed(1) || '0.0'}</span>
                         </div>
                         <p className="text-[10px] text-stone-500 mt-0.5">{storeInfo.review_count || 0} reviews</p>
@@ -763,17 +763,17 @@ export default function ProductDetailPage() {
               {certificate && (
                 <Link 
                   to={`/certificate/${productId}`}
-                  className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200 hover:bg-green-100 transition-colors"
+                  className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-4 transition-colors hover:border-stone-300 hover:bg-stone-50"
                   data-testid="certificate-link"
                 >
                   <div className="flex items-center gap-3">
-                    <FileCheck className="w-5 h-5 text-green-600" />
+                    <FileCheck className="w-5 h-5 text-stone-700" />
                     <div>
-                      <p className="font-medium text-green-800">{t('productDetail.viewCertificate', 'Ver certificado')}</p>
-                      <p className="text-xs text-green-600">{t('productDetail.verifiedProduct', 'Producto verificado')}</p>
+                      <p className="font-medium text-stone-900">{t('productDetail.viewCertificate', 'Ver certificado')}</p>
+                      <p className="text-xs text-stone-500">{t('productDetail.verifiedProduct', 'Producto verificado')}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-green-600" />
+                  <ChevronRight className="w-5 h-5 text-stone-400" />
                 </Link>
               )}
             </div>
@@ -809,7 +809,7 @@ export default function ProductDetailPage() {
                       key={num}
                       onClick={() => setReviewRating(num)}
                       className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
-                        num <= reviewRating ? 'bg-amber-400 text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                        num <= reviewRating ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
                       }`}
                     >
                       {num}
@@ -859,16 +859,16 @@ export default function ProductDetailPage() {
                       <div>
                         <p className="font-medium text-stone-900">{review.user_name || 'Cliente'}</p>
                         {review.verified_purchase && (
-                          <p className="text-xs text-green-600 flex items-center gap-1">
+                          <p className="flex items-center gap-1 text-xs text-stone-500">
                             <CheckCircle className="w-3 h-3" />
                             {t('productDetail.verifiedPurchase', 'Compra verificada')}
                           </p>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-full">
-                      <Star className="w-4 h-4 fill-amber-400 stroke-amber-400" />
-                      <span className="font-semibold text-amber-700">{review.rating}</span>
+                    <div className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-1">
+                      <Star className="w-4 h-4 fill-stone-950 stroke-stone-950" />
+                      <span className="font-semibold text-stone-700">{review.rating}</span>
                     </div>
                   </div>
                   <p className="text-stone-600 text-sm">{review.comment}</p>
@@ -879,40 +879,40 @@ export default function ProductDetailPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 md:py-12 bg-white rounded-xl border border-border-default">
+            <div className="text-center py-8 md:py-12 bg-white rounded-xl border border-stone-200">
               <Star className="w-10 h-10 md:w-12 md:h-12 text-stone-300 mx-auto mb-4" />
-              <p className="text-text-muted text-sm md:text-base">{t('productDetail.noReviews', 'Aún no hay reseñas')}</p>
+              <p className="text-sm text-stone-500 md:text-base">{t('productDetail.noReviews', 'Aún no hay reseñas')}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Mobile Sticky Buy Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border-default p-4 z-40 md:hidden shadow-floating" data-testid="mobile-buy-bar">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-200 bg-white p-4 shadow-sm md:hidden" data-testid="mobile-buy-bar">
         <div className="flex items-center gap-3">
           {/* Price */}
           <div className="flex-1 min-w-0">
-            <span className="font-heading text-lg font-bold text-text-primary">
+            <span className="text-lg font-bold text-stone-950">
               {convertAndFormatPrice((selectedPack?.price || currentPrice || product.price) * quantity, product.currency || 'EUR')}
             </span>
             {quantity > 1 && (
-              <span className="text-xs text-text-muted ml-1">× {quantity}</span>
+              <span className="ml-1 text-xs text-stone-500">× {quantity}</span>
             )}
           </div>
           
           {/* Quantity Controls - Compact */}
-          <div className="flex items-center border border-border-default rounded-lg">
+          <div className="flex items-center rounded-lg border border-stone-200">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-3 py-2 text-text-secondary"
+              className="px-3 py-2 text-stone-600"
               disabled={isOutOfStock}
             >
               −
             </button>
-            <span className="px-2 py-2 font-medium text-text-primary min-w-[32px] text-center text-sm">{quantity}</span>
+            <span className="min-w-[32px] px-2 py-2 text-center text-sm font-medium text-stone-950">{quantity}</span>
             <button
               onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-              className="px-3 py-2 text-text-secondary"
+              className="px-3 py-2 text-stone-600"
               disabled={isOutOfStock}
             >
               +
@@ -923,7 +923,7 @@ export default function ProductDetailPage() {
           <Button
             onClick={handleBuyNow}
             disabled={isOutOfStock}
-            className="bg-ds-primary text-white hover:bg-ds-primary/90 rounded-full px-6 font-medium min-h-touch"
+            className="rounded-full bg-stone-950 px-6 font-medium text-white hover:bg-black"
             data-testid="mobile-buy-button"
           >
             {isOutOfStock ? t('products.soldOut', 'Agotado') : t('products.buyNow', 'Comprar')}

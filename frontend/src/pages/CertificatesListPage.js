@@ -43,7 +43,7 @@ export default function CertificatesListPage() {
           <div className="flex items-center gap-2 mb-1">
             <Shield className="w-5 h-5 md:w-6 md:h-6 text-green-600 shrink-0" />
             <h1 className="font-serif text-xl md:text-3xl font-semibold text-stone-900" data-testid="certificates-page-title">
-              {t('certificate.title', 'Product Certificate')}
+              {t('certificate.title', 'Certificados de producto')}
             </h1>
           </div>
           <p className="text-stone-600 text-xs md:text-sm">

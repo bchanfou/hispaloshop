@@ -13,29 +13,29 @@ export default function Breadcrumbs({ customItems, className = '' }) {
   
   // Route name mappings
   const routeNames = {
-    '': t('breadcrumbs.home', 'Home'),
-    'products': t('breadcrumbs.products', 'Products'),
-    'certificate': t('breadcrumbs.certificate', 'Certificate'),
-    'certificates': t('breadcrumbs.certificates', 'Certificates'),
-    'cart': t('breadcrumbs.cart', 'Cart'),
-    'checkout': t('breadcrumbs.checkout', 'Checkout'),
-    'success': t('breadcrumbs.success', 'Success'),
-    'login': t('breadcrumbs.login', 'Login'),
-    'register': t('breadcrumbs.register', 'Register'),
-    'dashboard': t('breadcrumbs.dashboard', 'Dashboard'),
-    'orders': t('breadcrumbs.orders', 'Orders'),
-    'profile': t('breadcrumbs.profile', 'Profile'),
-    'addresses': t('breadcrumbs.addresses', 'Addresses'),
-    'admin': t('breadcrumbs.admin', 'Admin'),
-    'super-admin': t('breadcrumbs.superAdmin', 'Super Admin'),
-    'producer': t('breadcrumbs.producer', 'Producer'),
-    'producers': t('breadcrumbs.producers', 'Producers'),
-    'payments': t('breadcrumbs.payments', 'Payments'),
-    'discount-codes': t('breadcrumbs.discountCodes', 'Discount Codes'),
-    'reviews': t('breadcrumbs.reviews', 'Reviews'),
+    '': t('breadcrumbs.home', 'Inicio'),
+    'products': t('breadcrumbs.products', 'Productos'),
+    'certificate': t('breadcrumbs.certificate', 'Certificado'),
+    'certificates': t('breadcrumbs.certificates', 'Certificados'),
+    'cart': t('breadcrumbs.cart', 'Cesta'),
+    'checkout': t('breadcrumbs.checkout', 'Pago'),
+    'success': t('breadcrumbs.success', 'Confirmación'),
+    'login': t('breadcrumbs.login', 'Iniciar sesión'),
+    'register': t('breadcrumbs.register', 'Registro'),
+    'dashboard': t('breadcrumbs.dashboard', 'Panel'),
+    'orders': t('breadcrumbs.orders', 'Pedidos'),
+    'profile': t('breadcrumbs.profile', 'Perfil'),
+    'addresses': t('breadcrumbs.addresses', 'Direcciones'),
+    'admin': t('breadcrumbs.admin', 'Administración'),
+    'super-admin': t('breadcrumbs.superAdmin', 'Superadmin'),
+    'producer': t('breadcrumbs.producer', 'Productor'),
+    'producers': t('breadcrumbs.producers', 'Productores'),
+    'payments': t('breadcrumbs.payments', 'Pagos'),
+    'discount-codes': t('breadcrumbs.discountCodes', 'Códigos de descuento'),
+    'reviews': t('breadcrumbs.reviews', 'Reseñas'),
     'influencers': t('breadcrumbs.influencers', 'Influencers'),
-    'insights': t('breadcrumbs.insights', 'Insights'),
-    'countries': t('breadcrumbs.countries', 'Countries'),
+    'insights': t('breadcrumbs.insights', 'Estadísticas'),
+    'countries': t('breadcrumbs.countries', 'Países'),
   };
 
   // Pages where breadcrumbs should NOT appear
@@ -48,12 +48,12 @@ export default function Breadcrumbs({ customItems, className = '' }) {
   // If custom items provided, use them
   if (customItems && customItems.length > 0) {
     return (
-      <nav className={`flex items-center text-sm text-text-muted ${className}`} aria-label="Breadcrumb" data-testid="breadcrumbs">
+      <nav className={`flex items-center text-sm text-stone-500 ${className}`} aria-label="Breadcrumb" data-testid="breadcrumbs">
         <ol className="flex items-center flex-wrap gap-1">
           <li className="flex items-center">
             <Link 
               to="/" 
-              className="hover:text-primary transition-colors flex items-center gap-1"
+              className="hover:text-stone-950 transition-colors flex items-center gap-1"
               data-testid="breadcrumb-home"
             >
               <Home className="w-4 h-4" />
@@ -62,17 +62,17 @@ export default function Breadcrumbs({ customItems, className = '' }) {
           </li>
           {customItems.map((item, index) => (
             <li key={index} className="flex items-center">
-              <ChevronRight className="w-4 h-4 mx-1 text-text-muted/50" />
+              <ChevronRight className="w-4 h-4 mx-1 text-stone-500/50" />
               {item.href && index < customItems.length - 1 ? (
                 <Link 
                   to={item.href} 
-                  className="hover:text-primary transition-colors"
+                  className="hover:text-stone-950 transition-colors"
                   data-testid={`breadcrumb-${index}`}
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-text-primary font-medium" data-testid={`breadcrumb-current`}>
+                <span className="text-stone-950 font-medium" data-testid={`breadcrumb-current`}>
                   {item.label}
                 </span>
               )}
@@ -103,13 +103,13 @@ export default function Breadcrumbs({ customItems, className = '' }) {
     if (isDynamicSegment) {
       const prevSegment = pathSegments[index - 1];
       if (prevSegment === 'products') {
-        label = t('breadcrumbs.productDetail', 'Product Details');
+        label = t('breadcrumbs.productDetail', 'Detalle de producto');
       } else if (prevSegment === 'certificate') {
-        label = t('breadcrumbs.certificateDetail', 'Certificate');
+        label = t('breadcrumbs.certificateDetail', 'Certificado');
       } else if (prevSegment === 'orders') {
-        label = t('breadcrumbs.orderDetail', 'Order Details');
+        label = t('breadcrumbs.orderDetail', 'Detalle de pedido');
       } else {
-        label = t('breadcrumbs.details', 'Details');
+        label = t('breadcrumbs.details', 'Detalles');
       }
     }
 
@@ -121,12 +121,12 @@ export default function Breadcrumbs({ customItems, className = '' }) {
   });
 
   return (
-    <nav className={`flex items-center text-sm text-text-muted ${className}`} aria-label="Breadcrumb" data-testid="breadcrumbs">
+    <nav className={`flex items-center text-sm text-stone-500 ${className}`} aria-label="Breadcrumb" data-testid="breadcrumbs">
       <ol className="flex items-center flex-wrap gap-1">
         <li className="flex items-center">
           <Link 
             to="/" 
-            className="hover:text-primary transition-colors flex items-center gap-1"
+            className="hover:text-stone-950 transition-colors flex items-center gap-1"
             data-testid="breadcrumb-home"
           >
             <Home className="w-4 h-4" />
@@ -134,17 +134,17 @@ export default function Breadcrumbs({ customItems, className = '' }) {
         </li>
         {breadcrumbItems.map((item, index) => (
           <li key={index} className="flex items-center">
-            <ChevronRight className="w-4 h-4 mx-1 text-text-muted/50" />
+            <ChevronRight className="w-4 h-4 mx-1 text-stone-500/50" />
             {!item.isLast ? (
               <Link 
                 to={item.path} 
-                className="hover:text-primary transition-colors"
+                className="hover:text-stone-950 transition-colors"
                 data-testid={`breadcrumb-${index}`}
               >
                 {item.label}
               </Link>
             ) : (
-              <span className="text-text-primary font-medium" data-testid="breadcrumb-current">
+              <span className="text-stone-950 font-medium" data-testid="breadcrumb-current">
                 {item.label}
               </span>
             )}

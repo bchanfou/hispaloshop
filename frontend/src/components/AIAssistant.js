@@ -629,7 +629,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     }]);
     setHasShownGreeting(true);
     
-    toast.success(t('ai.conversationCleared', 'Conversation cleared'));
+    toast.success(t('ai.conversationCleared', 'Conversación borrada'));
   };
 
   // Hispalo AI Logo - Simple elegant circle with "H"
@@ -733,7 +733,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                     onClick={clearConversation}
                     className="text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-full p-2 transition-colors"
                     data-testid="clear-chat-button"
-                    title={t('ai.clearConversation', 'Clear conversation')}
+                    title={t('ai.clearConversation', 'Borrar conversación')}
                   >
                     <RotateCcw className="w-4 h-4" />
                   </button>

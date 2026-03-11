@@ -17,30 +17,30 @@ export function ConsentSummary({ className = '' }) {
   
   return (
     <div className={`space-y-2 ${className}`}>
-      <h4 className="font-medium text-text-primary flex items-center gap-2 text-sm">
-        <Info className="w-4 h-4 text-primary" />
-        {t('consent.layer1.title', 'Quick Summary')}
+      <h4 className="font-medium text-stone-950 flex items-center gap-2 text-sm">
+        <Info className="w-4 h-4 text-stone-950" />
+        {t('consent.layer1.title', 'Resumen rápido')}
       </h4>
-      <ul className="space-y-1.5 text-sm text-text-secondary">
+      <ul className="space-y-1.5 text-sm text-stone-600">
         <li className="flex items-start gap-2">
           <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <span>{t('consent.layer1.bullet1', 'We analyze your chats with Hispalo AI to infer shopping preferences')}</span>
+          <span>{t('consent.layer1.bullet1', 'Analizamos tus conversaciones con HI para inferir preferencias de compra')}</span>
         </li>
         <li className="flex items-start gap-2">
           <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <span>{t('consent.layer1.bullet2', 'We NEVER store your raw chat messages for analytics')}</span>
+          <span>{t('consent.layer1.bullet2', 'NUNCA almacenamos tus mensajes de chat sin procesar con fines analíticos')}</span>
         </li>
         <li className="flex items-start gap-2">
           <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <span>{t('consent.layer1.bullet3', 'Your data is used only for personalized recommendations')}</span>
+          <span>{t('consent.layer1.bullet3', 'Tus datos se usan únicamente para recomendaciones personalizadas')}</span>
         </li>
         <li className="flex items-start gap-2">
           <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <span>{t('consent.layer1.bullet4', 'You can withdraw consent anytime from your profile')}</span>
+          <span>{t('consent.layer1.bullet4', 'Puedes retirar tu consentimiento en cualquier momento desde tu perfil')}</span>
         </li>
         <li className="flex items-start gap-2">
           <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-          <span>{t('consent.layer1.bullet5', 'Aggregated anonymous data helps improve our catalog')}</span>
+          <span>{t('consent.layer1.bullet5', 'Los datos anónimos agregados ayudan a mejorar nuestro catálogo')}</span>
         </li>
       </ul>
     </div>
@@ -131,26 +131,26 @@ export function ConsentFullDisclosure({ isExpanded, onToggle }) {
         className="w-full px-4 py-3 bg-stone-50 flex items-center justify-between hover:bg-stone-100 transition-colors"
         data-testid="expand-legal-disclosure"
       >
-        <span className="font-medium text-text-primary text-sm flex items-center gap-2">
-          <Shield className="w-4 h-4 text-primary" />
+        <span className="font-medium text-stone-950 text-sm flex items-center gap-2">
+          <Shield className="w-4 h-4 text-stone-950" />
           {t('consent.layer2.title', 'Full Legal Disclosure')}
         </span>
         {isExpanded ? (
-          <ChevronUp className="w-5 h-5 text-text-muted" />
+          <ChevronUp className="w-5 h-5 text-stone-500" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-text-muted" />
+          <ChevronDown className="w-5 h-5 text-stone-500" />
         )}
       </button>
       
       {isExpanded && (
-        <div className="px-4 py-4 space-y-4 text-sm text-text-secondary max-h-[400px] overflow-y-auto">
-          <p className="font-medium text-text-primary text-xs">
+        <div className="px-4 py-4 space-y-4 text-sm text-stone-600 max-h-[400px] overflow-y-auto">
+          <p className="font-medium text-stone-950 text-xs">
             {t('consent.version', 'Version 1.0')}
           </p>
           
           {sections.map((section, idx) => (
             <div key={idx}>
-              <h4 className="font-semibold text-text-primary mb-1">{section.title}</h4>
+              <h4 className="font-semibold text-stone-950 mb-1">{section.title}</h4>
               <p className="mb-2">{section.content}</p>
               {section.list && (
                 <ul className="list-disc pl-5 space-y-1">
@@ -183,23 +183,23 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
   
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-text-primary flex items-center gap-2">
-        <Shield className="w-5 h-5 text-primary" />
-        {t('consent.layer3.title', 'Consent Settings')}
+      <h3 className="font-medium text-stone-950 flex items-center gap-2">
+        <Shield className="w-5 h-5 text-stone-950" />
+        {t('consent.layer3.title', 'Configuración de consentimiento')}
       </h3>
       
       {/* Current Status */}
       <div className={`p-4 rounded-lg ${hasConsent ? 'bg-green-50 border border-green-200' : 'bg-stone-100 border border-stone-200'}`}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-text-primary">
+            <p className="font-medium text-stone-950">
               {hasConsent ? t('consent.layer3.statusActive') : t('consent.layer3.statusInactive')}
             </p>
           </div>
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
             hasConsent ? 'bg-green-100 text-green-700' : 'bg-stone-200 text-stone-600'
           }`}>
-            {hasConsent ? t('common.active', 'Active') : t('common.disabled', 'Disabled')}
+            {hasConsent ? t('common.active', 'Activo') : t('common.disabled', 'Desactivado')}
           </span>
         </div>
       </div>
@@ -257,17 +257,17 @@ export function ConsentSettings({ hasConsent, onWithdraw, onReactivate, loading 
       ) : (
         <>
           {/* Reactivate Section */}
-          <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-            <h4 className="font-medium text-text-primary mb-2">
+          <div className="p-4 bg-stone-50 border border-stone-200 rounded-lg">
+            <h4 className="font-medium text-stone-950 mb-2">
               {t('consent.layer3.reactivateTitle')}
             </h4>
-            <p className="text-sm text-text-secondary mb-4">
+            <p className="text-sm text-stone-600 mb-4">
               {t('consent.layer3.reactivateDescription')}
             </p>
             <Button
               onClick={onReactivate}
               disabled={loading}
-              className="bg-primary hover:bg-primary-hover"
+              className="bg-stone-950 hover:bg-stone-800"
               data-testid="reactivate-consent-btn"
             >
               {loading ? t('common.loading') : t('consent.layer3.reactivateButton')}
@@ -293,14 +293,14 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-full">
-              <Shield className="w-6 h-6 text-primary" />
+            <div className="p-2 bg-stone-100 rounded-full">
+              <Shield className="w-6 h-6 text-stone-950" />
             </div>
             <div>
-              <h2 className="font-heading text-xl font-bold text-text-primary">
-                {t('consent.title', 'AI Data Processing Consent')}
+              <h2 className="font-heading text-xl font-bold text-stone-950">
+                {t('consent.title', 'Consentimiento de procesamiento de datos IA')}
               </h2>
-              <p className="text-xs text-text-muted">{t('consent.version')} • {t('consent.required')}</p>
+              <p className="text-xs text-stone-500">{t('consent.version')} • {t('consent.required')}</p>
             </div>
           </div>
           <button
@@ -308,14 +308,14 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
             className="p-2 hover:bg-stone-100 rounded-full transition-colors"
             data-testid="close-consent-modal"
           >
-            <X className="w-5 h-5 text-text-muted" />
+            <X className="w-5 h-5 text-stone-500" />
           </button>
         </div>
         
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {/* Layer 1: Summary (always visible) */}
-          <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+          <div className="p-4 bg-stone-50 border border-stone-200 rounded-lg">
             <ConsentSummary />
           </div>
           
@@ -327,7 +327,7 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
           
           {/* Translation disclaimer */}
           {!isEnglish && (
-            <p className="text-xs text-text-muted text-center italic">
+            <p className="text-xs text-stone-500 text-center italic">
               {t('consent.layer2.disclaimer')}
             </p>
           )}
@@ -340,14 +340,14 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
             onClick={onDecline}
             data-testid="decline-consent-btn"
           >
-            {t('consent.modal.decline', 'I Decline')}
+            {t('consent.modal.decline', 'Rechazar')}
           </Button>
           <Button
             onClick={onAccept}
-            className="bg-primary hover:bg-primary-hover px-8"
+            className="bg-stone-950 hover:bg-stone-800 px-8"
             data-testid="accept-consent-btn"
           >
-            {t('consent.modal.accept', 'I Accept')}
+            {t('consent.modal.accept', 'Aceptar')}
           </Button>
         </div>
       </div>
