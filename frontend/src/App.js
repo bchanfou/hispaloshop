@@ -78,6 +78,8 @@ const AdminReviews = lazy(() => import('./pages/admin/AdminReviews'));
 const AdminInfluencers = lazy(() => import('./pages/admin/AdminInfluencers'));
 const AdminManagement = lazy(() => import('./pages/admin/AdminManagement'));
 const AdminCategories = lazy(() => import('./pages/admin/CategoriesPage'));
+const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
+const AdminSupportCase = lazy(() => import('./pages/admin/AdminSupportCase'));
 const EscalationChat = lazy(() => import('./pages/admin/EscalationChat'));
 const InsightsDashboard = lazy(() => import('./pages/super-admin/InsightsDashboard'));
 const UserManagement = lazy(() => import('./pages/super-admin/UserManagement'));
@@ -103,6 +105,7 @@ const ProducerShippingPolicy = lazy(() => import('./pages/producer/ProducerShipp
 const CustomerLayout = lazy(() => import('./components/dashboard/CustomerLayoutResponsive'));
 const CustomerOverview = lazy(() => import('./pages/customer/Dashboard'));
 const CustomerOrders = lazy(() => import('./pages/customer/CustomerOrders'));
+const CustomerSupport = lazy(() => import('./pages/customer/CustomerSupport'));
 const CustomerProfile = lazy(() => import('./pages/customer/CustomerProfile'));
 const CustomerAIPreferences = lazy(() => import('./pages/customer/CustomerAIPreferences'));
 const CustomerFollowedStores = lazy(() => import('./pages/customer/CustomerFollowedStores'));
@@ -348,6 +351,8 @@ function AppRouter() {
                 <Route path="reviews" element={<AdminReviews />} />
                 <Route path="influencers" element={<AdminInfluencers />} />
                 <Route path="categories" element={<AdminCategories />} />
+                <Route path="support" element={<AdminSupport />} />
+                <Route path="support/:caseId" element={<AdminSupportCase />} />
                 <Route path="escalation" element={<EscalationChat />} />
               </Route>
               <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
@@ -415,6 +420,7 @@ function AppRouter() {
                 <Route path="profile" element={<CustomerProfile />} />
                 <Route path="ai-preferences" element={<CustomerAIPreferences />} />
                 <Route path="predictions" element={<HispaloPredictions />} />
+                <Route path="support" element={<CustomerSupport />} />
               </Route>
 
               <Route
@@ -430,6 +436,7 @@ function AppRouter() {
                 <Route path="saved" element={<CustomerFollowedStores />} />
                 <Route path="wishlist" element={<WishlistPage />} />
                 <Route path="profile" element={<CustomerProfile />} />
+                <Route path="support" element={<CustomerSupport />} />
               </Route>
 
               <Route

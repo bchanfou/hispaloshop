@@ -62,6 +62,7 @@ from routes.onboarding import router as onboarding_router
 from routes.ai import router as ai_router
 from routes.frontend_compat import router as frontend_compat_router
 from routes.rfq import router as rfq_router
+from routes.support import router as support_router
 
 logger = logging.getLogger(__name__)
 
@@ -179,6 +180,7 @@ app.include_router(legacy_push_notifications_router, prefix="/api", tags=["push"
 app.include_router(producer_registration_router, prefix="/api", tags=["producer-registration"])
 app.include_router(importer_registration_router, prefix="/api", tags=["importer-registration"])
 app.include_router(rfq_router, prefix="/api", tags=["RFQ"])
+app.include_router(support_router, prefix="/api", tags=["support"])
 
 # Onboarding Routes
 app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])

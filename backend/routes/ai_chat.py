@@ -1670,6 +1670,15 @@ async def create_support_case(req: HISupportCaseRequest, user: User = Depends(ge
     """Register a support case created via HI chat."""
     case_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
+
+    # Determine country from user profile for automatic admin routing
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"country": 1}) or {}
+    country = user_doc.get("country")
+
+    # AI-based priority classification
+    high_priority_keywords = {"daño", "dañado", "roto", "fraude", "urgente", "peligro", "grave"}
+    priority = "alta" if any(kw in req.description.lower() for kw in high_priority_keywords) else "media"
+
     case = {
         "case_id": case_id,
         "user_id": user.user_id,
@@ -1678,9 +1687,13 @@ async def create_support_case(req: HISupportCaseRequest, user: User = Depends(ge
         "product_id": req.product_id,
         "description": req.description,
         "status": "abierto",
+        "priority": priority,
+        "country": country,
+        "assigned_admin_id": None,
+        "messages": [],
+        "history": [],
         "created_at": now,
         "updated_at": now,
-        "assigned_to": None,
         "resolved_at": None,
     }
     await db.support_cases.insert_one(case)
@@ -1690,11 +1703,13 @@ async def create_support_case(req: HISupportCaseRequest, user: User = Depends(ge
         "case_id": case_id,
         "user_id": user.user_id,
         "issue_type": req.issue_type,
+        "priority": priority,
+        "country": country,
         "created_at": now,
         "read": False,
     })
-    logger.info("Support case %s created by user %s", case_id, user.user_id)
-    return {"case_id": case_id, "status": "abierto"}
+    logger.info("Support case %s created by user %s (country=%s, priority=%s)", case_id, user.user_id, country, priority)
+    return {"case_id": case_id, "status": "abierto", "priority": priority}
 
 
 @router.get("/ai/support-cases")

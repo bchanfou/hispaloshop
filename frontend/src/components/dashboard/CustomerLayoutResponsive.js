@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  ShoppingBag, User, LayoutDashboard, ArrowLeft, LogOut, 
-  Store, Sparkles, Heart, MoreHorizontal, Zap, Bookmark
+import {
+  ShoppingBag, User, LayoutDashboard, ArrowLeft, LogOut,
+  Store, Sparkles, Heart, MoreHorizontal, Zap, Bookmark, HeadphonesIcon
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +31,7 @@ export default function CustomerLayoutResponsive() {
     { to: '/dashboard/profile', icon: User, label: t('customer.profile', 'Perfil'), shortLabel: 'Perfil' },
     { to: '/dashboard/ai-preferences', icon: Sparkles, label: t('customer.aiPreferences', 'Hispalo AI'), shortLabel: 'AI' },
     { to: '/dashboard/predictions', icon: Zap, label: t('customer.predictions', 'Predicciones'), shortLabel: 'Predicciones' },
+    { to: '/dashboard/support', icon: HeadphonesIcon, label: 'Mis solicitudes', shortLabel: 'Soporte' },
   ];
 
   // Mobile bottom nav - all 5 items fit
