@@ -26,14 +26,14 @@ export default function SuperAdminLayoutResponsive() {
 
   // All navigation items
   const allNavItems = [
-    { to: '/super-admin', icon: Shield, label: 'Overview', shortLabel: 'Overview', end: true },
-    { to: '/super-admin/admins', icon: Users, label: t('superAdmin.manageAdmins', 'Admins'), shortLabel: 'Admins' },
-    { to: '/super-admin/users', icon: Globe, label: t('admin.userManagement', 'Users'), shortLabel: 'Usuarios' },
+    { to: '/super-admin', icon: Shield, label: 'Panel', shortLabel: 'Panel', end: true },
+    { to: '/super-admin/admins', icon: Users, label: t('superAdmin.manageAdmins', 'Administradores'), shortLabel: 'Admins' },
+    { to: '/super-admin/users', icon: Globe, label: t('admin.userManagement', 'Usuarios'), shortLabel: 'Usuarios' },
     { to: '/super-admin/finance', icon: Wallet, label: 'Contabilidad', shortLabel: 'Finanzas' },
     { to: '/super-admin/markets', icon: Globe, label: 'Mercados', shortLabel: 'Mercados' },
-    { to: '/super-admin/content', icon: Package, label: t('contentManagement.title', 'Content'), shortLabel: 'Contenido' },
-    { to: '/super-admin/insights', icon: BarChart3, label: t('superAdmin.customerInsights', 'Insights'), shortLabel: 'Insights' },
-    { to: '/super-admin/analytics', icon: TrendingUp, label: t('superAdmin.analytics', 'Analytics'), shortLabel: 'Analytics' },
+    { to: '/super-admin/content', icon: Package, label: t('contentManagement.title', 'Contenido'), shortLabel: 'Contenido' },
+    { to: '/super-admin/insights', icon: BarChart3, label: t('superAdmin.customerInsights', 'Estadísticas'), shortLabel: 'Estadísticas' },
+    { to: '/super-admin/analytics', icon: TrendingUp, label: t('superAdmin.analytics', 'Analítica'), shortLabel: 'Analítica' },
     { to: '/super-admin/escalation', icon: ShieldAlert, label: 'Escalaciones', shortLabel: 'Escalar' },
   ];
 

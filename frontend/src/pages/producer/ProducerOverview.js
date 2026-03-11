@@ -223,7 +223,7 @@ function HealthScoreCard() {
         <div className="grid grid-cols-3 gap-3 mt-4">
           <div className="dashboard-card p-3 text-center">
             <div className="text-xl font-bold text-text-primary">{healthData.metrics.orders_30d}</div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider">{t('customerDashboard.orders', 'Orders')}</div>
+            <div className="text-[10px] text-text-muted uppercase tracking-wider">{t('customerDashboard.orders', 'Pedidos')}</div>
           </div>
           <div className="dashboard-card p-3 text-center">
             <div className="text-xl font-bold text-text-primary">€{healthData.metrics.revenue_30d.toFixed(0)}</div>
@@ -613,7 +613,7 @@ export default function ProducerOverview() {
         </Link>
         <Link to="/producer/orders" className="bg-white border-2 border-stone-200 hover:border-accent rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] relative" data-testid="quick-orders">
           <ShoppingBag className="w-8 h-8 text-primary" />
-          <span className="text-sm font-semibold text-primary">{t('customerDashboard.orders', 'Orders')}</span>
+          <span className="text-sm font-semibold text-primary">{t('customerDashboard.orders', 'Pedidos')}</span>
           {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">{stats.pending_orders}</span>}
         </Link>
       </div>

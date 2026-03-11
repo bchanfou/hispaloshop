@@ -30,7 +30,7 @@ export default function CustomerLayoutResponsive() {
     { to: '/dashboard/wishlist', icon: Bookmark, label: t('wishlist.title', 'Lista de deseos'), shortLabel: 'Deseos' },
     { to: '/dashboard/profile', icon: User, label: t('customer.profile', 'Perfil'), shortLabel: 'Perfil' },
     { to: '/dashboard/ai-preferences', icon: Sparkles, label: t('customer.aiPreferences', 'Hispalo AI'), shortLabel: 'AI' },
-    { to: '/dashboard/predictions', icon: Zap, label: t('customer.predictions', 'Predict'), shortLabel: 'Predict' },
+    { to: '/dashboard/predictions', icon: Zap, label: t('customer.predictions', 'Predicciones'), shortLabel: 'Predicciones' },
   ];
 
   // Mobile bottom nav - all 5 items fit

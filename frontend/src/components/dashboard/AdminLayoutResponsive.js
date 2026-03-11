@@ -29,14 +29,14 @@ export default function AdminLayoutResponsive() {
 
   // All navigation items
   const allNavItems = [
-    { to: '/admin', icon: LayoutDashboard, label: t('admin.overview', 'Overview'), shortLabel: 'Inicio', end: true },
-    { to: '/admin/producers', icon: Users, label: t('admin.producers', 'Producers'), shortLabel: 'Productores', badge: badges.producers },
-    { to: '/admin/products', icon: Package, label: t('admin.products', 'Products'), shortLabel: 'Productos', badge: badges.products },
-    { to: '/admin/orders', icon: ShoppingBag, label: t('admin.ordersPayments', 'Orders'), shortLabel: 'Pedidos' },
-    { to: '/admin/certificates', icon: FileCheck, label: t('admin.certificates', 'Certificates'), shortLabel: 'Cert.', badge: badges.certificates },
-    { to: '/admin/discount-codes', icon: Tag, label: t('admin.discountCodes', 'Discounts'), shortLabel: 'Descuentos' },
+    { to: '/admin', icon: LayoutDashboard, label: t('admin.overview', 'Panel'), shortLabel: 'Inicio', end: true },
+    { to: '/admin/producers', icon: Users, label: t('admin.producers', 'Productores'), shortLabel: 'Productores', badge: badges.producers },
+    { to: '/admin/products', icon: Package, label: t('admin.products', 'Productos'), shortLabel: 'Productos', badge: badges.products },
+    { to: '/admin/orders', icon: ShoppingBag, label: t('admin.ordersPayments', 'Pedidos'), shortLabel: 'Pedidos' },
+    { to: '/admin/certificates', icon: FileCheck, label: t('admin.certificates', 'Certificados'), shortLabel: 'Cert.', badge: badges.certificates },
+    { to: '/admin/discount-codes', icon: Tag, label: t('admin.discountCodes', 'Descuentos'), shortLabel: 'Descuentos' },
     { to: '/admin/influencers', icon: UserCheck, label: t('admin.influencers', 'Influencers'), shortLabel: 'Influencers' },
-    { to: '/admin/reviews', icon: Star, label: t('admin.reviews', 'Reviews'), shortLabel: 'Reseñas' },
+    { to: '/admin/reviews', icon: Star, label: t('admin.reviews', 'Reseñas'), shortLabel: 'Reseñas' },
     { to: '/admin/categories', icon: FolderOpen, label: t('admin.categories', 'Categorías'), shortLabel: 'Categ.' },
     { to: '/admin/escalation', icon: ShieldAlert, label: 'Escalar a SA', shortLabel: 'Escalar' },
   ];

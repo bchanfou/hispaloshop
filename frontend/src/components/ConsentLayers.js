@@ -133,7 +133,7 @@ export function ConsentFullDisclosure({ isExpanded, onToggle }) {
       >
         <span className="font-medium text-stone-950 text-sm flex items-center gap-2">
           <Shield className="w-4 h-4 text-stone-950" />
-          {t('consent.layer2.title', 'Full Legal Disclosure')}
+          {t('consent.layer2.title', 'Texto legal completo')}
         </span>
         {isExpanded ? (
           <ChevronUp className="w-5 h-5 text-stone-500" />
@@ -166,7 +166,7 @@ export function ConsentFullDisclosure({ isExpanded, onToggle }) {
           {!isEnglish && (
             <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-xs text-amber-800 italic">
-                {t('consent.layer2.disclaimer', 'In case of any discrepancy between translations, the English version of this document shall prevail.')}
+                {t('consent.layer2.disclaimer', 'En caso de discrepancia entre traducciones, prevalecerá la versión española de este documento.')}
               </p>
             </div>
           )}

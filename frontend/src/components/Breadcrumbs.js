@@ -57,7 +57,7 @@ export default function Breadcrumbs({ customItems, className = '' }) {
               data-testid="breadcrumb-home"
             >
               <Home className="w-4 h-4" />
-              <span className="sr-only">{t('breadcrumbs.home', 'Home')}</span>
+              <span className="sr-only">{t('breadcrumbs.home', 'Inicio')}</span>
             </Link>
           </li>
           {customItems.map((item, index) => (

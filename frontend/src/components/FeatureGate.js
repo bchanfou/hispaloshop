@@ -33,7 +33,7 @@ export default function FeatureGate({ requiredPlan, currentPlan, featureName, ch
             {featureName}
           </p>
           <p className="text-xs text-text-muted mb-3">
-            {t('plans.upgradeRequired', 'Requires {{plan}} plan or higher', { plan: requiredPlan })}
+            {t('plans.upgradeRequired', 'Requiere el plan {{plan}} o superior', { plan: requiredPlan })}
           </p>
           <Link to="/pricing">
             <Button size="sm" className="bg-primary hover:bg-primary-hover text-white rounded-xl gap-1.5 text-xs h-8 px-4">
