@@ -311,7 +311,6 @@ export default function BottomNavBar() {
   const closePanel = () => {
     setActivePanel(null);
     setInitialChatUserId(null);
-    setPostFile(null);
   };
 
   const handleGallerySelect = (e) => {
@@ -363,7 +362,10 @@ export default function BottomNavBar() {
       const primaryProductId = normalizedTags[0]?.product_id;
       
       if (publishData.contentType === 'reel') {
-        fd.append('file', selectedFiles[0]);
+        if (!publishData.sourceFile) {
+          throw new Error('Missing reel source file');
+        }
+        fd.append('file', publishData.sourceFile);
         fd.append('caption', publishData.caption);
         if (primaryProductId) {
           fd.append('product_id', primaryProductId);
@@ -440,6 +442,7 @@ export default function BottomNavBar() {
         isOpen={showContentTypeSelector}
         onClose={() => {
           setShowContentTypeSelector(false);
+          setSelectedContentType(null);
           setSelectedFiles([]);
         }}
         onSelect={handleContentTypeSelect}
@@ -522,9 +525,9 @@ export default function BottomNavBar() {
               data-testid="bottom-nav-post"
             >
               <div className={`flex h-11 w-11 items-center justify-center rounded-full shadow-[0_10px_25px_rgba(15,15,15,0.2)] transition-all active:scale-95 ${
-                activePanel === 'post' || showAdvancedEditor ? 'bg-stone-700' : 'bg-stone-950 hover:bg-stone-800'
+                activePanel === 'post' || showAdvancedEditor || showContentTypeSelector ? 'bg-stone-700' : 'bg-stone-950 hover:bg-stone-800'
               }`}>
-                {activePanel === 'post' || showAdvancedEditor ? (
+                {activePanel === 'post' || showAdvancedEditor || showContentTypeSelector ? (
                   <X className="h-5 w-5 text-white" strokeWidth={2.2} />
                 ) : (
                   <Plus className="h-5 w-5 text-white" strokeWidth={2.2} />

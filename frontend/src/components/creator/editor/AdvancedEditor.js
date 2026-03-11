@@ -3,19 +3,23 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
   Check,
+  ChevronRight,
   Crop,
+  Film,
   FlipHorizontal,
   FlipVertical,
+  Image as ImageIcon,
   ImagePlus,
   Layers3,
+  MapPin,
   Palette,
+  Redo2,
+  RotateCw,
   ShoppingBag,
   Type,
   Undo2,
-  Redo2,
+  Upload,
   X,
-  RotateCw,
-  MapPin,
 } from 'lucide-react';
 import useImageEditor from '../hooks/useImageEditor';
 import FilterPanel from './FilterPanel';
@@ -35,9 +39,49 @@ const TOOLS = [
 ];
 
 const CONTENT_LABELS = {
-  post: 'Publicación',
+  post: 'Publicacion',
   reel: 'Reel',
   story: 'Historia',
+};
+
+const STAGE_ORDER = ['media', 'edit', 'compose'];
+const STAGE_LABELS = {
+  media: 'Media',
+  edit: 'Editar',
+  compose: 'Publicar',
+};
+
+const CONTENT_GUIDANCE = {
+  post: {
+    eyebrow: 'Post',
+    title: 'Empieza con tu portada o carrusel',
+    description:
+      'Selecciona una o varias piezas para preparar una publicacion limpia, editorial y pensada para movil.',
+    accept: 'image/*,video/*',
+    allowMultiple: true,
+    icon: ImageIcon,
+    meta: 'Puedes usar hasta 10 piezas en un mismo post.',
+  },
+  reel: {
+    eyebrow: 'Reel',
+    title: 'Sube el video principal',
+    description:
+      'Trabaja desde una pieza vertical y despues ajusta portada, copy y capas visuales desde el mismo flujo.',
+    accept: 'video/*',
+    allowMultiple: false,
+    icon: Film,
+    meta: 'Por ahora el reel usa un video principal por publicacion.',
+  },
+  story: {
+    eyebrow: 'Story',
+    title: 'Elige la imagen base',
+    description:
+      'Crea una historia rapida y legible con texto libre, stickers y producto sin salir del flujo principal.',
+    accept: 'image/*',
+    allowMultiple: false,
+    icon: ImageIcon,
+    meta: 'La historia mantiene una sola imagen base para conservar claridad visual.',
+  },
 };
 
 function EditorSection({ title, description, children }) {
@@ -52,12 +96,15 @@ function EditorSection({ title, description, children }) {
   );
 }
 
-function RangeField({ label, value, min, max, step = 1, onChange }) {
+function RangeField({ label, value, min, max, step = 1, suffix = '', onChange }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs">
         <span className="font-medium text-stone-700">{label}</span>
-        <span className="text-stone-500">{value}</span>
+        <span className="text-stone-500">
+          {value}
+          {suffix}
+        </span>
       </div>
       <input
         type="range"
@@ -72,10 +119,267 @@ function RangeField({ label, value, min, max, step = 1, onChange }) {
   );
 }
 
+function StageStepper({ currentStage, theme = 'dark' }) {
+  const activeIndex = STAGE_ORDER.indexOf(currentStage);
+  const baseText = theme === 'dark' ? 'text-white/55' : 'text-stone-500';
+  const activeText = theme === 'dark' ? 'text-white' : 'text-stone-950';
+  const doneText = theme === 'dark' ? 'text-white/80' : 'text-stone-700';
+  const activeBg = theme === 'dark' ? 'bg-white text-stone-950' : 'bg-stone-950 text-white';
+  const idleBg = theme === 'dark' ? 'bg-white/10 text-white/60' : 'bg-stone-100 text-stone-500';
+
+  return (
+    <div className="flex items-center gap-2 overflow-x-auto">
+      {STAGE_ORDER.map((stage, index) => {
+        const isActive = stage === currentStage;
+        const isCompleted = activeIndex > index;
+
+        return (
+          <div key={stage} className="flex items-center gap-2">
+            <div
+              className={`flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-xs font-semibold ${
+                isActive ? activeBg : idleBg
+              }`}
+            >
+              {isCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
+            </div>
+            <span
+              className={`text-xs font-medium uppercase tracking-[0.22em] ${
+                isActive ? activeText : isCompleted ? doneText : baseText
+              }`}
+            >
+              {STAGE_LABELS[stage]}
+            </span>
+            {index < STAGE_ORDER.length - 1 ? (
+              <ChevronRight className={`h-3.5 w-3.5 ${theme === 'dark' ? 'text-white/25' : 'text-stone-300'}`} />
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function LayerSummary({ editor }) {
+  const textCount = editor.textElements.length;
+  const utilityStickers = editor.stickerElements.filter((item) => item.type !== 'product');
+  const locationCount = utilityStickers.filter((item) => item.type === 'location').length;
+  const stickerCount = utilityStickers.length - locationCount;
+  const productCount = editor.stickerElements.filter((item) => item.type === 'product').length;
+
+  const items = [
+    { id: 'text', label: 'Texto', value: textCount },
+    { id: 'sticker', label: 'Sellos', value: Math.max(stickerCount, 0) },
+    { id: 'product', label: 'Producto', value: productCount },
+    { id: 'location', label: 'Ubicacion', value: locationCount },
+  ];
+
+  return (
+    <div className="border-b border-stone-100 px-4 py-4">
+      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-stone-500">Capas activas</p>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        {items.map((item) => (
+          <div key={item.id} className="rounded-2xl bg-stone-50 px-3 py-3">
+            <p className="text-xs font-medium text-stone-500">{item.label}</p>
+            <p className="mt-1 text-lg font-semibold text-stone-950">{item.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MediaStage({ contentType, guidance, onClose, onPick }) {
+  const GuidanceIcon = guidance.icon;
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-stone-950 text-white">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-4">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15"
+          aria-label="Cerrar editor"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <div className="min-w-0 flex-1 px-4">
+          <StageStepper currentStage="media" theme="dark" />
+        </div>
+        <div className="h-11 w-11" />
+      </div>
+
+      <div className="flex flex-1 items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-[32px] border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-8">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-stone-950 shadow-lg">
+            <GuidanceIcon className="h-7 w-7" />
+          </div>
+          <p className="mt-5 text-xs font-medium uppercase tracking-[0.28em] text-white/55">
+            {guidance.eyebrow}
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">{guidance.title}</h1>
+          <p className="mt-4 text-sm leading-7 text-white/72">{guidance.description}</p>
+
+          <div className="mt-6 rounded-3xl border border-white/10 bg-black/20 p-4">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/45">Flujo</p>
+            <div className="mt-3 space-y-3 text-sm text-white/80">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">
+                  1
+                </span>
+                <p>Selecciona la media principal desde tu galeria.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">
+                  2
+                </span>
+                <p>Edita encuadre, filtros, texto y capas desde una sola pantalla.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">
+                  3
+                </span>
+                <p>Revisa copy y publica sin salir del flujo.</p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onPick}
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100"
+          >
+            <Upload className="h-4 w-4" />
+            Seleccionar archivo
+          </button>
+
+          <p className="mt-4 text-center text-xs leading-5 text-white/45">{guidance.meta}</p>
+          <p className="mt-2 text-center text-xs leading-5 text-white/35">
+            Formato actual: {CONTENT_LABELS[contentType] || 'Contenido'}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ComposeStage({
+  contentType,
+  contentLabel,
+  aspectRatio,
+  editor,
+  caption,
+  location,
+  setCaption,
+  setLocation,
+  taggedProductsCount,
+  isPublishing,
+  onBack,
+  onPublish,
+}) {
+  const previewMeta = useMemo(() => {
+    if (contentType === 'story') {
+      return 'Historia vertical con capas limpias, texto legible y zonas seguras respetadas.';
+    }
+    if (contentType === 'reel') {
+      return 'Revisa copy, portada visual y productos antes de publicar.';
+    }
+    return 'Confirma pie de foto, ubicacion y la composicion final antes de enviar.';
+  }, [contentType]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-stone-950 text-white">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-4 backdrop-blur-sm">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15"
+          aria-label="Volver al editor"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <div className="min-w-0 flex-1 px-4">
+          <StageStepper currentStage="compose" theme="dark" />
+        </div>
+        <button
+          type="button"
+          onClick={onPublish}
+          disabled={isPublishing}
+          className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isPublishing ? 'Publicando...' : contentType === 'story' ? 'Publicar historia' : 'Publicar'}
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="flex items-center justify-center overflow-hidden p-4">
+          <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType={contentType} readOnly={true} />
+        </div>
+
+        <div className="border-t border-white/10 bg-black/20 p-4 md:border-l md:border-t-0">
+          <div className="space-y-4">
+            <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
+              <p className="text-xs uppercase tracking-[0.24em] text-stone-500">Listo para publicar</p>
+              <h2 className="mt-2 text-base font-semibold">{contentLabel}</h2>
+              <p className="mt-1 text-sm leading-6 text-stone-600">{previewMeta}</p>
+
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="rounded-2xl bg-stone-50 px-4 py-3">
+                  <p className="text-xs font-medium text-stone-500">Texto</p>
+                  <p className="mt-1 text-lg font-semibold text-stone-950">{editor.textElements.length}</p>
+                </div>
+                <div className="rounded-2xl bg-stone-50 px-4 py-3">
+                  <p className="text-xs font-medium text-stone-500">Productos</p>
+                  <p className="mt-1 text-lg font-semibold text-stone-950">{taggedProductsCount}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
+              <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">
+                Texto principal
+              </label>
+              <textarea
+                value={caption}
+                onChange={(event) => setCaption(event.target.value)}
+                placeholder={
+                  contentType === 'story'
+                    ? 'Anade contexto breve solo si suma.'
+                    : 'Escribe una descripcion clara, natural y facil de escanear.'
+                }
+                className="mt-2 h-28 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
+                maxLength={contentType === 'story' ? 180 : 2200}
+              />
+
+              <div className="mt-4">
+                <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">
+                  Ubicacion
+                </label>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(event) => setLocation(event.target.value)}
+                  placeholder="Anadir ubicacion"
+                  className="mt-2 h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition-colors focus:border-stone-950"
+                />
+              </div>
+
+              <div className="mt-4 rounded-2xl bg-stone-50 px-4 py-3 text-sm text-stone-700">
+                {taggedProductsCount > 0
+                  ? `${taggedProductsCount} producto(s) etiquetado(s) en esta pieza.`
+                  : 'Sin productos etiquetados todavia.'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const [activeTool, setActiveTool] = useState('filter');
   const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[contentType][0]);
-  const [showPreview, setShowPreview] = useState(false);
+  const [currentStage, setCurrentStage] = useState(files?.length ? 'edit' : 'media');
   const [caption, setCaption] = useState('');
   const [location, setLocation] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
@@ -84,13 +388,20 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const fileInputRef = useRef(null);
   const hasLoadedInitialFilesRef = useRef(false);
   const contentLabel = CONTENT_LABELS[contentType] || 'Contenido';
+  const guidance = CONTENT_GUIDANCE[contentType] || CONTENT_GUIDANCE.post;
 
   React.useEffect(() => {
     if (files?.length && !hasLoadedInitialFilesRef.current) {
       hasLoadedInitialFilesRef.current = true;
       files.forEach((file) => editor.addImage(file));
     }
-  }, [files]);
+  }, [editor, files]);
+
+  React.useEffect(() => {
+    if (editor.images.length > 0 && currentStage === 'media') {
+      setCurrentStage('edit');
+    }
+  }, [currentStage, editor.images.length]);
 
   const taggedProductsCount = editor.stickerElements.filter((item) => item.type === 'product').length;
 
@@ -104,6 +415,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         location,
         aspectRatio,
         imageData: finalImage,
+        sourceFile: editor.images[0]?.file || null,
         taggedProducts: editor.stickerElements.filter((item) => item.type === 'product'),
       });
     } finally {
@@ -121,6 +433,18 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     event.target.value = '';
   };
 
+  const goToPreviousStage = () => {
+    if (currentStage === 'compose') {
+      setCurrentStage('edit');
+      return;
+    }
+    if (currentStage === 'edit') {
+      setCurrentStage('media');
+      return;
+    }
+    onClose();
+  };
+
   const renderToolPanel = () => {
     switch (activeTool) {
       case 'filter':
@@ -128,8 +452,10 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
           <FilterPanel
             settings={editor.filterSettings}
             appliedFilter={editor.appliedFilter}
+            filterIntensity={editor.filterIntensity}
             onSettingChange={editor.updateFilterSetting}
             onFilterSelect={editor.applyPredefinedFilter}
+            onFilterIntensityChange={editor.setFilterIntensity}
             onReset={editor.resetFilters}
           />
         );
@@ -137,15 +463,51 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         return (
           <EditorSection
             title="Ajustes finos"
-            description="Haz cambios pequeños y medidos. El objetivo es limpiar la imagen, no sobreprocesarla."
+            description="Haz cambios pequenos y medidos. La meta es limpiar, no sobreprocesar."
           >
             <div className="space-y-4 rounded-2xl border border-stone-100 bg-stone-50 p-4">
-              <RangeField label="Brillo" value={editor.filterSettings.brightness} min={-100} max={100} onChange={(event) => editor.updateFilterSetting('brightness', parseInt(event.target.value, 10))} />
-              <RangeField label="Contraste" value={editor.filterSettings.contrast} min={-100} max={100} onChange={(event) => editor.updateFilterSetting('contrast', parseInt(event.target.value, 10))} />
-              <RangeField label="Saturación" value={editor.filterSettings.saturate} min={0} max={200} onChange={(event) => editor.updateFilterSetting('saturate', parseInt(event.target.value, 10))} />
-              <RangeField label="Temperatura" value={editor.filterSettings.warmth} min={-100} max={100} onChange={(event) => editor.updateFilterSetting('warmth', parseInt(event.target.value, 10))} />
-              <RangeField label="Exposición" value={editor.filterSettings.exposure} min={-100} max={100} onChange={(event) => editor.updateFilterSetting('exposure', parseInt(event.target.value, 10))} />
-              <RangeField label="Nitidez" value={editor.filterSettings.sharpness} min={0} max={100} onChange={(event) => editor.updateFilterSetting('sharpness', parseInt(event.target.value, 10))} />
+              <RangeField
+                label="Brillo"
+                value={editor.filterSettings.brightness}
+                min={-100}
+                max={100}
+                onChange={(event) => editor.updateFilterSetting('brightness', parseInt(event.target.value, 10))}
+              />
+              <RangeField
+                label="Contraste"
+                value={editor.filterSettings.contrast}
+                min={-100}
+                max={100}
+                onChange={(event) => editor.updateFilterSetting('contrast', parseInt(event.target.value, 10))}
+              />
+              <RangeField
+                label="Saturacion"
+                value={editor.filterSettings.saturate}
+                min={0}
+                max={200}
+                onChange={(event) => editor.updateFilterSetting('saturate', parseInt(event.target.value, 10))}
+              />
+              <RangeField
+                label="Temperatura"
+                value={editor.filterSettings.warmth}
+                min={-100}
+                max={100}
+                onChange={(event) => editor.updateFilterSetting('warmth', parseInt(event.target.value, 10))}
+              />
+              <RangeField
+                label="Exposicion"
+                value={editor.filterSettings.exposure}
+                min={-100}
+                max={100}
+                onChange={(event) => editor.updateFilterSetting('exposure', parseInt(event.target.value, 10))}
+              />
+              <RangeField
+                label="Nitidez"
+                value={editor.filterSettings.sharpness}
+                min={0}
+                max={100}
+                onChange={(event) => editor.updateFilterSetting('sharpness', parseInt(event.target.value, 10))}
+              />
             </div>
           </EditorSection>
         );
@@ -153,25 +515,45 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         return (
           <EditorSection
             title="Encuadre"
-            description="Mantén un marco limpio. Usa zoom y ratio con intención para dejar respirar el contenido."
+            description="Usa zoom, ratio y espejo con intencion para dejar respirar la composicion."
           >
             <div className="grid grid-cols-3 gap-2">
-              <button type="button" onClick={editor.rotateImage} className="rounded-2xl border border-stone-100 bg-stone-50 px-3 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100">
+              <button
+                type="button"
+                onClick={editor.rotateImage}
+                className="rounded-2xl border border-stone-100 bg-stone-50 px-3 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100"
+              >
                 <RotateCw className="mx-auto mb-2 h-4 w-4" />
                 Rotar
               </button>
-              <button type="button" onClick={editor.flipImageHorizontal} className={`rounded-2xl border px-3 py-3 text-sm font-medium transition-colors ${editor.flipHorizontal ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-100 bg-stone-50 text-stone-700 hover:bg-stone-100'}`}>
+              <button
+                type="button"
+                onClick={editor.flipImageHorizontal}
+                className={`rounded-2xl border px-3 py-3 text-sm font-medium transition-colors ${
+                  editor.flipHorizontal
+                    ? 'border-stone-950 bg-stone-950 text-white'
+                    : 'border-stone-100 bg-stone-50 text-stone-700 hover:bg-stone-100'
+                }`}
+              >
                 <FlipHorizontal className="mx-auto mb-2 h-4 w-4" />
                 Espejo H
               </button>
-              <button type="button" onClick={editor.flipImageVertical} className={`rounded-2xl border px-3 py-3 text-sm font-medium transition-colors ${editor.flipVertical ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-100 bg-stone-50 text-stone-700 hover:bg-stone-100'}`}>
+              <button
+                type="button"
+                onClick={editor.flipImageVertical}
+                className={`rounded-2xl border px-3 py-3 text-sm font-medium transition-colors ${
+                  editor.flipVertical
+                    ? 'border-stone-950 bg-stone-950 text-white'
+                    : 'border-stone-100 bg-stone-50 text-stone-700 hover:bg-stone-100'
+                }`}
+              >
                 <FlipVertical className="mx-auto mb-2 h-4 w-4" />
                 Espejo V
               </button>
             </div>
 
             <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Proporción</p>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Proporcion</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {ASPECT_RATIOS[contentType].map((ratio) => (
                   <button
@@ -179,7 +561,9 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                     type="button"
                     onClick={() => setAspectRatio(ratio)}
                     className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                      aspectRatio === ratio ? 'bg-stone-950 text-white' : 'bg-white text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100'
+                      aspectRatio === ratio
+                        ? 'bg-stone-950 text-white'
+                        : 'bg-white text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100'
                     }`}
                   >
                     {ratio}
@@ -188,7 +572,15 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               </div>
 
               <div className="mt-4">
-                <RangeField label="Zoom" value={editor.zoom.toFixed(1)} min={0.5} max={3} step={0.1} onChange={(event) => editor.setZoomLevel(parseFloat(event.target.value))} />
+                <RangeField
+                  label="Zoom"
+                  value={editor.zoom.toFixed(1)}
+                  min={0.5}
+                  max={3}
+                  step={0.1}
+                  suffix="x"
+                  onChange={(event) => editor.setZoomLevel(parseFloat(event.target.value))}
+                />
               </div>
             </div>
           </EditorSection>
@@ -225,80 +617,50 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     }
   };
 
-  const previewMeta = useMemo(() => {
-    if (contentType === 'story') {
-      return 'Publica una historia con texto libre y composición vertical.';
-    }
-    if (contentType === 'reel') {
-      return 'Revisa portada, copy y etiquetas antes de publicar.';
-    }
-    return 'Confirma pie de foto, ubicación y la composición final.';
-  }, [contentType]);
-
-  if (showPreview) {
+  if (currentStage === 'media') {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col bg-stone-950 text-white">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-4 backdrop-blur-sm">
-          <button type="button" onClick={() => setShowPreview(false)} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15" aria-label="Volver al editor">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.24em] text-white/60">Vista previa</p>
-            <h2 className="mt-1 text-sm font-semibold text-white">{contentLabel}</h2>
-          </div>
-          <button
-            type="button"
-            onClick={handlePublish}
-            disabled={isPublishing}
-            className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isPublishing ? 'Publicando...' : contentType === 'story' ? 'Publicar historia' : 'Publicar'}
-          </button>
-        </div>
+      <>
+        <MediaStage contentType={contentType} guidance={guidance} onClose={onClose} onPick={handleAddMore} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={guidance.accept}
+          multiple={guidance.allowMultiple}
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+        <canvas ref={editor.canvasRef} className="hidden" />
+      </>
+    );
+  }
 
-        <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="flex items-center justify-center overflow-hidden p-4">
-            <CanvasEditor editor={editor} aspectRatio={aspectRatio} readOnly={true} />
-          </div>
-
-          <div className="border-t border-white/10 bg-black/20 p-4 md:border-l md:border-t-0">
-            <div className="rounded-3xl bg-white p-4 text-stone-950 shadow-xl">
-              <h3 className="text-base font-semibold">Antes de publicar</h3>
-              <p className="mt-1 text-sm leading-6 text-stone-600">{previewMeta}</p>
-
-              <div className="mt-4 space-y-4">
-                <div>
-                  <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Texto principal</label>
-                  <textarea
-                    value={caption}
-                    onChange={(event) => setCaption(event.target.value)}
-                    placeholder={contentType === 'story' ? 'Añade contexto breve si lo necesitas.' : 'Escribe una descripción clara y natural.'}
-                    className="mt-2 h-28 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
-                    maxLength={contentType === 'story' ? 180 : 2200}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Ubicación</label>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(event) => setLocation(event.target.value)}
-                    placeholder="Añadir ubicación"
-                    className="mt-2 h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition-colors focus:border-stone-950"
-                  />
-                </div>
-
-                {taggedProductsCount > 0 ? (
-                  <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 text-sm text-stone-700">
-                    {taggedProductsCount} producto(s) etiquetado(s) en esta pieza.
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  if (currentStage === 'compose') {
+    return (
+      <>
+        <ComposeStage
+          contentType={contentType}
+          contentLabel={contentLabel}
+          aspectRatio={aspectRatio}
+          editor={editor}
+          caption={caption}
+          location={location}
+          setCaption={setCaption}
+          setLocation={setLocation}
+          taggedProductsCount={taggedProductsCount}
+          isPublishing={isPublishing}
+          onBack={goToPreviousStage}
+          onPublish={handlePublish}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={guidance.accept}
+          multiple={guidance.allowMultiple}
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+        <canvas ref={editor.canvasRef} className="hidden" />
+      </>
     );
   }
 
@@ -306,24 +668,45 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     <div className="fixed inset-0 z-50 bg-stone-950 text-white">
       <div className="flex h-full flex-col md:grid md:grid-cols-[minmax(0,1fr)_360px]">
         <div className="flex min-h-0 flex-col">
-          <div className="flex items-center justify-between px-4 py-4">
-            <button type="button" onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15" aria-label="Cerrar editor">
-              <X className="h-5 w-5" />
+          <div className="flex items-center justify-between gap-3 px-4 py-4">
+            <button
+              type="button"
+              onClick={goToPreviousStage}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15"
+              aria-label="Volver"
+            >
+              <ArrowLeft className="h-5 w-5" />
             </button>
 
-            <div className="text-center">
-              <p className="text-xs uppercase tracking-[0.24em] text-white/60">{contentLabel}</p>
-              <h1 className="mt-1 text-sm font-semibold text-white">Editor de contenido</h1>
+            <div className="min-w-0 flex-1">
+              <StageStepper currentStage="edit" theme="dark" />
+              <p className="mt-2 text-xs uppercase tracking-[0.24em] text-white/45">{contentLabel}</p>
             </div>
 
             <div className="flex items-center gap-2">
-              <button type="button" onClick={editor.undo} disabled={!editor.canUndo} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35" aria-label="Deshacer">
+              <button
+                type="button"
+                onClick={editor.undo}
+                disabled={!editor.canUndo}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35"
+                aria-label="Deshacer"
+              >
                 <Undo2 className="h-[18px] w-[18px]" />
               </button>
-              <button type="button" onClick={editor.redo} disabled={!editor.canRedo} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35" aria-label="Rehacer">
+              <button
+                type="button"
+                onClick={editor.redo}
+                disabled={!editor.canRedo}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35"
+                aria-label="Rehacer"
+              >
                 <Redo2 className="h-[18px] w-[18px]" />
               </button>
-              <button type="button" onClick={() => setShowPreview(true)} className="hidden h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 md:inline-flex">
+              <button
+                type="button"
+                onClick={() => setCurrentStage('compose')}
+                className="hidden h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 md:inline-flex"
+              >
                 Continuar
                 <Check className="h-4 w-4" />
               </button>
@@ -332,17 +715,26 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
 
           <div className="flex flex-1 items-center justify-center overflow-hidden px-4 pb-4">
             {editor.images.length > 0 ? (
-              <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} />
+              <CanvasEditor
+                editor={editor}
+                aspectRatio={aspectRatio}
+                activeTool={activeTool}
+                contentType={contentType}
+              />
             ) : (
               <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-xl">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white">
                   <ImagePlus className="h-7 w-7" />
                 </div>
-                <h2 className="mt-5 text-xl font-semibold text-white">Añade tu primer archivo</h2>
+                <h2 className="mt-5 text-xl font-semibold text-white">Anade tu primer archivo</h2>
                 <p className="mt-2 text-sm leading-6 text-white/70">
-                  Usa una imagen o vídeo y después ajusta texto, filtros, encuadre y etiquetas desde un solo sitio.
+                  Usa una imagen o video y despues ajusta texto, filtros, encuadre y etiquetas desde un solo sitio.
                 </p>
-                <button type="button" onClick={handleAddMore} className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100">
+                <button
+                  type="button"
+                  onClick={handleAddMore}
+                  className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100"
+                >
                   Seleccionar archivo
                 </button>
               </div>
@@ -361,7 +753,11 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                       editor.currentImageIndex === index ? 'border-white' : 'border-transparent'
                     }`}
                   >
-                    <img src={image.src} alt="" className="h-full w-full object-cover" />
+                    {image.type === 'video' ? (
+                      <video src={image.src} className="h-full w-full object-cover" muted playsInline />
+                    ) : (
+                      <img src={image.src} alt="" className="h-full w-full object-cover" />
+                    )}
                     <button
                       type="button"
                       onClick={(event) => {
@@ -381,7 +777,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                     type="button"
                     onClick={handleAddMore}
                     className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-dashed border-white/20 text-white/70 transition-colors hover:border-white/40 hover:text-white"
-                    aria-label="Añadir otro archivo"
+                    aria-label="Anadir otro archivo"
                   >
                     <ImagePlus className="h-5 w-5" />
                   </button>
@@ -391,7 +787,11 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
           ) : null}
 
           <div className="px-4 pb-4 md:hidden">
-            <button type="button" onClick={() => setShowPreview(true)} className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-sm font-semibold text-stone-950">
+            <button
+              type="button"
+              onClick={() => setCurrentStage('compose')}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-sm font-semibold text-stone-950"
+            >
               Continuar
               <Check className="h-4 w-4" />
             </button>
@@ -399,6 +799,8 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         </div>
 
         <div className="flex min-h-0 flex-col rounded-t-3xl bg-white text-stone-950 md:rounded-none md:border-l md:border-stone-200">
+          <LayerSummary editor={editor} />
+
           <div className="border-b border-stone-100 px-4 pt-3 md:pt-4">
             <div className="flex gap-2 overflow-x-auto pb-3">
               {TOOLS.map((tool) => {
@@ -440,8 +842,8 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
       <input
         ref={fileInputRef}
         type="file"
-        accept={contentType === 'reel' ? 'video/*' : 'image/*,video/*'}
-        multiple={contentType === 'post'}
+        accept={guidance.accept}
+        multiple={guidance.allowMultiple}
         className="hidden"
         onChange={handleFileSelect}
       />

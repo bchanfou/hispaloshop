@@ -632,14 +632,14 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     toast.success(t('ai.conversationCleared', 'Conversación borrada'));
   };
 
-  // Hispalo AI Logo - Simple elegant circle with "H"
+  // Hispal AI Logo — HA monogram, stone-950
   const HispaloLogo = ({ size = 40 }) => (
-    <div 
-      className="rounded-full bg-primary flex items-center justify-center"
+    <div
+      className="rounded-full bg-stone-950 flex items-center justify-center flex-shrink-0"
       style={{ width: size, height: size }}
     >
-      <span className="font-heading text-white font-semibold" style={{ fontSize: size * 0.45 }}>
-        H
+      <span className="text-white font-semibold" style={{ fontSize: size * 0.28 }}>
+        HA
       </span>
     </div>
   );
@@ -808,10 +808,10 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                     </div>
                   )}
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                    className={`max-w-[80%] rounded-3xl px-4 py-3 text-sm ${
                       msg.role === 'user'
-                        ? 'bg-primary text-white'
-                        : 'bg-white text-primary border border-stone-300'
+                        ? 'bg-stone-950 text-white rounded-br-md'
+                        : 'bg-white text-stone-900 border border-stone-100 shadow-sm rounded-bl-md'
                     }`}
                   >
                     <p className="font-body text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
@@ -821,15 +821,17 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
               
               {/* Loading indicator - shows during API call or chunking */}
               {(loading || isChunking) && (
-                <div className="flex justify-start">
-                  <div className="flex-shrink-0 mr-2 mt-1">
-                    <HispaloLogo size={24} />
-                  </div>
-                  <div className="bg-white border border-stone-300 rounded-lg px-4 py-3">
-                    <div className="flex space-x-1.5">
-                      <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></div>
-                      <div className="w-2 h-2 bg-stone-300 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></div>
+                <div className="flex justify-start items-end gap-2">
+                  <HispaloLogo size={24} />
+                  <div className="bg-white border border-stone-100 shadow-sm rounded-3xl rounded-bl-md px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      {[0, 1, 2].map((i) => (
+                        <span
+                          key={i}
+                          className="w-1.5 h-1.5 bg-stone-400 rounded-full animate-bounce"
+                          style={{ animationDelay: `${i * 0.15}s` }}
+                        />
+                      ))}
                     </div>
                   </div>
                 </div>

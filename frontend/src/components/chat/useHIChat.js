@@ -4,65 +4,71 @@ import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { API } from '../../utils/api';
 
+// ── Time-based greeting ────────────────────────────────────────────
+export function getTimeGreeting() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return 'Buenos días';
+  if (h >= 12 && h < 20) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
 // ── Role configuration ─────────────────────────────────────────────
-// Colors use only stone palette identifiers — no hex or CSS vars.
 export const ROLE_CONFIG = {
   consumer: {
-    name: 'HI',
-    mode: 'HI AI',
+    name: 'Hispal AI',
+    mode: 'Hispal AI',
     description: 'Tu asistente personal de alimentación y soporte',
     welcomeMessage:
-      '¡Hola! Soy HI, tu asistente personal de Hispaloshop. ¿En qué puedo ayudarte hoy?',
+      '¡Hola! Soy Hispal AI, tu asistente personal de Hispaloshop. ¿En qué puedo ayudarte hoy?',
     suggestions: [
-      { id: 'meal_plan', label: 'Planificar comidas', action: 'meal_plan' },
-      { id: 'find_products', label: 'Buscar productos', action: 'find_products' },
-      { id: 'recipe', label: '¿Qué cocinar hoy?', action: 'recipe' },
-      { id: 'support', label: 'Tengo un problema con mi pedido', action: 'support' },
+      { id: 'meal_plan',     label: 'Planificar comidas',      action: 'meal_plan',     emoji: '🗓' },
+      { id: 'find_products', label: 'Buscar productos',         action: 'find_products', emoji: '🛍' },
+      { id: 'recipe',        label: '¿Qué cocinar hoy?',        action: 'recipe',        emoji: '👨‍🍳' },
+      { id: 'support',       label: 'Ayuda con mi pedido',      action: 'support',       emoji: '📦' },
     ],
   },
   producer: {
-    name: 'HI Ventas',
-    mode: 'HI Ventas',
+    name: 'Hispal Ventas',
+    mode: 'Hispal Ventas',
     description: 'Asistente de negocio premium para productores',
     welcomeMessage:
-      '¡Hola! Soy HI Ventas, tu asistente de negocio. ¿Qué quieres analizar hoy?',
+      '¡Hola! Soy Hispal Ventas, tu asistente de negocio. ¿Qué quieres analizar hoy?',
     suggestions: [
-      { id: 'sales', label: 'Analizar ventas', action: 'sales_analysis' },
-      { id: 'pricing', label: 'Optimizar precios', action: 'pricing' },
-      { id: 'listing', label: 'Mejorar ficha de producto', action: 'listing' },
-      { id: 'strategy', label: 'Estrategia de exportación', action: 'export_strategy' },
+      { id: 'sales',    label: 'Analizar ventas',          action: 'sales_analysis',  emoji: '📊' },
+      { id: 'pricing',  label: 'Optimizar precios',         action: 'pricing',         emoji: '💰' },
+      { id: 'listing',  label: 'Mejorar ficha',             action: 'listing',         emoji: '✏️' },
+      { id: 'strategy', label: 'Estrategia de exportación', action: 'export_strategy', emoji: '🌍' },
     ],
   },
   influencer: {
-    name: 'HI Creativo',
-    mode: 'HI Creativo',
+    name: 'Hispal Creativo',
+    mode: 'Hispal Creativo',
     description: 'Asistente creativo para contenido y campañas',
     welcomeMessage:
-      '¡Hola! Soy HI Creativo, tu asistente de contenido. ¿Qué vamos a crear hoy?',
+      '¡Hola! Soy Hispal Creativo, tu asistente de contenido. ¿Qué vamos a crear hoy?',
     suggestions: [
-      { id: 'caption', label: 'Escribir un caption', action: 'caption' },
-      { id: 'reel', label: 'Ideas para reels', action: 'reel_ideas' },
-      { id: 'campaign', label: 'Diseñar una campaña', action: 'campaign' },
-      { id: 'storytelling', label: 'Storytelling de producto', action: 'product_story' },
+      { id: 'caption',      label: 'Escribir un caption',   action: 'caption',       emoji: '✍️' },
+      { id: 'reel',         label: 'Ideas para reels',       action: 'reel_ideas',    emoji: '🎬' },
+      { id: 'campaign',     label: 'Diseñar una campaña',    action: 'campaign',      emoji: '🎯' },
+      { id: 'storytelling', label: 'Storytelling de marca',  action: 'product_story', emoji: '📖' },
     ],
   },
   importer: {
-    name: 'HI Ventas',
-    mode: 'HI Ventas',
+    name: 'Hispal Ventas',
+    mode: 'Hispal Ventas',
     description: 'Análisis de mercado internacional para importadores',
     welcomeMessage:
-      '¡Hola! Soy HI Ventas, tu analista de mercado internacional. ¿Cómo puedo ayudarte?',
+      '¡Hola! Soy Hispal Ventas, tu analista de mercado internacional. ¿Cómo puedo ayudarte?',
     suggestions: [
-      { id: 'find_producers', label: 'Encontrar productores', action: 'find_producers' },
-      { id: 'margins', label: 'Análisis de márgenes', action: 'margins' },
-      { id: 'trends', label: 'Tendencias de mercado', action: 'trends' },
-      { id: 'b2b', label: 'Estrategia de negociación B2B', action: 'b2b' },
+      { id: 'find_producers', label: 'Encontrar productores',  action: 'find_producers', emoji: '🏭' },
+      { id: 'margins',        label: 'Análisis de márgenes',   action: 'margins',         emoji: '📈' },
+      { id: 'trends',         label: 'Tendencias de mercado',  action: 'trends',          emoji: '🔍' },
+      { id: 'b2b',            label: 'Estrategia B2B',         action: 'b2b',             emoji: '🤝' },
     ],
   },
 };
 
 // ── Access control ─────────────────────────────────────────────────
-// Must stay in sync with backend _HI_BASE_ACCESS + _HI_PREMIUM_ROLES.
 export function getAvailableRoles(user) {
   if (!user) return ['consumer'];
 
@@ -86,8 +92,8 @@ function getDefaultRole(user) {
   const available = getAvailableRoles(user);
   const saved = localStorage.getItem('hiActiveRole');
   if (saved && available.includes(saved)) return saved;
-  if (user?.role === 'producer' && available.includes('producer')) return 'producer';
-  if (user?.role === 'importer' && available.includes('importer')) return 'importer';
+  if (user?.role === 'producer'  && available.includes('producer'))  return 'producer';
+  if (user?.role === 'importer'  && available.includes('importer'))  return 'importer';
   if (user?.role === 'influencer' && available.includes('influencer')) return 'influencer';
   return 'consumer';
 }
@@ -102,11 +108,7 @@ export function useHIChat() {
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem(`hiChat_${activeRole}`);
     if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        // ignore
-      }
+      try { return JSON.parse(saved); } catch { /* ignore */ }
     }
     const config = ROLE_CONFIG[activeRole] || ROLE_CONFIG.consumer;
     return [
@@ -114,7 +116,7 @@ export function useHIChat() {
     ];
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading]   = useState(false);
   const [suggestions, setSuggestions] = useState(
     () => (ROLE_CONFIG[activeRole] || ROLE_CONFIG.consumer).suggestions,
   );
@@ -122,9 +124,7 @@ export function useHIChat() {
   useEffect(() => {
     try {
       localStorage.setItem(`hiChat_${activeRole}`, JSON.stringify(messages));
-    } catch {
-      // storage may be full — ignore
-    }
+    } catch { /* storage may be full */ }
   }, [messages, activeRole]);
 
   useEffect(() => {
@@ -137,21 +137,15 @@ export function useHIChat() {
       setActiveRole(newRole);
       const saved = localStorage.getItem(`hiChat_${newRole}`);
       if (saved) {
-        try {
-          setMessages(JSON.parse(saved));
-        } catch {
-          setMessages([]);
-        }
+        try { setMessages(JSON.parse(saved)); } catch { setMessages([]); }
       } else {
         const config = ROLE_CONFIG[newRole] || ROLE_CONFIG.consumer;
-        setMessages([
-          {
-            id: `welcome-${Date.now()}`,
-            role: 'assistant',
-            content: config.welcomeMessage,
-            timestamp: Date.now(),
-          },
-        ]);
+        setMessages([{
+          id: `welcome-${Date.now()}`,
+          role: 'assistant',
+          content: config.welcomeMessage,
+          timestamp: Date.now(),
+        }]);
       }
       setSuggestions((ROLE_CONFIG[newRole] || ROLE_CONFIG.consumer).suggestions);
     },
@@ -173,10 +167,7 @@ export function useHIChat() {
 
         const response = await axios.post(
           `${API}/ai/chat`,
-          {
-            messages: [...history, { role: 'user', content }],
-            assistant_role: activeRole,
-          },
+          { messages: [...history, { role: 'user', content }], assistant_role: activeRole },
           { withCredentials: true },
         );
 
@@ -186,7 +177,6 @@ export function useHIChat() {
           content: response.data.content,
           timestamp: Date.now(),
         };
-
         setMessages((prev) => [...prev, assistantMessage]);
         return assistantMessage;
       } catch (error) {
@@ -206,27 +196,21 @@ export function useHIChat() {
 
   const clearChat = useCallback(() => {
     const config = ROLE_CONFIG[activeRole] || ROLE_CONFIG.consumer;
-    const initial = [
-      {
-        id: `welcome-${Date.now()}`,
-        role: 'assistant',
-        content: config.welcomeMessage,
-        timestamp: Date.now(),
-      },
-    ];
+    const initial = [{
+      id: `welcome-${Date.now()}`,
+      role: 'assistant',
+      content: config.welcomeMessage,
+      timestamp: Date.now(),
+    }];
     setMessages(initial);
     setSuggestions(config.suggestions);
     try {
       localStorage.setItem(`hiChat_${activeRole}`, JSON.stringify(initial));
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   }, [activeRole]);
 
   const useSuggestion = useCallback(
-    async (suggestion) => {
-      await sendMessage(suggestion.label);
-    },
+    async (suggestion) => { await sendMessage(suggestion.label); },
     [sendMessage],
   );
 

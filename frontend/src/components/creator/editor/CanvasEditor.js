@@ -4,25 +4,30 @@ import { MapPin, Sparkles, Tag } from 'lucide-react';
 import { ASPECT_RATIO_DIMENSIONS } from '../types/editor.types';
 
 const DRAG_MARGIN = 12;
+const SNAP_THRESHOLD = 16;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
 function estimateTextSize(text) {
-  const width = Math.max(72, text.text.length * text.fontSize * 0.58 * text.scale);
-  const height = Math.max(36, text.fontSize * 1.45 * text.scale);
+  const width = Math.max(72, text.text.length * text.fontSize * 0.58 * (text.scale || 1));
+  const height = Math.max(36, text.fontSize * 1.45 * (text.scale || 1));
   return { width, height };
 }
 
 function estimateStickerSize(sticker) {
-  if (sticker.type === 'product') return { width: 180 * sticker.scale, height: 84 * sticker.scale };
-  if (sticker.type === 'new') return { width: 110 * sticker.scale, height: 42 * sticker.scale };
-  return { width: 140 * sticker.scale, height: 42 * sticker.scale };
+  if (sticker.type === 'product') return { width: 180 * (sticker.scale || 1), height: 84 * (sticker.scale || 1) };
+  if (sticker.type === 'new') return { width: 110 * (sticker.scale || 1), height: 42 * (sticker.scale || 1) };
+  return { width: 140 * (sticker.scale || 1), height: 42 * (sticker.scale || 1) };
+}
+
+function getElementSize(type, element) {
+  return type === 'text' ? estimateTextSize(element) : estimateStickerSize(element);
 }
 
 function getClampedPosition(type, element, nextX, nextY, containerSize) {
-  const { width, height } = type === 'text' ? estimateTextSize(element) : estimateStickerSize(element);
+  const { width, height } = getElementSize(type, element);
 
   return {
     x: clamp(nextX, DRAG_MARGIN, Math.max(DRAG_MARGIN, containerSize.width - width - DRAG_MARGIN)),
@@ -30,18 +35,59 @@ function getClampedPosition(type, element, nextX, nextY, containerSize) {
   };
 }
 
+function getSnappedPosition(type, element, nextPosition, containerSize) {
+  const size = getElementSize(type, element);
+  const centerX = (containerSize.width - size.width) / 2;
+  const centerY = (containerSize.height - size.height) / 2;
+  const safeTop = containerSize.height * 0.12;
+  const safeBottom = containerSize.height * 0.82;
+  const guides = { vertical: false, horizontal: false, safeTop: false, safeBottom: false };
+
+  let snappedX = nextPosition.x;
+  let snappedY = nextPosition.y;
+
+  if (Math.abs(nextPosition.x - centerX) <= SNAP_THRESHOLD) {
+    snappedX = centerX;
+    guides.vertical = true;
+  }
+
+  if (Math.abs(nextPosition.y - centerY) <= SNAP_THRESHOLD) {
+    snappedY = centerY;
+    guides.horizontal = true;
+  }
+
+  if (Math.abs(nextPosition.y - safeTop) <= SNAP_THRESHOLD) {
+    snappedY = safeTop;
+    guides.safeTop = true;
+  }
+
+  if (Math.abs(nextPosition.y + size.height - safeBottom) <= SNAP_THRESHOLD) {
+    snappedY = safeBottom - size.height;
+    guides.safeBottom = true;
+  }
+
+  return {
+    position: getClampedPosition(type, element, snappedX, snappedY, containerSize),
+    guides,
+  };
+}
+
 function getFontFamily(fontFamily) {
   if (fontFamily === 'serif') return 'Georgia, Cambria, "Times New Roman", serif';
-  if (fontFamily === 'handwritten') return '"Comic Sans MS", "Bradley Hand", cursive';
-  if (fontFamily === 'bold') return 'ui-sans-serif, system-ui, sans-serif';
-  if (fontFamily === 'minimal') return 'ui-sans-serif, system-ui, sans-serif';
+  if (fontFamily === 'handwritten') return '"Brush Script MT", "Segoe Script", cursive';
   return 'ui-sans-serif, system-ui, sans-serif';
 }
 
-function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
+function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', readOnly = false }) {
   const containerRef = useRef(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [dragState, setDragState] = useState(null);
+  const [snapGuides, setSnapGuides] = useState({
+    vertical: false,
+    horizontal: false,
+    safeTop: false,
+    safeBottom: false,
+  });
 
   const currentImage = editor.images[editor.currentImageIndex];
 
@@ -108,18 +154,23 @@ function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
         const current = editor.textElements.find((item) => item.id === dragState.id);
         if (!current) return;
         const next = getClampedPosition('text', current, rawX, rawY, containerSize);
-        editor.updateText(dragState.id, next);
+        const snapped = getSnappedPosition('text', current, next, containerSize);
+        editor.updateText(dragState.id, snapped.position);
+        setSnapGuides(snapped.guides);
       } else {
         const current = editor.stickerElements.find((item) => item.id === dragState.id);
         if (!current) return;
         const next = getClampedPosition('sticker', current, rawX, rawY, containerSize);
-        editor.updateElement(dragState.id, next);
+        const snapped = getSnappedPosition('sticker', current, next, containerSize);
+        editor.updateElement(dragState.id, snapped.position);
+        setSnapGuides(snapped.guides);
       }
     };
 
     const up = (event) => {
       if (event.pointerId !== dragState.pointerId) return;
       setDragState(null);
+      setSnapGuides({ vertical: false, horizontal: false, safeTop: false, safeBottom: false });
     };
 
     window.addEventListener('pointermove', move);
@@ -137,6 +188,16 @@ function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
     width: containerSize.width,
     height: containerSize.height,
   }), [containerSize.height, containerSize.width]);
+
+  const safeZoneStyle = useMemo(() => {
+    if (contentType !== 'story' && contentType !== 'reel') return null;
+    return {
+      top: `${containerSize.height * 0.12}px`,
+      bottom: `${containerSize.height * 0.18}px`,
+      left: '20px',
+      right: '20px',
+    };
+  }, [containerSize.height, contentType]);
 
   if (!currentImage) return null;
 
@@ -173,6 +234,34 @@ function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
           />
         )}
 
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-black/10" />
+
+        {safeZoneStyle ? (
+          <div
+            className="pointer-events-none absolute rounded-[22px] border border-dashed border-white/30"
+            style={safeZoneStyle}
+          />
+        ) : null}
+
+        {snapGuides.vertical ? (
+          <div className="pointer-events-none absolute bottom-0 left-1/2 top-0 w-px -translate-x-1/2 bg-white/55" />
+        ) : null}
+        {snapGuides.horizontal ? (
+          <div className="pointer-events-none absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-white/55" />
+        ) : null}
+        {snapGuides.safeTop ? (
+          <div
+            className="pointer-events-none absolute left-0 right-0 h-px bg-amber-300/80"
+            style={{ top: `${containerSize.height * 0.12}px` }}
+          />
+        ) : null}
+        {snapGuides.safeBottom ? (
+          <div
+            className="pointer-events-none absolute left-0 right-0 h-px bg-amber-300/80"
+            style={{ top: `${containerSize.height * 0.82}px` }}
+          />
+        ) : null}
+
         {editor.textElements.map((text) => (
           <motion.div
             key={text.id}
@@ -180,7 +269,7 @@ function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
             style={{
               left: text.x,
               top: text.y,
-              transform: `rotate(${text.rotation}deg) scale(${text.scale})`,
+              transform: `rotate(${text.rotation || 0}deg) scale(${text.scale || 1})`,
               transformOrigin: 'top left',
             }}
             onPointerDown={(event) => handlePointerDown(event, 'text', text.id)}
@@ -195,7 +284,9 @@ function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
                 padding: text.hasBackground ? '10px 14px' : '0',
                 borderRadius: text.hasBackground ? '14px' : '0',
                 textShadow: text.hasOutline ? '0 1px 10px rgba(0,0,0,0.35)' : 'none',
-                fontWeight: text.fontFamily === 'bold' ? 700 : text.fontFamily === 'minimal' ? 300 : 600,
+                fontWeight: text.fontWeight || (text.fontFamily === 'minimal' ? 400 : 600),
+                letterSpacing: `${text.letterSpacing || 0}px`,
+                textAlign: text.textAlign || 'left',
               }}
             >
               {text.text}
@@ -213,13 +304,18 @@ function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
         ))}
 
         {!readOnly ? (
-          <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[11px] font-medium text-white/80 backdrop-blur-sm">
-            {activeTool === 'text'
-              ? 'Arrastra el texto para colocarlo'
-              : activeTool === 'sticker'
-                ? 'Arrastra los sellos para ajustar su posición'
-                : 'Mantén el encuadre limpio y legible'}
-          </div>
+          <>
+            <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/45 px-3 py-1.5 text-[11px] font-medium text-white/80 backdrop-blur-sm">
+              {contentType === 'story' ? 'Safe zone activa para story' : 'Composicion libre con snap suave'}
+            </div>
+            <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[11px] font-medium text-white/80 backdrop-blur-sm">
+              {activeTool === 'text'
+                ? 'Arrastra el texto. El snap te ayuda a centrar y respetar margenes.'
+                : activeTool === 'sticker' || activeTool === 'product'
+                  ? 'Coloca capas utiles sin invadir los bordes.'
+                  : 'Mantiene el encuadre limpio y la lectura clara.'}
+            </div>
+          </>
         ) : null}
       </div>
     </div>
@@ -235,7 +331,7 @@ function StickerElement({ sticker, onPointerDown, readOnly }) {
       style={{
         left: sticker.x,
         top: sticker.y,
-        transform: `rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
+        transform: `rotate(${sticker.rotation || 0}deg) scale(${sticker.scale || 1})`,
         transformOrigin: 'top left',
       }}
       onPointerDown={onPointerDown}
@@ -250,7 +346,7 @@ function StickerElement({ sticker, onPointerDown, readOnly }) {
             </div>
             <div className="min-w-0">
               <p className="truncate text-xs font-semibold text-stone-950">{sticker.productName}</p>
-              <p className="mt-1 text-xs text-stone-500">€{sticker.productPrice}</p>
+              <p className="mt-1 text-xs text-stone-500">EUR {sticker.productPrice}</p>
             </div>
           </div>
         </div>
@@ -275,7 +371,7 @@ function UtilitySticker({ sticker }) {
     return (
       <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white px-4 py-2 text-sm font-medium text-stone-950 shadow-lg">
         <MapPin className="h-4 w-4" />
-        {sticker.content || 'Ubicación'}
+        {sticker.content || 'Ubicacion'}
       </div>
     );
   }
@@ -283,7 +379,7 @@ function UtilitySticker({ sticker }) {
   return (
     <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-stone-950 px-4 py-2 text-sm font-semibold text-white shadow-lg">
       <Tag className="h-4 w-4" />
-      €{sticker.content || '0,00'}
+      EUR {sticker.content || '0,00'}
     </div>
   );
 }

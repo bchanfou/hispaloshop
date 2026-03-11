@@ -186,6 +186,9 @@ app.include_router(support_router, prefix="/api", tags=["support"])
 app.include_router(moderation_router, prefix="/api", tags=["moderation"])
 app.include_router(discovery_router, prefix="/api", tags=["discovery"])
 
+from routes.search import router as search_router
+app.include_router(search_router, prefix="/api", tags=["search"])
+
 # Onboarding Routes
 app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])
 

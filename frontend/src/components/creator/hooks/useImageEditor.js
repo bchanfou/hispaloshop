@@ -12,12 +12,31 @@ const DEFAULT_FILTER_SETTINGS = {
 
 const MAX_HISTORY_STEPS = 10;
 
+function getCanvasFontFamily(fontFamily) {
+  if (fontFamily === 'serif') return 'Georgia, Cambria, "Times New Roman", serif';
+  if (fontFamily === 'handwritten') return '"Brush Script MT", "Segoe Script", cursive';
+  return 'Arial, Helvetica, sans-serif';
+}
+
+function mixFilterSettings(targetSettings, intensity) {
+  const ratio = Math.max(0, Math.min(100, intensity)) / 100;
+  return {
+    brightness: Math.round(targetSettings.brightness * ratio),
+    contrast: Math.round(targetSettings.contrast * ratio),
+    saturate: Math.round(100 + (targetSettings.saturate - 100) * ratio),
+    warmth: Math.round(targetSettings.warmth * ratio),
+    sharpness: Math.round(targetSettings.sharpness * ratio),
+    exposure: Math.round(targetSettings.exposure * ratio),
+  };
+}
+
 export function useImageEditor(contentType, aspectRatio = '1:1') {
   const canvasRef = useRef(null);
   const [images, setImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [filterSettings, setFilterSettings] = useState(DEFAULT_FILTER_SETTINGS);
   const [appliedFilter, setAppliedFilter] = useState(null);
+  const [filterIntensity, setFilterIntensity] = useState(100);
   const [rotation, setRotation] = useState(0);
   const [flipHorizontal, setFlipHorizontal] = useState(false);
   const [flipVertical, setFlipVertical] = useState(false);
@@ -36,6 +55,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
   const saveToHistory = useCallback(() => {
     const state = {
       filterSettings,
+      filterIntensity,
       rotation,
       flipHorizontal,
       flipVertical,
@@ -126,6 +146,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
   const updateFilterSetting = useCallback((key, value) => {
     setFilterSettings(prev => ({ ...prev, [key]: value }));
     setAppliedFilter(null);
+    setFilterIntensity(100);
   }, []);
 
   // Aplicar filtro predefinido
@@ -134,6 +155,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     if (filter) {
       setFilterSettings(filter.settings);
       setAppliedFilter(filterId);
+      setFilterIntensity(100);
     }
   }, []);
 
@@ -141,6 +163,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
   const resetFilters = useCallback(() => {
     setFilterSettings(DEFAULT_FILTER_SETTINGS);
     setAppliedFilter(null);
+    setFilterIntensity(100);
   }, []);
 
   // Rotar imagen
@@ -184,6 +207,10 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       backgroundColor: options.backgroundColor || 'rgba(28,25,23,0.42)',
       hasBackground: options.hasBackground || false,
       hasOutline: options.hasOutline || true,
+      letterSpacing: options.letterSpacing || 0,
+      fontWeight: options.fontWeight || 600,
+      textAlign: options.textAlign || 'left',
+      presetId: options.presetId || 'clean',
       rotation: 0,
       scale: 1,
       ...options,
@@ -261,7 +288,8 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
 
   // Generar CSS filter string
   const getFilterString = useCallback(() => {
-    const { brightness, contrast, saturate, warmth, sharpness, exposure } = filterSettings;
+    const baseSettings = appliedFilter ? mixFilterSettings(filterSettings, filterIntensity) : filterSettings;
+    const { brightness, contrast, saturate, warmth, sharpness, exposure } = baseSettings;
     const filters = [
       `brightness(${100 + brightness + exposure}%)`,
       `contrast(${100 + contrast}%)`,
@@ -270,7 +298,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       `hue-rotate(${warmth > 0 ? -10 : 0}deg)`,
     ];
     return filters.join(' ');
-  }, [filterSettings]);
+  }, [appliedFilter, filterIntensity, filterSettings]);
 
   // Renderizar canvas final
   const renderFinalCanvas = useCallback(async () => {
@@ -338,16 +366,21 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
           ctx.scale(text.scale, text.scale);
           
           const fontSize = text.fontSize;
-          ctx.font = `${fontSize}px ${text.fontFamily}`;
+          const fontFamily = getCanvasFontFamily(text.fontFamily);
+          const fontWeight = text.fontWeight || 600;
+          ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
           const metrics = ctx.measureText(text.text);
           const textWidth = metrics.width;
           const textHeight = fontSize;
+          const textAlign = text.textAlign || 'left';
+          const anchorX = textAlign === 'center' ? textWidth / 2 : textAlign === 'right' ? textWidth : 0;
+          ctx.textAlign = textAlign;
           
           // Fondo
           if (text.hasBackground) {
             ctx.fillStyle = text.backgroundColor || 'rgba(28,25,23,0.42)';
             ctx.beginPath();
-            ctx.roundRect(-12, -textHeight - 8, textWidth + 24, textHeight + 16, 14);
+            ctx.roundRect(-anchorX - 12, -textHeight - 8, textWidth + 24, textHeight + 16, 14);
             ctx.fill();
           }
           
@@ -435,7 +468,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       timestamp: Date.now(),
     };
     localStorage.setItem('hispaloshop_editor_draft', JSON.stringify(draft));
-  }, [images, filterSettings, textElements, stickerElements, drawingPaths]);
+  }, [drawingPaths, filterIntensity, filterSettings, images, stickerElements, textElements]);
 
   // Cargar borrador
   const loadDraft = useCallback(() => {
@@ -444,6 +477,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       const draft = JSON.parse(draftStr);
       // No podemos restaurar archivos, solo la configuración
       setFilterSettings(draft.filterSettings || DEFAULT_FILTER_SETTINGS);
+      setFilterIntensity(draft.filterIntensity || 100);
       setTextElements(draft.textElements || []);
       setStickerElements(draft.stickerElements || []);
       setDrawingPaths(draft.drawingPaths || []);
@@ -471,6 +505,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     currentImageIndex,
     filterSettings,
     appliedFilter,
+    filterIntensity,
     rotation,
     flipHorizontal,
     flipVertical,
@@ -490,6 +525,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     updateFilterSetting,
     applyPredefinedFilter,
     resetFilters,
+    setFilterIntensity,
     rotateImage,
     flipImageHorizontal,
     flipImageVertical,
