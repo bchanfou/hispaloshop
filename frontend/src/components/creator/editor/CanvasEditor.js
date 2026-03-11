@@ -383,15 +383,15 @@ function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', r
 
         {!readOnly ? (
           <>
-            <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/45 px-3 py-1.5 text-[11px] font-medium text-white/80 backdrop-blur-sm">
-              {contentType === 'story' ? 'Safe zone activa para story' : 'Composicion libre con snap suave'}
+            <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/45 px-3 py-2 text-xs font-medium text-white/85 backdrop-blur-sm">
+              {contentType === 'story' || contentType === 'reel' ? 'Zona segura' : 'Snap suave'}
             </div>
-            <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[11px] font-medium text-white/80 backdrop-blur-sm">
+            <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-2 text-xs font-medium text-white/85 backdrop-blur-sm">
               {activeTool === 'text'
-                ? 'Arrastra el texto. El snap te ayuda a centrar y respetar margenes.'
+                ? 'Arrastra para mover'
                 : activeTool === 'sticker' || activeTool === 'product'
-                  ? 'Coloca capas utiles sin invadir los bordes.'
-                  : 'Mantiene el encuadre limpio y la lectura clara.'}
+                  ? 'Arrastra para colocar'
+                  : 'Ajusta y mira el resultado'}
             </div>
           </>
         ) : null}

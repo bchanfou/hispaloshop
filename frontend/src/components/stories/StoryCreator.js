@@ -17,10 +17,10 @@ function StoryCreator() {
           contentType: 'story',
         },
       });
-      toast.success('Historia publicada');
+      toast.success('Publicado');
       navigate(-1);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'No se pudo publicar la historia');
+      toast.error(error.response?.data?.detail || 'Error');
     }
   };
 

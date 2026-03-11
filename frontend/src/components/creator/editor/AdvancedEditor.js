@@ -119,7 +119,7 @@ function RangeField({ label, value, min, max, step = 1, suffix = '', onChange })
         step={step}
         value={value}
         onChange={(event) => onChange(event)}
-        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
+        className="h-2.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
       />
     </div>
   );
@@ -173,12 +173,12 @@ function LayerSummary({ editor }) {
     <div className="border-b border-stone-100 px-4 py-4">
       <div className="flex flex-wrap gap-2">
         {items.map((item) => (
-          <div key={item.id} className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+          <div key={item.id} className="rounded-full bg-stone-100 px-3 py-2.5 text-sm font-medium text-stone-700">
             {item.label} {item.value}
           </div>
         ))}
       </div>
-      <div className="mt-3 rounded-full bg-stone-950 px-3 py-2 text-xs font-medium text-white">
+      <div className="mt-3 inline-flex min-h-11 items-center rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white">
         {editor.compositionSettings?.templateId || 'free'}
       </div>
     </div>
@@ -210,14 +210,13 @@ function MediaStage({ contentType, guidance, onClose, onPick, canRestoreDraft, o
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-stone-950 shadow-lg">
             <GuidanceIcon className="h-7 w-7" />
           </div>
-          <p className="mt-5 text-xs font-medium uppercase tracking-[0.28em] text-white/55">{guidance.eyebrow}</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">{guidance.title}</h1>
-          <p className="mt-3 text-sm text-white/72">{guidance.description}</p>
+          <p className="mt-3 text-base text-white/72">{guidance.description}</p>
 
           <button
             type="button"
             onClick={onPick}
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100"
+            className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-base font-semibold text-stone-950 transition-colors hover:bg-stone-100"
           >
             <Upload className="h-4 w-4" />
             Elegir
@@ -227,13 +226,13 @@ function MediaStage({ contentType, guidance, onClose, onPick, canRestoreDraft, o
             <button
               type="button"
               onClick={onRestoreDraft}
-              className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+              className="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-white/10"
             >
               Borrador
             </button>
           ) : null}
 
-          <p className="mt-4 text-center text-xs leading-5 text-white/45">{guidance.meta}</p>
+          <p className="mt-4 text-center text-sm leading-5 text-white/45">{guidance.meta}</p>
         </div>
       </div>
     </div>
@@ -277,9 +276,9 @@ function ComposeStage({
           type="button"
           onClick={onPublish}
           disabled={isPublishing}
-          className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-11 rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isPublishing ? 'Publicando...' : contentType === 'story' ? 'Publicar historia' : 'Publicar'}
+          {isPublishing ? 'Publicando...' : 'Publicar'}
         </button>
       </div>
 
@@ -326,7 +325,7 @@ function ComposeStage({
                 value={caption}
                 onChange={(event) => setCaption(event.target.value)}
                 placeholder="Texto"
-                className="h-28 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
+                className="h-28 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-base leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
                 maxLength={contentType === 'story' ? 180 : 2200}
               />
 
@@ -336,11 +335,11 @@ function ComposeStage({
                   value={location}
                   onChange={(event) => setLocation(event.target.value)}
                   placeholder="Ubicacion"
-                  className="h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition-colors focus:border-stone-950"
+                  className="h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-base text-stone-950 outline-none transition-colors focus:border-stone-950"
                 />
               </div>
 
-              <div className="mt-4 rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+              <div className="mt-4 inline-flex min-h-11 items-center rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700">
                 {taggedProductsCount > 0
                   ? `${taggedProductsCount} producto(s)`
                   : '0 productos'}
@@ -549,8 +548,8 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
       case 'adjust':
         return (
           <EditorSection
-            title="Ajustes finos"
-            description="Haz cambios pequenos y medidos. La meta es limpiar, no sobreprocesar."
+            title="Ajustes"
+            description="Luz y color."
           >
             <div className="space-y-4 rounded-2xl border border-stone-100 bg-stone-50 p-4">
               <RangeField
@@ -602,13 +601,13 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         return (
           <EditorSection
             title="Encuadre"
-            description="Usa zoom, ratio y espejo con intencion para dejar respirar la composicion."
+            description="Zoom, giro y formato."
           >
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={editor.rotateImage}
-                className="rounded-2xl border border-stone-100 bg-stone-50 px-3 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100"
+                className="min-h-12 rounded-2xl border border-stone-100 bg-stone-50 px-3 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100"
               >
                 <RotateCw className="mx-auto mb-2 h-4 w-4" />
                 Rotar
@@ -616,7 +615,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               <button
                 type="button"
                 onClick={editor.flipImageHorizontal}
-                className={`rounded-2xl border px-3 py-3 text-sm font-medium transition-colors ${
+                className={`min-h-12 rounded-2xl border px-3 py-3 text-sm font-medium transition-colors ${
                   editor.flipHorizontal
                     ? 'border-stone-950 bg-stone-950 text-white'
                     : 'border-stone-100 bg-stone-50 text-stone-700 hover:bg-stone-100'
@@ -628,7 +627,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               <button
                 type="button"
                 onClick={editor.flipImageVertical}
-                className={`rounded-2xl border px-3 py-3 text-sm font-medium transition-colors ${
+                className={`min-h-12 rounded-2xl border px-3 py-3 text-sm font-medium transition-colors ${
                   editor.flipVertical
                     ? 'border-stone-950 bg-stone-950 text-white'
                     : 'border-stone-100 bg-stone-50 text-stone-700 hover:bg-stone-100'
@@ -647,7 +646,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                     key={ratio}
                     type="button"
                     onClick={() => setAspectRatio(ratio)}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                       aspectRatio === ratio
                         ? 'bg-stone-950 text-white'
                         : 'bg-white text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100'
@@ -819,12 +818,13 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                   <ImagePlus className="h-7 w-7" />
                 </div>
                 <h2 className="mt-5 text-xl font-semibold text-white">Anade un archivo</h2>
+                <p className="mt-2 text-sm text-white/60">Toca Elegir para empezar.</p>
                 <button
                   type="button"
                   onClick={handleAddMore}
-                  className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100"
+                  className="mt-6 inline-flex min-h-12 rounded-full bg-white px-6 py-3 text-base font-semibold text-stone-950 transition-colors hover:bg-stone-100"
                 >
-                  Seleccionar archivo
+                  Elegir
                 </button>
               </div>
             )}
@@ -856,7 +856,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                             event.stopPropagation();
                             editor.moveImage(index, index - 1);
                           }}
-                          className="flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white disabled:opacity-35"
+                          className="flex h-11 w-11 items-center justify-center rounded-full bg-black/70 text-white disabled:opacity-35"
                           aria-label="Mover a la izquierda"
                         >
                           <ChevronLeft className="h-3 w-3" />
@@ -868,7 +868,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                             event.stopPropagation();
                             editor.moveImage(index, index + 1);
                           }}
-                          className="flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white disabled:opacity-35"
+                          className="flex h-11 w-11 items-center justify-center rounded-full bg-black/70 text-white disabled:opacity-35"
                           aria-label="Mover a la derecha"
                         >
                           <ChevronRight className="h-3 w-3" />
@@ -881,7 +881,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                         event.stopPropagation();
                         editor.removeImage(index);
                       }}
-                      className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white"
+                      className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white"
                       aria-label="Eliminar archivo"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -907,7 +907,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
             <button
               type="button"
               onClick={() => setCurrentStage('compose')}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-sm font-semibold text-stone-950"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-base font-semibold text-stone-950"
             >
               Continuar
               <Check className="h-4 w-4" />
@@ -931,7 +931,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                       setActiveTool(tool.id);
                       setShowMoreTools(false);
                     }}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                    className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
                       isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                     }`}
                   >
@@ -944,7 +944,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                 <button
                   type="button"
                   onClick={() => setShowMoreTools((prev) => !prev)}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                  className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
                     showMoreTools ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                   }`}
                 >
@@ -967,7 +967,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                         setActiveTool(tool.id);
                         setShowMoreTools(false);
                       }}
-                      className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                      className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
                         isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                       }`}
                     >

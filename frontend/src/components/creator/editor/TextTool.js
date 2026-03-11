@@ -123,7 +123,7 @@ function RangeField({ label, value, min, max, step = 1, onChange, suffix = '' })
         step={step}
         value={value}
         onChange={onChange}
-        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
+        className="h-2.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
       />
     </div>
   );
@@ -178,7 +178,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             <MessageSquareText className="h-[18px] w-[18px]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-stone-950">Texto</h3>
+            <h3 className="text-base font-semibold text-stone-950">Texto</h3>
           </div>
         </div>
 
@@ -190,7 +190,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                 key={preset.id}
                 type="button"
                 onClick={() => setSelectedPresetId(preset.id)}
-                className={`rounded-2xl border px-3 py-3 text-left transition-colors ${
+                className={`min-h-12 rounded-2xl border px-3 py-3 text-left transition-colors ${
                   selectedPresetId === preset.id ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
                 }`}
               >
@@ -207,7 +207,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
           <button
             type="button"
             onClick={() => setShowComposer(true)}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
+            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-stone-950 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-stone-800"
           >
             <Plus className="h-4 w-4" />
             Anadir
@@ -218,7 +218,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               placeholder="Escribe..."
-              className="h-24 w-full resize-none rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-950 outline-none ring-1 ring-transparent transition-colors placeholder:text-stone-400 focus:ring-stone-950"
+              className="h-24 w-full resize-none rounded-2xl bg-stone-50 px-4 py-3 text-base leading-6 text-stone-950 outline-none ring-1 ring-transparent transition-colors placeholder:text-stone-400 focus:ring-stone-950"
               autoFocus
             />
             <div className="rounded-2xl bg-stone-50 p-3">
@@ -231,7 +231,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                   setDraft('');
                   setShowComposer(false);
                 }}
-                className="flex-1 rounded-full bg-stone-100 px-4 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-200"
+                className="flex-1 min-h-11 rounded-full bg-stone-100 px-4 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-200"
               >
                 Cancelar
               </button>
@@ -239,7 +239,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                 type="button"
                 onClick={handleAdd}
                 disabled={!draft.trim()}
-                className="flex-1 rounded-full bg-stone-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex-1 min-h-11 rounded-full bg-stone-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Listo
               </button>
@@ -251,7 +251,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
       <div className="rounded-2xl border border-stone-100 bg-white p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h4 className="text-sm font-semibold text-stone-950">Capas</h4>
+              <h4 className="text-base font-semibold text-stone-950">Capas</h4>
             </div>
           <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
             {texts.length}
@@ -260,8 +260,8 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
 
         <div className="mt-4 space-y-2">
           {texts.length === 0 ? (
-            <div className="rounded-2xl bg-stone-50 px-4 py-5 text-sm text-stone-500">
-              Sin texto.
+            <div className="rounded-2xl bg-stone-50 px-4 py-5 text-base text-stone-500">
+              Toca Anadir.
             </div>
           ) : (
             texts.map((text) => (
@@ -269,7 +269,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                 key={text.id}
                 type="button"
                 onClick={() => setSelectedTextId(text.id)}
-                className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${
+                className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${
                   selectedTextId === text.id ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-100 bg-stone-50 text-stone-700 hover:bg-stone-100'
                 }`}
               >
@@ -277,7 +277,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                   <p className="truncate text-sm font-medium">
                     {text.text}
                   </p>
-                  <p className={`mt-1 text-xs ${selectedTextId === text.id ? 'text-white/70' : 'text-stone-500'}`}>Mover y ajustar.</p>
+                  <p className={`mt-1 text-xs ${selectedTextId === text.id ? 'text-white/70' : 'text-stone-500'}`}>Toca para editar.</p>
                 </div>
                 <button
                   type="button"
@@ -288,7 +288,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                       setSelectedTextId(null);
                     }
                   }}
-                  className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                  className={`flex h-11 w-11 items-center justify-center rounded-full transition-colors ${
                     selectedTextId === text.id ? 'bg-white/12 text-white hover:bg-white/18' : 'bg-white text-stone-500 ring-1 ring-stone-200 hover:text-stone-950'
                   }`}
                   aria-label="Eliminar texto"
@@ -304,7 +304,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
       {selectedText ? (
         <div className="space-y-4 rounded-2xl border border-stone-100 bg-white p-4">
           <div>
-            <h4 className="text-sm font-semibold text-stone-950">Ajustes</h4>
+              <h4 className="text-base font-semibold text-stone-950">Ajustes</h4>
           </div>
 
           <div className="space-y-2">
@@ -318,7 +318,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                   key={font.id}
                   type="button"
                   onClick={() => onUpdate(selectedText.id, { fontFamily: font.id })}
-                  className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                  className={`min-h-11 rounded-full px-4 py-2 text-sm transition-colors ${
                     selectedText.fontFamily === font.id ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                   }`}
                 >
@@ -336,7 +336,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                   key={preset.id}
                   type="button"
                   onClick={() => applyPresetToSelected(preset)}
-                  className={`rounded-2xl border px-3 py-3 text-left transition-colors ${
+                  className={`min-h-12 rounded-2xl border px-3 py-3 text-left transition-colors ${
                     selectedText.presetId === preset.id ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-100 bg-stone-50 text-stone-700 hover:bg-stone-100'
                   }`}
                 >
@@ -414,7 +414,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                     key={option.id}
                     type="button"
                     onClick={() => onUpdate(selectedText.id, { textAlign: option.id })}
-                    className={`inline-flex items-center justify-center gap-2 rounded-2xl px-3 py-3 text-sm font-medium transition-colors ${
+                    className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-3 py-3 text-sm font-medium transition-colors ${
                       isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                     }`}
                   >
@@ -430,7 +430,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             <button
               type="button"
               onClick={() => onUpdate(selectedText.id, { hasOutline: !selectedText.hasOutline })}
-              className={`rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
+              className={`min-h-12 rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
                 selectedText.hasOutline ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
               }`}
             >
@@ -439,7 +439,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             <button
               type="button"
               onClick={() => onUpdate(selectedText.id, { hasBackground: !selectedText.hasBackground })}
-              className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
+              className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition-colors ${
                 selectedText.hasBackground ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
               }`}
             >
@@ -448,10 +448,10 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             </button>
           </div>
 
-          <div className="rounded-2xl bg-stone-50 px-4 py-3 text-xs text-stone-500">
+          <div className="rounded-2xl bg-stone-50 px-4 py-3 text-sm text-stone-500">
             <div className="flex items-center gap-2">
               <RotateCw className="h-3.5 w-3.5" />
-              Colocalo con drag y usa la rotacion solo como acento, no como gesto principal.
+              Arrastra para mover.
             </div>
           </div>
         </div>

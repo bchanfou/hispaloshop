@@ -15,7 +15,7 @@ const parseMarkdown = (text) => {
 
 function HAAvatar() {
   return (
-    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-stone-950 shadow-[0_6px_16px_rgba(15,15,15,0.12)]">
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#232323_0%,#0d0d0d_72%)] shadow-[0_8px_18px_rgba(15,15,15,0.14)]">
       <span className="text-[10px] font-semibold tracking-tight text-white">HA</span>
     </div>
   );
@@ -69,29 +69,29 @@ function MessageBubble({ message, isFirstInGroup }) {
           <div
             className={`px-5 py-4 ${
               isUser
-                ? 'rounded-[28px] rounded-br-lg bg-stone-950 text-white shadow-[0_12px_30px_rgba(15,15,15,0.16)]'
-                : 'rounded-[28px] rounded-bl-lg border border-stone-200 bg-white text-stone-950 shadow-[0_10px_24px_rgba(30,25,20,0.05)]'
+                ? 'rounded-[28px] rounded-br-lg bg-[linear-gradient(180deg,#1b1b1b_0%,#0e0e0e_100%)] text-white shadow-[0_16px_34px_rgba(15,15,15,0.18)]'
+                : 'rounded-[28px] rounded-bl-lg border border-[#e6dece] bg-[linear-gradient(180deg,#fffdfa_0%,#fbf8f2_100%)] text-stone-950 shadow-[0_12px_28px_rgba(30,25,20,0.06)]'
             }`}
           >
             {isUser ? (
-              <p className="whitespace-pre-wrap text-[16px] leading-7">{message.content}</p>
+              <p className="whitespace-pre-wrap text-[16px] leading-7 tracking-[-0.01em] text-white">{message.content}</p>
             ) : (
               <div
-                className="text-[17px] leading-8 text-stone-900"
+                className="text-[17px] leading-8 tracking-[-0.01em] text-stone-900"
                 dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}
               />
             )}
           </div>
 
           <div className={`mt-1.5 flex items-center gap-2 px-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
-            <p className={`${isUser ? 'text-stone-500' : 'text-stone-400'} text-[11px] font-medium`}>
+            <p className={`${isUser ? 'text-stone-500' : 'text-stone-400'} text-[11px] font-medium tracking-[0.02em]`}>
               {timestamp}
             </p>
             {!isUser ? (
               <button
                 onClick={handleCopy}
                 title="Copiar"
-                className="rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
+                className="rounded-full p-1.5 text-stone-400 transition-colors hover:bg-white/80 hover:text-stone-700"
               >
                 {copied ? <Check className="h-3.5 w-3.5 text-stone-600" /> : <Copy className="h-3.5 w-3.5" />}
               </button>

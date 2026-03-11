@@ -13,7 +13,7 @@ function SpeedButton({ label, active, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+      className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
         active ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
       }`}
     >
@@ -121,10 +121,8 @@ function ReelToolPanel({ editor }) {
             <Film className="h-[18px] w-[18px]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-stone-950">Controles de reel</h3>
-            <p className="mt-1 text-xs leading-5 text-stone-500">
-              Ajusta el tramo principal, el frame de portada y la energia del preview sin salir del editor.
-            </p>
+            <h3 className="text-base font-semibold text-stone-950">Video</h3>
+            <p className="mt-1 text-sm leading-5 text-stone-500">Recorte, portada y ritmo.</p>
           </div>
         </div>
 
@@ -144,9 +142,10 @@ function ReelToolPanel({ editor }) {
                   key={frame.time}
                   type="button"
                   onClick={() => editor.updateReelSetting('coverFrameSeconds', frame.time)}
-                  className={`overflow-hidden rounded-xl border ${
+                  className={`min-h-12 overflow-hidden rounded-xl border ${
                     Math.abs(frame.time - coverFrameSeconds) < 0.2 ? 'border-stone-950' : 'border-transparent'
                   }`}
+                  aria-label={`Elegir portada en ${formatSeconds(frame.time)}`}
                 >
                   <img src={frame.src} alt="" className="aspect-[9/16] h-full w-full object-cover" />
                 </button>
@@ -176,7 +175,7 @@ function ReelToolPanel({ editor }) {
               step="0.1"
               value={trimStart}
               onChange={(event) => editor.updateReelSetting('trimStart', parseFloat(event.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
+              className="h-2.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
             />
           </div>
           <div>
@@ -191,7 +190,7 @@ function ReelToolPanel({ editor }) {
               step="0.1"
               value={trimEnd}
               onChange={(event) => editor.updateReelSetting('trimEnd', parseFloat(event.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
+              className="h-2.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
             />
           </div>
         </div>
@@ -216,12 +215,12 @@ function ReelToolPanel({ editor }) {
           step="0.1"
           value={coverFrameSeconds}
           onChange={(event) => editor.updateReelSetting('coverFrameSeconds', parseFloat(event.target.value))}
-          className="mt-4 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
+          className="mt-4 h-2.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
         />
         <button
           type="button"
           onClick={() => editor.updateReelSetting('coverFrameSeconds', trimStart + Math.max((trimEnd - trimStart) * 0.2, 0))}
-          className="mt-4 rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+          className="mt-4 min-h-11 rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-800"
         >
           Sugerir portada
         </button>
@@ -243,12 +242,12 @@ function ReelToolPanel({ editor }) {
         <button
           type="button"
           onClick={() => editor.updateReelSetting('isMuted', !editor.reelSettings.isMuted)}
-          className={`mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+          className={`mt-4 inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
             editor.reelSettings.isMuted ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
           }`}
         >
           {editor.reelSettings.isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-          {editor.reelSettings.isMuted ? 'Preview sin audio' : 'Audio original'}
+          {editor.reelSettings.isMuted ? 'Sin audio' : 'Audio'}
         </button>
       </div>
 
@@ -258,7 +257,7 @@ function ReelToolPanel({ editor }) {
           <button
             type="button"
             onClick={() => editor.updateReelSetting('slowMotionEnabled', !editor.reelSettings.slowMotionEnabled)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
               editor.reelSettings.slowMotionEnabled ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
             }`}
           >
@@ -280,7 +279,7 @@ function ReelToolPanel({ editor }) {
                 step="0.1"
                 value={editor.reelSettings.slowMotionStart}
                 onChange={(event) => editor.updateReelSetting('slowMotionStart', parseFloat(event.target.value))}
-                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
+                className="h-2.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
               />
             </div>
             <div>
@@ -295,7 +294,7 @@ function ReelToolPanel({ editor }) {
                 step="0.1"
                 value={editor.reelSettings.slowMotionEnd || trimEnd}
                 onChange={(event) => editor.updateReelSetting('slowMotionEnd', parseFloat(event.target.value))}
-                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
+                className="h-2.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
               />
             </div>
           </div>
