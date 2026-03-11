@@ -12,6 +12,8 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import ProductDetailOverlay from '../store/ProductDetailOverlay';
+import ProductTagMarkers from '../intelligence/ProductTagMarkers';
 
 function formatCount(value) {
   if (!value) return '0';
@@ -38,8 +40,10 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
   const [liked, setLiked] = useState(reel.liked || false);
   const [likeCount, setLikeCount] = useState(reel.likes || 0);
   const [showControls, setShowControls] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const videoRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
+  const taggedProducts = reel.tagged_products || (reel.tagged_product ? [reel.tagged_product] : []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -162,6 +166,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
         />
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/12 via-transparent to-black/72" />
+        <ProductTagMarkers tags={taggedProducts} onSelect={setSelectedProduct} />
 
         <div className="absolute left-3 right-3 top-3 flex items-start justify-between">
           <span className="rounded-full bg-white/92 px-2.5 py-1 text-[11px] font-semibold text-stone-950 backdrop-blur-sm">
@@ -215,6 +220,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
         playsInline
         onClick={togglePlay}
       />
+      <ProductTagMarkers tags={taggedProducts} onSelect={setSelectedProduct} />
 
       {showControls ? (
         <>
@@ -334,6 +340,8 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
           </div>
         </div>
       ) : null}
+
+      {selectedProduct ? <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} /> : null}
     </div>
   );
 }

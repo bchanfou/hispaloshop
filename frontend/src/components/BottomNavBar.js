@@ -39,6 +39,24 @@ const HIDDEN_ON_PREFIXES = [
   '/vender',
 ];
 
+const ASPECT_RATIO_DIMENSIONS = {
+  '1:1': { width: 1080, height: 1080 },
+  '4:5': { width: 1080, height: 1350 },
+  '9:16': { width: 1080, height: 1920 },
+  '16:9': { width: 1920, height: 1080 },
+};
+
+function normalizeTaggedProducts(tags = [], aspectRatio = '1:1') {
+  const dimensions = ASPECT_RATIO_DIMENSIONS[aspectRatio] || ASPECT_RATIO_DIMENSIONS['1:1'];
+  return tags
+    .map((tag) => ({
+      product_id: tag.productId || tag.product_id || tag.id,
+      x: Math.max(4, Math.min(96, ((Number(tag.x) || 0) / dimensions.width) * 100 || 50)),
+      y: Math.max(4, Math.min(96, ((Number(tag.y) || 0) / dimensions.height) * 100 || 62)),
+    }))
+    .filter((tag) => Boolean(tag.product_id));
+}
+
 // Editor simple legacy para fallback rápido
 function CreatePostPanel({ user, onClose, initialFile = null }) {
   const { t } = useTranslation();
@@ -341,11 +359,18 @@ export default function BottomNavBar() {
   const handlePublish = async (publishData) => {
     try {
       const fd = new FormData();
+      const normalizedTags = normalizeTaggedProducts(publishData.taggedProducts, publishData.aspectRatio);
+      const primaryProductId = normalizedTags[0]?.product_id;
       
       if (publishData.contentType === 'reel') {
-        fd.append('video', selectedFiles[0]);
-        fd.append('content', publishData.caption);
-        fd.append('cover_frame_seconds', '1');
+        fd.append('file', selectedFiles[0]);
+        fd.append('caption', publishData.caption);
+        if (primaryProductId) {
+          fd.append('product_id', primaryProductId);
+        }
+        if (normalizedTags.length > 0) {
+          fd.append('tagged_products_json', JSON.stringify(normalizedTags));
+        }
         await axios.post(`${API}/reels`, fd, { 
           withCredentials: true, 
           headers: { 'Content-Type': 'multipart/form-data' } 
@@ -366,6 +391,12 @@ export default function BottomNavBar() {
         const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
         fd.append('caption', publishData.caption);
         fd.append('file', file);
+        if (primaryProductId) {
+          fd.append('product_id', primaryProductId);
+        }
+        if (normalizedTags.length > 0) {
+          fd.append('tagged_products_json', JSON.stringify(normalizedTags));
+        }
         await axios.post(`${API}/posts`, fd, { 
           withCredentials: true, 
           headers: { 'Content-Type': 'multipart/form-data' } 
@@ -391,8 +422,7 @@ export default function BottomNavBar() {
   };
 
   const profileUrl = user ? `/user/${user.user_id}` : '/login';
-  const founderIdentity = `${user?.name || user?.full_name || user?.username || ''}`.toLowerCase();
-  const profileImage = user?.profile_image || user?.avatar_url || (founderIdentity.includes('bil') ? '/images/bil-founder.jpg' : null);
+  const profileImage = user?.profile_image || user?.avatar_url || null;
 
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },

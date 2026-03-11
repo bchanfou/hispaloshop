@@ -9,6 +9,9 @@ import {
 import { toast } from 'sonner';
 import { API } from '../utils/api';
 import { sanitizeImageUrl } from '../utils/helpers';
+import ProductDetailOverlay from './store/ProductDetailOverlay';
+import ProductTagMarkers from './intelligence/ProductTagMarkers';
+import ContextualProductSuggestions from './intelligence/ContextualProductSuggestions';
 
 function getImgUrl(url) {
   return sanitizeImageUrl(url);
@@ -35,6 +38,7 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
   const [sendingComment, setSendingComment] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const commentInputRef = useRef(null);
   const menuRef = useRef(null);
 
@@ -145,6 +149,26 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
 
   const imgSrc = getImgUrl(post.image_url);
   const avatarSrc = getImgUrl(post.user_profile_image || profile?.profile_image);
+  const taggedProducts = post.tagged_products || (post.tagged_product ? [post.tagged_product] : []);
+
+  const handleSelectProduct = async (product) => {
+    setSelectedProduct(product);
+    try {
+      await axios.post(
+        `${API}/intelligence/track`,
+        {
+          event_type: 'product_click',
+          content_type: 'post',
+          content_id: post.post_id,
+          product_id: product.product_id || product.id,
+          producer_id: product.producer_id,
+        },
+        { withCredentials: true },
+      );
+    } catch {
+      // ignore tracking errors
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" data-testid="post-viewer-modal">
@@ -206,6 +230,7 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
               <Heart className="w-24 h-24 fill-white text-white animate-ping opacity-80" />
             </div>
           )}
+          {imgSrc ? <ProductTagMarkers tags={taggedProducts} onSelect={handleSelectProduct} /> : null}
         </div>
 
         {/* Right: Details & Comments */}
@@ -295,6 +320,8 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
                 </div>
               ))
             )}
+
+            <ContextualProductSuggestions contentType="post" contentId={post.post_id} />
           </div>
 
           {/* Actions bar */}
@@ -349,6 +376,8 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
           )}
         </div>
       </div>
+
+      {selectedProduct ? <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} /> : null}
     </div>
   );
 }

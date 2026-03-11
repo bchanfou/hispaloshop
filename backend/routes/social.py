@@ -1,12 +1,14 @@
 """
 Social routes: user profiles, posts, feed, comments, likes, bookmarks, discover, avatars.
 """
-from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File, Form
-from typing import Optional
+from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File, Form, Query
+from typing import Optional, List, Dict
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import uuid
 import logging
+import json
+import re
 
 try:
     from sqlalchemy import select, desc
@@ -24,6 +26,137 @@ from services.cloudinary_storage import upload_image as cloudinary_upload, uploa
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+def _normalize_tagged_products(raw_value) -> List[Dict[str, object]]:
+    if not raw_value:
+        return []
+
+    if isinstance(raw_value, str):
+        try:
+            parsed = json.loads(raw_value)
+        except json.JSONDecodeError:
+            return []
+    elif isinstance(raw_value, list):
+        parsed = raw_value
+    else:
+        return []
+
+    normalized = []
+    for item in parsed:
+        if not isinstance(item, dict):
+            continue
+        product_id = (item.get("product_id") or item.get("productId") or item.get("id") or "").strip()
+        if not product_id:
+            continue
+        normalized.append(
+            {
+                "product_id": product_id,
+                "x": float(item.get("x", item.get("position_x", 50)) or 50),
+                "y": float(item.get("y", item.get("position_y", 50)) or 50),
+            }
+        )
+    return normalized[:5]
+
+
+async def _hydrate_tagged_products(tag_refs: List[Dict[str, object]]) -> List[Dict[str, object]]:
+    product_ids = [item["product_id"] for item in tag_refs if item.get("product_id")]
+    if not product_ids:
+        return []
+
+    products = await db.products.find(
+        {"product_id": {"$in": product_ids}},
+        {"_id": 0, "product_id": 1, "name": 1, "price": 1, "currency": 1, "images": 1, "producer_id": 1, "store_id": 1},
+    ).to_list(len(product_ids))
+    product_map = {item["product_id"]: item for item in products}
+
+    hydrated = []
+    for ref in tag_refs:
+        product = product_map.get(ref["product_id"])
+        if not product:
+            continue
+        hydrated.append(
+            {
+                "product_id": product["product_id"],
+                "id": product["product_id"],
+                "name": product.get("name", ""),
+                "price": product.get("price", 0),
+                "currency": product.get("currency", "EUR"),
+                "image": (product.get("images") or [None])[0],
+                "producer_id": product.get("producer_id"),
+                "store_id": product.get("store_id"),
+                "position": {
+                    "x": max(4, min(96, float(ref.get("x", 50) or 50))),
+                    "y": max(4, min(96, float(ref.get("y", 50) or 50))),
+                },
+            }
+        )
+    return hydrated
+
+
+async def _record_intelligence_signal(event_type: str, payload: Dict[str, object], user_id: Optional[str] = None):
+    signal = {
+        "signal_id": f"sig_{uuid.uuid4().hex[:14]}",
+        "event_type": event_type,
+        "user_id": user_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        **payload,
+    }
+    try:
+        await db.intelligence_signals.insert_one(signal)
+    except Exception as exc:
+        logger.warning("[INTELLIGENCE] signal write failed: %s", exc)
+
+
+def _extract_keywords(*values: object) -> List[str]:
+    terms: List[str] = []
+    for value in values:
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, str):
+                    terms.extend(re.findall(r"[a-zA-ZáéíóúñÁÉÍÓÚÑ]{3,}", item.lower()))
+        elif isinstance(value, str):
+            terms.extend(re.findall(r"[a-zA-ZáéíóúñÁÉÍÓÚÑ]{3,}", value.lower()))
+    seen = set()
+    deduped = []
+    for term in terms:
+        if term not in seen:
+            seen.add(term)
+            deduped.append(term)
+    return deduped[:12]
+
+
+async def _get_contextual_products(*, product_ids: Optional[List[str]] = None, keywords: Optional[List[str]] = None, limit: int = 5):
+    direct_ids = [pid for pid in (product_ids or []) if pid]
+    if direct_ids:
+        direct_products = await db.products.find(
+            {"product_id": {"$in": direct_ids}, "$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]},
+            {"_id": 0},
+        ).to_list(limit)
+        if direct_products:
+            return direct_products[:limit]
+
+    query_parts = []
+    for keyword in (keywords or []):
+        query_parts.append({"name": {"$regex": re.escape(keyword), "$options": "i"}})
+        query_parts.append({"description": {"$regex": re.escape(keyword), "$options": "i"}})
+        query_parts.append({"ingredients": {"$regex": re.escape(keyword), "$options": "i"}})
+
+    if not query_parts:
+        return await db.products.find(
+            {"$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]},
+            {"_id": 0},
+        ).sort("units_sold", -1).limit(limit).to_list(limit)
+
+    return await db.products.find(
+        {
+            "$and": [
+                {"$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]},
+                {"$or": query_parts},
+            ]
+        },
+        {"_id": 0},
+    ).limit(limit).to_list(limit)
 
 
 async def _fallback_feed_from_postgres(skip: int, limit: int):
@@ -134,6 +267,8 @@ async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
                     "likes_count": reel.get("likes_count", 0),
                     "comments_count": reel.get("comments_count", 0),
                 },
+                "tagged_product": reel.get("tagged_product"),
+                "tagged_products": reel.get("tagged_products") or ([reel["tagged_product"]] if reel.get("tagged_product") else []),
             }
         )
 
@@ -145,6 +280,7 @@ async def create_reel(
     file: UploadFile = File(...),
     caption: str = Form(""),
     product_id: str = Form(""),
+    tagged_products_json: str = Form(""),
     user: User = Depends(get_current_user)
 ):
     """Create a reel (short video). Uploads to Cloudinary."""
@@ -158,19 +294,11 @@ async def create_reel(
     video_url = result["url"]
     thumbnail_url = result.get("thumbnail") or video_url
 
-    tagged_product = None
-    if product_id and product_id.strip():
-        prod = await db.products.find_one(
-            {"product_id": product_id.strip()},
-            {"_id": 0, "product_id": 1, "name": 1, "price": 1, "currency": 1, "images": 1}
-        )
-        if prod:
-            tagged_product = {
-                "product_id": prod["product_id"],
-                "name": prod.get("name", ""),
-                "price": prod.get("price", 0),
-                "image": (prod.get("images") or [None])[0],
-            }
+    requested_tags = _normalize_tagged_products(tagged_products_json)
+    if product_id and product_id.strip() and not requested_tags:
+        requested_tags = [{"product_id": product_id.strip(), "x": 50, "y": 62}]
+    tagged_products = await _hydrate_tagged_products(requested_tags)
+    tagged_product = tagged_products[0] if tagged_products else None
 
     reel_id = f"reel_{uuid.uuid4().hex[:12]}"
     reel = {
@@ -182,12 +310,25 @@ async def create_reel(
         "thumbnail_url": thumbnail_url,
         "caption": caption[:500] if caption else "",
         "tagged_product": tagged_product,
+        "tagged_products": tagged_products,
         "likes_count": 0,
         "comments_count": 0,
         "views_count": 0,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.reels.insert_one(reel)
+    for tag in tagged_products:
+        await _record_intelligence_signal(
+            "content_product_tagged",
+            {
+                "content_type": "reel",
+                "content_id": reel_id,
+                "product_id": tag.get("product_id"),
+                "producer_id": tag.get("producer_id"),
+                "keywords": _extract_keywords(caption, tag.get("name")),
+            },
+            user.user_id,
+        )
     return {k: v for k, v in reel.items() if k != "_id"}
 
 
@@ -196,6 +337,7 @@ async def view_reel(reel_id: str, request: Request):
     """Increment view count on a reel."""
     current_user = await get_optional_user(request)
     await db.reels.update_one({"$or": [{"reel_id": reel_id}, {"id": reel_id}]}, {"$inc": {"views_count": 1}})
+    await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "view"}, current_user.user_id if current_user else None)
     return {"status": "ok"}
 
 
@@ -213,6 +355,7 @@ async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     await db.reels.update_one(filter_q, {"$inc": {"likes_count": 1}})
+    await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "like"}, user.user_id)
     return {"liked": True}
 
 
@@ -319,6 +462,10 @@ async def get_user_profile(user_id: str, request: Request):
 @router.get("/users/{user_id}/posts")
 async def get_user_posts(user_id: str, skip: int = 0, limit: int = 30):
     posts = await db.user_posts.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    for post in posts:
+        tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
+        post["tagged_products"] = tagged_products
+        post["tagged_product"] = tagged_products[0] if tagged_products else None
     return posts
 
 
@@ -348,12 +495,17 @@ async def create_post(
     request: Request,
     caption: str = Form(""),
     product_id: str = Form(""),
+    tagged_products_json: str = Form(""),
     file: UploadFile = File(None),
     user: User = Depends(get_current_user)
 ):
     """Create a new post. Producers and influencers MUST tag a product."""
+    requested_tags = _normalize_tagged_products(tagged_products_json)
+    if product_id and product_id.strip() and not requested_tags:
+        requested_tags = [{"product_id": product_id.strip(), "x": 50, "y": 62}]
+
     requires_product = user.role in ("producer", "importer", "influencer")
-    if requires_product and (not product_id or not product_id.strip()):
+    if requires_product and not requested_tags:
         raise HTTPException(status_code=400, detail="Los vendedores e influencers deben vincular un producto a cada post")
 
     image_url = None
@@ -369,20 +521,8 @@ async def create_post(
     if not caption.strip() and not image_url:
         raise HTTPException(status_code=400, detail="Post must have text or an image")
 
-    tagged_product = None
-    if product_id and product_id.strip():
-        prod = await db.products.find_one(
-            {"product_id": product_id.strip()},
-            {"_id": 0, "product_id": 1, "name": 1, "price": 1, "currency": 1, "images": 1}
-        )
-        if prod:
-            tagged_product = {
-                "product_id": prod["product_id"],
-                "name": prod.get("name", ""),
-                "price": prod.get("price", 0),
-                "currency": prod.get("currency", "EUR"),
-                "image": prod.get("images", [None])[0]
-            }
+    tagged_products = await _hydrate_tagged_products(requested_tags)
+    tagged_product = tagged_products[0] if tagged_products else None
 
     post_id = f"post_{uuid.uuid4().hex[:12]}"
     post = {
@@ -392,11 +532,24 @@ async def create_post(
         "image_url": image_url,
         "caption": caption,
         "tagged_product": tagged_product,
+        "tagged_products": tagged_products,
         "likes_count": 0,
         "comments_count": 0,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.user_posts.insert_one(post)
+    for tag in tagged_products:
+        await _record_intelligence_signal(
+            "content_product_tagged",
+            {
+                "content_type": "post",
+                "content_id": post_id,
+                "product_id": tag.get("product_id"),
+                "producer_id": tag.get("producer_id"),
+                "keywords": _extract_keywords(caption, tag.get("name")),
+            },
+            user.user_id,
+        )
     return {k: v for k, v in post.items() if k != "_id"}
 
 
@@ -404,6 +557,10 @@ async def create_post(
 async def list_posts(skip: int = 0, limit: int = 30):
     """List public posts ordered by newest first."""
     posts = await db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    for post in posts:
+        tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
+        post["tagged_products"] = tagged_products
+        post["tagged_product"] = tagged_products[0] if tagged_products else None
     return {"posts": posts, "total": len(posts), "has_more": len(posts) == limit}
 
 
@@ -413,6 +570,9 @@ async def get_post(post_id: str):
     post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0})
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
+    post["tagged_products"] = tagged_products
+    post["tagged_product"] = tagged_products[0] if tagged_products else None
     return post
 
 
@@ -432,6 +592,7 @@ async def like_post(post_id: str, user: User = Depends(get_current_user)):
         return {"liked": False}
     await db.post_likes.insert_one({"post_id": post_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()})
     await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"likes_count": 1}})
+    await _record_intelligence_signal("content_engagement", {"content_type": "post", "content_id": post_id, "action": "like"}, user.user_id)
     return {"liked": True}
 
 
@@ -600,6 +761,7 @@ async def toggle_bookmark(post_id: str, user: User = Depends(get_current_user)):
         await db.post_bookmarks.delete_one({"post_id": post_id, "user_id": user.user_id})
         return {"bookmarked": False}
     await db.post_bookmarks.insert_one({"post_id": post_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()})
+    await _record_intelligence_signal("recipe_save", {"content_type": "post", "content_id": post_id}, user.user_id)
     return {"bookmarked": True}
 
 
@@ -1034,3 +1196,212 @@ async def delete_story(story_id: str, user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Not authorized")
     await db.hispalostories.delete_one({"story_id": story_id})
     return {"status": "deleted"}
+
+
+@router.get("/products/intelligence-search")
+async def search_products_for_content(q: str = Query(default="", min_length=0), limit: int = Query(default=6, ge=1, le=12)):
+    query = {"$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]}
+    if q.strip():
+        escaped = re.escape(q.strip())
+        query = {
+            "$and": [
+                query,
+                {
+                    "$or": [
+                        {"name": {"$regex": escaped, "$options": "i"}},
+                        {"description": {"$regex": escaped, "$options": "i"}},
+                        {"ingredients": {"$regex": escaped, "$options": "i"}},
+                    ]
+                },
+            ]
+        }
+
+    products = await db.products.find(query, {"_id": 0}).sort("units_sold", -1).limit(limit).to_list(limit)
+    return {
+        "items": [
+            {
+                "id": product.get("product_id"),
+                "product_id": product.get("product_id"),
+                "name": product.get("name", ""),
+                "price": product.get("price", 0),
+                "currency": product.get("currency", "EUR"),
+                "image": (product.get("images") or [None])[0],
+                "producer_id": product.get("producer_id"),
+            }
+            for product in products
+        ]
+    }
+
+
+@router.post("/intelligence/track")
+async def track_intelligence_event(request: Request):
+    current_user = await get_optional_user(request)
+    body = await request.json()
+    event_type = (body.get("event_type") or "").strip()
+    if not event_type:
+        raise HTTPException(status_code=400, detail="event_type is required")
+
+    payload = {
+        "content_type": body.get("content_type"),
+        "content_id": body.get("content_id"),
+        "product_id": body.get("product_id"),
+        "producer_id": body.get("producer_id"),
+        "meta": body.get("meta", {}),
+    }
+    await _record_intelligence_signal(event_type, payload, current_user.user_id if current_user else None)
+    return {"status": "ok"}
+
+
+@router.get("/intelligence/contextual-products")
+async def get_contextual_product_suggestions(
+    content_type: str = Query(...),
+    content_id: str = Query(...),
+    limit: int = Query(default=5, ge=1, le=8),
+):
+    doc = None
+    product_ids: List[str] = []
+    keywords: List[str] = []
+    if content_type == "recipe":
+        doc = await db.recipes.find_one({"recipe_id": content_id}, {"_id": 0})
+        if doc:
+            product_ids = [item.get("product_id") for item in doc.get("ingredients", []) if item.get("product_id")]
+            ingredient_names = [item.get("name", "") for item in doc.get("ingredients", [])]
+            keywords = _extract_keywords(doc.get("title"), doc.get("description"), ingredient_names)
+    elif content_type == "reel":
+        doc = await db.reels.find_one({"$or": [{"reel_id": content_id}, {"id": content_id}]}, {"_id": 0})
+        if doc:
+            product_ids = [item.get("product_id") for item in (doc.get("tagged_products") or []) if item.get("product_id")]
+            keywords = _extract_keywords(doc.get("caption"))
+    else:
+        doc = await db.user_posts.find_one({"post_id": content_id}, {"_id": 0})
+        if doc:
+            product_ids = [item.get("product_id") for item in (doc.get("tagged_products") or []) if item.get("product_id")]
+            keywords = _extract_keywords(doc.get("caption"))
+
+    products = await _get_contextual_products(product_ids=product_ids, keywords=keywords, limit=limit)
+    return {"items": products}
+
+
+@router.get("/intelligence/discovered-products")
+async def get_discovered_products(limit: int = Query(default=6, ge=1, le=12)):
+    pipeline = [
+        {"$match": {"event_type": "content_product_tagged", "product_id": {"$ne": None}}},
+        {"$sort": {"created_at": -1}},
+        {"$group": {"_id": "$product_id", "count": {"$sum": 1}, "last_seen": {"$first": "$created_at"}}},
+        {"$sort": {"last_seen": -1, "count": -1}},
+        {"$limit": limit},
+    ]
+    rows = await db.intelligence_signals.aggregate(pipeline).to_list(limit)
+    product_ids = [row["_id"] for row in rows if row.get("_id")]
+    products = await db.products.find({"product_id": {"$in": product_ids}}, {"_id": 0}).to_list(limit)
+    product_map = {item["product_id"]: item for item in products}
+    return {
+        "items": [
+            {
+                **product_map[row["_id"]],
+                "content_mentions": row.get("count", 0),
+                "last_seen": row.get("last_seen"),
+            }
+            for row in rows
+            if row.get("_id") in product_map
+        ]
+    }
+
+
+@router.get("/intelligence/producer-demand")
+async def get_producer_demand_signals(user: User = Depends(get_current_user)):
+    if user.role not in ("producer", "importer"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    product_ids = await db.products.distinct("product_id", {"producer_id": user.user_id})
+    if not product_ids:
+        return {"trending_ingredients": [], "most_tagged_products": [], "content_driving_sales": []}
+
+    tag_rows = await db.intelligence_signals.aggregate(
+        [
+            {"$match": {"product_id": {"$in": product_ids}, "event_type": "content_product_tagged"}},
+            {"$group": {"_id": "$product_id", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 5},
+        ]
+    ).to_list(5)
+
+    click_rows = await db.intelligence_signals.aggregate(
+        [
+            {"$match": {"product_id": {"$in": product_ids}, "event_type": {"$in": ["product_click", "add_to_cart"]}}},
+            {"$group": {"_id": {"content_id": "$content_id", "content_type": "$content_type"}, "score": {"$sum": 1}}},
+            {"$sort": {"score": -1}},
+            {"$limit": 5},
+        ]
+    ).to_list(5)
+
+    ingredient_rows = await db.intelligence_signals.aggregate(
+        [
+            {"$match": {"producer_id": user.user_id, "event_type": "recipe_ingredient_match", "ingredient_name": {"$ne": None}}},
+            {"$group": {"_id": "$ingredient_name", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 5},
+        ]
+    ).to_list(5)
+
+    products = await db.products.find({"product_id": {"$in": [row["_id"] for row in tag_rows]}}, {"_id": 0, "product_id": 1, "name": 1, "images": 1}).to_list(5)
+    product_map = {item["product_id"]: item for item in products}
+
+    return {
+        "trending_ingredients": [{"name": row["_id"], "count": row["count"]} for row in ingredient_rows],
+        "most_tagged_products": [
+            {
+                "product_id": row["_id"],
+                "name": product_map.get(row["_id"], {}).get("name", "Producto"),
+                "image": (product_map.get(row["_id"], {}).get("images") or [None])[0],
+                "count": row["count"],
+            }
+            for row in tag_rows
+        ],
+        "content_driving_sales": [
+            {
+                "content_id": row["_id"].get("content_id"),
+                "content_type": row["_id"].get("content_type"),
+                "score": row.get("score", 0),
+            }
+            for row in click_rows
+        ],
+    }
+
+
+@router.get("/intelligence/influencer-performance")
+async def get_influencer_product_performance(user: User = Depends(get_current_user)):
+    if user.role != "influencer":
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    content_ids = []
+    posts = await db.user_posts.find({"user_id": user.user_id}, {"_id": 0, "post_id": 1, "tagged_products": 1}).limit(100).to_list(100)
+    reels = await db.reels.find({"user_id": user.user_id}, {"_id": 0, "reel_id": 1, "id": 1, "tagged_products": 1}).limit(100).to_list(100)
+    for post in posts:
+        content_ids.append(("post", post.get("post_id")))
+    for reel in reels:
+        content_ids.append(("reel", reel.get("reel_id") or reel.get("id")))
+
+    performance = []
+    for content_type, content_id in content_ids:
+        if not content_id:
+            continue
+        tag_count = await db.intelligence_signals.count_documents({"event_type": "content_product_tagged", "content_type": content_type, "content_id": content_id})
+        clicks = await db.intelligence_signals.count_documents({"event_type": "product_click", "content_type": content_type, "content_id": content_id})
+        sales = await db.intelligence_signals.count_documents({"event_type": "add_to_cart", "content_type": content_type, "content_id": content_id})
+        views = 0
+        if content_type == "reel":
+            reel_doc = await db.reels.find_one({"$or": [{"reel_id": content_id}, {"id": content_id}]}, {"_id": 0, "views_count": 1, "caption": 1})
+            views = reel_doc.get("views_count", 0) if reel_doc else 0
+            title = (reel_doc or {}).get("caption") or "Reel"
+        else:
+            post_doc = await db.user_posts.find_one({"post_id": content_id}, {"_id": 0, "caption": 1, "likes_count": 1, "comments_count": 1})
+            views = ((post_doc or {}).get("likes_count", 0) * 4) + ((post_doc or {}).get("comments_count", 0) * 6)
+            title = (post_doc or {}).get("caption") or "Post"
+
+        if not (tag_count or clicks or sales or views):
+            continue
+        performance.append({"content_id": content_id, "content_type": content_type, "title": title[:72], "views": views, "clicks": clicks, "sales": sales})
+
+    performance.sort(key=lambda item: (item["sales"], item["clicks"], item["views"]), reverse=True)
+    return {"items": performance[:5]}

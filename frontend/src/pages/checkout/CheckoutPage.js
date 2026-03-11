@@ -28,7 +28,7 @@ function AddressCard({ address, selected, onSelect, onDelete, onSetDefault }) {
   return (
     <label
       className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-        selected ? 'border-accent bg-accent/5' : 'border-gray-200 hover:border-gray-300'
+        selected ? 'border-accent bg-accent/5' : 'border-stone-200 hover:border-gray-300'
       }`}
     >
       <input
@@ -40,15 +40,15 @@ function AddressCard({ address, selected, onSelect, onDelete, onSetDefault }) {
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className="font-semibold text-gray-900 text-sm">{address.name}</span>
+          <span className="font-semibold text-stone-950 text-sm">{address.name}</span>
           {address.is_default && (
             <span className="text-xs bg-accent text-white px-2 py-0.5 rounded-full">Predeterminada</span>
           )}
         </div>
-        <p className="text-sm text-gray-900">{address.full_name}</p>
-        <p className="text-sm text-text-muted">{address.street}</p>
-        <p className="text-sm text-text-muted">{address.postal_code} {address.city}</p>
-        {address.phone && <p className="text-sm text-text-muted">{address.phone}</p>}
+        <p className="text-sm text-stone-950">{address.full_name}</p>
+        <p className="text-sm text-stone-500">{address.street}</p>
+        <p className="text-sm text-stone-500">{address.postal_code} {address.city}</p>
+        {address.phone && <p className="text-sm text-stone-500">{address.phone}</p>}
       </div>
       <div className="flex flex-col gap-1 ml-2 shrink-0">
         {!address.is_default && (
@@ -91,7 +91,7 @@ function AddressForm({ onSave, onCancel, saving }) {
           <input
             {...register('name')}
             placeholder="Nombre de esta dirección (ej. Casa)"
-            className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
           />
           {errors.name && <p className="text-xs text-state-error mt-1">{errors.name.message}</p>}
         </div>
@@ -99,7 +99,7 @@ function AddressForm({ onSave, onCancel, saving }) {
           <input
             {...register('full_name')}
             placeholder="Nombre completo del destinatario"
-            className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
           />
           {errors.full_name && <p className="text-xs text-state-error mt-1">{errors.full_name.message}</p>}
         </div>
@@ -107,7 +107,7 @@ function AddressForm({ onSave, onCancel, saving }) {
           <input
             {...register('street')}
             placeholder="Calle y número"
-            className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
           />
           {errors.street && <p className="text-xs text-state-error mt-1">{errors.street.message}</p>}
         </div>
@@ -116,7 +116,7 @@ function AddressForm({ onSave, onCancel, saving }) {
             {...register('postal_code')}
             placeholder="Código postal"
             maxLength={5}
-            className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
           />
           {errors.postal_code && <p className="text-xs text-state-error mt-1">{errors.postal_code.message}</p>}
         </div>
@@ -124,14 +124,14 @@ function AddressForm({ onSave, onCancel, saving }) {
           <input
             {...register('city')}
             placeholder="Ciudad"
-            className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
           />
           {errors.city && <p className="text-xs text-state-error mt-1">{errors.city.message}</p>}
         </div>
         <div>
           <select
             {...register('country')}
-            className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm bg-white"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm bg-white"
           >
             <option value="ES">España</option>
             <option value="PT">Portugal</option>
@@ -146,7 +146,7 @@ function AddressForm({ onSave, onCancel, saving }) {
             {...register('phone')}
             type="tel"
             placeholder="Teléfono (opcional)"
-            className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
           />
         </div>
       </div>
@@ -162,7 +162,7 @@ function AddressForm({ onSave, onCancel, saving }) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-3 border border-gray-200 rounded-xl text-sm text-text-muted hover:bg-gray-50"
+          className="px-4 py-3 border border-stone-200 rounded-xl text-sm text-stone-500 hover:bg-gray-50"
         >
           Cancelar
         </button>
@@ -294,10 +294,10 @@ const CheckoutPage = () => {
     return (
       <div className="min-h-screen bg-background-subtle flex flex-col items-center justify-center p-4">
         <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
-          <ShoppingBag className="w-10 h-10 text-text-muted" />
+          <ShoppingBag className="w-10 h-10 text-stone-500" />
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Tu carrito está vacío</h2>
-        <p className="text-text-muted mb-6">Añade productos para continuar</p>
+        <h2 className="text-xl font-bold text-stone-950 mb-2">Tu carrito está vacío</h2>
+        <p className="text-stone-500 mb-6">Añade productos para continuar</p>
         <button
           onClick={() => navigate('/discover')}
           className="px-6 py-3 bg-accent text-white rounded-full font-medium"
@@ -320,9 +320,9 @@ const CheckoutPage = () => {
               onClick={() => navigate(-1)}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-900" />
+              <ArrowLeft className="w-5 h-5 text-stone-950" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900">Checkout</h1>
+            <h1 className="text-lg font-bold text-stone-950">Checkout</h1>
           </div>
           <div className="flex items-center gap-1 text-sm text-state-success">
             <Lock className="w-4 h-4" />
@@ -349,7 +349,7 @@ const CheckoutPage = () => {
 
         {/* 1. Shipping Address */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-stone-950 mb-4 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-accent" />
             Dirección de envío
           </h2>
@@ -403,11 +403,11 @@ const CheckoutPage = () => {
 
         {/* 2. Shipping info */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-stone-950 mb-3 flex items-center gap-2">
             <Truck className="w-5 h-5 text-accent" />
             Envío
           </h2>
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-stone-500">
             El coste de envío se calcula según el productor y se mostrará en el siguiente paso.
           </p>
           {selectedAddress && (
@@ -420,7 +420,7 @@ const CheckoutPage = () => {
 
         {/* 3. Order Summary */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Resumen del pedido</h2>
+          <h2 className="text-lg font-bold text-stone-950 mb-4">Resumen del pedido</h2>
 
           <div className="space-y-3 mb-4">
             {items.map((item) => (
@@ -433,10 +433,10 @@ const CheckoutPage = () => {
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                  <p className="text-xs text-text-muted">x{item.quantity}</p>
+                  <p className="text-sm font-medium text-stone-950 truncate">{item.name}</p>
+                  <p className="text-xs text-stone-500">x{item.quantity}</p>
                 </div>
-                <span className="text-sm font-semibold text-gray-900 shrink-0">
+                <span className="text-sm font-semibold text-stone-950 shrink-0">
                   €{(item.price * item.quantity).toFixed(2)}
                 </span>
               </div>
@@ -467,7 +467,7 @@ const CheckoutPage = () => {
                     value={discountCode}
                     onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
                     placeholder="Introduce tu código"
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm mb-3"
+                    className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm mb-3"
                   />
                 </motion.div>
               )}
@@ -476,19 +476,19 @@ const CheckoutPage = () => {
 
           {/* Totals */}
           <div className="border-t pt-4 space-y-2">
-            <div className="flex justify-between text-sm text-text-muted">
+            <div className="flex justify-between text-sm text-stone-500">
               <span>Subtotal ({items.reduce((a, b) => a + b.quantity, 0)} productos)</span>
               <span>€{subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm text-text-muted">
+            <div className="flex justify-between text-sm text-stone-500">
               <span>Envío</span>
               <span className="text-state-info text-xs">Se calcula en siguiente paso</span>
             </div>
-            <div className="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t">
+            <div className="flex justify-between text-xl font-bold text-stone-950 pt-2 border-t">
               <span>Total estimado</span>
               <span>€{subtotal.toFixed(2)}</span>
             </div>
-            <p className="text-xs text-text-muted">+ envío e impuestos aplicables</p>
+            <p className="text-xs text-stone-500">+ envío e impuestos aplicables</p>
           </div>
 
           {/* Pay button */}
@@ -510,16 +510,16 @@ const CheckoutPage = () => {
             )}
           </button>
 
-          <div className="flex items-center justify-center gap-2 mt-3 text-xs text-text-muted">
+          <div className="flex items-center justify-center gap-2 mt-3 text-xs text-stone-500">
             <Lock className="w-3.5 h-3.5" />
             <span>Pago procesado de forma segura por Stripe</span>
           </div>
 
           <div className="flex items-center justify-center gap-4 mt-2">
             {['VISA', 'MC', 'AMEX'].map(b => (
-              <span key={b} className="text-xs font-bold text-text-muted bg-gray-100 px-2 py-0.5 rounded">{b}</span>
+              <span key={b} className="text-xs font-bold text-stone-500 bg-gray-100 px-2 py-0.5 rounded">{b}</span>
             ))}
-            <span className="text-xs font-bold text-text-muted bg-[#00A4E0]/10 text-[#00A4E0] px-2 py-0.5 rounded">Bizum</span>
+            <span className="text-xs font-bold text-stone-500 bg-[#00A4E0]/10 text-[#00A4E0] px-2 py-0.5 rounded">Bizum</span>
           </div>
         </section>
 

@@ -224,10 +224,10 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     const newTag = {
       id: Date.now().toString(),
       type: 'product',
-      productId: product.id,
+      productId: product.id || product.product_id,
       productName: product.name,
       productPrice: product.price,
-      productImage: product.image,
+      productImage: product.image || product.images?.[0],
       x: x || 100,
       y: y || 100,
       scale: 1,

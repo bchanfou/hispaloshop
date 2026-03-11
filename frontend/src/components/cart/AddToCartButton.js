@@ -92,18 +92,18 @@ const AddToCartButton = ({
         <div className="flex items-center bg-gray-100 rounded-lg">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="p-2 hover:bg-gray-200 rounded-l-lg transition-colors"
+            className="p-2 hover:bg-stone-200 rounded-l-lg transition-colors"
             disabled={state === 'loading'}
           >
-            <Minus className="w-4 h-4 text-gray-900" />
+            <Minus className="w-4 h-4 text-stone-950" />
           </button>
-          <span className="w-10 text-center font-medium text-gray-900">{quantity}</span>
+          <span className="w-10 text-center font-medium text-stone-950">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="p-2 hover:bg-gray-200 rounded-r-lg transition-colors"
+            className="p-2 hover:bg-stone-200 rounded-r-lg transition-colors"
             disabled={state === 'loading'}
           >
-            <Plus className="w-4 h-4 text-gray-900" />
+            <Plus className="w-4 h-4 text-stone-950" />
           </button>
         </div>
       )}

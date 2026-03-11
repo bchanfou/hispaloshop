@@ -77,10 +77,10 @@ export function SocialFeed({ type = 'for_you' }) {
       {/* Infinite scroll trigger */}
       <div ref={loaderRef} className="h-20 flex items-center justify-center">
         {isFetchingNextPage && (
-          <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+          <Loader2 className="w-6 h-6 animate-spin text-stone-400" />
         )}
         {!hasNextPage && posts.length > 0 && (
-          <p className="text-gray-500 text-sm">No hay mas posts</p>
+          <p className="text-stone-500 text-sm">No hay más posts</p>
         )}
       </div>
     </div>

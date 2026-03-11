@@ -8,6 +8,8 @@ import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
 import { Button } from '../components/ui/button';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
+import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
+import ContextualProductSuggestions from '../components/intelligence/ContextualProductSuggestions';
 import { API } from '../utils/api';
 import { useTranslation } from 'react-i18next';
 import { resolveUserImage } from '../features/user/queries';
@@ -28,8 +30,8 @@ export default function RecipeDetailPage() {
   const { t } = useTranslation();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [adding, setAdding] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showShoppingList, setShowShoppingList] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -62,15 +64,7 @@ export default function RecipeDetailPage() {
   const steps = useMemo(() => (recipe?.steps || []).map(normalizeStep), [recipe?.steps]);
 
   const handleAddAllToCart = async () => {
-    setAdding(true);
-    try {
-      const response = await axios.post(`${API}/recipes/${recipeId}/shopping-list`, {}, { withCredentials: true });
-      toast.success(t('recipes.addedToCart', { count: response.data.added, total: response.data.total }));
-    } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.loginRequired', 'Login required'));
-    } finally {
-      setAdding(false);
-    }
+    setShowShoppingList(true);
   };
 
   if (loading) {
@@ -165,10 +159,9 @@ export default function RecipeDetailPage() {
 
               <Button
                 onClick={handleAddAllToCart}
-                disabled={adding}
                 className="mt-6 h-11 rounded-full bg-stone-950 px-5 text-white hover:bg-stone-800"
               >
-                {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
+                <ShoppingCart className="h-4 w-4" />
                 {t('recipes.buyAll', 'Comprar ingredientes')}
               </Button>
             </div>
@@ -237,12 +230,15 @@ export default function RecipeDetailPage() {
                 ))}
               </div>
             </div>
+
+            <ContextualProductSuggestions contentType="recipe" contentId={recipeId} />
           </section>
         </div>
       </main>
       <Footer />
 
       {selectedProduct ? <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} /> : null}
+      {showShoppingList ? <RecipeShoppingListOverlay recipeId={recipeId} defaultServings={recipe?.servings || 1} onClose={() => setShowShoppingList(false)} /> : null}
     </div>
   );
 }

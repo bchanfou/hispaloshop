@@ -66,7 +66,7 @@ const CheckoutSuccess = () => {
         {loading ? (
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-12 h-12 animate-spin text-accent" />
-            <p className="text-text-muted">Confirmando tu pedido...</p>
+            <p className="text-stone-500">Confirmando tu pedido...</p>
           </div>
         ) : (
           <>
@@ -84,7 +84,7 @@ const CheckoutSuccess = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-2xl font-bold text-gray-900 mb-2"
+              className="text-2xl font-bold text-stone-950 mb-2"
             >
               ¡Pedido confirmado!
             </motion.h1>
@@ -94,7 +94,7 @@ const CheckoutSuccess = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-text-muted mb-1"
+                className="text-stone-500 mb-1"
               >
                 #{orderId.slice(-8).toUpperCase()}
               </motion.p>
@@ -105,7 +105,7 @@ const CheckoutSuccess = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 }}
-                className="text-lg font-bold text-gray-900 mb-6"
+                className="text-lg font-bold text-stone-950 mb-6"
               >
                 Total pagado: €{Number(total).toFixed(2)}
               </motion.p>
@@ -121,8 +121,8 @@ const CheckoutSuccess = () => {
               <div className="flex items-center gap-3 mb-4">
                 <Package className="w-5 h-5 text-accent" />
                 <div className="text-left">
-                  <p className="font-medium text-gray-900">Tu pedido está en camino</p>
-                  <p className="text-sm text-text-muted">Recibirás un email de confirmación</p>
+                  <p className="font-medium text-stone-950">Tu pedido está en camino</p>
+                  <p className="text-sm text-stone-500">Recibirás un email de confirmación</p>
                 </div>
               </div>
               {orderId && (
@@ -151,7 +151,7 @@ const CheckoutSuccess = () => {
               </button>
               <button
                 onClick={() => navigate('/discover')}
-                className="flex-1 py-3 bg-white text-gray-900 rounded-xl font-medium flex items-center justify-center gap-2 border border-gray-200 text-sm"
+                className="flex-1 py-3 bg-white text-stone-950 rounded-xl font-medium flex items-center justify-center gap-2 border border-stone-200 text-sm"
               >
                 <ShoppingBag className="w-4 h-4" />
                 Seguir comprando
@@ -164,7 +164,7 @@ const CheckoutSuccess = () => {
               transition={{ delay: 0.6 }}
               className="mt-8 w-full max-w-sm"
             >
-              <p className="text-sm text-text-muted mb-3">¿Qué te ha parecido la compra?</p>
+              <p className="text-sm text-stone-500 mb-3">¿Qué te ha parecido la compra?</p>
               <button
                 onClick={() => navigate('/orders')}
                 className="flex items-center gap-2 text-state-amber font-medium"

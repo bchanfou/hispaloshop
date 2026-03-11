@@ -3,9 +3,10 @@ Recipe & Review routes: CRUD for recipes and product reviews.
 """
 import uuid
 import logging
-from typing import Optional
+from typing import Optional, List, Dict
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Query
+import re
 
 from core.database import db
 from core.auth import get_current_user
@@ -15,10 +16,106 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
+def _ingredient_tokens(name: str) -> List[str]:
+    return re.findall(r"[a-zA-ZáéíóúñÁÉÍÓÚÑ]{3,}", (name or "").lower())
+
+
+async def _match_ingredient_product(name: str):
+    tokens = _ingredient_tokens(name)
+    if not tokens:
+        return None
+
+    regex = "|".join(re.escape(token) for token in tokens[:4])
+    product = await db.products.find_one(
+        {
+            "$and": [
+                {"$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]},
+                {
+                    "$or": [
+                        {"name": {"$regex": regex, "$options": "i"}},
+                        {"description": {"$regex": regex, "$options": "i"}},
+                        {"ingredients": {"$regex": regex, "$options": "i"}},
+                    ]
+                },
+            ]
+        },
+        {"_id": 0},
+        sort=[("units_sold", -1), ("created_at", -1)],
+    )
+    return product
+
+
+async def _record_recipe_signal(event_type: str, payload: Dict[str, object], user_id: Optional[str] = None):
+    try:
+        await db.intelligence_signals.insert_one(
+            {
+                "signal_id": f"sig_{uuid.uuid4().hex[:14]}",
+                "event_type": event_type,
+                "user_id": user_id,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                **payload,
+            }
+        )
+    except Exception as exc:
+        logger.warning("[RECIPES] signal write failed: %s", exc)
+
+
+async def _build_shopping_list(recipe: Dict[str, object], servings_multiplier: float = 1.0):
+    items = []
+    for ing in recipe.get("ingredients", []):
+        product = None
+        pid = ing.get("product_id")
+        if pid:
+            product = await db.products.find_one({"product_id": pid, "$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]}, {"_id": 0})
+        if not product and ing.get("name"):
+            product = await _match_ingredient_product(ing.get("name", ""))
+        if not product:
+            continue
+
+        quantity = max(1, int(round(float(ing.get("quantity_value", 1) or 1) * servings_multiplier)))
+        items.append(
+            {
+                "product_id": product.get("product_id"),
+                "name": product.get("name", ing.get("name", "")),
+                "price": product.get("price", 0),
+                "image": (product.get("images") or [None])[0],
+                "quantity": quantity,
+                "producer_id": product.get("producer_id"),
+                "ingredient_name": ing.get("name", ""),
+            }
+        )
+    return items
+
 @router.post("/recipes")
 async def create_recipe(request: Request, user: User = Depends(get_current_user)):
     """Create a recipe with ingredients mapped to products."""
     body = await request.json()
+    ingredients = []
+    for ingredient in body.get("ingredients", []):
+        item = dict(ingredient)
+        if not item.get("product_id") and item.get("name"):
+            matched_product = await _match_ingredient_product(item.get("name", ""))
+            if matched_product:
+                item["product_id"] = matched_product.get("product_id")
+                item["suggested_product"] = {
+                    "product_id": matched_product.get("product_id"),
+                    "name": matched_product.get("name", ""),
+                    "price": matched_product.get("price", 0),
+                    "image": (matched_product.get("images") or [None])[0],
+                }
+                await _record_recipe_signal(
+                    "recipe_ingredient_match",
+                    {
+                        "recipe_title": body.get("title", ""),
+                        "ingredient_name": item.get("name", ""),
+                        "product_id": matched_product.get("product_id"),
+                        "producer_id": matched_product.get("producer_id"),
+                    },
+                    user.user_id,
+                )
+        ingredients.append(item)
+
     recipe_id = f"recipe_{uuid.uuid4().hex[:12]}"
     recipe = {
         "recipe_id": recipe_id,
@@ -30,7 +127,7 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
         "difficulty": body.get("difficulty", "easy"),
         "time_minutes": body.get("time_minutes", 30),
         "servings": body.get("servings", 4),
-        "ingredients": body.get("ingredients", []),
+        "ingredients": ingredients,
         "steps": body.get("steps", []),
         "image_url": body.get("image_url"),
         "tags": body.get("tags", []),
@@ -59,6 +156,22 @@ async def get_recipes(q: Optional[str] = None, tag: Optional[str] = None, diffic
         logger.warning(f"[RECIPES] Falling back to empty list due to data source error: {exc}")
         return []
 
+@router.get("/recipes/ingredient-suggestions")
+async def get_ingredient_suggestions(q: str = Query(..., min_length=1), limit: int = Query(default=4, ge=1, le=8)):
+    product = await _match_ingredient_product(q)
+    if not product:
+        return {"items": []}
+    return {
+        "items": [
+            {
+                "product_id": product.get("product_id"),
+                "name": product.get("name", ""),
+                "price": product.get("price", 0),
+                "image": (product.get("images") or [None])[0],
+            }
+        ][:limit]
+    }
+
 @router.get("/recipes/{recipe_id}")
 async def get_recipe(recipe_id: str):
     """Get a single recipe with ingredient-product mapping."""
@@ -74,50 +187,94 @@ async def get_recipe(recipe_id: str):
     enriched_ingredients = []
     for ing in recipe.get("ingredients", []):
         mapped = {"name": ing.get("name", ""), "quantity": ing.get("quantity", ""), "unit": ing.get("unit", "")}
+        prod = None
         if ing.get("product_id"):
-            prod = await db.products.find_one({"product_id": ing["product_id"], "status": "active"}, {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "stock": 1})
-            if prod:
-                mapped["product"] = prod
+            prod = await db.products.find_one({"product_id": ing["product_id"], "$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]}, {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "stock": 1, "producer_id": 1})
+        if not prod and ing.get("name"):
+            prod = await _match_ingredient_product(ing.get("name", ""))
+        if prod:
+            mapped["product"] = prod
+            mapped["matched_product"] = {
+                "product_id": prod.get("product_id"),
+                "name": prod.get("name", ""),
+                "price": prod.get("price", 0),
+                "image": (prod.get("images") or [None])[0],
+            }
         enriched_ingredients.append(mapped)
     
     recipe["ingredients"] = enriched_ingredients
     return recipe
 
+@router.get("/recipes/{recipe_id}/shopping-list-preview")
+async def get_shopping_list_preview(recipe_id: str, servings: Optional[int] = Query(default=None)):
+    recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0})
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    base_servings = max(1, int(recipe.get("servings", 1) or 1))
+    desired_servings = max(1, int(servings or base_servings))
+    multiplier = desired_servings / base_servings
+    items = await _build_shopping_list(recipe, multiplier)
+    total = sum((item.get("price", 0) or 0) * (item.get("quantity", 1) or 1) for item in items)
+    return {"items": items, "servings": desired_servings, "total": round(total, 2)}
+
+
 @router.post("/recipes/{recipe_id}/shopping-list")
-async def create_shopping_list(recipe_id: str, user: User = Depends(get_current_user)):
+async def create_shopping_list(recipe_id: str, request: Request, user: User = Depends(get_current_user)):
     """Generate a shopping list from a recipe and add to cart."""
     recipe = await db.recipes.find_one({"recipe_id": recipe_id}, {"_id": 0})
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
-    
+
+    body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+    selected_items = body.get("items")
+    if isinstance(selected_items, list) and selected_items:
+        items = selected_items
+    else:
+        base_servings = max(1, int(recipe.get("servings", 1) or 1))
+        desired_servings = max(1, int(body.get("servings", base_servings) or base_servings))
+        items = await _build_shopping_list(recipe, desired_servings / base_servings)
+
     added = 0
-    items = []
-    for ing in recipe.get("ingredients", []):
-        pid = ing.get("product_id")
+    added_items = []
+    for item in items:
+        pid = item.get("product_id")
         if not pid:
             continue
-        prod = await db.products.find_one({"product_id": pid, "status": "active"}, {"_id": 0})
+        prod = await db.products.find_one({"product_id": pid, "$or": [{"status": "active"}, {"approved": True}, {"status": "approved"}]}, {"_id": 0})
         if not prod:
             continue
-        
+
+        quantity = max(1, int(item.get("quantity", 1) or 1))
         existing = await db.cart_items.find_one({"user_id": user.user_id, "product_id": pid})
         if existing:
-            await db.cart_items.update_one({"user_id": user.user_id, "product_id": pid}, {"$inc": {"quantity": 1}})
+            await db.cart_items.update_one({"user_id": user.user_id, "product_id": pid}, {"$inc": {"quantity": quantity}})
         else:
             await db.cart_items.insert_one({
                 "user_id": user.user_id,
                 "product_id": pid,
                 "product_name": prod.get("name", ""),
                 "price": prod.get("price", 0),
-                "quantity": 1,
+                "quantity": quantity,
                 "producer_id": prod.get("producer_id", ""),
                 "image": (prod.get("images") or [None])[0],
             })
-        added += 1
-        items.append({"product_id": pid, "name": prod.get("name", ""), "price": prod.get("price", 0)})
-    
-    total = sum(i["price"] for i in items)
-    return {"added": added, "items": items, "total": round(total, 2), "message": f"{added} ingredients added to cart"}
+        added += quantity
+        added_items.append({"product_id": pid, "name": prod.get("name", ""), "price": prod.get("price", 0), "quantity": quantity})
+        await _record_recipe_signal(
+            "add_to_cart",
+            {
+                "content_type": "recipe",
+                "content_id": recipe_id,
+                "product_id": pid,
+                "producer_id": prod.get("producer_id"),
+                "ingredient_name": item.get("ingredient_name"),
+            },
+            user.user_id,
+        )
+
+    total = sum((i["price"] or 0) * (i.get("quantity", 1) or 1) for i in added_items)
+    return {"added": added, "items": added_items, "total": round(total, 2), "message": f"{added} ingredients added to cart"}
 
 
 

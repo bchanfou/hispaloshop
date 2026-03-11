@@ -60,6 +60,19 @@ _COUNTRY_TAX_RATE = {
 }
 
 
+def _feed_popularity_score(post: Dict[str, object], signal_counts: Dict[str, int]) -> float:
+    return (
+        (int(post.get("likes_count", 0)) * 1.0)
+        + (int(post.get("comments_count", 0)) * 2.0)
+        + (int(post.get("shares_count", 0)) * 2.5)
+        + (int(post.get("saves_count", 0)) * 2.25)
+        + (signal_counts.get("product_click", 0) * 3.5)
+        + (signal_counts.get("add_to_cart", 0) * 5.0)
+        + (signal_counts.get("recipe_save", 0) * 3.0)
+        + (len(post.get("tagged_products") or []) * 1.5)
+    )
+
+
 def _coerce_iso(value: object, default: Optional[datetime] = None) -> str:
     if isinstance(value, str):
         return value
@@ -370,10 +383,29 @@ async def get_feed(
         allowed.add(current_user.user_id)
         filtered_posts = [post for post in base_posts if post.get("user_id") in allowed]
     else:
-        def popularity(post: Dict[str, object]) -> int:
-            return int(post.get("likes_count", 0)) + (2 * int(post.get("comments_count", 0))) + int(post.get("shares_count", 0))
+        post_ids = [post.get("post_id") for post in base_posts if post.get("post_id")]
+        signal_rows = []
+        if post_ids:
+            signal_rows = await db.intelligence_signals.aggregate(
+                [
+                    {"$match": {"content_type": "post", "content_id": {"$in": post_ids}, "event_type": {"$in": ["product_click", "add_to_cart", "recipe_save"]}}},
+                    {"$group": {"_id": {"content_id": "$content_id", "event_type": "$event_type"}, "count": {"$sum": 1}}},
+                ]
+            ).to_list(500)
 
-        filtered_posts = sorted(base_posts, key=popularity, reverse=True)
+        signal_map: Dict[str, Dict[str, int]] = {}
+        for row in signal_rows:
+            content_id = row.get("_id", {}).get("content_id")
+            event_type = row.get("_id", {}).get("event_type")
+            if not content_id or not event_type:
+                continue
+            signal_map.setdefault(content_id, {})[event_type] = row.get("count", 0)
+
+        filtered_posts = sorted(
+            base_posts,
+            key=lambda post: _feed_popularity_score(post, signal_map.get(post.get("post_id"), {})),
+            reverse=True,
+        )
 
     page = filtered_posts[offset:offset + limit]
     items: List[Dict[str, object]] = []
@@ -388,6 +420,7 @@ async def get_feed(
 
         author = user_cache.get(post_user_id, {})
         tagged_product = post.get("tagged_product")
+        tagged_products = post.get("tagged_products") or ([tagged_product] if tagged_product else [])
         if tagged_product and tagged_product.get("product_id"):
             live_product = await db.products.find_one(
                 {"product_id": tagged_product["product_id"]},
@@ -403,6 +436,24 @@ async def get_feed(
                     "image": (live_product.get("images") or [tagged_product.get("image")])[0],
                 }
 
+        hydrated_tags = []
+        for tag in tagged_products:
+            product_id = tag.get("product_id")
+            if not product_id:
+                continue
+            live_product = await db.products.find_one(
+                {"product_id": product_id},
+                {"_id": 0, "name": 1, "price": 1, "stock": 1, "images": 1, "track_stock": 1},
+            )
+            hydrated_tags.append(
+                {
+                    **tag,
+                    "name": live_product.get("name", tag.get("name", "")) if live_product else tag.get("name", ""),
+                    "price": live_product.get("price", tag.get("price", 0)) if live_product else tag.get("price", 0),
+                    "image": (live_product.get("images") or [tag.get("image")])[0] if live_product else tag.get("image"),
+                }
+            )
+
         items.append(
             {
                 **post,
@@ -412,6 +463,7 @@ async def get_feed(
                 "user_role": author.get("role", "customer"),
                 "user_country": author.get("country"),
                 "tagged_product": tagged_product,
+                "tagged_products": hydrated_tags,
                 "product_available_in_country": True,
                 "is_liked": False,
                 "is_bookmarked": False,

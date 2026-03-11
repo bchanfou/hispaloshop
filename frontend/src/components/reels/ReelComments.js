@@ -73,7 +73,7 @@ function CommentItem({ comment, onLike }) {
           <div className="flex items-start justify-between gap-2">
             <div>
               <span className="font-semibold text-sm">{comment.user.username}</span>
-              <span className="text-sm text-gray-900 ml-1">{comment.text}</span>
+              <span className="text-sm text-stone-950 ml-1">{comment.text}</span>
             </div>
             <button
               onClick={handleLike}
@@ -108,8 +108,8 @@ function CommentItem({ comment, onLike }) {
               />
               <div className="flex-1 min-w-0">
                 <span className="font-semibold text-xs">{reply.user.username}</span>
-                <span className="text-xs text-gray-900 ml-1">{reply.text}</span>
-                <div className="text-[10px] text-text-muted mt-0.5">
+                <span className="text-xs text-stone-950 ml-1">{reply.text}</span>
+                <div className="text-[10px] text-stone-400 mt-0.5">
                   {formatTime(reply.timestamp)}
                 </div>
               </div>

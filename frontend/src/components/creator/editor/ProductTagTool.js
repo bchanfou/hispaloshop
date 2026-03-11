@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Package, Plus, Search, ShoppingBag, Trash2, X } from 'lucide-react';
-import { MOCK_PRODUCTS } from '../types/editor.types';
+import { Loader2, Package, Plus, Search, ShoppingBag, Trash2, X } from 'lucide-react';
+import { API } from '../../../utils/api';
 
 function ProductTagTool({ tags, onAdd, onRemove }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProductList, setShowProductList] = useState(false);
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const filteredProducts = MOCK_PRODUCTS.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.seller.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  useEffect(() => {
+    if (!showProductList) return undefined;
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${API}/products/intelligence-search`, {
+          params: { q: searchQuery, limit: 8 },
+          signal: controller.signal,
+        });
+        setResults(response.data?.items || []);
+      } catch {
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 180);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [searchQuery, showProductList]);
 
   const handleSelectProduct = (product) => {
     onAdd(product, 150, 150);
@@ -38,7 +60,7 @@ function ProductTagTool({ tags, onAdd, onRemove }) {
           className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4 text-sm font-medium text-stone-700 transition-colors hover:border-stone-950 hover:bg-white hover:text-stone-950"
         >
           <Plus className="h-5 w-5" />
-          Etiquetar producto
+          Agregar producto
         </button>
       ) : null}
 
@@ -127,9 +149,15 @@ function ProductTagTool({ tags, onAdd, onRemove }) {
 
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="space-y-2">
-                  {filteredProducts.map((product) => (
+                  {loading ? (
+                    <div className="flex items-center justify-center py-8 text-stone-500">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    </div>
+                  ) : null}
+
+                  {!loading ? results.map((product) => (
                     <button
-                      key={product.id}
+                      key={product.product_id || product.id}
                       type="button"
                       onClick={() => handleSelectProduct(product)}
                       className="flex w-full items-center gap-3 rounded-2xl border border-transparent p-3 text-left transition-colors hover:border-stone-100 hover:bg-stone-50"
@@ -143,14 +171,14 @@ function ProductTagTool({ tags, onAdd, onRemove }) {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-stone-950">{product.name}</p>
-                        <p className="text-xs text-stone-500">{product.seller}</p>
+                        <p className="text-xs text-stone-500">{product.producer_name || 'Hispaloshop'}</p>
                         <p className="mt-0.5 text-sm font-medium text-stone-700">€{product.price}</p>
                       </div>
                       <Plus className="h-5 w-5 text-stone-400" />
                     </button>
-                  ))}
+                  )) : null}
 
-                  {filteredProducts.length === 0 ? (
+                  {!loading && results.length === 0 ? (
                     <div className="py-8 text-center text-stone-400">
                       <Package className="mx-auto mb-2 h-12 w-12 opacity-50" />
                       <p className="text-sm">No se encontraron productos</p>

@@ -39,7 +39,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
       <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-stone-950 shadow-sm ring-1 ring-stone-200">
-            <MessageSquareText className="h-4.5 w-4.5" />
+            <MessageSquareText className="h-[18px] w-[18px]" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-stone-950">Texto libre</h3>

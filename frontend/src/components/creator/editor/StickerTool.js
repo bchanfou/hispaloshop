@@ -75,7 +75,7 @@ function StickerTool({ stickers, onAdd, onRemove }) {
                 <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
                   isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'
                 }`}>
-                  <Icon className="h-4.5 w-4.5" />
+                  <Icon className="h-[18px] w-[18px]" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-stone-950">{sticker.label}</p>

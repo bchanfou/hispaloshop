@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Clock, Loader2, ShoppingCart, User, Users, X } from 'lucide-react';
-import { toast } from 'sonner';
-import axios from 'axios';
 import { Button } from '../ui/button';
 import ProductDetailOverlay from '../store/ProductDetailOverlay';
+import RecipeShoppingListOverlay from './RecipeShoppingListOverlay';
+import ContextualProductSuggestions from '../intelligence/ContextualProductSuggestions';
 import { API } from '../../utils/api';
 import { resolveUserImage } from '../../features/user/queries';
 
@@ -29,8 +30,8 @@ export default function RecipeOverlay({
 }) {
   const [recipeDetail, setRecipeDetail] = useState(recipe);
   const [loadingDetail, setLoadingDetail] = useState(false);
-  const [adding, setAdding] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showShoppingList, setShowShoppingList] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -79,18 +80,6 @@ export default function RecipeOverlay({
     () => (recipeDetail?.steps || []).map((step) => normalizeStep(step)).filter((step) => step.text || step.image_url),
     [recipeDetail?.steps],
   );
-
-  const handleAddAllToCart = async () => {
-    setAdding(true);
-    try {
-      const response = await axios.post(`${API}/recipes/${recipe.recipe_id}/shopping-list`, {}, { withCredentials: true });
-      toast.success(`${response.data.added} ingredientes añadidos al carrito`);
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Inicia sesión para continuar');
-    } finally {
-      setAdding(false);
-    }
-  };
 
   return (
     <>
@@ -198,11 +187,10 @@ export default function RecipeOverlay({
 
                     <Button
                       type="button"
-                      onClick={handleAddAllToCart}
-                      disabled={adding}
+                      onClick={() => setShowShoppingList(true)}
                       className="mt-5 h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800"
                     >
-                      {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
+                      <ShoppingCart className="h-4 w-4" />
                       Comprar ingredientes
                     </Button>
                   </div>
@@ -220,13 +208,9 @@ export default function RecipeOverlay({
                     <div className="mt-4 space-y-3">
                       {(recipeDetail?.ingredients || []).map((ingredient, index) => (
                         <div key={`${ingredient.name}-${index}`} className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-medium text-stone-900">
-                                {[ingredient.quantity, ingredient.unit, ingredient.name].filter(Boolean).join(' ')}
-                              </p>
-                            </div>
-                          </div>
+                          <p className="text-sm font-medium text-stone-900">
+                            {[ingredient.quantity, ingredient.unit, ingredient.name].filter(Boolean).join(' ')}
+                          </p>
                           {ingredient.product ? (
                             <button
                               type="button"
@@ -281,6 +265,8 @@ export default function RecipeOverlay({
                       ))}
                     </div>
                   </section>
+
+                  <ContextualProductSuggestions contentType="recipe" contentId={recipe.recipe_id} />
                 </div>
               </div>
             )}
@@ -289,12 +275,9 @@ export default function RecipeOverlay({
       </div>
 
       {selectedProduct ? (
-        <ProductDetailOverlay
-          product={selectedProduct}
-          store={selectedProduct.store || null}
-          onClose={() => setSelectedProduct(null)}
-        />
+        <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />
       ) : null}
+      {showShoppingList ? <RecipeShoppingListOverlay recipeId={recipe.recipe_id} defaultServings={recipeDetail?.servings || 1} onClose={() => setShowShoppingList(false)} /> : null}
     </>
   );
 }

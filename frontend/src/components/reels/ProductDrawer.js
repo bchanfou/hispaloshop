@@ -74,7 +74,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
             <div className="p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-gray-900">{product.name}</h2>
+                  <h2 className="text-xl font-bold text-stone-950">{product.name}</h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-2xl font-bold text-accent">
                       €{product.price.toFixed(2)}

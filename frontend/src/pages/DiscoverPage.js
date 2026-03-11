@@ -18,9 +18,11 @@ import {
   Package,
   Search,
   SlidersHorizontal,
+  Sprout,
   Star,
   Store,
   TrendingUp,
+  Vegan,
   WheatOff,
   Zap,
 } from 'lucide-react';
@@ -47,13 +49,13 @@ const MAIN_SECTIONS = [
 const CATEGORIES_MINI = [
   { id: 'snacks-frutos-secos', label: 'Snacks', icon: Cookie },
   { id: 'bebidas-naturales', label: 'Bebidas naturales', icon: Droplets },
-  { id: 'orgánico-eco', label: 'Ecológico', icon: Leaf },
+  { id: 'orgánico-eco', label: 'Ecológico', icon: Sprout },
   { id: 'proteina-fitness', label: 'Fitness', icon: Dumbbell },
   { id: 'alimentacion-infantil', label: 'Infantil', icon: Baby },
   { id: 'mascotas', label: 'Mascotas', icon: Dog },
   { id: 'sin-gluten', label: 'Sin gluten', icon: WheatOff },
   { id: 'sin-azucar', label: 'Sin azúcar', icon: Leaf },
-  { id: 'vegano', label: 'Vegano', icon: Leaf },
+  { id: 'vegano', label: 'Vegano', icon: Vegan },
   { id: 'superfoods', label: 'Superfoods', icon: Zap },
   { id: 'especias-condimentos', label: 'Mediterráneo', icon: Flame },
   { id: 'importados-premium', label: 'Gourmet', icon: Globe2 },
@@ -110,6 +112,7 @@ export default function DiscoverPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [trendingHashtags, setTrendingHashtags] = useState([]);
   const [recipes, setRecipes] = useState([]);
+  const [discoveredProducts, setDiscoveredProducts] = useState([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
 
   const { products, isLoading: loadingProducts } = useProducts({ limit: '4' });
@@ -130,6 +133,13 @@ export default function DiscoverPage() {
           setRecipes(recipesData?.recipes || []);
         } catch {
           setRecipes([]);
+        }
+
+        try {
+          const discoveredData = await api.request('/intelligence/discovered-products?limit=4');
+          setDiscoveredProducts(discoveredData?.items || []);
+        } catch {
+          setDiscoveredProducts([]);
         }
       } finally {
         setLoadingRecipes(false);
@@ -299,6 +309,38 @@ export default function DiscoverPage() {
                     {item.growth > 0 ? `+${item.growth}% esta semana` : 'Movimiento estable'}
                   </p>
                 </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {discoveredProducts.length > 0 && (
+          <section className="mb-8">
+            <SectionHeader
+              title="Productos descubiertos en contenido"
+              actionLabel="Ver todo"
+              onAction={() => navigate('/products')}
+            />
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {discoveredProducts.slice(0, 4).map((product) => (
+                <motion.button
+                  key={product.product_id}
+                  whileTap={{ scale: 0.985 }}
+                  onClick={() => navigate(`/products/${product.product_id}`)}
+                  className="overflow-hidden rounded-[24px] border border-stone-200 bg-white text-left shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <img
+                    src={product.images?.[0] || '/placeholder-product.png'}
+                    alt={product.name}
+                    loading="lazy"
+                    className="h-36 w-full object-cover sm:h-44"
+                  />
+                  <div className="p-4">
+                    <p className="mb-1 line-clamp-2 text-sm font-semibold text-stone-950">{product.name}</p>
+                    <p className="text-xs text-stone-500">{product.content_mentions || 0} menciones</p>
+                    <p className="mt-3 text-sm font-semibold text-stone-950">{formatPrice(product.price)}</p>
+                  </div>
+                </motion.button>
               ))}
             </div>
           </section>

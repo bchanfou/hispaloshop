@@ -14,7 +14,7 @@ const CartButton = ({ className = '', onClick }) => {
       className={`relative p-2 rounded-full hover:bg-stone-100 transition-colors ${className}`}
       aria-label="Abrir carrito"
     >
-      <ShoppingBag className="w-6 h-6 text-gray-900" />
+      <ShoppingBag className="w-6 h-6 text-stone-950" />
       
       <AnimatePresence>
         {totalItems > 0 && !loading && (

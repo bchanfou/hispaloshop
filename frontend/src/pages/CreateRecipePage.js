@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChefHat, ImagePlus, Loader2, Package, Plus, Search, UploadCloud, X } from 'lucide-react';
@@ -35,6 +35,8 @@ export default function CreateRecipePage() {
   const [submitting, setSubmitting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [manualIngredientInput, setManualIngredientInput] = useState('');
+  const [ingredientSuggestions, setIngredientSuggestions] = useState([]);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
   const [productQuery, setProductQuery] = useState('');
   const [productResults, setProductResults] = useState([]);
   const [productLoading, setProductLoading] = useState(false);
@@ -55,6 +57,29 @@ export default function CreateRecipePage() {
     () => recipe.ingredients.filter((ingredient) => ingredient.product_id),
     [recipe.ingredients],
   );
+
+  useEffect(() => {
+    if (!manualIngredientInput.trim()) {
+      setIngredientSuggestions([]);
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      setSuggestionLoading(true);
+      try {
+        const response = await axios.get(`${API}/recipes/ingredient-suggestions`, {
+          params: { q: manualIngredientInput.trim(), limit: 3 },
+        });
+        setIngredientSuggestions(response.data?.items || []);
+      } catch {
+        setIngredientSuggestions([]);
+      } finally {
+        setSuggestionLoading(false);
+      }
+    }, 180);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [manualIngredientInput]);
 
   if (!user) {
     navigate('/login');
@@ -106,6 +131,7 @@ export default function CreateRecipePage() {
       { name, quantity: '', unit: '', product_id: null, product: null, source: 'manual' },
     ]);
     setManualIngredientInput('');
+    setIngredientSuggestions([]);
   };
 
   const removeIngredient = (index) => {
@@ -387,6 +413,34 @@ export default function CreateRecipePage() {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
+
+            {suggestionLoading ? (
+              <div className="mt-3 flex items-center gap-2 text-sm text-stone-500">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Buscando coincidencias
+              </div>
+            ) : null}
+
+            {!suggestionLoading && ingredientSuggestions.length > 0 ? (
+              <div className="mt-3 space-y-2">
+                {ingredientSuggestions.map((product) => (
+                  <button
+                    key={product.product_id}
+                    type="button"
+                    onClick={() => addProductIngredient({ ...product, images: product.image ? [product.image] : [] })}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm"
+                  >
+                    <div className="h-12 w-12 overflow-hidden rounded-xl bg-white">
+                      {product.image ? <img src={resolveUserImage(product.image)} alt={product.name} loading="lazy" className="h-full w-full object-cover" /> : null}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-stone-950">{product.name}</p>
+                      <p className="mt-1 text-xs text-stone-500">Sugerencia automática para “{manualIngredientInput.trim()}”</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : null}
 
             <div className="mt-4 flex flex-wrap gap-2">
               {recipe.ingredients.map((ingredient, index) => (

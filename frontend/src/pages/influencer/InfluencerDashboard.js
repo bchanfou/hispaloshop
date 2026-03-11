@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -12,6 +13,7 @@ import InternalChat from '../../components/InternalChat';
 import InfluencerAnalytics from '../../components/InfluencerAnalytics';
 import TierProgress from '../../components/TierProgress';
 import { useTranslation } from 'react-i18next';
+import { API } from '../../utils/api';
 import {
   useInfluencerDiscountCodes,
   useInfluencerEmailVerification,
@@ -245,12 +247,33 @@ export default function InfluencerDashboard() {
   const { stripeStatus, connectingStripe, connectStripe: connectStripeAccount } = useInfluencerStripeStatus();
   const [copied, setCopied] = useState(false);
   const [emailVerified, setEmailVerified] = useState(user?.email_verified);
+  const [productPerformance, setProductPerformance] = useState([]);
 
   useEffect(() => {
     if (user) {
       setEmailVerified(user.email_verified);
     }
   }, [user]);
+
+  useEffect(() => {
+    let active = true;
+    axios
+      .get(`${API}/intelligence/influencer-performance`, { withCredentials: true })
+      .then((response) => {
+        if (active) {
+          setProductPerformance(response.data?.items || []);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setProductPerformance([]);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleEmailVerified = () => {
     setEmailVerified(true);
@@ -357,6 +380,30 @@ export default function InfluencerDashboard() {
             </p>
           </div>
         )}
+
+        <Card className="mb-6 border-stone-100">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-stone-950">
+              <BarChart3 className="h-5 w-5 text-stone-700" />
+              Productos que mejor funcionan en tu contenido
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {productPerformance.length > 0 ? productPerformance.map((item) => (
+              <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-stone-950">{item.title || item.content_id}</p>
+                  <p className="mt-1 text-xs text-stone-500 capitalize">{item.content_type}</p>
+                </div>
+                <div className="grid grid-cols-3 gap-4 text-right text-xs text-stone-500">
+                  <div><p className="font-semibold text-stone-950">{item.views}</p><p>Views</p></div>
+                  <div><p className="font-semibold text-stone-950">{item.clicks}</p><p>Clicks</p></div>
+                  <div><p className="font-semibold text-stone-950">{item.sales}</p><p>Sales</p></div>
+                </div>
+              </div>
+            )) : <p className="text-sm text-stone-500">Publica contenido con productos vinculados para empezar a ver rendimiento.</p>}
+          </CardContent>
+        </Card>
 
         {/* Create Code Card - Only show if active and no code yet (neither pending nor approved) */}
         {dashboard.status === 'active' && !dashboard.discount_code && (

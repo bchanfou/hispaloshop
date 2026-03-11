@@ -80,7 +80,7 @@ export default function CustomerOrders() {
       <div>
         <button
           onClick={() => setSelectedOrder(null)}
-          className="flex items-center gap-2 text-text-muted hover:text-primary mb-6 font-body"
+          className="flex items-center gap-2 text-stone-500 hover:text-stone-950 mb-6 font-body"
           data-testid="back-button"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -90,10 +90,10 @@ export default function CustomerOrders() {
         <div className="bg-white rounded-xl border border-stone-300 p-6">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h2 className="font-heading text-2xl font-semibold text-primary">
+              <h2 className="font-heading text-2xl font-semibold text-stone-950">
                 {t('orders.orderNumber', 'Order')} #{selectedOrder.order_id.slice(0, 8)}
               </h2>
-              <p className="text-text-muted font-body">
+              <p className="text-stone-500 font-body">
                 {t('orders.placedOn', 'Placed on')} {new Date(selectedOrder.created_at).toLocaleDateString()}
               </p>
             </div>
@@ -121,7 +121,7 @@ export default function CustomerOrders() {
           {/* Order Progress Tracker */}
           {selectedOrder.status !== 'cancelled' && (
             <div className="mb-8 p-4 bg-stone-50 rounded-lg border border-stone-200">
-              <h3 className="font-medium text-primary mb-4">{t('orders.orderProgress', 'Order Progress')}</h3>
+              <h3 className="font-medium text-stone-950 mb-4">{t('orders.orderProgress', 'Order Progress')}</h3>
               <div className="flex items-center justify-between relative">
                 {/* Progress Line */}
                 <div className="absolute top-4 left-0 right-0 h-1 bg-stone-200 rounded">
@@ -142,12 +142,12 @@ export default function CustomerOrders() {
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                         isCompleted 
                           ? 'bg-green-500 text-white' 
-                          : 'bg-stone-200 text-text-muted'
+                          : 'bg-stone-200 text-stone-500'
                       } ${isCurrent ? 'ring-4 ring-green-200' : ''}`}>
                         <StepIcon className="w-4 h-4" />
                       </div>
                       <span className={`mt-2 text-xs font-medium ${
-                        isCompleted ? 'text-green-600' : 'text-text-muted'
+                        isCompleted ? 'text-green-600' : 'text-stone-500'
                       }`}>
                         {t(`orders.status.${status}`, status)}
                       </span>
@@ -180,7 +180,7 @@ export default function CustomerOrders() {
 
           {/* Shipping Address */}
           <div className="mb-6 p-4 bg-stone-50 rounded-lg border border-stone-200">
-            <h3 className="font-medium text-primary mb-2 flex items-center gap-2">
+            <h3 className="font-medium text-stone-950 mb-2 flex items-center gap-2">
               <MapPin className="w-4 h-4" /> {t('orders.shippingAddress', 'Shipping Address')}
             </h3>
             <p className="text-text-secondary font-body">
@@ -190,12 +190,12 @@ export default function CustomerOrders() {
               {selectedOrder.shipping_address?.country}
             </p>
             {selectedOrder.shipping_address?.phone && (
-              <p className="text-text-muted text-sm mt-1">Tel: {selectedOrder.shipping_address.phone}</p>
+              <p className="text-stone-500 text-sm mt-1">Tel: {selectedOrder.shipping_address.phone}</p>
             )}
           </div>
 
           {/* Order Items */}
-          <h3 className="font-medium text-primary mb-4 flex items-center gap-2">
+          <h3 className="font-medium text-stone-950 mb-4 flex items-center gap-2">
             <Package className="w-4 h-4" /> {t('orders.orderItems', 'Order Items')}
           </h3>
           <div className="space-y-3 mb-6">
@@ -206,33 +206,33 @@ export default function CustomerOrders() {
                     <img src={item.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
                   )}
                   <div>
-                    <p className="font-medium text-primary">{item.name || item.product_name}</p>
-                    <p className="text-sm text-text-muted">{t('orders.quantity', 'Qty')}: {item.quantity}</p>
+                    <p className="font-medium text-stone-950">{item.name || item.product_name}</p>
+                    <p className="text-sm text-stone-500">{t('orders.quantity', 'Qty')}: {item.quantity}</p>
                   </div>
                 </div>
-                <p className="font-medium text-primary">€{item.amount?.toFixed(2)}</p>
+                <p className="font-medium text-stone-950">€{item.amount?.toFixed(2)}</p>
               </div>
             ))}
           </div>
 
           <div className="pt-6 border-t border-stone-200 flex justify-between items-center">
-            <span className="font-medium text-primary">{t('common.total', 'Total')}</span>
-            <span className="font-bold text-2xl text-primary">€{selectedOrder.total_amount?.toFixed(2)}</span>
+            <span className="font-medium text-stone-950">{t('common.total', 'Total')}</span>
+            <span className="font-bold text-2xl text-stone-950">€{selectedOrder.total_amount?.toFixed(2)}</span>
           </div>
 
           {/* Status History */}
           {selectedOrder.status_history?.length > 0 && (
             <div className="mt-6 pt-6 border-t border-stone-200">
-              <h3 className="font-medium text-primary mb-4">{t('orders.statusHistory', 'Status History')}</h3>
+              <h3 className="font-medium text-stone-950 mb-4">{t('orders.statusHistory', 'Status History')}</h3>
               <div className="space-y-3">
                 {selectedOrder.status_history.slice().reverse().map((entry, idx) => (
                   <div key={idx} className="flex items-start gap-3 text-sm">
                     <div className={`w-2 h-2 rounded-full mt-2 ${statusColors[entry.status]?.split(' ')[0] || 'bg-gray-300'}`} />
                     <div>
-                      <p className="font-medium text-primary capitalize">
+                      <p className="font-medium text-stone-950 capitalize">
                         {t(`orders.status.${entry.status}`, entry.status)}
                       </p>
-                      <p className="text-text-muted">
+                      <p className="text-stone-500">
                         {new Date(entry.timestamp).toLocaleString()}
                       </p>
                       {entry.notes && <p className="text-text-secondary mt-1">{entry.notes}</p>}
@@ -250,19 +250,19 @@ export default function CustomerOrders() {
   // List View
   return (
     <div>
-      <h1 className="font-heading text-3xl font-semibold text-primary mb-2">
+      <h1 className="font-heading text-3xl font-semibold text-stone-950 mb-2">
         {t('orders.title', 'My Orders')}
       </h1>
-      <p className="text-text-muted font-body mb-6">{t('orders.description', 'View and track your orders.')}</p>
+      <p className="text-stone-500 font-body mb-6">{t('orders.description', 'View and track your orders.')}</p>
 
       <div className="bg-white rounded-xl border border-stone-300 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-text-muted">{t('common.loading', 'Loading...')}</div>
+          <div className="p-8 text-center text-stone-500">{t('common.loading', 'Loading...')}</div>
         ) : orders.length === 0 ? (
           <div className="p-8 text-center">
             <ShoppingBag className="w-12 h-12 text-stone-300 mx-auto mb-4" />
-            <p className="text-text-muted mb-4">{t('orders.noOrders', "You haven't placed any orders yet.")}</p>
-            <a href="/products" className="text-primary hover:underline font-medium">
+            <p className="text-stone-500 mb-4">{t('orders.noOrders', "You haven't placed any orders yet.")}</p>
+            <a href="/products" className="text-stone-950 hover:underline font-medium">
               {t('orders.startShopping', 'Start Shopping')} →
             </a>
           </div>
@@ -270,7 +270,7 @@ export default function CustomerOrders() {
           <div className="divide-y divide-stone-100" data-testid="orders-list">
             {orders.map((order) => {
               const StatusIcon = statusIcons[order.status] || Clock;
-              const statusColor = statusColors[order.status] || 'bg-gray-100 text-gray-600';
+              const statusColor = statusColors[order.status] || 'bg-stone-100 text-stone-600';
               return (
                 <button
                   key={order.order_id}
@@ -286,15 +286,15 @@ export default function CustomerOrders() {
                   {/* Order info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-primary">€{order.total_amount?.toFixed(2)}</span>
-                      <span className="text-xs text-text-muted">·</span>
-                      <span className="text-xs text-text-muted">{order.line_items?.length || 0} items</span>
+                      <span className="text-sm font-semibold text-stone-950">€{order.total_amount?.toFixed(2)}</span>
+                      <span className="text-xs text-stone-500">·</span>
+                      <span className="text-xs text-stone-500">{order.line_items?.length || 0} items</span>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className={`text-xs font-medium capitalize ${statusColor.includes('green') ? 'text-green-600' : statusColor.includes('blue') ? 'text-blue-600' : statusColor.includes('purple') ? 'text-purple-600' : statusColor.includes('red') ? 'text-red-600' : 'text-amber-600'}`}>
                         {t(`orders.status.${order.status}`, order.status)}
                       </span>
-                      <span className="text-[10px] text-text-muted">
+                      <span className="text-[10px] text-stone-500">
                         {new Date(order.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                       </span>
                     </div>
@@ -318,7 +318,7 @@ export default function CustomerOrders() {
                   )}
                   
                   {/* Arrow */}
-                  <ChevronRight className="w-4 h-4 text-text-muted shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-stone-500 shrink-0" />
                 </button>
               );
             })}

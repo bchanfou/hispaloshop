@@ -478,6 +478,11 @@ export default function ProducerOverview() {
   const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [payments, setPayments] = useState(null);
+  const [demandSignals, setDemandSignals] = useState({
+    trending_ingredients: [],
+    most_tagged_products: [],
+    content_driving_sales: [],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dataWarnings, setDataWarnings] = useState([]);
@@ -490,9 +495,10 @@ export default function ProducerOverview() {
     try {
       setError(null);
       setDataWarnings([]);
-      const [statsRes, paymentsRes] = await Promise.allSettled([
+      const [statsRes, paymentsRes, demandRes] = await Promise.allSettled([
         axios.get(`${API}/producer/stats`, { withCredentials: true }),
-        axios.get(`${API}/producer/payments`, { withCredentials: true })
+        axios.get(`${API}/producer/payments`, { withCredentials: true }),
+        axios.get(`${API}/intelligence/producer-demand`, { withCredentials: true }),
       ]);
       const warnings = [];
 
@@ -524,8 +530,14 @@ export default function ProducerOverview() {
         warnings.push('No se pudo cargar el resumen de pagos.');
       }
 
+      if (demandRes.status === 'fulfilled') {
+        setDemandSignals(demandRes.value.data || { trending_ingredients: [], most_tagged_products: [], content_driving_sales: [] });
+      } else {
+        setDemandSignals({ trending_ingredients: [], most_tagged_products: [], content_driving_sales: [] });
+      }
+
       setDataWarnings(warnings);
-      if (warnings.length === 2) {
+      if (warnings.length >= 2) {
         setError('No se pudieron cargar los datos principales del panel. Por favor, refresca la página.');
       }
     } catch (error) {
@@ -619,6 +631,54 @@ export default function ProducerOverview() {
       </div>
 
       {/* 3 Key Metrics — Big Numbers */}
+      <section className="rounded-2xl border border-stone-100 bg-white p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-medium text-stone-950">Señales de demanda</h2>
+            <p className="mt-1 text-sm text-stone-500">Ingredientes, productos y piezas de contenido con más intención de compra.</p>
+          </div>
+          <Target className="h-5 w-5 text-stone-400" />
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Trending ingredients</p>
+            <div className="mt-3 space-y-2">
+              {(demandSignals.trending_ingredients || []).slice(0, 4).map((item) => (
+                <div key={item.name} className="flex items-center justify-between text-sm text-stone-700">
+                  <span>{item.name}</span>
+                  <span className="text-stone-500">{item.count}</span>
+                </div>
+              ))}
+              {!(demandSignals.trending_ingredients || []).length ? <p className="text-sm text-stone-500">Sin datos todavía.</p> : null}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Most tagged products</p>
+            <div className="mt-3 space-y-2">
+              {(demandSignals.most_tagged_products || []).slice(0, 4).map((item) => (
+                <div key={item.product_id} className="flex items-center justify-between gap-3 text-sm text-stone-700">
+                  <span className="truncate">{item.name}</span>
+                  <span className="text-stone-500">{item.count}</span>
+                </div>
+              ))}
+              {!(demandSignals.most_tagged_products || []).length ? <p className="text-sm text-stone-500">Sin etiquetas suficientes.</p> : null}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">Content driving sales</p>
+            <div className="mt-3 space-y-2">
+              {(demandSignals.content_driving_sales || []).slice(0, 4).map((item) => (
+                <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between text-sm text-stone-700">
+                  <span className="capitalize">{item.content_type}</span>
+                  <span className="text-stone-500">{item.score}</span>
+                </div>
+              ))}
+              {!(demandSignals.content_driving_sales || []).length ? <p className="text-sm text-stone-500">Aún no hay conversiones atribuidas.</p> : null}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
           <p className="text-2xl font-bold text-accent">{payments?.total_gross?.toFixed(0) || '0'}€</p>

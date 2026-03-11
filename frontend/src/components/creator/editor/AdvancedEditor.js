@@ -318,10 +318,10 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
 
             <div className="flex items-center gap-2">
               <button type="button" onClick={editor.undo} disabled={!editor.canUndo} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35" aria-label="Deshacer">
-                <Undo2 className="h-4.5 w-4.5" />
+                <Undo2 className="h-[18px] w-[18px]" />
               </button>
               <button type="button" onClick={editor.redo} disabled={!editor.canRedo} className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35" aria-label="Rehacer">
-                <Redo2 className="h-4.5 w-4.5" />
+                <Redo2 className="h-[18px] w-[18px]" />
               </button>
               <button type="button" onClick={() => setShowPreview(true)} className="hidden h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 md:inline-flex">
                 Continuar

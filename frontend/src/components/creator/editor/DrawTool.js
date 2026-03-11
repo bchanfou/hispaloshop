@@ -1,51 +1,47 @@
 import React from 'react';
-import { Trash2, Pencil, Eraser, Undo2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 
-function DrawTool({ paths, onAddPath, onClear }) {
+function DrawTool({ paths, onClear }) {
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4 p-4">
       <div className="text-center">
-        <div className="inline-flex items-center gap-2 p-3 bg-accent/10 rounded-xl text-accent">
-          <Pencil className="w-5 h-5" />
+        <div className="inline-flex items-center gap-2 rounded-xl bg-stone-100 p-3 text-stone-950">
+          <Pencil className="h-5 w-5" />
           <span className="text-sm font-medium">Modo dibujo activado</span>
         </div>
-        <p className="text-xs text-stone-500 mt-2">
+        <p className="mt-2 text-xs text-stone-500">
           Dibuja directamente sobre la imagen
         </p>
       </div>
 
-      {/* Controles */}
-      <div className="flex gap-2">
-        <button
-          onClick={onClear}
-          disabled={paths.length === 0}
-          className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Trash2 className="w-4 h-4" />
-          Limpiar todo
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onClear}
+        disabled={paths.length === 0}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-stone-100 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-200 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <Trash2 className="h-4 w-4" />
+        Limpiar trazos
+      </button>
 
-      {/* Info de trazos */}
-      <div className="p-3 bg-stone-50 rounded-xl">
+      <div className="rounded-xl bg-stone-50 p-3">
         <div className="flex items-center justify-between text-sm">
           <span className="text-stone-500">Trazos dibujados</span>
-          <span className="font-semibold text-accent">{paths.length}</span>
+          <span className="font-semibold text-stone-950">{paths.length}</span>
         </div>
       </div>
 
-      {/* Instrucciones */}
       <div className="space-y-2 text-xs text-stone-500">
         <p className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-accent rounded-full" />
+          <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
           Selecciona el color y grosor desde el panel inferior del canvas
         </p>
         <p className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-accent rounded-full" />
+          <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
           Haz clic y arrastra para dibujar
         </p>
         <p className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-accent rounded-full" />
+          <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
           Los trazos se guardan automáticamente
         </p>
       </div>
