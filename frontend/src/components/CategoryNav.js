@@ -37,42 +37,52 @@ export default function CategoryNav({
   variant = 'default',
 }) {
   const sourceConfig = variant === 'home-minimal' ? HOME_MINIMAL_CATEGORY_CONFIG : CATEGORY_CONFIG;
-  const categoryData = useMemo(() => sourceConfig.map((category) => {
-    const baseCategory = CATEGORY_CONFIG.find((item) => item.slug === category.slug)
-      || CATEGORY_CONFIG.find((item) => item.aliases.includes(category.slug))
-      || {};
-    const matchingProducts = variant === 'home-minimal'
-      ? products.filter((product) => {
-        const haystack = `${product.name || ''} ${product.description || ''} ${product.category || ''}`.toLowerCase();
-        return category.slug === product.category || (category.matchTerms || []).some((term) => haystack.includes(term));
-      })
-      : getProductsForCategory(products, category.slug);
+  const isCatalog = variant === 'catalog';
 
-    return {
-      ...baseCategory,
-      ...category,
-      count: matchingProducts.length || baseCategory.fallbackCount || 0,
-      hasNew: matchingProducts.some(isNewProduct),
-      previewProducts: matchingProducts.slice(0, 3),
-    };
-  }), [products, sourceConfig, variant]);
+  const categoryData = useMemo(
+    () =>
+      sourceConfig.map((category) => {
+        const baseCategory =
+          CATEGORY_CONFIG.find((item) => item.slug === category.slug) ||
+          CATEGORY_CONFIG.find((item) => item.aliases.includes(category.slug)) ||
+          {};
+        const matchingProducts =
+          variant === 'home-minimal'
+            ? products.filter((product) => {
+                const haystack = `${product.name || ''} ${product.description || ''} ${product.category || ''}`.toLowerCase();
+                return category.slug === product.category || (category.matchTerms || []).some((term) => haystack.includes(term));
+              })
+            : getProductsForCategory(products, category.slug);
+
+        return {
+          ...baseCategory,
+          ...category,
+          count: matchingProducts.length || baseCategory.fallbackCount || 0,
+          hasNew: matchingProducts.some(isNewProduct),
+          previewProducts: matchingProducts.slice(0, 3),
+        };
+      }),
+    [products, sourceConfig, variant],
+  );
 
   return (
     <section className="pb-4" data-testid="category-nav-section">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="mb-3 flex items-end justify-between gap-4">
+        <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-text-muted">Categorías reales</p>
-            <h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-primary">{title}</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">Categorías</p>
+            <h2 className={`mt-2 font-semibold tracking-tight text-stone-950 ${isCatalog ? 'text-2xl' : 'font-serif text-3xl'}`}>{title}</h2>
           </div>
-          {variant !== 'home-minimal' && (
+          {variant !== 'home-minimal' ? (
             <p className="hidden max-w-md text-sm leading-6 text-stone-500 md:block">
-              Producto local e importado ya disponible en España, sin relatos inflados ni categorías de relleno.
+              {isCatalog
+                ? 'Explora el catálogo desde categorías claras y sin ruido visual.'
+                : 'Producto local e importado ya disponible en España, sin relatos inflados ni categorías de relleno.'}
             </p>
-          )}
+          ) : null}
         </div>
 
-        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div className={`flex snap-x snap-mandatory overflow-x-auto pb-2 scrollbar-hide ${isCatalog ? 'gap-4' : 'gap-3'}`}>
           {categoryData.map((category) => {
             const Icon = category.icon;
             const isActive = activeCategory === category.slug;
@@ -87,22 +97,42 @@ export default function CategoryNav({
                     onSelectCategory(category.slug);
                   }
                 }}
-                className={`group relative snap-start shrink-0 rounded-[1.5rem] border bg-white/85 p-3 transition-all duration-200 hover:bg-white ${category.border} ${isActive ? 'ring-1 ring-primary/20' : ''} ${variant === 'home-minimal' ? 'w-[92px]' : 'w-[154px]'}`}
+                className={`group relative snap-start shrink-0 transition-all duration-150 ease-out ${
+                  isCatalog
+                    ? `w-[156px] rounded-2xl border bg-white p-4 hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-sm ${
+                        isActive ? 'border-stone-950 bg-stone-50 shadow-sm' : 'border-stone-100'
+                      }`
+                    : `rounded-[1.5rem] border bg-white/85 p-3 transition-all duration-200 hover:bg-white ${category.border} ${
+                        isActive ? 'ring-1 ring-primary/20' : ''
+                      } ${variant === 'home-minimal' ? 'w-[92px]' : 'w-[154px]'}`
+                }`}
                 data-testid={`category-nav-${category.slug}`}
               >
-                <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${category.bg}`}>
-                  <Icon className={`h-6 w-6 ${category.color}`} strokeWidth={1.7} />
+                <div className={`flex items-center justify-center rounded-full ${isCatalog ? 'h-11 w-11 bg-stone-100 text-stone-700' : `mx-auto h-14 w-14 ${category.bg}`}`}>
+                  <Icon className={`h-5 w-5 ${isCatalog ? 'text-stone-700' : category.color}`} strokeWidth={1.7} />
                 </div>
-                <p className={`mt-2 text-center text-xs font-medium leading-4 text-primary transition-all duration-200 ${variant === 'home-minimal' ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : ''}`}>
-                  {category.shortLabel}
+                <p
+                  className={
+                    isCatalog
+                      ? 'mt-3 text-left text-sm font-medium text-stone-900'
+                      : `mt-2 text-center text-xs font-medium leading-4 text-primary transition-all duration-200 ${
+                          variant === 'home-minimal' ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : ''
+                        }`
+                  }
+                >
+                  {isCatalog ? category.label : category.shortLabel}
                 </p>
-                {variant !== 'home-minimal' && <p className="mt-1 text-center text-xs text-stone-500">({category.count})</p>}
-                {variant !== 'home-minimal' && category.hasNew && (
+                {variant !== 'home-minimal' ? (
+                  <p className={`${isCatalog ? 'mt-1 text-left text-xs text-stone-500' : 'mt-1 text-center text-xs text-stone-500'}`}>
+                    {isCatalog ? `${category.count} productos` : `(${category.count})`}
+                  </p>
+                ) : null}
+                {variant !== 'home-minimal' && category.hasNew && !isCatalog ? (
                   <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
                     <Sparkles className="h-3 w-3" />
                     Novedad
                   </span>
-                )}
+                ) : null}
               </Link>
             );
 
@@ -116,28 +146,30 @@ export default function CategoryNav({
                     sideOffset={12}
                     className={`z-50 hidden rounded-[1.5rem] border border-stone-200 bg-white/95 p-4 shadow-[0_24px_60px_rgba(28,28,28,0.14)] backdrop-blur md:block ${variant === 'home-minimal' ? 'w-[240px]' : 'w-[320px]'}`}
                   >
-                    <p className="text-sm font-semibold text-primary">{category.label}</p>
+                    <p className="text-sm font-semibold text-stone-950">{category.label}</p>
                     <p className="mt-1 text-xs leading-5 text-stone-500">{category.description}</p>
                     <div className="mt-3 space-y-2">
-                      {category.previewProducts.length > 0 ? category.previewProducts.map((product) => (
-                        <Link
-                          key={product.product_id}
-                          to={`/products/${product.product_id}`}
-                          className="flex items-center gap-3 rounded-2xl border border-stone-100 p-2 transition-colors hover:bg-stone-50"
-                        >
-                          <div className="h-12 w-12 overflow-hidden rounded-xl bg-stone-100">
-                            {product.images?.[0] ? (
-                              <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-[10px] text-stone-400">Real</div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-primary">{product.name}</p>
-                            <p className="truncate text-xs text-stone-500">{product.description}</p>
-                          </div>
-                        </Link>
-                      )) : (
+                      {category.previewProducts.length > 0 ? (
+                        category.previewProducts.map((product) => (
+                          <Link
+                            key={product.product_id}
+                            to={`/products/${product.product_id}`}
+                            className="flex items-center gap-3 rounded-2xl border border-stone-100 p-2 transition-colors hover:bg-stone-50"
+                          >
+                            <div className="h-12 w-12 overflow-hidden rounded-xl bg-stone-100">
+                              {product.images?.[0] ? (
+                                <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-[10px] text-stone-400">Real</div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium text-stone-950">{product.name}</p>
+                              <p className="truncate text-xs text-stone-500">{product.description}</p>
+                            </div>
+                          </Link>
+                        ))
+                      ) : (
                         <div className="rounded-2xl bg-stone-50 p-3 text-xs leading-5 text-stone-500">
                           {category.description}
                         </div>
