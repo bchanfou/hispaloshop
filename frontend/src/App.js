@@ -80,6 +80,7 @@ const AdminManagement = lazy(() => import('./pages/admin/AdminManagement'));
 const AdminCategories = lazy(() => import('./pages/admin/CategoriesPage'));
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
 const AdminSupportCase = lazy(() => import('./pages/admin/AdminSupportCase'));
+const AdminTrustSafety = lazy(() => import('./pages/admin/AdminTrustSafety'));
 const EscalationChat = lazy(() => import('./pages/admin/EscalationChat'));
 const InsightsDashboard = lazy(() => import('./pages/super-admin/InsightsDashboard'));
 const UserManagement = lazy(() => import('./pages/super-admin/UserManagement'));
@@ -353,6 +354,7 @@ function AppRouter() {
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="support" element={<AdminSupport />} />
                 <Route path="support/:caseId" element={<AdminSupportCase />} />
+                <Route path="trust-safety" element={<AdminTrustSafety />} />
                 <Route path="escalation" element={<EscalationChat />} />
               </Route>
               <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
