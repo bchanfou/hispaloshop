@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 
 const FooterLanding = () => {
   const navigate = useNavigate();
@@ -27,19 +27,19 @@ const FooterLanding = () => {
   };
 
   const socialLinks = [
-    { icon: Instagram, href: 'https://instagram.com/hispaloshop' },
-    { icon: Facebook, href: 'https://facebook.com/hispaloshop' },
-    { icon: Twitter, href: 'https://twitter.com/hispaloshop' },
-    { icon: Youtube, href: 'https://youtube.com/hispaloshop' },
+    { icon: Instagram, href: 'https://instagram.com/hispaloshop', label: 'Instagram' },
+    { icon: Facebook, href: 'https://facebook.com/hispaloshop', label: 'Facebook' },
+    { icon: Twitter, href: 'https://twitter.com/hispaloshop', label: 'X' },
+    { icon: Youtube, href: 'https://youtube.com/hispaloshop', label: 'YouTube' },
   ];
 
   return (
     <footer className="border-t border-stone-800 bg-stone-950 text-white">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-          <div className="col-span-2 md:col-span-1">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+          <div className="md:col-span-1">
             <h3 className="mb-4 text-xl font-bold">Hispaloshop</h3>
-            <p className="mb-4 text-sm text-stone-400">
+            <p className="mb-4 text-sm leading-6 text-stone-400">
               Una forma más clara de descubrir, entender y comprar comida con contexto.
             </p>
             <div className="flex gap-4">
@@ -51,6 +51,7 @@ const FooterLanding = () => {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={social.label}
                     className="text-stone-400 transition-colors hover:text-white"
                   >
                     <Icon className="h-5 w-5" />

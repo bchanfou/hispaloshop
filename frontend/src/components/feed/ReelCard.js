@@ -5,11 +5,13 @@ import {
   Heart,
   MessageCircle,
   Play,
+  Share2,
   ShoppingBag,
   Volume2,
   VolumeX,
   X,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 function formatCount(value) {
   if (!value) return '0';
@@ -28,7 +30,8 @@ function formatPrice(value) {
   }).format(amount);
 }
 
-function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
+function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, onShare }) {
+  const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [liked, setLiked] = useState(reel.liked || false);
@@ -53,10 +56,16 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
 
     if (videoRef.current) observer.observe(videoRef.current);
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
   }, []);
 
-  const togglePlay = () => {
+  const togglePlay = (event) => {
+    event.stopPropagation();
     if (!videoRef.current) return;
 
     if (isPlaying) {
@@ -65,7 +74,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
       videoRef.current.play().catch(() => {});
     }
 
-    setIsPlaying(!isPlaying);
+    setIsPlaying((prev) => !prev);
   };
 
   const toggleMute = (event) => {
@@ -73,12 +82,46 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
     if (!videoRef.current) return;
 
     videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
+    setIsMuted((prev) => !prev);
   };
 
-  const handleLike = () => {
-    setLiked(!liked);
+  const handleLike = (event) => {
+    event?.stopPropagation?.();
+    setLiked((prev) => !prev);
     setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+    onLike?.();
+  };
+
+  const handleComment = (event) => {
+    event?.stopPropagation?.();
+    onComment?.();
+  };
+
+  const handleShare = async (event) => {
+    event?.stopPropagation?.();
+
+    if (onShare) {
+      await onShare();
+      return;
+    }
+
+    const reelUrl = `${window.location.origin}/posts/${reel.id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Hispaloshop',
+          text: reel.caption || t('feed.reelShareText', 'Mira este reel en Hispaloshop'),
+          url: reelUrl,
+        });
+        return;
+      }
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(reelUrl);
+      }
+    } catch {
+      // Native share cancelled or clipboard unavailable.
+    }
   };
 
   const handleTap = () => {
@@ -94,6 +137,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
   };
 
   const productPrice = formatPrice(reel.productTag?.price);
+  const reelAuthor = reel.user?.name || reel.user_name || t('common.user', 'Usuario');
 
   if (isInFeed) {
     return (
@@ -102,10 +146,12 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
         whileTap={{ scale: 0.985 }}
         className="group relative aspect-[9/16] w-full overflow-hidden rounded-[28px] border border-stone-200 bg-stone-950 text-left"
         onClick={() => onOpenFullscreen?.(reel)}
+        aria-label={t('feed.openReel', 'Abrir reel de {{author}}', { author: reelAuthor })}
       >
         <img
           src={reel.thumbnail || reel.videoUrl}
-          alt={reel.caption}
+          alt={reel.caption || t('feed.reelThumbnailAlt', 'Vista previa del reel de {{author}}', { author: reelAuthor })}
+          loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         />
 
@@ -131,12 +177,11 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
           <div className="mb-3 flex items-center gap-2">
             <img
               src={reel.user?.avatar || '/default-avatar.png'}
-              alt={reel.user?.name}
+              alt={t('feed.authorAvatar', 'Avatar de {{author}}', { author: reelAuthor })}
+              loading="lazy"
               className="h-8 w-8 rounded-full border border-white/50 object-cover"
             />
-            <span className="truncate text-sm font-medium text-white">
-              @{reel.user?.name || reel.user_name}
-            </span>
+            <span className="truncate text-sm font-medium text-white">@{reelAuthor}</span>
           </div>
 
           <p className="line-clamp-2 text-sm text-white/90">{reel.caption}</p>
@@ -169,42 +214,74 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
         <>
           <div className="absolute left-0 right-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/65 to-transparent p-4 pt-safe">
             <button
+              type="button"
               onClick={() => window.history.back()}
-              aria-label="Cerrar reel"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
+              aria-label={t('feed.closeReel', 'Cerrar reel')}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
             >
               <X className="h-5 w-5" />
             </button>
             <button
+              type="button"
               onClick={toggleMute}
-              aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
+              aria-label={isMuted ? t('feed.enableSound', 'Activar sonido') : t('feed.muteSound', 'Silenciar')}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
             >
               {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </button>
           </div>
 
           <div className="absolute bottom-24 right-3 flex flex-col items-center gap-4">
-            <Link to={`/user/${reel.user?.id}`} className="flex flex-col items-center gap-1">
+            <Link
+              to={`/user/${reel.user?.id}`}
+              className="flex flex-col items-center gap-1"
+              aria-label={t('feed.openAuthorProfile', 'Abrir perfil de {{author}}', { author: reelAuthor })}
+            >
               <img
                 src={reel.user?.avatar || '/default-avatar.png'}
-                alt={reel.user?.name}
+                alt={t('feed.authorAvatar', 'Avatar de {{author}}', { author: reelAuthor })}
+                loading="lazy"
                 className="h-11 w-11 rounded-full border-2 border-white object-cover"
               />
             </Link>
 
-            <motion.button whileTap={{ scale: 0.88 }} onClick={handleLike} aria-label={liked ? 'Quitar me gusta' : 'Me gusta'} className="flex flex-col items-center gap-1">
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.88 }}
+              onClick={handleLike}
+              aria-label={liked ? t('feed.unlikePost', 'Quitar me gusta') : t('feed.likePost', 'Me gusta')}
+              className="flex flex-col items-center gap-1"
+            >
               <Heart className={`h-7 w-7 ${liked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
               <span className="text-xs font-medium text-white">{formatCount(likeCount)}</span>
             </motion.button>
 
-            <div className="flex flex-col items-center gap-1">
+            <button
+              type="button"
+              onClick={handleComment}
+              aria-label={t('feed.commentPost', 'Abrir comentarios')}
+              className="flex flex-col items-center gap-1"
+            >
               <MessageCircle className="h-7 w-7 text-white" />
               <span className="text-xs font-medium text-white">{reel.comments || 0}</span>
-            </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label={t('feed.sharePost', 'Compartir publicación')}
+              className="flex flex-col items-center gap-1"
+            >
+              <Share2 className="h-7 w-7 text-white" />
+              <span className="text-xs font-medium text-white">{t('feed.share', 'Compartir')}</span>
+            </button>
 
             {reel.productTag ? (
-              <Link to={`/products/${reel.productTag.id}`} className="flex flex-col items-center gap-1">
+              <Link
+                to={`/products/${reel.productTag.id}`}
+                className="flex flex-col items-center gap-1"
+                aria-label={t('feed.viewTaggedProduct', 'Ver producto etiquetado')}
+              >
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/18 text-white backdrop-blur-sm">
                   <ShoppingBag className="h-5 w-5" />
                 </div>
@@ -215,7 +292,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pb-safe">
             <div className="pr-16">
               <Link to={`/user/${reel.user?.id}`} className="text-sm font-semibold text-white">
-                @{reel.user?.name || reel.user_name}
+                @{reelAuthor}
               </Link>
               <p className="mt-2 line-clamp-2 text-sm text-white/90">{reel.caption}</p>
 
@@ -227,6 +304,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
                   <img
                     src={reel.productTag.image}
                     alt={reel.productTag.name}
+                    loading="lazy"
                     className="h-11 w-11 rounded-2xl bg-white/50 object-cover"
                   />
                   <div className="min-w-0 flex-1">
@@ -234,7 +312,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen }) {
                     {productPrice ? <p className="text-xs text-white/80">{productPrice}</p> : null}
                   </div>
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-950">
-                    Ver
+                    {t('common.view', 'Ver')}
                   </span>
                 </Link>
               ) : null}

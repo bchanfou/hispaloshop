@@ -58,13 +58,20 @@ export default function ForYouFeed() {
   };
 
   const handleShare = async (postId) => {
-    if (!navigator.share) return;
+    const postUrl = `${window.location.origin}/posts/${postId}`;
 
-    await navigator.share({
-      title: 'Hispaloshop',
-      text: 'Mira esta publicación en Hispaloshop',
-      url: `${window.location.origin}/posts/${postId}`,
-    });
+    if (navigator.share) {
+      await navigator.share({
+        title: 'Hispaloshop',
+        text: t('feed.sharePrompt', 'Mira esta publicación en Hispaloshop'),
+        url: postUrl,
+      });
+      return;
+    }
+
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(postUrl);
+    }
   };
 
   if (error) {
@@ -76,7 +83,7 @@ export default function ForYouFeed() {
             {t('feed.error', 'Error al cargar el feed')}
           </p>
           <p className="mt-2 text-sm text-stone-600">
-            No hemos podido cargar las publicaciones ahora mismo.
+            {t('feed.errorDescription', 'No hemos podido cargar las publicaciones ahora mismo.')}
           </p>
           <Button
             onClick={() => feedQuery.refetch()}

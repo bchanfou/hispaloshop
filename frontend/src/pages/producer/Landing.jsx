@@ -121,7 +121,7 @@ export default function ProducerLanding() {
       <Header />
 
       <main>
-        <section className="relative isolate overflow-hidden bg-stone-950 text-[#faf9f6]">
+        <section className="relative isolate overflow-hidden bg-stone-950 text-white">
           <div className="absolute inset-0 opacity-30" aria-hidden="true">
             <div className="absolute left-[8%] top-[18%] h-40 w-40 rounded-full border border-white/10" />
             <div className="absolute right-[10%] top-[22%] h-24 w-24 rounded-full border border-white/10" />

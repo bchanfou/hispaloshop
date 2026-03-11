@@ -1,24 +1,34 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Droplets, Cookie, Beef, Croissant, CupSoda, Baby, Dog, 
-  Cherry, Leaf, WheatOff, Gift, Flame 
+import {
+  Baby,
+  Beef,
+  Cherry,
+  Cookie,
+  Croissant,
+  CupSoda,
+  Dog,
+  Droplets,
+  Flame,
+  Gift,
+  Leaf,
+  WheatOff,
 } from 'lucide-react';
 
 export const MINI_CATEGORIES = [
-  { id: 'aceites', label: 'Aceites', icon: Droplets, color: 'var(--color-accent)' },
-  { id: 'quesos', label: 'Quesos', icon: Cookie, color: 'var(--color-warning)' },
-  { id: 'embutidos', label: 'Embutidos', icon: Beef, color: 'var(--color-error)' },
-  { id: 'panadería', label: 'Panadería', icon: Croissant, color: '#D97706' },
-  { id: 'bebidas', label: 'Bebidas', icon: CupSoda, color: '#0891B2' },
-  { id: 'bebes', label: 'Bebés', icon: Baby, color: '#EC4899' },
-  { id: 'mascotas', label: 'Mascotas', icon: Dog, color: '#7C3AED' },
-  { id: 'snacks', label: 'Snacks', icon: Cherry, color: '#EA580C' },
-  { id: 'orgánico', label: 'Orgánico', icon: Leaf, color: 'var(--color-success)' },
-  { id: 'singluten', label: 'Sin gluten', icon: WheatOff, color: '#65A30D' },
-  { id: 'packs', label: 'Packs', icon: Gift, color: '#0891B2' },
-  { id: 'trending', label: 'Trending', icon: Flame, color: 'var(--color-error)' },
+  { id: 'aceites', label: 'Aceites', icon: Droplets },
+  { id: 'quesos', label: 'Quesos', icon: Cookie },
+  { id: 'embutidos', label: 'Embutidos', icon: Beef },
+  { id: 'panaderia', label: 'Panadería', icon: Croissant },
+  { id: 'bebidas', label: 'Bebidas', icon: CupSoda },
+  { id: 'bebes', label: 'Bebés', icon: Baby },
+  { id: 'mascotas', label: 'Mascotas', icon: Dog },
+  { id: 'snacks', label: 'Snacks', icon: Cherry },
+  { id: 'organico', label: 'Orgánico', icon: Leaf },
+  { id: 'singluten', label: 'Sin gluten', icon: WheatOff },
+  { id: 'packs', label: 'Packs', icon: Gift },
+  { id: 'trending', label: 'Tendencia', icon: Flame },
 ];
 
 const MiniCategoryPills = ({ selectedCategory, onSelect }) => {
@@ -27,40 +37,35 @@ const MiniCategoryPills = ({ selectedCategory, onSelect }) => {
   const handleClick = (categoryId) => {
     if (onSelect) {
       onSelect(categoryId);
-    } else {
-      navigate(`/category/${categoryId}`);
+      return;
     }
+    navigate(`/category/${categoryId}`);
   };
 
   return (
     <div className="relative py-2">
-      {/* Fade edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[#F5F1E8] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-[#F5F1E8] to-transparent z-10 pointer-events-none" />
-      
-      <div className="flex gap-2 overflow-x-auto px-4 scrollbar-hide snap-x snap-mandatory">
+      <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-6 bg-gradient-to-r from-stone-50 to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-6 bg-gradient-to-l from-stone-50 to-transparent" />
+
+      <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 scrollbar-hide">
         {MINI_CATEGORIES.map((category) => {
           const Icon = category.icon;
           const isSelected = selectedCategory === category.id;
-          
+
           return (
             <motion.button
               key={category.id}
+              type="button"
               whileTap={{ scale: 0.95 }}
               onClick={() => handleClick(category.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full flex-shrink-0 snap-start transition-all ${
-                isSelected 
-                  ? 'bg-accent text-white' 
-                  : 'bg-white text-gray-900 hover:bg-stone-100'
+              className={`flex flex-shrink-0 snap-start items-center gap-1.5 rounded-full border px-3 py-2 transition-all ${
+                isSelected
+                  ? 'border-stone-950 bg-stone-950 text-white'
+                  : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-100'
               }`}
             >
-              <Icon 
-                className="w-3.5 h-3.5" 
-                style={{ color: isSelected ? 'white' : category.color }} 
-              />
-              <span className="text-xs font-medium whitespace-nowrap">
-                {category.label}
-              </span>
+              <Icon className="h-3.5 w-3.5" />
+              <span className="whitespace-nowrap text-xs font-medium">{category.label}</span>
             </motion.button>
           );
         })}

@@ -1,69 +1,56 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import TabToggle from './TabToggle';
-import CategoryPills from './CategoryPills';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import LandingNavPills from './LandingNavPills';
 import FollowingFeed from './FollowingFeed';
 import ForYouFeed from './ForYouFeed';
+import TabToggle from './TabToggle';
 import StoriesCarousel from '../stories/StoriesCarousel';
-import { useTranslation } from 'react-i18next';
 
 function FeedContainer() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState(() => {
-    return localStorage.getItem('feedTab') || 'foryou';
-  });
-  const [selectedCategory, setSelectedCategory] = useState('foryou');
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('feedTab') || 'foryou');
+  const [selectedCategory] = useState('foryou');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Persistir tab seleccionado
   useEffect(() => {
     localStorage.setItem('feedTab', activeTab);
   }, [activeTab]);
 
-  // Pull to refresh
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsRefreshing(false);
   }, []);
 
-  // Manejar creación de historia
   const handleCreateStory = () => {
     const event = new CustomEvent('open-creator', { detail: { mode: 'story' } });
     window.dispatchEvent(event);
   };
 
-  // Manejar ver historia
-  const handleViewStory = () => {};
+  const handleViewStory = () => {
+    setIsRefreshing(false);
+  };
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Toggle Siguiendo/Para ti */}
       <TabToggle activeTab={activeTab} onChange={setActiveTab} />
-
-      {/* Navegación a landings */}
       <LandingNavPills />
+      <StoriesCarousel onCreateStory={handleCreateStory} onViewStory={handleViewStory} />
 
-      {/* Stories */}
-      <StoriesCarousel
-        onCreateStory={handleCreateStory}
-        onViewStory={handleViewStory}
-      />
-
-      {/* Pull to refresh indicator */}
-      {isRefreshing && (
-        <div className="flex items-center justify-center py-4 bg-white">
-          <div className="w-5 h-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
-          <span className="ml-2 text-sm text-stone-500">{t('feed.refreshing', 'Actualizando...')}</span>
+      {isRefreshing ? (
+        <div className="bg-white py-4">
+          <div className="flex items-center justify-center">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
+            <span className="ml-2 text-sm text-stone-500">{t('feed.refreshing', 'Actualizando...')}</span>
+          </div>
         </div>
-      )}
+      ) : null}
 
-      {/* Feed content */}
       <div className="relative">
         {activeTab === 'following' ? (
-          <FollowingFeed key={`following-${selectedCategory}`} />
+          <FollowingFeed key={`following-${selectedCategory}-${isRefreshing}`} onRefresh={handleRefresh} />
         ) : (
-          <ForYouFeed key={`foryou-${selectedCategory}`} />
+          <ForYouFeed key={`foryou-${selectedCategory}-${isRefreshing}`} onRefresh={handleRefresh} />
         )}
       </div>
     </div>

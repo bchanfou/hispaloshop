@@ -17,22 +17,18 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
   const mobileItemHoverColor = isDark ? 'hover:bg-white/5' : 'hover:bg-stone-50';
   const mobileCtaClass = isDark
     ? 'bg-white text-stone-950 hover:bg-stone-100'
-    : 'bg-stone-950 text-white hover:bg-black';
+    : 'bg-stone-950 text-white hover:bg-stone-800';
 
   const navLinks = [
     { label: 'Descubrir', href: '/discover' },
-    { label: 'Ser Influencer', href: '/influencer' },
-    { label: 'Ser Productor', href: '/productor' },
+    { label: 'Ser influencer', href: '/influencer' },
+    { label: 'Ser productor', href: '/productor' },
     ...extraLinks,
   ];
 
   const handleNav = (href) => {
     if (href.startsWith('#')) {
-      const targetId = href.slice(1);
-      const element = document.getElementById(targetId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setIsOpen(false);
       return;
     }
@@ -73,7 +69,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
             <button
               type="button"
               onClick={() => navigate('/register/new')}
-              className="rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-black"
+              className="rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-800"
             >
               Registrarse
             </button>
@@ -81,7 +77,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
 
           <button
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => setIsOpen((current) => !current)}
             className={`p-2 md:hidden ${textColor}`}
             aria-expanded={isOpen}
             aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -91,15 +87,15 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
         </div>
       </div>
 
-      {isOpen && (
-        <div className={`md:hidden ${mobilePanelBgColor} border-t ${borderColor}`}>
+      {isOpen ? (
+        <div className={`border-t md:hidden ${mobilePanelBgColor} ${borderColor}`}>
           <div className="space-y-2 px-4 py-3">
             {navLinks.map((link) => (
               <button
                 key={link.label}
                 type="button"
                 onClick={() => handleNav(link.href)}
-                className={`block w-full rounded-2xl px-3 py-2 text-left font-medium transition-colors ${mobileItemTextColor} ${mobileItemHoverColor}`}
+                className={`block w-full rounded-2xl px-3 py-3 text-left font-medium transition-colors ${mobileItemTextColor} ${mobileItemHoverColor}`}
               >
                 {link.label}
               </button>
@@ -111,7 +107,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
                 navigate('/login');
                 setIsOpen(false);
               }}
-              className={`block w-full rounded-2xl px-3 py-2 text-left font-medium transition-colors ${mobileItemTextColor} ${mobileItemHoverColor}`}
+              className={`block w-full rounded-2xl px-3 py-3 text-left font-medium transition-colors ${mobileItemTextColor} ${mobileItemHoverColor}`}
             >
               Iniciar sesión
             </button>
@@ -127,7 +123,7 @@ const NavbarLanding = ({ variant = 'light', extraLinks = [] }) => {
             </button>
           </div>
         </div>
-      )}
+      ) : null}
     </nav>
   );
 };

@@ -10,6 +10,7 @@ import {
   User,
   X,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
@@ -18,25 +19,21 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 
 const NAV_LINKS = [
-  { label: 'Explorar', to: '/discover' },
-  { label: 'Productos', to: '/products' },
-  { label: 'Tiendas', to: '/stores' },
-  { label: 'Certificados', to: '/certificates' },
-];
-
-const MOBILE_MENU_LINKS = [
-  ...NAV_LINKS,
-  { label: 'Qué es Hispaloshop', to: '/about' },
+  { labelKey: 'nav.explore', fallback: 'Explorar', to: '/discover' },
+  { labelKey: 'nav.products', fallback: 'Productos', to: '/products' },
+  { labelKey: 'nav.stores', fallback: 'Tiendas', to: '/stores' },
+  { labelKey: 'nav.certificates', fallback: 'Certificados', to: '/certificates' },
 ];
 
 export default function Header() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { getTotalItems } = useCart();
+  const { country, language, currency } = useLocale();
 
   const [query, setQuery] = useState('');
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const { country, language, currency } = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -44,8 +41,16 @@ export default function Header() {
   const dashboardUrl = user ? getDefaultRoute(user, user.onboarding_completed) : '/login';
   const firstName = useMemo(() => {
     const raw = user?.name || user?.full_name || user?.username || '';
-    return raw.trim().split(' ')[0] || 'Mi cuenta';
-  }, [user]);
+    return raw.trim().split(' ')[0] || t('nav.myAccount', 'Mi cuenta');
+  }, [t, user]);
+
+  const mobileMenuLinks = useMemo(
+    () => [
+      ...NAV_LINKS,
+      { labelKey: 'nav.about', fallback: 'Qué es Hispaloshop', to: '/about' },
+    ],
+    []
+  );
 
   useEffect(() => {
     const onPointerDown = (event) => {
@@ -71,7 +76,7 @@ export default function Header() {
       document.removeEventListener('mousedown', onPointerDown);
       document.removeEventListener('keydown', onEscape);
     };
-  }, [menuOpen]);
+  }, [menuOpen, mobileSearchOpen]);
 
   const runSearch = (event) => {
     event.preventDefault();
@@ -93,7 +98,7 @@ export default function Header() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-[200] focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-stone-950 focus:shadow-lg focus:outline-none"
       >
-        Saltar al contenido principal
+        {t('nav.skipToMain', 'Saltar al contenido principal')}
       </a>
 
       <header
@@ -104,26 +109,26 @@ export default function Header() {
           <div className="flex h-16 items-center gap-3 md:h-[76px] md:gap-5">
             <Link to="/" className="flex shrink-0 items-center gap-3" data-testid="logo-link">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-stone-200 bg-stone-50">
-                <img src="/logo.png" alt="Hispaloshop" className="h-7 w-7 object-contain" />
+                <img src="/logo.png" alt="Hispaloshop" className="h-7 w-7 object-contain" loading="lazy" />
               </div>
               <div className="min-w-0">
                 <span className="block font-body text-base font-semibold tracking-tight text-stone-950 md:text-lg">
                   Hispaloshop
                 </span>
                 <span className="hidden text-xs text-stone-500 md:block">
-                  Alimentación honesta y social commerce claro
+                  {t('nav.tagline', 'Alimentación honesta y social commerce claro')}
                 </span>
               </div>
             </Link>
 
-            <nav className="hidden items-center gap-1 lg:flex">
+            <nav className="hidden items-center gap-1 lg:flex" aria-label={t('nav.mainNavigation', 'Navegación principal')}>
               {NAV_LINKS.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
                   className="rounded-full px-4 py-2 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-950"
                 >
-                  {item.label}
+                  {t(item.labelKey, item.fallback)}
                 </Link>
               ))}
             </nav>
@@ -132,9 +137,10 @@ export default function Header() {
               <div className="relative w-full max-w-2xl">
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
+                  aria-label={t('nav.search', 'Buscar')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar productos, marcas o tiendas"
+                  placeholder={t('nav.searchPlaceholder', 'Buscar productos, marcas o tiendas')}
                   className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 pr-4 text-sm focus:border-stone-950"
                   data-testid="header-search-input"
                 />
@@ -145,8 +151,8 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setMobileSearchOpen((current) => !current)}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-stone-700 transition-colors hover:border-stone-200 hover:bg-stone-50 xl:hidden"
-                aria-label="Buscar"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-transparent text-stone-700 transition-colors hover:border-stone-200 hover:bg-stone-50 xl:hidden"
+                aria-label={t('nav.search', 'Buscar')}
                 aria-expanded={mobileSearchOpen}
                 data-testid="mobile-search-toggle"
               >
@@ -155,8 +161,12 @@ export default function Header() {
 
               <Link
                 to="/cart"
-                className="relative flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-stone-700 transition-colors hover:border-stone-200 hover:bg-stone-50"
-                aria-label={totalItems > 0 ? `Cesta, ${totalItems} artículos` : 'Cesta'}
+                className="relative flex h-11 w-11 items-center justify-center rounded-full border border-transparent text-stone-700 transition-colors hover:border-stone-200 hover:bg-stone-50"
+                aria-label={
+                  totalItems > 0
+                    ? t('nav.cartWithItems', 'Cesta, {{count}} artículos', { count: totalItems })
+                    : t('nav.cart', 'Cesta')
+                }
                 data-testid="cart-button"
               >
                 <ShoppingCart className="h-5 w-5" />
@@ -183,12 +193,12 @@ export default function Header() {
                       size="sm"
                       className="h-10 rounded-full px-4 text-sm text-stone-700 hover:bg-stone-100 hover:text-stone-950"
                     >
-                      Iniciar sesión
+                      {t('auth.login', 'Iniciar sesión')}
                     </Button>
                   </Link>
                   <Link to="/register/new" className="hidden md:block">
                     <Button size="sm" className="h-10 rounded-full bg-stone-950 px-5 text-sm text-white hover:bg-stone-800">
-                      Crear cuenta
+                      {t('auth.createAccount', 'Crear cuenta')}
                     </Button>
                   </Link>
                 </>
@@ -197,12 +207,12 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setMenuOpen((current) => !current)}
-                className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${
+                className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${
                   menuOpen
                     ? 'border-stone-300 bg-stone-100 text-stone-950'
                     : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
                 }`}
-                aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                aria-label={menuOpen ? t('nav.closeMenu', 'Cerrar menú') : t('nav.openMenu', 'Abrir menú')}
                 aria-expanded={menuOpen}
                 data-testid="hamburger-menu-button"
               >
@@ -216,19 +226,19 @@ export default function Header() {
                 >
                   <div className="border-b border-stone-100 px-5 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-500">
-                      Navega por Hispaloshop
+                      {t('nav.menuTitle', 'Navega por Hispaloshop')}
                     </p>
                   </div>
 
                   <div className="space-y-1 px-3 py-3">
-                    {MOBILE_MENU_LINKS.map((item) => (
+                    {mobileMenuLinks.map((item) => (
                       <Link
                         key={item.to}
                         to={item.to}
                         onClick={() => setMenuOpen(false)}
                         className="flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-950"
                       >
-                        <span>{item.label}</span>
+                        <span>{t(item.labelKey, item.fallback)}</span>
                         <ChevronRight className="h-4 w-4 text-stone-400" />
                       </Link>
                     ))}
@@ -238,16 +248,14 @@ export default function Header() {
                     <Link
                       to="/settings/locale"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+                      className="flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
                     >
                       <div className="flex items-center gap-2">
                         <Globe className="h-4 w-4 text-stone-400" />
-                        <span>Idioma y región</span>
+                        <span>{t('locale.settings', 'Idioma y región')}</span>
                       </div>
                       <div className="flex items-center gap-2 text-stone-500">
-                        <span className="text-xs">
-                          {country} · {language.toUpperCase()} · {currency}
-                        </span>
+                        <span className="text-xs">{country} · {language.toUpperCase()} · {currency}</span>
                         <ChevronRight className="h-4 w-4 text-stone-400" />
                       </div>
                     </Link>
@@ -259,7 +267,7 @@ export default function Header() {
                         <Link to={dashboardUrl} onClick={() => setMenuOpen(false)}>
                           <Button className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800">
                             <LayoutDashboard className="h-4 w-4" />
-                            Ir a mi panel
+                            {t('nav.goToDashboard', 'Ir a mi panel')}
                           </Button>
                         </Link>
                         <Button
@@ -267,14 +275,14 @@ export default function Header() {
                           onClick={handleLogout}
                           className="h-11 w-full rounded-full border-stone-300 text-stone-700 hover:bg-stone-50"
                         >
-                          Cerrar sesión
+                          {t('auth.logout', 'Cerrar sesión')}
                         </Button>
                       </div>
                     ) : (
                       <div className="space-y-2">
                         <Link to="/register/new" onClick={() => setMenuOpen(false)}>
                           <Button className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800">
-                            Crear cuenta
+                            {t('auth.createAccount', 'Crear cuenta')}
                           </Button>
                         </Link>
                         <Link to="/login" onClick={() => setMenuOpen(false)}>
@@ -282,7 +290,7 @@ export default function Header() {
                             variant="outline"
                             className="h-11 w-full rounded-full border-stone-300 text-stone-700 hover:bg-stone-50"
                           >
-                            Iniciar sesión
+                            {t('auth.login', 'Iniciar sesión')}
                           </Button>
                         </Link>
                       </div>
@@ -298,9 +306,10 @@ export default function Header() {
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 <Input
+                  aria-label={t('nav.search', 'Buscar')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar productos, marcas o tiendas"
+                  placeholder={t('nav.searchPlaceholder', 'Buscar productos, marcas o tiendas')}
                   className="h-11 w-full rounded-full border-stone-200 bg-stone-50 pl-11 pr-4 text-sm focus:border-stone-950"
                 />
               </div>

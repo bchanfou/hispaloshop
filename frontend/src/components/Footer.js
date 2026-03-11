@@ -30,7 +30,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-14 border-t border-stone-200 bg-neutral-900 text-white" data-testid="main-footer">
+    <footer className="mt-14 border-t border-stone-200 bg-stone-950 text-white" data-testid="main-footer">
       <div className="mx-auto max-w-[1200px] px-4 py-12 sm:px-6">
         <div className="mb-10 rounded-[28px] border border-white/10 bg-white/[0.04] p-5 sm:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -39,10 +39,13 @@ export default function Footer() {
                 Hispaloshop
               </p>
               <h2 className="font-body text-2xl font-semibold text-white">
-                Descubrir, hablar y comprar dentro del mismo flujo.
+                {t('footer.heroTitle', 'Descubrir, hablar y comprar dentro del mismo flujo.')}
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-stone-300">
-                Unimos productores, importadores, creadores y consumidores en una experiencia más clara y más útil.
+                {t(
+                  'footer.heroDescription',
+                  'Unimos productores, importadores, creadores y consumidores en una experiencia más clara y útil.'
+                )}
               </p>
             </div>
 
@@ -50,7 +53,7 @@ export default function Footer() {
               to="/about"
               className="inline-flex h-11 items-center justify-center rounded-full border border-white/15 px-5 text-sm font-medium text-white transition-colors hover:bg-white/10"
             >
-              Ver cómo funciona
+              {t('footer.howItWorks', 'Ver cómo funciona')}
             </Link>
           </div>
         </div>
@@ -59,11 +62,13 @@ export default function Footer() {
           <div className="xl:pr-4">
             <div className="mb-5 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/8">
-                <img src="/logo.png" alt="Hispaloshop" className="h-7 w-7 object-contain invert" />
+                <img src="/logo.png" alt="Hispaloshop" className="h-7 w-7 object-contain invert" loading="lazy" />
               </div>
               <div>
                 <h3 className="font-body text-lg font-semibold text-white">Hispaloshop</h3>
-                <p className="text-xs text-stone-400">Alimentación honesta · comercio social claro</p>
+                <p className="text-xs text-stone-400">
+                  {t('footer.smallTagline', 'Alimentación honesta · comercio social claro')}
+                </p>
               </div>
             </div>
 
@@ -116,7 +121,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link to="/discover" className="text-sm text-stone-300 transition-colors hover:text-white">
-                  Explorar
+                  {t('footer.explore', 'Explorar')}
                 </Link>
               </li>
             </ul>
@@ -124,22 +129,22 @@ export default function Footer() {
 
           <div>
             <h4 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-              Únete
+              {t('footer.join', 'Únete')}
             </h4>
             <ul className="space-y-3">
               <li>
                 <Link to="/productor/registro" className="text-sm text-stone-300 transition-colors hover:text-white">
-                  Ser productor
+                  {t('footer.beProducer', 'Ser productor')}
                 </Link>
               </li>
               <li>
                 <Link to="/influencer/aplicar" className="text-sm text-stone-300 transition-colors hover:text-white">
-                  Ser influencer
+                  {t('footer.beInfluencer', 'Ser influencer')}
                 </Link>
               </li>
               <li>
                 <Link to="/importador" className="text-sm text-stone-300 transition-colors hover:text-white">
-                  Ser importador
+                  {t('footer.beImporter', 'Ser importador')}
                 </Link>
               </li>
             </ul>
@@ -152,8 +157,8 @@ export default function Footer() {
             <div className="mb-6 flex items-start gap-3 text-sm text-stone-300">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
               <div>
-                <p>{t('footer.weekdays', 'Lun – Vie: 9:00 – 18:00')}</p>
-                <p>{t('footer.saturday', 'Sáb: 10:00 – 14:00')}</p>
+                <p>{t('footer.weekdays', 'Lun - Vie: 9:00 - 18:00')}</p>
+                <p>{t('footer.saturday', 'Sáb: 10:00 - 14:00')}</p>
                 <p>{t('footer.sunday', 'Dom: Cerrado')}</p>
               </div>
             </div>
@@ -175,6 +180,7 @@ export default function Footer() {
 
         <div className="mt-10 border-t border-white/10 pt-6 md:hidden">
           <button
+            type="button"
             onClick={() => setShowLanguageDialog(true)}
             className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 transition-colors hover:bg-white/[0.07]"
             data-testid="footer-language-selector"
@@ -191,7 +197,7 @@ export default function Footer() {
         </div>
 
         <Dialog open={showLanguageDialog} onOpenChange={setShowLanguageDialog}>
-          <DialogContent className="max-h-[80vh] max-w-sm border-white/10 bg-neutral-900">
+          <DialogContent className="max-h-[80vh] max-w-sm border-white/10 bg-stone-950">
             <DialogHeader>
               <DialogTitle className="font-body text-lg font-semibold text-white">
                 {t('locale.selectLanguage', 'Seleccionar idioma')}
@@ -201,11 +207,10 @@ export default function Footer() {
               {Object.entries(languages).map(([code, data]) => (
                 <button
                   key={code}
+                  type="button"
                   onClick={() => handleLanguageChange(code)}
                   className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 transition-colors ${
-                    language === code
-                      ? 'border border-white/15 bg-white/[0.08]'
-                      : 'hover:bg-white/[0.06]'
+                    language === code ? 'border border-white/15 bg-white/[0.08]' : 'hover:bg-white/[0.06]'
                   }`}
                   data-testid={`footer-language-option-${code}`}
                 >
