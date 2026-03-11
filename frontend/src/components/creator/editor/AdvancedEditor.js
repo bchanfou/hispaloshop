@@ -34,7 +34,9 @@ import ProductTagTool from './ProductTagTool';
 import CanvasEditor from './CanvasEditor';
 import { ASPECT_RATIOS } from '../types/editor.types';
 
-const EDITOR_SESSION_DRAFT_KEY = 'hispaloshop_editor_session_draft';
+function getEditorSessionDraftKey(contentType) {
+  return `hispaloshop_editor_session_draft_${contentType || 'post'}`;
+}
 
 const BASE_TOOLS = [
   { id: 'reel', icon: Film, label: 'Video', onlyFor: ['reel'], primary: true },
@@ -47,22 +49,10 @@ const BASE_TOOLS = [
   { id: 'product', icon: ShoppingBag, label: 'Productos' },
 ];
 
-const CONTENT_LABELS = {
-  post: 'Publicacion',
-  reel: 'Reel',
-  story: 'Historia',
-};
-
 const STAGE_ORDER = ['media', 'edit', 'compose'];
-const STAGE_LABELS = {
-  media: 'Media',
-  edit: 'Editar',
-  compose: 'Publicar',
-};
 
 const CONTENT_GUIDANCE = {
   post: {
-    eyebrow: 'Post',
     title: 'Elige fotos',
     description: 'Foto o carrusel.',
     accept: 'image/*',
@@ -71,7 +61,6 @@ const CONTENT_GUIDANCE = {
     meta: 'Hasta 10.',
   },
   reel: {
-    eyebrow: 'Reel',
     title: 'Elige un video',
     description: 'Vertical recomendado.',
     accept: 'video/*',
@@ -80,7 +69,6 @@ const CONTENT_GUIDANCE = {
     meta: '1 video.',
   },
   story: {
-    eyebrow: 'Story',
     title: 'Elige una imagen',
     description: 'Rapida y vertical.',
     accept: 'image/*',
@@ -185,7 +173,7 @@ function LayerSummary({ editor }) {
   );
 }
 
-function MediaStage({ contentType, guidance, onClose, onPick, canRestoreDraft, onRestoreDraft }) {
+function MediaStage({ guidance, onClose, onPick, canRestoreDraft, onRestoreDraft }) {
   const GuidanceIcon = guidance.icon;
 
   return (
@@ -249,8 +237,11 @@ function ComposeStage({
   setLocation,
   taggedProductsCount,
   isPublishing,
+  publishProgress,
+  canCancelPublish,
   onBack,
   onPublish,
+  onCancelPublish,
 }) {
   const previewMeta = useMemo(() => {
     if (contentType === 'story') return 'story';
@@ -264,7 +255,8 @@ function ComposeStage({
         <button
           type="button"
           onClick={onBack}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15"
+          disabled={isPublishing}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-40"
           aria-label="Volver al editor"
         >
           <ArrowLeft className="h-5 w-5" />
@@ -316,7 +308,7 @@ function ComposeStage({
               </div>
               <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900">
                 <Circle className="h-2.5 w-2.5 fill-current" />
-                Guardado
+                {isPublishing ? `Subiendo ${publishProgress}%` : 'Guardado'}
               </div>
             </div>
 
@@ -344,7 +336,677 @@ function ComposeStage({
                   ? `${taggedProductsCount} producto(s)`
                   : '0 productos'}
               </div>
+
+              {canCancelPublish ? (
+                <button
+                  type="button"
+                  onClick={onCancelPublish}
+                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                >
+                  Cancelar subida
+                </button>
+              ) : null}
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StoryComposeStage({
+  aspectRatio,
+  editor,
+  caption,
+  location,
+  setCaption,
+  setLocation,
+  isPublishing,
+  publishProgress,
+  canCancelPublish,
+  onBack,
+  onPublish,
+  onCancelPublish,
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-black text-white">
+      <div className="flex items-center justify-between px-4 py-4">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isPublishing}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-40"
+          aria-label="Volver a la story"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <div className="rounded-full bg-white/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white/75">
+          Story
+        </div>
+        <button
+          type="button"
+          onClick={onPublish}
+          disabled={isPublishing}
+          className="min-h-11 rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 disabled:opacity-50"
+        >
+          {isPublishing ? 'Subiendo...' : 'Publicar'}
+        </button>
+      </div>
+
+      <div className="flex flex-1 items-center justify-center overflow-hidden px-4">
+        <div className="w-full max-w-[430px]">
+          <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType="story" readOnly={true} />
+        </div>
+      </div>
+
+      <div className="border-t border-white/10 bg-black/70 p-4 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-[430px] flex-col gap-3">
+          <div className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-medium text-emerald-100">
+            <Circle className="h-2.5 w-2.5 fill-current" />
+            {isPublishing ? `Subiendo ${publishProgress}%` : 'Guardado'}
+          </div>
+          <textarea
+            value={caption}
+            onChange={(event) => setCaption(event.target.value)}
+            placeholder="Texto"
+            className="h-24 w-full resize-none rounded-3xl border border-white/10 bg-white/10 px-4 py-3 text-base leading-6 text-white outline-none transition-colors placeholder:text-white/45 focus:border-white/30"
+            maxLength={180}
+          />
+          <input
+            type="text"
+            value={location}
+            onChange={(event) => setLocation(event.target.value)}
+            placeholder="Ubicacion"
+            className="h-12 w-full rounded-3xl border border-white/10 bg-white/10 px-4 text-base text-white outline-none transition-colors placeholder:text-white/45 focus:border-white/30"
+          />
+          {canCancelPublish ? (
+            <button
+              type="button"
+              onClick={onCancelPublish}
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2 text-sm font-medium text-white/85 transition-colors hover:bg-white/10"
+            >
+              Cancelar subida
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StoryEditStage({
+  editor,
+  aspectRatio,
+  activeTool,
+  setActiveTool,
+  onBack,
+  onContinue,
+  renderToolPanel,
+}) {
+  const storyTools = [
+    { id: 'text', label: 'Texto', icon: Type },
+    { id: 'sticker', label: 'Lugar', icon: MapPin },
+    { id: 'product', label: 'Producto', icon: ShoppingBag },
+    { id: 'filter', label: 'Color', icon: Palette },
+    { id: 'composition', label: 'Plantilla', icon: LayoutTemplate },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-black text-white">
+      <div className="flex items-center justify-between px-4 py-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15"
+          aria-label="Volver"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        <div className="rounded-full bg-white/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white/75">
+          Story
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={editor.undo}
+            disabled={!editor.canUndo}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35"
+            aria-label="Deshacer"
+          >
+            <Undo2 className="h-[18px] w-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={onContinue}
+            className="min-h-11 rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100"
+          >
+            Seguir
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1 items-center justify-center overflow-hidden px-4">
+        <div className="relative w-full max-w-[430px]">
+          <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="story" />
+          {editor.textElements.length === 0 ? (
+            <button
+              type="button"
+              onClick={() => setActiveTool('text')}
+              className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+            >
+              Toca Texto
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="border-t border-white/10 bg-black/80 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+        <div className="mx-auto w-full max-w-[430px]">
+          <div className="flex gap-2 overflow-x-auto pb-3">
+            {storyTools.map((tool) => {
+              const Icon = tool.icon;
+              const isActive = activeTool === tool.id;
+              return (
+                <button
+                  key={tool.id}
+                  type="button"
+                  onClick={() => setActiveTool(tool.id)}
+                  className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                    isActive ? 'bg-white text-stone-950' : 'bg-white/10 text-white hover:bg-white/15'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {tool.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="max-h-[38vh] overflow-y-auto rounded-t-[28px] bg-white text-stone-950 shadow-[0_-24px_60px_rgba(0,0,0,0.38)]">
+            {renderToolPanel()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PostComposeStage({
+  aspectRatio,
+  editor,
+  caption,
+  location,
+  setCaption,
+  setLocation,
+  taggedProductsCount,
+  isPublishing,
+  publishProgress,
+  canCancelPublish,
+  onBack,
+  onPublish,
+  onCancelPublish,
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-stone-50 text-stone-950">
+      <div className="flex items-center justify-between border-b border-stone-200 bg-white px-4 py-4">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isPublishing}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors hover:bg-stone-200 disabled:opacity-40"
+          aria-label="Volver al post"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium uppercase tracking-[0.22em] text-stone-600">
+          Post
+        </div>
+        <button
+          type="button"
+          onClick={onPublish}
+          disabled={isPublishing}
+          className="min-h-11 rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
+        >
+          {isPublishing ? 'Subiendo...' : 'Publicar'}
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="flex items-center justify-center overflow-hidden p-4">
+          <div className="w-full max-w-[560px]">
+            <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType="post" readOnly={true} />
+          </div>
+        </div>
+
+        <div className="border-t border-stone-200 bg-white p-4 md:border-l md:border-t-0">
+          <div className="space-y-4">
+            <div className="rounded-3xl border border-stone-200 bg-stone-50 p-5">
+              <div className="flex flex-wrap gap-2">
+                <div className="rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-700 ring-1 ring-stone-200">
+                  Slides {editor.images.length}
+                </div>
+                <div className="rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-700 ring-1 ring-stone-200">
+                  Productos {taggedProductsCount}
+                </div>
+                <div className="rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-700 ring-1 ring-stone-200">
+                  {editor.compositionSettings?.templateId || 'free'}
+                </div>
+              </div>
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900">
+                <Circle className="h-2.5 w-2.5 fill-current" />
+                {isPublishing ? `Subiendo ${publishProgress}%` : 'Guardado'}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+              <textarea
+                value={caption}
+                onChange={(event) => setCaption(event.target.value)}
+                placeholder="Escribe algo"
+                className="h-32 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-base leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
+                maxLength={2200}
+              />
+              <input
+                type="text"
+                value={location}
+                onChange={(event) => setLocation(event.target.value)}
+                placeholder="Ubicacion"
+                className="mt-4 h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-base text-stone-950 outline-none transition-colors focus:border-stone-950"
+              />
+              {canCancelPublish ? (
+                <button
+                  type="button"
+                  onClick={onCancelPublish}
+                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                >
+                  Cancelar subida
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PostEditStage({
+  editor,
+  aspectRatio,
+  activeTool,
+  setActiveTool,
+  onBack,
+  onContinue,
+  onAddMore,
+  renderToolPanel,
+}) {
+  const postTools = [
+    { id: 'filter', label: 'Filtro', icon: Palette },
+    { id: 'adjust', label: 'Luz', icon: Layers3 },
+    { id: 'crop', label: 'Recorte', icon: Crop },
+    { id: 'text', label: 'Texto', icon: Type },
+    { id: 'product', label: 'Producto', icon: ShoppingBag },
+    { id: 'composition', label: 'Plantilla', icon: LayoutTemplate },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-stone-100 text-stone-950">
+      <div className="flex items-center justify-between border-b border-stone-200 bg-white px-4 py-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors hover:bg-stone-200"
+          aria-label="Volver"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium uppercase tracking-[0.22em] text-stone-600">
+          Post
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={editor.undo}
+            disabled={!editor.canUndo}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors hover:bg-stone-200 disabled:opacity-35"
+            aria-label="Deshacer"
+          >
+            <Undo2 className="h-[18px] w-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={editor.redo}
+            disabled={!editor.canRedo}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors hover:bg-stone-200 disabled:opacity-35"
+            aria-label="Rehacer"
+          >
+            <Redo2 className="h-[18px] w-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={onContinue}
+            className="min-h-11 rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
+          >
+            Seguir
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="flex min-h-0 flex-col">
+          <div className="flex flex-1 items-center justify-center overflow-hidden px-4 py-4">
+            <div className="w-full max-w-[620px]">
+              <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="post" />
+            </div>
+          </div>
+
+          <div className="border-t border-stone-200 bg-white px-4 py-3">
+            <div className="mx-auto flex w-full max-w-[620px] gap-3 overflow-x-auto">
+              {editor.images.map((image, index) => (
+                <button
+                  key={image.id}
+                  type="button"
+                  onClick={() => editor.setCurrentImage(index)}
+                  className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-[22px] border-2 bg-stone-100 ${
+                    editor.currentImageIndex === index ? 'border-stone-950' : 'border-transparent'
+                  }`}
+                >
+                  <img src={image.src} alt="" className="h-full w-full object-cover" />
+                  <span className="absolute left-2 top-2 rounded-full bg-black/65 px-2 py-1 text-[11px] font-medium text-white">
+                    {index + 1}
+                  </span>
+                  {editor.images.length > 1 ? (
+                    <div className="absolute inset-x-1 bottom-1 flex items-center justify-between">
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          editor.moveImage(index, index - 1);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-white disabled:opacity-35"
+                        aria-label="Mover a la izquierda"
+                      >
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={index === editor.images.length - 1}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          editor.moveImage(index, index + 1);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-white disabled:opacity-35"
+                        aria-label="Mover a la derecha"
+                      >
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : null}
+                </button>
+              ))}
+
+              {editor.images.length < 10 ? (
+                <button
+                  type="button"
+                  onClick={onAddMore}
+                  className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[22px] border border-dashed border-stone-300 bg-stone-50 text-stone-500 transition-colors hover:border-stone-950 hover:text-stone-950"
+                  aria-label="Anadir foto"
+                >
+                  <ImagePlus className="h-5 w-5" />
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex min-h-0 flex-col border-t border-stone-200 bg-white md:border-l md:border-t-0">
+          <div className="border-b border-stone-100 px-4 pt-4">
+            <div className="flex gap-2 overflow-x-auto pb-3">
+              {postTools.map((tool) => {
+                const Icon = tool.icon;
+                const isActive = activeTool === tool.id;
+                return (
+                  <button
+                    key={tool.id}
+                    type="button"
+                    onClick={() => setActiveTool(tool.id)}
+                    className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                      isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {tool.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {renderToolPanel()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReelComposeStage({
+  aspectRatio,
+  editor,
+  caption,
+  location,
+  setCaption,
+  setLocation,
+  taggedProductsCount,
+  isPublishing,
+  publishProgress,
+  canCancelPublish,
+  onBack,
+  onPublish,
+  onCancelPublish,
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-stone-950 text-white">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-4">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isPublishing}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-40"
+          aria-label="Volver al reel"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <div className="rounded-full bg-white/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.22em] text-white/70">
+          Reel
+        </div>
+        <button
+          type="button"
+          onClick={onPublish}
+          disabled={isPublishing}
+          className="min-h-11 rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 disabled:opacity-50"
+        >
+          {isPublishing ? 'Subiendo...' : 'Publicar'}
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="flex items-center justify-center overflow-hidden p-4">
+          <div className="w-full max-w-[430px]">
+            <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType="reel" readOnly={true} />
+          </div>
+        </div>
+
+        <div className="border-t border-white/10 bg-black/20 p-4 md:border-l md:border-t-0">
+          <div className="space-y-4">
+            <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
+              <div className="flex flex-wrap gap-2">
+                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                  {editor.reelSettings.trimStart.toFixed(1)}s - {editor.reelSettings.trimEnd.toFixed(1)}s
+                </div>
+                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                  {editor.reelSettings.playbackRate}x
+                </div>
+                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                  {editor.reelSettings.isMuted ? 'Sin audio' : 'Audio'}
+                </div>
+                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                  Texto {editor.textElements.length}
+                </div>
+                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                  Productos {taggedProductsCount}
+                </div>
+              </div>
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900">
+                <Circle className="h-2.5 w-2.5 fill-current" />
+                {isPublishing ? `Subiendo ${publishProgress}%` : 'Guardado'}
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
+              <textarea
+                value={caption}
+                onChange={(event) => setCaption(event.target.value)}
+                placeholder="Escribe algo"
+                className="h-28 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-base leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
+                maxLength={2200}
+              />
+              <input
+                type="text"
+                value={location}
+                onChange={(event) => setLocation(event.target.value)}
+                placeholder="Ubicacion"
+                className="mt-4 h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-base text-stone-950 outline-none transition-colors focus:border-stone-950"
+              />
+              {canCancelPublish ? (
+                <button
+                  type="button"
+                  onClick={onCancelPublish}
+                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                >
+                  Cancelar subida
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReelEditStage({
+  editor,
+  aspectRatio,
+  activeTool,
+  setActiveTool,
+  onBack,
+  onContinue,
+  renderToolPanel,
+}) {
+  const reelTools = [
+    { id: 'reel', label: 'Video', icon: Film },
+    { id: 'text', label: 'Texto', icon: Type },
+    { id: 'sticker', label: 'Lugar', icon: MapPin },
+    { id: 'product', label: 'Producto', icon: ShoppingBag },
+    { id: 'composition', label: 'Plantilla', icon: LayoutTemplate },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-stone-950 text-white">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15"
+          aria-label="Volver"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+
+        <div className="rounded-full bg-white/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.22em] text-white/70">
+          Reel
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={editor.undo}
+            disabled={!editor.canUndo}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35"
+            aria-label="Deshacer"
+          >
+            <Undo2 className="h-[18px] w-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={editor.redo}
+            disabled={!editor.canRedo}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-35"
+            aria-label="Rehacer"
+          >
+            <Redo2 className="h-[18px] w-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={onContinue}
+            className="min-h-11 rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100"
+          >
+            Seguir
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="flex min-h-0 flex-col">
+          <div className="flex flex-1 items-center justify-center overflow-hidden p-4">
+            <div className="w-full max-w-[430px]">
+              <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="reel" />
+            </div>
+          </div>
+
+          <div className="border-t border-white/10 bg-black/35 px-4 py-3">
+            <div className="mx-auto flex w-full max-w-[430px] items-center justify-between rounded-[26px] bg-white/8 px-4 py-3 text-sm text-white/80">
+              <span>{editor.reelSettings.trimStart.toFixed(1)}s</span>
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
+                {editor.reelSettings.playbackRate}x
+              </span>
+              <span>{editor.reelSettings.trimEnd.toFixed(1)}s</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex min-h-0 flex-col border-t border-white/10 bg-white text-stone-950 md:border-l md:border-t-0">
+          <div className="border-b border-stone-100 px-4 pt-4">
+            <div className="flex gap-2 overflow-x-auto pb-3">
+              {reelTools.map((tool) => {
+                const Icon = tool.icon;
+                const isActive = activeTool === tool.id;
+                return (
+                  <button
+                    key={tool.id}
+                    type="button"
+                    onClick={() => setActiveTool(tool.id)}
+                    className={`inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                      isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {tool.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {renderToolPanel()}
           </div>
         </div>
       </div>
@@ -360,12 +1022,14 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const [caption, setCaption] = useState('');
   const [location, setLocation] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+  const [publishProgress, setPublishProgress] = useState(0);
   const [hasRecoverableDraft, setHasRecoverableDraft] = useState(false);
 
   const editor = useImageEditor(contentType, aspectRatio);
   const fileInputRef = useRef(null);
   const hasLoadedInitialFilesRef = useRef(false);
-  const contentLabel = CONTENT_LABELS[contentType] || 'Contenido';
+  const publishAbortRef = useRef(null);
+  const sessionDraftKey = getEditorSessionDraftKey(contentType);
   const guidance = CONTENT_GUIDANCE[contentType] || CONTENT_GUIDANCE.post;
   const tools = BASE_TOOLS.filter((tool) => !tool.onlyFor || tool.onlyFor.includes(contentType));
   const primaryTools = tools.filter((tool) => tool.primary !== false);
@@ -385,7 +1049,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   }, [currentStage, editor.images.length]);
 
   React.useEffect(() => {
-    const sessionDraft = localStorage.getItem(EDITOR_SESSION_DRAFT_KEY);
+    const sessionDraft = localStorage.getItem(sessionDraftKey);
     if (!sessionDraft) {
       setHasRecoverableDraft(false);
       return;
@@ -398,7 +1062,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
       console.warn('[creator] invalid session draft', error);
       setHasRecoverableDraft(false);
     }
-  }, [contentType, editor]);
+  }, [contentType, editor, sessionDraftKey]);
 
   React.useEffect(() => {
     if (editor.images.length === 0) {
@@ -414,29 +1078,32 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
       savedAt: Date.now(),
     };
 
-    localStorage.setItem(EDITOR_SESSION_DRAFT_KEY, JSON.stringify(sessionDraft));
+    localStorage.setItem(sessionDraftKey, JSON.stringify(sessionDraft));
     editor.saveDraft();
 
-    const handleBeforeUnload = () => {
-      localStorage.setItem(EDITOR_SESSION_DRAFT_KEY, JSON.stringify(sessionDraft));
+    const handleBeforeUnload = (event) => {
+      localStorage.setItem(sessionDraftKey, JSON.stringify(sessionDraft));
       editor.saveDraft();
+      if (isPublishing) return;
+      event.preventDefault();
+      event.returnValue = '';
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [aspectRatio, caption, contentType, currentStage, editor, location]);
+  }, [aspectRatio, caption, contentType, currentStage, editor, isPublishing, location, sessionDraftKey]);
 
   const taggedProductsCount = editor.stickerElements.filter((item) => item.type === 'product').length;
 
   const clearSavedDraft = React.useCallback(() => {
     editor.clearDraft();
-    localStorage.removeItem(EDITOR_SESSION_DRAFT_KEY);
+    localStorage.removeItem(sessionDraftKey);
     setHasRecoverableDraft(false);
-  }, [editor]);
+  }, [editor, sessionDraftKey]);
 
   const restoreDraft = React.useCallback(() => {
     const restoredDraft = editor.loadDraft();
-    const sessionDraft = localStorage.getItem(EDITOR_SESSION_DRAFT_KEY);
+    const sessionDraft = localStorage.getItem(sessionDraftKey);
 
     if (!restoredDraft || !sessionDraft) {
       setHasRecoverableDraft(false);
@@ -458,10 +1125,13 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     } catch (error) {
       console.warn('[creator] draft restore failed', error);
     }
-  }, [contentType, editor]);
+  }, [contentType, editor, sessionDraftKey]);
 
   const handlePublish = async () => {
+    const publishController = new AbortController();
+    publishAbortRef.current = publishController;
     setIsPublishing(true);
+    setPublishProgress(0);
     try {
       const finalImage = contentType === 'reel' ? null : await editor.renderFinalCanvas();
       await onPublish({
@@ -474,9 +1144,18 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         sourceFiles: editor.images.map((image) => image.file).filter(Boolean),
         reelSettings: editor.reelSettings,
         taggedProducts: editor.stickerElements.filter((item) => item.type === 'product'),
+        onProgress: setPublishProgress,
+        signal: publishController.signal,
       });
       clearSavedDraft();
+      setPublishProgress(100);
+    } catch (error) {
+      if (publishController.signal.aborted) {
+        return;
+      }
+      throw error;
     } finally {
+      publishAbortRef.current = null;
       setIsPublishing(false);
     }
   };
@@ -503,10 +1182,19 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     onClose();
   };
 
+  const confirmExit = React.useCallback(() => {
+    if (isPublishing) return false;
+    if (editor.images.length === 0) return true;
+    return window.confirm('Se guardara como borrador. Salir?');
+  }, [editor.images.length, isPublishing]);
+
   const handleClose = () => {
+    if (!confirmExit()) {
+      return;
+    }
     if (editor.images.length > 0) {
       localStorage.setItem(
-        EDITOR_SESSION_DRAFT_KEY,
+        sessionDraftKey,
         JSON.stringify({
           contentType,
           aspectRatio,
@@ -520,6 +1208,12 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     }
     onClose();
   };
+
+  const handleCancelPublish = React.useCallback(() => {
+    publishAbortRef.current?.abort();
+    setIsPublishing(false);
+    setPublishProgress(0);
+  }, []);
 
   const renderToolPanel = () => {
     switch (activeTool) {
@@ -707,7 +1401,6 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     return (
       <>
         <MediaStage
-          contentType={contentType}
           guidance={guidance}
           onClose={handleClose}
           onPick={handleAddMore}
@@ -728,6 +1421,98 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   }
 
   if (currentStage === 'compose') {
+    if (contentType === 'story') {
+      return (
+        <>
+          <StoryComposeStage
+            aspectRatio={aspectRatio}
+            editor={editor}
+            caption={caption}
+            location={location}
+            setCaption={setCaption}
+            setLocation={setLocation}
+            isPublishing={isPublishing}
+            publishProgress={publishProgress}
+            canCancelPublish={Boolean(publishAbortRef.current)}
+            onBack={goToPreviousStage}
+            onPublish={handlePublish}
+            onCancelPublish={handleCancelPublish}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={guidance.accept}
+            multiple={guidance.allowMultiple}
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+          <canvas ref={editor.canvasRef} className="hidden" />
+        </>
+      );
+    }
+
+    if (contentType === 'post') {
+      return (
+        <>
+          <PostComposeStage
+            aspectRatio={aspectRatio}
+            editor={editor}
+            caption={caption}
+            location={location}
+            setCaption={setCaption}
+            setLocation={setLocation}
+            taggedProductsCount={taggedProductsCount}
+            isPublishing={isPublishing}
+            publishProgress={publishProgress}
+            canCancelPublish={Boolean(publishAbortRef.current)}
+            onBack={goToPreviousStage}
+            onPublish={handlePublish}
+            onCancelPublish={handleCancelPublish}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={guidance.accept}
+            multiple={guidance.allowMultiple}
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+          <canvas ref={editor.canvasRef} className="hidden" />
+        </>
+      );
+    }
+
+    if (contentType === 'reel') {
+      return (
+        <>
+          <ReelComposeStage
+            aspectRatio={aspectRatio}
+            editor={editor}
+            caption={caption}
+            location={location}
+            setCaption={setCaption}
+            setLocation={setLocation}
+            taggedProductsCount={taggedProductsCount}
+            isPublishing={isPublishing}
+            publishProgress={publishProgress}
+            canCancelPublish={Boolean(publishAbortRef.current)}
+            onBack={goToPreviousStage}
+            onPublish={handlePublish}
+            onCancelPublish={handleCancelPublish}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={guidance.accept}
+            multiple={guidance.allowMultiple}
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+          <canvas ref={editor.canvasRef} className="hidden" />
+        </>
+      );
+    }
+
     return (
       <>
         <ComposeStage
@@ -740,8 +1525,87 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
           setLocation={setLocation}
           taggedProductsCount={taggedProductsCount}
           isPublishing={isPublishing}
+          publishProgress={publishProgress}
+          canCancelPublish={Boolean(publishAbortRef.current)}
           onBack={goToPreviousStage}
           onPublish={handlePublish}
+          onCancelPublish={handleCancelPublish}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={guidance.accept}
+          multiple={guidance.allowMultiple}
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+        <canvas ref={editor.canvasRef} className="hidden" />
+      </>
+    );
+  }
+
+  if (contentType === 'story') {
+    return (
+      <>
+        <StoryEditStage
+          editor={editor}
+          aspectRatio={aspectRatio}
+          activeTool={activeTool}
+          setActiveTool={setActiveTool}
+          onBack={goToPreviousStage}
+          onContinue={() => setCurrentStage('compose')}
+          renderToolPanel={renderToolPanel}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={guidance.accept}
+          multiple={guidance.allowMultiple}
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+        <canvas ref={editor.canvasRef} className="hidden" />
+      </>
+    );
+  }
+
+  if (contentType === 'post') {
+    return (
+      <>
+        <PostEditStage
+          editor={editor}
+          aspectRatio={aspectRatio}
+          activeTool={activeTool}
+          setActiveTool={setActiveTool}
+          onBack={goToPreviousStage}
+          onContinue={() => setCurrentStage('compose')}
+          onAddMore={handleAddMore}
+          renderToolPanel={renderToolPanel}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={guidance.accept}
+          multiple={guidance.allowMultiple}
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+        <canvas ref={editor.canvasRef} className="hidden" />
+      </>
+    );
+  }
+
+  if (contentType === 'reel') {
+    return (
+      <>
+        <ReelEditStage
+          editor={editor}
+          aspectRatio={aspectRatio}
+          activeTool={activeTool}
+          setActiveTool={setActiveTool}
+          onBack={goToPreviousStage}
+          onContinue={() => setCurrentStage('compose')}
+          renderToolPanel={renderToolPanel}
         />
         <input
           ref={fileInputRef}

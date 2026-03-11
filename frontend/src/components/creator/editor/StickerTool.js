@@ -5,23 +5,23 @@ const UTILITY_STICKERS = [
   {
     id: 'price',
     label: 'Precio',
-    description: 'Añade un precio simple y sobrio.',
+    description: 'Anade un precio simple y sobrio.',
     icon: Tag,
     requiresInput: true,
     placeholder: '12,90',
   },
   {
     id: 'location',
-    label: 'Ubicación',
-    description: 'Sitúa el contenido con una etiqueta discreta.',
+    label: 'Ubicacion',
+    description: 'Situa el contenido con una etiqueta discreta.',
     icon: MapPin,
     requiresInput: true,
-    placeholder: 'Reus, España',
+    placeholder: 'Reus, Espana',
   },
   {
     id: 'new',
     label: 'Novedad',
-    description: 'Marca algo nuevo sin añadir ruido.',
+    description: 'Marca algo nuevo sin anadir ruido.',
     icon: Sparkles,
     requiresInput: false,
   },
@@ -53,9 +53,9 @@ function StickerTool({ stickers, onAdd, onRemove }) {
   return (
     <div className="space-y-5 p-4">
       <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
-        <h3 className="text-sm font-semibold text-stone-950">Sellos útiles</h3>
+        <h3 className="text-sm font-semibold text-stone-950">Sellos utiles</h3>
         <p className="mt-1 text-xs leading-5 text-stone-500">
-          Se mantienen solo overlays que aportan contexto real. Los emojis, hashtags y menciones se escriben desde el flujo de texto.
+          Solo se muestran overlays que aportan contexto real.
         </p>
 
         <div className="mt-4 space-y-2">
@@ -107,7 +107,7 @@ function StickerTool({ stickers, onAdd, onRemove }) {
           disabled={selectedSticker?.requiresInput && !content.trim()}
           className="mt-4 w-full rounded-full bg-stone-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Añadir sello
+          Anadir sello
         </button>
       </div>
 
@@ -116,7 +116,7 @@ function StickerTool({ stickers, onAdd, onRemove }) {
           <div>
             <h4 className="text-sm font-semibold text-stone-950">Sellos activos</h4>
             <p className="mt-1 text-xs leading-5 text-stone-500">
-              También puedes arrastrarlos dentro del lienzo.
+              Tambien puedes arrastrarlos en el lienzo.
             </p>
           </div>
           <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
@@ -127,7 +127,7 @@ function StickerTool({ stickers, onAdd, onRemove }) {
         <div className="mt-4 space-y-2">
           {nonProductStickers.length === 0 ? (
             <div className="rounded-2xl bg-stone-50 px-4 py-5 text-sm text-stone-500">
-              No hay sellos activos todavía.
+              No hay sellos activos todavia.
             </div>
           ) : (
             nonProductStickers.map((sticker) => {

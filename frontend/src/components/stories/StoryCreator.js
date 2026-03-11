@@ -16,10 +16,16 @@ function StoryCreator() {
           ...publishData,
           contentType: 'story',
         },
+        onProgress: publishData.onProgress,
+        signal: publishData.signal,
       });
       toast.success('Publicado');
       navigate(-1);
     } catch (error) {
+      if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError') {
+        toast('Cancelado');
+        return;
+      }
       toast.error(error.response?.data?.detail || 'Error');
     }
   };

@@ -84,7 +84,7 @@ function ProductTagTool({ tags, onAdd, onRemove }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-stone-950">{tag.productName}</p>
-                  <p className="text-xs font-medium text-stone-500">€{tag.productPrice}</p>
+                  <p className="text-xs font-medium text-stone-500">EUR {tag.productPrice}</p>
                 </div>
                 <button
                   type="button"
@@ -101,7 +101,7 @@ function ProductTagTool({ tags, onAdd, onRemove }) {
       ) : null}
 
       <p className="text-center text-xs text-stone-500">
-        Arrastra las etiquetas sobre la imagen para situarlas donde tenga sentido.
+        Arrastra las etiquetas sobre la imagen para colocarlas.
       </p>
 
       <AnimatePresence>
@@ -127,7 +127,7 @@ function ProductTagTool({ tags, onAdd, onRemove }) {
                   type="button"
                   onClick={() => setShowProductList(false)}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 text-stone-700 transition-colors hover:bg-stone-200"
-                  aria-label="Cerrar búsqueda de productos"
+                  aria-label="Cerrar busqueda de productos"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -172,7 +172,7 @@ function ProductTagTool({ tags, onAdd, onRemove }) {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-stone-950">{product.name}</p>
                         <p className="text-xs text-stone-500">{product.producer_name || 'Hispaloshop'}</p>
-                        <p className="mt-0.5 text-sm font-medium text-stone-700">€{product.price}</p>
+                        <p className="mt-0.5 text-sm font-medium text-stone-700">EUR {product.price}</p>
                       </div>
                       <Plus className="h-5 w-5 text-stone-400" />
                     </button>

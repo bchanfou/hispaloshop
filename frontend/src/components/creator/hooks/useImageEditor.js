@@ -1,7 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { PREDEFINED_FILTERS, ASPECT_RATIO_DIMENSIONS } from '../types/editor.types';
 
-const EDITOR_DRAFT_KEY = 'hispaloshop_editor_draft';
+function getEditorDraftKey(contentType) {
+  return `hispaloshop_editor_draft_${contentType || 'post'}`;
+}
 
 const DEFAULT_FILTER_SETTINGS = {
   brightness: 0,
@@ -48,6 +50,7 @@ function mixFilterSettings(targetSettings, intensity) {
 }
 
 export function useImageEditor(contentType, aspectRatio = '1:1') {
+  const draftKey = getEditorDraftKey(contentType);
   const canvasRef = useRef(null);
   const [images, setImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -616,7 +619,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       timestamp: Date.now(),
     };
     try {
-      localStorage.setItem(EDITOR_DRAFT_KEY, JSON.stringify(draft));
+      localStorage.setItem(draftKey, JSON.stringify(draft));
       return draft;
     } catch (error) {
       console.warn('[creator] draft save skipped', error);
@@ -626,6 +629,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     appliedFilter,
     compositionSettings,
     currentImageIndex,
+    draftKey,
     drawingPaths,
     filterIntensity,
     filterSettings,
@@ -642,35 +646,40 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
 
   // Cargar borrador
   const loadDraft = useCallback(() => {
-    const draftStr = localStorage.getItem(EDITOR_DRAFT_KEY);
+    const draftStr = localStorage.getItem(draftKey);
     if (draftStr) {
-      const draft = JSON.parse(draftStr);
-      setImages(draft.images || []);
-      setCurrentImageIndex(draft.currentImageIndex || 0);
-      // No podemos restaurar archivos, solo la configuración
-      setFilterSettings(draft.filterSettings || DEFAULT_FILTER_SETTINGS);
-      setAppliedFilter(draft.appliedFilter || null);
-      setFilterIntensity(draft.filterIntensity || 100);
-      setRotation(draft.rotation || 0);
-      setFlipHorizontal(Boolean(draft.flipHorizontal));
-      setFlipVertical(Boolean(draft.flipVertical));
-      setZoom(draft.zoom || 1);
-      setPan(draft.pan || { x: 0, y: 0 });
-      setTextElements(draft.textElements || []);
-      setStickerElements(draft.stickerElements || []);
-      setDrawingPaths(draft.drawingPaths || []);
-      setReelSettings({ ...DEFAULT_REEL_SETTINGS, ...(draft.reelSettings || {}) });
-      setCompositionSettings({ ...DEFAULT_COMPOSITION_SETTINGS, ...(draft.compositionSettings || {}) });
-      return draft;
+      try {
+        const draft = JSON.parse(draftStr);
+        setImages(draft.images || []);
+        setCurrentImageIndex(draft.currentImageIndex || 0);
+        // No podemos restaurar archivos, solo la configuración
+        setFilterSettings(draft.filterSettings || DEFAULT_FILTER_SETTINGS);
+        setAppliedFilter(draft.appliedFilter || null);
+        setFilterIntensity(draft.filterIntensity || 100);
+        setRotation(draft.rotation || 0);
+        setFlipHorizontal(Boolean(draft.flipHorizontal));
+        setFlipVertical(Boolean(draft.flipVertical));
+        setZoom(draft.zoom || 1);
+        setPan(draft.pan || { x: 0, y: 0 });
+        setTextElements(draft.textElements || []);
+        setStickerElements(draft.stickerElements || []);
+        setDrawingPaths(draft.drawingPaths || []);
+        setReelSettings({ ...DEFAULT_REEL_SETTINGS, ...(draft.reelSettings || {}) });
+        setCompositionSettings({ ...DEFAULT_COMPOSITION_SETTINGS, ...(draft.compositionSettings || {}) });
+        return draft;
+      } catch (error) {
+        console.warn('[creator] invalid draft', error);
+        localStorage.removeItem(draftKey);
+      }
     }
     return null;
-  }, []);
+  }, [draftKey]);
 
   const clearDraft = useCallback(() => {
-    localStorage.removeItem(EDITOR_DRAFT_KEY);
-  }, []);
+    localStorage.removeItem(draftKey);
+  }, [draftKey]);
 
-  const hasSavedDraft = useCallback(() => Boolean(localStorage.getItem(EDITOR_DRAFT_KEY)), []);
+  const hasSavedDraft = useCallback(() => Boolean(localStorage.getItem(draftKey)), [draftKey]);
 
   // Auto-guardar cada 10 segundos
   useEffect(() => {
@@ -738,6 +747,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     loadDraft,
     clearDraft,
     hasSavedDraft,
+    draftKey,
     
     // Utils
     getFilterString,

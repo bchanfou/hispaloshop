@@ -192,8 +192,8 @@ function ChatContainer() {
 
       <div className="sticky top-0 z-20 border-b border-stone-200/70 bg-[rgba(248,245,240,0.78)] backdrop-blur-2xl">
         <div
-          className="mx-auto flex max-w-3xl items-center justify-between px-4 pb-3.5 pt-3.5"
-          style={{ paddingTop: 'max(env(safe-area-inset-top), 14px)' }}
+          className={`mx-auto flex max-w-3xl items-center justify-between px-4 ${isKeyboardOpen ? 'pb-2.5 pt-2.5' : 'pb-3.5 pt-3.5'}`}
+          style={{ paddingTop: `max(env(safe-area-inset-top), ${isKeyboardOpen ? '8px' : '14px'})` }}
         >
           <div className="flex items-center gap-3">
             <button
@@ -205,15 +205,15 @@ function ChatContainer() {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#232323_0%,#0d0d0d_72%)] shadow-[0_12px_28px_rgba(15,15,15,0.16)]">
+              <div className={`flex items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_30%,#232323_0%,#0d0d0d_72%)] shadow-[0_12px_28px_rgba(15,15,15,0.16)] ${isKeyboardOpen ? 'h-9 w-9' : 'h-10 w-10'}`}>
                 <span className="text-[11px] font-semibold tracking-tight text-white">HA</span>
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="font-heading text-[18px] font-semibold tracking-[-0.02em] text-stone-950">Hispal AI</h1>
+                  <h1 className={`font-heading font-semibold tracking-[-0.02em] text-stone-950 ${isKeyboardOpen ? 'text-[16px]' : 'text-[18px]'}`}>Hispal AI</h1>
                   <StatusDot active={!isLoading} />
                 </div>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">{roleConfig.name}</p>
+                {!isKeyboardOpen ? <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">{roleConfig.name}</p> : null}
               </div>
             </div>
           </div>
@@ -275,7 +275,7 @@ function ChatContainer() {
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto"
       >
-        <div className={`mx-auto max-w-3xl px-4 pt-3 ${isKeyboardOpen ? 'pb-3' : 'pb-8'}`}>
+        <div className={`mx-auto max-w-3xl px-4 ${isKeyboardOpen ? 'pb-2 pt-2' : 'pb-8 pt-3'}`}>
           <AnimatePresence mode="wait">
             {isWelcomeState ? (
               <WelcomeScreen
@@ -346,7 +346,7 @@ function ChatContainer() {
         ) : null}
       </AnimatePresence>
 
-      <ChatInput onSend={sendMessage} isLoading={isLoading} />
+      <ChatInput onSend={sendMessage} isLoading={isLoading} compact={isKeyboardOpen} />
 
       <AnimatePresence>
         {showRoleSelector ? (

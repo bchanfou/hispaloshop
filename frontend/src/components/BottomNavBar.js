@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import axios from 'axios';
 import { API } from '../utils/api';
 import InternalChat from './InternalChat';
 import ContentTypeSelector from './creator/ContentTypeSelector';
@@ -23,6 +22,7 @@ const HIDDEN_ON_PATHS = [
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
   '/chat',
 ];
+
 const HIDDEN_ON_PREFIXES = [
   '/admin',
   '/super-admin',
@@ -42,146 +42,6 @@ const HIDDEN_ON_PREFIXES = [
   '/vender',
 ];
 
-const ASPECT_RATIO_DIMENSIONS = {
-  '1:1': { width: 1080, height: 1080 },
-  '4:5': { width: 1080, height: 1350 },
-  '9:16': { width: 1080, height: 1920 },
-  '16:9': { width: 1920, height: 1080 },
-};
-
-function normalizeTaggedProducts(tags = [], aspectRatio = '1:1') {
-  const dimensions = ASPECT_RATIO_DIMENSIONS[aspectRatio] || ASPECT_RATIO_DIMENSIONS['1:1'];
-  return tags
-    .map((tag) => ({
-      product_id: tag.productId || tag.product_id || tag.id,
-      x: Math.max(4, Math.min(96, ((Number(tag.x) || 0) / dimensions.width) * 100 || 50)),
-      y: Math.max(4, Math.min(96, ((Number(tag.y) || 0) / dimensions.height) * 100 || 62)),
-    }))
-    .filter((tag) => Boolean(tag.product_id));
-}
-
-// Editor simple legacy para fallback rápido
-function CreatePostPanel({ user, onClose, initialFile = null }) {
-  const { t } = useTranslation();
-  const [text, setText] = useState('');
-  const [file, setFile] = useState(initialFile);
-  const [preview, setPreview] = useState(null);
-  const [posting, setPosting] = useState(false);
-  const fileRef = useRef(null);
-
-  useEffect(() => {
-    if (initialFile) {
-      const r = new FileReader();
-      r.onloadend = () => setPreview(r.result);
-      r.readAsDataURL(initialFile);
-    }
-  }, [initialFile]);
-
-  const handleFile = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    if (!f.type.startsWith('image/') && !f.type.startsWith('video/')) {
-      toast.error('Solo imágenes o vídeos');
-      return;
-    }
-    setFile(f);
-    if (f.type.startsWith('video/')) {
-      setPreview(URL.createObjectURL(f));
-      return;
-    }
-    const r = new FileReader();
-    r.onloadend = () => setPreview(r.result);
-    r.readAsDataURL(f);
-  };
-
-  const submit = async () => {
-    if (!text.trim() && !file) return;
-    setPosting(true);
-    try {
-      const fd = new FormData();
-      if (file?.type?.startsWith('video/')) {
-        fd.append('video', file);
-        fd.append('content', text.trim());
-        fd.append('cover_frame_seconds', '1');
-        await axios.post(`${API}/reels`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
-      } else {
-        fd.append('caption', text.trim());
-        if (file) fd.append('file', file);
-        await axios.post(`${API}/posts`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
-      }
-      toast.success(t('social.published', 'Publicado'));
-      onClose();
-    } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error al publicar');
-    } finally {
-      setPosting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 md:inset-auto md:bottom-[82px] md:left-1/2 md:-translate-x-1/2 z-50" data-testid="create-post-panel">
-      <div className="h-full md:h-auto md:max-h-[500px] md:w-[420px] bg-white md:rounded-2xl shadow-2xl flex flex-col md:border md:border-stone-200">
-        <div className="flex items-center justify-between p-4 border-b border-stone-100">
-          <button onClick={onClose} aria-label="Cerrar" className="p-1 hover:bg-stone-100 rounded-full" data-testid="close-post-panel">
-            <X className="w-5 h-5 text-stone-500" />
-          </button>
-            <h3 className="text-sm font-semibold text-stone-950">{t('social.newPost', 'Nueva publicación')}</h3>
-          <button
-            onClick={submit}
-            disabled={posting || (!text.trim() && !file)}
-            className="px-4 py-1.5 bg-stone-950 hover:bg-black disabled:bg-stone-300 text-white text-xs font-semibold rounded-full transition-colors"
-            data-testid="publish-post-btn"
-          >
-            {posting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('social.publish', 'Publicar')}
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="flex gap-3">
-            <div className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden border border-stone-100 shrink-0">
-              {user?.profile_image ? (
-                <img src={user.profile_image} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-stone-400 font-bold text-sm">{(user?.name || 'U')[0].toUpperCase()}</div>
-              )}
-            </div>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder={t('social.whatThinking', '¿Qué estás pensando?')}
-              rows={4}
-              className="flex-1 resize-none bg-transparent outline-none text-sm text-stone-950 placeholder:text-stone-400 leading-relaxed"
-              autoFocus
-              data-testid="post-text-input"
-            />
-          </div>
-
-          {preview && (
-            <div className="relative mt-3 rounded-xl overflow-hidden">
-              {file?.type?.startsWith('video/') ? (
-                <video src={preview} controls className="w-full max-h-60 object-cover rounded-xl" />
-              ) : (
-                <img src={preview} alt="" className="w-full max-h-60 object-cover rounded-xl" />
-              )}
-              <button onClick={() => { setFile(null); setPreview(null); }} className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="p-3 border-t border-stone-100 flex gap-2">
-          <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-stone-500 hover:bg-stone-50 hover:text-stone-950 transition-colors" data-testid="post-add-image">
-            <ImageIcon className="w-4 h-4" />
-            <span>Foto o video</span>
-          </button>
-        </div>
-        <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFile} />
-      </div>
-    </div>
-  );
-}
-
 export default function BottomNavBar() {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -191,21 +51,17 @@ export default function BottomNavBar() {
   const { conversations, reloadConversations } = useInternalChatData();
   const [activePanel, setActivePanel] = useState(null);
   const [initialChatUserId, setInitialChatUserId] = useState(null);
-  const [postFile, setPostFile] = useState(null);
   const [messageToast, setMessageToast] = useState(null);
-  const galleryRef = useRef(null);
-  const toastTimeoutRef = useRef(null);
-  const activePanelRef = useRef(null);
-  const conversationsRef = useRef(conversations);
-  
-  // Estados para el nuevo editor avanzado
   const [showContentTypeSelector, setShowContentTypeSelector] = useState(false);
   const [selectedContentType, setSelectedContentType] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
   const [profileAvatarError, setProfileAvatarError] = useState(false);
+  const galleryRef = useRef(null);
+  const toastTimeoutRef = useRef(null);
+  const activePanelRef = useRef(null);
+  const conversationsRef = useRef(conversations);
 
-  // Unread notification count for badge on profile tab
   const { data: unreadData } = useUnreadNotifications();
   const unreadCount = user ? (unreadData?.count ?? 0) : 0;
 
@@ -217,30 +73,13 @@ export default function BottomNavBar() {
     conversationsRef.current = conversations;
   }, [conversations]);
 
-  const shouldHide =
-    HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path)) ||
-    HIDDEN_ON_PREFIXES.some((prefix) => location.pathname === prefix || location.pathname.startsWith(`${prefix}/`));
-
-  useEffect(() => {
-    const handleOpenChat = (e) => {
-      setInitialChatUserId(e.detail?.userId || null);
-      setActivePanel('chat');
-    };
-    const handleToggleChat = () => {
-      setActivePanel((prev) => (prev === 'chat' ? null : 'chat'));
-    };
-
-    window.addEventListener('open-chat-with-user', handleOpenChat);
-    window.addEventListener('toggle-chat', handleToggleChat);
-    return () => {
-      window.removeEventListener('open-chat-with-user', handleOpenChat);
-      window.removeEventListener('toggle-chat', handleToggleChat);
-    };
-  }, []);
-
   useEffect(() => {
     setProfileAvatarError(false);
   }, [user?.profile_image, user?.avatar_url, user?.name, user?.full_name, user?.username]);
+
+  const shouldHide =
+    HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path)) ||
+    HIDDEN_ON_PREFIXES.some((prefix) => location.pathname === prefix || location.pathname.startsWith(`${prefix}/`));
 
   const dismissMessageToast = useCallback(() => {
     if (toastTimeoutRef.current) {
@@ -258,6 +97,24 @@ export default function BottomNavBar() {
   }, [dismissMessageToast, messageToast]);
 
   useEffect(() => {
+    const handleOpenChat = (event) => {
+      setInitialChatUserId(event.detail?.userId || null);
+      setActivePanel('chat');
+    };
+
+    const handleToggleChat = () => {
+      setActivePanel((prev) => (prev === 'chat' ? null : 'chat'));
+    };
+
+    window.addEventListener('open-chat-with-user', handleOpenChat);
+    window.addEventListener('toggle-chat', handleToggleChat);
+    return () => {
+      window.removeEventListener('open-chat-with-user', handleOpenChat);
+      window.removeEventListener('toggle-chat', handleToggleChat);
+    };
+  }, []);
+
+  useEffect(() => {
     const token = getToken();
     if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
 
@@ -273,9 +130,7 @@ export default function BottomNavBar() {
         const currentConversation = conversationsRef.current.find(
           (conversation) => conversation.conversation_id === payload.conversation_id
         );
-        const chatOpen =
-          activePanelRef.current === 'chat' ||
-          location.pathname === '/chat';
+        const chatOpen = activePanelRef.current === 'chat' || location.pathname === '/chat';
 
         reloadConversations();
 
@@ -300,7 +155,7 @@ export default function BottomNavBar() {
           toastTimeoutRef.current = null;
         }, 4000);
       } catch (error) {
-        console.error('[BottomNavBar] Error procesando notificación de chat', error);
+        console.error('[BottomNavBar] Error procesando notificacion de chat', error);
       }
     };
 
@@ -311,7 +166,7 @@ export default function BottomNavBar() {
       }
       socket.close();
     };
-  }, [dismissMessageToast, location.pathname, reloadConversations, user?.user_id]);
+  }, [location.pathname, reloadConversations, user?.user_id]);
 
   if (shouldHide) return null;
 
@@ -320,17 +175,16 @@ export default function BottomNavBar() {
     setInitialChatUserId(null);
   };
 
-  const handleGallerySelect = (e) => {
-    const files = Array.from(e.target.files);
+  const handleGallerySelect = (event) => {
+    const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
-    
-    // Validar tipos
-    const invalidFiles = files.filter(f => !f.type.startsWith('image/') && !f.type.startsWith('video/'));
+
+    const invalidFiles = files.filter((file) => !file.type.startsWith('image/') && !file.type.startsWith('video/'));
     if (invalidFiles.length > 0) {
-      toast.error('Solo se permiten imágenes o vídeos');
+      toast.error('Solo se permiten imagenes o videos');
       return;
     }
-    
+
     setSelectedFiles(files);
     setShowContentTypeSelector(true);
     if (galleryRef.current) galleryRef.current.value = '';
@@ -354,11 +208,12 @@ export default function BottomNavBar() {
       navigate('/login');
       return;
     }
+
     if (activePanel === 'post') {
       closePanel();
       return;
     }
-    // Abrir selector directamente, sin pasar por el panel legacy
+
     setShowContentTypeSelector(true);
   };
 
@@ -391,14 +246,22 @@ export default function BottomNavBar() {
 
   const handlePublish = async (publishData) => {
     try {
-      await publishSocialContent({ apiBase: API, publishData });
-      
-      toast.success(t('social.published', '¡Publicado con éxito!'));
+      await publishSocialContent({
+        apiBase: API,
+        publishData,
+        onProgress: publishData.onProgress,
+        signal: publishData.signal,
+      });
+
+      toast.success(t('social.published', 'Publicado'));
       handleEditorClose();
-      
       queryClient.invalidateQueries({ queryKey: ['feed'] });
-    } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error al publicar');
+    } catch (error) {
+      if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError') {
+        toast('Cancelado');
+        return;
+      }
+      toast.error(error.response?.data?.detail || 'Error');
     }
   };
 
@@ -416,17 +279,16 @@ export default function BottomNavBar() {
   const profileImage = user?.profile_image || user?.avatar_url || null;
 
   const navItems = [
-    { id: 'home',    icon: Home,          label: t('bottomNav.home',    'Inicio'),  link: '/' },
-    { id: 'explore', icon: Compass,       label: t('bottomNav.explore', 'Explorar'), link: '/discover' },
-    { id: 'chat',    icon: MessageCircle, label: t('bottomNav.chat',    'Chat'),    action: () => user ? togglePanel('chat') : navigate('/login') },
-    { id: 'profile', icon: User,          label: t('bottomNav.profile', 'Perfil'),  link: profileUrl, isProfile: true },
+    { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
+    { id: 'explore', icon: Compass, label: t('bottomNav.explore', 'Explorar'), link: '/discover' },
+    { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => (user ? togglePanel('chat') : navigate('/login')) },
+    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Perfil'), link: profileUrl, isProfile: true },
   ];
 
   return (
     <>
       <MessageToast notification={messageToast} onClose={dismissMessageToast} onOpen={openMessageToast} />
 
-      {/* Content Type Selector */}
       <ContentTypeSelector
         isOpen={showContentTypeSelector}
         onClose={() => {
@@ -437,53 +299,58 @@ export default function BottomNavBar() {
         onSelect={handleContentTypeSelect}
       />
 
-      {/* Advanced Editor */}
-      {showAdvancedEditor && selectedContentType && (
+      {showAdvancedEditor && selectedContentType ? (
         <AdvancedEditor
           contentType={selectedContentType}
           files={selectedFiles}
           onClose={handleEditorClose}
           onPublish={handlePublish}
         />
-      )}
+      ) : null}
 
-      {activePanel === 'chat' && (
-        <div className="fixed inset-0 md:inset-auto md:bottom-[82px] md:right-4 z-50" data-testid="chat-panel">
-          <div className="h-full md:h-[550px] md:w-[380px] bg-white md:rounded-2xl shadow-2xl flex flex-col md:border md:border-stone-200">
+      {activePanel === 'chat' ? (
+        <div className="fixed inset-0 z-50 md:inset-auto md:bottom-[82px] md:right-4" data-testid="chat-panel">
+          <div className="flex h-full flex-col bg-white shadow-2xl md:h-[550px] md:w-[380px] md:rounded-2xl md:border md:border-stone-200">
             <InternalChat isEmbedded={true} onClose={closePanel} initialChatUserId={initialChatUserId} />
           </div>
         </div>
-      )}
+      ) : null}
 
-      <input ref={galleryRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />
+      <input
+        ref={galleryRef}
+        type="file"
+        accept="image/*,video/*"
+        multiple
+        className="hidden"
+        onChange={handleGallerySelect}
+        data-testid="gallery-file-input"
+      />
 
-      <nav className="fixed bottom-2 left-0 right-0 z-40 pointer-events-none md:bottom-5" data-testid="bottom-nav-bar">
-        <div className="mx-auto max-w-xl px-2 sm:px-3 pointer-events-auto">
+      <nav className="pointer-events-none fixed bottom-2 left-0 right-0 z-40 md:bottom-5" data-testid="bottom-nav-bar">
+        <div className="pointer-events-auto mx-auto max-w-xl px-2 sm:px-3">
           <div className="grid h-[76px] grid-cols-[1fr_1fr_auto_1fr_1fr] items-center rounded-[28px] border border-stone-200/90 bg-white/96 px-2 shadow-[0_16px_40px_rgba(15,15,15,0.12)] backdrop-blur-xl">
             {navItems.slice(0, 2).map((item) => {
               const Icon = item.icon;
               const isActive = item.match ? item.match(location) : location.pathname === item.link;
-              if (item.link) {
-                return (
-                  <Link
-                    key={item.id}
-                    to={item.link}
-                    aria-label={item.label}
-                    className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors ${
-                      isActive ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
-                    }`}
-                    data-testid={`bottom-nav-${item.id}`}
-                  >
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                      isActive ? 'bg-stone-950 text-white' : 'bg-transparent text-current'
-                    }`}>
-                      <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
-                    </div>
-                    <span className="max-w-full truncate text-[11px] font-medium">{item.label}</span>
-                  </Link>
-                );
-              }
-              return (
+
+              return item.link ? (
+                <Link
+                  key={item.id}
+                  to={item.link}
+                  aria-label={item.label}
+                  className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors ${
+                    isActive ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
+                  }`}
+                  data-testid={`bottom-nav-${item.id}`}
+                >
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                    isActive ? 'bg-stone-950 text-white' : 'bg-transparent text-current'
+                  }`}>
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
+                  </div>
+                  <span className="max-w-full truncate text-[11px] font-medium">{item.label}</span>
+                </Link>
+              ) : (
                 <button
                   key={item.id}
                   onClick={item.action}
@@ -527,7 +394,7 @@ export default function BottomNavBar() {
               const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;
 
               if (item.isProfile) {
-                const isActive = item.link && location.pathname === item.link;
+                const isProfileActive = item.link && location.pathname === item.link;
 
                 return (
                   <div
@@ -535,14 +402,10 @@ export default function BottomNavBar() {
                     className="flex min-w-0 flex-col items-center justify-center gap-1 py-2"
                     data-testid={`bottom-nav-${item.id}`}
                   >
-                    <Link
-                      to={item.link}
-                      className="relative flex items-center justify-center"
-                      aria-label={item.label}
-                    >
+                    <Link to={item.link} className="relative flex items-center justify-center" aria-label={item.label}>
                       {profileImage && !profileAvatarError ? (
                         <div className={`h-9 w-9 overflow-hidden rounded-full border-2 ${
-                          isActive ? 'border-stone-950' : 'border-stone-200'
+                          isProfileActive ? 'border-stone-950' : 'border-stone-200'
                         }`}>
                           <img
                             src={profileImage}
@@ -553,17 +416,16 @@ export default function BottomNavBar() {
                         </div>
                       ) : (
                         <div className={`flex h-9 w-9 items-center justify-center rounded-full border-2 ${
-                          isActive ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-500'
+                          isProfileActive ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-500'
                         }`}>
                           <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
                         </div>
                       )}
-                      {/* Notification badge */}
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-stone-950 text-white text-[9px] font-bold flex items-center justify-center px-1 leading-none">
+                      {unreadCount > 0 ? (
+                        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-stone-950 px-1 text-[9px] font-bold leading-none text-white">
                           {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
-                      )}
+                      ) : null}
                     </Link>
                     <span className="max-w-full truncate text-[11px] font-medium text-stone-600">{item.label}</span>
                   </div>

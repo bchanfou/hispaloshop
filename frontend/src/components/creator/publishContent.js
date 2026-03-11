@@ -18,11 +18,67 @@ export function normalizeTaggedProducts(tags = [], aspectRatio = '1:1') {
     .filter((tag) => Boolean(tag.product_id));
 }
 
-export async function publishSocialContent({ apiBase, publishData }) {
+async function compressImageFile(file) {
+  if (!(file instanceof File) || !file.type.startsWith('image/')) {
+    return file;
+  }
+
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error || new Error('Image read failed'));
+    reader.readAsDataURL(file);
+  });
+
+  const image = await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Image load failed'));
+    img.src = dataUrl;
+  });
+
+  const maxEdge = 1600;
+  const scale = Math.min(1, maxEdge / Math.max(image.width, image.height));
+  const width = Math.max(1, Math.round(image.width * scale));
+  const height = Math.max(1, Math.round(image.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext('2d');
+  context.drawImage(image, 0, 0, width, height);
+
+  const blob = await new Promise((resolve) => {
+    canvas.toBlob((nextBlob) => resolve(nextBlob), 'image/jpeg', 0.82);
+  });
+
+  if (!blob) {
+    return file;
+  }
+
+  return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+}
+
+async function createEditedImageFile(imageData) {
+  const base64Response = await fetch(imageData);
+  const blob = await base64Response.blob();
+  return new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
+}
+
+export async function publishSocialContent({ apiBase, publishData, onProgress, signal }) {
   const fd = new FormData();
   const normalizedTags = normalizeTaggedProducts(publishData.taggedProducts, publishData.aspectRatio);
   const primaryProductId = normalizedTags[0]?.product_id;
   const sourceFiles = Array.isArray(publishData.sourceFiles) ? publishData.sourceFiles.filter(Boolean) : [];
+  const requestConfig = {
+    withCredentials: true,
+    headers: { 'Content-Type': 'multipart/form-data' },
+    signal,
+    onUploadProgress: (event) => {
+      if (!onProgress || !event.total) return;
+      const nextProgress = Math.max(0, Math.min(100, Math.round((event.loaded / event.total) * 100)));
+      onProgress(nextProgress);
+    },
+  };
 
   if (publishData.contentType === 'reel') {
     if (!publishData.sourceFile) {
@@ -48,25 +104,17 @@ export async function publishSocialContent({ apiBase, publishData }) {
       fd.append('tagged_products_json', JSON.stringify(normalizedTags));
     }
 
-    await axios.post(`${apiBase}/reels`, fd, {
-      withCredentials: true,
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    await axios.post(`${apiBase}/reels`, fd, requestConfig);
     return;
   }
 
-  const base64Response = await fetch(publishData.imageData);
-  const blob = await base64Response.blob();
-  const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
+  const file = await createEditedImageFile(publishData.imageData);
   fd.append('caption', publishData.caption || '');
   fd.append('location', publishData.location || '');
 
   if (publishData.contentType === 'story') {
     fd.append('file', file);
-    await axios.post(`${apiBase}/stories`, fd, {
-      withCredentials: true,
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    await axios.post(`${apiBase}/stories`, fd, requestConfig);
     return;
   }
 
@@ -77,14 +125,12 @@ export async function publishSocialContent({ apiBase, publishData }) {
     fd.append('tagged_products_json', JSON.stringify(normalizedTags));
   }
   if (sourceFiles.length > 1) {
-    sourceFiles.forEach((sourceFile) => fd.append('files', sourceFile));
+    const optimizedFiles = await Promise.all(sourceFiles.map((sourceFile) => compressImageFile(sourceFile)));
+    optimizedFiles.forEach((sourceFile) => fd.append('files', sourceFile));
     fd.append('post_type', 'carousel');
   } else {
     fd.append('file', sourceFiles[0] || file);
   }
 
-  await axios.post(`${apiBase}/posts`, fd, {
-    withCredentials: true,
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  await axios.post(`${apiBase}/posts`, fd, requestConfig);
 }
