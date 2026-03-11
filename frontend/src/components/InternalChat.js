@@ -1,460 +1,162 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { 
-  MessageCircle, Send, X, User, Store, Search, 
-  ChevronLeft, Loader2, Instagram, Twitter, Youtube,
-  Globe, MapPin, Users, Star, Package, ExternalLink,
-  Check, CheckCheck, Trash2, Bell, BellOff, Image, Paperclip
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  ArrowLeft,
+  Image as ImageIcon,
+  Loader2,
+  Search,
+  Send,
+  UserPlus,
+  X,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import apiClient from '../services/api/client';
+import { getToken } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
-import { useInternalChatData } from '../features/chat/hooks';
-const WS_URL = typeof window !== 'undefined'
-  ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
-  : '';
-// Request notification permission
-const requestNotificationPermission = async () => {
-  if (!('Notification' in window)) {
-    console.log('This browser does not support notifications');
-    return false;
-  }
-  
-  if (Notification.permission === 'granted') {
-    return true;
-  }
-  
-  if (Notification.permission !== 'denied') {
-    const permission = await Notification.requestPermission();
-    return permission === 'granted';
-  }
-  
-  return false;
-};
+import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 
-// Show desktop notification
-const showNotification = (title, body, icon) => {
-  if (Notification.permission === 'granted') {
-    const notification = new Notification(title, {
-      body,
-      icon: icon || '/favicon.ico',
-      badge: '/favicon.ico',
-      tag: 'chat-message',
-      renotify: true
-    });
-    
-    notification.onclick = () => {
-      window.focus();
-      notification.close();
-    };
-    
-    // Auto close after 5 seconds
-    setTimeout(() => notification.close(), 5000);
-  }
-};
+const MAX_VISIBLE_MESSAGES = 150;
 
-function formatTime(dateString) {
-  const date = new Date(dateString);
+function formatTime(value) {
+  if (!value) return '';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  return new Intl.DateTimeFormat('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function formatConversationTime(value) {
+  if (!value) return '';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
   const now = new Date();
-  const diff = now - date;
-  
-  if (diff < 60000) return 'ahora';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
-  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-}
+  const sameDay = date.toDateString() === now.toDateString();
 
-function formatFollowers(followers) {
-  if (!followers) return '0';
-  // Handle string values like "10K", "1M"
-  if (typeof followers === 'string') {
-    return followers;
+  if (sameDay) {
+    return formatTime(value);
   }
-  if (followers >= 1000000) {
-    return (followers / 1000000).toFixed(1) + 'M';
+
+  return new Intl.DateTimeFormat('es-ES', {
+    day: '2-digit',
+    month: 'short',
+  }).format(date);
+}
+
+function getRoleLabel(role) {
+  switch ((role || '').toLowerCase()) {
+    case 'producer':
+    case 'productor':
+      return 'Productor';
+    case 'influencer':
+      return 'Influencer';
+    case 'importer':
+    case 'importador':
+      return 'Importador';
+    case 'consumer':
+    case 'customer':
+    case 'consumidor':
+      return 'Consumidor';
+    default:
+      return '';
   }
-  if (followers >= 1000) {
-    return (followers / 1000).toFixed(1) + 'K';
+}
+
+function getInitial(value) {
+  return (value || 'U').trim().charAt(0).toUpperCase();
+}
+
+function ChatAvatar({ src, name, size = 'h-11 w-11', alt }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
+  if (src && !hasError) {
+    return (
+      <img
+        src={src}
+        alt={alt || `Avatar de ${name || 'usuario'}`}
+        loading="lazy"
+        onError={() => setHasError(true)}
+        className={`${size} rounded-full object-cover`}
+      />
+    );
   }
-  return followers.toString();
-}
 
-// Tab component for switching between sections
-function DirectoryTab({ active, onClick, icon: Icon, label, count }) {
   return (
-    <button
-      onClick={onClick}
-      className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium border-b-2 transition-all ${
-        active 
-          ? 'border-primary text-primary bg-stone-50' 
-          : 'border-transparent text-text-muted hover:text-primary hover:bg-stone-50'
-      }`}
-    >
-      <Icon className="w-4 h-4" />
-      {label}
-      {count > 0 && (
-        <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-          active ? 'bg-primary text-white' : 'bg-stone-200 text-stone-600'
-        }`}>
-          {count}
-        </span>
-      )}
-    </button>
-  );
-}
-
-// Influencer Profile Card
-function InfluencerCard({ influencer, onClick }) {
-  const socialMedia = influencer.social_media || {};
-  
-  return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-3 p-4 hover:bg-stone-50 transition-colors border-b border-stone-100 text-left"
-      data-testid={`influencer-card-${influencer.influencer_id}`}
-    >
-      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden">
-        {influencer.profile_image ? (
-          <img src={influencer.profile_image} alt={influencer.full_name} className="w-full h-full object-cover" />
-        ) : (
-          influencer.full_name?.[0]?.toUpperCase() || 'I'
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-primary truncate">{influencer.full_name}</p>
-        <p className="text-xs text-text-muted truncate">{influencer.niche || 'Influencer'}</p>
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-text-muted flex items-center gap-1">
-            <Users className="w-3 h-3" />
-            {formatFollowers(influencer.followers)}
-          </span>
-          {socialMedia.instagram && (
-            <Instagram className="w-3 h-3 text-pink-500" />
-          )}
-          {socialMedia.tiktok && (
-            <span className="text-xs">📱</span>
-          )}
-        </div>
-      </div>
-      <ChevronLeft className="w-4 h-4 text-text-muted rotate-180" />
-    </button>
-  );
-}
-
-// Producer/Store Card
-function ProducerCard({ producer, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-3 p-4 hover:bg-stone-50 transition-colors border-b border-stone-100 text-left"
-      data-testid={`producer-card-${producer.store_id}`}
-    >
-      <div className="w-12 h-12 rounded-lg bg-stone-100 flex items-center justify-center flex-shrink-0 overflow-hidden border border-stone-200">
-        {producer.logo ? (
-          <img src={producer.logo} alt={producer.name} className="w-full h-full object-cover" />
-        ) : (
-          <Store className="w-6 h-6 text-text-muted" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-primary truncate">{producer.name}</p>
-        {producer.location && (
-          <p className="text-xs text-text-muted truncate flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
-            {producer.location}
-          </p>
-        )}
-        <div className="flex items-center gap-3 mt-1">
-          <span className="text-xs text-text-muted flex items-center gap-1">
-            <Users className="w-3 h-3" />
-            {producer.follower_count || 0}
-          </span>
-          <span className="text-xs text-text-muted flex items-center gap-1">
-            <Package className="w-3 h-3" />
-            {producer.product_count || 0}
-          </span>
-        </div>
-      </div>
-      <ChevronLeft className="w-4 h-4 text-text-muted rotate-180" />
-    </button>
-  );
-}
-
-// Influencer Profile Detail View
-function InfluencerProfile({ influencer, onBack, onStartChat }) {
-  const socialMedia = influencer.social_media || {};
-  
-  return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header with back button */}
-      <div className="flex items-center gap-3 p-4 border-b border-stone-200 bg-white">
-        <button onClick={onBack} className="p-1 hover:bg-stone-100 rounded-full">
-          <ChevronLeft className="w-5 h-5 text-primary" />
-        </button>
-        <span className="font-medium text-primary">Perfil de Influencer</span>
-      </div>
-      
-      {/* Profile Content */}
-      <div className="flex-1 overflow-y-auto p-4 bg-stone-50">
-        {/* Profile Header */}
-        <div className="text-center mb-6">
-          <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden mb-3">
-            {influencer.profile_image ? (
-              <img src={influencer.profile_image} alt={influencer.full_name} className="w-full h-full object-cover" />
-            ) : (
-              influencer.full_name?.[0]?.toUpperCase() || 'I'
-            )}
-          </div>
-          <h3 className="font-semibold text-lg text-primary">{influencer.full_name}</h3>
-          {influencer.niche && (
-            <p className="text-sm text-text-muted mt-1">{influencer.niche}</p>
-          )}
-        </div>
-        
-        {/* Stats */}
-        <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <p className="text-xl font-bold text-primary">{formatFollowers(influencer.followers)}</p>
-              <p className="text-xs text-text-muted">Seguidores</p>
-            </div>
-            <div>
-              <p className="text-xl font-bold text-primary">€{(influencer.total_sales_generated || 0).toFixed(0)}</p>
-              <p className="text-xs text-text-muted">Ventas generadas</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Social Media Links */}
-        {(socialMedia.instagram || socialMedia.tiktok || socialMedia.youtube || socialMedia.twitter) && (
-          <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
-            <h4 className="font-medium text-primary mb-3">Redes Sociales</h4>
-            <div className="space-y-2">
-              {socialMedia.instagram && (
-                <a 
-                  href={socialMedia.instagram.startsWith('http') ? socialMedia.instagram : `https://instagram.com/${socialMedia.instagram}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-stone-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center">
-                    <Instagram className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm text-primary flex-1">Instagram</span>
-                  <ExternalLink className="w-4 h-4 text-text-muted" />
-                </a>
-              )}
-              {socialMedia.tiktok && (
-                <a 
-                  href={socialMedia.tiktok.startsWith('http') ? socialMedia.tiktok : `https://tiktok.com/@${socialMedia.tiktok}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-stone-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
-                    <span className="text-white text-sm">📱</span>
-                  </div>
-                  <span className="text-sm text-primary flex-1">TikTok</span>
-                  <ExternalLink className="w-4 h-4 text-text-muted" />
-                </a>
-              )}
-              {socialMedia.youtube && (
-                <a 
-                  href={socialMedia.youtube.startsWith('http') ? socialMedia.youtube : `https://youtube.com/@${socialMedia.youtube}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-stone-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
-                    <Youtube className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm text-primary flex-1">YouTube</span>
-                  <ExternalLink className="w-4 h-4 text-text-muted" />
-                </a>
-              )}
-              {socialMedia.twitter && (
-                <a 
-                  href={socialMedia.twitter.startsWith('http') ? socialMedia.twitter : `https://twitter.com/${socialMedia.twitter}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-stone-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
-                    <Twitter className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm text-primary flex-1">X (Twitter)</span>
-                  <ExternalLink className="w-4 h-4 text-text-muted" />
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-        
-        {/* Discount Code */}
-        {influencer.discount_code && (
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200 p-4 mb-4">
-            <h4 className="font-medium text-primary mb-2">Código de descuento</h4>
-            <div className="bg-white rounded-lg p-3 text-center border border-purple-100">
-              <p className="font-mono font-bold text-lg text-purple-600">{influencer.discount_code}</p>
-              {influencer.discount_value && (
-                <p className="text-xs text-text-muted mt-1">{influencer.discount_value}% de descuento</p>
-              )}
-            </div>
-          </div>
-        )}
-        
-        {/* Contact Button */}
-        <Button 
-          onClick={onStartChat}
-          className="w-full bg-primary hover:bg-primary-hover"
-        >
-          <MessageCircle className="w-4 h-4 mr-2" />
-          Enviar mensaje
-        </Button>
-      </div>
+    <div className={`${size} flex items-center justify-center rounded-full bg-stone-100 text-sm font-medium text-stone-700`}>
+      {getInitial(name)}
     </div>
   );
 }
 
-// Producer Profile Detail View
-function ProducerProfile({ producer, onBack, onStartChat }) {
+function MessageStatus({ message, isOwn }) {
+  const status = (message?.status || '').toLowerCase();
+  const label = status === 'read' ? 'Leído' : 'No leído';
+
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header with back button */}
-      <div className="flex items-center gap-3 p-4 border-b border-stone-200 bg-white">
-        <button onClick={onBack} className="p-1 hover:bg-stone-100 rounded-full">
-          <ChevronLeft className="w-5 h-5 text-primary" />
-        </button>
-        <span className="font-medium text-primary">Perfil de Productor</span>
-      </div>
-      
-      {/* Profile Content */}
-      <div className="flex-1 overflow-y-auto p-4 bg-stone-50">
-        {/* Profile Header */}
-        <div className="text-center mb-6">
-          <div className="w-20 h-20 mx-auto rounded-xl bg-stone-100 flex items-center justify-center overflow-hidden border-2 border-stone-200 mb-3">
-            {producer.logo ? (
-              <img src={producer.logo} alt={producer.name} className="w-full h-full object-cover" />
-            ) : (
-              <Store className="w-8 h-8 text-text-muted" />
-            )}
-          </div>
-          <h3 className="font-semibold text-lg text-primary">{producer.name}</h3>
-          {producer.tagline && (
-            <p className="text-sm text-text-muted mt-1 italic">"{producer.tagline}"</p>
-          )}
-          {producer.location && (
-            <p className="text-xs text-text-muted mt-2 flex items-center justify-center gap-1">
-              <MapPin className="w-3 h-3" />
-              {producer.location}
-            </p>
-          )}
-        </div>
-        
-        {/* Stats */}
-        <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div>
-              <p className="text-xl font-bold text-primary">{producer.product_count || 0}</p>
-              <p className="text-xs text-text-muted">Productos</p>
-            </div>
-            <div>
-              <p className="text-xl font-bold text-primary">{producer.follower_count || 0}</p>
-              <p className="text-xs text-text-muted">Seguidores</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-amber-500 fill-current" />
-                <span className="text-xl font-bold text-primary">{producer.avg_rating?.toFixed(1) || '0.0'}</span>
-              </div>
-              <p className="text-xs text-text-muted">({producer.review_count || 0})</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Story */}
-        {producer.story && (
-          <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
-            <h4 className="font-medium text-primary mb-2">Nuestra Historia</h4>
-            <p className="text-sm text-text-muted leading-relaxed">{producer.story}</p>
-          </div>
-        )}
-        
-        {/* Social & Contact */}
-        {(producer.social_instagram || producer.social_facebook || producer.website) && (
-          <div className="bg-white rounded-lg border border-stone-200 p-4 mb-4">
-            <h4 className="font-medium text-primary mb-3">Enlaces</h4>
-            <div className="space-y-2">
-              {producer.social_instagram && (
-                <a 
-                  href={producer.social_instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-stone-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center">
-                    <Instagram className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm text-primary flex-1">Instagram</span>
-                  <ExternalLink className="w-4 h-4 text-text-muted" />
-                </a>
-              )}
-              {producer.social_facebook && (
-                <a 
-                  href={producer.social_facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-stone-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">f</span>
-                  </div>
-                  <span className="text-sm text-primary flex-1">Facebook</span>
-                  <ExternalLink className="w-4 h-4 text-text-muted" />
-                </a>
-              )}
-              {producer.website && (
-                <a 
-                  href={producer.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-stone-50 transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-stone-800 flex items-center justify-center">
-                    <Globe className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-sm text-primary flex-1">Sitio web</span>
-                  <ExternalLink className="w-4 h-4 text-text-muted" />
-                </a>
-              )}
-            </div>
-          </div>
-        )}
-        
-        {/* View Store & Contact Buttons */}
-        <div className="space-y-2">
-          {producer.slug && (
-            <a href={`/store/${producer.slug}`} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" className="w-full border-primary text-primary">
-                <Store className="w-4 h-4 mr-2" />
-                Ver tienda
-              </Button>
-            </a>
-          )}
-          <Button 
-            onClick={onStartChat}
-            className="w-full bg-primary hover:bg-primary-hover"
+    <div className={`mt-1 flex items-center gap-2 text-[11px] ${isOwn ? 'justify-end text-stone-400' : 'text-stone-400'}`}>
+      <span>{formatTime(message?.read_at || message?.delivered_at || message?.created_at)}</span>
+      {isOwn ? <span>{label}</span> : null}
+    </div>
+  );
+}
+
+function MessageBubble({ message, isOwn }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+    >
+      <div className={`max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
+        {message?.image_url ? (
+          <img
+            src={message.image_url}
+            alt="Imagen compartida en el chat"
+            loading="lazy"
+            className="mb-2 max-w-[240px] rounded-2xl border border-stone-100 object-cover shadow-sm"
+          />
+        ) : null}
+        {message?.content ? (
+          <div
+            className={`rounded-2xl px-3 py-2 text-sm leading-relaxed ${
+              isOwn ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-900'
+            }`}
           >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Enviar mensaje
-          </Button>
-        </div>
+            {message.content}
+          </div>
+        ) : null}
+        <MessageStatus message={message} isOwn={isOwn} />
       </div>
+    </motion.div>
+  );
+}
+
+function EmptyState({ title, description }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+      <div className="rounded-full bg-stone-100 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-stone-500">
+        Hispaloshop
+      </div>
+      <h3 className="mt-4 text-lg font-medium text-stone-950">{title}</h3>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-500">{description}</p>
     </div>
   );
 }
 
-export default function InternalChat({ userType, isEmbedded = false, onClose = null, initialChatUserId = null }) {
+export default function InternalChat({
+  isEmbedded = false,
+  onClose = null,
+  initialChatUserId = null,
+}) {
   const { user } = useAuth();
   const {
     conversations,
@@ -462,853 +164,572 @@ export default function InternalChat({ userType, isEmbedded = false, onClose = n
     producers,
     loadingDirectory,
     reloadConversations,
-    fetchMessages: fetchMessagesRequest,
+    fetchMessages,
     uploadImage,
     sendHttpMessage,
     startConversation,
-    deleteConversation: deleteConversationRequest,
-    loadInfluencerProfile,
-    loadProducerProfile,
-    deletingConversation,
-    uploadingImage,
     sendingMessage,
+    uploadingImage,
   } = useInternalChatData();
-  const [isOpen, setIsOpen] = useState(isEmbedded);
-  const [activeTab, setActiveTab] = useState('messages'); // 'messages' | 'directory'
-  const [directoryType, setDirectoryType] = useState('influencers'); // 'influencers' | 'producers'
-  const [activeConversation, setActiveConversation] = useState(null);
+
+  const [selectedConversationId, setSelectedConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [selectedInfluencer, setSelectedInfluencer] = useState(null);
-  const [selectedProducer, setSelectedProducer] = useState(null);
-  
-  const messagesEndRef = useRef(null);
-  const pollInterval = useRef(null);
-  const imageInputRef = useRef(null);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [composerValue, setComposerValue] = useState('');
+  const [searchValue, setSearchValue] = useState('');
+  const [typingUserId, setTypingUserId] = useState(null);
+  const [startingConversation, setStartingConversation] = useState(false);
 
-  // Handle image selection
-  const handleImageSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error('La imagen no puede superar 5MB');
-        return;
-      }
-      if (!file.type.startsWith('image/')) {
-        toast.error('Solo se permiten archivos de imagen');
-        return;
-      }
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Clear selected image
-  const clearSelectedImage = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
-    if (imageInputRef.current) {
-      imageInputRef.current.value = '';
-    }
-  };
-
-  // Send message with optional image
-  const sendMessageWithImage = async () => {
-    if ((!newMessage.trim() && !selectedImage) || !activeConversation) return;
-    
-    try {
-      let imageUrl = null;
-      
-      // Upload image if selected
-      if (selectedImage) {
-        const uploadRes = await uploadImage({
-          file: selectedImage,
-          conversationId: activeConversation.conversation_id,
-        });
-        imageUrl = uploadRes.image_url;
-      }
-      
-      // Send message
-      const res = await sendHttpMessage(
-        { 
-          conversation_id: activeConversation.conversation_id,
-          content: newMessage || (imageUrl ? 'Imagen' : ''),
-          image_url: imageUrl
-        }
-      );
-      
-      setMessages(prev => [...prev, res]);
-      setNewMessage('');
-      clearSelectedImage();
-      reloadConversations();
-    } catch (err) {
-      console.error('Error sending message:', err);
-      toast.error('Error al enviar mensaje');
-    }
-  };
-
-  // Initialize notification permission
-  useEffect(() => {
-    const checkPermission = async () => {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        setNotificationsEnabled(true);
-      }
-    };
-    checkPermission();
-  }, []);
-
-  // Toggle notifications
-  const toggleNotifications = async () => {
-    if (notificationsEnabled) {
-      setNotificationsEnabled(false);
-      toast.success('Notificaciones desactivadas');
-    } else {
-      const granted = await requestNotificationPermission();
-      setNotificationsEnabled(granted);
-      if (granted) {
-        toast.success('Notificaciones activadas');
-        showNotification('Hispaloshop', 'Recibirás notificaciones de nuevos mensajes', '/favicon.ico');
-      } else {
-        toast.error('No se pudo activar las notificaciones');
-      }
-    }
-  };
-
-  // Typing indicator state
-  const [typingUser, setTypingUser] = useState(null);
-  const typingTimeoutRef = useRef(null);
-  const lastTypingRef = useRef(0);
-
-  // Send typing indicator (debounced)
-  const sendTypingIndicator = useCallback(() => {
-    if (!wsRef.current || !activeConversation) return;
-    
-    const now = Date.now();
-    // Only send typing indicator every 2 seconds
-    if (now - lastTypingRef.current > 2000) {
-      lastTypingRef.current = now;
-      wsRef.current.send(JSON.stringify({
-        type: 'typing',
-        conversation_id: activeConversation.conversation_id
-      }));
-    }
-  }, [activeConversation]);
-
-  // Delete conversation
-  const deleteConversation = async (conversationId) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta conversación?')) return;
-    
-    try {
-      await deleteConversationRequest(conversationId);
-      if (activeConversation?.conversation_id === conversationId) {
-        setActiveConversation(null);
-        setMessages([]);
-      }
-      toast.success('Conversación eliminada');
-    } catch (err) {
-      console.error('Error deleting conversation:', err);
-      toast.error('Error al eliminar conversación');
-    }
-  };
-
-  // Handle close
-  const handleClose = () => {
-    setIsOpen(false);
-    if (onClose) onClose();
-  };
-
-  useEffect(() => {
-    if ((isOpen || isEmbedded) && user) {
-      reloadConversations();
-      pollInterval.current = setInterval(reloadConversations, 10000);
-    }
-    return () => {
-      if (pollInterval.current) clearInterval(pollInterval.current);
-    };
-  }, [isOpen, isEmbedded, user, reloadConversations]);
-
-  // Auto-start conversation when initialChatUserId is set
-  useEffect(() => {
-    if (initialChatUserId && user && (isOpen || isEmbedded)) {
-      startConversationWith(initialChatUserId);
-    }
-  }, [initialChatUserId, user, isOpen, isEmbedded]);
-
-  // WebSocket connection
   const wsRef = useRef(null);
-  const reconnectTimeoutRef = useRef(null);
+  const listEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const typingClearRef = useRef(null);
+  const activeConversationRef = useRef(null);
 
-  const connectWebSocket = useCallback(() => {
-    if (!user || wsRef.current?.readyState === WebSocket.OPEN) return;
+  const sortedConversations = useMemo(
+    () =>
+      [...conversations].sort((a, b) => {
+        const left = new Date(b.updated_at || b.created_at || 0).getTime();
+        const right = new Date(a.updated_at || a.created_at || 0).getTime();
+        return left - right;
+      }),
+    [conversations]
+  );
 
-    const wsUrl = `${WS_URL}/ws/chat/${user.user_id}`;
-    console.log('[WS] Connecting to:', wsUrl);
+  const directoryUsers = useMemo(() => {
+    const registry = new Map();
+    [...producers, ...influencers].forEach((entry) => {
+      const userId = entry?.user_id || entry?.producer_id || entry?.influencer_id;
+      if (!userId || userId === user?.user_id || registry.has(userId)) return;
 
-    try {
-      wsRef.current = new WebSocket(wsUrl);
+      registry.set(userId, {
+        user_id: userId,
+        name: entry?.name || entry?.store_name || entry?.username || 'Usuario',
+        role: entry?.role || (entry?.producer_id ? 'producer' : 'influencer'),
+        avatar: entry?.profile_image || entry?.avatar_url || entry?.logo || null,
+      });
+    });
+    return Array.from(registry.values()).slice(0, 8);
+  }, [influencers, producers, user?.user_id]);
 
-      wsRef.current.onopen = () => {
-        console.log('[WS] Connected');
-        // Send ping every 30 seconds to keep connection alive
-        const pingInterval = setInterval(() => {
-          if (wsRef.current?.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type: 'ping' }));
-          }
-        }, 30000);
-        wsRef.current.pingInterval = pingInterval;
-      };
+  const filteredConversations = useMemo(() => {
+    const query = searchValue.trim().toLowerCase();
+    if (!query) return sortedConversations;
 
-      wsRef.current.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        console.log('[WS] Message received:', data.type);
+    return sortedConversations.filter((conversation) => {
+      const haystack = [
+        conversation?.other_user_name,
+        conversation?.other_user_role,
+        conversation?.last_message?.content,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [searchValue, sortedConversations]);
 
-        if (data.type === 'new_message') {
-          // Add new message to current conversation
-          if (activeConversation?.conversation_id === data.conversation_id) {
-            setMessages(prev => [...prev, data.message]);
-            // Mark as read since we're viewing this conversation
-            wsRef.current?.send(JSON.stringify({
-              type: 'read',
-              conversation_id: data.conversation_id
-            }));
-          } else {
-            // Show desktop notification for messages in other conversations
-            if (notificationsEnabled && data.message?.sender_id !== user?.user_id) {
-              showNotification(
-                data.message?.sender_name || 'Nuevo mensaje',
-                data.message?.content?.substring(0, 100) || 'Tienes un nuevo mensaje',
-                null
-              );
-            }
-          }
-          // Refresh conversations list
-          reloadConversations();
-        } else if (data.type === 'message_read' || data.type === 'messages_read') {
-          // Update message status
-          setMessages(prev => prev.map(m => 
-            m.conversation_id === data.conversation_id ? { ...m, status: 'read' } : m
-          ));
-        } else if (data.type === 'typing') {
-          // Show typing indicator
-          if (activeConversation?.conversation_id === data.conversation_id) {
-            setTypingUser(data.user_name);
-            // Clear typing indicator after 3 seconds
-            if (typingTimeoutRef.current) {
-              clearTimeout(typingTimeoutRef.current);
-            }
-            typingTimeoutRef.current = setTimeout(() => {
-              setTypingUser(null);
-            }, 3000);
-          }
-        }
-      };
-
-      wsRef.current.onclose = () => {
-        console.log('[WS] Disconnected');
-        if (wsRef.current?.pingInterval) {
-          clearInterval(wsRef.current.pingInterval);
-        }
-        // Reconnect after 3 seconds
-        reconnectTimeoutRef.current = setTimeout(() => {
-          if (isOpen || isEmbedded) {
-            connectWebSocket();
-          }
-        }, 3000);
-      };
-
-      wsRef.current.onerror = (error) => {
-        console.error('[WS] Error:', error);
-      };
-    } catch (err) {
-      console.error('[WS] Connection error:', err);
-    }
-  }, [user, isOpen, isEmbedded, activeConversation, notificationsEnabled, reloadConversations]);
+  const activeConversation = useMemo(
+    () =>
+      sortedConversations.find((conversation) => conversation.conversation_id === selectedConversationId) || null,
+    [selectedConversationId, sortedConversations]
+  );
 
   useEffect(() => {
-    if ((isOpen || isEmbedded) && user) {
-      connectWebSocket();
-    }
+    activeConversationRef.current = selectedConversationId;
+  }, [selectedConversationId]);
 
-    return () => {
-      if (wsRef.current) {
-        if (wsRef.current.pingInterval) {
-          clearInterval(wsRef.current.pingInterval);
+  useEffect(() => {
+    if (!selectedConversationId && sortedConversations.length > 0 && !initialChatUserId) {
+      setSelectedConversationId(sortedConversations[0].conversation_id);
+    }
+  }, [initialChatUserId, selectedConversationId, sortedConversations]);
+
+  const markIncomingMessagesAsRead = useCallback(
+    async (items, conversationId = selectedConversationId) => {
+      if (!user?.user_id || !conversationId) return;
+
+      const unreadIds = items
+        .filter((message) => message?.sender_id !== user.user_id && String(message?.status || '').toLowerCase() !== 'read')
+        .map((message) => message.message_id)
+        .filter(Boolean);
+
+      if (unreadIds.length === 0) return;
+
+      await Promise.allSettled(
+        unreadIds.map((messageId) => apiClient.put(`/internal-chat/messages/${messageId}/read`, {}))
+      );
+
+      setMessages((current) =>
+        current.map((message) =>
+          unreadIds.includes(message.message_id)
+            ? { ...message, status: 'read', read_at: new Date().toISOString() }
+            : message
+        )
+      );
+
+      reloadConversations();
+    },
+    [reloadConversations, selectedConversationId, user?.user_id]
+  );
+
+  const loadConversation = useCallback(
+    async (conversationId) => {
+      if (!conversationId) return;
+      setSelectedConversationId(conversationId);
+      setLoadingMessages(true);
+
+      try {
+        const nextMessages = await fetchMessages(conversationId);
+        setMessages(Array.isArray(nextMessages) ? nextMessages : []);
+
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(JSON.stringify({ type: 'join_conversation', conversation_id: conversationId }));
         }
-        wsRef.current.close();
+
+        if (Array.isArray(nextMessages) && nextMessages.length > 0) {
+          await markIncomingMessagesAsRead(nextMessages, conversationId);
+        }
+      } finally {
+        setLoadingMessages(false);
       }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+    },
+    [fetchMessages, markIncomingMessagesAsRead]
+  );
+
+  const startConversationWithUser = useCallback(
+    async (targetUserId) => {
+      if (!targetUserId) return;
+      setStartingConversation(true);
+      try {
+        const result = await startConversation(targetUserId);
+        const conversationId = result?.conversation_id || result?.data?.conversation_id;
+        await reloadConversations();
+        if (conversationId) {
+          await loadConversation(conversationId);
+        }
+      } finally {
+        setStartingConversation(false);
+      }
+    },
+    [loadConversation, reloadConversations, startConversation]
+  );
+
+  useEffect(() => {
+    if (initialChatUserId) {
+      const existing = sortedConversations.find((conversation) => conversation.other_user_id === initialChatUserId);
+      if (existing) {
+        loadConversation(existing.conversation_id);
+      } else {
+        startConversationWithUser(initialChatUserId);
+      }
+    }
+  }, [initialChatUserId, loadConversation, sortedConversations, startConversationWithUser]);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat?token=${token}`);
+    wsRef.current = socket;
+
+    socket.onopen = () => {
+      if (activeConversationRef.current) {
+        socket.send(JSON.stringify({ type: 'join_conversation', conversation_id: activeConversationRef.current }));
       }
     };
-  }, [isOpen, isEmbedded, user, connectWebSocket]);
+
+    socket.onmessage = async (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+
+        if (payload.type === 'typing') {
+          if (payload.conversation_id === activeConversationRef.current && payload.user_id !== user.user_id) {
+            setTypingUserId(payload.is_typing ? payload.user_id : null);
+            if (typingClearRef.current) window.clearTimeout(typingClearRef.current);
+            if (payload.is_typing) {
+              typingClearRef.current = window.setTimeout(() => setTypingUserId(null), 3000);
+            }
+          }
+          return;
+        }
+
+        if (payload.type === 'message_read' || payload.type === 'read_receipt') {
+          const changedConversation = payload.conversation_id;
+          if (changedConversation === activeConversationRef.current) {
+            setMessages((current) =>
+              current.map((message) =>
+                message.sender_id === user.user_id
+                  ? { ...message, status: 'read', read_at: payload.read_at || new Date().toISOString() }
+                  : message
+              )
+            );
+          }
+          reloadConversations();
+          return;
+        }
+
+        if (payload.type === 'new_message') {
+          const incomingMessage = payload.message;
+          const incomingConversation = payload.conversation_id;
+
+          reloadConversations();
+
+          if (incomingConversation === activeConversationRef.current && incomingMessage) {
+            setMessages((current) => {
+              if (current.some((message) => message.message_id === incomingMessage.message_id)) {
+                return current;
+              }
+              return [...current, incomingMessage];
+            });
+
+            if (incomingMessage.sender_id !== user.user_id) {
+              await markIncomingMessagesAsRead([incomingMessage], incomingConversation);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[InternalChat] Error procesando WebSocket', error);
+      }
+    };
+
+    return () => {
+      if (typingClearRef.current) window.clearTimeout(typingClearRef.current);
+      socket.close();
+      wsRef.current = null;
+    };
+  }, [markIncomingMessagesAsRead, reloadConversations, user?.user_id]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    listEndRef.current?.scrollIntoView({ block: 'end' });
+  }, [messages, typingUserId]);
 
-  const fetchInfluencerProfile = async (influencerId) => {
-    try {
-      const res = await loadInfluencerProfile(influencerId);
-      setSelectedInfluencer(res);
-    } catch (err) {
-      console.error('Error fetching influencer profile:', err);
-      toast.error('Error al cargar perfil');
+  const sendTyping = useCallback(
+    (isTyping) => {
+      if (!selectedConversationId || wsRef.current?.readyState !== WebSocket.OPEN) return;
+      wsRef.current.send(
+        JSON.stringify({
+          type: 'typing',
+          conversation_id: selectedConversationId,
+          is_typing: Boolean(isTyping),
+        })
+      );
+    },
+    [selectedConversationId]
+  );
+
+  const handleComposerChange = (event) => {
+    setComposerValue(event.target.value);
+    sendTyping(true);
+
+    if (typingTimeoutRef.current) {
+      window.clearTimeout(typingTimeoutRef.current);
     }
+
+    typingTimeoutRef.current = window.setTimeout(() => sendTyping(false), 700);
   };
 
-  const fetchProducerProfile = async (storeId) => {
-    try {
-      const res = await loadProducerProfile(storeId);
-      setSelectedProducer(res);
-    } catch (err) {
-      console.error('Error fetching producer profile:', err);
-      toast.error('Error al cargar perfil');
-    }
-  };
+  const handleSendMessage = useCallback(async () => {
+    const trimmed = composerValue.trim();
+    if (!selectedConversationId || !trimmed) return;
 
-  const fetchMessages = async (conversationId) => {
-    setLoading(true);
+    const optimisticId = `local-${Date.now()}`;
+    const optimisticMessage = {
+      message_id: optimisticId,
+      conversation_id: selectedConversationId,
+      sender_id: user?.user_id,
+      sender_name: user?.name,
+      content: trimmed,
+      status: 'sent',
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages((current) => [...current, optimisticMessage]);
+    setComposerValue('');
+    sendTyping(false);
+
     try {
-      const res = await fetchMessagesRequest(conversationId);
-      setMessages(res || []);
-      // Mark as read via WebSocket
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({
-          type: 'read',
-          conversation_id: conversationId
-        }));
-      }
+      const saved = await sendHttpMessage({ conversation_id: selectedConversationId, content: trimmed });
+      setMessages((current) =>
+        current.map((message) => (message.message_id === optimisticId ? { ...saved } : message))
+      );
       reloadConversations();
-    } catch (err) {
-      console.error('Error fetching messages:', err);
-      toast.error('Error al cargar mensajes');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      setMessages((current) => current.filter((message) => message.message_id !== optimisticId));
     }
-  };
+  }, [composerValue, reloadConversations, selectedConversationId, sendHttpMessage, sendTyping, user?.name, user?.user_id]);
 
-  const openConversation = (conv) => {
-    setActiveConversation(conv);
-    fetchMessages(conv.conversation_id);
-    setActiveTab('messages');
-  };
+  const handleAttachImage = useCallback(async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || !selectedConversationId) return;
 
-  const startConversationWith = async (userId) => {
-    if (!user) {
-      toast.error('Debes iniciar sesión');
-      return;
-    }
     try {
-      const res = await startConversation(userId);
-      
-      const conversationId = res.conversation_id;
-      
-      const convsResult = await reloadConversations();
-      const convs = convsResult.data || conversations;
-      const newConv = convs.find(c => c.conversation_id === conversationId);
-      
-      if (newConv) {
-        setActiveConversation(newConv);
-        fetchMessages(conversationId);
-      }
-      
-      setActiveTab('messages');
-      setSelectedInfluencer(null);
-      setSelectedProducer(null);
-      
-      if (res.is_new) {
-        toast.success('Conversacion iniciada');
-      }
-    } catch (err) {
-      console.error('Error starting conversation:', err);
-      if (err?.status === 401) {
-        toast.error('Debes iniciar sesión');
-      } else {
-        toast.error(err?.message || 'Error al iniciar conversacion');
-      }
+      const upload = await uploadImage({ file, conversationId: selectedConversationId });
+      const imageUrl = upload?.image_url || upload?.data?.image_url;
+      if (!imageUrl) return;
+      const saved = await sendHttpMessage({ conversation_id: selectedConversationId, image_url: imageUrl, content: '' });
+      setMessages((current) => [...current, saved]);
+      reloadConversations();
+    } catch (error) {
+      console.error('[InternalChat] Error enviando imagen', error);
     }
-  };
+  }, [reloadConversations, selectedConversationId, sendHttpMessage, uploadImage]);
 
-  const sendMessage = async () => {
-    // Use the new function that supports images
-    await sendMessageWithImage();
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  const totalUnread = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
-  const normalizedSearch = searchQuery.trim().toLowerCase();
-
-  // Filter by search
-  const filteredInfluencers = influencers.filter(inf => 
-    !normalizedSearch || 
-    inf.full_name?.toLowerCase().includes(normalizedSearch) ||
-    inf.niche?.toLowerCase().includes(normalizedSearch)
-  );
-
-  const filteredProducers = producers.filter(prod => 
-    !normalizedSearch || 
-    prod.name?.toLowerCase().includes(normalizedSearch) ||
-    prod.location?.toLowerCase().includes(normalizedSearch)
-  );
-
-  const filteredConversations = [...conversations]
-    .filter((conv) =>
-      !normalizedSearch ||
-      conv.other_user_name?.toLowerCase().includes(normalizedSearch) ||
-      (typeof conv.last_message === 'string'
-        ? conv.last_message.toLowerCase().includes(normalizedSearch)
-        : conv.last_message?.content?.toLowerCase().includes(normalizedSearch))
-    )
-    .sort((a, b) => {
-      const unreadA = a.unread_count || 0;
-      const unreadB = b.unread_count || 0;
-      if ((unreadA > 0) !== (unreadB > 0)) return unreadB - unreadA;
-      const timeA = new Date(a.last_message?.created_at || a.updated_at || 0).getTime();
-      const timeB = new Date(b.last_message?.created_at || b.updated_at || 0).getTime();
-      return timeB - timeA;
-    });
-
-  // If embedded mode and not open, return null
-  if (isEmbedded && !isOpen) {
-    return null;
-  }
-
-  // When embedded, the UnifiedFloatingIsland handles the button
-  // When not embedded and not open, don't render anything
-  if (!isOpen && !isEmbedded) {
-    return null;
-  }
-
-  // When embedded but not open, return null (island handles the button)
-  if (isEmbedded && !isOpen) {
-    return null;
-  }
+  const visibleMessages = useMemo(() => messages.slice(-MAX_VISIBLE_MESSAGES), [messages]);
+  const showBackButton = isEmbedded || Boolean(onClose);
 
   return (
-    <div className={`${isEmbedded ? 'flex flex-col h-full' : 'fixed bottom-24 right-6 z-40 w-[400px] max-w-[calc(100vw-48px)] h-[550px]'} bg-white rounded-2xl shadow-2xl border border-stone-200 flex flex-col`}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-stone-200 bg-primary rounded-t-2xl">
-        <div className="flex items-center gap-3">
-          {activeConversation && activeTab === 'messages' ? (
-            <button 
-              onClick={() => {
-                setActiveConversation(null);
-                setActiveTab('messages');
-              }}
-              className="p-1 hover:bg-white/10 rounded-full"
-            >
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-          ) : null}
-          <div>
-            <h3 className="font-semibold text-white">
-              {activeConversation && activeTab === 'messages'
-                ? activeConversation.other_user_name
-                : activeTab === 'messages'
-                  ? 'Chats'
-                  : 'Directorio'}
-            </h3>
-            <p className="text-xs text-white/70">
-              {activeConversation && activeTab === 'messages' 
-                ? (['producer', 'importer'].includes(activeConversation.other_user_type) ? (activeConversation.other_user_type === 'importer' ? 'Importador' : 'Productor') : 'Influencer')
-                : 'Influencers y Productores/Importadores'}
-            </p>
+    <div className="flex h-full min-h-0 bg-white text-stone-950">
+      <div className={`flex h-full min-h-0 w-full flex-col border-r border-stone-100 ${activeConversation ? 'max-md:hidden md:w-[320px]' : ''}`}>
+        <div className="border-b border-stone-100 px-4 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight text-stone-950">Mensajes</h2>
+              <p className="mt-1 text-sm text-stone-500">Conversaciones directas dentro de Hispaloshop</p>
+            </div>
+            {onClose ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
+                aria-label="Cerrar chat"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
+
+          <label className="mt-4 flex items-center gap-3 rounded-full border border-stone-200 bg-white px-4 py-2.5 focus-within:border-stone-950">
+            <Search className="h-4 w-4 text-stone-400" />
+            <input
+              type="search"
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              placeholder="Buscar conversación"
+              className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+              aria-label="Buscar conversación"
+            />
+          </label>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Notification toggle button */}
-          <button
-            onClick={toggleNotifications}
-            className={`p-2 rounded-full transition-colors ${
-              notificationsEnabled 
-                ? 'bg-green-500/20 hover:bg-green-500/30' 
-                : 'hover:bg-white/10'
-            }`}
-            title={notificationsEnabled ? 'Notificaciones activadas' : 'Activar notificaciones'}
-          >
-            {notificationsEnabled ? (
-              <Bell className="w-5 h-5 text-green-400" />
+
+        <div className="flex-1 overflow-y-auto px-3 py-3">
+          {filteredConversations.length > 0 ? (
+            <div className="space-y-2">
+              {filteredConversations.map((conversation) => {
+                const isActive = conversation.conversation_id === selectedConversationId;
+                const lastMessage = conversation.last_message?.content || 'Imagen compartida';
+                const unreadCount = Number(conversation.unread_count || 0);
+
+                return (
+                  <button
+                    key={conversation.conversation_id}
+                    type="button"
+                    onClick={() => loadConversation(conversation.conversation_id)}
+                    className={`relative flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition-all duration-150 ease-out ${
+                      isActive
+                        ? 'border-stone-950 bg-stone-50 shadow-sm'
+                        : 'border-transparent bg-white hover:border-stone-200 hover:bg-stone-50'
+                    }`}
+                  >
+                    <div className="relative shrink-0">
+                      <ChatAvatar src={conversation.other_user_avatar} name={conversation.other_user_name} alt={`Avatar de ${conversation.other_user_name}`} />
+                      {unreadCount > 0 ? (
+                        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className={`truncate text-sm text-stone-950 ${unreadCount > 0 ? 'font-medium' : 'font-normal'}`}>
+                            {conversation.other_user_name}
+                          </p>
+                          <p className="mt-1 truncate text-sm text-stone-500">{lastMessage}</p>
+                        </div>
+                        <span className="shrink-0 text-xs text-stone-400">
+                          {formatConversationTime(conversation.last_message?.created_at || conversation.updated_at)}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <EmptyState
+                title="No tienes conversaciones"
+                description="Usa Directorio para iniciar un chat con productores, importadores o influencers."
+              />
+            </div>
+          )}
+
+          <div className="mt-6 border-t border-stone-100 pt-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Directorio</h3>
+              {startingConversation ? <Loader2 className="h-4 w-4 animate-spin text-stone-400" /> : null}
+            </div>
+            {loadingDirectory ? (
+              <div className="space-y-2">
+                {[0, 1, 2].map((value) => (
+                  <div key={value} className="h-14 animate-pulse rounded-2xl bg-stone-100" />
+                ))}
+              </div>
             ) : (
-              <BellOff className="w-5 h-5 text-white/60" />
+              <div className="space-y-2">
+                {directoryUsers.map((entry) => (
+                  <button
+                    key={entry.user_id}
+                    type="button"
+                    onClick={() => startConversationWithUser(entry.user_id)}
+                    className="flex w-full items-center justify-between rounded-2xl border border-stone-100 bg-white px-3 py-3 text-left transition-colors hover:bg-stone-50"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <ChatAvatar src={entry.avatar} name={entry.name} alt={`Avatar de ${entry.name}`} size="h-10 w-10" />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-stone-950">{entry.name}</p>
+                        <p className="truncate text-xs text-stone-500">{getRoleLabel(entry.role) || 'Miembro de la comunidad'}</p>
+                      </div>
+                    </div>
+                    <UserPlus className="h-4 w-4 text-stone-400" />
+                  </button>
+                ))}
+              </div>
             )}
-          </button>
-          <button
-            onClick={handleClose}
-            className="p-2 hover:bg-white/10 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5 text-white" />
-          </button>
+          </div>
         </div>
       </div>
 
-      {/* Tab Navigation - Only show when not in a conversation or profile */}
-      {!activeConversation && !selectedInfluencer && !selectedProducer && (
-        <div className="flex border-b border-stone-200 bg-white">
-          <DirectoryTab
-            active={activeTab === 'messages'}
-            onClick={() => setActiveTab('messages')}
-            icon={MessageCircle}
-            label="Chats"
-            count={totalUnread}
-          />
-          <DirectoryTab
-            active={activeTab === 'directory'}
-            onClick={() => setActiveTab('directory')}
-            icon={Search}
-            label="Directorio"
-            count={influencers.length + producers.length}
-          />
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-        {/* Influencer Profile View */}
-        {selectedInfluencer ? (
-          <InfluencerProfile 
-            influencer={selectedInfluencer}
-            onBack={() => setSelectedInfluencer(null)}
-            onStartChat={() => startConversationWith(selectedInfluencer.user_id)}
-          />
-        ) : selectedProducer ? (
-          <ProducerProfile 
-            producer={selectedProducer}
-            onBack={() => setSelectedProducer(null)}
-            onStartChat={() => startConversationWith(selectedProducer.producer_id)}
-          />
-        ) : activeConversation && activeTab === 'messages' ? (
-          /* Active Conversation */
+      <div className={`flex min-h-0 flex-1 flex-col ${activeConversation ? '' : 'max-md:hidden'}`}>
+        {activeConversation ? (
           <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F5F5F0] min-h-0">
-              {loading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-text-muted" />
-                </div>
-              ) : messages.length === 0 ? (
-                <p className="text-center text-text-muted text-sm py-8">
-                  No hay mensajes. ¡Empieza la conversación!
-                </p>
-              ) : (
-                messages.map((msg) => {
-                  const isOwn = msg.sender_id === user?.user_id;
-                  
-                  // Message status indicator
-                  const StatusIcon = () => {
-                    if (!isOwn) return null;
-                    
-                    if (msg.status === 'read') {
-                      return <CheckCheck className="w-3.5 h-3.5 text-blue-300" />;
-                    } else if (msg.status === 'delivered') {
-                      return <CheckCheck className="w-3.5 h-3.5 text-white/70" />;
-                    } else {
-                      return <Check className="w-3.5 h-3.5 text-white/70" />;
-                    }
-                  };
-                  
-                  return (
-                    <div
-                      key={msg.message_id}
-                      className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                          isOwn
-                            ? 'bg-accent rounded-br-md'
-                            : 'bg-white rounded-bl-md border border-stone-200'
-                        }`}
-                      >
-                        {/* Image if present */}
-                        {msg.image_url && (
-                          <div className="mb-2">
-                            <img 
-                              src={msg.image_url} 
-                              alt="Imagen adjunta" 
-                              className="max-w-full rounded-lg max-h-48 object-cover cursor-pointer hover:opacity-90"
-                              onClick={() => window.open(msg.image_url, '_blank')}
-                            />
-                          </div>
-                        )}
-                        {msg.content && msg.content !== '📷 Imagen' && (
-                          <p className={`text-sm ${isOwn ? 'text-white' : 'text-gray-900'}`}>{msg.content}</p>
-                        )}
-                        <div className={`flex items-center justify-end gap-1 mt-1`}>
-                          <span className={`text-xs ${isOwn ? 'text-white/80' : 'text-[#9CA3AF]'}`}>
-                            {formatTime(msg.created_at)}
-                          </span>
-                          <StatusIcon />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-              
-              {/* Typing indicator */}
-              {typingUser && (
-                <div className="flex items-center gap-2 px-4 py-2">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-[#7A7A7A] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-[#7A7A7A] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-[#7A7A7A] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                  <span className="text-xs text-text-muted italic">{typingUser} está escribiendo...</span>
-                </div>
-              )}
-              
-              <div ref={messagesEndRef} />
-            </div>
-            
-            {/* Image Preview */}
-            {imagePreview && (
-              <div className="px-4 py-2 bg-stone-50 border-t border-stone-200">
-                <div className="relative inline-block">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="h-20 rounded-lg object-cover"
-                  />
+            <div className="flex h-16 items-center justify-between bg-stone-950 px-4 text-white">
+              <div className="flex min-w-0 items-center gap-3">
+                {showBackButton ? (
                   <button
-                    onClick={clearSelectedImage}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    type="button"
+                    onClick={() => setSelectedConversationId(null)}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white md:hidden"
+                    aria-label="Volver a conversaciones"
                   >
-                    <X className="w-3 h-3" />
+                    <ArrowLeft className="h-4 w-4" />
                   </button>
+                ) : null}
+                <ChatAvatar src={activeConversation.other_user_avatar} name={activeConversation.other_user_name} size="h-10 w-10" alt={`Avatar de ${activeConversation.other_user_name}`} />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-white">{activeConversation.other_user_name}</p>
+                  {getRoleLabel(activeConversation.other_user_role) ? (
+                    <span className="mt-1 inline-flex rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/70">
+                      {getRoleLabel(activeConversation.other_user_role)}
+                    </span>
+                  ) : null}
                 </div>
               </div>
-            )}
-            
-            {/* Message Input */}
-            <div className="p-4 border-t border-stone-200 bg-white">
-              {/* Hidden file input */}
+              {onClose ? (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                  aria-label="Cerrar chat"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              ) : null}
+            </div>
+
+            <div className="flex-1 overflow-y-auto bg-white px-4 py-4">
+              {loadingMessages ? (
+                <div className="flex h-full items-center justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-stone-400" />
+                </div>
+              ) : visibleMessages.length > 0 ? (
+                <div className="space-y-4">
+                  {visibleMessages.map((message) => (
+                    <MessageBubble
+                      key={message.message_id}
+                      message={message}
+                      isOwn={message.sender_id === user?.user_id}
+                    />
+                  ))}
+                  <AnimatePresence>
+                    {typingUserId ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        className="text-xs text-stone-400"
+                      >
+                        Está escribiendo…
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                  <div ref={listEndRef} />
+                </div>
+              ) : (
+                <EmptyState
+                  title="Empieza la conversación"
+                  description="Escribe el primer mensaje y mantén la conversación dentro de un contexto claro."
+                />
+              )}
+            </div>
+
+            <div className="border-t border-stone-100 bg-white px-4 py-3">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-950"
+                  aria-label="Adjuntar imagen"
+                  disabled={uploadingImage}
+                >
+                  {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                </button>
+                <label className="flex min-w-0 flex-1 items-center rounded-full border border-stone-200 bg-white px-4 py-3 focus-within:border-stone-950">
+                  <input
+                    type="text"
+                    value={composerValue}
+                    onChange={handleComposerChange}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' && !event.shiftKey) {
+                        event.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    placeholder="Escribe un mensaje…"
+                    className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+                    aria-label="Escribe un mensaje"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={handleSendMessage}
+                  disabled={!composerValue.trim() || sendingMessage}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition-all duration-150 ease-out hover:bg-stone-800 disabled:bg-stone-300"
+                  aria-label="Enviar mensaje"
+                >
+                  {sendingMessage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </button>
+              </div>
               <input
+                ref={fileInputRef}
                 type="file"
-                ref={imageInputRef}
-                onChange={handleImageSelect}
                 accept="image/*"
                 className="hidden"
+                onChange={handleAttachImage}
               />
-              
-              <div className="flex items-center gap-2">
-                {/* Attach image button */}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => imageInputRef.current?.click()}
-                  disabled={sendingMessage || uploadingImage}
-                  className="text-text-muted hover:text-primary hover:bg-stone-100"
-                  title="Adjuntar imagen"
-                >
-                  <Image className="w-5 h-5" />
-                </Button>
-                
-                <Input
-                  value={newMessage}
-                  onChange={(e) => {
-                    setNewMessage(e.target.value);
-                    sendTypingIndicator();
-                  }}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Escribe un mensaje..."
-                  disabled={sendingMessage}
-                  className="flex-1 bg-white text-gray-900 border-stone-200 placeholder:text-[#9CA3AF]"
-                />
-                <Button
-                  onClick={sendMessage}
-                  disabled={sendingMessage || (!newMessage.trim() && !selectedImage)}
-                  size="icon"
-                  className="bg-accent hover:bg-accent/90"
-                >
-                  {sendingMessage ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
             </div>
           </>
         ) : (
-          /* Directory Lists */
-          <>
-            {/* Search */}
-            <div className="p-3 border-b border-stone-100 bg-white">
-              {activeTab === 'directory' && (
-                <div className="mb-2 inline-flex rounded-full border border-stone-200 bg-stone-50 p-0.5">
-                  <button
-                    onClick={() => setDirectoryType('influencers')}
-                    className={`px-3 py-1 text-xs rounded-full ${directoryType === 'influencers' ? 'bg-white text-primary shadow-sm' : 'text-text-muted'}`}
-                  >
-                    Influencers
-                  </button>
-                  <button
-                    onClick={() => setDirectoryType('producers')}
-                    className={`px-3 py-1 text-xs rounded-full ${directoryType === 'producers' ? 'bg-white text-primary shadow-sm' : 'text-text-muted'}`}
-                  >
-                    Productores/Import.
-                  </button>
-                </div>
-              )}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                <Input
-                  placeholder={activeTab === 'messages' ? 'Buscar chats...' : directoryType === 'influencers' ? 'Buscar influencers...' : 'Buscar productores o importadores...'}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-stone-50 border-stone-200"
-                />
-              </div>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto">
-              {activeTab === 'directory' && loadingDirectory ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-text-muted" />
-                </div>
-              ) : activeTab === 'directory' && directoryType === 'influencers' ? (
-                /* Influencers List */
-                filteredInfluencers.length > 0 ? (
-                  filteredInfluencers.map((inf) => (
-                    <InfluencerCard 
-                      key={inf.influencer_id} 
-                      influencer={inf}
-                      onClick={() => startConversationWith(inf.user_id || inf.influencer_id)}
-                    />
-                  ))
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <User className="w-12 h-12 text-stone-300 mb-4" />
-                    <p className="text-text-muted text-sm">No hay influencers disponibles</p>
-                  </div>
-                )
-              ) : activeTab === 'directory' && directoryType === 'producers' ? (
-                /* Producers List */
-                filteredProducers.length > 0 ? (
-                  filteredProducers.map((prod) => (
-                    <ProducerCard 
-                      key={prod.store_id} 
-                      producer={prod}
-                      onClick={() => startConversationWith(prod.producer_id || prod.user_id || prod.store_id)}
-                    />
-                  ))
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <Store className="w-12 h-12 text-stone-300 mb-4" />
-                    <p className="text-text-muted text-sm">No hay productores o importadores disponibles</p>
-                  </div>
-                )
-              ) : (
-                /* Conversations List */
-                filteredConversations.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                    <MessageCircle className="w-12 h-12 text-stone-300 mb-4" />
-                    <p className="text-text-muted text-sm mb-2">No tienes conversaciones</p>
-                    <p className="text-text-muted text-xs">Usa Directorio para iniciar un chat</p>
-                  </div>
-                ) : (
-                  filteredConversations.map((conv) => (
-                    <div
-                      key={conv.conversation_id}
-                      className="group relative flex items-center gap-3 p-4 hover:bg-stone-50 transition-colors border-b border-stone-100"
-                    >
-                      <button
-                        onClick={() => openConversation(conv)}
-                        className="flex-1 flex items-center gap-3 text-left"
-                      >
-                        {/* Avatar with unread indicator */}
-                        <div className="relative flex-shrink-0">
-                          <div className="w-12 h-12 rounded-full bg-stone-200 flex items-center justify-center">
-                            {['producer', 'importer'].includes(conv.other_user_type) ? (
-                              <Store className="w-6 h-6 text-text-muted" />
-                            ) : (
-                              <User className="w-6 h-6 text-text-muted" />
-                            )}
-                          </div>
-                          {/* Red dot for unread messages */}
-                          {conv.unread_count > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full border-2 border-white flex items-center justify-center">
-                              <span className="text-[10px] text-white font-bold">
-                                {conv.unread_count > 9 ? '9+' : conv.unread_count}
-                              </span>
-                            </span>
-                          )}
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <p className={`font-medium truncate ${conv.unread_count > 0 ? 'text-primary font-semibold' : 'text-primary'}`}>
-                                {conv.other_user_name}
-                              </p>
-                              {/* Red dot next to name for emphasis */}
-                              {conv.unread_count > 0 && (
-                                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                              )}
-                            </div>
-                            {(conv.last_message?.created_at || conv.updated_at) && (
-                              <span className={`text-xs flex-shrink-0 ${conv.unread_count > 0 ? 'text-red-500 font-medium' : 'text-text-muted'}`}>
-                                {formatTime(conv.last_message?.created_at || conv.updated_at)}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-text-muted mb-1">
-                            {conv.other_user_role === 'producer' ? 'Productor' : 
-                             conv.other_user_role === 'importer' ? 'Importador' : 
-                             conv.other_user_role === 'influencer' ? 'Influencer' : 'Usuario'}
-                          </p>
-                          {conv.last_message && (
-                            <p className={`text-sm truncate ${conv.unread_count > 0 ? 'text-primary font-medium' : 'text-text-muted'}`}>
-                              {typeof conv.last_message === 'string' 
-                                ? conv.last_message 
-                                : conv.last_message?.content || ''}
-                            </p>
-                          )}
-                        </div>
-                      </button>
-                      
-                      {/* Delete button - visible on hover */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteConversation(conv.conversation_id);
-                        }}
-                        disabled={deletingConversation === conv.conversation_id}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-full hover:bg-red-50 text-text-muted hover:text-red-500"
-                        title="Eliminar conversación"
-                      >
-                        {deletingConversation === conv.conversation_id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  ))
-                )
-              )}
-            </div>
-          </>
+          <EmptyState
+            title="Selecciona una conversación"
+            description="Abre un chat existente o inicia uno nuevo desde el directorio."
+          />
         )}
       </div>
     </div>
   );
 }
-
-
-
-

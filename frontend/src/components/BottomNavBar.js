@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -10,6 +10,9 @@ import { API } from '../utils/api';
 import InternalChat from './InternalChat';
 import ContentTypeSelector from './creator/ContentTypeSelector';
 import AdvancedEditor from './creator/editor/AdvancedEditor';
+import MessageToast from './notifications/MessageToast';
+import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
+import { getToken } from '../lib/auth';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
@@ -164,10 +167,15 @@ export default function BottomNavBar() {
   const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
+  const { conversations, reloadConversations } = useInternalChatData();
   const [activePanel, setActivePanel] = useState(null);
   const [initialChatUserId, setInitialChatUserId] = useState(null);
   const [postFile, setPostFile] = useState(null);
+  const [messageToast, setMessageToast] = useState(null);
   const galleryRef = useRef(null);
+  const toastTimeoutRef = useRef(null);
+  const activePanelRef = useRef(null);
+  const conversationsRef = useRef(conversations);
   
   // Estados para el nuevo editor avanzado
   const [showContentTypeSelector, setShowContentTypeSelector] = useState(false);
@@ -175,6 +183,14 @@ export default function BottomNavBar() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
   const [profileAvatarError, setProfileAvatarError] = useState(false);
+
+  useEffect(() => {
+    activePanelRef.current = activePanel;
+  }, [activePanel]);
+
+  useEffect(() => {
+    conversationsRef.current = conversations;
+  }, [conversations]);
 
   const shouldHide =
     HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path)) ||
@@ -200,6 +216,77 @@ export default function BottomNavBar() {
   useEffect(() => {
     setProfileAvatarError(false);
   }, [user?.profile_image, user?.avatar_url, user?.name, user?.full_name, user?.username]);
+
+  const dismissMessageToast = useCallback(() => {
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+      toastTimeoutRef.current = null;
+    }
+    setMessageToast(null);
+  }, []);
+
+  const openMessageToast = useCallback(() => {
+    if (!messageToast?.senderId) return;
+    setInitialChatUserId(messageToast.senderId);
+    setActivePanel('chat');
+    dismissMessageToast();
+  }, [dismissMessageToast, messageToast]);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat?token=${token}`);
+
+    socket.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type !== 'new_message') return;
+
+        const incomingMessage = payload.message;
+        const currentConversation = conversationsRef.current.find(
+          (conversation) => conversation.conversation_id === payload.conversation_id
+        );
+        const chatOpen =
+          activePanelRef.current === 'chat' ||
+          location.pathname === '/chat';
+
+        reloadConversations();
+
+        if (!incomingMessage || incomingMessage.sender_id === user.user_id || chatOpen) {
+          return;
+        }
+
+        setMessageToast({
+          conversationId: payload.conversation_id,
+          senderId: currentConversation?.other_user_id || incomingMessage.sender_id,
+          senderName: currentConversation?.other_user_name || incomingMessage.sender_name || 'Nuevo mensaje',
+          avatar: currentConversation?.other_user_avatar || null,
+          preview: incomingMessage.content || 'Te ha enviado una imagen',
+        });
+
+        if (toastTimeoutRef.current) {
+          window.clearTimeout(toastTimeoutRef.current);
+        }
+
+        toastTimeoutRef.current = window.setTimeout(() => {
+          setMessageToast(null);
+          toastTimeoutRef.current = null;
+        }, 4000);
+      } catch (error) {
+        console.error('[BottomNavBar] Error procesando notificación de chat', error);
+      }
+    };
+
+    return () => {
+      if (toastTimeoutRef.current) {
+        window.clearTimeout(toastTimeoutRef.current);
+        toastTimeoutRef.current = null;
+      }
+      socket.close();
+    };
+  }, [dismissMessageToast, location.pathname, reloadConversations, user?.user_id]);
 
   if (shouldHide) return null;
 
@@ -316,6 +403,8 @@ export default function BottomNavBar() {
 
   return (
     <>
+      <MessageToast notification={messageToast} onClose={dismissMessageToast} onOpen={openMessageToast} />
+
       {/* Content Type Selector */}
       <ContentTypeSelector
         isOpen={showContentTypeSelector}
