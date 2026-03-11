@@ -80,6 +80,7 @@ function getFontFamily(fontFamily) {
 
 function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', readOnly = false }) {
   const containerRef = useRef(null);
+  const videoRef = useRef(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [dragState, setDragState] = useState(null);
   const [snapGuides, setSnapGuides] = useState({
@@ -199,6 +200,53 @@ function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', r
     };
   }, [containerSize.height, contentType]);
 
+  useEffect(() => {
+    if (!videoRef.current || currentImage?.type !== 'video') return undefined;
+
+    const video = videoRef.current;
+    const syncPlayback = () => {
+      const trimStart = editor.reelSettings?.trimStart || 0;
+      const trimEnd = editor.reelSettings?.trimEnd || video.duration || 0;
+      const baseRate = editor.reelSettings?.playbackRate || 1;
+      const useSlowMotion =
+        editor.reelSettings?.slowMotionEnabled &&
+        video.currentTime >= (editor.reelSettings?.slowMotionStart || trimStart) &&
+        video.currentTime <= (editor.reelSettings?.slowMotionEnd || trimEnd);
+
+      video.muted = editor.reelSettings?.isMuted ?? true;
+      video.playbackRate = useSlowMotion ? 0.5 : baseRate;
+
+      if (video.currentTime < trimStart) {
+        video.currentTime = trimStart;
+      }
+      if (trimEnd > trimStart && video.currentTime >= trimEnd - 0.05) {
+        video.currentTime = trimStart;
+        video.play().catch(() => {});
+      }
+    };
+
+    const handleLoadedMetadata = () => {
+      editor.setReelDuration(video.duration || 0);
+      if (!readOnly) {
+        video.currentTime = editor.reelSettings?.trimStart || 0;
+        video.play().catch(() => {});
+      }
+      syncPlayback();
+    };
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('timeupdate', syncPlayback);
+
+    if (video.readyState >= 1) {
+      handleLoadedMetadata();
+    }
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('timeupdate', syncPlayback);
+    };
+  }, [currentImage?.src, currentImage?.type, editor.reelSettings, editor.setReelDuration, readOnly]);
+
   if (!currentImage) return null;
 
   return (
@@ -210,6 +258,7 @@ function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', r
       >
         {currentImage.type === 'video' ? (
           <video
+            ref={videoRef}
             src={currentImage.src}
             className="absolute inset-0 h-full w-full object-cover"
             style={{

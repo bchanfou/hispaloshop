@@ -11,6 +11,17 @@ const DEFAULT_FILTER_SETTINGS = {
 };
 
 const MAX_HISTORY_STEPS = 10;
+const DEFAULT_REEL_SETTINGS = {
+  duration: 0,
+  trimStart: 0,
+  trimEnd: 0,
+  coverFrameSeconds: 0,
+  playbackRate: 1,
+  isMuted: true,
+  slowMotionEnabled: false,
+  slowMotionStart: 0,
+  slowMotionEnd: 0,
+};
 
 function getCanvasFontFamily(fontFamily) {
   if (fontFamily === 'serif') return 'Georgia, Cambria, "Times New Roman", serif';
@@ -46,6 +57,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
   const [stickerElements, setStickerElements] = useState([]);
   const [drawingPaths, setDrawingPaths] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [reelSettings, setReelSettings] = useState(DEFAULT_REEL_SETTINGS);
   
   // Historial para undo/redo
   const [history, setHistory] = useState([]);
@@ -64,6 +76,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       textElements,
       stickerElements,
       drawingPaths,
+      reelSettings,
     };
     
     setHistory(prev => {
@@ -75,13 +88,14 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       return newHistory;
     });
     setHistoryIndex(prev => Math.min(prev + 1, MAX_HISTORY_STEPS - 1));
-  }, [filterSettings, rotation, flipHorizontal, flipVertical, zoom, pan, textElements, stickerElements, drawingPaths, historyIndex]);
+  }, [drawingPaths, filterIntensity, filterSettings, flipHorizontal, flipVertical, historyIndex, pan, reelSettings, rotation, stickerElements, textElements, zoom]);
 
   // Undo
   const undo = useCallback(() => {
     if (historyIndex > 0) {
       const state = history[historyIndex - 1];
       setFilterSettings(state.filterSettings);
+      setFilterIntensity(state.filterIntensity || 100);
       setRotation(state.rotation);
       setFlipHorizontal(state.flipHorizontal);
       setFlipVertical(state.flipVertical);
@@ -90,6 +104,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       setTextElements(state.textElements);
       setStickerElements(state.stickerElements);
       setDrawingPaths(state.drawingPaths);
+      setReelSettings(state.reelSettings || DEFAULT_REEL_SETTINGS);
       setHistoryIndex(prev => prev - 1);
     }
   }, [history, historyIndex]);
@@ -99,6 +114,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     if (historyIndex < history.length - 1) {
       const state = history[historyIndex + 1];
       setFilterSettings(state.filterSettings);
+      setFilterIntensity(state.filterIntensity || 100);
       setRotation(state.rotation);
       setFlipHorizontal(state.flipHorizontal);
       setFlipVertical(state.flipVertical);
@@ -107,6 +123,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       setTextElements(state.textElements);
       setStickerElements(state.stickerElements);
       setDrawingPaths(state.drawingPaths);
+      setReelSettings(state.reelSettings || DEFAULT_REEL_SETTINGS);
       setHistoryIndex(prev => prev + 1);
     }
   }, [history, historyIndex]);
@@ -192,6 +209,49 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
   // Pan
   const setPanPosition = useCallback((x, y) => {
     setPan({ x, y });
+  }, []);
+
+  const setReelDuration = useCallback((duration) => {
+    setReelSettings(prev => {
+      const safeDuration = Number.isFinite(duration) ? Math.max(0, duration) : 0;
+      const trimEnd = prev.trimEnd > 0 ? Math.min(prev.trimEnd, safeDuration) : safeDuration;
+      const coverFrameSeconds = Math.min(prev.coverFrameSeconds || 0, safeDuration);
+      const slowMotionEnd = prev.slowMotionEnd > 0 ? Math.min(prev.slowMotionEnd, safeDuration) : Math.min(safeDuration, trimEnd);
+      return {
+        ...prev,
+        duration: safeDuration,
+        trimEnd,
+        coverFrameSeconds,
+        slowMotionEnd,
+      };
+    });
+  }, []);
+
+  const updateReelSetting = useCallback((key, value) => {
+    setReelSettings(prev => {
+      const next = { ...prev, [key]: value };
+      const duration = next.duration || 0;
+
+      if (key === 'trimStart') {
+        next.trimStart = Math.max(0, Math.min(value, Math.max(0, (next.trimEnd || duration) - 0.1)));
+      }
+      if (key === 'trimEnd') {
+        const maxEnd = duration || value;
+        next.trimEnd = Math.max((next.trimStart || 0) + 0.1, Math.min(value, maxEnd));
+      }
+      if (key === 'coverFrameSeconds') {
+        next.coverFrameSeconds = Math.max(0, Math.min(value, duration || value));
+      }
+      if (key === 'slowMotionStart') {
+        next.slowMotionStart = Math.max(next.trimStart || 0, Math.min(value, (next.slowMotionEnd || next.trimEnd || duration) - 0.1));
+      }
+      if (key === 'slowMotionEnd') {
+        const maxSlowEnd = next.trimEnd || duration || value;
+        next.slowMotionEnd = Math.max((next.slowMotionStart || next.trimStart || 0) + 0.1, Math.min(value, maxSlowEnd));
+      }
+
+      return next;
+    });
   }, []);
 
   // Añadir texto
@@ -462,13 +522,15 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     const draft = {
       images: images.map(img => ({ ...img, file: null })), // No guardar archivos
       filterSettings,
+      filterIntensity,
       textElements,
       stickerElements,
       drawingPaths,
+      reelSettings,
       timestamp: Date.now(),
     };
     localStorage.setItem('hispaloshop_editor_draft', JSON.stringify(draft));
-  }, [drawingPaths, filterIntensity, filterSettings, images, stickerElements, textElements]);
+  }, [drawingPaths, filterIntensity, filterSettings, images, reelSettings, stickerElements, textElements]);
 
   // Cargar borrador
   const loadDraft = useCallback(() => {
@@ -481,6 +543,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       setTextElements(draft.textElements || []);
       setStickerElements(draft.stickerElements || []);
       setDrawingPaths(draft.drawingPaths || []);
+      setReelSettings({ ...DEFAULT_REEL_SETTINGS, ...(draft.reelSettings || {}) });
       return true;
     }
     return false;
@@ -514,6 +577,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     textElements,
     stickerElements,
     drawingPaths,
+    reelSettings,
     isProcessing,
     canUndo: historyIndex > 0,
     canRedo: historyIndex < history.length - 1,
@@ -531,6 +595,8 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     flipImageVertical,
     setZoomLevel,
     setPanPosition,
+    setReelDuration,
+    updateReelSetting,
     addText,
     updateText,
     removeText,

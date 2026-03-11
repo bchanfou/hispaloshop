@@ -372,6 +372,14 @@ export default function BottomNavBar() {
         }
         fd.append('file', publishData.sourceFile);
         fd.append('caption', publishData.caption);
+        fd.append('cover_frame_seconds', String(publishData.reelSettings?.coverFrameSeconds || 0));
+        fd.append('trim_start_seconds', String(publishData.reelSettings?.trimStart || 0));
+        fd.append('trim_end_seconds', String(publishData.reelSettings?.trimEnd || 0));
+        fd.append('playback_rate', String(publishData.reelSettings?.playbackRate || 1));
+        fd.append('muted', String(Boolean(publishData.reelSettings?.isMuted)));
+        fd.append('slow_motion_enabled', String(Boolean(publishData.reelSettings?.slowMotionEnabled)));
+        fd.append('slow_motion_start', String(publishData.reelSettings?.slowMotionStart || 0));
+        fd.append('slow_motion_end', String(publishData.reelSettings?.slowMotionEnd || 0));
         if (primaryProductId) {
           fd.append('product_id', primaryProductId);
         }

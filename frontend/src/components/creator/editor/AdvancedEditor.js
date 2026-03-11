@@ -23,13 +23,15 @@ import {
 } from 'lucide-react';
 import useImageEditor from '../hooks/useImageEditor';
 import FilterPanel from './FilterPanel';
+import ReelToolPanel from './ReelToolPanel';
 import TextTool from './TextTool';
 import StickerTool from './StickerTool';
 import ProductTagTool from './ProductTagTool';
 import CanvasEditor from './CanvasEditor';
 import { ASPECT_RATIOS } from '../types/editor.types';
 
-const TOOLS = [
+const BASE_TOOLS = [
+  { id: 'reel', icon: Film, label: 'Reel', onlyFor: ['reel'] },
   { id: 'filter', icon: Palette, label: 'Filtros' },
   { id: 'adjust', icon: Layers3, label: 'Ajustes' },
   { id: 'crop', icon: Crop, label: 'Recorte' },
@@ -331,6 +333,22 @@ function ComposeStage({
                   <p className="text-xs font-medium text-stone-500">Productos</p>
                   <p className="mt-1 text-lg font-semibold text-stone-950">{taggedProductsCount}</p>
                 </div>
+                {contentType === 'reel' ? (
+                  <>
+                    <div className="rounded-2xl bg-stone-50 px-4 py-3">
+                      <p className="text-xs font-medium text-stone-500">Trim</p>
+                      <p className="mt-1 text-sm font-semibold text-stone-950">
+                        {editor.reelSettings.trimStart.toFixed(1)}s - {editor.reelSettings.trimEnd.toFixed(1)}s
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-stone-50 px-4 py-3">
+                      <p className="text-xs font-medium text-stone-500">Velocidad</p>
+                      <p className="mt-1 text-sm font-semibold text-stone-950">
+                        {editor.reelSettings.playbackRate}x · {editor.reelSettings.isMuted ? 'Mute' : 'Audio'}
+                      </p>
+                    </div>
+                  </>
+                ) : null}
               </div>
             </div>
 
@@ -377,7 +395,7 @@ function ComposeStage({
 }
 
 function AdvancedEditor({ contentType, files, onClose, onPublish }) {
-  const [activeTool, setActiveTool] = useState('filter');
+  const [activeTool, setActiveTool] = useState(contentType === 'reel' ? 'reel' : 'filter');
   const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[contentType][0]);
   const [currentStage, setCurrentStage] = useState(files?.length ? 'edit' : 'media');
   const [caption, setCaption] = useState('');
@@ -389,6 +407,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const hasLoadedInitialFilesRef = useRef(false);
   const contentLabel = CONTENT_LABELS[contentType] || 'Contenido';
   const guidance = CONTENT_GUIDANCE[contentType] || CONTENT_GUIDANCE.post;
+  const tools = BASE_TOOLS.filter((tool) => !tool.onlyFor || tool.onlyFor.includes(contentType));
 
   React.useEffect(() => {
     if (files?.length && !hasLoadedInitialFilesRef.current) {
@@ -416,6 +435,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         aspectRatio,
         imageData: finalImage,
         sourceFile: editor.images[0]?.file || null,
+        reelSettings: editor.reelSettings,
         taggedProducts: editor.stickerElements.filter((item) => item.type === 'product'),
       });
     } finally {
@@ -447,6 +467,8 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
 
   const renderToolPanel = () => {
     switch (activeTool) {
+      case 'reel':
+        return <ReelToolPanel editor={editor} />;
       case 'filter':
         return (
           <FilterPanel
@@ -803,7 +825,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
 
           <div className="border-b border-stone-100 px-4 pt-3 md:pt-4">
             <div className="flex gap-2 overflow-x-auto pb-3">
-              {TOOLS.map((tool) => {
+              {tools.map((tool) => {
                 const Icon = tool.icon;
                 const isActive = activeTool === tool.id;
                 return (
