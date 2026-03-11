@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 // Simple markdown parser
 const parseMarkdown = (text) => {
@@ -41,37 +42,34 @@ function MessageBubble({ message, roleConfig }) {
       <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start gap-2 max-w-[85%]`}>
         {/* Avatar */}
         {!isUser && (
-          <div 
-            className="w-8 h-8 rounded-full flex items-center justify-center text-lg flex-shrink-0"
-            style={{ backgroundColor: roleConfig.color + '20' }}
-          >
-            {roleConfig.avatar}
+          <div className="w-8 h-8 rounded-full bg-stone-950 flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
         )}
-        
+
         {/* Bubble */}
         <div
           className={`px-4 py-3 rounded-2xl ${
             isUser
-              ? 'bg-accent text-white rounded-br-md'
-              : 'bg-background-subtle text-gray-900 rounded-bl-md'
+              ? 'bg-stone-950 text-white rounded-br-md'
+              : 'bg-white text-stone-950 border border-stone-100 shadow-sm rounded-bl-md'
           }`}
         >
           {/* Sender name for assistant */}
           {!isUser && (
-            <p className="text-xs font-semibold mb-1" style={{ color: roleConfig.color }}>
+            <p className="text-xs font-semibold mb-1 text-stone-500">
               {roleConfig.name}
             </p>
           )}
-          
+
           {/* Content */}
-          <div 
+          <div
             className="text-sm leading-relaxed"
             dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}
           />
-          
+
           {/* Timestamp */}
-          <p className={`text-[10px] mt-1 ${isUser ? 'text-white/60' : 'text-text-muted'}`}>
+          <p className={`text-[10px] mt-1 ${isUser ? 'text-white/60' : 'text-stone-400'}`}>
             {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>

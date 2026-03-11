@@ -1581,3 +1581,61 @@ EJEMPLOS DE CONTENIDO QUE FUNCIONA:
         return {"response": "Lo siento, hubo un problema procesando tu consulta. Intenta de nuevo.", "success": False}
 
 
+# ============================================
+# HI CHAT — Multi-role AI assistant
+# ============================================
+
+class HIChatMessage(BaseModel):
+    role: str
+    content: str
+
+class HIChatRequest(BaseModel):
+    messages: List[HIChatMessage]
+    assistant_role: str
+
+_HI_SYSTEM_PROMPTS = {
+    "consumer": (
+        "Eres HI Nutrición, nutricionista personal de Hispaloshop. "
+        "Ayudas a los usuarios a descubrir productos alimentarios de calidad, "
+        "planificar comidas saludables y tomar decisiones de compra informadas. "
+        "Sé amable, directo y práctico. Responde siempre en español."
+    ),
+    "producer": (
+        "Eres HI Ventas, asistente de ventas para productores de Hispaloshop. "
+        "Ayudas a analizar ventas, optimizar precios, gestionar stock y crear calendarios de contenido. "
+        "Sé profesional y orientado a resultados. Responde siempre en español."
+    ),
+    "influencer": (
+        "Eres HI Creator, asistente creativo para influencers de Hispaloshop. "
+        "Ayudas a generar ideas de contenido, captions virales, estrategias de redes sociales "
+        "y recomendaciones de productos para promocionar. "
+        "Sé creativo y entusiasta. Responde siempre en español."
+    ),
+    "importer": (
+        "Eres HI Import, analista de mercado internacional para importadores de Hispaloshop. "
+        "Ayudas a encontrar productores, analizar márgenes, detectar tendencias y gestionar negociaciones B2B. "
+        "Sé analítico y preciso. Responde siempre en español."
+    ),
+}
+
+@router.post("/ai/chat")
+async def hi_chat(req: HIChatRequest, user: User = Depends(get_current_user)):
+    try:
+        import litellm
+
+        system_prompt = _HI_SYSTEM_PROMPTS.get(req.assistant_role, _HI_SYSTEM_PROMPTS["consumer"])
+        messages_payload = [{"role": "system", "content": system_prompt}] + [
+            {"role": m.role, "content": m.content} for m in req.messages
+        ]
+
+        response = await litellm.acompletion(
+            model="anthropic/claude-haiku-4-5-20251001",
+            messages=messages_payload,
+            max_tokens=1024,
+        )
+
+        return {"content": response.choices[0].message.content}
+    except Exception as e:
+        logger.error(f"HI chat error: {e}")
+        raise HTTPException(status_code=503, detail="El asistente no está disponible ahora")
+

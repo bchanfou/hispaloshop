@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Mic, Paperclip, Image, ShoppingBag, Bookmark } from 'lucide-react';
 
-function ChatInput({ onSend, isLoading, roleColor }) {
+function ChatInput({ onSend, isLoading }) {
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const inputRef = useRef(null);
@@ -49,19 +49,19 @@ function ChatInput({ onSend, isLoading, roleColor }) {
     <div className="bg-white border-t border-stone-100 p-3 pb-safe">
       {/* Quick actions */}
       <div className="flex gap-3 mb-2 px-1">
-        <button className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors">
+        <button className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-900 transition-colors">
           <Paperclip className="w-4 h-4" />
           <span>Adjuntar</span>
         </button>
-        <button className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors">
+        <button className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-900 transition-colors">
           <Image className="w-4 h-4" />
           <span>Foto</span>
         </button>
-        <button className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors">
+        <button className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-900 transition-colors">
           <ShoppingBag className="w-4 h-4" />
           <span>Producto</span>
         </button>
-        <button className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors">
+        <button className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-900 transition-colors">
           <Bookmark className="w-4 h-4" />
           <span>Guardado</span>
         </button>
@@ -92,7 +92,7 @@ function ChatInput({ onSend, isLoading, roleColor }) {
             onKeyDown={handleKeyDown}
             placeholder="Escribe un mensaje..."
             rows={1}
-            className="w-full bg-stone-100 rounded-2xl px-4 py-3 pr-12 text-sm outline-none focus:ring-2 focus:ring-accent/20 resize-none max-h-32"
+            className="w-full bg-stone-100 rounded-2xl px-4 py-3 pr-12 text-sm outline-none focus:ring-2 focus:ring-stone-950/10 resize-none max-h-32"
             style={{ minHeight: '44px' }}
           />
           
@@ -100,11 +100,9 @@ function ChatInput({ onSend, isLoading, roleColor }) {
           <button
             type="submit"
             disabled={!message.trim() || isLoading}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full disabled:opacity-30 transition-colors"
-            style={{ 
-              backgroundColor: message.trim() ? roleColor : 'transparent',
-              color: message.trim() ? 'white' : '#6B7280',
-            }}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full disabled:opacity-30 transition-colors ${
+              message.trim() ? 'bg-stone-950 text-white hover:bg-stone-800' : 'text-stone-400'
+            }`}
           >
             <Send className="w-4 h-4" />
           </button>
