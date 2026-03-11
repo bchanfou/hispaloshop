@@ -3,13 +3,8 @@ import { StoriesRow } from '../HispaloStories';
 
 const StoriesCarousel = () => {
   return (
-    <section className="border-b border-stone-100 bg-white px-4 py-4">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-500">
-            Historias
-          </p>
-        </div>
+    <section className="border-b border-stone-100 bg-white">
+      <div className="mx-auto max-w-3xl px-4 py-3">
         <StoriesRow />
       </div>
     </section>

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Type, Smile, Sticker, Image as ImageIcon, Sparkles, ChevronLeft,
+  X, Type, Smile, Image as ImageIcon, Sparkles, ChevronLeft,
 } from 'lucide-react';
 import axios from 'axios';
 import { API } from '../../utils/api';
@@ -126,9 +126,10 @@ const StoryCreator = () => {
         </button>
         {previewUrl && (
           <button
+            aria-label="Publicar historia"
             onClick={handlePublish}
             disabled={isUploading}
-            className="px-6 py-2 bg-accent text-white rounded-full font-semibold disabled:opacity-50"
+            className="px-6 py-2.5 bg-stone-950 text-white rounded-full text-sm font-semibold disabled:opacity-50 hover:bg-stone-800 transition-colors"
           >
             {isUploading ? 'Publicando...' : 'Publicar historia'}
           </button>
@@ -149,7 +150,7 @@ const StoryCreator = () => {
       ) : (
         <div className="h-full flex flex-col">
           <div className="flex-1 relative overflow-hidden" onClick={() => setSelectedTextId(null)}>
-            <img src={previewUrl} alt="Story" className="w-full h-full object-contain" style={selectedFilter.style} />
+            <img src={previewUrl} alt="Vista previa de la historia" className="w-full h-full object-cover" style={selectedFilter.style} />
             {texts.map((text) => (
               <TextItem
                 key={text.id}
@@ -241,7 +242,7 @@ const StoryCreator = () => {
               />
               <div className="flex gap-3 mt-4">
                 <button onClick={() => setShowTextInput(false)} className="flex-1 py-3 bg-white/10 rounded-xl text-white">Cancelar</button>
-                <button onClick={handleTextSubmit} className="flex-1 py-3 bg-accent rounded-xl text-white font-semibold">Añadir</button>
+                <button onClick={handleTextSubmit} className="flex-1 py-3 bg-stone-950 rounded-xl text-white font-semibold hover:bg-stone-800 transition-colors">Añadir</button>
               </div>
             </div>
           </motion.div>

@@ -6,9 +6,9 @@ import axios from 'axios';
 import { API } from '../../utils/api';
 
 const StoryProgress = ({ slides, currentSlide, progress, isPaused }) => (
-  <div className="flex gap-1 px-4 pt-2">
+  <div className="flex gap-1 px-2 pt-2">
     {slides.map((slide, index) => (
-      <div key={slide.story_id || index} className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
+      <div key={slide.story_id || index} className="flex-1 h-0.5 bg-white/30 rounded-full overflow-hidden">
         <motion.div
           className="h-full bg-white rounded-full"
           initial={{ width: 0 }}
@@ -163,8 +163,12 @@ const StoryViewer = () => {
           )}
           <p className="text-white font-semibold text-sm">{currentGroup.user_name}</p>
         </div>
-        <button onClick={() => navigate(-1)} className="p-2 text-white">
-          <X className="w-6 h-6" />
+        <button
+          onClick={() => navigate(-1)}
+          aria-label="Cerrar historia"
+          className="p-2 bg-black/30 backdrop-blur-sm rounded-full text-white transition-colors hover:bg-black/50"
+        >
+          <X className="w-5 h-5" />
         </button>
       </div>
 
@@ -174,12 +178,12 @@ const StoryViewer = () => {
           {currentSlide?.image_url ? (
             <img
               src={currentSlide.image_url}
-              alt="Story"
-              className="w-full h-full object-contain"
+              alt="Historia"
+              className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-stone-800 flex items-center justify-center">
-              <p className="text-white/60 text-sm">{currentSlide?.caption || ''}</p>
+            <div className="w-full h-full bg-gradient-to-br from-stone-800 to-stone-950 flex items-center justify-center">
+              <p className="text-white text-xl font-semibold text-center px-6">{currentSlide?.caption || ''}</p>
             </div>
           )}
         </div>
@@ -221,13 +225,17 @@ const StoryViewer = () => {
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="Enviar mensaje..."
-            className="flex-1 bg-white/20 backdrop-blur-sm text-white placeholder-white/60 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:bg-white/30"
+            aria-label="Responder historia"
+            className="flex-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:bg-white/20"
           />
-          <button className="p-2 text-white">
-            <Heart className="w-6 h-6" />
+          <button aria-label="Dar me gusta a la historia" className="p-2 text-white">
+            <Heart className="w-5 h-5" />
           </button>
-          <button className="p-2 text-white">
-            <Send className="w-6 h-6" />
+          <button
+            aria-label="Enviar respuesta"
+            className="flex items-center justify-center w-9 h-9 rounded-full bg-white text-black"
+          >
+            <Send className="w-4 h-4" />
           </button>
         </div>
       </div>
