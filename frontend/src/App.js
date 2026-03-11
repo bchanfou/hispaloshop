@@ -81,6 +81,7 @@ const AdminCategories = lazy(() => import('./pages/admin/CategoriesPage'));
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
 const AdminSupportCase = lazy(() => import('./pages/admin/AdminSupportCase'));
 const AdminTrustSafety = lazy(() => import('./pages/admin/AdminTrustSafety'));
+const AdminGrowthAnalytics = lazy(() => import('./pages/admin/AdminGrowthAnalytics'));
 const EscalationChat = lazy(() => import('./pages/admin/EscalationChat'));
 const InsightsDashboard = lazy(() => import('./pages/super-admin/InsightsDashboard'));
 const UserManagement = lazy(() => import('./pages/super-admin/UserManagement'));
@@ -98,6 +99,7 @@ const ProducerPayments = lazy(() => import('./pages/producer/ProducerPayments'))
 const ProducerProfile = lazy(() => import('./pages/producer/ProducerProfile'));
 const ProducerStoreProfile = lazy(() => import('./pages/producer/ProducerStoreProfile'));
 const ProductCountryManagement = lazy(() => import('./pages/producer/ProductCountryManagement'));
+const ProducerInsights = lazy(() => import('./pages/producer/ProducerInsights'));
 const ProducerConnectPage = lazy(() => import('./pages/producer/ProducerConnectPage'));
 const ProducerConnectSuccess = lazy(() => import('./pages/producer/ProducerConnectSuccess'));
 const ProducerConnectRefresh = lazy(() => import('./pages/producer/ProducerConnectRefresh'));
@@ -114,6 +116,7 @@ const HispaloPredictions = lazy(() => import('./pages/customer/HispaloPrediction
 const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
 
 const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDashboard'));
+const InfluencerInsights = lazy(() => import('./pages/influencer/InfluencerInsights'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 
@@ -355,6 +358,7 @@ function AppRouter() {
                 <Route path="support" element={<AdminSupport />} />
                 <Route path="support/:caseId" element={<AdminSupportCase />} />
                 <Route path="trust-safety" element={<AdminTrustSafety />} />
+                <Route path="growth" element={<AdminGrowthAnalytics />} />
                 <Route path="escalation" element={<EscalationChat />} />
               </Route>
               <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
@@ -398,6 +402,7 @@ function AppRouter() {
                 <Route path="profile" element={<ProducerProfile />} />
                 <Route path="store" element={<ProducerStoreProfile />} />
                 <Route path="shipping" element={<ProducerShippingPolicy />} />
+                <Route path="insights" element={<ProducerInsights />} />
                 <Route path="connect" element={<ProducerConnectPage />} />
                 <Route path="connect/success" element={<ProducerConnectSuccess />} />
                 <Route path="connect/refresh" element={<ProducerConnectRefresh />} />
@@ -447,6 +452,16 @@ function AppRouter() {
                   <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
                     <InfluencerLayoutResponsive>
                       <InfluencerDashboard />
+                    </InfluencerLayoutResponsive>
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/influencer/insights"
+                element={(
+                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
+                    <InfluencerLayoutResponsive>
+                      <InfluencerInsights />
                     </InfluencerLayoutResponsive>
                   </ProtectedRoute>
                 )}

@@ -22,6 +22,7 @@ export default function InfluencerLayoutResponsive({ children }) {
     { to: '/influencer/dashboard', icon: LayoutDashboard, label: 'Mi Código', shortLabel: 'Código', end: true },
     { to: '/influencer/dashboard#analytics', icon: BarChart3, label: 'Mis Ventas', shortLabel: 'Ventas' },
     { to: '/influencer/dashboard#payments', icon: CreditCard, label: 'Mis Ganancias', shortLabel: 'Ganancias' },
+    { to: '/influencer/insights', icon: Sparkles, label: 'Insights', shortLabel: 'Insights' },
   ];
 
   const handleLogout = async () => {

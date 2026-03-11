@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
   Users, Package, FileCheck, ShoppingBag,
   LayoutDashboard, ArrowLeft, LogOut, Tag, Star,
-  UserCheck, Menu, X, MoreHorizontal, Settings, ShieldAlert, FolderOpen, HeadphonesIcon, Shield
+  UserCheck, Menu, X, MoreHorizontal, Settings, ShieldAlert, FolderOpen, HeadphonesIcon, Shield, TrendingUp
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -40,6 +40,7 @@ export default function AdminLayoutResponsive() {
     { to: '/admin/categories', icon: FolderOpen, label: t('admin.categories', 'Categorías'), shortLabel: 'Categ.' },
     { to: '/admin/support', icon: HeadphonesIcon, label: 'Soporte', shortLabel: 'Soporte' },
     { to: '/admin/trust-safety', icon: Shield, label: 'Trust & Safety', shortLabel: 'Safety' },
+    { to: '/admin/growth', icon: TrendingUp, label: 'Crecimiento', shortLabel: 'Growth' },
     { to: '/admin/escalation', icon: ShieldAlert, label: 'Escalar a SA', shortLabel: 'Escalar' },
   ];
 

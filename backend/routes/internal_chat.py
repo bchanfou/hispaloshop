@@ -111,6 +111,8 @@ async def send_internal_message(
 ):
     """Send a message in internal chat"""
     now = datetime.now(timezone.utc).isoformat()
+    if not (input.content or input.image_url or input.shared_item):
+        raise HTTPException(status_code=400, detail="Message content, image_url or shared_item is required")
     
     # Get or create conversation
     conversation_id = input.conversation_id
@@ -209,6 +211,7 @@ async def send_internal_message(
         "sender_role": user.role,
         "content": encrypted_content,
         "image_url": input.image_url,
+        "shared_item": input.shared_item,
         "status": "sent",
         "created_at": now
     }
@@ -260,7 +263,7 @@ async def send_internal_message(
                     await send_push_to_user(
                         recipient_id,
                         title=f"{user.name}",
-                        body=content[:100] if content else "Te envió una imagen",
+                        body=input.content[:100] if input.content else ("Te compartio contenido" if input.shared_item else "Te envio una imagen"),
                         data={"type": "chat", "conversation_id": conversation_id, "sender_id": user.user_id}
                     )
                 except Exception as e:
@@ -573,3 +576,4 @@ async def list_escalations(user: User = Depends(get_current_user)):
         })
 
     return result
+

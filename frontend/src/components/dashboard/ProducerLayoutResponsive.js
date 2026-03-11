@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
   Package, FileCheck, ShoppingBag, CreditCard,
   LayoutDashboard, ArrowLeft, LogOut, AlertTriangle,
-  User, Store, Menu, X, MoreHorizontal, Settings, BookOpen, Award
+  User, Store, Menu, X, MoreHorizontal, Settings, BookOpen, Award, BarChart3
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +45,7 @@ export default function ProducerLayout() {
     ...(user?.role === 'importer' ? [{ to: '/importer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' }] : [
       { to: '/producer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' },
     ]),
+    { to: '/producer/insights', icon: BarChart3, label: 'Insights', shortLabel: 'Insights' },
   ];
 
   // Mobile bottom nav - all 5 fit

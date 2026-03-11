@@ -22,6 +22,7 @@ import {
   Star,
   Store,
   TrendingUp,
+  UserRound,
   Vegan,
   WheatOff,
   Zap,
@@ -38,6 +39,8 @@ import {
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { api } from '../lib/api';
+import axios from 'axios';
+import { API } from '../utils/api';
 
 const MAIN_SECTIONS = [
   { id: 'todo', label: 'Todo', icon: Grid3X3 },
@@ -113,6 +116,7 @@ export default function DiscoverPage() {
   const [trendingHashtags, setTrendingHashtags] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const [discoveredProducts, setDiscoveredProducts] = useState([]);
+  const [suggestedCreators, setSuggestedCreators] = useState([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
 
   const { products, isLoading: loadingProducts } = useProducts({ limit: '4' });
@@ -140,6 +144,13 @@ export default function DiscoverPage() {
           setDiscoveredProducts(discoveredData?.items || []);
         } catch {
           setDiscoveredProducts([]);
+        }
+
+        try {
+          const exploreData = await axios.get(`${API}/discovery/explore`, { withCredentials: true });
+          setSuggestedCreators(exploreData.data?.suggested_creators || []);
+        } catch {
+          setSuggestedCreators([]);
         }
       } finally {
         setLoadingRecipes(false);
@@ -478,6 +489,46 @@ export default function DiscoverPage() {
                 ))}
               </div>
             )}
+          </section>
+        )}
+
+        {suggestedCreators.length > 0 && (activeTab === 'todo') && (
+          <section className="mb-8">
+            <SectionHeader
+              title="Creadores que te pueden gustar"
+              actionLabel="Ver perfiles"
+              onAction={() => navigate('/stores')}
+            />
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {suggestedCreators.map((creator) => (
+                <motion.button
+                  key={creator.user_id || creator.id}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => navigate(`/user/${creator.user_id || creator.id}`)}
+                  className="flex min-w-[140px] shrink-0 flex-col items-center gap-2 rounded-[24px] border border-stone-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  {creator.avatar ? (
+                    <img
+                      src={creator.avatar}
+                      alt={creator.name}
+                      className="h-14 w-14 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
+                      <UserRound className="h-7 w-7 text-stone-400" />
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <p className="line-clamp-1 text-sm font-semibold text-stone-950">
+                      {creator.name || creator.username || 'Creador'}
+                    </p>
+                    <p className="text-xs text-stone-500 capitalize">
+                      {creator.role === 'influencer' ? 'Influencer' : 'Productor'}
+                    </p>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
           </section>
         )}
 

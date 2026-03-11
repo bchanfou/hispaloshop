@@ -765,10 +765,11 @@ class NewConversationInput(BaseModel):
 
 
 class InternalMessageCreate(BaseModel):
-    content: str = Field(..., min_length=1, max_length=2000)
+    content: Optional[str] = Field(default=None, min_length=1, max_length=2000)
     conversation_id: Optional[str] = None
     recipient_id: Optional[str] = None
     image_url: Optional[str] = None
+    shared_item: Optional[Dict[str, Any]] = None
 
 
 class InternalMessageResponse(BaseModel):
@@ -777,7 +778,9 @@ class InternalMessageResponse(BaseModel):
     sender_id: str
     sender_name: str
     sender_role: str
-    content: str
+    content: Optional[str] = None
+    image_url: Optional[str] = None
+    shared_item: Optional[Dict[str, Any]] = None
     status: str
     created_at: str
 
