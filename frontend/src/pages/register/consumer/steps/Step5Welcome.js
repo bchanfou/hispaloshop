@@ -1,77 +1,68 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Rocket, Store, CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, Sparkles } from 'lucide-react';
 
 const Step5Welcome = ({ data, onComplete, isSubmitting }) => {
-  const firstName = data.firstName || 'Usuario';
+  const firstName = data.firstName || '';
 
   return (
-    <div className="text-center space-y-6 py-8">
-      {/* Animation */}
+    <div className="space-y-6 py-6 text-center">
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-        className="w-24 h-24 mx-auto bg-accent rounded-full flex items-center justify-center"
+        initial={{ scale: 0.92, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-stone-950 text-white"
       >
-        <CheckCircle className="w-12 h-12 text-white" />
+        <CheckCircle className="h-12 w-12" />
       </motion.div>
 
       <div>
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-2xl font-bold text-gray-900 mb-2"
+          transition={{ delay: 0.1 }}
+          className="text-2xl font-semibold text-stone-950"
         >
-          ¡Bienvenida, {firstName}!
+          Cuenta lista{firstName ? `, ${firstName}` : ''}
         </motion.h2>
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-text-muted"
+          transition={{ delay: 0.18 }}
+          className="mt-2 text-sm leading-6 text-stone-600"
         >
-          Tu perfil está listo
+          El siguiente paso es completar tu onboarding para que el feed, el catálogo y las sugerencias empiecen con más sentido.
         </motion.p>
       </div>
 
-      {/* Action Buttons */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="space-y-3 pt-4"
-      >
-        <button
-          onClick={onComplete}
-          disabled={isSubmitting}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 disabled:opacity-70 transition-colors"
-        >
-          {isSubmitting ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <Rocket className="w-5 h-5" />
-          )}
-          {isSubmitting ? 'Creando cuenta...' : 'Explorar productos'}
-        </button>
-      </motion.div>
-
-      {/* Tip */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="bg-state-amber/10 rounded-xl p-4 mt-6"
+        transition={{ delay: 0.26 }}
+        className="rounded-2xl border border-stone-200 bg-stone-50 p-4 text-left"
       >
         <div className="flex items-start gap-3">
-          <Store className="w-5 h-5 text-state-amber flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-gray-900 text-left">
-            <span className="font-medium">💡 Consejo:</span> Sigue a 3 productores 
-            para personalizar tu feed con contenido relevante.
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-stone-700">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <p className="text-sm leading-6 text-stone-700">
+            Cuando termines el onboarding te enseñaremos primero productores, categorías y cuentas que encajen mejor contigo.
           </p>
         </div>
       </motion.div>
+
+      <motion.button
+        type="button"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.34 }}
+        onClick={onComplete}
+        disabled={isSubmitting}
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 py-3 font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-stone-300"
+      >
+        {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCircle className="h-5 w-5" />}
+        {isSubmitting ? 'Creando cuenta...' : 'Ir al onboarding'}
+      </motion.button>
     </div>
   );
 };

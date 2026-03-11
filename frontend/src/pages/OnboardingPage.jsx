@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { onboardingApi } from '../lib/onboardingApi';
-
 import OnboardingLayout from '../components/onboarding/OnboardingLayout';
 import InterestsStep from '../components/onboarding/InterestsStep';
 import LocationStep from '../components/onboarding/LocationStep';
@@ -29,7 +28,7 @@ export default function OnboardingPage() {
         setCurrentStep(status.current_step);
       }
     } catch (err) {
-      console.error('Error checking onboarding status:', err);
+      setError(err?.response?.data?.detail || 'No hemos podido recuperar tu progreso de onboarding.');
     } finally {
       setLoading(false);
     }
@@ -37,17 +36,14 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (authLoading) return;
-
     if (!user) {
       navigate('/login', { replace: true });
       return;
     }
-
     if (user.role !== 'customer') {
       navigate('/', { replace: true });
       return;
     }
-
     if (user.onboarding_completed) {
       navigate('/dashboard', { replace: true });
       return;
@@ -78,38 +74,25 @@ export default function OnboardingPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-900"></div>
+      <div className="flex min-h-screen items-center justify-center bg-stone-50">
+        <div className="rounded-full border-2 border-stone-300 border-t-stone-900 p-4 animate-spin" />
       </div>
     );
   }
 
-  const renderStep = () => {
-    const props = {
-      onNext: handleNext,
-      onError: handleError,
-    };
-
-    switch (currentStep) {
-      case 1:
-        return <InterestsStep {...props} />;
-      case 2:
-        return <LocationStep {...props} onBack={handleBack} />;
-      case 3:
-        return <FollowStep onBack={handleBack} onComplete={handleComplete} onError={handleError} />;
-      default:
-        return null;
-    }
-  };
+  const commonProps = { onNext: handleNext, onError: handleError };
 
   return (
     <OnboardingLayout currentStep={currentStep} totalSteps={TOTAL_STEPS} showSkip={false}>
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+      {error ? (
+        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}
         </div>
-      )}
-      {renderStep()}
+      ) : null}
+
+      {currentStep === 1 ? <InterestsStep {...commonProps} /> : null}
+      {currentStep === 2 ? <LocationStep {...commonProps} onBack={handleBack} /> : null}
+      {currentStep === 3 ? <FollowStep onBack={handleBack} onComplete={handleComplete} onError={handleError} /> : null}
     </OnboardingLayout>
   );
 }

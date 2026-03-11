@@ -1,96 +1,120 @@
-import React from 'react';
-import { ArrowRight } from 'lucide-react';
-import RadioGroup from '../../../../components/forms/RadioGroup';
-import { Sparkles, TrendingUp, MapPin, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, MapPin, Sparkles, Star, TrendingUp } from 'lucide-react';
 
 const DISCOVERY_OPTIONS = [
-  { 
-    value: 'personalized', 
-    label: 'Recomendaciones personalizadas HI', 
+  {
+    value: 'personalized',
+    label: 'Recomendaciones personalizadas HI',
+    description: 'Sugerencias ajustadas a tus intereses y tu actividad.',
     icon: Sparkles,
-    description: 'Inteligencia artificial adaptada a ti'
   },
-  { 
-    value: 'popular', 
-    label: 'Lo más popular', 
+  {
+    value: 'popular',
+    label: 'Lo más popular',
+    description: 'Los productos que más están comprando otros usuarios.',
     icon: TrendingUp,
-    description: 'Los productos más vendidos'
   },
-  { 
-    value: 'local', 
-    label: 'Solo productores de mi zona', 
+  {
+    value: 'local',
+    label: 'Productores de mi zona',
+    description: 'Prioriza propuestas cercanas cuando sea posible.',
     icon: MapPin,
-    description: 'Apoya lo local'
   },
-  { 
-    value: 'rated', 
-    label: 'Mejor valorados', 
+  {
+    value: 'rated',
+    label: 'Mejor valorados',
+    description: 'Ordena primero por reseñas y confianza.',
     icon: Star,
-    description: 'Top reseñas de clientes'
-  }
+  },
 ];
 
 const FREQUENCY_OPTIONS = [
-  { value: 'weekly', label: 'Semanalmente' },
-  { value: 'monthly', label: 'Mensualmente' },
-  { value: 'occasional', label: 'Solo ocasiones especiales' }
+  'Semanalmente',
+  'Mensualmente',
+  'Solo en ocasiones especiales',
 ];
 
 const Step4Preferences = ({ onNext, data, onDataChange }) => {
-  const [discoveryMethod, setDiscoveryMethod] = React.useState(data.discoveryMethod || 'personalized');
-  const [frequency, setFrequency] = React.useState(data.frequency || 'weekly');
+  const [discoveryMethod, setDiscoveryMethod] = useState(data.discoveryMethod || 'personalized');
+  const [frequency, setFrequency] = useState(data.frequency || 'weekly');
+
+  const frequencyMap = {
+    Semanalmente: 'weekly',
+    Mensualmente: 'monthly',
+    'Solo en ocasiones especiales': 'occasional',
+  };
 
   const handleSubmit = () => {
-    onDataChange({
-      discoveryMethod,
-      frequency
-    });
+    onDataChange({ discoveryMethod, frequency });
     onNext();
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-          Preferencias de descubrimiento
-        </h3>
-        <p className="text-sm text-text-muted">
-          ¿Cómo prefieres descubrir productos?
+        <h3 className="text-lg font-semibold text-stone-950">Preferencias de descubrimiento</h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Define cómo quieres empezar a ver productos y con qué frecuencia sueles comprar.
         </p>
       </div>
 
-      {/* Discovery Method */}
-      <div>
-        <label className="block text-sm font-medium text-gray-900 mb-3">
-          Método de descubrimiento
-        </label>
-        <RadioGroup
-          options={DISCOVERY_OPTIONS}
-          value={discoveryMethod}
-          onChange={setDiscoveryMethod}
-        />
+      <div className="space-y-3">
+        {DISCOVERY_OPTIONS.map((option) => {
+          const Icon = option.icon;
+          const selected = discoveryMethod === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setDiscoveryMethod(option.value)}
+              className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors ${
+                selected ? 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-300'
+              }`}
+            >
+              <div className={`mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl ${selected ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                <Icon className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-stone-950">{option.label}</p>
+                <p className="mt-1 text-sm text-stone-600">{option.description}</p>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Frequency */}
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-3">
+        <label className="mb-3 block text-sm font-medium text-stone-800">
           ¿Con qué frecuencia compras productos artesanales?
         </label>
-        <RadioGroup
-          options={FREQUENCY_OPTIONS}
-          value={frequency}
-          onChange={setFrequency}
-          columns={1}
-        />
+        <div className="space-y-3">
+          {FREQUENCY_OPTIONS.map((option) => {
+            const value = frequencyMap[option];
+            const selected = frequency === value;
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => setFrequency(value)}
+                className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition-colors ${
+                  selected ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                }`}
+              >
+                <span className="font-medium">{option}</span>
+                <span className={`h-3 w-3 rounded-full ${selected ? 'bg-white' : 'bg-stone-300'}`} />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Submit */}
       <button
+        type="button"
         onClick={handleSubmit}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 py-3 font-medium text-white transition-colors hover:bg-black"
       >
         Continuar
-        <ArrowRight className="w-5 h-5" />
+        <ArrowRight className="h-5 w-5" />
       </button>
     </div>
   );

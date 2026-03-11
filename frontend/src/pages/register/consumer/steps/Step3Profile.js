@@ -1,8 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import CheckboxGroup from '../../../../components/forms/CheckboxGroup';
-import InputField from '../../../../components/forms/InputField';
-import { Leaf, Wheat, Milk, Beef, Cookie, Nut, Fish, Egg } from 'lucide-react';
 
 const DIETARY_OPTIONS = [
   { value: 'vegetarian', label: 'Vegetariano' },
@@ -10,88 +7,115 @@ const DIETARY_OPTIONS = [
   { value: 'gluten_free', label: 'Sin gluten' },
   { value: 'lactose_free', label: 'Sin lactosa' },
   { value: 'nut_free', label: 'Sin frutos secos' },
-  { value: 'other', label: 'Otras' }
+  { value: 'other', label: 'Otras' },
 ];
 
 const CATEGORY_OPTIONS = [
-  { value: 'aceites', label: 'Aceites', icon: Leaf },
-  { value: 'quesos', label: 'Quesos', icon: Milk },
-  { value: 'embutidos', label: 'Embutidos', icon: Beef },
-  { value: 'conservas', label: 'Conservas', icon: Fish },
-  { value: 'panadería', label: 'Panadería', icon: Cookie },
-  { value: 'bebidas', label: 'Bebidas', icon: Milk },
-  { value: 'snacks', label: 'Snacks', icon: Nut },
-  { value: 'orgánico', label: 'Orgánico', icon: Leaf }
+  'Aceites',
+  'Miel',
+  'Conservas',
+  'Panadería',
+  'Quesos',
+  'Embutidos',
+  'Salsas',
+  'Pasta',
+  'Legumbres',
+  'Especias',
+  'Frutos secos',
+  'Infusiones',
 ];
 
 const Step3Profile = ({ onNext, data, onDataChange }) => {
-  const [dietaryRestrictions, setDietaryRestrictions] = React.useState(data.dietaryRestrictions || []);
-  const [categories, setCategories] = React.useState(data.categories || []);
-  const [postalCode, setPostalCode] = React.useState(data.postalCode || '');
+  const [dietaryRestrictions, setDietaryRestrictions] = useState(data.dietaryRestrictions || []);
+  const [categories, setCategories] = useState(data.categories || []);
+  const [postalCode, setPostalCode] = useState(data.postalCode || '');
+
+  const toggleItem = (value, state, setter) => {
+    setter(state.includes(value) ? state.filter((item) => item !== value) : [...state, value]);
+  };
 
   const handleSubmit = () => {
-    onDataChange({
-      dietaryRestrictions,
-      categories,
-      postalCode
-    });
+    onDataChange({ dietaryRestrictions, categories, postalCode });
     onNext();
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-          Perfil alimentario
-        </h3>
-        <p className="text-sm text-text-muted">
-          Personaliza tu experiencia
+        <h3 className="text-lg font-semibold text-stone-950">Perfil alimentario</h3>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Ajusta tus intereses para que el catálogo y las recomendaciones empiecen con más criterio.
         </p>
       </div>
 
-      {/* Dietary Restrictions */}
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-3">
+        <label className="mb-3 block text-sm font-medium text-stone-800">
           ¿Tienes alguna restricción alimentaria?
         </label>
-        <CheckboxGroup
-          options={DIETARY_OPTIONS}
-          selected={dietaryRestrictions}
-          onChange={setDietaryRestrictions}
-          columns={2}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          {DIETARY_OPTIONS.map((option) => {
+            const selected = dietaryRestrictions.includes(option.value);
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => toggleItem(option.value, dietaryRestrictions, setDietaryRestrictions)}
+                className={`rounded-2xl border p-3 text-left text-sm font-medium transition-colors ${
+                  selected ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Categories */}
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-3">
+        <label className="mb-3 block text-sm font-medium text-stone-800">
           ¿Qué categorías te interesan más?
         </label>
-        <CheckboxGroup
-          options={CATEGORY_OPTIONS}
-          selected={categories}
-          onChange={setCategories}
-          columns={2}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          {CATEGORY_OPTIONS.map((category) => {
+            const selected = categories.includes(category);
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => toggleItem(category, categories, setCategories)}
+                className={`rounded-2xl border p-3 text-left text-sm font-medium transition-colors ${
+                  selected ? 'border-stone-950 bg-stone-100 text-stone-950' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                }`}
+              >
+                {category}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Postal Code */}
-      <InputField
-        label="Código postal"
-        type="number"
-        value={postalCode}
-        onChange={(e) => setPostalCode(e.target.value)}
-        placeholder="41001"
-        hint="Para encontrar productores cercanos"
-      />
+      <div>
+        <label htmlFor="consumer-postal-code" className="text-sm font-medium text-stone-800">
+          Código postal
+        </label>
+        <input
+          id="consumer-postal-code"
+          type="text"
+          value={postalCode}
+          onChange={(e) => setPostalCode(e.target.value)}
+          placeholder="41001"
+          className="mt-2 h-12 w-full rounded-2xl border border-stone-200 bg-white px-3 text-base md:h-11 md:text-sm"
+        />
+        <p className="mt-1 text-xs text-stone-500">Nos ayuda a mostrar productores y envíos más relevantes.</p>
+      </div>
 
-      {/* Submit */}
       <button
+        type="button"
         onClick={handleSubmit}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent/90 transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 py-3 font-medium text-white transition-colors hover:bg-black"
       >
         Continuar
-        <ArrowRight className="w-5 h-5" />
+        <ArrowRight className="h-5 w-5" />
       </button>
     </div>
   );

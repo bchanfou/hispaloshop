@@ -1,80 +1,69 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Phone, ArrowLeft } from 'lucide-react';
-import SocialButtons from '../../../../components/auth/SocialButtons';
+import { ArrowLeft, Mail, Clock3 } from 'lucide-react';
 
 const Step1Method = ({ onNext, onMethodSelect }) => {
   const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-3">
-        <button 
-          onClick={() => navigate(-1)}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        <button
+          type="button"
+          onClick={() => navigate('/register/new')}
+          className="rounded-full p-2 transition-colors hover:bg-stone-100"
         >
-          <ArrowLeft className="w-5 h-5 text-gray-900" />
+          <ArrowLeft className="h-5 w-5 text-stone-900" />
         </button>
-        <h2 className="text-xl font-bold text-gray-900">Crear cuenta</h2>
+        <h2 className="text-xl font-semibold text-stone-950">Crear cuenta</h2>
       </div>
 
-      <div className="text-center py-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          ¿Cómo quieres empezar?
+      <div className="text-center">
+        <h3 className="text-lg font-semibold text-stone-950">
+          Empieza con email
         </h3>
-        <p className="text-sm text-text-muted">
-          Elige tu método de registro preferido
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Este flujo ya está conectado de principio a fin. Los accesos con teléfono y social llegarán más adelante.
         </p>
       </div>
 
-      {/* Method Buttons */}
-      <div className="space-y-3">
-        <button
-          onClick={() => { onMethodSelect('email'); onNext(); }}
-          className="w-full flex items-center gap-3 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-accent transition-colors"
-        >
-          <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-            <Mail className="w-5 h-5 text-accent" />
-          </div>
-          <span className="flex-1 text-left font-medium text-gray-900">
-            Continuar con email
-          </span>
-        </button>
+      <button
+        type="button"
+        onClick={() => {
+          onMethodSelect('email');
+          onNext();
+        }}
+        className="flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white p-4 text-left transition-all hover:border-stone-300 hover:shadow-sm"
+      >
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white">
+          <Mail className="h-5 w-5" />
+        </div>
+        <div className="flex-1">
+          <span className="block font-medium text-stone-950">Continuar con email</span>
+          <span className="mt-1 block text-sm text-stone-500">Crearás tu cuenta y después completaremos tus preferencias.</span>
+        </div>
+      </button>
 
-        <button
-          onClick={() => { onMethodSelect('phone'); onNext(); }}
-          className="w-full flex items-center gap-3 p-4 bg-white border-2 border-gray-200 rounded-xl hover:border-accent transition-colors"
-        >
-          <div className="w-10 h-10 rounded-full bg-state-amber/10 flex items-center justify-center">
-            <Phone className="w-5 h-5 text-state-amber" />
+      <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-stone-700">
+            <Clock3 className="h-5 w-5" />
           </div>
-          <span className="flex-1 text-left font-medium text-gray-900">
-            Continuar con teléfono
-          </span>
-        </button>
+          <div>
+            <p className="font-medium text-stone-950">Próximamente</p>
+            <p className="mt-1 text-sm leading-6 text-stone-600">
+              Google, Apple y teléfono volverán cuando estén conectados al mismo nivel de fiabilidad que este flujo.
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-4">
-        <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-sm text-text-muted">o</span>
-        <div className="flex-1 h-px bg-gray-200" />
-      </div>
-
-      {/* Social Login */}
-      <SocialButtons 
-        onGoogleClick={() => { onMethodSelect('google'); onNext(); }}
-        onFacebookClick={() => { onMethodSelect('facebook'); onNext(); }}
-        onAppleClick={() => { onMethodSelect('apple'); onNext(); }}
-      />
-
-      {/* Login Link */}
-      <p className="text-center text-sm text-text-muted">
+      <p className="text-center text-sm text-stone-600">
         ¿Ya tienes cuenta?{' '}
-        <button 
+        <button
+          type="button"
           onClick={() => navigate('/login')}
-          className="text-accent font-medium hover:underline"
+          className="font-medium text-stone-950 transition-colors hover:text-black"
         >
           Inicia sesión
         </button>

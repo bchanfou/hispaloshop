@@ -1,82 +1,59 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function OnboardingLayout({ 
-  children, 
-  currentStep, 
+export default function OnboardingLayout({
+  children,
+  currentStep,
   totalSteps = 4,
   onSkip,
-  showSkip = true 
+  showSkip = true,
 }) {
   const progress = (currentStep / totalSteps) * 100;
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Header */}
-      <header className="bg-white border-b border-stone-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-xl font-bold text-stone-900">Hispaloshop</span>
+      <header className="sticky top-0 z-10 border-b border-stone-200 bg-white/95 backdrop-blur-md">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <Link to="/" className="text-lg font-semibold text-stone-950">
+              Hispaloshop
             </Link>
-            
-            {showSkip && onSkip && (
+
+            {showSkip && onSkip ? (
               <button
+                type="button"
                 onClick={onSkip}
-                className="text-sm text-stone-500 hover:text-stone-700 transition-colors"
+                className="text-sm font-medium text-stone-500 transition-colors hover:text-stone-950"
               >
                 Omitir
               </button>
+            ) : (
+              <span className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">
+                Primeros pasos
+              </span>
             )}
           </div>
         </div>
-        
-        {/* Progress bar */}
-        <div className="h-1 bg-stone-100">
-          <div 
-            className="h-full bg-stone-900 transition-all duration-500 ease-out"
-            style={{ width: `${progress}%` }}
-          />
+
+        <div className="h-1 bg-stone-200">
+          <div className="h-full bg-stone-950 transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Step indicator */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex items-center space-x-2">
-              {Array.from({ length: totalSteps }, (_, i) => (
-                <React.Fragment key={i}>
-                  <div 
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                      i + 1 <= currentStep
-                        ? 'bg-stone-900 text-white'
-                        : 'bg-stone-200 text-stone-500'
-                    }`}
-                  >
-                    {i + 1 < currentStep ? (
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    ) : (
-                      i + 1
-                    )}
-                  </div>
-                  {i < totalSteps - 1 && (
-                    <div 
-                      className={`w-12 h-0.5 transition-colors ${
-                        i + 1 < currentStep ? 'bg-stone-900' : 'bg-stone-200'
-                      }`}
-                    />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+      <main className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div className="mx-auto max-w-2xl">
+          <div className="mb-8 flex items-center justify-center gap-2">
+            {Array.from({ length: totalSteps }, (_, i) => (
+              <React.Fragment key={i}>
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${i + 1 <= currentStep ? 'bg-stone-950 text-white' : 'bg-stone-200 text-stone-500'}`}>
+                  {i + 1}
+                </div>
+                {i < totalSteps - 1 ? <div className={`h-0.5 w-12 ${i + 1 < currentStep ? 'bg-stone-950' : 'bg-stone-200'}`} /> : null}
+              </React.Fragment>
+            ))}
           </div>
 
-          {/* Content */}
-          <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6 sm:p-8">
+          <div className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
             {children}
           </div>
         </div>

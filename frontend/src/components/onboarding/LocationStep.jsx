@@ -2,22 +2,22 @@ import React, { useState } from 'react';
 import { onboardingApi } from '../../lib/onboardingApi';
 
 const COUNTRIES = [
-  { code: 'ES', name: 'España' },
-  { code: 'PT', name: 'Portugal' },
-  { code: 'FR', name: 'Francia' },
-  { code: 'IT', name: 'Italia' },
-  { code: 'DE', name: 'Alemania' },
-  { code: 'GB', name: 'Reino Unido' },
-  { code: 'US', name: 'Estados Unidos' },
-  { code: 'MX', name: 'Mexico' },
-  { code: 'AR', name: 'Argentina' },
-  { code: 'CO', name: 'Colombia' },
-  { code: 'CL', name: 'Chile' },
-  { code: 'PE', name: 'Peru' },
-  { code: 'KR', name: 'Corea del Sur' },
-  { code: 'JP', name: 'Japón' },
-  { code: 'CN', name: 'China' },
-  { code: 'OTHER', name: 'Otro' },
+  'España',
+  'Portugal',
+  'Francia',
+  'Italia',
+  'Alemania',
+  'Reino Unido',
+  'Estados Unidos',
+  'México',
+  'Argentina',
+  'Colombia',
+  'Chile',
+  'Perú',
+  'Corea del Sur',
+  'Japón',
+  'China',
+  'Otro',
 ];
 
 export default function LocationStep({ onNext, onBack, onError }) {
@@ -28,12 +28,11 @@ export default function LocationStep({ onNext, onBack, onError }) {
 
   const handleContinue = async () => {
     if (!country) {
-      onError?.('Selecciona un pais');
+      onError?.('Selecciona un país.');
       return;
     }
-
     if (!postalCode.trim()) {
-      onError?.('Introduce tu código postal');
+      onError?.('Introduce tu código postal.');
       return;
     }
 
@@ -45,81 +44,53 @@ export default function LocationStep({ onNext, onBack, onError }) {
         city: city.trim(),
       });
       onNext();
-    } catch (err) {
-      onError?.(err.response?.data?.detail || 'Error al guardar la ubicacion');
+    } catch (error) {
+      onError?.(error?.response?.data?.detail || 'No hemos podido guardar tu ubicación todavía.');
     } finally {
       setLoading(false);
     }
   };
 
+  const inputClass = 'mt-2 h-12 w-full rounded-2xl border border-stone-200 bg-white px-3 text-base md:h-11 md:text-sm';
+
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-stone-900 mb-2">
-          Donde estas
-        </h1>
-        <p className="text-stone-600">
-          Necesitamos tu pais y código postal para mostrar catalogo y envios disponibles.
+        <h1 className="text-2xl font-semibold text-stone-950">¿Dónde estás?</h1>
+        <p className="mt-2 text-sm leading-6 text-stone-600">
+          Usamos tu zona para mostrar catálogo disponible, sugerencias más cercanas y mejores opciones de envío.
         </p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            Pais *
-          </label>
-          <select
-            value={country}
-            onChange={(event) => setCountry(event.target.value)}
-            className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-stone-500 focus:border-transparent"
-          >
-            <option value="">Selecciona un pais</option>
-            {COUNTRIES.map((item) => (
-              <option key={item.code} value={item.code}>
-                {item.name}
-              </option>
-            ))}
+          <label htmlFor="location-country" className="text-sm font-medium text-stone-800">País *</label>
+          <select id="location-country" value={country} onChange={(e) => setCountry(e.target.value)} className={inputClass}>
+            <option value="">Selecciona tu país</option>
+            {COUNTRIES.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            Código postal *
-          </label>
-          <input
-            type="text"
-            value={postalCode}
-            onChange={(event) => setPostalCode(event.target.value)}
-            className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-stone-500 focus:border-transparent"
-            placeholder="28001"
-          />
+          <label htmlFor="location-postal" className="text-sm font-medium text-stone-800">Código postal *</label>
+          <input id="location-postal" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} className={inputClass} placeholder="28001" />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
-            Ciudad
-          </label>
-          <input
-            type="text"
-            value={city}
-            onChange={(event) => setCity(event.target.value)}
-            className="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-stone-500 focus:border-transparent"
-            placeholder="Madrid"
-          />
+          <label htmlFor="location-city" className="text-sm font-medium text-stone-800">Ciudad</label>
+          <input id="location-city" value={city} onChange={(e) => setCity(e.target.value)} className={inputClass} placeholder="Madrid" />
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4">
-        <button
-          onClick={onBack}
-          className="px-6 py-2 text-stone-600 hover:text-stone-900 transition-colors"
-        >
-          Atras
+      <div className="flex items-center justify-between pt-2">
+        <button type="button" onClick={onBack} className="px-2 py-2 text-sm font-medium text-stone-600 transition-colors hover:text-stone-950">
+          Atrás
         </button>
         <button
+          type="button"
           onClick={handleContinue}
           disabled={!country || !postalCode.trim() || loading}
-          className="px-6 py-2 bg-stone-900 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-colors"
+          className="rounded-full bg-stone-950 px-6 py-3 font-medium text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:bg-stone-300"
         >
           {loading ? 'Guardando...' : 'Continuar'}
         </button>
