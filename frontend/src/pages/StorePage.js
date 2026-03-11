@@ -92,7 +92,7 @@ function ProductTile({ product, onOpen, formatPrice }) {
           </div>
         </div>
         <div className="px-1 pb-1 pt-4">
-          <h3 className="line-clamp-2 text-sm font-medium text-stone-900">{product.name}</h3>
+          <h3 className="line-clamp-2 text-sm font-medium text-stone-950">{product.name}</h3>
           <p className="mt-1 text-xs text-stone-500">
             {product.category_name || product.category || 'Selección de tienda'}
           </p>

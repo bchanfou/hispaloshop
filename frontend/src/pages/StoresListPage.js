@@ -173,7 +173,6 @@ export default function StoresListPage() {
 
   useEffect(() => {
     fetchRegions();
-    fetchStores();
   }, []);
 
   useEffect(() => {
@@ -365,7 +364,7 @@ export default function StoresListPage() {
                 Descubrimiento local
               </p>
               <h1 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950">
-                Stores near you
+                {t('stores.title', 'Tiendas cerca de ti')}
               </h1>
               <p className="mt-3 text-sm text-stone-500">
                 Recorre perfiles de tienda con una lectura más limpia: mapa, contexto local y acceso directo a sus productos.

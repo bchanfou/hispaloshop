@@ -47,7 +47,7 @@ export default function RecipeDetailPage() {
       .catch(() => {
         if (active) {
           setRecipe(null);
-          toast.error(t('recipes.notFound', 'Recipe not found'));
+          toast.error(t('recipes.notFound', 'Receta no encontrada'));
         }
       })
       .finally(() => {
@@ -86,10 +86,10 @@ export default function RecipeDetailPage() {
           <BackButton />
           <div className="mt-6 rounded-[28px] border border-stone-100 bg-white p-10 text-center">
             <ChefHat className="mx-auto h-10 w-10 text-stone-300" />
-            <h1 className="mt-4 text-xl font-semibold text-stone-950">{t('recipes.notFound', 'Recipe not found')}</h1>
-            <p className="mt-2 text-sm text-stone-500">{t('recipes.tryAnother', 'Try another recipe from our catalog.')}</p>
+            <h1 className="mt-4 text-xl font-semibold text-stone-950">{t('recipes.notFound', 'Receta no encontrada')}</h1>
+            <p className="mt-2 text-sm text-stone-500">{t('recipes.tryAnother', 'Prueba con otra receta de nuestro catálogo.')}</p>
             <Link to="/recipes" className="mt-5 inline-flex rounded-full bg-stone-950 px-5 py-2.5 text-sm text-white">
-              {t('recipes.backToList', 'Go to recipes')}
+              {t('recipes.backToList', 'Ver recetas')}
             </Link>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default function RecipeDetailPage() {
               <div className="mt-4 space-y-3">
                 {(recipe.ingredients || []).map((ingredient, index) => (
                   <div key={`${ingredient.name}-${index}`} className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
-                    <p className="text-sm font-medium text-stone-900">
+                    <p className="text-sm font-medium text-stone-950">
                       {[ingredient.quantity, ingredient.unit, ingredient.name].filter(Boolean).join(' ')}
                     </p>
                     {ingredient.product ? (

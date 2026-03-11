@@ -198,20 +198,20 @@ function ProducerDashboard() {
 
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-gray-900">Evolucion de ventas</h3>
-          <p className="text-xs text-text-muted">Ingresos semanales</p>
+          <h3 className="font-semibold text-stone-950">Evolución de ventas</h3>
+          <p className="text-xs text-stone-500">Ingresos semanales</p>
         </div>
         <AreaChart data={dashboardData.chart.actual} labels={dashboardData.chart.labels} color="#2D5A3D" />
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-gray-900 mb-3">Acciones rapidas</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">Acciones rápidas</h3>
         <QuickActions actions={quickActions} />
       </div>
 
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-900">Pedidos pendientes</h3>
+          <h3 className="font-semibold text-stone-950">Pedidos pendientes</h3>
           <button onClick={() => navigate('/producer/orders')} className="text-sm text-accent font-medium">
             Ver todos
           </button>
@@ -220,7 +220,7 @@ function ProducerDashboard() {
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">Sugerencias HI Ventas</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">Sugerencias HI Ventas</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>

@@ -347,7 +347,7 @@ export default function UserProfilePage() {
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-2 text-base font-medium text-stone-900">{realName}</p>
+                  <p className="mt-2 text-base font-medium text-stone-950">{realName}</p>
                   {profile?.bio ? <p className="mt-3 max-w-2xl whitespace-pre-line text-sm leading-relaxed text-stone-600">{profile.bio}</p> : null}
                 </div>
 
@@ -437,7 +437,7 @@ export default function UserProfilePage() {
                     type="button"
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm transition-colors ${
-                      activeTab === tab.key ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-900'
+                      activeTab === tab.key ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-950'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -480,8 +480,8 @@ export default function UserProfilePage() {
             {activeTab === 'reels' ? (
               <EmptyState
                 icon={PlaySquare}
-                title="Reels"
-                description="La capa visual está preparada. Falta una fuente de reels específica para poblarla."
+                title="Sin reels"
+                description="Este perfil todavía no ha publicado ningún reel."
               />
             ) : null}
 

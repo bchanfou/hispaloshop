@@ -237,22 +237,22 @@ export default function CreateRecipePage() {
       .filter((step) => step.text || step.image_url);
 
     if (!recipe.title.trim()) {
-      toast.error(t('recipes.recipeName', 'Nombre de la receta'));
+      toast.error(t('recipes.missingTitle', 'Añade un título a la receta'));
       return;
     }
 
     if (!recipe.description.trim()) {
-      toast.error('Añade una descripción');
+      toast.error(t('recipes.missingDescription', 'Añade una descripción a la receta'));
       return;
     }
 
     if (cleanedIngredients.length === 0) {
-      toast.error(t('recipes.ingredients', 'Ingredientes'));
+      toast.error(t('recipes.missingIngredients', 'Añade al menos un ingrediente'));
       return;
     }
 
     if (cleanedSteps.length === 0) {
-      toast.error(t('recipes.steps', 'Pasos'));
+      toast.error(t('recipes.missingSteps', 'Añade al menos un paso de preparación'));
       return;
     }
 
@@ -291,7 +291,7 @@ export default function CreateRecipePage() {
 
         <div className="space-y-6">
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-900">1. Imagen principal</Label>
+            <Label className="text-sm font-medium text-stone-950">1. Imagen principal</Label>
             <div
               onDragOver={(event) => {
                 event.preventDefault();
@@ -323,7 +323,7 @@ export default function CreateRecipePage() {
                 >
                   <UploadCloud className="h-8 w-8 text-stone-400" />
                   <div>
-                    <p className="text-sm font-medium text-stone-900">Arrastra una imagen o súbela desde tu equipo</p>
+                    <p className="text-sm font-medium text-stone-950">Arrastra una imagen o súbela desde tu equipo</p>
                     <p className="mt-1 text-sm text-stone-500">Formato cuadrado o vertical recomendado.</p>
                   </div>
                 </button>
@@ -339,7 +339,7 @@ export default function CreateRecipePage() {
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-900">2. {t('recipes.recipeName', 'Título')}</Label>
+            <Label className="text-sm font-medium text-stone-950">2. {t('recipes.recipeName', 'Título')}</Label>
             <Input
               value={recipe.title}
               onChange={(event) => updateRecipe('title', event.target.value)}
@@ -350,12 +350,12 @@ export default function CreateRecipePage() {
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-900">3. Descripción</Label>
+            <Label className="text-sm font-medium text-stone-950">3. Descripción</Label>
             <textarea
               value={recipe.description}
               onChange={(event) => updateRecipe('description', event.target.value)}
               placeholder="Cuenta qué hace especial esta receta."
-              className="mt-4 min-h-[140px] w-full resize-none rounded-[24px] border border-stone-200 px-4 py-4 text-sm text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
+              className="mt-4 min-h-[140px] w-full resize-none rounded-[24px] border border-stone-200 px-4 py-4 text-sm text-stone-950 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
             />
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <div>
@@ -363,7 +363,7 @@ export default function CreateRecipePage() {
                 <select
                   value={recipe.difficulty}
                   onChange={(event) => updateRecipe('difficulty', event.target.value)}
-                  className="mt-2 h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none"
+                  className="mt-2 h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm text-stone-950 outline-none"
                   data-testid="recipe-difficulty"
                 >
                   <option value="easy">{t('recipes.easy', 'Fácil')}</option>
@@ -395,7 +395,7 @@ export default function CreateRecipePage() {
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-900">4. Ingredientes</Label>
+            <Label className="text-sm font-medium text-stone-950">4. Ingredientes</Label>
             <div className="mt-4 flex gap-2">
               <Input
                 value={manualIngredientInput}
@@ -446,7 +446,7 @@ export default function CreateRecipePage() {
               {recipe.ingredients.map((ingredient, index) => (
                 <div key={`${ingredient.name}-${index}`} className="rounded-full border border-stone-200 bg-white px-3 py-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-stone-900">{ingredient.name}</span>
+                    <span className="text-sm text-stone-950">{ingredient.name}</span>
                     <button type="button" onClick={() => removeIngredient(index)} className="text-stone-400 hover:text-stone-800">
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -460,7 +460,7 @@ export default function CreateRecipePage() {
                 {recipe.ingredients.map((ingredient, index) => (
                   <div key={`details-${ingredient.name}-${index}`} className="grid gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-4 sm:grid-cols-[1.6fr_0.7fr_0.7fr]">
                     <div>
-                      <p className="text-sm font-medium text-stone-900">{ingredient.name}</p>
+                      <p className="text-sm font-medium text-stone-950">{ingredient.name}</p>
                       <p className="mt-1 text-xs text-stone-500">
                         {ingredient.product_id ? 'Conectado con producto de Hispaloshop' : 'Ingrediente personalizado'}
                       </p>
@@ -484,7 +484,7 @@ export default function CreateRecipePage() {
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-900">5. Pasos</Label>
+            <Label className="text-sm font-medium text-stone-950">5. Pasos</Label>
             <div className="mt-4 space-y-4">
               {recipe.steps.map((step, index) => (
                 <div key={`step-${index}`} className="rounded-xl border border-stone-100 bg-white p-4">
@@ -497,7 +497,7 @@ export default function CreateRecipePage() {
                         value={step.text}
                         onChange={(event) => updateStep(index, 'text', event.target.value)}
                         placeholder={t('recipes.stepPlaceholder', 'Describe este paso')}
-                        className="min-h-[110px] w-full resize-none rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-400"
+                        className="min-h-[110px] w-full resize-none rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400"
                       />
                       <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
                         {step.image_url ? (
@@ -541,7 +541,7 @@ export default function CreateRecipePage() {
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-900">6. Ingredientes desde la plataforma</Label>
+            <Label className="text-sm font-medium text-stone-950">6. Ingredientes desde la plataforma</Label>
             <div className="relative mt-4">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <Input

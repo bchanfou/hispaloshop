@@ -149,7 +149,7 @@ export default function RecipesPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <SEO title="Recipes | Hispaloshop" description="Discover recipes and buy ingredients with one flow" />
+      <SEO title="Recetas | Hispaloshop" description="Descubre recetas y compra los ingredientes en un solo flujo." />
       <Header />
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-6">
         <BackButton />

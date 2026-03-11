@@ -153,21 +153,21 @@ function InfluencerDashboard() {
 
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="mb-4">
-          <h3 className="font-semibold text-gray-900">Ganancias semanales</h3>
-          <p className="text-xs text-text-muted">Evolucion de tus comisiones</p>
+          <h3 className="font-semibold text-stone-950">Ganancias semanales</h3>
+          <p className="text-xs text-stone-500">Evolución de tus comisiones</p>
         </div>
         <AreaChart data={dashboardData.chart.data} labels={dashboardData.chart.labels} color="#2D5A3D" />
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-gray-900 mb-3">Acciones rapidas</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">Acciones rápidas</h3>
         <QuickActions actions={quickActions} />
       </div>
 
       {dashboardData.recentConversions.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">Ventas recientes</h3>
+            <h3 className="font-semibold text-stone-950">Ventas recientes</h3>
             <button onClick={() => navigate('/influencer/earnings')} className="text-sm text-accent font-medium">
               Ver todas
             </button>
@@ -177,7 +177,7 @@ function InfluencerDashboard() {
       )}
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">Sugerencias</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">Sugerencias</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>

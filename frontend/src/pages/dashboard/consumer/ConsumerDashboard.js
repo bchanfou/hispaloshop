@@ -181,7 +181,7 @@ function ConsumerDashboard() {
 
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-gray-900">Gasto mensual</h3>
+          <h3 className="font-semibold text-stone-950">Gasto mensual</h3>
           <span className="text-xs text-accent font-medium">
             Total gastado: EUR {dashboardData.chart.data.reduce((a, b) => a + b, 0).toFixed(0)}
           </span>
@@ -190,14 +190,14 @@ function ConsumerDashboard() {
       </div>
 
       <div className="mb-6">
-        <h3 className="font-semibold text-gray-900 mb-3">Acciones rapidas</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">Acciones rápidas</h3>
         <QuickActions actions={quickActions} />
       </div>
 
       {dashboardData.recentOrders.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">Pedidos recientes</h3>
+            <h3 className="font-semibold text-stone-950">Pedidos recientes</h3>
             <button
               onClick={() => navigate('/dashboard/orders')}
               className="text-sm text-accent font-medium"
@@ -210,7 +210,7 @@ function ConsumerDashboard() {
       )}
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">Sugerencias HI AI</h3>
+        <h3 className="font-semibold text-stone-950 mb-3">Sugerencias HI AI</h3>
         <HISuggestions suggestions={dashboardData.suggestions} />
       </div>
     </div>
