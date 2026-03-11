@@ -24,6 +24,7 @@ async def create_recipe(request: Request, user: User = Depends(get_current_user)
         "recipe_id": recipe_id,
         "title": body.get("title", ""),
         "title_i18n": body.get("title_i18n", {}),
+        "description": body.get("description", ""),
         "author_id": user.user_id,
         "author_name": user.name,
         "difficulty": body.get("difficulty", "easy"),

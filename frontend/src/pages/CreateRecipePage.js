@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { ChefHat, ImagePlus, Loader2, Package, Plus, Search, UploadCloud, X } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
@@ -9,269 +10,553 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { Plus, X, ChefHat, Clock, Users, Loader2, GripVertical, Search, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import { API } from '../utils/api';
+import { resolveUserImage } from '../features/user/queries';
 
-function IngredientRow({ ingredient, index, onChange, onRemove, onLinkProduct }) {
-  const { t } = useTranslation();
-  return (
-    <div className="bg-stone-50 rounded-xl p-3 space-y-2" data-testid={`ingredient-${index}`}>
-      <div className="flex items-center gap-2">
-        <GripVertical className="w-4 h-4 text-stone-300 shrink-0 cursor-grab hidden sm:block" />
-        <Input value={ingredient.name} onChange={(e) => onChange(index, 'name', e.target.value)} placeholder={t('recipes.ingredientName')} className="flex-1 h-9 text-sm rounded-lg" />
-        <button onClick={() => onLinkProduct(index)} className={`p-1.5 rounded-lg transition-colors shrink-0 ${ingredient.product_id ? 'bg-accent/10 text-accent' : 'bg-stone-100 text-stone-400 hover:text-accent'}`} title={t('recipes.linkProduct')}>
-          <Package className="w-4 h-4" />
-        </button>
-        <button onClick={() => onRemove(index)} className="p-1.5 text-stone-400 hover:text-red-500 transition-colors shrink-0">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="flex items-center gap-2 pl-0 sm:pl-6">
-        <Input value={ingredient.quantity} onChange={(e) => onChange(index, 'quantity', e.target.value)} placeholder={t('recipes.quantity')} className="w-1/2 h-9 text-sm rounded-lg" />
-        <Input value={ingredient.unit} onChange={(e) => onChange(index, 'unit', e.target.value)} placeholder={t('recipes.unit')} className="w-1/2 h-9 text-sm rounded-lg" />
-      </div>
-    </div>
-  );
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
-function ProductSearchModal({ onSelect, onClose }) {
-  const { t } = useTranslation();
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!query.trim()) { setResults([]); return; }
-    const timer = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${API}/products?search=${query}&limit=10`);
-        setResults(res.data || []);
-      } catch { /* ignore */ }
-      finally { setLoading(false); }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [query]);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 max-h-[70vh] flex flex-col">
-        <div className="p-4 border-b border-stone-100 flex items-center gap-3">
-          <Search className="w-5 h-5 text-stone-400" />
-          <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('recipes.linkProduct')} className="border-0 focus-visible:ring-0 h-9" autoFocus />
-          <button onClick={onClose}><X className="w-5 h-5 text-stone-400" /></button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-2">
-          {loading && <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin" /></div>}
-          {results.map(p => (
-            <button key={p.product_id} onClick={() => onSelect(p)} className="w-full text-left flex items-center gap-3 p-3 hover:bg-stone-50 rounded-xl transition-colors" data-testid={`product-link-${p.product_id}`}>
-              <div className="w-10 h-10 bg-stone-100 rounded-lg overflow-hidden shrink-0">
-                {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-stone-300 m-auto mt-2" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-primary truncate">{p.name}</p>
-                <p className="text-xs text-stone-500">{p.currency || 'EUR'} {p.price}</p>
-              </div>
-            </button>
-          ))}
-          {!loading && query && results.length === 0 && <p className="text-center text-sm text-stone-400 py-4">{t('social.noResults')}</p>}
-        </div>
-      </div>
-    </div>
-  );
+function normalizeIngredientName(value) {
+  return value.trim().replace(/\s+/g, ' ');
 }
 
 export default function CreateRecipePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
+  const imageInputRef = useRef(null);
   const [submitting, setSubmitting] = useState(false);
-  const [linkingIndex, setLinkingIndex] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [manualIngredientInput, setManualIngredientInput] = useState('');
+  const [productQuery, setProductQuery] = useState('');
+  const [productResults, setProductResults] = useState([]);
+  const [productLoading, setProductLoading] = useState(false);
 
   const [recipe, setRecipe] = useState({
+    image_url: '',
     title: '',
+    description: '',
     difficulty: 'easy',
     time_minutes: 30,
     servings: 4,
-    ingredients: [{ name: '', quantity: '', unit: '', product_id: null }],
-    steps: [''],
+    ingredients: [],
+    steps: [{ text: '', image_url: '' }],
     tags: [],
   });
-  const [tagInput, setTagInput] = useState('');
 
-  const updateIngredient = (i, field, val) => {
-    const updated = [...recipe.ingredients];
-    updated[i] = { ...updated[i], [field]: val };
-    setRecipe({ ...recipe, ingredients: updated });
-  };
-
-  const removeIngredient = (i) => {
-    setRecipe({ ...recipe, ingredients: recipe.ingredients.filter((_, idx) => idx !== i) });
-  };
-
-  const addIngredient = () => {
-    setRecipe({ ...recipe, ingredients: [...recipe.ingredients, { name: '', quantity: '', unit: '', product_id: null }] });
-  };
-
-  const updateStep = (i, val) => {
-    const updated = [...recipe.steps];
-    updated[i] = val;
-    setRecipe({ ...recipe, steps: updated });
-  };
-
-  const removeStep = (i) => {
-    setRecipe({ ...recipe, steps: recipe.steps.filter((_, idx) => idx !== i) });
-  };
-
-  const addStep = () => {
-    setRecipe({ ...recipe, steps: [...recipe.steps, ''] });
-  };
-
-  const addTag = () => {
-    const tag = tagInput.trim().toLowerCase();
-    if (tag && !recipe.tags.includes(tag)) {
-      setRecipe({ ...recipe, tags: [...recipe.tags, tag] });
-    }
-    setTagInput('');
-  };
-
-  const removeTag = (tag) => {
-    setRecipe({ ...recipe, tags: recipe.tags.filter(t => t !== tag) });
-  };
-
-  const handleLinkProduct = (product) => {
-    if (linkingIndex !== null) {
-      updateIngredient(linkingIndex, 'product_id', product.product_id);
-      updateIngredient(linkingIndex, 'name', recipe.ingredients[linkingIndex].name || product.name);
-      setLinkingIndex(null);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!recipe.title.trim()) { toast.error(t('recipes.recipeName')); return; }
-    if (recipe.ingredients.filter(i => i.name.trim()).length === 0) { toast.error(t('recipes.ingredients')); return; }
-    if (recipe.steps.filter(s => s.trim()).length === 0) { toast.error(t('recipes.steps')); return; }
-
-    setSubmitting(true);
-    try {
-      const payload = {
-        ...recipe,
-        ingredients: recipe.ingredients.filter(i => i.name.trim()),
-        steps: recipe.steps.filter(s => s.trim()),
-      };
-      const res = await axios.post(`${API}/recipes`, payload, { withCredentials: true });
-      toast.success(t('recipes.published'));
-      navigate(`/recipes/${res.data.recipe_id}`);
-    } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const selectedProducts = useMemo(
+    () => recipe.ingredients.filter((ingredient) => ingredient.product_id),
+    [recipe.ingredients],
+  );
 
   if (!user) {
     navigate('/login');
     return null;
   }
 
+  const updateRecipe = (field, value) => {
+    setRecipe((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleMainImage = async (file) => {
+    if (!file?.type?.startsWith('image/')) {
+      toast.error(t('social.imagesOnly', 'Solo se permiten imágenes'));
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error(t('social.maxSize10', 'El tamaño máximo es 10MB'));
+      return;
+    }
+
+    try {
+      const imageUrl = await fileToDataUrl(file);
+      updateRecipe('image_url', imageUrl);
+    } catch {
+      toast.error('No hemos podido cargar la imagen');
+    }
+  };
+
+  const handleDrop = async (event) => {
+    event.preventDefault();
+    setDragActive(false);
+    const file = event.dataTransfer.files?.[0];
+    if (file) {
+      await handleMainImage(file);
+    }
+  };
+
+  const addManualIngredient = () => {
+    const name = normalizeIngredientName(manualIngredientInput);
+    if (!name) return;
+    if (recipe.ingredients.some((ingredient) => ingredient.name.toLowerCase() === name.toLowerCase())) {
+      setManualIngredientInput('');
+      return;
+    }
+
+    updateRecipe('ingredients', [
+      ...recipe.ingredients,
+      { name, quantity: '', unit: '', product_id: null, product: null, source: 'manual' },
+    ]);
+    setManualIngredientInput('');
+  };
+
+  const removeIngredient = (index) => {
+    updateRecipe(
+      'ingredients',
+      recipe.ingredients.filter((_, ingredientIndex) => ingredientIndex !== index),
+    );
+  };
+
+  const updateIngredientField = (index, field, value) => {
+    const nextIngredients = [...recipe.ingredients];
+    nextIngredients[index] = { ...nextIngredients[index], [field]: value };
+    updateRecipe('ingredients', nextIngredients);
+  };
+
+  const searchProducts = async (value) => {
+    setProductQuery(value);
+    if (!value.trim()) {
+      setProductResults([]);
+      return;
+    }
+
+    setProductLoading(true);
+    try {
+      const response = await axios.get(`${API}/products?search=${encodeURIComponent(value)}&limit=8`);
+      const results = response.data?.products || response.data || [];
+      setProductResults(Array.isArray(results) ? results : []);
+    } catch {
+      setProductResults([]);
+    } finally {
+      setProductLoading(false);
+    }
+  };
+
+  const addProductIngredient = (product) => {
+    if (recipe.ingredients.some((ingredient) => ingredient.product_id === product.product_id)) {
+      setProductQuery('');
+      setProductResults([]);
+      return;
+    }
+
+    updateRecipe('ingredients', [
+      ...recipe.ingredients,
+      {
+        name: product.name,
+        quantity: '',
+        unit: '',
+        product_id: product.product_id,
+        product,
+        source: 'catalog',
+      },
+    ]);
+    setProductQuery('');
+    setProductResults([]);
+  };
+
+  const updateStep = (index, field, value) => {
+    const nextSteps = [...recipe.steps];
+    nextSteps[index] = { ...nextSteps[index], [field]: value };
+    updateRecipe('steps', nextSteps);
+  };
+
+  const addStep = () => {
+    updateRecipe('steps', [...recipe.steps, { text: '', image_url: '' }]);
+  };
+
+  const removeStep = (index) => {
+    updateRecipe(
+      'steps',
+      recipe.steps.filter((_, stepIndex) => stepIndex !== index),
+    );
+  };
+
+  const handleStepImage = async (index, file) => {
+    if (!file?.type?.startsWith('image/')) {
+      toast.error(t('social.imagesOnly', 'Solo se permiten imágenes'));
+      return;
+    }
+
+    try {
+      const imageUrl = await fileToDataUrl(file);
+      updateStep(index, 'image_url', imageUrl);
+    } catch {
+      toast.error('No hemos podido cargar la imagen del paso');
+    }
+  };
+
+  const handleSubmit = async () => {
+    const cleanedIngredients = recipe.ingredients
+      .map((ingredient) => ({
+        name: normalizeIngredientName(ingredient.name),
+        quantity: ingredient.quantity || '',
+        unit: ingredient.unit || '',
+        product_id: ingredient.product_id || null,
+      }))
+      .filter((ingredient) => ingredient.name);
+
+    const cleanedSteps = recipe.steps
+      .map((step) => ({
+        text: step.text?.trim() || '',
+        image_url: step.image_url || '',
+      }))
+      .filter((step) => step.text || step.image_url);
+
+    if (!recipe.title.trim()) {
+      toast.error(t('recipes.recipeName', 'Nombre de la receta'));
+      return;
+    }
+
+    if (!recipe.description.trim()) {
+      toast.error('Añade una descripción');
+      return;
+    }
+
+    if (cleanedIngredients.length === 0) {
+      toast.error(t('recipes.ingredients', 'Ingredientes'));
+      return;
+    }
+
+    if (cleanedSteps.length === 0) {
+      toast.error(t('recipes.steps', 'Pasos'));
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload = {
+        ...recipe,
+        title: recipe.title.trim(),
+        description: recipe.description.trim(),
+        ingredients: cleanedIngredients,
+        steps: cleanedSteps,
+      };
+
+      const response = await axios.post(`${API}/recipes`, payload, { withCredentials: true });
+      toast.success(t('recipes.published', 'Receta publicada'));
+      navigate(`/recipes/${response.data.recipe_id}`);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'No hemos podido publicar la receta');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-stone-50">
       <Header />
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <main className="mx-auto max-w-[700px] px-4 py-6">
         <BackButton />
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
-            <ChefHat className="w-5 h-5 text-accent" />
-          </div>
-          <h1 className="font-heading text-2xl font-semibold text-primary">{t('recipes.createRecipe')}</h1>
+
+        <div className="mt-8 mb-8">
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">{t('recipes.createRecipe', 'Crear receta')}</h1>
+          <p className="mt-3 text-sm leading-relaxed text-stone-600">
+            Organiza la receta como una publicación limpia: imagen principal, historia, ingredientes y pasos.
+          </p>
         </div>
 
         <div className="space-y-6">
-          {/* Basic Info */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4">
-            <div>
-              <Label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1.5">{t('recipes.recipeName')} *</Label>
-              <Input value={recipe.title} onChange={(e) => setRecipe({ ...recipe, title: e.target.value })} placeholder={t('recipes.recipeName')} className="rounded-xl h-11" data-testid="recipe-title-input" />
+          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
+            <Label className="text-sm font-medium text-stone-900">1. Imagen principal</Label>
+            <div
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragActive(true);
+              }}
+              onDragLeave={() => setDragActive(false)}
+              onDrop={handleDrop}
+              className={`mt-4 overflow-hidden rounded-2xl border border-dashed bg-stone-50 transition-colors ${
+                dragActive ? 'border-stone-500' : 'border-stone-300'
+              }`}
+            >
+              {recipe.image_url ? (
+                <div className="relative">
+                  <img src={recipe.image_url} alt="Vista previa" className="aspect-[4/3] w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => updateRecipe('image_url', '')}
+                    className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/65 text-white"
+                    aria-label="Eliminar imagen"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  className="flex w-full flex-col items-center justify-center gap-3 px-6 py-16 text-center"
+                >
+                  <UploadCloud className="h-8 w-8 text-stone-400" />
+                  <div>
+                    <p className="text-sm font-medium text-stone-900">Arrastra una imagen o súbela desde tu equipo</p>
+                    <p className="mt-1 text-sm text-stone-500">Formato cuadrado o vertical recomendado.</p>
+                  </div>
+                </button>
+              )}
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => handleMainImage(event.target.files?.[0])}
+            />
+          </section>
+
+          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
+            <Label className="text-sm font-medium text-stone-900">2. {t('recipes.recipeName', 'Título')}</Label>
+            <Input
+              value={recipe.title}
+              onChange={(event) => updateRecipe('title', event.target.value)}
+              placeholder={t('recipes.recipeName', 'Título de la receta')}
+              className="mt-4 h-12 rounded-full border-stone-200"
+              data-testid="recipe-title-input"
+            />
+          </section>
+
+          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
+            <Label className="text-sm font-medium text-stone-900">3. Descripción</Label>
+            <textarea
+              value={recipe.description}
+              onChange={(event) => updateRecipe('description', event.target.value)}
+              placeholder="Cuenta qué hace especial esta receta."
+              className="mt-4 min-h-[140px] w-full resize-none rounded-[24px] border border-stone-200 px-4 py-4 text-sm text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
+            />
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <div>
-                <Label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1.5">{t('recipes.difficulty')}</Label>
-                <select value={recipe.difficulty} onChange={(e) => setRecipe({ ...recipe, difficulty: e.target.value })} className="w-full h-11 px-3 border border-stone-200 rounded-xl text-sm bg-white" data-testid="recipe-difficulty">
-                  <option value="easy">{t('recipes.easy')}</option>
-                  <option value="medium">{t('recipes.medium')}</option>
-                  <option value="hard">{t('recipes.hard')}</option>
+                <Label className="text-xs uppercase tracking-[0.22em] text-stone-500">Dificultad</Label>
+                <select
+                  value={recipe.difficulty}
+                  onChange={(event) => updateRecipe('difficulty', event.target.value)}
+                  className="mt-2 h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm text-stone-900 outline-none"
+                  data-testid="recipe-difficulty"
+                >
+                  <option value="easy">{t('recipes.easy', 'Fácil')}</option>
+                  <option value="medium">{t('recipes.medium', 'Media')}</option>
+                  <option value="hard">{t('recipes.hard', 'Difícil')}</option>
                 </select>
               </div>
               <div>
-                <Label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1.5 flex items-center gap-1"><Clock className="w-3 h-3" />{t('recipes.time')}</Label>
-                <Input type="number" value={recipe.time_minutes} onChange={(e) => setRecipe({ ...recipe, time_minutes: parseInt(e.target.value) || 0 })} className="rounded-xl h-11" data-testid="recipe-time" />
+                <Label className="text-xs uppercase tracking-[0.22em] text-stone-500">Tiempo</Label>
+                <Input
+                  type="number"
+                  value={recipe.time_minutes}
+                  onChange={(event) => updateRecipe('time_minutes', Number(event.target.value) || 0)}
+                  className="mt-2 h-11 rounded-full border-stone-200"
+                  data-testid="recipe-time"
+                />
               </div>
               <div>
-                <Label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1.5 flex items-center gap-1"><Users className="w-3 h-3" />{t('recipes.servings')}</Label>
-                <Input type="number" value={recipe.servings} onChange={(e) => setRecipe({ ...recipe, servings: parseInt(e.target.value) || 1 })} className="rounded-xl h-11" data-testid="recipe-servings" />
+                <Label className="text-xs uppercase tracking-[0.22em] text-stone-500">Raciones</Label>
+                <Input
+                  type="number"
+                  value={recipe.servings}
+                  onChange={(event) => updateRecipe('servings', Number(event.target.value) || 1)}
+                  className="mt-2 h-11 rounded-full border-stone-200"
+                  data-testid="recipe-servings"
+                />
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Ingredients */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5">
-            <Label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3 block">{t('recipes.ingredients')} *</Label>
-            <div className="space-y-2 mb-3">
-              {recipe.ingredients.map((ing, i) => (
-                <IngredientRow key={i} ingredient={ing} index={i} onChange={updateIngredient} onRemove={removeIngredient} onLinkProduct={(idx) => setLinkingIndex(idx)} />
-              ))}
+          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
+            <Label className="text-sm font-medium text-stone-900">4. Ingredientes</Label>
+            <div className="mt-4 flex gap-2">
+              <Input
+                value={manualIngredientInput}
+                onChange={(event) => setManualIngredientInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    addManualIngredient();
+                  }
+                }}
+                placeholder="Añadir ingrediente manual"
+                className="h-11 rounded-full border-stone-200 bg-white"
+              />
+              <Button type="button" variant="outline" className="h-11 rounded-full" onClick={addManualIngredient}>
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
-            <Button variant="outline" size="sm" onClick={addIngredient} className="rounded-xl gap-1.5 text-xs border-dashed" data-testid="add-ingredient-btn">
-              <Plus className="w-3.5 h-3.5" /> {t('recipes.addIngredient')}
-            </Button>
-          </div>
 
-          {/* Steps */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5">
-            <Label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3 block">{t('recipes.steps')} *</Label>
-            <div className="space-y-2 mb-3">
-              {recipe.steps.map((step, i) => (
-                <div key={i} className="flex items-start gap-2" data-testid={`step-${i}`}>
-                  <span className="w-7 h-7 bg-accent/10 text-accent rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-1">{i + 1}</span>
-                  <textarea value={step} onChange={(e) => updateStep(i, e.target.value)} placeholder={t('recipes.stepPlaceholder')} className="flex-1 text-sm border border-stone-200 rounded-xl p-3 resize-none min-h-[60px] focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none" />
-                  <button onClick={() => removeStep(i)} className="p-1.5 text-stone-400 hover:text-red-500 mt-1 shrink-0"><X className="w-4 h-4" /></button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {recipe.ingredients.map((ingredient, index) => (
+                <div key={`${ingredient.name}-${index}`} className="rounded-full border border-stone-200 bg-white px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-stone-900">{ingredient.name}</span>
+                    <button type="button" onClick={() => removeIngredient(index)} className="text-stone-400 hover:text-stone-800">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
-            <Button variant="outline" size="sm" onClick={addStep} className="rounded-xl gap-1.5 text-xs border-dashed" data-testid="add-step-btn">
-              <Plus className="w-3.5 h-3.5" /> {t('recipes.addStep')}
-            </Button>
-          </div>
 
-          {/* Tags */}
-          <div className="bg-white rounded-2xl border border-stone-200 p-5">
-            <Label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3 block">{t('recipes.tags')}</Label>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {recipe.tags.map(tag => (
-                <span key={tag} className="inline-flex items-center gap-1 bg-stone-100 text-stone-600 text-xs px-3 py-1.5 rounded-full">
-                  #{tag} <button onClick={() => removeTag(tag)}><X className="w-3 h-3" /></button>
-                </span>
+            {recipe.ingredients.length > 0 ? (
+              <div className="mt-5 space-y-3">
+                {recipe.ingredients.map((ingredient, index) => (
+                  <div key={`details-${ingredient.name}-${index}`} className="grid gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-4 sm:grid-cols-[1.6fr_0.7fr_0.7fr]">
+                    <div>
+                      <p className="text-sm font-medium text-stone-900">{ingredient.name}</p>
+                      <p className="mt-1 text-xs text-stone-500">
+                        {ingredient.product_id ? 'Conectado con producto de Hispaloshop' : 'Ingrediente personalizado'}
+                      </p>
+                    </div>
+                    <Input
+                      value={ingredient.quantity}
+                      onChange={(event) => updateIngredientField(index, 'quantity', event.target.value)}
+                      placeholder="Cantidad"
+                      className="h-10 rounded-full border-stone-200 bg-white"
+                    />
+                    <Input
+                      value={ingredient.unit}
+                      onChange={(event) => updateIngredientField(index, 'unit', event.target.value)}
+                      placeholder="Unidad"
+                      className="h-10 rounded-full border-stone-200 bg-white"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </section>
+
+          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
+            <Label className="text-sm font-medium text-stone-900">5. Pasos</Label>
+            <div className="mt-4 space-y-4">
+              {recipe.steps.map((step, index) => (
+                <div key={`step-${index}`} className="rounded-xl border border-stone-100 bg-white p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-950 text-xs font-semibold text-white">
+                      {index + 1}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-3">
+                      <textarea
+                        value={step.text}
+                        onChange={(event) => updateStep(index, 'text', event.target.value)}
+                        placeholder={t('recipes.stepPlaceholder', 'Describe este paso')}
+                        className="min-h-[110px] w-full resize-none rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-400"
+                      />
+                      <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
+                        {step.image_url ? (
+                          <div className="relative overflow-hidden rounded-2xl">
+                            <img src={step.image_url} alt={`Paso ${index + 1}`} className="h-44 w-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => updateStep(index, 'image_url', '')}
+                              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="flex cursor-pointer items-center gap-2 text-sm text-stone-600">
+                            <ImagePlus className="h-4 w-4" />
+                            Añadir imagen opcional del paso
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(event) => handleStepImage(index, event.target.files?.[0])}
+                            />
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                    {recipe.steps.length > 1 ? (
+                      <button type="button" onClick={() => removeStep(index)} className="text-stone-400 hover:text-stone-800">
+                        <X className="h-4 w-4" />
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
               ))}
             </div>
-            <div className="flex gap-2">
-              <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())} placeholder={t('recipes.addTag')} className="rounded-xl h-9 text-sm" />
-              <Button variant="outline" size="sm" onClick={addTag} className="rounded-xl shrink-0"><Plus className="w-4 h-4" /></Button>
-            </div>
-          </div>
+            <Button type="button" variant="outline" onClick={addStep} className="mt-4 rounded-full border-stone-200">
+              <Plus className="h-4 w-4" />
+              {t('recipes.addStep', 'Añadir paso')}
+            </Button>
+          </section>
 
-          {/* Submit */}
-          <Button onClick={handleSubmit} disabled={submitting} className="w-full h-12 bg-primary hover:bg-primary-hover text-white rounded-xl text-base font-semibold gap-2" data-testid="publish-recipe-btn">
-            {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChefHat className="w-5 h-5" />}
-            {t('recipes.publish')}
+          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
+            <Label className="text-sm font-medium text-stone-900">6. Ingredientes desde la plataforma</Label>
+            <div className="relative mt-4">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <Input
+                value={productQuery}
+                onChange={(event) => searchProducts(event.target.value)}
+                placeholder="Buscar productos de Hispaloshop"
+                className="h-11 rounded-full border-stone-200 bg-white pl-11"
+              />
+            </div>
+
+            {selectedProducts.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {selectedProducts.map((ingredient, index) => (
+                  <div key={`${ingredient.product_id}-${index}`} className="rounded-full border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700">
+                    {ingredient.name}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="mt-4 space-y-2">
+              {productLoading ? (
+                <div className="flex items-center justify-center py-6">
+                  <Loader2 className="h-5 w-5 animate-spin text-stone-500" />
+                </div>
+              ) : (
+                productResults.map((product) => (
+                  <button
+                    key={product.product_id}
+                    type="button"
+                    onClick={() => addProductIngredient(product)}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm"
+                    data-testid={`product-link-${product.product_id}`}
+                  >
+                    <div className="h-14 w-14 overflow-hidden rounded-xl bg-white">
+                      {product.images?.[0] ? (
+                        <img
+                          src={resolveUserImage(product.images[0])}
+                          alt={product.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-stone-300">
+                          <Package className="h-5 w-5" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-stone-950">{product.name}</p>
+                      <p className="mt-1 text-xs text-stone-500">Usar como ingrediente conectado</p>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </section>
+
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="h-12 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800"
+            data-testid="publish-recipe-btn"
+          >
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChefHat className="h-4 w-4" />}
+            {t('recipes.publish', 'Publicar receta')}
           </Button>
         </div>
-      </div>
-
-      {linkingIndex !== null && (
-        <ProductSearchModal onSelect={handleLinkProduct} onClose={() => setLinkingIndex(null)} />
-      )}
+      </main>
       <Footer />
     </div>
   );

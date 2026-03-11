@@ -1,14 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { ChefHat, Clock3, Loader2, ShoppingCart, User, Users } from 'lucide-react';
+import { toast } from 'sonner';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
 import { Button } from '../components/ui/button';
-import { Clock, Users, ShoppingCart, Check, Loader2, ChefHat } from 'lucide-react';
-import { toast } from 'sonner';
+import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import { API } from '../utils/api';
 import { useTranslation } from 'react-i18next';
+import { resolveUserImage } from '../features/user/queries';
+
+function normalizeStep(step) {
+  if (typeof step === 'string') {
+    return { text: step, image_url: '' };
+  }
+
+  return {
+    text: step?.text || step?.description || '',
+    image_url: step?.image_url || '',
+  };
+}
 
 export default function RecipeDetailPage() {
   const { recipeId } = useParams();
@@ -16,36 +29,72 @@ export default function RecipeDetailPage() {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    axios.get(`${API}/recipes/${recipeId}`)
-      .then(r => setRecipe(r.data))
-      .catch(() => toast.error(t('recipes.notFound', 'Recipe not found')))
-      .finally(() => setLoading(false));
+    let active = true;
+    setLoading(true);
+
+    axios
+      .get(`${API}/recipes/${recipeId}`)
+      .then((response) => {
+        if (active) {
+          setRecipe(response.data || null);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setRecipe(null);
+          toast.error(t('recipes.notFound', 'Recipe not found'));
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, [recipeId, t]);
+
+  const steps = useMemo(() => (recipe?.steps || []).map(normalizeStep), [recipe?.steps]);
 
   const handleAddAllToCart = async () => {
     setAdding(true);
     try {
-      const res = await axios.post(`${API}/recipes/${recipeId}/shopping-list`, {}, { withCredentials: true });
-      toast.success(t('recipes.addedToCart', { count: res.data.added, total: res.data.total }));
-    } catch (err) {
-      toast.error(err.response?.data?.detail || t('errors.loginRequired', 'Login required'));
-    } finally { setAdding(false); }
+      const response = await axios.post(`${API}/recipes/${recipeId}/shopping-list`, {}, { withCredentials: true });
+      toast.success(t('recipes.addedToCart', { count: response.data.added, total: response.data.total }));
+    } catch (error) {
+      toast.error(error.response?.data?.detail || t('errors.loginRequired', 'Login required'));
+    } finally {
+      setAdding(false);
+    }
   };
 
-  if (loading) return <div className="min-h-screen bg-stone-50"><Header /><div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin" /></div></div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-stone-50">
+        <Header />
+        <div className="flex justify-center py-24">
+          <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+        </div>
+      </div>
+    );
+  }
+
   if (!recipe) {
     return (
       <div className="min-h-screen bg-stone-50">
         <Header />
-        <div className="max-w-2xl mx-auto px-4 pt-6 pb-16">
+        <div className="mx-auto max-w-3xl px-4 py-10">
           <BackButton />
-          <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center">
-            <ChefHat className="w-10 h-10 text-stone-400 mx-auto mb-3" />
-            <h1 className="font-heading text-xl text-primary mb-2">{t('recipes.notFound', 'Recipe not found')}</h1>
-            <p className="text-sm text-text-muted mb-4">{t('recipes.tryAnother', 'Try another recipe from our catalog.')}</p>
-            <Link to="/recipes" className="inline-flex items-center justify-center rounded-full bg-primary text-white px-5 py-2.5 text-sm hover:bg-primary-hover">
+          <div className="mt-6 rounded-[28px] border border-stone-100 bg-white p-10 text-center">
+            <ChefHat className="mx-auto h-10 w-10 text-stone-300" />
+            <h1 className="mt-4 text-xl font-semibold text-stone-950">{t('recipes.notFound', 'Recipe not found')}</h1>
+            <p className="mt-2 text-sm text-stone-500">{t('recipes.tryAnother', 'Try another recipe from our catalog.')}</p>
+            <Link to="/recipes" className="mt-5 inline-flex rounded-full bg-stone-950 px-5 py-2.5 text-sm text-white">
               {t('recipes.backToList', 'Go to recipes')}
             </Link>
           </div>
@@ -58,70 +107,142 @@ export default function RecipeDetailPage() {
   return (
     <div className="min-h-screen bg-stone-50">
       <Header />
-      <div className="max-w-2xl mx-auto px-4 pt-6 pb-16">
+      <main className="mx-auto max-w-6xl px-4 py-6">
         <BackButton />
-        
-        {recipe.image_url && (
-          <div className="aspect-video rounded-2xl overflow-hidden mb-6">
-            <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover" />
-          </div>
-        )}
 
-        <h1 className="font-heading text-2xl font-semibold text-primary mb-2">{recipe.title}</h1>
-        
-        <div className="flex items-center gap-4 text-sm text-text-muted mb-4">
-          <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {recipe.time_minutes} min</span>
-          <span className="flex items-center gap-1"><Users className="w-4 h-4" /> {recipe.servings} {t('recipes.servings', 'servings')}</span>
-          <span className="capitalize bg-stone-100 px-2 py-0.5 rounded-full text-xs">{recipe.difficulty}</span>
-        </div>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
+          <section className="space-y-5">
+            <div className="overflow-hidden rounded-[32px] border border-stone-100 bg-white">
+              <div className="aspect-square bg-stone-100">
+                {recipe.image_url ? (
+                  <img
+                    src={resolveUserImage(recipe.image_url)}
+                    alt={recipe.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-200 hover:scale-[1.02]"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <ChefHat className="h-10 w-10 text-stone-300" />
+                  </div>
+                )}
+              </div>
+            </div>
 
-        {recipe.tags?.length > 0 && (
-          <div className="flex gap-1 mb-6 flex-wrap">
-            {recipe.tags.map(tag => <span key={tag} className="text-xs bg-accent/10 text-accent px-2.5 py-1 rounded-full">#{tag}</span>)}
-          </div>
-        )}
+            <div className="rounded-[32px] border border-stone-100 bg-white p-6">
+              <h1 className="text-3xl font-semibold tracking-tight text-stone-950">{recipe.title}</h1>
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-stone-600">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-50 px-3 py-1.5">
+                  <Clock3 className="h-4 w-4" />
+                  {recipe.time_minutes || 0} min
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-50 px-3 py-1.5">
+                  <Users className="h-4 w-4" />
+                  {recipe.servings || 1}
+                </span>
+                <span className="rounded-full bg-stone-50 px-3 py-1.5 capitalize">{recipe.difficulty || 'easy'}</span>
+              </div>
 
-        {/* Ingredients with product links */}
-        <div className="bg-white rounded-2xl border border-stone-200 p-5 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-heading text-lg font-semibold">{t('recipes.ingredients', 'Ingredients')}</h2>
-            <Button onClick={handleAddAllToCart} disabled={adding} size="sm" className="bg-primary hover:bg-primary-hover text-white rounded-full">
-              {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <><ShoppingCart className="w-4 h-4 mr-1" /> {t('recipes.buyAll', 'Buy all')}</>}
-            </Button>
-          </div>
-          <div className="space-y-3">
-            {recipe.ingredients?.map((ing, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full border-2 border-stone-200 flex items-center justify-center shrink-0">
-                  {ing.product ? <Check className="w-3 h-3 text-accent" /> : <span className="w-2 h-2 rounded-full bg-stone-300" />}
+              <div className="mt-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 text-stone-500">
+                  <User className="h-5 w-5" />
                 </div>
-                <div className="flex-1">
-                  <span className="text-sm text-primary">{ing.quantity} {ing.unit} {ing.name}</span>
-                  {ing.product && (
-                    <Link to={`/products/${ing.product.product_id}`} className="block text-xs text-accent hover:underline mt-0.5">
-                      {ing.product.name} — ${ing.product.price?.toFixed(2)}
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-stone-400">Autor</p>
+                  {recipe.author_id ? (
+                    <Link to={`/user/${recipe.author_id}`} className="text-sm font-medium text-stone-950 hover:underline">
+                      {recipe.author_name || 'Usuario'}
                     </Link>
+                  ) : (
+                    <p className="text-sm font-medium text-stone-950">{recipe.author_name || 'Usuario'}</p>
                   )}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Steps */}
-        <div className="bg-white rounded-2xl border border-stone-200 p-5">
-          <h2 className="font-heading text-lg font-semibold mb-4">{t('recipes.steps', 'Steps')}</h2>
-          <div className="space-y-4">
-            {recipe.steps?.map((step, i) => (
-              <div key={i} className="flex gap-3">
-                <div className="w-7 h-7 rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</div>
-                <p className="text-sm text-text-primary pt-1">{step}</p>
+              {recipe.description ? (
+                <p className="mt-5 text-sm leading-relaxed text-stone-700">{recipe.description}</p>
+              ) : null}
+
+              <Button
+                onClick={handleAddAllToCart}
+                disabled={adding}
+                className="mt-6 h-11 rounded-full bg-stone-950 px-5 text-white hover:bg-stone-800"
+              >
+                {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
+                {t('recipes.buyAll', 'Comprar ingredientes')}
+              </Button>
+            </div>
+          </section>
+
+          <section className="space-y-5">
+            <div className="rounded-[32px] border border-stone-100 bg-white p-6">
+              <h2 className="text-lg font-semibold text-stone-950">{t('recipes.ingredients', 'Ingredientes')}</h2>
+              <div className="mt-4 space-y-3">
+                {(recipe.ingredients || []).map((ingredient, index) => (
+                  <div key={`${ingredient.name}-${index}`} className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
+                    <p className="text-sm font-medium text-stone-900">
+                      {[ingredient.quantity, ingredient.unit, ingredient.name].filter(Boolean).join(' ')}
+                    </p>
+                    {ingredient.product ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProduct(ingredient.product)}
+                        className="mt-3 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
+                      >
+                        <div className="h-14 w-14 overflow-hidden rounded-xl bg-stone-100">
+                          {ingredient.product.images?.[0] ? (
+                            <img
+                              src={resolveUserImage(ingredient.product.images[0])}
+                              alt={ingredient.product.name}
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : null}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-stone-950">{ingredient.product.name}</p>
+                          <p className="mt-1 text-xs text-stone-500">Abrir producto</p>
+                        </div>
+                      </button>
+                    ) : null}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+
+            <div className="rounded-[32px] border border-stone-100 bg-white p-6">
+              <h2 className="text-lg font-semibold text-stone-950">{t('recipes.steps', 'Pasos')}</h2>
+              <div className="mt-4 space-y-4">
+                {steps.map((step, index) => (
+                  <div key={`step-${index}`} className="rounded-xl border border-stone-100 bg-white p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-950 text-xs font-semibold text-white">
+                        {index + 1}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        {step.text ? <p className="text-sm leading-relaxed text-stone-700">{step.text}</p> : null}
+                        {step.image_url ? (
+                          <div className="mt-3 overflow-hidden rounded-2xl bg-stone-100">
+                            <img
+                              src={resolveUserImage(step.image_url)}
+                              alt={`Paso ${index + 1}`}
+                              loading="lazy"
+                              className="h-48 w-full object-cover transition-transform duration-200 hover:scale-[1.02]"
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
-      </div>
+      </main>
       <Footer />
+
+      {selectedProduct ? <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} /> : null}
     </div>
   );
 }

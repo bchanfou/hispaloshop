@@ -6,6 +6,7 @@ export const userKeys = {
   posts: (userId, options = {}) => ['user', 'posts', userId, options.bookmarked ? 'bookmarked' : 'all'],
   badges: (userId) => ['user', 'badges', userId],
   products: (userId) => ['user', 'products', userId],
+  recipes: (userId) => ['user', 'recipes', userId],
 };
 
 function buildFallbackProfile(userId) {
@@ -24,7 +25,11 @@ export function resolveUserImage(url) {
     return null;
   }
 
-  return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+  if (url.startsWith('http') || url.startsWith('data:') || url.startsWith('blob:')) {
+    return url;
+  }
+
+  return `${API_BASE_URL}${url}`;
 }
 
 export function useUserProfileQuery(userId) {
@@ -70,6 +75,18 @@ export function useUserProductsQuery(userId, options = {}) {
     queryFn: async () => {
       const data = await apiClient.get(`/products?seller_id=${userId}`);
       return data?.products || data || [];
+    },
+    enabled: Boolean(userId) && (options.enabled ?? true),
+  });
+}
+
+export function useUserRecipesQuery(userId, options = {}) {
+  return useQuery({
+    queryKey: userKeys.recipes(userId),
+    queryFn: async () => {
+      const data = await apiClient.get('/recipes?limit=100');
+      const recipes = Array.isArray(data) ? data : [];
+      return recipes.filter((recipe) => recipe.author_id === userId);
     },
     enabled: Boolean(userId) && (options.enabled ?? true),
   });

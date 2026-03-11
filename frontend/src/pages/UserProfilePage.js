@@ -1,26 +1,21 @@
 import BackButton from '../components/BackButton';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  User,
-  MapPin,
-  Calendar,
-  Grid3X3,
-  Heart,
-  MessageCircle,
-  ShoppingBag,
-  Star,
-  Settings,
+  BookOpen,
   Camera,
-  Share2,
-  UserPlus,
-  UserMinus,
-  X,
+  Grid3X3,
   Loader2,
-  ImagePlus,
-  Send,
+  MessageCircle,
   Package,
-  Trophy,
+  PlaySquare,
+  Settings,
+  Share2,
+  ShoppingBag,
+  User,
+  UserMinus,
+  UserPlus,
+  X,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
@@ -29,15 +24,15 @@ import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import { getDefaultRoute, getDashboardLabel } from '../lib/navigation';
 import PostViewer from '../components/PostViewer';
-import { StoriesRow } from '../components/HispaloStories';
-import BadgeGrid from '../components/BadgeGrid';
+import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
+import RecipeOverlay from '../components/recipes/RecipeOverlay';
 import {
   useUserAvatar,
-  useUserBadges,
   useUserFollow,
   useUserPosts,
   useUserProducts,
   useUserProfile,
+  useUserRecipes,
 } from '../features/user/hooks';
 import { resolveUserImage } from '../features/user/queries';
 
@@ -83,35 +78,35 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl w-full max-w-lg shadow-2xl" data-testid="create-post-modal">
-        <div className="flex items-center justify-between p-4 border-b border-stone-200">
+      <div className="absolute inset-0 bg-black/55" onClick={onClose} />
+      <div className="relative w-full max-w-lg rounded-[28px] bg-white shadow-2xl" data-testid="create-post-modal">
+        <div className="flex items-center justify-between border-b border-stone-100 p-4">
           <h3 className="font-semibold text-stone-950">{t('social.newPost')}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-stone-100 rounded-full">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="rounded-full p-1.5 hover:bg-stone-100">
+            <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-4 space-y-4">
+        <div className="space-y-4 p-4">
           {preview ? (
             <div className="relative">
-              <img src={preview} alt="Vista previa de la publicación" loading="lazy" className="w-full max-h-80 rounded-xl object-cover" />
+              <img src={preview} alt="Vista previa de la publicación" loading="lazy" className="max-h-80 w-full rounded-2xl object-cover" />
               <button
                 onClick={() => {
                   setFile(null);
                   setPreview(null);
                 }}
-                className="absolute top-2 right-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
+                className="absolute right-3 top-3 rounded-full bg-black/60 p-1.5 text-white"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </button>
             </div>
           ) : (
             <button
               onClick={() => fileRef.current?.click()}
-              className="flex h-48 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 transition-colors hover:border-stone-950 hover:bg-stone-50"
+              className="flex h-48 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-200 transition-colors hover:border-stone-400 hover:bg-stone-50"
               data-testid="select-image-btn"
             >
-              <ImagePlus className="w-10 h-10 text-stone-400" />
+              <Camera className="h-9 w-9 text-stone-400" />
               <span className="text-sm text-stone-500">{t('social.selectImage')}</span>
             </button>
           )}
@@ -120,20 +115,76 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
             value={caption}
             onChange={(event) => setCaption(event.target.value)}
             placeholder={t('social.writeCaption')}
-            className="h-20 w-full resize-none rounded-xl border border-stone-200 p-3 text-sm focus:border-stone-950 focus:outline-none focus:ring-2 focus:ring-stone-950/10"
+            className="h-24 w-full resize-none rounded-2xl border border-stone-200 p-3 text-sm focus:border-stone-400 focus:outline-none"
             data-testid="post-caption-input"
           />
           <Button
             onClick={handleSubmit}
             disabled={!file || creatingPost}
-            className="h-11 w-full rounded-xl bg-stone-950 text-white hover:bg-stone-950"
+            className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800"
             data-testid="submit-post-btn"
           >
-            {creatingPost ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
+            {creatingPost ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
             {t('social.publish')}
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ProfileHighlight({ label }) {
+  return (
+    <div className="flex shrink-0 flex-col items-center gap-2">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-stone-300 p-1">
+        <div className="h-full w-full rounded-full bg-stone-100" />
+      </div>
+      <span className="text-xs text-stone-600">{label}</span>
+    </div>
+  );
+}
+
+function ContentTile({ item, type, onClick }) {
+  const imageUrl =
+    item?.image_url ||
+    item?.images?.[0] ||
+    item?.thumbnail_url ||
+    item?.cover_image ||
+    null;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group relative aspect-square overflow-hidden rounded-2xl bg-stone-100 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+    >
+      {imageUrl ? (
+        <img
+          src={resolveUserImage(imageUrl)}
+          alt={item.title || item.name || item.caption || type}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+        />
+      ) : (
+        <div className="flex h-full items-center justify-center text-stone-300">
+          {type === 'recipe' ? <BookOpen className="h-8 w-8" /> : <Grid3X3 className="h-8 w-8" />}
+        </div>
+      )}
+
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent p-3 text-white">
+        <p className="line-clamp-2 text-sm font-medium">{item.title || item.name || item.caption || ''}</p>
+      </div>
+    </button>
+  );
+}
+
+function EmptyState({ icon: Icon, title, description, action }) {
+  return (
+    <div className="rounded-[28px] border border-dashed border-stone-200 bg-white px-6 py-16 text-center">
+      <Icon className="mx-auto h-12 w-12 text-stone-300" />
+      <h3 className="mt-4 text-lg font-semibold text-stone-950">{title}</h3>
+      <p className="mt-2 text-sm text-stone-500">{description}</p>
+      {action}
     </div>
   );
 }
@@ -144,26 +195,48 @@ export default function UserProfilePage() {
   const { t } = useTranslation();
   const { profile, isLoading: profileLoading } = useUserProfile(userId);
   const { posts, isLoading: postsLoading, createPost, creatingPost } = useUserPosts(userId);
-  const { badges, isLoading: badgesLoading } = useUserBadges(userId, currentUser?.user_id === userId);
   const { isFollowing, followersCount, followingCount, toggleFollow } = useUserFollow(userId, profile);
   const { uploadingAvatar, uploadAvatar } = useUserAvatar(userId);
-  const [activeTab, setActiveTab] = useState(null);
+  const [activeTab, setActiveTab] = useState('posts');
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedRecipeIndex, setSelectedRecipeIndex] = useState(null);
   const avatarInputRef = useRef(null);
 
   const isOwnProfile = currentUser?.user_id === userId;
   const isSeller = profile?.role === 'producer' || profile?.role === 'importer';
-  const { sellerProducts } = useUserProducts(userId, activeTab === 'products' && isSeller);
-  const loading = profileLoading || postsLoading || badgesLoading;
+  const { sellerProducts, isLoading: productsLoading } = useUserProducts(userId, activeTab === 'products' && isSeller);
+  const { recipes, isLoading: recipesLoading } = useUserRecipes(userId, activeTab === 'recipes');
+  const loading = profileLoading || postsLoading;
   const dashboardUrl = currentUser ? getDefaultRoute(currentUser, currentUser.onboarding_completed) : '/login';
   const dashboardLabel = currentUser ? getDashboardLabel(currentUser.role) : 'Panel';
 
   useEffect(() => {
-    if (profile && activeTab === null) {
-      setActiveTab(isSeller ? 'products' : 'posts');
+    if (!isSeller && activeTab === 'products') {
+      setActiveTab('posts');
     }
-  }, [activeTab, isSeller, profile]);
+  }, [activeTab, isSeller]);
+
+  const postCount = posts.length || profile?.posts_count || 0;
+  const recipesCount = recipes.length;
+  const productsCount = sellerProducts.length || profile?.seller_stats?.total_products || 0;
+  const displayName = profile?.username ? `@${profile.username}` : `@${profile?.name?.toLowerCase?.().replace(/\s+/g, '') || 'usuario'}`;
+  const realName = profile?.name || 'Usuario';
+
+  const highlights = useMemo(() => {
+    const items = ['Recetas', 'Productos', 'Viajes', 'Eventos'];
+    if (profile?.role === 'influencer') return ['Recetas', 'Looks', 'Viajes', 'Eventos'];
+    if (isSeller) return ['Recetas', 'Productos', 'Origen', 'Eventos'];
+    return items;
+  }, [isSeller, profile?.role]);
+
+  const tabs = [
+    { key: 'posts', label: 'Posts', icon: Grid3X3 },
+    { key: 'reels', label: 'Reels', icon: PlaySquare },
+    ...(isSeller ? [{ key: 'products', label: 'Productos', icon: Package }] : []),
+    { key: 'recipes', label: 'Recetas', icon: BookOpen },
+  ];
 
   const handleFollow = async () => {
     if (!currentUser) {
@@ -183,7 +256,7 @@ export default function UserProfilePage() {
     const url = window.location.href;
     if (navigator.share) {
       try {
-        await navigator.share({ title: `Perfil de ${profile?.name}`, url });
+        await navigator.share({ title: `Perfil de ${realName}`, url });
       } catch {
         return;
       }
@@ -218,7 +291,7 @@ export default function UserProfilePage() {
     return (
       <div className="min-h-screen bg-stone-50">
         <Header />
-        <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex h-[60vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-stone-500" />
         </div>
       </div>
@@ -229,447 +302,243 @@ export default function UserProfilePage() {
     <div className="min-h-screen bg-stone-50">
       <Header />
 
-      <div className="bg-white border-b border-stone-200">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <BackButton />
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-            <div className="relative">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-stone-200 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
+      <main className="mx-auto max-w-6xl px-4 pb-16 pt-6">
+        <BackButton />
+
+        <section className="mt-6 rounded-[32px] border border-stone-100 bg-white p-6 sm:p-8">
+          <div className="flex flex-col gap-8 md:flex-row md:items-start">
+            <div className="relative mx-auto md:mx-0">
+              <div className="relative h-28 w-28 overflow-hidden rounded-full border border-stone-200 bg-stone-100 sm:h-36 sm:w-36">
                 {profile?.profile_image ? (
-                  <img src={resolveUserImage(profile.profile_image)} alt={`Avatar de ${profile.name}`} loading="lazy" className="h-full w-full object-cover" />
+                  <img src={resolveUserImage(profile.profile_image)} alt={`Avatar de ${realName}`} loading="lazy" className="h-full w-full object-cover" />
                 ) : (
-                  <User className="w-16 h-16 text-stone-400" />
-                )}
-                {uploadingAvatar && (
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-full">
-                    <Loader2 className="w-8 h-8 animate-spin text-white" />
+                  <div className="flex h-full items-center justify-center text-stone-400">
+                    <User className="h-12 w-12" />
                   </div>
                 )}
+                {uploadingAvatar ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/35">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  </div>
+                ) : null}
               </div>
-              {isOwnProfile && (
+              {isOwnProfile ? (
                 <>
                   <button
                     onClick={() => avatarInputRef.current?.click()}
-                    className="absolute bottom-2 right-2 rounded-full bg-stone-950 p-2 text-white transition-colors hover:bg-stone-950"
+                    className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 text-white shadow-sm"
                     data-testid="change-avatar-btn"
                   >
-                    <Camera className="w-4 h-4" />
+                    <Camera className="h-4 w-4" />
                   </button>
                   <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                 </>
-              )}
+              ) : null}
             </div>
 
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
-                <h1 className="text-2xl font-bold text-stone-950">{profile?.name}</h1>
-                {profile?.username && <span className="text-sm text-stone-500">@{profile.username}</span>}
-
-                {profile?.role && profile.role !== 'customer' && (
-                  <span
-                    className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                      profile.role === 'influencer'
-                        ? 'bg-stone-100 text-stone-700'
-                        : profile.role === 'producer' || profile.role === 'importer'
-                          ? 'bg-stone-100 text-stone-700'
-                          : 'bg-stone-100 text-stone-700'
-                    }`}
-                  >
-                    {profile.role === 'influencer'
-                      ? t('social.roleInfluencer')
-                      : profile.role === 'producer'
-                        ? t('social.roleSeller')
-                        : profile.role === 'importer'
-                          ? 'Importador'
-                          : profile.role}
-                  </span>
-                )}
-
-                {!isOwnProfile && currentUser && (
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleFollow}
-                      className={`${isFollowing ? 'bg-stone-100 text-stone-700 hover:bg-stone-200' : 'bg-stone-950 text-white hover:bg-stone-950'}`}
-                      data-testid="follow-btn"
-                    >
-                      {isFollowing ? (
-                        <>
-                          <UserMinus className="w-4 h-4 mr-2" />
-                          Siguiendo
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          {t('social.follow')}
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId } }));
-                      }}
-                      className="border-stone-300"
-                      data-testid="message-btn"
-                    >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      {t('social.message')}
-                    </Button>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h1 className="text-2xl font-semibold tracking-tight text-stone-950">{displayName}</h1>
+                    {profile?.role && profile.role !== 'customer' ? (
+                      <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs text-stone-600">
+                        {profile.role === 'producer' ? 'Productor' : profile.role === 'importer' ? 'Importador' : profile.role}
+                      </span>
+                    ) : null}
                   </div>
-                )}
-
-                {isOwnProfile && (
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                    <Link to={dashboardUrl}>
-                      <Button
-                        variant="outline"
-                        className="border-stone-200 bg-white text-stone-700 hover:bg-stone-100"
-                        data-testid="profile-dashboard-btn"
-                      >
-                        <Settings className="w-4 h-4 mr-2" />
-                        {dashboardLabel}
-                      </Button>
-                    </Link>
-                    <Button
-                      onClick={() => setShowCreatePost(true)}
-                      className="bg-stone-950 text-white hover:bg-stone-950"
-                      data-testid="create-post-btn"
-                    >
-                      <Camera className="w-4 h-4 mr-2" />
-                      {t('social.newPost')}
-                    </Button>
-                  </div>
-                )}
-
-                <Button
-                  variant="ghost"
-                  onClick={handleShare}
-                  className="text-stone-500 hover:text-stone-950"
-                  data-testid="share-profile-btn"
-                >
-                  <Share2 className="w-4 h-4" />
-                </Button>
-              </div>
-
-              <div className="flex justify-center md:justify-start gap-8 mb-4">
-                <div className="text-center">
-                  <p className="text-xl font-bold text-stone-950">{posts.length}</p>
-                  <p className="text-sm text-stone-500">{t('social.posts')}</p>
+                  <p className="mt-2 text-base font-medium text-stone-900">{realName}</p>
+                  {profile?.bio ? <p className="mt-3 max-w-2xl whitespace-pre-line text-sm leading-relaxed text-stone-600">{profile.bio}</p> : null}
                 </div>
-                <div className="text-center cursor-pointer hover:opacity-70">
-                  <p className="text-xl font-bold text-stone-950">{followersCount}</p>
-                  <p className="text-sm text-stone-500">{t('social.followers')}</p>
-                </div>
-                <div className="text-center cursor-pointer hover:opacity-70">
-                  <p className="text-xl font-bold text-stone-950">{followingCount}</p>
-                  <p className="text-sm text-stone-500">{t('social.following')}</p>
-                </div>
-              </div>
 
-              {profile?.bio && <p className="max-w-md text-stone-700">{profile.bio}</p>}
-              {profile?.location && (
-                <div className="mt-2 flex items-center gap-1 text-stone-500">
-                  <MapPin className="w-4 h-4" />
-                  <span className="text-sm">{profile.location}</span>
-                </div>
-              )}
-              {profile?.created_at && (
-                <div className="mt-1 flex items-center gap-1 text-stone-500">
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-sm">
-                    Miembro desde {new Date(profile.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
-                  </span>
-                </div>
-              )}
-
-              {badges.length > 0 && (
-                <div className="mt-3">
-                  <BadgeGrid badges={badges} compact />
-                </div>
-              )}
-
-              {profile?.seller_stats && (
-                <div className="mt-4 bg-stone-50 rounded-xl p-4 border border-stone-200" data-testid="seller-stats-card">
-                  <div className="grid grid-cols-3 gap-3 text-center">
-                    <div>
-                      <div className="flex items-center justify-center gap-1">
-                        <Star className="h-4 w-4 fill-stone-950 text-stone-950" />
-                        <span className="text-lg font-bold text-stone-950">{profile.seller_stats.avg_rating || '-'}</span>
-                      </div>
-                      <p className="text-[11px] uppercase tracking-wider text-stone-500">{profile.seller_stats.review_count} reseñas</p>
-                    </div>
-                    <div>
-                      <p className="text-lg font-bold text-stone-950">{profile.seller_stats.total_products}</p>
-                      <p className="text-[11px] uppercase tracking-wider text-stone-500">Productos</p>
-                    </div>
-                    <div>
-                      <p className="text-lg font-bold text-stone-950">{followersCount}</p>
-                      <p className="text-[11px] uppercase tracking-wider text-stone-500">Seguidores</p>
-                    </div>
-                  </div>
-                  {profile.seller_stats.verified && (
-                    <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-stone-700">
-                      <Star className="w-3.5 h-3.5" /> {t('social.verifiedSeller')}
-                    </div>
-                  )}
-                  <div className="flex gap-2 mt-3">
-                    {profile.seller_stats.store_slug && (
-                      <Link to={`/store/${profile.seller_stats.store_slug}`} className="flex-1" data-testid="view-store-link">
-                        <Button variant="outline" className="w-full rounded-xl text-xs h-9">
-                          <ShoppingBag className="w-3.5 h-3.5 mr-1" /> Ver tienda
+                <div className="flex flex-wrap gap-2">
+                  {isOwnProfile ? (
+                    <>
+                      <Link to={dashboardUrl}>
+                        <Button variant="outline" className="h-10 rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50">
+                          <Settings className="h-4 w-4" />
+                          {dashboardLabel}
                         </Button>
                       </Link>
-                    )}
-                    {!isOwnProfile && (
+                      <Button onClick={() => setShowCreatePost(true)} className="h-10 rounded-full bg-stone-950 text-white hover:bg-stone-800">
+                        <Camera className="h-4 w-4" />
+                        {t('social.newPost')}
+                      </Button>
+                      <Link to="/recipes/create">
+                        <Button variant="outline" className="h-10 rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50">
+                          <BookOpen className="h-4 w-4" />
+                          {t('recipes.createRecipe', 'Crear receta')}
+                        </Button>
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={handleFollow}
+                        className={`h-10 rounded-full ${isFollowing ? 'bg-stone-100 text-stone-800 hover:bg-stone-200' : 'bg-stone-950 text-white hover:bg-stone-800'}`}
+                        data-testid="follow-btn"
+                      >
+                        {isFollowing ? <UserMinus className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+                        {isFollowing ? 'Siguiendo' : t('social.follow')}
+                      </Button>
                       <Button
                         variant="outline"
-                        className="flex-1 rounded-xl text-xs h-9"
                         onClick={() => {
-                          if (!currentUser) {
-                            toast.error(t('social.login'));
-                            return;
-                          }
-                          window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId: profile.user_id } }));
+                          window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId } }));
                         }}
-                        data-testid="message-btn"
+                        className="h-10 rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
                       >
-                        <MessageCircle className="w-3.5 h-3.5 mr-1" /> {t('social.message')}
+                        <MessageCircle className="h-4 w-4" />
+                        {t('social.message')}
                       </Button>
-                    )}
-                  </div>
-                  {profile.seller_stats.featured_products?.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-stone-200">
-                      <p className="mb-2 text-[10px] uppercase tracking-wider text-stone-500">{t('social.featuredProducts')}</p>
-                      <div className="flex gap-2 overflow-x-auto">
-                        {profile.seller_stats.featured_products.map((product) => (
-                          <Link key={product.product_id} to={`/products/${product.product_id}`} className="shrink-0 w-16">
-                            <div className="w-16 h-16 rounded-lg bg-stone-100 overflow-hidden border border-stone-200 hover:border-accent transition-colors">
-                              {product.images?.[0] ? (
-                                <img src={resolveUserImage(product.images[0])} alt={product.name} loading="lazy" className="h-full w-full object-cover" />
-                              ) : (
-                                <ShoppingBag className="w-5 h-5 text-stone-300 m-auto mt-5" />
-                              )}
-                            </div>
-                            <p className="mt-0.5 truncate text-[10px] text-stone-700">{product.name}</p>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
+                    </>
                   )}
-                </div>
-              )}
 
-              {profile?.role === 'influencer' && (
-                <div className="mt-4 rounded-xl border border-stone-200 bg-white p-4" data-testid="influencer-public-card">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700">Influencer</span>
-                    {profile.niche && <span className="text-xs text-stone-500">{profile.niche}</span>}
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 text-center mb-3">
-                    <div>
-                      <p className="text-lg font-bold text-stone-950">{followersCount}</p>
-                      <p className="text-[10px] uppercase text-stone-500">Seguidores</p>
-                    </div>
-                    <div>
-                      <p className="text-lg font-bold text-stone-950">{profile.posts_count || 0}</p>
-                      <p className="text-[10px] uppercase text-stone-500">Posts</p>
-                    </div>
-                    <div>
-                      <p className="text-lg font-bold text-stone-950">{profile.social_followers || '-'}</p>
-                      <p className="text-[10px] uppercase text-stone-500">Social</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 flex-wrap">
-                    {profile.instagram && (
-                      <a href={`https://instagram.com/${profile.instagram}`} target="_blank" rel="noopener noreferrer" className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-700 hover:bg-stone-100">
-                        @{profile.instagram}
-                      </a>
-                    )}
-                    {profile.tiktok && (
-                      <a href={`https://tiktok.com/@${profile.tiktok}`} target="_blank" rel="noopener noreferrer" className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-700 hover:bg-stone-100">
-                        TikTok
-                      </a>
-                    )}
-                    {profile.youtube && (
-                      <a href={profile.youtube} target="_blank" rel="noopener noreferrer" className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-700 hover:bg-stone-100">
-                        YouTube
-                      </a>
-                    )}
-                  </div>
-                  {!isOwnProfile && currentUser && (
-                    <Button
-                      variant="outline"
-                      className="w-full mt-3 rounded-xl text-xs h-9"
-                      onClick={() => window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId: profile.user_id } }))}
-                    >
-                      <MessageCircle className="w-3.5 h-3.5 mr-1" /> {t('social.sendMessage')}
-                    </Button>
-                  )}
+                  <Button variant="outline" onClick={handleShare} className="h-10 rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
                 </div>
-              )}
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-8">
+                <div>
+                  <p className="text-lg font-semibold text-stone-950">{postCount}</p>
+                  <p className="text-sm text-stone-500">{t('social.posts', 'Posts')}</p>
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-stone-950">{followersCount}</p>
+                  <p className="text-sm text-stone-500">{t('social.followers', 'Seguidores')}</p>
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-stone-950">{followingCount}</p>
+                  <p className="text-sm text-stone-500">{t('social.following', 'Siguiendo')}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {isOwnProfile && (
-        <div className="bg-white border-b border-stone-200">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <StoriesRow />
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white border-b border-stone-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-center">
-            {isSeller && (
-              <button
-                onClick={() => setActiveTab('products')}
-                className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                  activeTab === 'products' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-950'
-                }`}
-              >
-                <Package className="w-4 h-4" />
-                <span className="text-sm font-medium">PRODUCTOS</span>
-              </button>
-            )}
-            <button
-              onClick={() => setActiveTab('posts')}
-              className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                activeTab === 'posts' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-950'
-              }`}
-            >
-              <Grid3X3 className="w-4 h-4" />
-              <span className="text-sm font-medium">{t('social.posts').toUpperCase()}</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('liked')}
-              className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                activeTab === 'liked' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-950'
-              }`}
-            >
-              <Heart className="w-4 h-4" />
-              <span className="text-sm font-medium">{t('social.likes').toUpperCase()}</span>
-            </button>
-            {isOwnProfile && (
-              <button
-                onClick={() => setActiveTab('saved')}
-                className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                  activeTab === 'saved' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-950'
-                }`}
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span className="text-sm font-medium">GUARDADOS</span>
-              </button>
-            )}
-            <button
-              onClick={() => setActiveTab('badges')}
-              className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-colors ${
-                activeTab === 'badges' ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-950'
-              }`}
-              data-testid="badges-tab"
-            >
-              <Trophy className="w-4 h-4" />
-              <span className="text-sm font-medium">{t('badges.title', 'LOGROS').toUpperCase()}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {activeTab === 'products' && (
-          <div>
-            {sellerProducts.length === 0 ? (
-              <div className="text-center py-16">
-                <Package className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-                <h3 className="mb-2 text-xl font-semibold text-stone-950">{t('social.noProducts')}</h3>
-                <p className="text-stone-500">Este perfil aun no tiene productos publicados</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {sellerProducts.map((product) => (
-                  <Link key={product.product_id} to={`/products/${product.product_id}`} className="group" data-testid={`seller-product-${product.product_id}`}>
-                    <div className="aspect-square overflow-hidden rounded-xl border border-stone-200 bg-stone-100 transition-colors group-hover:border-stone-950">
-                      {product.images?.[0] ? (
-                        <img src={resolveUserImage(product.images[0])} alt={product.name} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-stone-300">
-                          <Package className="w-10 h-10" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="mt-2 truncate text-sm font-medium text-stone-700">{product.name}</p>
-                    <p className="text-sm font-bold text-stone-950">{`${(product.display_price || product.price)?.toFixed(2)}\u20AC`}</p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'posts' &&
-          (posts.length === 0 ? (
-            <div className="text-center py-16">
-              <Grid3X3 className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-              <h3 className="mb-2 text-xl font-semibold text-stone-950">
-                {isOwnProfile ? t('social.shareFirstPost') : t('social.noPosts')}
-              </h3>
-              <p className="text-stone-500">
-                {isOwnProfile ? 'Comparte fotos de tus productos favoritos con la comunidad' : t('social.userNoPosts')}
-              </p>
-              {isOwnProfile && (
-                <Button className="mt-4" onClick={() => setShowCreatePost(true)} data-testid="create-first-post-btn">
-                  <Camera className="w-4 h-4 mr-2" />
-                  Crear publicacion
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-1 md:gap-4">
-              {posts.map((post) => (
-                <div
-                  key={post.post_id}
-                  className="aspect-square relative group overflow-hidden rounded-md cursor-pointer"
-                  onClick={() => setSelectedPost(post)}
-                >
-                  <img src={resolveUserImage(post.image_url)} alt={post.caption || 'Publicación'} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
-                    <div className="flex items-center gap-1 text-white">
-                      <Heart className="w-5 h-5 fill-white" />
-                      <span className="font-semibold">{post.likes_count || 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-white">
-                      <MessageCircle className="w-5 h-5 fill-white" />
-                      <span className="font-semibold">{post.comments_count || 0}</span>
-                    </div>
-                  </div>
-                  {post.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-white text-xs line-clamp-2">{post.caption}</p>
-                    </div>
-                  )}
-                </div>
+          <div className="mt-8 overflow-x-auto">
+            <div className="flex gap-5 pb-2">
+              {highlights.map((item) => (
+                <ProfileHighlight key={item} label={item} />
               ))}
             </div>
-          ))}
-
-        {activeTab === 'badges' && (
-          <div data-testid="badges-tab-content">
-            {badges.length > 0 ? (
-              <BadgeGrid badges={badges} />
-            ) : (
-              <div className="text-center py-16">
-                <Trophy className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-                <h3 className="mb-2 text-xl font-semibold text-stone-950">{t('badges.noBadges', 'Sin logros aun')}</h3>
-                <p className="text-stone-500">{t('badges.noBadgesDesc', 'Completa acciones en Hispaloshop para ganar insignias')}</p>
-              </div>
-            )}
           </div>
-        )}
-      </div>
+        </section>
 
-      {showCreatePost && (
+        <section className="mt-8">
+          <div className="border-b border-stone-200">
+            <div className="flex gap-8 overflow-x-auto">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm transition-colors ${
+                      activeTab === tab.key ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-900'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="pt-6">
+            {activeTab === 'posts' ? (
+              posts.length === 0 ? (
+                <EmptyState
+                  icon={Grid3X3}
+                  title={isOwnProfile ? t('social.shareFirstPost', 'Comparte tu primera publicación') : t('social.noPosts', 'Sin publicaciones')}
+                  description={
+                    isOwnProfile
+                      ? 'Comparte imágenes para construir tu perfil social.'
+                      : t('social.userNoPosts', 'Este usuario todavía no ha publicado contenido.')
+                  }
+                  action={
+                    isOwnProfile ? (
+                      <Button className="mt-5 rounded-full bg-stone-950 text-white hover:bg-stone-800" onClick={() => setShowCreatePost(true)}>
+                        <Camera className="h-4 w-4" />
+                        {t('social.newPost')}
+                      </Button>
+                    ) : null
+                  }
+                />
+              ) : (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+                  {posts.map((post) => (
+                    <ContentTile key={post.post_id} item={post} type="post" onClick={() => setSelectedPost(post)} />
+                  ))}
+                </div>
+              )
+            ) : null}
+
+            {activeTab === 'reels' ? (
+              <EmptyState
+                icon={PlaySquare}
+                title="Reels"
+                description="La capa visual está preparada. Falta una fuente de reels específica para poblarla."
+              />
+            ) : null}
+
+            {activeTab === 'products' ? (
+              productsLoading ? (
+                <div className="flex justify-center py-20">
+                  <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+                </div>
+              ) : sellerProducts.length === 0 ? (
+                <EmptyState
+                  icon={ShoppingBag}
+                  title={t('social.noProducts', 'Sin productos')}
+                  description="Este perfil aún no tiene productos publicados."
+                />
+              ) : (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+                  {sellerProducts.map((product) => (
+                    <ContentTile key={product.product_id} item={product} type="product" onClick={() => setSelectedProduct(product)} />
+                  ))}
+                </div>
+              )
+            ) : null}
+
+            {activeTab === 'recipes' ? (
+              recipesLoading ? (
+                <div className="flex justify-center py-20">
+                  <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+                </div>
+              ) : recipesCount === 0 ? (
+                <EmptyState
+                  icon={BookOpen}
+                  title="Recetas"
+                  description={isOwnProfile ? 'Publica tu primera receta para que aparezca aquí y en la sección principal.' : 'Este perfil todavía no ha compartido recetas.'}
+                  action={
+                    isOwnProfile ? (
+                      <Link to="/recipes/create">
+                        <Button className="mt-5 rounded-full bg-stone-950 text-white hover:bg-stone-800">
+                          <BookOpen className="h-4 w-4" />
+                          {t('recipes.createRecipe', 'Crear receta')}
+                        </Button>
+                      </Link>
+                    ) : null
+                  }
+                />
+              ) : (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+                  {recipes.map((recipe, index) => (
+                    <ContentTile key={recipe.recipe_id} item={recipe} type="recipe" onClick={() => setSelectedRecipeIndex(index)} />
+                  ))}
+                </div>
+              )
+            ) : null}
+          </div>
+        </section>
+      </main>
+
+      {showCreatePost ? (
         <CreatePostModal
           onClose={() => setShowCreatePost(false)}
           onCreate={async ({ file, caption }) => {
@@ -677,9 +546,9 @@ export default function UserProfilePage() {
           }}
           creatingPost={creatingPost}
         />
-      )}
+      ) : null}
 
-      {selectedPost && (
+      {selectedPost ? (
         <PostViewer
           post={selectedPost}
           posts={posts}
@@ -688,7 +557,27 @@ export default function UserProfilePage() {
           onClose={() => setSelectedPost(null)}
           onNavigate={setSelectedPost}
         />
-      )}
+      ) : null}
+
+      {selectedProduct ? (
+        <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />
+      ) : null}
+
+      {selectedRecipeIndex !== null && recipes[selectedRecipeIndex] ? (
+        <RecipeOverlay
+          recipe={recipes[selectedRecipeIndex]}
+          onClose={() => setSelectedRecipeIndex(null)}
+          showNavigation
+          hasPrev={selectedRecipeIndex > 0}
+          hasNext={selectedRecipeIndex < recipes.length - 1}
+          onNavigate={(direction) =>
+            setSelectedRecipeIndex((current) => {
+              if (direction === 'prev') return Math.max(0, current - 1);
+              return Math.min(recipes.length - 1, current + 1);
+            })
+          }
+        />
+      ) : null}
     </div>
   );
 }
