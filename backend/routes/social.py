@@ -30,6 +30,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+def _public_product_filter() -> dict:
+    return {
+        "$or": [
+            {"status": "active"},
+            {"approved": True},
+            {"status": "approved"},
+        ]
+    }
+
+
 def _normalize_tagged_products(raw_value) -> List[Dict[str, object]]:
     if not raw_value:
         return []
@@ -574,7 +584,7 @@ async def get_user_profile(user_id: str, request: Request):
                 review_count = review_agg[0]["count"]
 
         featured_products = await db.products.find(
-            {"producer_id": user_id, "approved": True},
+            {"producer_id": user_id, **_public_product_filter()},
             {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1}
         ).sort("created_at", -1).limit(4).to_list(4)
 

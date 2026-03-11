@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -32,18 +32,18 @@ import { cn } from '@/lib/utils';
 import { API } from '@/utils/api';
 
 const STEPS = [
-  { id: 1, label: 'Identidad', title: 'Quien eres' },
+  { id: 1, label: 'Identidad', title: 'Quién eres' },
   { id: 2, label: 'Audiencia', title: 'Tu tribu' },
-  { id: 3, label: 'Confirmacion', title: 'Elige tu camino' },
+  { id: 3, label: 'Confirmación', title: 'Elige tu camino' },
 ];
 
 const COUNTRY_OPTIONS = [
   'España',
-  'Mexico',
+  'México',
   'Argentina',
   'Colombia',
   'Chile',
-  'Peru',
+  'Perú',
   'Estados Unidos',
   'Reino Unido',
   'Francia',
@@ -61,7 +61,7 @@ const NICHE_OPTIONS = [
   'Fitness',
   'Lifestyle',
   'Sostenibilidad',
-  'Mamas',
+  'Mamás',
   'Viajes',
   'Otro',
 ];
@@ -79,21 +79,21 @@ const TIERS = [
     key: 'hercules',
     title: 'Quiero empezar como HERCULES (3%)',
     subtitle: 'Aprender y crecer',
-    helper: 'Recomendado para la mayoria.',
+    helper: 'Recomendado para la mayoría.',
     icon: Gem,
   },
   {
     key: 'atenea',
     title: 'Aplicar directamente a ATENEA (5%)',
     subtitle: 'Ya tengo experiencia en afiliados',
-    helper: 'Pide revision manual prioritaria.',
+    helper: 'Pide revisión manual prioritaria.',
     icon: BadgeCheck,
   },
   {
     key: 'zeus',
     title: 'Solicitar evaluacion para ZEUS (7%)',
     subtitle: 'Soy top en mi nicho',
-    helper: 'Para perfiles con comunidad muy caliente.',
+    helper: 'Para perfiles con una comunidad muy activa.',
     icon: Crown,
   },
 ];
@@ -214,11 +214,11 @@ export default function ApplicationModal({ open, onOpenChange }) {
     const nextErrors = {};
 
     if (stepId === 1) {
-      if (!form.artistName.trim()) nextErrors.artistName = 'Necesitamos saber como te conocen.';
+      if (!form.artistName.trim()) nextErrors.artistName = 'Necesitamos saber cómo te conocen.';
       if (!form.email.trim()) {
         nextErrors.email = 'Tu email profesional es obligatorio.';
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-        nextErrors.email = 'Ese email no parece valido.';
+        nextErrors.email = 'Ese email no parece válido.';
       }
 
       if (!form.instagram.trim()) {
@@ -227,32 +227,32 @@ export default function ApplicationModal({ open, onOpenChange }) {
         nextErrors.instagram = 'Usa un formato tipo @tuusuario.';
       }
 
-      if (!form.phone.trim()) nextErrors.phone = 'Necesitamos una via real para contactarte.';
+      if (!form.phone.trim()) nextErrors.phone = 'Necesitamos una vía real para contactarte.';
       if (!form.residenceCity.trim()) nextErrors.residenceCity = 'Indica tu ciudad.';
-      if (!form.residenceCountry.trim()) nextErrors.residenceCountry = 'Selecciona tu pais.';
+      if (!form.residenceCountry.trim()) nextErrors.residenceCountry = 'Selecciona tu país.';
     }
 
     if (stepId === 2) {
       if (form.niches.length === 0) nextErrors.niches = 'Elige al menos un nicho.';
       if (!form.followerRange) nextErrors.followerRange = 'Selecciona tu rango de seguidores.';
-      if (!form.audienceCountry) nextErrors.audienceCountry = 'Selecciona el pais principal de tu audiencia.';
+      if (!form.audienceCountry) nextErrors.audienceCountry = 'Selecciona el país principal de tu audiencia.';
       if (!form.motivation.trim()) {
-        nextErrors.motivation = 'Cuentanos por que quieres entrar.';
+        nextErrors.motivation = 'Cuéntanos por qué quieres entrar.';
       } else if (form.motivation.trim().length < 140) {
         nextErrors.motivation = 'Necesitamos al menos 140 caracteres para filtrar humo.';
       }
 
       if (!isValidUrl(form.bestContentUrl.trim())) {
-        nextErrors.bestContentUrl = 'Ese enlace no parece valido.';
+        nextErrors.bestContentUrl = 'Ese enlace no parece válido.';
       }
     }
 
     if (stepId === 3) {
       if (!form.desiredTier) nextErrors.desiredTier = 'Elige el tier que quieres solicitar.';
-      if (!form.agreementCommission) nextErrors.agreementCommission = 'Debes aceptar esta condicion.';
-      if (!form.agreementTracking) nextErrors.agreementTracking = 'Debes aceptar esta condicion.';
-      if (!form.agreementEthical) nextErrors.agreementEthical = 'Debes aceptar esta condicion.';
-      if (!form.agreementTerms) nextErrors.agreementTerms = 'Debes aceptar esta condicion.';
+      if (!form.agreementCommission) nextErrors.agreementCommission = 'Debes aceptar esta condición.';
+      if (!form.agreementTracking) nextErrors.agreementTracking = 'Debes aceptar esta condición.';
+      if (!form.agreementEthical) nextErrors.agreementEthical = 'Debes aceptar esta condición.';
+      if (!form.agreementTerms) nextErrors.agreementTerms = 'Debes aceptar esta condición.';
     }
 
     setErrors(nextErrors);
@@ -331,12 +331,12 @@ export default function ApplicationModal({ open, onOpenChange }) {
     }
   };
 
-  const finalButtonLabel = form.desiredTier === 'hercules' ? 'Enviar solicitud' : 'Solicitar revision';
+  const finalButtonLabel = form.desiredTier === 'hercules' ? 'Enviar solicitud' : 'Solicitar revisión';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="left-0 top-0 h-screen w-screen max-w-none translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-none border-0 bg-transparent p-0 shadow-none [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:border [&>button]:border-white/15 [&>button]:bg-white/10 [&>button]:p-2 [&>button]:text-white [&>button]:opacity-100 [&>button]:backdrop-blur">
-        <DialogTitle className="sr-only">Aplicacion influencer Hispaloshop</DialogTitle>
+        <DialogTitle className="sr-only">Aplicación influencer Hispaloshop</DialogTitle>
         <DialogDescription className="sr-only">
           Formulario de tres pasos para aplicar al programa de influencers de Hispaloshop.
         </DialogDescription>
@@ -348,13 +348,13 @@ export default function ApplicationModal({ open, onOpenChange }) {
             </div>
 
             <div className="mt-10 max-w-md">
-              <p className="text-sm uppercase tracking-[0.28em] text-fuchsia-300/70">Aplicacion real</p>
+              <p className="text-sm uppercase tracking-[0.28em] text-fuchsia-300/70">Aplicación real</p>
               <h2 className="mt-4 text-4xl font-black leading-tight text-slate-50">
                 No es un formulario corporativo. Es tu puerta de salida.
               </h2>
               <p className="mt-5 text-base leading-7 text-slate-300">
-                Tres pasos. Sin pago. Sin humo. Si eliges Hercules, entramos en activación rapida. Si apuntas a
-                Atenea o Zeus, hacemos revision humana en 24-48h.
+                Tres pasos. Sin pago. Sin humo. Si eliges Hércules, entramos en activación rápida. Si apuntas a
+                Atenea o Zeus, hacemos revisión humana en 24-48h.
               </p>
             </div>
 
@@ -364,7 +364,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                 <ul className="mt-3 space-y-3 text-sm leading-6 text-slate-300">
                   <li>Engagement real, no seguidores inflados.</li>
                   <li>Si tu voz encaja con comida, wellness, lifestyle o sostenibilidad.</li>
-                  <li>Si quieres recomendar cosas que de verdad podrias usar.</li>
+                  <li>Si quieres recomendar cosas que de verdad podrías usar.</li>
                 </ul>
               </div>
 
@@ -372,7 +372,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                 <p className="text-sm font-semibold text-fuchsia-100">Tracking que importa</p>
                 <p className="mt-3 text-sm leading-6 text-fuchsia-50/80">
                   Cada compra que conectes se queda atribuida durante 18 meses. No necesitas vivir esclavizado al
-                  proximo reel.
+                  próximo reel.
                 </p>
               </div>
             </div>
@@ -432,8 +432,8 @@ export default function ApplicationModal({ open, onOpenChange }) {
                     </h3>
                     <p className="mt-5 max-w-2xl text-base leading-7 text-white/80">
                       {submittedTier === 'hercules'
-                        ? 'Hercules entra por via rapida. Hemos marcado tu perfil para activación inmediata y siguientes pasos.'
-                        : 'Tu perfil pasa a revision humana. Si aplicaste a Atenea o Zeus, te responderemos en 24-48h con una decision real, no automatica.'}
+                        ? 'Hércules entra por vía rápida. Hemos marcado tu perfil para activación inmediata y siguientes pasos.'
+                        : 'Tu perfil pasa a revisión humana. Si aplicaste a Atenea o Zeus, te responderemos en 24-48h con una decisión real, no automática.'}
                     </p>
 
                     <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -455,7 +455,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                         className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/10 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/15"
                       >
                         <Link2 className="h-4 w-4" aria-hidden="true" />
-                        Ver catalogo para promocionar
+                        Ver catálogo para promocionar
                       </button>
                     </div>
 
@@ -544,7 +544,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                                 <Input
                                   value={form.residenceCity}
                                   onChange={(event) => updateField('residenceCity', event.target.value)}
-                                  placeholder="Reus, Seul, Ciudad de Mexico..."
+                                  placeholder="Reus, Seúl, Ciudad de México..."
                                   className="h-12 rounded-2xl border-slate-200 px-4 text-base focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
                                 />
                                 <FieldError>{errors.residenceCity}</FieldError>
@@ -552,10 +552,10 @@ export default function ApplicationModal({ open, onOpenChange }) {
 
                               <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
                                 <label className="block">
-                                  <FieldLabel>Pais</FieldLabel>
+                                  <FieldLabel>País</FieldLabel>
                                   <Select value={form.residenceCountry} onValueChange={(value) => updateField('residenceCountry', value)}>
                                     <SelectTrigger className="h-12 rounded-2xl border-slate-200 px-4 text-base focus:ring-fuchsia-500">
-                                      <SelectValue placeholder="Selecciona pais" />
+                                      <SelectValue placeholder="Selecciona país" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       {COUNTRY_OPTIONS.map((country) => (
@@ -594,8 +594,8 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-500">Paso 2</p>
                               <h3 className="mt-3 text-3xl font-black text-slate-950">Tu tribu</h3>
                               <p className="mt-3 text-base leading-7 text-slate-600">
-                                Queremos saber que tipo de comunidad has construido y por que te seguirian hasta algo
-                                mas honesto.
+                                Queremos saber qué tipo de comunidad has construido y por qué te seguirían hasta algo
+                                más honesto.
                               </p>
                             </div>
 
@@ -652,10 +652,10 @@ export default function ApplicationModal({ open, onOpenChange }) {
 
                               <div className="grid gap-5 md:grid-cols-2">
                                 <label className="block">
-                                  <FieldLabel>Pais principal de tu audiencia</FieldLabel>
+                                  <FieldLabel>País principal de tu audiencia</FieldLabel>
                                   <Select value={form.audienceCountry} onValueChange={(value) => updateField('audienceCountry', value)}>
                                     <SelectTrigger className="h-12 rounded-2xl border-slate-200 px-4 text-base focus:ring-fuchsia-500">
-                                      <SelectValue placeholder="Selecciona pais" />
+                                      <SelectValue placeholder="Selecciona país" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       {COUNTRY_OPTIONS.map((country) => (
@@ -682,17 +682,17 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               </div>
 
                               <label className="block">
-                                <FieldLabel>Por que quieres unirte?</FieldLabel>
+                                <FieldLabel>¿Por qué quieres unirte?</FieldLabel>
                                 <Textarea
                                   value={form.motivation}
                                   onChange={(event) => updateField('motivation', event.target.value)}
                                   rows={6}
-                                  placeholder="Cuentanos la verdad: que tipo de estabilidad buscas, por que te quemaste de ciertas marcas y como tratarias a tu comunidad."
+                                  placeholder="Cuéntanos la verdad: qué tipo de estabilidad buscas, por qué te quemaste de ciertas marcas y cómo tratarías a tu comunidad."
                                   className="min-h-[180px] rounded-[24px] border-slate-200 px-4 py-4 text-base leading-7 focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
                                 />
                                 <div className="mt-2 flex items-center justify-between gap-4">
                                   <FieldError>{errors.motivation}</FieldError>
-                                  <p className="text-sm text-slate-400">{form.motivation.trim().length} / 140 minimo</p>
+                                  <p className="text-sm text-slate-400">{form.motivation.trim().length} / 140 mínimo</p>
                                 </div>
                               </label>
                             </div>
@@ -705,7 +705,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-500">Paso 3</p>
                               <h3 className="mt-3 text-3xl font-black text-slate-950">Elige tu camino</h3>
                               <p className="mt-3 text-base leading-7 text-slate-600">
-                                La comisión es transparente: Hercules 3%, Atenea 5%, Zeus 7%, con tracking de 18 meses.
+                                La comisión es transparente: Hércules 3%, Atenea 5%, Zeus 7%, con tracking de 18 meses.
                               </p>
                             </div>
 
@@ -756,7 +756,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                                   className="mt-1 h-5 w-5 rounded-md border-fuchsia-300 data-[state=checked]:border-fuchsia-500 data-[state=checked]:bg-fuchsia-500"
                                 />
                                 <span className="text-sm leading-6 text-slate-700">
-                                  Entiendo que la comisión se paga sobre el valor post-envio e impuestos.
+                                  Entiendo que la comisión se paga sobre el valor postenvío e impuestos.
                                 </span>
                               </label>
                               <FieldError>{errors.agreementCommission}</FieldError>
@@ -780,7 +780,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                                   className="mt-1 h-5 w-5 rounded-md border-fuchsia-300 data-[state=checked]:border-fuchsia-500 data-[state=checked]:bg-fuchsia-500"
                                 />
                                 <span className="text-sm leading-6 text-slate-700">
-                                  Acepto promover solo productos que realmente probaria o probare.
+                                  Acepto promover solo productos que realmente probaría o probaré.
                                 </span>
                               </label>
                               <FieldError>{errors.agreementEthical}</FieldError>
@@ -792,7 +792,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                                   className="mt-1 h-5 w-5 rounded-md border-fuchsia-300 data-[state=checked]:border-fuchsia-500 data-[state=checked]:bg-fuchsia-500"
                                 />
                                 <span className="text-sm leading-6 text-slate-700">
-                                  He leido y acepto los terminos del programa de influencers.
+                                  He leído y acepto los términos del programa de influencers.
                                 </span>
                               </label>
                               <FieldError>{errors.agreementTerms}</FieldError>
@@ -805,7 +805,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-center gap-3 text-sm text-slate-500">
                         <UserRound className="h-4 w-4" aria-hidden="true" />
-                        {step === 3 ? 'Solicitud gratuita. Ningun paso de pago.' : 'No tardaras mas de 3 minutos.'}
+                        {step === 3 ? 'Solicitud gratuita. Ningún paso de pago.' : 'No tardarás más de 3 minutos.'}
                       </div>
 
                       <div className="flex flex-col-reverse gap-3 sm:flex-row">
@@ -817,7 +817,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                             className="h-12 rounded-full border-slate-300 px-6 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                           >
                             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                            Atras
+                            Atrás
                           </Button>
                         )}
 
@@ -852,3 +852,4 @@ export default function ApplicationModal({ open, onOpenChange }) {
     </Dialog>
   );
 }
+

@@ -25,6 +25,17 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
+def _public_product_filter() -> dict:
+    """Products visible in the marketplace across legacy and current records."""
+    return {
+        "$or": [
+            {"status": "active"},
+            {"approved": True},
+            {"status": "approved"},
+        ]
+    }
+
 @router.get("/products")
 async def get_products(
     category: Optional[str] = None,
@@ -274,10 +285,19 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
     # If language is requested, use the translation service
     if lang and lang in SUPPORTED_LANGUAGES:
         product = await TranslationService.get_product_in_language(product_id, lang)
-        if not product or not product.get("approved"):
+        if not product or not (
+            product.get("approved") is True
+            or product.get("status") in {"active", "approved"}
+        ):
             raise HTTPException(status_code=404, detail="Product not found")
     else:
-        product = await db.products.find_one({"product_id": product_id, "approved": True}, {"_id": 0})
+        product = await db.products.find_one(
+            {
+                "product_id": product_id,
+                **_public_product_filter(),
+            },
+            {"_id": 0},
+        )
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
     

@@ -21,14 +21,14 @@ export default function HelpPage() {
           </h1>
           <div className="space-y-4 text-sm text-text-secondary leading-relaxed">
             <p>
-              Si eres comprador, revisa estado de pedidos en tu panel y usa el chat interno para contactar con
-              tienda o influencer.
+              Si eres comprador, revisa el estado de tus pedidos en tu panel y usa el chat interno para contactar con
+              la tienda o el influencer.
             </p>
             <p>
-              Si eres productor o importador, gestiona catalogo, pedidos, pagos y certificados desde tu panel.
+              Si eres productor o importador, gestiona catálogo, pedidos, pagos y certificados desde tu panel.
             </p>
             <p>
-              Si eres influencer, consulta tu dashboard para código, atribucion, comisiones y retiros.
+              Si eres influencer, consulta tu dashboard para código, atribución, comisiones y retiros.
             </p>
           </div>
         </section>
@@ -37,4 +37,3 @@ export default function HelpPage() {
     </div>
   );
 }
-

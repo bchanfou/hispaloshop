@@ -327,7 +327,7 @@ export default function ProducerPayments() {
             {data.recent_orders.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-text-muted">
                 <ShoppingBag className="w-10 h-10 mb-2 opacity-30" />
-                <p className="text-sm">Aun no tienes pedidos</p>
+                <p className="text-sm">Aún no tienes pedidos</p>
               </div>
             ) : (
               data.recent_orders.map((order) => (

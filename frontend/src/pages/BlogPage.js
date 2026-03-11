@@ -8,17 +8,17 @@ export default function BlogPage() {
       description="Novedades de producto, comercio local, productores y crecimiento digital en Hispaloshop."
       url="https://www.hispaloshop.com/blog"
       eyebrow="Contenido"
-      intro="Este espacio recoge las lineas editoriales que vamos publicando sobre producto real, crecimiento de productores, discovery social y expansion comercial. Mientras cerramos el archivo completo, aquí queda centralizado lo que ya existe y lo que vamos a abrir."
+      intro="Este espacio recoge las líneas editoriales que vamos publicando sobre producto real, crecimiento de productores, discovery social y expansión comercial. Mientras cerramos el archivo completo, aquí queda centralizado lo que ya existe y lo que vamos a abrir."
       primaryCta={{ label: 'Explorar productos', to: '/products' }}
-      secondaryCta={{ label: 'Ver como funciona', to: '/que-es' }}
+      secondaryCta={{ label: 'Ver cómo funciona', to: '/que-es' }}
       sections={[
         {
-          title: 'Que vas a encontrar',
-          body: 'Guias para productores, novedades de marketplace, uso del feed social para conversion, recetas conectadas a producto y aprendizajes operativos del ecosistema Hispaloshop.',
+          title: 'Qué vas a encontrar',
+          body: 'Guías para productores, novedades de marketplace, uso del feed social para conversión, recetas conectadas a producto y aprendizajes operativos del ecosistema Hispaloshop.',
         },
         {
           title: 'Estado actual',
-          body: 'La página ya no está muerta. Queda publicada como hub editorial básico mientras completamos el listado de articulos y la navegacion por categorías.',
+          body: 'La página ya no está muerta. Queda publicada como hub editorial básico mientras completamos el listado de artículos y la navegación por categorías.',
         },
         {
           title: 'Si vienes a aprender a vender mejor',
@@ -26,7 +26,7 @@ export default function BlogPage() {
         },
         {
           title: 'Siguiente paso',
-          body: 'Usa el descubrimiento de productos o la página de ayuda si necesitas información concreta sobre pedidos, catalogo o paneles de usuario.',
+          body: 'Usa el descubrimiento de productos o la página de ayuda si necesitas información concreta sobre pedidos, catálogo o paneles de usuario.',
         },
       ]}
     />

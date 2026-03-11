@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +25,7 @@ import { API } from '../../utils/api';
 
 const STORAGE_KEY = 'hispaloshop_importer_onboarding_v2';
 const PLAN_META = {
-  free: { name: 'FREE', price: '0€/mes', badge: 'Empieza hoy', commission: '20%', summary: 'Validacion de mercado y primeras ventas.' },
+  free: { name: 'FREE', price: '0€/mes', badge: 'Empieza hoy', commission: '20%', summary: 'Validación de mercado y primeras ventas.' },
   pro: { name: 'PRO', price: '79€ + IVA/mes', badge: 'Recomendado', commission: '18%', summary: 'IA, pricing y matching local.' },
   elite: { name: 'ELITE', price: '149€ + IVA/mes', badge: 'Empresas', commission: '17%', summary: 'Análisis global y prioridad total.' },
 };
@@ -38,7 +38,7 @@ const PHONE_PREFIXES = [
   { value: '+1', label: 'US +1' },
   { value: '+82', label: 'KR +82' },
 ];
-const PRODUCT_TYPES = ['Alimentacion', 'Bebidas', 'Gourmet', 'Orgánico', 'Snacks', 'Congelado', 'Premium', 'Retail'];
+const PRODUCT_TYPES = ['Alimentación', 'Bebidas', 'Gourmet', 'Orgánico', 'Snacks', 'Congelado', 'Premium', 'Retail'];
 const VOLUME_OPTIONS = ['< 100 unidades', '100-1000', '1000-10000', '10000+'];
 const CONFETTI = Array.from({ length: 12 }, (_, index) => ({
   id: index,
@@ -111,7 +111,7 @@ function readStoredState(defaultCountry, initialPlan) {
 }
 
 function loadStripeJs() {
-  if (typeof window === 'undefined') return Promise.reject(new Error('Stripe no esta disponible'));
+  if (typeof window === 'undefined') return Promise.reject(new Error('Stripe no está disponible'));
   if (window.Stripe) return Promise.resolve(window.Stripe);
   if (!stripeLoader) {
     stripeLoader = new Promise((resolve, reject) => {
@@ -229,7 +229,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           const response = await axios.get(`${API}/sellers/plans`);
           key = response.data?.stripe_publishable_key || '';
           if (!key) {
-            throw new Error('Stripe no esta configurado todavia.');
+            throw new Error('Stripe no está configurado todavía.');
           }
           if (active) {
             setStripeKey(key);
@@ -324,10 +324,10 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
 
     if (targetStep === 1) {
       if (!validity.fullName) nextErrors.fullName = 'Necesitamos tu nombre completo.';
-      if (!validity.email) nextErrors.email = 'Introduce un email valido.';
-      if (!validity.password) nextErrors.password = 'Crea una contrasena de al menos 6 caracteres.';
+      if (!validity.email) nextErrors.email = 'Introduce un email válido.';
+      if (!validity.password) nextErrors.password = 'Crea una contraseña de al menos 6 caracteres.';
       if (!validity.phoneNumber) nextErrors.phoneNumber = 'Necesitamos un teléfono operativo.';
-      if (!validity.country) nextErrors.country = 'Selecciona el pais donde vas a operar.';
+      if (!validity.country) nextErrors.country = 'Selecciona el país donde vas a operar.';
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['fullName', 'email', 'password', 'phoneNumber', 'country']);
       }
@@ -338,7 +338,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       if (formData.productTypes.length === 0) nextErrors.productTypes = 'Elige al menos un tipo de producto.';
       if (!formData.monthlyVolume) nextErrors.monthlyVolume = 'Indica tu volumen estimado.';
       if (!validity.companyName) nextErrors.companyName = 'Necesitamos el nombre fiscal o comercial.';
-      if (!validity.fiscalAddress) nextErrors.fiscalAddress = 'Necesitamos una dirección fiscal valida.';
+      if (!validity.fiscalAddress) nextErrors.fiscalAddress = 'Necesitamos una dirección fiscal válida.';
       if (!validity.vatCif) nextErrors.vatCif = 'Necesitamos VAT, CIF o NIF para darte de alta.';
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['companyName', 'fiscalAddress', 'vatCif']);
@@ -386,7 +386,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
     const card = cardRef.current;
 
     if (!stripe || !card) {
-      throw new Error('Stripe no esta listo todavia.');
+        throw new Error('Stripe no está listo todavía.');
     }
 
     const paymentMethodResult = await stripe.createPaymentMethod({
@@ -456,7 +456,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       const detail = error?.response?.data?.detail;
       const message = typeof detail === 'string' ? detail : error.message || 'No pudimos completar el alta.';
       if (user?.role === 'importer' || message.toLowerCase().includes('email already registered')) {
-        setPaymentNotice('Tu cuenta ya esta creada. Solo falta activar el plan o terminar la suscripción.');
+        setPaymentNotice('Tu cuenta ya está creada. Solo falta activar el plan o terminar la suscripción.');
       }
       toast.error(message);
     } finally {
@@ -516,14 +516,14 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       </div>
 
       <div className="relative">
-        <Label htmlFor="importer-password" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Contrasena</Label>
+        <Label htmlFor="importer-password" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Contraseña</Label>
         <Input
           id="importer-password"
           type="password"
           value={formData.password}
           onChange={(event) => updateField('password', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, password: true }))}
-          placeholder="Minimo 6 caracteres"
+          placeholder="Mínimo 6 caracteres"
           className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
         />
         <StatusIcon valid={touched.password && validity.password} />
@@ -557,7 +557,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       </div>
 
       <div>
-        <Label htmlFor="importer-country" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Pais donde operaras</Label>
+        <Label htmlFor="importer-country" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">País donde operarás</Label>
         <select
           id="importer-country"
           value={formData.country}
@@ -565,7 +565,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           onBlur={() => setTouched((current) => ({ ...current, country: true }))}
           className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-base text-slate-900 focus:outline-none ${fieldClass(Boolean(errors.country), touched.country && validity.country)}`}
         >
-          <option value="">Selecciona tu pais principal</option>
+          <option value="">Selecciona tu país principal</option>
           {countryOptions.map((option) => <option key={option.code} value={option.code}>{option.name}</option>)}
         </select>
         {renderError('country')}
@@ -634,7 +634,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Empresa constituida</p>
-            <p className="mt-2 text-sm text-slate-600">Lo usamos para facturacion y aprobacion comercial.</p>
+              <p className="mt-2 text-sm text-slate-600">Lo usamos para facturación y aprobación comercial.</p>
           </div>
           <div className="inline-flex rounded-full border border-slate-300 bg-white p-1">
             {[{ label: 'Si', value: true }, { label: 'No', value: false }].map((option) => (
@@ -686,7 +686,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               value={formData.fiscalAddress}
               onChange={(event) => updateField('fiscalAddress', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, fiscalAddress: true }))}
-              placeholder="Dirección completa para facturacion"
+              placeholder="Dirección completa para facturación"
               className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.fiscalAddress), touched.fiscalAddress && validity.fiscalAddress)}`}
             />
             <StatusIcon valid={touched.fiscalAddress && validity.fiscalAddress} />
@@ -733,8 +733,8 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           </div>
           <div className="rounded-2xl bg-white p-4">
             <p className="text-sm text-slate-500">Perfil</p>
-            <p className="mt-2 text-lg font-bold text-slate-900">{formData.companyName || 'Importador en construccion'}</p>
-            <p className="mt-1 text-sm text-slate-600">{formData.country || 'Sin pais'}</p>
+            <p className="mt-2 text-lg font-bold text-slate-900">{formData.companyName || 'Importador en construcción'}</p>
+            <p className="mt-1 text-sm text-slate-600">{formData.country || 'Sin país'}</p>
           </div>
         </div>
       </div>
@@ -787,7 +787,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       </div>
       <div className="relative z-10 max-w-2xl">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-emerald-500"><CircleCheckBig className="h-9 w-9" /></div>
-        <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-slate-900">Bienvenido a la revolucion.</h3>
+                <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-slate-900">Bienvenido a la revolución.</h3>
         <p className="mt-4 text-lg leading-8 text-slate-600">Revisa tu email para verificar tu cuenta. Ya tienes la infraestructura que a mi me habria ahorrado perder dinero y tiempo.</p>
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
           <button
@@ -811,7 +811,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
             }}
             className="rounded-2xl border border-slate-300 px-6 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900"
           >
-            Ver catalogo de productores disponibles
+            Ver catálogo de productores disponibles
           </button>
         </div>
       </div>
@@ -847,7 +847,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               <aside className="w-full rounded-[28px] bg-slate-900 p-6 text-white lg:max-w-[340px]">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-500">Plan elegido</p>
                 <h3 className="mt-4 text-3xl font-extrabold tracking-[-0.03em]">{successState ? 'Listo para salir al mercado' : activePlan.name}</h3>
-                <p className="mt-4 text-sm leading-7 text-white/78">{successState ? 'La cuenta ya esta creada y ahora tienes una infraestructura real para vender sin intermediarios.' : activePlan.summary}</p>
+                  <p className="mt-4 text-sm leading-7 text-white/78">{successState ? 'La cuenta ya está creada y ahora tienes una infraestructura real para vender sin intermediarios.' : activePlan.summary}</p>
                 <div className="mt-8 rounded-[24px] border border-white/10 bg-white/5 p-5">
                   <p className="text-sm font-semibold text-white/70">Precio</p>
                   <p className="mt-3 text-4xl font-extrabold">{activePlan.price}</p>
@@ -855,7 +855,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 </div>
                 <div className="mt-6 space-y-3 text-sm text-white/72">
                   <div className="flex items-start gap-3"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-emerald-500" /><p>Sin alerts agresivos y con guardado local del progreso.</p></div>
-                  <div className="flex items-start gap-3"><LockKeyhole className="mt-1 h-4 w-4 shrink-0 text-[#3b82f6]" /><p>Tu contrasena no se persiste en localStorage.</p></div>
+                  <div className="flex items-start gap-3"><LockKeyhole className="mt-1 h-4 w-4 shrink-0 text-[#3b82f6]" /><p>Tu contraseña no se persiste en localStorage.</p></div>
                   <div className="flex items-start gap-3"><CreditCard className="mt-1 h-4 w-4 shrink-0 text-amber-500" /><p>PRO y ELITE usan Stripe inline. FREE crea la cuenta al instante.</p></div>
                 </div>
               </aside>
@@ -872,9 +872,9 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                       {step === 3 ? renderStepThree() : null}
 
                       <div className="mt-10 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="text-sm text-slate-500">{step === 1 ? 'Te pedimos solo lo necesario para no empezar con friccion.' : step === 2 ? 'Esto nos permite darte de alta como importador real.' : 'Configurando tu infraestructura comercial.'}</div>
+                        <div className="text-sm text-slate-500">{step === 1 ? 'Te pedimos solo lo necesario para no empezar con fricción.' : step === 2 ? 'Esto nos permite darte de alta como importador real.' : 'Configurando tu infraestructura comercial.'}</div>
                         <div className="flex flex-col gap-3 sm:flex-row">
-                          {step > 1 ? <button type="button" onClick={() => setStep((current) => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900"><ArrowLeft className="h-4 w-4" />Atras</button> : null}
+                          {step > 1 ? <button type="button" onClick={() => setStep((current) => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900"><ArrowLeft className="h-4 w-4" />Atrás</button> : null}
                           {step < 3 ? (
                             <button type="button" onClick={proceed} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-950">
                               Continuar
@@ -898,3 +898,4 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
     </Dialog>
   );
 }
+

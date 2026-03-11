@@ -62,7 +62,7 @@ function ImporterDashboard() {
       suggestions: [
         {
           id: 1,
-          title: 'Expande tu catalogo',
+          title: 'Expande tu catálogo',
           description: 'Descubre nuevos productores en Italia y Grecia',
           actionLabel: 'Explorar',
           onAction: () => navigate('/b2b/producers')
@@ -71,7 +71,7 @@ function ImporterDashboard() {
           id: 2,
           title: 'Optimiza precios',
           description: 'Tus productos italianos tienen alta demanda',
-          actionLabel: 'Ver analisis',
+          actionLabel: 'Ver análisis',
           onAction: () => navigate('/importer/analytics')
         }
       ]
@@ -82,7 +82,7 @@ function ImporterDashboard() {
     {
       id: 'add',
       icon: Plus,
-      label: 'Anadir producto',
+      label: 'Añadir producto',
       color: 'var(--color-accent)',
       onClick: () => navigate('/importer/products/new')
     },
@@ -103,7 +103,7 @@ function ImporterDashboard() {
     {
       id: 'analytics',
       icon: TrendingUp,
-      label: 'Analisis',
+      label: 'Análisis',
       color: 'var(--color-success)',
       onClick: () => navigate('/importer/analytics')
     }
@@ -139,7 +139,7 @@ function ImporterDashboard() {
         <KPICard
           icon={Globe}
           value={dashboardData.kpis.countries}
-          label="Paises"
+          label="Países"
           subtext="de origen"
           accentColor="#3B82F6"
         />

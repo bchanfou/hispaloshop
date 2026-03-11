@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -39,14 +39,14 @@ export const PRODUCER_PLANS = {
     name: 'FREE',
     badge: 'Empieza hoy',
     price: '0€ / mes',
-    chargeLabel: 'No pagaras nada hasta que vendas.',
+    chargeLabel: 'No pagarás nada hasta que vendas.',
     commission: '20%',
     accentClass: 'border-green-400 bg-white',
     buttonClass: 'bg-green-700 text-white hover:bg-green-800',
     summary: 'Para productores que quieren empezar a vender sin riesgo.',
     features: [
       'Tienda virtual personalizada con tu historia y origen',
-      'Hasta 30 productos en catalogo',
+      'Hasta 30 productos en catálogo',
       'Acceso a comunidad de productores',
       'Visibilidad nacional en España',
       'Comisión del 20% solo sobre ventas realizadas',
@@ -65,8 +65,8 @@ export const PRODUCER_PLANS = {
     features: [
       'Herramientas de IA para marketing',
       'Genera copy, optimiza fotos y traduce a 5 idiomas',
-      'Recomendaciones dinamicas de precio por zona geografica',
-      'Analitica avanzada de ventas',
+      'Recomendaciones dinámicas de precio por zona geográfica',
+      'Analítica avanzada de ventas',
       'Matching automático con hasta 5 influencers locales',
       'Comisión reducida al 18%',
       'Soporte prioritario por email',
@@ -81,17 +81,17 @@ export const PRODUCER_PLANS = {
     commission: '17%',
     accentClass: 'border-indigo-500 bg-white',
     buttonClass: 'bg-indigo-600 text-white hover:bg-indigo-700',
-    summary: 'Para cooperativas y productores con ambicion global.',
+    summary: 'Para cooperativas y productores con ambición global.',
     features: [
       'Todo lo del PRO',
       'IA avanzada de análisis de mercado',
-      'Prediccion de demanda por pais y temporada',
-      'Deteccion preventiva de riesgo de desabastecimiento',
+      'Predicción de demanda por país y temporada',
+      'Detección preventiva de riesgo de desabastecimiento',
       'Prioridad absoluta de visibilidad dentro de la plataforma',
-      'Matching directo con importadores de otros paises',
-      'Análisis de paises donde encaja tu producto y a que precios',
+      'Matching directo con importadores de otros países',
+      'Análisis de países donde encaja tu producto y a qué precios',
       'Comisión reducida al 17%',
-      'Soporte telefonico directo',
+      'Soporte telefónico directo',
     ],
   },
 };
@@ -120,26 +120,26 @@ const PRODUCT_TYPES = [
 
 const EXPORT_OPTIONS = [
   'Solo vendo en España',
-  'Ya exporto a algun pais',
+  'Ya exporto a algún país',
   'Quiero empezar a exportar',
 ];
 
 const REFERENCE_OPTIONS = [
   '1-5 productos',
   '6-20',
-  'Mas de 20',
+  'Más de 20',
 ];
 
 const REGIONS = [
-  'Andalucia',
-  'Aragon',
+  'Andalucía',
+  'Aragón',
   'Asturias',
   'Baleares',
   'Canarias',
   'Cantabria',
   'Castilla-La Mancha',
-  'Castilla y Leon',
-  'Cataluna',
+  'Castilla y León',
+  'Cataluña',
   'Ceuta',
   'Comunidad Valenciana',
   'Extremadura',
@@ -149,7 +149,7 @@ const REGIONS = [
   'Melilla',
   'Murcia',
   'Navarra',
-  'Pais Vasco',
+  'País Vasco',
 ];
 
 let stripeLoader;
@@ -194,7 +194,7 @@ function getPasswordStrength(password) {
 
 function loadStripeJs() {
   if (typeof window === 'undefined') {
-    return Promise.reject(new Error('Stripe no esta disponible.'));
+    return Promise.reject(new Error('Stripe no está disponible.'));
   }
   if (window.Stripe) {
     return Promise.resolve(window.Stripe);
@@ -302,7 +302,7 @@ function ProgressDots({ step, success }) {
         <div className="relative flex items-center justify-between">
           {[1, 2, 3].map((point) => {
             const active = success || step >= point;
-            const label = point === 1 ? 'Quien eres' : point === 2 ? 'Tu producción' : 'Confirma tu plan';
+            const label = point === 1 ? 'Quién eres' : point === 2 ? 'Tu producción' : 'Confirma tu plan';
             return (
               <div key={label} className="flex flex-col items-center gap-2">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition ${active ? 'border-green-900 bg-green-900 text-white' : 'border-stone-300 bg-white text-stone-500'}`}>
@@ -433,7 +433,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           const response = await axios.get(`${API}/sellers/plans`);
           key = response.data?.stripe_publishable_key || '';
           if (!key) {
-            throw new Error('Stripe no esta configurado todavia.');
+            throw new Error('Stripe no está configurado todavía.');
           }
           if (active) {
             setStripeKey(key);
@@ -545,20 +545,20 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
 
     if (targetStep === 1) {
       if (!validity.fullName) nextErrors.fullName = 'Necesitamos tu nombre para darte de alta.';
-      if (!validity.email) nextErrors.email = 'Introduce un email valido.';
+      if (!validity.email) nextErrors.email = 'Introduce un email válido.';
       if (!validity.phoneNumber) nextErrors.phoneNumber = 'Necesitamos un teléfono operativo.';
-      if (!validity.password) nextErrors.password = 'Tu contrasena debe tener al menos 6 caracteres.';
-      if (!formData.acceptLegal) nextErrors.acceptLegal = 'Debes aceptar la politica de privacidad y los terminos.';
+      if (!validity.password) nextErrors.password = 'Tu contraseña debe tener al menos 6 caracteres.';
+      if (!formData.acceptLegal) nextErrors.acceptLegal = 'Debes aceptar la política de privacidad y los términos.';
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['fullName', 'email', 'phoneNumber', 'password', 'acceptLegal']);
       }
     }
 
     if (targetStep === 2) {
-      if (!validity.brandName) nextErrors.brandName = 'Cuentanos como se llama tu marca o cooperativa.';
+      if (!validity.brandName) nextErrors.brandName = 'Cuéntanos cómo se llama tu marca o cooperativa.';
       if (!validity.productTypes) nextErrors.productTypes = 'Selecciona al menos un tipo de producto.';
-      if (!validity.exportStage) nextErrors.exportStage = 'Indicanos si ya exportas o quieres empezar.';
-      if (!validity.region) nextErrors.region = 'Selecciona tu region de producción.';
+      if (!validity.exportStage) nextErrors.exportStage = 'Indícanos si ya exportas o quieres empezar.';
+      if (!validity.region) nextErrors.region = 'Selecciona tu región de producción.';
       if (!validity.references) nextErrors.references = 'Necesitamos un rango aproximado de referencias.';
       if (Object.keys(nextErrors).length > 0) {
         markTouched(['brandName', 'productTypes', 'exportStage', 'region', 'references']);
@@ -611,7 +611,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
     const card = cardRef.current;
 
     if (!stripe || !card) {
-      throw new Error('Stripe no esta listo todavia.');
+      throw new Error('Stripe no está listo todavía.');
     }
 
     const paymentMethodResult = await stripe.createPaymentMethod({
@@ -643,7 +643,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
     if (subscribeResponse.data?.requires_action && subscribeResponse.data?.client_secret) {
       const confirmation = await stripe.confirmCardPayment(subscribeResponse.data.client_secret);
       if (confirmation.error) {
-        throw new Error(confirmation.error.message || 'Tu banco no confirmo el pago todavia.');
+      throw new Error(confirmation.error.message || 'Tu banco no confirmó el pago todavía.');
       }
 
       await axios.post(
@@ -785,7 +785,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
 
       <div className="relative">
         <Label htmlFor="producer-password" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
-          Contrasena
+          Contraseña
         </Label>
         <LockKeyhole className="pointer-events-none absolute left-4 top-[43px] h-4 w-4 text-stone-400" />
         <Input
@@ -794,7 +794,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           value={formData.password}
           onChange={(event) => updateField('password', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, password: true }))}
-          placeholder="Minimo 6 caracteres"
+              placeholder="Mínimo 6 caracteres"
           className={`mt-2 h-12 rounded-[10px] bg-white pl-11 pr-12 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
         />
         <button
@@ -828,7 +828,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           />
           <div>
             <Label htmlFor="producer-legal" className="mb-0 text-sm font-semibold text-stone-800">
-              Acepto la politica de privacidad y los terminos
+              Acepto la política de privacidad y los términos
             </Label>
             <p className="mt-1 text-sm text-stone-600">
               Puedes revisarlos antes de seguir en{' '}
@@ -904,7 +904,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
       <div className="grid gap-5 lg:grid-cols-2">
         <div>
           <Label htmlFor="producer-region" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
-            Region de producción
+            Región de producción
           </Label>
           <div className="relative">
             <MapPinned className="pointer-events-none absolute left-4 top-[15px] h-4 w-4 text-stone-400" />
@@ -914,7 +914,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               onChange={(event) => updateField('region', event.target.value)}
               className={`mt-2 h-12 w-full rounded-[10px] bg-white pl-11 pr-4 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.region), touched.region && validity.region)}`}
             >
-              <option value="">Selecciona tu region</option>
+              <option value="">Selecciona tu región</option>
               {REGIONS.map((region) => (
                 <option key={region} value={region}>
                   {region}
@@ -1021,7 +1021,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 Entiendo que Hispaloshop retiene un 20% de comisión por venta
               </Label>
               <p className="mt-2 text-sm leading-7 text-green-800">
-                No pagaras nada hasta que vendas. Cuando vendas, te quedaras con el 80%.
+                No pagarás nada hasta que vendas. Cuando vendas, te quedarás con el 80%.
               </p>
               <InlineError message={errors.acceptCommission} />
             </div>
@@ -1053,7 +1053,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           </div>
 
           <p className="mt-3 text-xs leading-6 text-stone-500">
-            Pago seguro por Stripe. Si tu banco pide una confirmacion extra, la resolvemos aquí mismo sin sacarte de la página.
+            Pago seguro por Stripe. Si tu banco pide una confirmación extra, la resolvemos aquí mismo sin sacarte de la página.
           </p>
           <InlineError message={errors.card} />
           {stripeError && !errors.card ? <p className="mt-3 text-sm text-red-600">{stripeError}</p> : null}
@@ -1081,7 +1081,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
             Infraestructura activada
           </div>
           <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.04em] text-stone-900">
-            Bienvenido a la revolucion de los productores honestos.
+            Bienvenido a la revolución de los productores honestos.
           </h3>
           <p className="mt-4 text-lg leading-8 text-stone-600">
             Revisa tu email para verificar tu cuenta y accede a tu panel para completar tu perfil.
@@ -1090,7 +1090,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
             <div className="flex items-start gap-3">
               <ShieldCheck className="mt-1 h-5 w-5 shrink-0 text-green-900" />
               <p className="text-sm leading-7 text-stone-600">
-                Si tu alta queda pendiente de revision, veras primero el estado de aprobacion. Desde ahí sigues el proceso sin perder nada.
+                Si tu alta queda pendiente de revisión, verás primero el estado de aprobación. Desde ahí sigues el proceso sin perder nada.
               </p>
             </div>
           </div>
@@ -1115,7 +1115,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               }}
               className="rounded-2xl border border-stone-300 px-6 py-4 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
             >
-              Ver guia rapida para subir mi primer producto
+              Ver guía rápida para subir mi primer producto
             </button>
           </div>
         </div>
@@ -1142,7 +1142,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-stone-400">Productor Hispaloshop</p>
                 <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-stone-900">
-                  {successState ? 'Alta completada' : step === 1 ? 'Quien eres' : step === 2 ? 'Tu producción' : 'Confirma tu plan'}
+                  {successState ? 'Alta completada' : step === 1 ? 'Quién eres' : step === 2 ? 'Tu producción' : 'Confirma tu plan'}
                 </h2>
               </div>
               <button
@@ -1182,7 +1182,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                   </div>
                   <div className="flex items-start gap-3">
                     <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-amber-400" />
-                    <p>La contrasena no se guarda en localStorage, asi evitas dejar un secreto expuesto.</p>
+                    <p>La contraseña no se guarda en localStorage, así evitas dejar un secreto expuesto.</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CreditCard className="mt-1 h-4 w-4 shrink-0 text-indigo-400" />
@@ -1217,7 +1217,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                       <div className="mt-10 flex flex-col gap-4 border-t border-stone-200 pt-6 lg:flex-row lg:items-center lg:justify-between">
                         <div className="text-sm leading-7 text-stone-500">
                           {step === 1
-                            ? 'Empezamos por lo minimo para no ponerte otra barrera mas.'
+                            ? 'Empezamos por lo mínimo para no ponerte otra barrera más.'
                             : step === 2
                               ? 'Esto nos ayuda a entender tu realidad y orientarte mejor.'
                               : 'Estamos a un paso de abrir tu tienda y dejar la infraestructura preparada.'}
@@ -1231,7 +1231,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
                             >
                               <ArrowLeft className="h-4 w-4" />
-                              Atras
+                              Atrás
                             </button>
                           ) : null}
 
@@ -1280,3 +1280,4 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
     </Dialog>
   );
 }
+

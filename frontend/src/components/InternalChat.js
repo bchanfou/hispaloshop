@@ -1,4 +1,4 @@
-import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+﻿import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -479,7 +479,7 @@ function DirectorySheet({
                   Elige a quien escribir
                 </h3>
                 <p className="mt-1 text-sm text-stone-500">
-                  Busca perfiles y empieza una conversacion limpia, sin salir del chat.
+                  Busca perfiles y empieza una conversación limpia, sin salir del chat.
                 </p>
               </div>
               <button
@@ -1275,9 +1275,9 @@ export default function InternalChat({
               type="search"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Buscar conversacion"
+              placeholder="Buscar conversación"
               className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
-              aria-label="Buscar conversacion"
+              aria-label="Buscar conversación"
             />
           </label>
         </div>
@@ -1341,7 +1341,7 @@ export default function InternalChat({
             <div className="space-y-4">
               <EmptyState
                 title="No tienes conversaciones"
-                description="Empieza un chat nuevo desde el boton superior y mantendras el inbox mucho mas limpio."
+                description="Empieza un chat nuevo desde el botón superior y mantendrás el inbox mucho más limpio."
               />
               <div className="px-3">
                 <button
@@ -1435,8 +1435,8 @@ export default function InternalChat({
                 </div>
               ) : (
                 <EmptyState
-                  title="Empieza la conversacion"
-                  description="Escribe el primer mensaje y manten la conversacion dentro de un contexto claro."
+                  title="Empieza la conversación"
+                  description="Escribe el primer mensaje y mantén la conversación dentro de un contexto claro."
                 />
               )}
             </div>
@@ -1596,7 +1596,7 @@ export default function InternalChat({
         ) : (
           <EmptyState
             title="Selecciona una conversacion"
-            description="Abre un chat existente o usa el boton Nuevo para empezar una conversacion."
+                description="Abre un chat existente o usa el botÃ³n Nuevo para empezar una conversaciÃ³n."
           />
         )}
       </div>
@@ -1627,3 +1627,4 @@ export default function InternalChat({
     </div>
   );
 }
+

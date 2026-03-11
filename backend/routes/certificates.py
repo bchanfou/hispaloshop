@@ -26,6 +26,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+def _public_product_filter() -> dict:
+    return {
+        "$or": [
+            {"status": "active"},
+            {"approved": True},
+            {"status": "approved"},
+        ]
+    }
+
+
 @router.get("/certificates/products")
 async def get_certified_products():
     """Get all products that have approved certificates, with cert info from products."""
@@ -39,7 +49,7 @@ async def get_certified_products():
 
     product_ids = list({c["product_id"] for c in certs})
     products = await db.products.find(
-        {"product_id": {"$in": product_ids}},
+        {"product_id": {"$in": product_ids}, **_public_product_filter()},
         {"_id": 0, "product_id": 1, "name": 1, "images": 1, "image_urls": 1,
          "country_origin": 1, "ingredients": 1, "category": 1, "store_id": 1,
          "certifications": 1}

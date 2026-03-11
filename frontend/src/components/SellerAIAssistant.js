@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from './ui/button';
 import {
@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
 
-// ── HA Avatar ────────────────────────────────────────────────────
+// HA Avatar
 function HAAvatar({ size = 36 }) {
   return (
     <div
@@ -21,7 +21,7 @@ function HAAvatar({ size = 36 }) {
   );
 }
 
-// ── Typing dots ──────────────────────────────────────────────────
+// Typing dots
 function TypingDots() {
   return (
     <div className="flex items-center gap-1 py-1">
@@ -38,11 +38,11 @@ function TypingDots() {
 
 function getQuickPrompts(t) {
   return [
-    { icon: Package,   label: t('sellerAI.suggestPacks',   'Sugerir packs'),       prompt: t('sellerAI.suggestPacksPrompt',   'Que configuracion de packs me recomiendas para mis productos mas vendidos?') },
-    { icon: TrendingUp,label: t('sellerAI.analyzeTrends',  'Analizar tendencias'), prompt: t('sellerAI.analyzeTrendsPrompt',  'Analiza las tendencias actuales del mercado y sugiere que productos deberia crear o destacar.') },
-    { icon: DollarSign,label: t('sellerAI.optimizePricing','Optimizar precios'),   prompt: t('sellerAI.optimizePricingPrompt','Revisa mis precios actuales y sugiere ajustes para ser mas competitivo.') },
-    { icon: Target,    label: t('sellerAI.salesStrategy',  'Estrategia ventas'),   prompt: t('sellerAI.salesStrategyPrompt',  'Dame una estrategia de ventas personalizada basada en mi catalogo actual.') },
-    { icon: Lightbulb, label: t('sellerAI.productIdeas',   'Ideas de productos'),  prompt: t('sellerAI.productIdeasPrompt',   'Basandote en mi tienda, que nuevos productos deberia anadir?') },
+    { icon: Package,   label: t('sellerAI.suggestPacks',   'Sugerir packs'),       prompt: t('sellerAI.suggestPacksPrompt',   'Qué configuración de packs me recomiendas para mis productos más vendidos?') },
+    { icon: TrendingUp,label: t('sellerAI.analyzeTrends',  'Analizar tendencias'), prompt: t('sellerAI.analyzeTrendsPrompt',  'Analiza las tendencias actuales del mercado y sugiere qué productos debería crear o destacar.') },
+    { icon: DollarSign,label: t('sellerAI.optimizePricing','Optimizar precios'),   prompt: t('sellerAI.optimizePricingPrompt','Revisa mis precios actuales y sugiere ajustes para ser más competitivo.') },
+    { icon: Target,    label: t('sellerAI.salesStrategy',  'Estrategia ventas'),   prompt: t('sellerAI.salesStrategyPrompt',  'Dame una estrategia de ventas personalizada basada en mi catálogo actual.') },
+    { icon: Lightbulb, label: t('sellerAI.productIdeas',   'Ideas de productos'),  prompt: t('sellerAI.productIdeasPrompt',   'Basándote en mi tienda, qué nuevos productos debería añadir?') },
   ];
 }
 
@@ -52,7 +52,7 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: t('sellerAI.welcome', 'Hola! Soy Hispal AI Ventas, tu asistente de negocio. Puedo ayudarte a crear mejores packs, analizar tendencias, optimizar precios y diseñar estrategias de ventas. ¿En qué te puedo ayudar hoy?')
+      content: t('sellerAI.welcome', 'Hola. Soy Hispal AI Ventas, tu asistente de negocio. Puedo ayudarte a crear mejores packs, analizar tendencias, optimizar precios y diseñar estrategias de ventas. ¿En qué te puedo ayudar hoy?')
     }
   ]);
   const [input, setInput]         = useState('');
@@ -91,7 +91,7 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
     } catch (error) {
       console.error('Error:', error);
       toast.error(error.response?.data?.detail || t('sellerAI.error', 'Error al procesar tu consulta.'));
-      setMessages(prev => [...prev, { role: 'assistant', content: t('sellerAI.errorRetry', 'Lo siento, hubo un error. ¿Puedes intentarlo de nuevo?') }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: t('sellerAI.errorRetry', 'Lo siento, hubo un error. Â¿Puedes intentarlo de nuevo?') }]);
     } finally {
       setLoading(false);
     }
@@ -168,7 +168,7 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
             className="flex items-center gap-1 text-xs text-stone-500 my-2 hover:text-stone-700"
           >
             {showPrompts ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
-            {t('sellerAI.quickActions', 'Acciones rápidas')}
+            {t('sellerAI.quickActions', 'Acciones rÃ¡pidas')}
           </button>
           <div className="flex flex-wrap gap-1.5 pb-1">
             {QUICK_PROMPTS.map((p, i) => {
@@ -216,3 +216,4 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
     </div>
   );
 }
+

@@ -24,6 +24,16 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.hispaloshop.com')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 EMAIL_FROM = os.environ.get('EMAIL_FROM', 'Hispaloshop <onboarding@resend.dev>')
 
+
+def _public_product_filter() -> dict:
+    return {
+        "$or": [
+            {"status": "active"},
+            {"approved": True},
+            {"status": "approved"},
+        ]
+    }
+
 def send_email(to, subject, html):
     if not RESEND_API_KEY:
         return
@@ -87,7 +97,7 @@ async def get_all_stores(
         # Get product count
         product_count = await db.products.count_documents({
             "producer_id": store.get("producer_id"),
-            "status": "approved"
+            **_public_product_filter(),
         })
         store["product_count"] = product_count
         
@@ -122,7 +132,7 @@ async def get_store_by_slug(slug: str):
     
     # Calculate rating from product reviews
     products = await db.products.find(
-        {"producer_id": store["producer_id"], "status": "approved"},
+        {"producer_id": store["producer_id"], **_public_product_filter()},
         {"product_id": 1}
     ).to_list(1000)
     product_ids = [p["product_id"] for p in products]
@@ -140,7 +150,7 @@ async def get_store_by_slug(slug: str):
     store["follower_count"] = follower_count
     
     # Get product count
-    product_count = await db.products.count_documents({"producer_id": store["producer_id"], "approved": True})
+    product_count = await db.products.count_documents({"producer_id": store["producer_id"], **_public_product_filter()})
     store["product_count"] = product_count
     
     return store
@@ -158,7 +168,7 @@ async def get_store_products(
     if not store:
         raise HTTPException(status_code=404, detail="Store not found")
     
-    query = {"producer_id": store["producer_id"], "status": "approved"}
+    query = {"producer_id": store["producer_id"], **_public_product_filter()}
     if category:
         query["category_id"] = category
     
