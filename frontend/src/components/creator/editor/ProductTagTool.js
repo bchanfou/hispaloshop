@@ -1,52 +1,48 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Package, Plus, Trash2, ShoppingBag, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Package, Plus, Search, ShoppingBag, Trash2, X } from 'lucide-react';
 import { MOCK_PRODUCTS } from '../types/editor.types';
 
-function ProductTagTool({ tags, onAdd, onUpdate, onRemove }) {
+function ProductTagTool({ tags, onAdd, onRemove }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProductList, setShowProductList] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const filteredProducts = MOCK_PRODUCTS.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.seller.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = MOCK_PRODUCTS.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.seller.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleSelectProduct = (product) => {
-    setSelectedProduct(product);
-    // Añadir tag en posición central por defecto
     onAdd(product, 150, 150);
     setShowProductList(false);
     setSearchQuery('');
   };
 
   return (
-    <div className="p-4 space-y-4">
-      {/* Header con contador */}
+    <div className="space-y-4 p-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sm text-stone-700 flex items-center gap-2">
-          <ShoppingBag className="w-4 h-4 text-accent" />
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-stone-950">
+          <ShoppingBag className="h-4 w-4 text-stone-950" />
           Productos etiquetados
         </h3>
-        <span className="text-xs bg-accent text-white px-2 py-0.5 rounded-full">
+        <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-600">
           {tags.length}/5
         </span>
       </div>
 
-      {/* Botón añadir */}
-      {tags.length < 5 && (
+      {tags.length < 5 ? (
         <button
+          type="button"
           onClick={() => setShowProductList(true)}
-          className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-accent text-accent hover:bg-accent/5 transition-colors"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4 text-sm font-medium text-stone-700 transition-colors hover:border-stone-950 hover:bg-white hover:text-stone-950"
         >
-          <Plus className="w-5 h-5" />
-          <span className="text-sm font-medium">Etiquetar producto</span>
+          <Plus className="h-5 w-5" />
+          Etiquetar producto
         </button>
-      )}
+      ) : null}
 
-      {/* Lista de productos etiquetados */}
-      {tags.length > 0 && (
+      {tags.length > 0 ? (
         <div className="space-y-2">
           <AnimatePresence>
             {tags.map((tag) => (
@@ -55,115 +51,116 @@ function ProductTagTool({ tags, onAdd, onUpdate, onRemove }) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl"
+                className="flex items-center gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-3"
               >
-                <div className="w-12 h-12 rounded-lg bg-stone-200 flex items-center justify-center overflow-hidden">
+                <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-stone-200">
                   {tag.productImage ? (
-                    <img src={tag.productImage} alt="" className="w-full h-full object-cover" />
+                    <img src={tag.productImage} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <Package className="w-6 h-6 text-stone-400" />
+                    <Package className="h-6 w-6 text-stone-400" />
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-stone-800 truncate">{tag.productName}</p>
-                  <p className="text-xs text-accent font-semibold">€{tag.productPrice}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-stone-950">{tag.productName}</p>
+                  <p className="text-xs font-medium text-stone-500">€{tag.productPrice}</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => onRemove(tag.id)}
-                  className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-stone-500 ring-1 ring-stone-200 transition-colors hover:text-stone-950"
+                  aria-label="Eliminar etiqueta de producto"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
-      )}
+      ) : null}
 
-      {/* Info */}
-      <p className="text-xs text-stone-400 text-center">
-        Arrastra las etiquetas en la imagen para posicionarlas sobre el producto
+      <p className="text-center text-xs text-stone-500">
+        Arrastra las etiquetas sobre la imagen para situarlas donde tenga sentido.
       </p>
 
-      {/* Modal de selección de productos */}
       <AnimatePresence>
-        {showProductList && (
+        {showProductList ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 md:items-center"
             onClick={() => setShowProductList(false)}
           >
             <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="w-full max-w-md bg-white rounded-2xl max-h-[80vh] flex flex-col"
-              onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98 }}
+              transition={{ duration: 0.18 }}
+              className="flex max-h-[80vh] w-full max-w-md flex-col rounded-3xl bg-white shadow-xl"
+              onClick={(event) => event.stopPropagation()}
             >
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-stone-100">
-                <h3 className="font-semibold text-lg">Buscar producto</h3>
+              <div className="flex items-center justify-between border-b border-stone-100 p-4">
+                <h3 className="text-lg font-semibold text-stone-950">Buscar producto</h3>
                 <button
+                  type="button"
                   onClick={() => setShowProductList(false)}
-                  className="p-2 hover:bg-stone-100 rounded-full"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 text-stone-700 transition-colors hover:bg-stone-200"
+                  aria-label="Cerrar búsqueda de productos"
                 >
-                  <X className="w-5 h-5 text-stone-500" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
-              {/* Search */}
-              <div className="p-4 border-b border-stone-100">
+              <div className="border-b border-stone-100 p-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(event) => setSearchQuery(event.target.value)}
                     placeholder="Buscar producto..."
-                    className="w-full pl-10 pr-4 py-3 bg-stone-50 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent"
+                    className="h-12 w-full rounded-2xl bg-stone-50 pl-10 pr-4 text-sm text-stone-950 outline-none ring-1 ring-transparent transition-colors placeholder:text-stone-400 focus:ring-stone-950"
                     autoFocus
                   />
                 </div>
               </div>
 
-              {/* Lista de productos */}
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="space-y-2">
                   {filteredProducts.map((product) => (
                     <button
                       key={product.id}
+                      type="button"
                       onClick={() => handleSelectProduct(product)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-stone-50 transition-colors text-left"
+                      className="flex w-full items-center gap-3 rounded-2xl border border-transparent p-3 text-left transition-colors hover:border-stone-100 hover:bg-stone-50"
                     >
-                      <div className="w-14 h-14 rounded-lg bg-stone-100 flex items-center justify-center overflow-hidden">
+                      <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-stone-100">
                         {product.image ? (
-                          <img src={product.image} alt="" className="w-full h-full object-cover" />
+                          <img src={product.image} alt="" className="h-full w-full object-cover" />
                         ) : (
-                          <Package className="w-7 h-7 text-stone-400" />
+                          <Package className="h-7 w-7 text-stone-400" />
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-stone-800 truncate">{product.name}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-stone-950">{product.name}</p>
                         <p className="text-xs text-stone-500">{product.seller}</p>
-                        <p className="text-sm font-semibold text-accent mt-0.5">€{product.price}</p>
+                        <p className="mt-0.5 text-sm font-medium text-stone-700">€{product.price}</p>
                       </div>
-                      <Plus className="w-5 h-5 text-accent" />
+                      <Plus className="h-5 w-5 text-stone-400" />
                     </button>
                   ))}
-                  {filteredProducts.length === 0 && (
-                    <div className="text-center py-8 text-stone-400">
-                      <Package className="w-12 h-12 mx-auto mb-2 opacity-50" />
+
+                  {filteredProducts.length === 0 ? (
+                    <div className="py-8 text-center text-stone-400">
+                      <Package className="mx-auto mb-2 h-12 w-12 opacity-50" />
                       <p className="text-sm">No se encontraron productos</p>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </motion.div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

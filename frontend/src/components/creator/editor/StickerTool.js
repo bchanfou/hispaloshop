@@ -1,152 +1,168 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Trash2, Tag, Flame, Sparkles, Leaf, Wheat, MapPin, Hash, AtSign, MousePointer } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { MapPin, Tag, Sparkles, Trash2 } from 'lucide-react';
 
-const STICKER_TYPES = [
-  { id: 'price', icon: Tag, label: 'Precio', color: 'bg-amber-500' },
-  { id: 'new', icon: Sparkles, label: 'Nuevo', color: 'bg-green-500' },
-  { id: 'offer', icon: Flame, label: 'Oferta', color: 'bg-red-500' },
-  { id: 'vegan', icon: Leaf, label: 'Vegano', color: 'bg-green-600' },
-  { id: 'organic', icon: Leaf, label: 'Orgánico', color: 'bg-emerald-500' },
-  { id: 'gluten-free', icon: Wheat, label: 'Sin Gluten', color: 'bg-blue-500' },
-  { id: 'local', icon: MapPin, label: 'Local', color: 'bg-orange-500' },
-  { id: 'hashtag', icon: Hash, label: 'Hashtag', color: 'bg-accent' },
-  { id: 'mention', icon: AtSign, label: 'Mención', color: 'bg-purple-500' },
+const UTILITY_STICKERS = [
+  {
+    id: 'price',
+    label: 'Precio',
+    description: 'Añade un precio simple y sobrio.',
+    icon: Tag,
+    requiresInput: true,
+    placeholder: '12,90',
+  },
+  {
+    id: 'location',
+    label: 'Ubicación',
+    description: 'Sitúa el contenido con una etiqueta discreta.',
+    icon: MapPin,
+    requiresInput: true,
+    placeholder: 'Reus, España',
+  },
+  {
+    id: 'new',
+    label: 'Novedad',
+    description: 'Marca algo nuevo sin añadir ruido.',
+    icon: Sparkles,
+    requiresInput: false,
+  },
 ];
 
-function StickerTool({ stickers, onAdd, onUpdate, onRemove }) {
-  const [selectedType, setSelectedType] = useState(null);
+function StickerTool({ stickers, onAdd, onRemove }) {
+  const [selectedType, setSelectedType] = useState('price');
   const [content, setContent] = useState('');
 
+  const nonProductStickers = useMemo(
+    () => stickers.filter((item) => item.type !== 'product'),
+    [stickers],
+  );
+
+  const selectedSticker = UTILITY_STICKERS.find((item) => item.id === selectedType);
+
   const handleAdd = () => {
-    if (!selectedType) return;
-    
-    const options = { x: 100, y: 100 };
-    if (['price', 'hashtag', 'mention'].includes(selectedType)) {
-      options.content = content;
-    }
-    
-    onAdd(selectedType, options);
-    setSelectedType(null);
+    if (!selectedSticker) return;
+    if (selectedSticker.requiresInput && !content.trim()) return;
+
+    onAdd(selectedSticker.id, {
+      x: 72,
+      y: 84,
+      content: selectedSticker.requiresInput ? content.trim() : undefined,
+    });
     setContent('');
   };
 
   return (
-    <div className="p-4 space-y-4">
-      {/* Grid de stickers */}
-      <div>
-        <h3 className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-3">
-          Añadir sticker
-        </h3>
-        <div className="grid grid-cols-3 gap-2">
-          {STICKER_TYPES.map((sticker) => {
+    <div className="space-y-5 p-4">
+      <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
+        <h3 className="text-sm font-semibold text-stone-950">Sellos útiles</h3>
+        <p className="mt-1 text-xs leading-5 text-stone-500">
+          Se mantienen solo overlays que aportan contexto real. Los emojis, hashtags y menciones se escriben desde el flujo de texto.
+        </p>
+
+        <div className="mt-4 space-y-2">
+          {UTILITY_STICKERS.map((sticker) => {
             const Icon = sticker.icon;
+            const isActive = selectedType === sticker.id;
+
             return (
-              <motion.button
+              <button
                 key={sticker.id}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedType(selectedType === sticker.id ? null : sticker.id)}
-                className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-colors ${
-                  selectedType === sticker.id
-                    ? 'bg-accent text-white'
-                    : 'bg-stone-50 hover:bg-stone-100 text-stone-600'
+                type="button"
+                onClick={() => setSelectedType(sticker.id)}
+                className={`flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${
+                  isActive ? 'border-stone-950 bg-white' : 'border-stone-100 bg-white hover:border-stone-200'
                 }`}
               >
-                <div className={`w-10 h-10 rounded-full ${sticker.color} flex items-center justify-center text-white`}>
-                  <Icon className="w-5 h-5" />
+                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
+                  isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'
+                }`}>
+                  <Icon className="h-4.5 w-4.5" />
                 </div>
-                <span className="text-xs">{sticker.label}</span>
-              </motion.button>
+                <div>
+                  <p className="text-sm font-semibold text-stone-950">{sticker.label}</p>
+                  <p className="mt-1 text-xs leading-5 text-stone-500">{sticker.description}</p>
+                </div>
+              </button>
             );
           })}
         </div>
-      </div>
 
-      {/* Input de contenido para stickers editables */}
-      {selectedType && ['price', 'hashtag', 'mention'].includes(selectedType) && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-3 bg-stone-50 rounded-xl space-y-2"
-        >
-          <label className="text-xs text-stone-500">
-            {selectedType === 'price' && 'Precio (€)'}
-            {selectedType === 'hashtag' && 'Hashtag (sin #)'}
-            {selectedType === 'mention' && 'Usuario (sin @)'}
-          </label>
-          <div className="flex gap-2">
+        {selectedSticker?.requiresInput ? (
+          <div className="mt-4 rounded-2xl border border-stone-100 bg-white p-3">
+            <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">
+              Contenido
+            </label>
             <input
               type="text"
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder={
-                selectedType === 'price' ? '12.90' :
-                selectedType === 'hashtag' ? 'Hispaloshop' :
-                'usuario'
-              }
-              className="flex-1 px-3 py-2 rounded-lg border border-stone-200 text-sm outline-none focus:ring-2 focus:ring-accent"
-              autoFocus
+              onChange={(event) => setContent(event.target.value)}
+              placeholder={selectedSticker.placeholder}
+              className="mt-2 h-12 w-full rounded-2xl bg-stone-50 px-4 text-sm text-stone-950 outline-none ring-1 ring-transparent transition-colors placeholder:text-stone-400 focus:ring-stone-950"
             />
-            <button
-              onClick={handleAdd}
-              className="px-4 py-2 bg-accent text-white text-sm rounded-lg"
-            >
-              Añadir
-            </button>
           </div>
-        </motion.div>
-      )}
+        ) : null}
 
-      {/* Añadir sticker simple */}
-      {selectedType && !['price', 'hashtag', 'mention'].includes(selectedType) && (
         <button
+          type="button"
           onClick={handleAdd}
-          className="w-full py-3 bg-accent text-white rounded-xl text-sm font-medium"
+          disabled={selectedSticker?.requiresInput && !content.trim()}
+          className="mt-4 w-full rounded-full bg-stone-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Añadir {STICKER_TYPES.find(s => s.id === selectedType)?.label}
+          Añadir sello
         </button>
-      )}
+      </div>
 
-      {/* Lista de stickers añadidos */}
-      {stickers.filter(s => s.type !== 'product').length > 0 && (
-        <div className="pt-4 border-t border-stone-200">
-          <h4 className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-3">
-            Stickers añadidos ({stickers.filter(s => s.type !== 'product').length})
-          </h4>
-          <div className="space-y-2">
-            {stickers.filter(s => s.type !== 'product').map((sticker) => {
-              const typeInfo = STICKER_TYPES.find(t => t.id === sticker.type);
+      <div className="rounded-2xl border border-stone-100 bg-white p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h4 className="text-sm font-semibold text-stone-950">Sellos activos</h4>
+            <p className="mt-1 text-xs leading-5 text-stone-500">
+              También puedes arrastrarlos dentro del lienzo.
+            </p>
+          </div>
+          <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
+            {nonProductStickers.length}
+          </span>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {nonProductStickers.length === 0 ? (
+            <div className="rounded-2xl bg-stone-50 px-4 py-5 text-sm text-stone-500">
+              No hay sellos activos todavía.
+            </div>
+          ) : (
+            nonProductStickers.map((sticker) => {
+              const typeInfo = UTILITY_STICKERS.find((item) => item.id === sticker.type);
               const Icon = typeInfo?.icon || Tag;
+
               return (
-                <div
-                  key={sticker.id}
-                  className="flex items-center justify-between p-2 bg-stone-50 rounded-lg"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-lg ${typeInfo?.color || 'bg-stone-400'} flex items-center justify-center text-white`}>
-                      <Icon className="w-4 h-4" />
+                <div key={sticker.id} className="flex items-center justify-between gap-3 rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-stone-950 shadow-sm ring-1 ring-stone-200">
+                      <Icon className="h-4 w-4" />
                     </div>
-                    <span className="text-sm text-stone-600">
-                      {typeInfo?.label}
-                      {sticker.content && `: ${sticker.content}`}
-                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-stone-950">
+                        {typeInfo?.label || 'Sello'}
+                      </p>
+                      <p className="truncate text-xs text-stone-500">
+                        {sticker.content || 'Sin texto adicional'}
+                      </p>
+                    </div>
                   </div>
                   <button
+                    type="button"
                     onClick={() => onRemove(sticker.id)}
-                    className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-stone-500 ring-1 ring-stone-200 transition-colors hover:text-stone-950"
+                    aria-label="Eliminar sello"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               );
-            })}
-          </div>
+            })
+          )}
         </div>
-      )}
-
-      <p className="text-xs text-stone-400 text-center">
-        Arrastra los stickers en la imagen para posicionarlos
-      </p>
+      </div>
     </div>
   );
 }

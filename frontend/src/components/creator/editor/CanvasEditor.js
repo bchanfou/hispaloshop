@@ -1,179 +1,201 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { MapPin, Sparkles, Tag } from 'lucide-react';
 import { ASPECT_RATIO_DIMENSIONS } from '../types/editor.types';
+
+const DRAG_MARGIN = 12;
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function estimateTextSize(text) {
+  const width = Math.max(72, text.text.length * text.fontSize * 0.58 * text.scale);
+  const height = Math.max(36, text.fontSize * 1.45 * text.scale);
+  return { width, height };
+}
+
+function estimateStickerSize(sticker) {
+  if (sticker.type === 'product') return { width: 180 * sticker.scale, height: 84 * sticker.scale };
+  if (sticker.type === 'new') return { width: 110 * sticker.scale, height: 42 * sticker.scale };
+  return { width: 140 * sticker.scale, height: 42 * sticker.scale };
+}
+
+function getClampedPosition(type, element, nextX, nextY, containerSize) {
+  const { width, height } = type === 'text' ? estimateTextSize(element) : estimateStickerSize(element);
+
+  return {
+    x: clamp(nextX, DRAG_MARGIN, Math.max(DRAG_MARGIN, containerSize.width - width - DRAG_MARGIN)),
+    y: clamp(nextY, DRAG_MARGIN, Math.max(DRAG_MARGIN, containerSize.height - height - DRAG_MARGIN)),
+  };
+}
+
+function getFontFamily(fontFamily) {
+  if (fontFamily === 'serif') return 'Georgia, Cambria, "Times New Roman", serif';
+  if (fontFamily === 'handwritten') return '"Comic Sans MS", "Bradley Hand", cursive';
+  if (fontFamily === 'bold') return 'ui-sans-serif, system-ui, sans-serif';
+  if (fontFamily === 'minimal') return 'ui-sans-serif, system-ui, sans-serif';
+  return 'ui-sans-serif, system-ui, sans-serif';
+}
 
 function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
   const containerRef = useRef(null);
-  const imageRef = useRef(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragTarget, setDragTarget] = useState(null);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragState, setDragState] = useState(null);
 
   const currentImage = editor.images[editor.currentImageIndex];
 
-  // Calcular dimensiones manteniendo aspect ratio
   useEffect(() => {
-    if (!containerRef.current) return;
-    
-    const dims = ASPECT_RATIO_DIMENSIONS[aspectRatio];
-    const container = containerRef.current.getBoundingClientRect();
-    const containerAspect = container.width / container.height;
-    const imageAspect = dims.width / dims.height;
-    
-    let width, height;
-    if (containerAspect > imageAspect) {
-      height = container.height * 0.9;
-      width = height * imageAspect;
-    } else {
-      width = container.width * 0.9;
-      height = width / imageAspect;
-    }
-    
-    setContainerSize({ width, height });
+    if (!containerRef.current) return undefined;
+
+    const updateSize = () => {
+      const container = containerRef.current?.getBoundingClientRect();
+      if (!container) return;
+
+      const dims = ASPECT_RATIO_DIMENSIONS[aspectRatio];
+      const containerAspect = container.width / container.height;
+      const mediaAspect = dims.width / dims.height;
+
+      let width;
+      let height;
+
+      if (containerAspect > mediaAspect) {
+        height = container.height * 0.92;
+        width = height * mediaAspect;
+      } else {
+        width = container.width * 0.92;
+        height = width / mediaAspect;
+      }
+
+      setContainerSize({ width, height });
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
   }, [aspectRatio, currentImage]);
 
-  // Manejar inicio de drag
-  const handleMouseDown = useCallback((e, type, id) => {
+  const handlePointerDown = useCallback((event, type, id) => {
     if (readOnly) return;
-    e.stopPropagation();
-    setIsDragging(true);
-    setDragTarget({ type, id });
-    setDragStart({ x: e.clientX, y: e.clientY });
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    setDragState({
+      id,
+      type,
+      pointerId: event.pointerId,
+      offsetX: event.clientX - bounds.left,
+      offsetY: event.clientY - bounds.top,
+    });
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    event.stopPropagation();
   }, [readOnly]);
 
-  // Manejar movimiento de drag
-  const handleMouseMove = useCallback((e) => {
-    if (!isDragging || !dragTarget || readOnly) return;
-    
-    const deltaX = e.clientX - dragStart.x;
-    const deltaY = e.clientY - dragStart.y;
-    
-    // Actualizar posición según tipo
-    if (dragTarget.type === 'text') {
-      const text = editor.textElements.find(t => t.id === dragTarget.id);
-      if (text) {
-        editor.updateText(dragTarget.id, {
-          x: text.x + deltaX,
-          y: text.y + deltaY,
-        });
-      }
-    } else if (dragTarget.type === 'sticker' || dragTarget.type === 'product') {
-      const sticker = editor.stickerElements.find(s => s.id === dragTarget.id);
-      if (sticker) {
-        editor.updateElement(dragTarget.id, {
-          x: sticker.x + deltaX,
-          y: sticker.y + deltaY,
-        });
-      }
-    }
-    
-    setDragStart({ x: e.clientX, y: e.clientY });
-  }, [isDragging, dragTarget, dragStart, editor, readOnly]);
-
-  // Manejar fin de drag
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    setDragTarget(null);
-  }, []);
-
-  // Event listeners
   useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+    if (!dragState || readOnly || !containerRef.current) return undefined;
+
+    const move = (event) => {
+      if (event.pointerId !== dragState.pointerId) return;
+
+      const rect = containerRef.current.querySelector('[data-canvas-surface="true"]')?.getBoundingClientRect();
+      if (!rect) return;
+
+      const rawX = event.clientX - rect.left - dragState.offsetX;
+      const rawY = event.clientY - rect.top - dragState.offsetY;
+
+      if (dragState.type === 'text') {
+        const current = editor.textElements.find((item) => item.id === dragState.id);
+        if (!current) return;
+        const next = getClampedPosition('text', current, rawX, rawY, containerSize);
+        editor.updateText(dragState.id, next);
+      } else {
+        const current = editor.stickerElements.find((item) => item.id === dragState.id);
+        if (!current) return;
+        const next = getClampedPosition('sticker', current, rawX, rawY, containerSize);
+        editor.updateElement(dragState.id, next);
+      }
+    };
+
+    const up = (event) => {
+      if (event.pointerId !== dragState.pointerId) return;
+      setDragState(null);
+    };
+
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+
+    return () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+  }, [containerSize, dragState, editor, readOnly]);
+
+  const surfaceStyle = useMemo(() => ({
+    width: containerSize.width,
+    height: containerSize.height,
+  }), [containerSize.height, containerSize.width]);
 
   if (!currentImage) return null;
 
   return (
-    <div 
-      ref={containerRef}
-      className="relative flex items-center justify-center w-full h-full overflow-hidden"
-    >
+    <div ref={containerRef} className="flex h-full w-full items-center justify-center overflow-hidden">
       <div
-        className="relative bg-black rounded-lg overflow-hidden shadow-2xl"
-        style={{
-          width: containerSize.width,
-          height: containerSize.height,
-        }}
+        data-canvas-surface="true"
+        className="relative overflow-hidden rounded-[26px] border border-white/10 bg-black shadow-[0_28px_70px_rgba(0,0,0,0.35)]"
+        style={surfaceStyle}
       >
-        {/* Imagen base con filtros */}
         {currentImage.type === 'video' ? (
           <video
-            ref={imageRef}
             src={currentImage.src}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
             style={{
               filter: editor.getFilterString(),
-              transform: `
-                rotate(${editor.rotation}deg) 
-                scaleX(${editor.flipHorizontal ? -editor.zoom : editor.zoom}) 
-                scaleY(${editor.flipVertical ? -editor.zoom : editor.zoom})
-                translate(${editor.pan.x}px, ${editor.pan.y}px)
-              `,
+              transform: `rotate(${editor.rotation}deg) scaleX(${editor.flipHorizontal ? -editor.zoom : editor.zoom}) scaleY(${editor.flipVertical ? -editor.zoom : editor.zoom}) translate(${editor.pan.x}px, ${editor.pan.y}px)`,
             }}
             controls={readOnly}
             loop
             muted
+            playsInline
           />
         ) : (
           <img
-            ref={imageRef}
             src={currentImage.src}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover"
             style={{
               filter: editor.getFilterString(),
-              transform: `
-                rotate(${editor.rotation}deg) 
-                scaleX(${editor.flipHorizontal ? -editor.zoom : editor.zoom}) 
-                scaleY(${editor.flipVertical ? -editor.zoom : editor.zoom})
-                translate(${editor.pan.x}px, ${editor.pan.y}px)
-              `,
+              transform: `rotate(${editor.rotation}deg) scaleX(${editor.flipHorizontal ? -editor.zoom : editor.zoom}) scaleY(${editor.flipVertical ? -editor.zoom : editor.zoom}) translate(${editor.pan.x}px, ${editor.pan.y}px)`,
             }}
             draggable={false}
           />
         )}
 
-        {/* Canvas de dibujo */}
-        {activeTool === 'draw' && !readOnly && (
-          <DrawingCanvas
-            width={containerSize.width}
-            height={containerSize.height}
-            onAddPath={editor.addDrawingPath}
-            paths={editor.drawingPaths}
-          />
-        )}
-
-        {/* Elementos de texto */}
         {editor.textElements.map((text) => (
           <motion.div
             key={text.id}
-            className={`absolute cursor-move select-none ${readOnly ? '' : 'hover:ring-2 hover:ring-accent/50'}`}
+            className={`absolute touch-none select-none ${readOnly ? '' : 'cursor-grab active:cursor-grabbing'}`}
             style={{
               left: text.x,
               top: text.y,
               transform: `rotate(${text.rotation}deg) scale(${text.scale})`,
-              transformOrigin: 'center',
+              transformOrigin: 'top left',
             }}
-            onMouseDown={(e) => handleMouseDown(e, 'text', text.id)}
+            onPointerDown={(event) => handlePointerDown(event, 'text', text.id)}
           >
             <span
+              className="inline-block max-w-[240px] whitespace-pre-wrap break-words leading-[1.12]"
               style={{
                 fontSize: text.fontSize,
-                fontFamily: text.fontFamily,
+                fontFamily: getFontFamily(text.fontFamily),
                 color: text.color,
                 backgroundColor: text.hasBackground ? text.backgroundColor : 'transparent',
-                padding: text.hasBackground ? '4px 8px' : '0',
-                borderRadius: '4px',
-                textShadow: text.hasOutline ? '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8)' : 'none',
-                whiteSpace: 'nowrap',
+                padding: text.hasBackground ? '10px 14px' : '0',
+                borderRadius: text.hasBackground ? '14px' : '0',
+                textShadow: text.hasOutline ? '0 1px 10px rgba(0,0,0,0.35)' : 'none',
+                fontWeight: text.fontFamily === 'bold' ? 700 : text.fontFamily === 'minimal' ? 300 : 600,
               }}
             >
               {text.text}
@@ -181,243 +203,88 @@ function CanvasEditor({ editor, aspectRatio, activeTool, readOnly = false }) {
           </motion.div>
         ))}
 
-        {/* Stickers */}
         {editor.stickerElements.map((sticker) => (
           <StickerElement
             key={sticker.id}
             sticker={sticker}
-            onMouseDown={(e) => handleMouseDown(e, sticker.type, sticker.id)}
             readOnly={readOnly}
+            onPointerDown={(event) => handlePointerDown(event, 'sticker', sticker.id)}
           />
         ))}
+
+        {!readOnly ? (
+          <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[11px] font-medium text-white/80 backdrop-blur-sm">
+            {activeTool === 'text'
+              ? 'Arrastra el texto para colocarlo'
+              : activeTool === 'sticker'
+                ? 'Arrastra los sellos para ajustar su posición'
+                : 'Mantén el encuadre limpio y legible'}
+          </div>
+        ) : null}
       </div>
     </div>
   );
 }
 
-// Componente para dibujar
-function DrawingCanvas({ width, height, onAddPath, paths }) {
-  const canvasRef = useRef(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [currentPath, setCurrentPath] = useState([]);
-  const [brushColor, setBrushColor] = useState('#FFFFFF');
-  const [brushSize, setBrushSize] = useState(5);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, width, height);
-    
-    // Dibujar paths existentes
-    paths.forEach(path => {
-      ctx.beginPath();
-      ctx.strokeStyle = path.color;
-      ctx.lineWidth = path.size;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      
-      if (path.points.length > 0) {
-        ctx.moveTo(path.points[0].x, path.points[0].y);
-        path.points.forEach(point => ctx.lineTo(point.x, point.y));
-      }
-      ctx.stroke();
-    });
-  }, [paths, width, height]);
-
-  const startDrawing = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    setIsDrawing(true);
-    setCurrentPath([{ x, y }]);
-  };
-
-  const draw = (e) => {
-    if (!isDrawing) return;
-    
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    setCurrentPath(prev => [...prev, { x, y }]);
-    
-    // Dibujar en canvas
-    const ctx = canvasRef.current.getContext('2d');
-    ctx.strokeStyle = brushColor;
-    ctx.lineWidth = brushSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    
-    if (currentPath.length > 0) {
-      const lastPoint = currentPath[currentPath.length - 1];
-      ctx.beginPath();
-      ctx.moveTo(lastPoint.x, lastPoint.y);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    }
-  };
-
-  const stopDrawing = () => {
-    if (isDrawing && currentPath.length > 0) {
-      onAddPath({
-        id: Date.now().toString(),
-        points: currentPath,
-        color: brushColor,
-        size: brushSize,
-      });
-    }
-    setIsDrawing(false);
-    setCurrentPath([]);
-  };
-
-  return (
-    <>
-      <canvas
-        ref={canvasRef}
-        width={width}
-        height={height}
-        className="absolute inset-0 z-10 cursor-crosshair"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-      />
-      <div className="absolute bottom-4 left-4 right-4 z-20 flex items-center gap-3 bg-black/80 backdrop-blur-sm rounded-full p-2">
-        {['#FFFFFF', '#E6A532', '#DC2626', '#16A34A', '#2563EB', '#000000'].map(color => (
-          <button
-            key={color}
-            onClick={() => setBrushColor(color)}
-            className={`w-6 h-6 rounded-full border-2 ${
-              brushColor === color ? 'border-white scale-110' : 'border-transparent'
-            }`}
-            style={{ backgroundColor: color }}
-          />
-        ))}
-        <div className="w-px h-6 bg-white/30 mx-1" />
-        {[3, 8, 15, 25].map(size => (
-          <button
-            key={size}
-            onClick={() => setBrushSize(size)}
-            className={`w-8 h-8 flex items-center justify-center rounded-full ${
-              brushSize === size ? 'bg-white/20' : ''
-            }`}
-          >
-            <div 
-              className="rounded-full bg-white"
-              style={{ width: size, height: size }}
-            />
-          </button>
-        ))}
-      </div>
-    </>
-  );
-}
-
-// Componente para renderizar stickers
-function StickerElement({ sticker, onMouseDown, readOnly }) {
-  const renderStickerContent = () => {
-    switch (sticker.type) {
-      case 'price':
-        return (
-          <div className="bg-state-amber text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-lg">
-            €{sticker.content || '0.00'}
-          </div>
-        );
-      case 'new':
-        return (
-          <div className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-lg">
-            NUEVO
-          </div>
-        );
-      case 'offer':
-        return (
-          <div className="relative w-12 h-16">
-            <div className="absolute inset-0 bg-red-500" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 85% 100%, 15% 100%, 0% 25%)' }} />
-            <span className="absolute inset-0 flex items-center justify-center text-white font-bold text-[10px]">OFERTA</span>
-          </div>
-        );
-      case 'vegan':
-        return (
-          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl shadow-lg">
-            🌱
-          </div>
-        );
-      case 'organic':
-        return (
-          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-xl shadow-lg">
-            🍃
-          </div>
-        );
-      case 'gluten-free':
-        return (
-          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl shadow-lg">
-            🌾
-          </div>
-        );
-      case 'local':
-        return (
-          <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-xl shadow-lg">
-            📍
-          </div>
-        );
-      case 'hashtag':
-        return (
-          <div className="bg-accent text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg">
-            #{sticker.content || 'Hispaloshop'}
-          </div>
-        );
-      case 'mention':
-        return (
-          <div className="bg-white text-accent px-3 py-1.5 rounded-full text-sm font-medium shadow-lg border border-accent">
-            @{sticker.content || 'usuario'}
-          </div>
-        );
-      case 'location':
-        return (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="bg-red-500 text-white px-3 py-1.5 flex items-center gap-1">
-              <span>📍</span>
-              <span className="text-sm font-medium">{sticker.content || 'Ubicación'}</span>
-            </div>
-          </div>
-        );
-      case 'product':
-        return (
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden w-32">
-            <div className="h-16 bg-stone-100 flex items-center justify-center">
-              {sticker.productImage ? (
-                <img src={sticker.productImage} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-2xl">📦</span>
-              )}
-            </div>
-            <div className="p-2">
-              <p className="text-xs font-medium text-stone-800 truncate">{sticker.productName}</p>
-              <p className="text-xs text-accent font-bold">€{sticker.productPrice}</p>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+function StickerElement({ sticker, onPointerDown, readOnly }) {
+  const baseClassName = `absolute touch-none ${readOnly ? '' : 'cursor-grab active:cursor-grabbing'}`;
 
   return (
     <motion.div
-      className={`absolute cursor-move ${readOnly ? '' : 'hover:ring-2 hover:ring-accent/50'}`}
+      className={baseClassName}
       style={{
         left: sticker.x,
         top: sticker.y,
         transform: `rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
-        transformOrigin: 'center',
+        transformOrigin: 'top left',
       }}
-      onMouseDown={onMouseDown}
+      onPointerDown={onPointerDown}
     >
-      {renderStickerContent()}
+      {sticker.type === 'product' ? (
+        <div className="w-44 overflow-hidden rounded-2xl border border-white/20 bg-white shadow-lg">
+          <div className="flex h-16 items-center gap-3 p-3">
+            <div className="h-12 w-12 overflow-hidden rounded-xl bg-stone-100">
+              {sticker.productImage ? (
+                <img src={sticker.productImage} alt="" className="h-full w-full object-cover" />
+              ) : null}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold text-stone-950">{sticker.productName}</p>
+              <p className="mt-1 text-xs text-stone-500">€{sticker.productPrice}</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <UtilitySticker sticker={sticker} />
+      )}
     </motion.div>
+  );
+}
+
+function UtilitySticker({ sticker }) {
+  if (sticker.type === 'new') {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white px-4 py-2 text-sm font-semibold text-stone-950 shadow-lg">
+        <Sparkles className="h-4 w-4" />
+        Novedad
+      </div>
+    );
+  }
+
+  if (sticker.type === 'location') {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white px-4 py-2 text-sm font-medium text-stone-950 shadow-lg">
+        <MapPin className="h-4 w-4" />
+        {sticker.content || 'Ubicación'}
+      </div>
+    );
+  }
+
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-stone-950 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+      <Tag className="h-4 w-4" />
+      €{sticker.content || '0,00'}
+    </div>
   );
 }
 

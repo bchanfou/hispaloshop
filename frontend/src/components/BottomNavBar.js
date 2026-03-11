@@ -174,6 +174,7 @@ export default function BottomNavBar() {
   const [selectedContentType, setSelectedContentType] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
+  const [profileAvatarError, setProfileAvatarError] = useState(false);
 
   const shouldHide =
     HIDDEN_ON_PATHS.some((path) => location.pathname.startsWith(path)) ||
@@ -195,6 +196,10 @@ export default function BottomNavBar() {
       window.removeEventListener('toggle-chat', handleToggleChat);
     };
   }, []);
+
+  useEffect(() => {
+    setProfileAvatarError(false);
+  }, [user?.profile_image, user?.avatar_url, user?.name, user?.full_name, user?.username]);
 
   if (shouldHide) return null;
 
@@ -248,11 +253,6 @@ export default function BottomNavBar() {
 
   const handlePublish = async (publishData) => {
     try {
-      // Convertir base64 a blob
-      const base64Response = await fetch(publishData.imageData);
-      const blob = await base64Response.blob();
-      const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
-
       const fd = new FormData();
       
       if (publishData.contentType === 'reel') {
@@ -263,7 +263,20 @@ export default function BottomNavBar() {
           withCredentials: true, 
           headers: { 'Content-Type': 'multipart/form-data' } 
         });
+      } else if (publishData.contentType === 'story') {
+        const base64Response = await fetch(publishData.imageData);
+        const blob = await base64Response.blob();
+        const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
+        fd.append('file', file);
+        fd.append('caption', publishData.caption);
+        await axios.post(`${API}/stories`, fd, {
+          withCredentials: true,
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       } else {
+        const base64Response = await fetch(publishData.imageData);
+        const blob = await base64Response.blob();
+        const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
         fd.append('caption', publishData.caption);
         fd.append('file', file);
         await axios.post(`${API}/posts`, fd, { 
@@ -291,13 +304,14 @@ export default function BottomNavBar() {
   };
 
   const profileUrl = user ? `/user/${user.user_id}` : '/login';
-  const profileImage = user?.profile_image;
+  const founderIdentity = `${user?.name || user?.full_name || user?.username || ''}`.toLowerCase();
+  const profileImage = user?.profile_image || user?.avatar_url || (founderIdentity.includes('bil') ? '/images/bil-founder.jpg' : null);
 
   const navItems = [
     { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
     { id: 'discover', icon: Compass, label: t('bottomNav.discover', 'Explorar'), link: '/discover?tab=feeds', match: (loc) => loc.pathname === '/discover' && (new URLSearchParams(loc.search).get('tab') !== 'reels') },
     { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => user ? togglePanel('chat') : navigate('/login') },
-    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Yo'), link: profileUrl, isProfile: true },
+    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Perfil'), link: profileUrl, isProfile: true },
   ];
 
   return (
@@ -419,15 +433,20 @@ export default function BottomNavBar() {
                       className="flex items-center justify-center"
                       aria-label={item.label}
                     >
-                      {profileImage ? (
+                      {profileImage && !profileAvatarError ? (
                         <div className={`h-9 w-9 overflow-hidden rounded-full border-2 ${
                           isActive ? 'border-stone-950' : 'border-stone-200'
                         }`}>
-                          <img src={profileImage} alt="" className="w-full h-full object-cover" />
+                          <img
+                            src={profileImage}
+                            alt=""
+                            className="h-full w-full object-cover"
+                            onError={() => setProfileAvatarError(true)}
+                          />
                         </div>
                       ) : (
-                        <div className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                          isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'
+                        <div className={`flex h-9 w-9 items-center justify-center rounded-full border-2 ${
+                          isActive ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-500'
                         }`}>
                           <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
                         </div>

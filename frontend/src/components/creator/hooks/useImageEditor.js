@@ -178,10 +178,10 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       text,
       x: options.x || 100,
       y: options.y || 100,
-      fontSize: options.fontSize || 24,
+      fontSize: options.fontSize || 34,
       fontFamily: options.fontFamily || 'sans',
       color: options.color || '#FFFFFF',
-      backgroundColor: options.backgroundColor || '#000000',
+      backgroundColor: options.backgroundColor || 'rgba(28,25,23,0.42)',
       hasBackground: options.hasBackground || false,
       hasOutline: options.hasOutline || true,
       rotation: 0,
@@ -345,14 +345,16 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
           
           // Fondo
           if (text.hasBackground) {
-            ctx.fillStyle = text.backgroundColor || 'rgba(0,0,0,0.5)';
-            ctx.fillRect(-10, -textHeight, textWidth + 20, textHeight + 10);
+            ctx.fillStyle = text.backgroundColor || 'rgba(28,25,23,0.42)';
+            ctx.beginPath();
+            ctx.roundRect(-12, -textHeight - 8, textWidth + 24, textHeight + 16, 14);
+            ctx.fill();
           }
           
           // Outline
           if (text.hasOutline) {
-            ctx.strokeStyle = 'rgba(0,0,0,0.8)';
-            ctx.lineWidth = 3;
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.lineWidth = 6;
             ctx.strokeText(text.text, 0, 0);
           }
           
@@ -372,39 +374,45 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
           
           // Dibujar según tipo
           if (sticker.type === 'price') {
-            ctx.fillStyle = '#E6A532';
+            ctx.fillStyle = '#0c0a09';
             ctx.beginPath();
-            ctx.roundRect(-40, -20, 80, 40, 8);
+            ctx.roundRect(-58, -18, 116, 36, 18);
             ctx.fill();
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 16px sans-serif';
+            ctx.font = '600 16px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(sticker.content || '€0.00', 0, 5);
           } else if (sticker.type === 'new') {
-            ctx.fillStyle = '#16A34A';
-            ctx.beginPath();
-            ctx.arc(0, 0, 25, 0, Math.PI * 2);
-            ctx.fill();
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('NUEVO', 0, 4);
-          } else if (sticker.type === 'offer') {
-            ctx.fillStyle = '#DC2626';
             ctx.beginPath();
-            ctx.moveTo(0, -30);
-            ctx.lineTo(20, -10);
-            ctx.lineTo(15, 25);
-            ctx.lineTo(-15, 25);
-            ctx.lineTo(-20, -10);
-            ctx.closePath();
+            ctx.roundRect(-52, -18, 104, 36, 18);
             ctx.fill();
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 10px sans-serif';
+            ctx.fillStyle = '#0c0a09';
+            ctx.font = '600 14px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('OFERTA', 0, 5);
+            ctx.fillText('Novedad', 0, 4);
+          } else if (sticker.type === 'location') {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.roundRect(-78, -18, 156, 36, 18);
+            ctx.fill();
+            ctx.fillStyle = '#0c0a09';
+            ctx.font = '500 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(sticker.content || 'Ubicación', 0, 4);
+          } else if (sticker.type === 'product') {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.roundRect(-90, -34, 180, 68, 18);
+            ctx.fill();
+            ctx.fillStyle = '#0c0a09';
+            ctx.font = '600 13px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(sticker.productName || 'Producto', -72, -2);
+            ctx.fillStyle = '#57534e';
+            ctx.font = '500 12px sans-serif';
+            ctx.fillText(`€${sticker.productPrice ?? ''}`, -72, 18);
           }
-          // Más stickers pueden añadirse aquí
           
           ctx.restore();
         });

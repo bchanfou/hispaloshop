@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Image as ImageIcon, Film, Clock, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Film, Image as ImageIcon, Clock3, X, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const contentTypes = [
@@ -10,9 +10,8 @@ const contentTypes = [
     title: 'social.post',
     defaultTitle: 'Publicación',
     description: 'social.postDesc',
-    defaultDescription: 'Comparte fotos con tu comunidad. Ratio 1:1, 4:5 o 16:9.',
-    color: 'bg-gradient-to-br from-blue-500 to-purple-600',
-    maxFiles: 10,
+    defaultDescription: 'Comparte una imagen o un carrusel con texto, productos y una composición más editorial.',
+    note: 'Ideal para fotos, carruseles y portada cuidada.',
   },
   {
     id: 'reel',
@@ -20,90 +19,104 @@ const contentTypes = [
     title: 'social.reel',
     defaultTitle: 'Reel',
     description: 'social.reelDesc',
-    defaultDescription: 'Video corto vertical. Mín 3s, máx 90s. Ratio 9:16 obligatorio.',
-    color: 'bg-gradient-to-br from-pink-500 to-rose-600',
-    maxFiles: 1,
-    videoOnly: true,
+    defaultDescription: 'Vídeo vertical corto con una portada limpia y overlays discretos.',
+    note: 'Pensado para 9:16 y ritmo rápido.',
   },
   {
     id: 'story',
-    icon: Clock,
+    icon: Clock3,
     title: 'social.story',
     defaultTitle: 'Historia',
     description: 'social.storyDesc',
-    defaultDescription: 'Contenido temporal 24h. Máx 5 slides, 15s cada uno.',
-    color: 'bg-gradient-to-br from-amber-400 to-orange-500',
-    maxFiles: 5,
-    maxDuration: 15,
+    defaultDescription: 'Historia efímera con texto libre, movimiento natural y formato inmersivo.',
+    note: 'Perfecta para actualidad, producto o contexto breve.',
   },
 ];
 
 function ContentTypeSelector({ isOpen, onClose, onSelect }) {
   const { t } = useTranslation();
 
-  if (!isOpen) return null;
-
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center"
-        onClick={onClose}
-      >
+      {isOpen ? (
         <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="w-full max-w-md bg-white rounded-t-3xl md:rounded-3xl p-6 shadow-2xl"
-          onClick={e => e.stopPropagation()}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 p-3 backdrop-blur-sm md:items-center md:p-6"
+          onClick={onClose}
         >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-heading font-semibold text-gray-900">
-              {t('social.createContent', 'Crear contenido')}
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-stone-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-stone-500" />
-            </button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 28, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 18, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="w-full max-w-md rounded-3xl bg-white p-5 shadow-xl sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.24em] text-stone-500">
+                  Crear contenido
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">
+                  Elige el formato
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-stone-700">
+                  Todo el flujo mantiene la misma edición: limpia, táctil y pensada para móvil.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 text-stone-700 transition-colors hover:bg-stone-200"
+                aria-label="Cerrar selector de formato"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-          <div className="space-y-3">
-            {contentTypes.map((type) => {
-              const Icon = type.icon;
-              return (
-                <motion.button
-                  key={type.id}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => onSelect(type)}
-                  className="w-full flex items-center gap-4 p-4 rounded-2xl bg-stone-50 hover:bg-stone-100 transition-colors text-left group"
-                >
-                  <div className={`w-14 h-14 rounded-xl ${type.color} flex items-center justify-center shadow-lg`}>
-                    <Icon className="w-7 h-7 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-accent transition-colors">
-                      {t(type.title, type.defaultTitle)}
-                    </h3>
-                    <p className="text-sm text-stone-500 mt-0.5">
-                      {t(type.description, type.defaultDescription)}
-                    </p>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
+            <div className="mt-6 space-y-3">
+              {contentTypes.map((type, index) => {
+                const Icon = type.icon;
+                return (
+                  <motion.button
+                    key={type.id}
+                    type="button"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.04 }}
+                    onClick={() => onSelect(type)}
+                    className="group flex w-full items-start gap-4 rounded-2xl border border-stone-100 bg-stone-50 p-4 text-left transition-all hover:border-stone-200 hover:bg-white active:scale-[0.99]"
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-950 shadow-sm">
+                      <Icon className="h-5 w-5" strokeWidth={1.9} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-base font-semibold text-stone-950">
+                          {t(type.title, type.defaultTitle)}
+                        </h3>
+                        <ArrowRight className="h-4 w-4 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-stone-950" />
+                      </div>
+                      <p className="mt-1 text-sm leading-6 text-stone-700">
+                        {t(type.description, type.defaultDescription)}
+                      </p>
+                      <p className="mt-2 text-xs leading-5 text-stone-500">
+                        {type.note}
+                      </p>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
 
-          <p className="text-center text-xs text-stone-400 mt-6">
-            {t('social.contentTypesInfo', 'Elige el formato que mejor se adapte a tu contenido')}
-          </p>
+            <p className="mt-5 text-center text-xs leading-5 text-stone-500">
+              Puedes escribir texto, emojis, hashtags y menciones de forma natural dentro del editor.
+            </p>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      ) : null}
     </AnimatePresence>
   );
 }
