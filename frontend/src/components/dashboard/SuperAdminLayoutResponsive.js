@@ -72,7 +72,7 @@ export default function SuperAdminLayoutResponsive() {
           <p className="text-text-muted mb-4">{t('superAdmin.onlySuperAdmin', 'Solo Super Admins pueden acceder')}</p>
           <button
             onClick={() => navigate('/')}
-            className="text-ds-accent hover:underline font-medium"
+            className="text-stone-950 hover:underline font-medium"
           >
             {t('common.back', 'Volver')}
           </button>
@@ -142,7 +142,7 @@ export default function SuperAdminLayoutResponsive() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm ${
                   isActive
-                    ? 'bg-red-50 text-red-700 font-medium border border-red-200'
+                    ? 'bg-stone-100 text-stone-950 font-medium border border-stone-200'
                     : 'text-text-secondary hover:bg-stone-100'
                 }`
               }
@@ -200,7 +200,7 @@ export default function SuperAdminLayoutResponsive() {
                 end={item.end}
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0 ${
-                    isActive ? 'border-primary text-primary' : 'border-transparent text-stone-500'
+                  isActive ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500'
                   }`
                 }
                 data-testid={`mobile-nav-${item.shortLabel.toLowerCase()}`}
@@ -227,7 +227,7 @@ export default function SuperAdminLayoutResponsive() {
               onClick={() => setMoreMenuOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-4 p-4 rounded-lg transition-colors ${
-                  isActive ? 'bg-red-50 text-red-700' : 'hover:bg-stone-100'
+                  isActive ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-100'
                 }`
               }
             >

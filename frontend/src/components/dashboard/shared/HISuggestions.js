@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, X, ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles, X } from 'lucide-react';
 
 function HISuggestions({ suggestions, onDismiss }) {
   if (!suggestions || suggestions.length === 0) return null;
@@ -12,32 +12,23 @@ function HISuggestions({ suggestions, onDismiss }) {
           key={suggestion.id}
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: index * 0.1 }}
-          className="bg-gradient-to-r from-accent/5 to-state-amber/5 rounded-xl p-4 border border-accent/10"
+          transition={{ delay: index * 0.06 }}
+          className="rounded-2xl border border-stone-100 bg-stone-50 p-4"
         >
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-4 h-4 text-white" />
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white text-stone-700">
+              <Sparkles className="h-4 w-4" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">{suggestion.title}</p>
-              <p className="text-xs text-text-muted mt-0.5">{suggestion.description}</p>
-              
-              <div className="flex items-center gap-2 mt-2">
-                <button 
-                  onClick={suggestion.onAction}
-                  className="text-xs font-medium text-accent hover:text-accent/90 flex items-center gap-1"
-                >
-                  {suggestion.actionLabel}
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-stone-950">{suggestion.title}</p>
+              <p className="mt-1 text-xs text-stone-500">{suggestion.description}</p>
+              <button type="button" onClick={suggestion.onAction} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-stone-700">
+                {suggestion.actionLabel}
+                <ArrowRight className="h-3 w-3" />
+              </button>
             </div>
-            <button 
-              onClick={() => onDismiss?.(suggestion.id)}
-              className="p-1 hover:bg-slate-950/5 rounded-full transition-colors"
-            >
-              <X className="w-4 h-4 text-text-muted" />
+            <button type="button" onClick={() => onDismiss?.(suggestion.id)} className="rounded-full p-1 text-stone-400 transition-colors hover:bg-white hover:text-stone-700">
+              <X className="h-4 w-4" />
             </button>
           </div>
         </motion.div>

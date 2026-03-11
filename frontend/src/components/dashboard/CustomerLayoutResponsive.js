@@ -66,7 +66,7 @@ export default function CustomerLayoutResponsive() {
           <p className="text-text-secondary mb-4">Inicia sesión para acceder a tu cuenta.</p>
           <button 
             onClick={() => navigate('/login')} 
-            className="text-ds-accent hover:underline font-medium"
+            className="text-stone-950 hover:underline font-medium"
           >
             Ir a Login
           </button>
@@ -139,7 +139,7 @@ export default function CustomerLayoutResponsive() {
               className={({ isActive }) =>
                 `flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 text-sm ${
                   isActive
-                    ? 'bg-ds-accent/10 text-ds-accent font-medium'
+                    ? 'bg-stone-100 text-stone-950 font-medium'
                     : 'text-text-secondary hover:bg-stone-100'
                 }`
               }
@@ -205,7 +205,7 @@ export default function CustomerLayoutResponsive() {
               end={item.end}
               className={({ isActive }) =>
                 `flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0 ${
-                  isActive ? 'border-primary text-primary' : 'border-transparent text-stone-500'
+                  isActive ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500'
                 }`
               }
               data-testid={`mobile-nav-${item.shortLabel.toLowerCase()}`}

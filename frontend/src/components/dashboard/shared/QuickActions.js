@@ -3,23 +3,24 @@ import { motion } from 'framer-motion';
 
 function QuickActions({ actions }) {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       {actions.map((action, index) => (
         <motion.button
           key={action.id}
+          type="button"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.05 }}
+          transition={{ delay: index * 0.04 }}
           onClick={action.onClick}
-          className="flex items-center gap-3 p-4 bg-white rounded-xl border border-stone-100 shadow-sm hover:shadow-md transition-all text-left"
+          className="flex items-center gap-3 rounded-2xl border border-stone-100 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
         >
-          <div 
-            className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: `${action.color}15` }}
-          >
-            <action.icon className="w-5 h-5" style={{ color: action.color }} />
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-stone-100 text-stone-700">
+            <action.icon className="h-5 w-5" />
           </div>
-          <span className="text-sm font-medium text-gray-900">{action.label}</span>
+          <div>
+            <p className="text-sm font-medium text-stone-950">{action.label}</p>
+            {action.description ? <p className="mt-1 text-xs text-stone-500">{action.description}</p> : null}
+          </div>
         </motion.button>
       ))}
     </div>

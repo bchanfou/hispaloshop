@@ -594,10 +594,10 @@ export default function ProducerOverview() {
   return (
     <div className="space-y-4 md:space-y-6">
       {dataWarnings.length > 0 && !error && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
           <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
-            <div className="space-y-1 text-sm text-amber-800">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-stone-700" />
+            <div className="space-y-1 text-sm text-stone-700">
               {dataWarnings.map((warning) => (
                 <p key={warning}>{warning}</p>
               ))}
@@ -607,11 +607,11 @@ export default function ProducerOverview() {
       )}
       {/* Quick Actions — 2 Big Buttons (impossible to miss) */}
       <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
-        <Link to="/producer/products" className="bg-primary hover:bg-primary-hover text-white rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]" data-testid="quick-add-product">
+        <Link to="/producer/products" className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-stone-950 p-5 text-white transition-all hover:scale-[1.02] active:scale-[0.98]" data-testid="quick-add-product">
           <Package className="w-8 h-8" />
           <span className="text-sm font-semibold">{t('sellerDashboard.newProduct', 'New Product')}</span>
         </Link>
-        <Link to="/producer/orders" className="bg-white border-2 border-stone-200 hover:border-accent rounded-2xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] relative" data-testid="quick-orders">
+        <Link to="/producer/orders" className="relative flex flex-col items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white p-5 transition-all hover:scale-[1.02] hover:shadow-sm" data-testid="quick-orders">
           <ShoppingBag className="w-8 h-8 text-primary" />
           <span className="text-sm font-semibold text-primary">{t('customerDashboard.orders', 'Pedidos')}</span>
           {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">{stats.pending_orders}</span>}
@@ -637,7 +637,7 @@ export default function ProducerOverview() {
       {/* Header */}
       <div className="mb-0">
         <h1 
-          className="font-heading text-xl md:text-2xl font-bold text-text-primary"
+          className="text-3xl font-semibold tracking-tight text-stone-950"
           data-testid="producer-title"
         >
           {user?.company_name || user?.name}
@@ -649,7 +649,7 @@ export default function ProducerOverview() {
 
       {/* Low Stock Alert */}
       {stats?.low_stock_products?.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4" data-testid="low-stock-alert">
+        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4" data-testid="low-stock-alert">
           <div className="flex items-center gap-2 mb-2">
             <AlertCircle className="w-4 h-4 text-red-600" />
             <span className="text-sm font-semibold text-red-800">{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
@@ -684,7 +684,7 @@ export default function ProducerOverview() {
 
       {/* Pending Warning */}
       {isPending && (
-        <div className="dashboard-card p-4 bg-amber-50 border-amber-200">
+        <div className="dashboard-card border-stone-200 bg-stone-50 p-4">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
             <div>

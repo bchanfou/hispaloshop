@@ -86,7 +86,7 @@ export default function ProducerLayout() {
           <p className="text-text-secondary mb-4">Acceso denegado. Se requiere cuenta de productor o importador.</p>
           <button 
             onClick={() => navigate('/login')} 
-            className="text-ds-accent hover:underline font-medium"
+            className="text-stone-950 hover:underline font-medium"
           >
             Ir a Login
           </button>
@@ -162,7 +162,7 @@ export default function ProducerLayout() {
               className={({ isActive }) =>
                 `flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 text-sm ${
                   isActive
-                    ? 'bg-ds-accent/10 text-ds-accent font-medium'
+                    ? 'bg-stone-100 text-stone-950 font-medium'
                     : 'text-text-secondary hover:bg-stone-100'
                 }`
               }
@@ -249,7 +249,7 @@ export default function ProducerLayout() {
                 end={item.end}
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0 ${
-                    isActive ? 'border-primary text-primary' : 'border-transparent text-stone-500'
+                  isActive ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500'
                   }`
                 }
                 data-testid={`mobile-nav-${item.shortLabel.toLowerCase()}`}
@@ -283,7 +283,7 @@ export default function ProducerLayout() {
               onClick={() => setMoreMenuOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-4 p-4 rounded-lg transition-colors ${
-                  isActive ? 'bg-ds-accent/10 text-ds-accent' : 'hover:bg-stone-100'
+                  isActive ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-100'
                 }`
               }
             >

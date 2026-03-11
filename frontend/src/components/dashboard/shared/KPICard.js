@@ -1,35 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-function KPICard({ icon: Icon, value, label, subtext, trend, trendUp, onClick, accentColor = '#2D5A3D' }) {
+function KPICard({ icon: Icon, value, label, subtext, trend, trendUp, onClick }) {
   return (
-    <motion.div
+    <motion.button
+      type="button"
       whileHover={{ y: -2 }}
-      className="bg-white rounded-2xl p-4 shadow-sm border border-stone-100 cursor-pointer"
+      whileTap={{ scale: 0.99 }}
+      className="w-full rounded-2xl border border-stone-100 bg-white p-5 text-left shadow-sm transition-all duration-200 hover:shadow-md"
       onClick={onClick}
     >
-      <div className="flex items-start justify-between">
-        <div 
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ backgroundColor: `${accentColor}15` }}
-        >
-          <Icon className="w-5 h-5" style={{ color: accentColor }} />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-100 text-stone-700">
+          <Icon className="h-5 w-5" />
         </div>
-        {trend && (
-          <span className={`text-xs font-medium ${trendUp ? 'text-green-600' : 'text-red-600'}`}>
+        {trend ? (
+          <span className={`text-xs font-medium ${trendUp ? 'text-stone-700' : 'text-stone-500'}`}>
             {trendUp ? '↑' : '↓'} {trend}
           </span>
-        )}
+        ) : null}
       </div>
-      
-      <div className="mt-3">
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        <p className="text-sm text-text-muted">{label}</p>
-        {subtext && (
-          <p className="text-xs text-accent mt-1">{subtext}</p>
-        )}
+
+      <div className="mt-4">
+        <p className="text-2xl font-semibold tracking-tight text-stone-950">{value}</p>
+        <p className="mt-1 text-sm text-stone-500">{label}</p>
+        {subtext ? <p className="mt-1 text-xs text-stone-500">{subtext}</p> : null}
       </div>
-    </motion.div>
+    </motion.button>
   );
 }
 

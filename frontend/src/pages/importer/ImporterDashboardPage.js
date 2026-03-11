@@ -1,361 +1,154 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { AlertCircle, Globe, Loader2, Package, ShoppingBag, TrendingUp, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { Package, ShoppingBag, CreditCard, AlertCircle, CheckCircle, ExternalLink, Loader2, Users, TrendingUp, Heart, Star, Zap, Target, Globe, MapPin } from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { toast } from 'sonner';
 import { API } from '../../utils/api';
-import { useTranslation } from 'react-i18next';
+import { Button } from '../../components/ui/button';
 
-function StatCard({ icon: Icon, label, value, sublabel, linkTo, color = "primary" }) {
-  const colorClasses = {
-    primary: "bg-primary/10 text-primary",
-    blue: "bg-blue-100 text-blue-600",
-    green: "bg-green-100 text-green-600",
-    amber: "bg-amber-100 text-amber-600",
-    purple: "bg-purple-100 text-purple-600"
-  };
-  
+function ImporterMetric({ icon: Icon, title, value, description, to }) {
   return (
-    <Link 
-      to={linkTo}
-      className="bg-white rounded-xl border border-stone-200 p-6 hover:shadow-md transition-shadow"
-    >
-      <div className="flex items-start justify-between">
+    <Link to={to} className="rounded-2xl border border-stone-100 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-text-muted text-sm mb-1">{label}</p>
-          <p className="text-3xl font-bold text-text-primary">{value}</p>
-          {sublabel && (
-            <p className="text-sm text-text-muted mt-1">{sublabel}</p>
-          )}
+          <p className="text-sm text-stone-500">{title}</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-stone-950">{value}</p>
+          <p className="mt-2 text-sm text-stone-500">{description}</p>
         </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color] || colorClasses.primary}`}>
-          <Icon className="w-6 h-6" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-100 text-stone-700">
+          <Icon className="h-5 w-5" />
         </div>
       </div>
     </Link>
   );
 }
 
-function StripeConnectSection() {
-  const { t } = useTranslation();
-  const [stripeStatus, setStripeStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [connecting, setConnecting] = useState(false);
-
-  useEffect(() => {
-    fetchStripeStatus();
-  }, []);
-
-  const fetchStripeStatus = async () => {
-    try {
-      const response = await axios.get(`${API}/importer/payments`, { withCredentials: true });
-      setStripeStatus({
-        connected: response.data?.stripe_connected || false,
-      });
-    } catch (error) {
-      console.error('Error fetching Stripe status:', error);
-      setStripeStatus({ connected: false });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleConnectStripe = async () => {
-    setConnecting(true);
-    try {
-      const response = await axios.post(`${API}/producer/stripe/create-account`, {}, { withCredentials: true });
-      if (response.data?.url) {
-        window.location.href = response.data.url;
-      }
-    } catch (error) {
-      console.error('Error connecting Stripe:', error);
-      toast.error('Failed to start Stripe onboarding');
-    } finally {
-      setConnecting(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8">
-        <div className="flex items-center gap-2 text-text-muted">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8">
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <div className={`p-3 rounded-lg ${stripeStatus?.connected ? 'bg-green-100' : 'bg-amber-100'}`}>
-            <CreditCard className={`w-6 h-6 ${stripeStatus?.connected ? 'text-green-600' : 'text-amber-600'}`} />
-          </div>
-          <div>
-            <h3 className="font-semibold text-text-primary text-lg mb-1">Stripe Payouts</h3>
-            {stripeStatus?.connected ? (
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-green-700 font-medium">Stripe connected</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-amber-600" />
-                <span className="text-amber-700 font-medium">Stripe not connected</span>
-              </div>
-            )}
-            <p className="text-text-muted text-sm mt-2">
-              {stripeStatus?.connected 
-                ? 'Your account is connected. You will automatically receive payouts for your sales.'
-                : 'Connect your Stripe account to receive automatic payouts for your imported products.'}
-            </p>
-          </div>
-        </div>
-        <div>
-          {!stripeStatus?.connected && (
-            <Button
-              onClick={handleConnectStripe}
-              disabled={connecting}
-              className="bg-primary hover:bg-primary-hover text-white"
-            >
-              {connecting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Connecting...
-                </>
-              ) : (
-                'Connect Stripe'
-              )}
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CountriesOfOrigin({ countries }) {
-  if (!countries || countries.length === 0) return null;
-  
-  return (
-    <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8">
-      <div className="flex items-center gap-2 mb-4">
-        <Globe className="w-5 h-5 text-primary" />
-        <h2 className="font-semibold text-text-primary">Countries of Origin</h2>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {countries.map((country, idx) => (
-          <span 
-            key={idx}
-            className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium flex items-center gap-1"
-          >
-            <MapPin className="w-3 h-3" />
-            {country}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export default function ImporterDashboardPage() {
   const { user } = useAuth();
-  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [dataWarning, setDataWarning] = useState(null);
+  const [warning, setWarning] = useState('');
 
   useEffect(() => {
-    fetchData();
+    let active = true;
+
+    const load = async () => {
+      try {
+        const response = await axios.get(`${API}/importer/stats`, { withCredentials: true });
+        if (active) setStats(response.data || {});
+      } catch {
+        if (active) {
+          setStats({
+            total_products: 0,
+            approved_products: 0,
+            total_orders: 0,
+            follower_count: 0,
+            low_stock_products: [],
+            recent_reviews: [],
+            countries_of_origin: [],
+          });
+          setWarning('No se pudieron cargar todas las métricas del importador. Se muestran valores vacíos temporalmente.');
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const fetchData = async () => {
-    try {
-      setError(null);
-      setDataWarning(null);
-      const response = await axios.get(`${API}/importer/stats`, { withCredentials: true });
-      setStats(response.data);
-    } catch (error) {
-      console.error('Error fetching importer stats:', error);
-      setStats({
-        total_products: 0,
-        approved_products: 0,
-        total_orders: 0,
-        follower_count: 0,
-        low_stock_products: [],
-        recent_reviews: [],
-        countries_of_origin: [],
-      });
-      setDataWarning('No se pudieron cargar las metricas del importador. Se muestran valores vacios temporalmente.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const metrics = useMemo(
+    () => ({
+      suppliers: (stats?.countries_of_origin || []).length,
+      products: stats?.total_products || 0,
+      orders: stats?.total_orders || 0,
+      analytics: stats?.approved_products || 0,
+    }),
+    [stats],
+  );
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-text-muted">Loading dashboard...</p>
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
       </div>
     );
   }
 
-  const isPending = !user?.approved;
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
-        Importer Dashboard
-      </h1>
-      <p className="text-text-muted mb-8">
-        Manage your imported products and track sales from multiple countries
-      </p>
+    <div className="ds-page">
+      <div className="ds-shell">
+        <header>
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">Panel de importador</h1>
+          <p className="mt-2 text-sm text-stone-500">Proveedores, catálogo, pedidos y rendimiento en la misma estructura visual.</p>
+        </header>
 
-      {dataWarning && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-            <div>
-              <p className="text-amber-800 text-sm">{dataWarning}</p>
-              <Button onClick={fetchData} variant="outline" className="mt-3">
-                Reintentar
-              </Button>
+        {warning ? (
+          <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{warning}</span>
             </div>
           </div>
-        </div>
-      )}
+        ) : null}
 
-      {/* Pending Warning */}
-      {isPending && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="w-6 h-6 text-amber-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-amber-900 mb-1">Account Pending Approval</h3>
-              <p className="text-amber-800">
-                Your importer account is pending approval. You can add products but they won't be visible until approved.
-              </p>
+        <section className="ds-section ds-grid-4">
+          <ImporterMetric icon={Users} title="Proveedores" value={metrics.suppliers} description="Países y partners activos" to="/b2b/marketplace" />
+          <ImporterMetric icon={Package} title="Productos" value={metrics.products} description={`${stats?.approved_products || 0} aprobados`} to="/producer/products" />
+          <ImporterMetric icon={ShoppingBag} title="Pedidos" value={metrics.orders} description="Actividad comercial" to="/producer/orders" />
+          <ImporterMetric icon={TrendingUp} title="Analytics" value={metrics.analytics} description="SKU visibles en tienda" to="/producer" />
+        </section>
+
+        <section className="ds-section grid gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold text-stone-950">Red de origen</h2>
+            <p className="mt-2 text-sm text-stone-500">Mercados y países con producto activo.</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {(stats?.countries_of_origin || []).length > 0 ? (
+                stats.countries_of_origin.map((country) => (
+                  <span key={country} className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-700">
+                    <Globe className="h-3.5 w-3.5" />
+                    {country}
+                  </span>
+                ))
+              ) : (
+                <p className="text-sm text-stone-500">Todavía no hay países de origen registrados.</p>
+              )}
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Stripe Connect Section */}
-      <StripeConnectSection />
+          <div className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold text-stone-950">Próximos pasos</h2>
+            <div className="mt-5 space-y-3">
+              <Link to="/producer/products" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
+                <span>Gestionar catálogo</span>
+                <Package className="h-4 w-4" />
+              </Link>
+              <Link to="/producer/orders" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
+                <span>Revisar pedidos</span>
+                <ShoppingBag className="h-4 w-4" />
+              </Link>
+              <Link to="/b2b/marketplace" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
+                <span>Buscar nuevos proveedores</span>
+                <Users className="h-4 w-4" />
+              </Link>
+            </div>
 
-      {/* Countries of Origin */}
-      <CountriesOfOrigin countries={stats?.countries_of_origin || []} />
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          icon={Package}
-          label="Total Products"
-          value={stats?.total_products || 0}
-          sublabel={`${stats?.approved_products || 0} approved`}
-          linkTo="/producer/products"
-          color="blue"
-        />
-        <StatCard
-          icon={ShoppingBag}
-          label="Orders"
-          value={stats?.total_orders || 0}
-          linkTo="/producer/orders"
-          color="green"
-        />
-        <StatCard
-          icon={Users}
-          label="Store Followers"
-          value={stats?.follower_count || 0}
-          linkTo="/producer/store"
-          color="purple"
-        />
-        <StatCard
-          icon={Globe}
-          label="Countries"
-          value={(stats?.countries_of_origin || []).length}
-          sublabel="of origin"
-          linkTo="/producer/products"
-          color="amber"
-        />
-      </div>
-
-      {/* Recent Reviews */}
-      {stats?.recent_reviews && stats.recent_reviews.length > 0 && (
-        <div className="bg-white rounded-xl border border-stone-200 p-6 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Star className="w-5 h-5 text-yellow-500" />
-            <h2 className="font-semibold text-text-primary">Recent Reviews</h2>
-          </div>
-          <div className="space-y-4">
-            {stats.recent_reviews.slice(0, 3).map((review, idx) => (
-              <div key={idx} className="flex items-start gap-3 p-3 bg-stone-50 rounded-lg">
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                  <span className="font-medium">{review.rating}/10</span>
-                </div>
-                <div>
-                  <p className="text-sm text-text-primary">{review.comment}</p>
-                  <p className="text-xs text-text-muted mt-1">by {review.user_name}</p>
-                </div>
+            {!user?.approved ? (
+              <div className="mt-5 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                <p className="text-sm font-medium text-stone-950">Cuenta pendiente de aprobación</p>
+                <p className="mt-1 text-sm text-stone-500">Puedes preparar catálogo, pero la visibilidad pública se activará cuando la cuenta sea aprobada.</p>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            ) : null}
 
-      {/* Low Stock Alert */}
-      {stats?.low_stock_products && stats.low_stock_products.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertCircle className="w-5 h-5 text-red-600" />
-            <h2 className="font-semibold text-red-900">Low Stock Alert</h2>
+            <Button asChild className="mt-5">
+              <Link to="/producer/products">Abrir gestión de productos</Link>
+            </Button>
           </div>
-          <div className="space-y-2">
-            {stats.low_stock_products.map((product) => (
-              <div key={product.product_id} className="flex items-center justify-between p-2 bg-white rounded">
-                <span className="text-sm">{product.name}</span>
-                <span className="text-sm font-medium text-red-600">{product.stock} left</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl border border-stone-200 p-6">
-        <h2 className="font-heading text-lg font-semibold text-text-primary mb-4">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            to="/producer/products"
-            className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
-          >
-            <Package className="w-5 h-5 text-blue-600" />
-            <span className="text-blue-800 font-medium">Manage Products</span>
-          </Link>
-          <Link
-            to="/producer/store"
-            className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors"
-          >
-            <Globe className="w-5 h-5 text-purple-600" />
-            <span className="text-purple-800 font-medium">Edit Store Profile</span>
-          </Link>
-          <Link
-            to="/producer/orders"
-            className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors"
-          >
-            <ShoppingBag className="w-5 h-5 text-green-600" />
-            <span className="text-green-800 font-medium">View Orders</span>
-          </Link>
-        </div>
+        </section>
       </div>
     </div>
   );

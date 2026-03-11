@@ -57,7 +57,7 @@ export default function InfluencerLayoutResponsive({ children }) {
           <p className="text-text-secondary mb-4">Acceso denegado. Se requiere cuenta de influencer.</p>
           <button 
             onClick={() => navigate('/login')} 
-            className="text-purple-600 hover:underline font-medium"
+            className="text-stone-950 hover:underline font-medium"
           >
             Ir a Login
           </button>
@@ -79,7 +79,7 @@ export default function InfluencerLayoutResponsive({ children }) {
         </button>
         
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-purple-500" />
+          <Sparkles className="w-4 h-4 text-stone-700" />
           <h1 className="font-heading text-base font-semibold text-text-primary">
             Influencer
           </h1>
@@ -103,7 +103,7 @@ export default function InfluencerLayoutResponsive({ children }) {
               </button>
               <div className="h-6 w-px bg-border-default" />
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-500" />
+                <Sparkles className="w-5 h-5 text-stone-700" />
                 <span className="font-heading text-lg font-semibold text-text-primary">
                   {t('influencer.dashboard', 'Panel Influencer')}
                 </span>
@@ -140,7 +140,7 @@ export default function InfluencerLayoutResponsive({ children }) {
             end
             className={({ isActive }) =>
               `flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0 ${
-                isActive ? 'border-purple-600 text-purple-700' : 'border-transparent text-stone-500'
+                isActive ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500'
               }`
             }
             data-testid="mobile-nav-inicio"

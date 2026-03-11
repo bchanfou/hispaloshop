@@ -134,7 +134,7 @@
 
 /* Focus styles for accessibility */
 *:focus-visible {
-  outline: 2px solid var(--color-brand-red);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -149,16 +149,16 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C4B9A9;
+  background: #d6d3d1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #A69B8A;
+  background: #a8a29e;
 }
 
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #C4B9A9 var(--bg-subtle);
+  scrollbar-color: #d6d3d1 var(--bg-subtle);
 }

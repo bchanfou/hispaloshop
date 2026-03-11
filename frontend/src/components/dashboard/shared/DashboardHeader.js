@@ -10,25 +10,29 @@ function DashboardHeader({ userName, subtitle, notificationCount = 0 }) {
   };
 
   return (
-    <div className="flex items-start justify-between mb-6">
+    <div className="mb-8 flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {getGreeting()}, {userName} 👋
+        <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+          {getGreeting()}, {userName}
         </h1>
-        {subtitle && (
-          <p className="text-text-muted mt-1">{subtitle}</p>
-        )}
+        {subtitle ? <p className="mt-2 text-sm text-stone-500">{subtitle}</p> : null}
       </div>
-      
+
       <div className="flex items-center gap-2">
-        <button className="relative p-2.5 rounded-full hover:bg-stone-100 transition-colors">
-          <Bell className="w-5 h-5 text-gray-900" />
-          {notificationCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-          )}
+        <button
+          type="button"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 transition-all duration-200 hover:shadow-sm"
+          aria-label="Notificaciones"
+        >
+          <Bell className="h-4 w-4" />
+          {notificationCount > 0 ? <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-stone-950" /> : null}
         </button>
-        <button className="p-2.5 rounded-full hover:bg-stone-100 transition-colors">
-          <Settings className="w-5 h-5 text-gray-900" />
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 transition-all duration-200 hover:shadow-sm"
+          aria-label="Configuración"
+        >
+          <Settings className="h-4 w-4" />
         </button>
       </div>
     </div>

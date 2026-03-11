@@ -317,10 +317,10 @@ export default function InfluencerDashboard() {
       <div className="max-w-6xl mx-auto px-4 py-4 md:py-8">
         {/* Header - Mobile: Simple, Desktop: Full */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-xl md:text-3xl font-heading font-medium text-text-primary">
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
             {t('influencer.dashboard')}
           </h1>
-          <p className="text-text-muted text-sm md:text-base mt-1">
+          <p className="mt-2 text-sm text-stone-500 md:text-base">
             {t('dashboard.welcome')}, {dashboard.full_name}
           </p>
         </div>
@@ -332,15 +332,15 @@ export default function InfluencerDashboard() {
 
         {/* Status Banner - Pending Approval */}
         {dashboard.status === 'pending' && (
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 md:p-6 mb-4 md:mb-6">
+          <div className="mb-4 rounded-2xl border border-stone-200 bg-stone-50 p-4 md:mb-6 md:p-6">
             <div className="flex items-start gap-3 md:gap-4">
-              <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-purple-600 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-700 md:h-6 md:w-6" />
               <div>
-                <h3 className="font-semibold text-purple-900 text-sm md:text-base mb-1 md:mb-2">{t('influencer.pendingApproval')}</h3>
-                <p className="text-purple-800 text-xs md:text-sm">
+                <h3 className="mb-1 text-sm font-semibold text-stone-950 md:mb-2 md:text-base">{t('influencer.pendingApproval')}</h3>
+                <p className="text-xs text-stone-700 md:text-sm">
                   {t('influencer.pendingApprovalDesc')}
                 </p>
-                <p className="text-purple-700 text-xs md:text-sm mt-2">
+                <p className="mt-2 text-xs text-stone-500 md:text-sm">
                   <strong>{t('influencer.estimatedTime')}</strong>
                 </p>
               </div>
@@ -350,8 +350,8 @@ export default function InfluencerDashboard() {
 
         {/* Status Banner - Other statuses */}
         {dashboard.status !== 'active' && dashboard.status !== 'pending' && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
-            <p className="text-amber-800 text-sm">
+          <div className="mb-4 rounded-2xl border border-stone-200 bg-stone-50 p-3 md:mb-6 md:p-4">
+            <p className="text-sm text-stone-700">
               {t('influencer.accountStatus')} <strong>{dashboard.status}</strong>. 
               {dashboard.status === 'suspended' && ` ${t('influencer.accountSuspended')}`}
             </p>
@@ -370,32 +370,32 @@ export default function InfluencerDashboard() {
 
         {/* === CODE HERO - The main thing influencers need === */}
         {dashboard.discount_code && dashboard.discount_code_approval_status === 'pending' && (
-          <div className="bg-amber-50 rounded-2xl border-2 border-amber-300 p-6 text-center mb-6" data-testid="code-pending">
+          <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center" data-testid="code-pending">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-amber-700 bg-amber-100 px-3 py-1 rounded-full">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-widest text-stone-700">
+                <span className="h-2 w-2 rounded-full bg-stone-950 animate-pulse" />
                 Pendiente de aprobación
               </span>
             </div>
-            <p className="text-3xl md:text-4xl font-heading font-bold text-amber-700 tracking-wider mb-3" data-testid="influencer-code-pending">
+            <p className="mb-3 text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl" data-testid="influencer-code-pending">
               {dashboard.discount_code}
             </p>
-            <p className="text-sm text-amber-600">
+            <p className="text-sm text-stone-500">
               Tu código está siendo revisado por el equipo de Hispaloshop. Lo aprobaremos en menos de 24h.
             </p>
           </div>
         )}
 
         {dashboard.discount_code && dashboard.discount_code_active && (
-          <div className="bg-white rounded-2xl border-2 border-amber-200 p-6 text-center mb-6" data-testid="code-hero">
-            <p className="text-xs text-amber-600 uppercase tracking-widest mb-2">Tu código</p>
-            <p className="text-4xl md:text-5xl font-heading font-bold text-primary tracking-wider mb-4" data-testid="influencer-code">
+          <div className="mb-6 rounded-2xl border border-stone-100 bg-white p-6 text-center shadow-sm" data-testid="code-hero">
+            <p className="mb-2 text-xs uppercase tracking-widest text-stone-500">Tu código</p>
+            <p className="mb-4 text-4xl font-semibold tracking-tight text-stone-950 md:text-5xl" data-testid="influencer-code">
               {dashboard.discount_code}
             </p>
             <div className="flex justify-center gap-3 mb-4">
               <Button
                 onClick={() => { navigator.clipboard.writeText(dashboard.discount_code); toast.success('Código copiado'); }}
-                className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-6"
+                className="rounded-full bg-stone-950 px-6 text-white hover:bg-stone-800"
                 data-testid="copy-code-btn"
               >
                 <Copy className="w-4 h-4 mr-2" /> Copiar
@@ -408,24 +408,24 @@ export default function InfluencerDashboard() {
                 Compartir
               </Button>
             </div>
-            <p className="text-xs text-text-muted">Tu comunidad ahorra {dashboard.discount_value || 10}% con este código</p>
+            <p className="text-xs text-stone-500">Tu comunidad ahorra {dashboard.discount_value || 10}% con este código</p>
           </div>
         )}
 
         {/* === 2 Big Earnings Circles === */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white rounded-2xl border border-emerald-200 p-6 text-center" data-testid="total-earned">
-            <p className="text-3xl md:text-4xl font-bold text-emerald-600">€{dashboard.total_commission_earned?.toFixed(0) || 0}</p>
-            <p className="text-xs text-text-muted mt-2">Total ganado</p>
+          <div className="rounded-2xl border border-stone-100 bg-white p-6 text-center shadow-sm" data-testid="total-earned">
+            <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{dashboard.total_commission_earned?.toFixed(0) || 0}</p>
+            <p className="mt-2 text-xs text-stone-500">Total ganado</p>
           </div>
-          <div className="bg-white rounded-2xl border border-amber-200 p-6 text-center" data-testid="available-withdraw">
-            <p className="text-3xl md:text-4xl font-bold text-amber-600">€{dashboard.available_balance?.toFixed(0) || 0}</p>
-            <p className="text-xs text-text-muted mt-2">Disponible</p>
+          <div className="rounded-2xl border border-stone-100 bg-white p-6 text-center shadow-sm" data-testid="available-withdraw">
+            <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{dashboard.available_balance?.toFixed(0) || 0}</p>
+            <p className="mt-2 text-xs text-stone-500">Disponible</p>
             {(dashboard.available_balance || 0) >= 50 && (
               <Button
                 size="sm"
                 onClick={scrollToWithdrawals}
-                className="mt-3 bg-amber-600 hover:bg-amber-700 text-white rounded-full text-xs px-4"
+                className="mt-3 rounded-full bg-stone-950 px-4 text-xs text-white hover:bg-stone-800"
               >
                 Retirar
               </Button>
@@ -439,13 +439,13 @@ export default function InfluencerDashboard() {
             <CardContent className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
-                  <p className="text-xs md:text-sm text-text-muted">{t('influencer.totalSales')}</p>
+                  <p className="text-xs text-stone-500 md:text-sm">{t('influencer.totalSales')}</p>
                   <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
                     €{dashboard.total_sales_generated.toFixed(0)}
                   </p>
                 </div>
-                <div className="h-10 w-10 md:h-12 md:w-12 bg-green-50 rounded-full flex items-center justify-center">
-                  <ShoppingBag className="h-5 w-5 md:h-6 md:w-6 text-green-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 md:h-12 md:w-12">
+                  <ShoppingBag className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
                 </div>
               </div>
             </CardContent>
@@ -455,13 +455,13 @@ export default function InfluencerDashboard() {
             <CardContent className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
-                  <p className="text-xs md:text-sm text-text-muted">{t('influencer.totalEarned')}</p>
+                  <p className="text-xs text-stone-500 md:text-sm">{t('influencer.totalEarned')}</p>
                   <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
                     €{dashboard.total_commission_earned.toFixed(0)}
                   </p>
                 </div>
-                <div className="h-10 w-10 md:h-12 md:w-12 bg-blue-50 rounded-full flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 md:h-12 md:w-12">
+                  <TrendingUp className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
                 </div>
               </div>
             </CardContent>
@@ -471,13 +471,13 @@ export default function InfluencerDashboard() {
             <CardContent className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
-                  <p className="text-xs md:text-sm text-text-muted">{t('influencer.availableBalance')}</p>
-                  <p className="text-xl md:text-2xl font-heading font-medium text-green-600">
+                  <p className="text-xs text-stone-500 md:text-sm">{t('influencer.availableBalance')}</p>
+                  <p className="text-xl font-medium text-stone-950 md:text-2xl">
                     €{dashboard.available_balance.toFixed(0)}
                   </p>
                 </div>
-                <div className="h-10 w-10 md:h-12 md:w-12 bg-orange-50 rounded-full flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 md:h-6 md:w-6 text-orange-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 md:h-12 md:w-12">
+                  <DollarSign className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
                 </div>
               </div>
             </CardContent>
@@ -487,13 +487,13 @@ export default function InfluencerDashboard() {
             <CardContent className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
-                  <p className="text-xs md:text-sm text-text-muted">{t('influencer.commissionRate')}</p>
+                  <p className="text-xs text-stone-500 md:text-sm">{t('influencer.commissionRate')}</p>
                   <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
                     {`${tierPercent}%`}
                   </p>
                 </div>
-                <div className="h-10 w-10 md:h-12 md:w-12 bg-purple-50 rounded-full flex items-center justify-center">
-                  <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-purple-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 md:h-12 md:w-12">
+                  <CreditCard className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
                 </div>
               </div>
             </CardContent>
