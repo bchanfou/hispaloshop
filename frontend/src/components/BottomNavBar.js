@@ -372,6 +372,7 @@ export default function BottomNavBar() {
         }
         fd.append('file', publishData.sourceFile);
         fd.append('caption', publishData.caption);
+        fd.append('location', publishData.location || '');
         fd.append('cover_frame_seconds', String(publishData.reelSettings?.coverFrameSeconds || 0));
         fd.append('trim_start_seconds', String(publishData.reelSettings?.trimStart || 0));
         fd.append('trim_end_seconds', String(publishData.reelSettings?.trimEnd || 0));
@@ -396,6 +397,7 @@ export default function BottomNavBar() {
         const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
         fd.append('file', file);
         fd.append('caption', publishData.caption);
+        fd.append('location', publishData.location || '');
         await axios.post(`${API}/stories`, fd, {
           withCredentials: true,
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -405,6 +407,7 @@ export default function BottomNavBar() {
         const blob = await base64Response.blob();
         const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
         fd.append('caption', publishData.caption);
+        fd.append('location', publishData.location || '');
         fd.append('file', file);
         if (primaryProductId) {
           fd.append('product_id', primaryProductId);

@@ -32,6 +32,8 @@ import ProductTagTool from './ProductTagTool';
 import CanvasEditor from './CanvasEditor';
 import { ASPECT_RATIOS } from '../types/editor.types';
 
+const EDITOR_SESSION_DRAFT_KEY = 'hispaloshop_editor_session_draft';
+
 const BASE_TOOLS = [
   { id: 'reel', icon: Film, label: 'Reel', onlyFor: ['reel'] },
   { id: 'composition', icon: LayoutTemplate, label: 'Plantillas' },
@@ -196,7 +198,7 @@ function LayerSummary({ editor }) {
   );
 }
 
-function MediaStage({ contentType, guidance, onClose, onPick }) {
+function MediaStage({ contentType, guidance, onClose, onPick, canRestoreDraft, onRestoreDraft }) {
   const GuidanceIcon = guidance.icon;
 
   return (
@@ -259,6 +261,16 @@ function MediaStage({ contentType, guidance, onClose, onPick }) {
             <Upload className="h-4 w-4" />
             Seleccionar archivo
           </button>
+
+          {canRestoreDraft ? (
+            <button
+              type="button"
+              onClick={onRestoreDraft}
+              className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Recuperar borrador
+            </button>
+          ) : null}
 
           <p className="mt-4 text-center text-xs leading-5 text-white/45">{guidance.meta}</p>
           <p className="mt-2 text-center text-xs leading-5 text-white/35">
@@ -365,6 +377,9 @@ function ComposeStage({
               <div className="mt-3 rounded-2xl bg-stone-50 px-4 py-3 text-sm text-stone-700">
                 Plantilla activa: <span className="font-semibold capitalize">{editor.compositionSettings?.templateId || 'free'}</span>
               </div>
+              <div className="mt-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                Guardado automatico activo. Si sales ahora, podras recuperar este borrador.
+              </div>
             </div>
 
             <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
@@ -416,6 +431,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const [caption, setCaption] = useState('');
   const [location, setLocation] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+  const [hasRecoverableDraft, setHasRecoverableDraft] = useState(false);
 
   const editor = useImageEditor(contentType, aspectRatio);
   const fileInputRef = useRef(null);
@@ -437,7 +453,81 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     }
   }, [currentStage, editor.images.length]);
 
+  React.useEffect(() => {
+    const sessionDraft = localStorage.getItem(EDITOR_SESSION_DRAFT_KEY);
+    if (!sessionDraft) {
+      setHasRecoverableDraft(false);
+      return;
+    }
+
+    try {
+      const parsedDraft = JSON.parse(sessionDraft);
+      setHasRecoverableDraft(parsedDraft.contentType === contentType && editor.hasSavedDraft());
+    } catch (error) {
+      console.warn('[creator] invalid session draft', error);
+      setHasRecoverableDraft(false);
+    }
+  }, [contentType, editor]);
+
+  React.useEffect(() => {
+    if (editor.images.length === 0) {
+      return undefined;
+    }
+
+    const sessionDraft = {
+      contentType,
+      aspectRatio,
+      caption,
+      location,
+      currentStage,
+      savedAt: Date.now(),
+    };
+
+    localStorage.setItem(EDITOR_SESSION_DRAFT_KEY, JSON.stringify(sessionDraft));
+    editor.saveDraft();
+
+    const handleBeforeUnload = () => {
+      localStorage.setItem(EDITOR_SESSION_DRAFT_KEY, JSON.stringify(sessionDraft));
+      editor.saveDraft();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [aspectRatio, caption, contentType, currentStage, editor, location]);
+
   const taggedProductsCount = editor.stickerElements.filter((item) => item.type === 'product').length;
+
+  const clearSavedDraft = React.useCallback(() => {
+    editor.clearDraft();
+    localStorage.removeItem(EDITOR_SESSION_DRAFT_KEY);
+    setHasRecoverableDraft(false);
+  }, [editor]);
+
+  const restoreDraft = React.useCallback(() => {
+    const restoredDraft = editor.loadDraft();
+    const sessionDraft = localStorage.getItem(EDITOR_SESSION_DRAFT_KEY);
+
+    if (!restoredDraft || !sessionDraft) {
+      setHasRecoverableDraft(false);
+      return;
+    }
+
+    try {
+      const parsedSession = JSON.parse(sessionDraft);
+      if (parsedSession.contentType !== contentType) {
+        return;
+      }
+      if (parsedSession.aspectRatio && ASPECT_RATIOS[contentType].includes(parsedSession.aspectRatio)) {
+        setAspectRatio(parsedSession.aspectRatio);
+      }
+      setCaption(parsedSession.caption || '');
+      setLocation(parsedSession.location || '');
+      setCurrentStage(restoredDraft.images?.length ? (parsedSession.currentStage === 'compose' ? 'compose' : 'edit') : 'media');
+      setHasRecoverableDraft(false);
+    } catch (error) {
+      console.warn('[creator] draft restore failed', error);
+    }
+  }, [contentType, editor]);
 
   const handlePublish = async () => {
     setIsPublishing(true);
@@ -453,6 +543,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         reelSettings: editor.reelSettings,
         taggedProducts: editor.stickerElements.filter((item) => item.type === 'product'),
       });
+      clearSavedDraft();
     } finally {
       setIsPublishing(false);
     }
@@ -476,6 +567,24 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     if (currentStage === 'edit') {
       setCurrentStage('media');
       return;
+    }
+    onClose();
+  };
+
+  const handleClose = () => {
+    if (editor.images.length > 0) {
+      localStorage.setItem(
+        EDITOR_SESSION_DRAFT_KEY,
+        JSON.stringify({
+          contentType,
+          aspectRatio,
+          caption,
+          location,
+          currentStage,
+          savedAt: Date.now(),
+        })
+      );
+      editor.saveDraft();
     }
     onClose();
   };
@@ -665,7 +774,14 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   if (currentStage === 'media') {
     return (
       <>
-        <MediaStage contentType={contentType} guidance={guidance} onClose={onClose} onPick={handleAddMore} />
+        <MediaStage
+          contentType={contentType}
+          guidance={guidance}
+          onClose={handleClose}
+          onPick={handleAddMore}
+          canRestoreDraft={hasRecoverableDraft}
+          onRestoreDraft={restoreDraft}
+        />
         <input
           ref={fileInputRef}
           type="file"

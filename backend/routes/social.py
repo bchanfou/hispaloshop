@@ -279,6 +279,7 @@ async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
 async def create_reel(
     file: UploadFile = File(...),
     caption: str = Form(""),
+    location: str = Form(""),
     product_id: str = Form(""),
     tagged_products_json: str = Form(""),
     user: User = Depends(get_current_user)
@@ -309,6 +310,7 @@ async def create_reel(
         "video_url": video_url,
         "thumbnail_url": thumbnail_url,
         "caption": caption[:500] if caption else "",
+        "location": location[:120] if location else "",
         "tagged_product": tagged_product,
         "tagged_products": tagged_products,
         "likes_count": 0,
@@ -494,6 +496,7 @@ async def unfollow_user(user_id: str, user: User = Depends(get_current_user)):
 async def create_post(
     request: Request,
     caption: str = Form(""),
+    location: str = Form(""),
     product_id: str = Form(""),
     tagged_products_json: str = Form(""),
     file: UploadFile = File(None),
@@ -531,6 +534,7 @@ async def create_post(
         "user_name": user.name,
         "image_url": image_url,
         "caption": caption,
+        "location": location[:120] if location else "",
         "tagged_product": tagged_product,
         "tagged_products": tagged_products,
         "likes_count": 0,
@@ -1081,6 +1085,7 @@ async def upload_avatar(file: UploadFile = File(...), user: User = Depends(get_c
 async def create_story(
     file: UploadFile = File(...),
     caption: str = Form(""),
+    location: str = Form(""),
     user: User = Depends(get_current_user)
 ):
     """Upload a story that auto-expires after 24h."""
@@ -1100,6 +1105,7 @@ async def create_story(
         "user_name": user.name,
         "image_url": image_url,
         "caption": caption[:200] if caption else "",
+        "location": location[:120] if location else "",
         "created_at": now.isoformat(),
         "expires_at": (now + timedelta(hours=24)).isoformat(),
         "views": [],
