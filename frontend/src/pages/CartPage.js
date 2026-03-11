@@ -218,7 +218,7 @@ export default function CartPage() {
       <div className="min-h-screen bg-background">
         <Header />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <p className="text-text-muted">{t('common.loading')}</p>
+          <p className="text-stone-500">{t('common.loading')}</p>
         </div>
         <Footer />
       </div>
@@ -239,7 +239,7 @@ export default function CartPage() {
         <div className="mb-4 md:mb-6 hidden md:block">
           <BackButton label={t('checkout.continueShopping')} />
         </div>
-        <h1 className="font-heading text-2xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-4 md:mb-8" data-testid="cart-page-title">
+        <h1 className="font-heading text-2xl md:text-4xl lg:text-5xl font-bold text-stone-950 mb-4 md:mb-8" data-testid="cart-page-title">
           {t('cart.title')}
         </h1>
 
@@ -287,10 +287,10 @@ export default function CartPage() {
         )}
 
         {cartLoading ? (
-          <p className="text-text-muted text-center py-12">{t('common.loading')}</p>
+          <p className="text-stone-500 text-center py-12">{t('common.loading')}</p>
         ) : cartItems.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border border-stone-200">
-            <p className="text-text-muted mb-4">{t('cart.empty')}</p>
+            <p className="text-stone-500 mb-4">{t('cart.empty')}</p>
             <Button onClick={() => navigate('/products')} className="bg-primary hover:bg-primary-hover">
               {t('cart.continueShopping')}
             </Button>
@@ -311,9 +311,9 @@ export default function CartPage() {
                       {item.image && <img src={item.image} alt={item.product_name} className="w-full h-full object-cover" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-text-primary text-sm md:text-base line-clamp-2">{item.product_name}</h3>
+                      <h3 className="font-medium text-stone-950 text-sm md:text-base line-clamp-2">{item.product_name}</h3>
                       {(item.variant_name || item.pack_label) && (
-                        <p className="text-xs md:text-sm text-text-muted">
+                        <p className="text-xs md:text-sm text-stone-500">
                           {item.variant_name && <span>{item.variant_name}</span>}
                           {item.variant_name && item.pack_label && <span> · </span>}
                           {item.pack_label && <span>{item.pack_label}</span>}
@@ -321,7 +321,7 @@ export default function CartPage() {
                       )}
                       <div className="flex items-center justify-between mt-1 md:mt-2">
                         <div>
-                          <p className="text-xs md:text-sm text-text-muted">{t('cart.quantity', 'Cantidad')}: {item.quantity}</p>
+                          <p className="text-xs md:text-sm text-stone-500">{t('cart.quantity', 'Cantidad')}: {item.quantity}</p>
                           <p className="text-primary font-bold text-sm md:text-base mt-0.5">
                             {convertAndFormatPrice(item.price * item.quantity, item.currency || 'EUR')}
                           </p>
@@ -353,7 +353,7 @@ export default function CartPage() {
               })}
 
               <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-address-section">
-                <h3 className="font-heading text-base md:text-lg font-semibold text-text-primary mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="font-heading text-base md:text-lg font-semibold text-stone-950 mb-3 md:mb-4 flex items-center gap-2">
                   <MapPin className="w-4 h-4 md:w-5 md:h-5" />
                   {t('checkout.shippingAddress')}
                 </h3>
@@ -370,16 +370,16 @@ export default function CartPage() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 md:gap-2 mb-0.5 md:mb-1 flex-wrap">
-                              <span className="font-medium text-text-primary text-sm md:text-base truncate">{addr.name || t('checkout.shippingAddress')}</span>
+                              <span className="font-medium text-stone-950 text-sm md:text-base truncate">{addr.name || t('checkout.shippingAddress')}</span>
                               {addr.is_default && (
                                 <span className="text-[10px] md:text-xs bg-primary/10 text-primary px-1.5 md:px-2 py-0.5 rounded whitespace-nowrap">
                                   {t('checkout.default') || 'Default'}
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs md:text-sm text-text-muted truncate">{addr.full_name}</p>
-                            <p className="text-xs md:text-sm text-text-muted truncate">{addr.street}</p>
-                            <p className="text-xs md:text-sm text-text-muted">{addr.city}, {addr.postal_code}</p>
+                            <p className="text-xs md:text-sm text-stone-500 truncate">{addr.full_name}</p>
+                            <p className="text-xs md:text-sm text-stone-500 truncate">{addr.street}</p>
+                            <p className="text-xs md:text-sm text-stone-500">{addr.city}, {addr.postal_code}</p>
                           </div>
                           {selectedAddressId === addr.address_id && <Check className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />}
                         </div>
@@ -403,39 +403,39 @@ export default function CartPage() {
                 {showNewAddressForm && (
                   <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 border border-stone-200 rounded-lg" data-testid="new-address-form">
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.addressName') || 'Nombre de direccion'}</label>
+                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.addressName') || 'Nombre de direccion'}</label>
                       <Input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} data-testid="new-address-name" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.fullName')} <span className="text-red-500">*</span></label>
+                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.fullName')} <span className="text-red-500">*</span></label>
                         <Input {...registerAddr('full_name')} placeholder={t('checkout.fullName')} className={addrErrors.full_name ? 'border-red-500' : ''} data-testid="new-address-fullname" />
                         {addrErrors.full_name && <p className="text-red-500 text-xs mt-1">{addrErrors.full_name.message}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1">{t('common.phone')}</label>
+                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('common.phone')}</label>
                         <Input {...registerAddr('phone')} type="tel" placeholder={t('common.phone')} data-testid="new-address-phone" />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.street')} <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.street')} <span className="text-red-500">*</span></label>
                       <Input {...registerAddr('street')} placeholder={t('checkout.street')} className={addrErrors.street ? 'border-red-500' : ''} data-testid="new-address-street" />
                       {addrErrors.street && <p className="text-red-500 text-xs mt-1">{addrErrors.street.message}</p>}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.city')} <span className="text-red-500">*</span></label>
+                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.city')} <span className="text-red-500">*</span></label>
                         <Input {...registerAddr('city')} placeholder={t('checkout.city')} className={addrErrors.city ? 'border-red-500' : ''} data-testid="new-address-city" />
                         {addrErrors.city && <p className="text-red-500 text-xs mt-1">{addrErrors.city.message}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.zip')} <span className="text-red-500">*</span></label>
+                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.zip')} <span className="text-red-500">*</span></label>
                         <Input {...registerAddr('postal_code')} placeholder={t('checkout.zip')} className={addrErrors.postal_code ? 'border-red-500' : ''} data-testid="new-address-postal" />
                         {addrErrors.postal_code && <p className="text-red-500 text-xs mt-1">{addrErrors.postal_code.message}</p>}
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-text-primary mb-1">{t('checkout.country')} <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.country')} <span className="text-red-500">*</span></label>
                       <select {...registerAddr('country')} className={`w-full px-4 py-2 rounded-lg border bg-white text-sm ${addrErrors.country ? 'border-red-500' : 'border-stone-200'}`} data-testid="new-address-country">
                         <option value="ES">Espana</option>
                         <option value="PT">Portugal</option>
@@ -452,7 +452,7 @@ export default function CartPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <input type="checkbox" id="is_default" {...registerAddr('is_default')} className="rounded border-stone-300" />
-                      <label htmlFor="is_default" className="text-sm text-text-muted">{t('checkout.setAsDefault') || 'Establecer como predeterminada'}</label>
+                      <label htmlFor="is_default" className="text-sm text-stone-500">{t('checkout.setAsDefault') || 'Establecer como predeterminada'}</label>
                     </div>
                     <div className="flex gap-3">
                       <Button type="submit" disabled={savingAddress} className="flex-1 bg-primary hover:bg-primary-hover" data-testid="save-new-address-btn">
@@ -478,7 +478,7 @@ export default function CartPage() {
             </div>
 
             <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 h-fit lg:sticky lg:top-24">
-              <h2 className="font-heading text-lg md:text-xl font-semibold text-text-primary mb-3 md:mb-4">{t('checkout.orderSummary')}</h2>
+              <h2 className="font-heading text-lg md:text-xl font-semibold text-stone-950 mb-3 md:mb-4">{t('checkout.orderSummary')}</h2>
               <div className="mb-4 md:mb-6">
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
@@ -509,8 +509,8 @@ export default function CartPage() {
 
               <div className="space-y-2 md:space-y-3 mb-4 md:mb-6">
                 <div className="flex justify-between text-sm md:text-base">
-                  <span className="text-text-muted">{t('cart.subtotal')}</span>
-                  <span className="text-text-primary">{convertAndFormatPrice((cartSummary.subtotal_cents || Math.round(getTotalPrice() * 100)) / 100, 'EUR')}</span>
+                  <span className="text-stone-500">{t('cart.subtotal')}</span>
+                  <span className="text-stone-950">{convertAndFormatPrice((cartSummary.subtotal_cents || Math.round(getTotalPrice() * 100)) / 100, 'EUR')}</span>
                 </div>
                 {appliedDiscount && appliedDiscount.discount_amount > 0 && (
                   <div className="flex justify-between text-green-600 text-sm md:text-base">
@@ -519,21 +519,21 @@ export default function CartPage() {
                   </div>
                 )}
                 <div className="flex justify-between text-sm md:text-base">
-                  <span className="text-text-muted">{t('checkout.shipping')}</span>
-                  <span className="text-text-primary">
+                  <span className="text-stone-500">{t('checkout.shipping')}</span>
+                  <span className="text-stone-950">
                     {(cartSummary.shipping_cents || 0) > 0 ? convertAndFormatPrice(cartSummary.shipping_cents / 100, 'EUR') : <span className="text-green-600">{t('common.free')}</span>}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm md:text-base">
-                  <span className="text-text-muted">IVA ({((cartSummary.tax_rate_bp || 2100) / 100).toFixed(0)}%)</span>
-                  <span className="text-text-primary">{convertAndFormatPrice((cartSummary.tax_cents || 0) / 100, 'EUR')}</span>
+                  <span className="text-stone-500">IVA ({((cartSummary.tax_rate_bp || 2100) / 100).toFixed(0)}%)</span>
+                  <span className="text-stone-950">{convertAndFormatPrice((cartSummary.tax_cents || 0) / 100, 'EUR')}</span>
                 </div>
                 <div className="border-t border-stone-200 pt-2 md:pt-3 flex justify-between">
-                  <span className="font-semibold text-text-primary text-sm md:text-base">{t('cart.total')}</span>
+                  <span className="font-semibold text-stone-950 text-sm md:text-base">{t('cart.total')}</span>
                   <span className="font-bold text-lg md:text-xl text-primary">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>
                 </div>
                 {currency !== (countries[country]?.currency || 'EUR') && (
-                  <div className="text-xs text-text-muted pt-2 border-t">
+                  <div className="text-xs text-stone-500 pt-2 border-t">
                     <p>{t('checkout.displayCurrency', { currency })}</p>
                     <p className="font-medium">{t('checkout.chargeCurrency', { currency: countries[country]?.currency || 'EUR' })}</p>
                     {getExchangeRateDisplay(countries[country]?.currency || 'EUR') && (
@@ -545,11 +545,11 @@ export default function CartPage() {
 
               {(getSelectedAddress() || showNewAddressForm) && (
                 <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-stone-50 rounded-lg">
-                  <p className="text-[10px] md:text-xs text-text-muted mb-0.5 md:mb-1">{t('checkout.shippingTo') || 'Shipping to'}:</p>
+                  <p className="text-[10px] md:text-xs text-stone-500 mb-0.5 md:mb-1">{t('checkout.shippingTo') || 'Shipping to'}:</p>
                   {showNewAddressForm ? (
-                    <p className="text-xs md:text-sm text-text-primary">{t('checkout.newAddressForm') || 'New address (fill form below)'}</p>
+                    <p className="text-xs md:text-sm text-stone-950">{t('checkout.newAddressForm') || 'New address (fill form below)'}</p>
                   ) : (
-                    <p className="text-xs md:text-sm text-text-primary">{getSelectedAddress()?.full_name}, {getSelectedAddress()?.city}</p>
+                    <p className="text-xs md:text-sm text-stone-950">{getSelectedAddress()?.full_name}, {getSelectedAddress()?.city}</p>
                   )}
                 </div>
               )}
@@ -557,7 +557,7 @@ export default function CartPage() {
               <Button
                 onClick={handleCheckout}
                 disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
-                className={`w-full rounded-full py-3 md:py-2 text-sm md:text-base font-medium ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-ds-primary hover:bg-ds-primary/90 text-white' : 'bg-stone-300 cursor-not-allowed text-text-muted'}`}
+                className={`w-full rounded-full py-3 md:py-2 text-sm md:text-base font-medium ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 hover:bg-stone-800 text-white' : 'bg-stone-200 cursor-not-allowed text-stone-400'}`}
                 data-testid="checkout-button"
               >
                 {checkoutLoading
@@ -571,7 +571,7 @@ export default function CartPage() {
                         : t('cart.checkout')}
               </Button>
 
-              {!emailVerified && <p className="text-xs text-text-muted mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Email verification required'}</p>}
+              {!emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Email verification required'}</p>}
               {stockIssues.length > 0 && <p className="text-xs text-red-500 mt-2 text-center">{t('checkout.stockIssues') || 'Some items have insufficient stock'}</p>}
               {!getSelectedAddress() && !showNewAddressForm && emailVerified && stockIssues.length === 0 && (
                 <p className="text-xs text-amber-600 mt-2 text-center">{t('checkout.pleaseSelectAddress') || 'Please select or add a shipping address'}</p>

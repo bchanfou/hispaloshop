@@ -139,7 +139,7 @@ export default function CertificatesListPage() {
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border border-stone-200">
-            <FileCheck className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+            <FileCheck className="w-10 h-10 text-stone-400 mx-auto mb-3" />
             <p className="text-stone-500 text-sm">{t('empty.products', 'No hay productos')}</p>
           </div>
         ) : (
@@ -194,7 +194,7 @@ export default function CertificatesListPage() {
 
                 {/* Arrow */}
                 <div className="px-2.5 pb-2 flex justify-end">
-                  <ChevronRight className="w-3.5 h-3.5 text-stone-300 group-hover:text-green-600 transition-colors" />
+                  <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-green-600 transition-colors" />
                 </div>
               </Link>
             ))}

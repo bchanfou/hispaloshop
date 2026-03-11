@@ -100,7 +100,7 @@ function FollowingFeed() {
     return (
       <div className="px-4 py-12">
         <div className="mx-auto flex max-w-md flex-col items-center rounded-[28px] border border-stone-200 bg-white px-6 py-8 text-center">
-          <AlertCircle className="mb-4 h-12 w-12 text-stone-300" />
+          <AlertCircle className="mb-4 h-12 w-12 text-stone-400" />
           <p className="text-base font-medium text-stone-950">
             {t('feed.error', 'Error al cargar el feed')}
           </p>

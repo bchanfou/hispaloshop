@@ -76,7 +76,7 @@ function ChatContainer() {
               onClick={() => setShowOptions(!showOptions)}
               className="p-2 hover:bg-stone-100 rounded-full transition-colors"
             >
-              <MoreVertical className="w-5 h-5 text-text-muted" />
+              <MoreVertical className="w-5 h-5 text-stone-500" />
             </button>
 
             {/* Options dropdown */}

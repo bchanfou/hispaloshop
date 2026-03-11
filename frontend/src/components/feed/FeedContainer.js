@@ -54,7 +54,7 @@ function FeedContainer() {
       {isRefreshing && (
         <div className="flex items-center justify-center py-4 bg-white">
           <div className="w-5 h-5 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
-          <span className="ml-2 text-sm text-text-muted">{t('feed.refreshing', 'Actualizando...')}</span>
+          <span className="ml-2 text-sm text-stone-500">{t('feed.refreshing', 'Actualizando...')}</span>
         </div>
       )}
 

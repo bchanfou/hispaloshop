@@ -217,7 +217,7 @@ export default function ProductCard({ product, variant = 'default' }) {
           </span>
           {(product.units_sold || product.total_sold) > 0 ? (
             <>
-              <span className="text-stone-300">·</span>
+              <span className="text-stone-400">·</span>
               <span className="text-stone-500">
                 {formatNumber(product.units_sold || product.total_sold)} {t('products.sold', 'vendidos')}
               </span>
