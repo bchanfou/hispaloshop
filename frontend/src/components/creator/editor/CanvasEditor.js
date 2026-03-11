@@ -91,6 +91,8 @@ function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', r
   });
 
   const currentImage = editor.images[editor.currentImageIndex];
+  const templateId = editor.compositionSettings?.templateId || 'free';
+  const previewFrame = editor.compositionSettings?.previewFrame || 'clean';
 
   useEffect(() => {
     if (!containerRef.current) return undefined;
@@ -251,6 +253,17 @@ function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', r
 
   return (
     <div ref={containerRef} className="flex h-full w-full items-center justify-center overflow-hidden">
+      <motion.div
+        animate={{
+          scale: readOnly ? 1 : templateId === 'free' ? 1 : 1.01,
+          y: 0,
+        }}
+        transition={{ duration: 0.32, ease: 'easeOut' }}
+        className={`relative ${previewFrame === 'story' || previewFrame === 'reel' ? 'rounded-[34px] bg-stone-900 p-3 shadow-[0_34px_80px_rgba(0,0,0,0.38)]' : ''}`}
+      >
+        {(previewFrame === 'story' || previewFrame === 'reel') ? (
+          <div className="pointer-events-none absolute left-1/2 top-2 z-20 h-1.5 w-20 -translate-x-1/2 rounded-full bg-white/30" />
+        ) : null}
       <div
         data-canvas-surface="true"
         className="relative overflow-hidden rounded-[26px] border border-white/10 bg-black shadow-[0_28px_70px_rgba(0,0,0,0.35)]"
@@ -283,7 +296,23 @@ function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', r
           />
         )}
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-black/10" />
+        <motion.div
+          key={templateId}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.28 }}
+          className={`pointer-events-none absolute inset-0 ${
+            templateId === 'headline'
+              ? 'bg-[linear-gradient(180deg,rgba(15,15,15,0.42),rgba(15,15,15,0.08)_38%,rgba(15,15,15,0.02)_100%)]'
+              : templateId === 'footer'
+                ? 'bg-[linear-gradient(180deg,rgba(15,15,15,0.03),rgba(15,15,15,0.09)_45%,rgba(15,15,15,0.46)_100%)]'
+                : templateId === 'centered'
+                  ? 'bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04),rgba(15,15,15,0.34)_70%)]'
+                  : templateId === 'product-focus'
+                    ? 'bg-[linear-gradient(180deg,rgba(15,15,15,0.12),rgba(15,15,15,0.02)_28%,rgba(15,15,15,0.38)_100%)]'
+                    : 'bg-gradient-to-t from-black/18 via-transparent to-black/10'
+          }`}
+        />
 
         {safeZoneStyle ? (
           <div
@@ -367,6 +396,7 @@ function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', r
           </>
         ) : null}
       </div>
+      </motion.div>
     </div>
   );
 }

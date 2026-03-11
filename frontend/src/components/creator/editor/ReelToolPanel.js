@@ -218,6 +218,13 @@ function ReelToolPanel({ editor }) {
           onChange={(event) => editor.updateReelSetting('coverFrameSeconds', parseFloat(event.target.value))}
           className="mt-4 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-stone-200 accent-stone-950"
         />
+        <button
+          type="button"
+          onClick={() => editor.updateReelSetting('coverFrameSeconds', trimStart + Math.max((trimEnd - trimStart) * 0.2, 0))}
+          className="mt-4 rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+        >
+          Sugerir portada
+        </button>
       </div>
 
       <div className="rounded-2xl border border-stone-100 bg-white p-4">

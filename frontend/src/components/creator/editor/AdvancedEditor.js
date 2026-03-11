@@ -10,6 +10,7 @@ import {
   FlipVertical,
   Image as ImageIcon,
   ImagePlus,
+  LayoutTemplate,
   Layers3,
   MapPin,
   Palette,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 import useImageEditor from '../hooks/useImageEditor';
 import FilterPanel from './FilterPanel';
+import CompositionToolPanel from './CompositionToolPanel';
 import ReelToolPanel from './ReelToolPanel';
 import TextTool from './TextTool';
 import StickerTool from './StickerTool';
@@ -32,6 +34,7 @@ import { ASPECT_RATIOS } from '../types/editor.types';
 
 const BASE_TOOLS = [
   { id: 'reel', icon: Film, label: 'Reel', onlyFor: ['reel'] },
+  { id: 'composition', icon: LayoutTemplate, label: 'Plantillas' },
   { id: 'filter', icon: Palette, label: 'Filtros' },
   { id: 'adjust', icon: Layers3, label: 'Ajustes' },
   { id: 'crop', icon: Crop, label: 'Recorte' },
@@ -186,6 +189,9 @@ function LayerSummary({ editor }) {
           </div>
         ))}
       </div>
+      <div className="mt-2 rounded-2xl bg-stone-950 px-3 py-2 text-xs font-medium text-white">
+        Plantilla: {editor.compositionSettings?.templateId || 'free'}
+      </div>
     </div>
   );
 }
@@ -314,7 +320,13 @@ function ComposeStage({
 
       <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_380px]">
         <div className="flex items-center justify-center overflow-hidden p-4">
-          <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType={contentType} readOnly={true} />
+          <div className="w-full max-w-[420px]">
+            <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType={contentType} readOnly={true} />
+            <div className="mt-3 flex items-center justify-between rounded-2xl bg-white/8 px-4 py-3 text-xs text-white/75">
+              <span>Vista previa real</span>
+              <span className="uppercase tracking-[0.2em]">{editor.compositionSettings?.templateId || 'free'}</span>
+            </div>
+          </div>
         </div>
 
         <div className="border-t border-white/10 bg-black/20 p-4 md:border-l md:border-t-0">
@@ -349,6 +361,9 @@ function ComposeStage({
                     </div>
                   </>
                 ) : null}
+              </div>
+              <div className="mt-3 rounded-2xl bg-stone-50 px-4 py-3 text-sm text-stone-700">
+                Plantilla activa: <span className="font-semibold capitalize">{editor.compositionSettings?.templateId || 'free'}</span>
               </div>
             </div>
 
@@ -469,6 +484,14 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
     switch (activeTool) {
       case 'reel':
         return <ReelToolPanel editor={editor} />;
+      case 'composition':
+        return (
+          <CompositionToolPanel
+            contentType={contentType}
+            compositionSettings={editor.compositionSettings}
+            onApplyTemplate={editor.applyCompositionTemplate}
+          />
+        );
       case 'filter':
         return (
           <FilterPanel

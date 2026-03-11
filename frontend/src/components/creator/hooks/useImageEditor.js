@@ -22,6 +22,10 @@ const DEFAULT_REEL_SETTINGS = {
   slowMotionStart: 0,
   slowMotionEnd: 0,
 };
+const DEFAULT_COMPOSITION_SETTINGS = {
+  templateId: 'free',
+  previewFrame: 'clean',
+};
 
 function getCanvasFontFamily(fontFamily) {
   if (fontFamily === 'serif') return 'Georgia, Cambria, "Times New Roman", serif';
@@ -58,6 +62,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
   const [drawingPaths, setDrawingPaths] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [reelSettings, setReelSettings] = useState(DEFAULT_REEL_SETTINGS);
+  const [compositionSettings, setCompositionSettings] = useState(DEFAULT_COMPOSITION_SETTINGS);
   
   // Historial para undo/redo
   const [history, setHistory] = useState([]);
@@ -77,6 +82,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       stickerElements,
       drawingPaths,
       reelSettings,
+      compositionSettings,
     };
     
     setHistory(prev => {
@@ -88,7 +94,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       return newHistory;
     });
     setHistoryIndex(prev => Math.min(prev + 1, MAX_HISTORY_STEPS - 1));
-  }, [drawingPaths, filterIntensity, filterSettings, flipHorizontal, flipVertical, historyIndex, pan, reelSettings, rotation, stickerElements, textElements, zoom]);
+  }, [compositionSettings, drawingPaths, filterIntensity, filterSettings, flipHorizontal, flipVertical, historyIndex, pan, reelSettings, rotation, stickerElements, textElements, zoom]);
 
   // Undo
   const undo = useCallback(() => {
@@ -105,6 +111,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       setStickerElements(state.stickerElements);
       setDrawingPaths(state.drawingPaths);
       setReelSettings(state.reelSettings || DEFAULT_REEL_SETTINGS);
+      setCompositionSettings(state.compositionSettings || DEFAULT_COMPOSITION_SETTINGS);
       setHistoryIndex(prev => prev - 1);
     }
   }, [history, historyIndex]);
@@ -124,6 +131,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       setStickerElements(state.stickerElements);
       setDrawingPaths(state.drawingPaths);
       setReelSettings(state.reelSettings || DEFAULT_REEL_SETTINGS);
+      setCompositionSettings(state.compositionSettings || DEFAULT_COMPOSITION_SETTINGS);
       setHistoryIndex(prev => prev + 1);
     }
   }, [history, historyIndex]);
@@ -252,6 +260,43 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
 
       return next;
     });
+  }, []);
+
+  const applyCompositionTemplate = useCallback((template) => {
+    setCompositionSettings({
+      templateId: template.id,
+      previewFrame: template.previewFrame || 'clean',
+    });
+
+    setTextElements(prev => prev.map((item, index) => {
+      if (index > 0) return item;
+      if (template.id === 'headline') {
+        return { ...item, x: 56, y: 84, textAlign: 'left', scale: 1.06 };
+      }
+      if (template.id === 'footer') {
+        return { ...item, x: 56, y: 1480, textAlign: 'left', hasBackground: true, scale: 1 };
+      }
+      if (template.id === 'product-focus') {
+        return { ...item, x: 56, y: 160, textAlign: 'left', scale: 0.96 };
+      }
+      if (template.id === 'centered') {
+        return { ...item, x: 320, y: 880, textAlign: 'center', scale: 1.04 };
+      }
+      return item;
+    }));
+
+    setStickerElements(prev => prev.map((item, index) => {
+      if (template.id === 'product-focus' && item.type === 'product' && index === 0) {
+        return { ...item, x: 72, y: 1500, scale: 1.05 };
+      }
+      if (template.id === 'footer' && item.type === 'product' && index === 0) {
+        return { ...item, x: 72, y: 1360, scale: 0.96 };
+      }
+      if (template.id === 'centered' && item.type === 'product' && index === 0) {
+        return { ...item, x: 90, y: 1400, scale: 0.96 };
+      }
+      return item;
+    }));
   }, []);
 
   // Añadir texto
@@ -527,6 +572,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       stickerElements,
       drawingPaths,
       reelSettings,
+      compositionSettings,
       timestamp: Date.now(),
     };
     localStorage.setItem('hispaloshop_editor_draft', JSON.stringify(draft));
@@ -544,6 +590,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
       setStickerElements(draft.stickerElements || []);
       setDrawingPaths(draft.drawingPaths || []);
       setReelSettings({ ...DEFAULT_REEL_SETTINGS, ...(draft.reelSettings || {}) });
+      setCompositionSettings({ ...DEFAULT_COMPOSITION_SETTINGS, ...(draft.compositionSettings || {}) });
       return true;
     }
     return false;
@@ -578,6 +625,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     stickerElements,
     drawingPaths,
     reelSettings,
+    compositionSettings,
     isProcessing,
     canUndo: historyIndex > 0,
     canRedo: historyIndex < history.length - 1,
@@ -597,6 +645,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     setPanPosition,
     setReelDuration,
     updateReelSetting,
+    applyCompositionTemplate,
     addText,
     updateText,
     removeText,
