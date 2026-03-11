@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -160,6 +161,7 @@ function CreatePostPanel({ user, onClose, initialFile = null }) {
 export default function BottomNavBar() {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
   const [activePanel, setActivePanel] = useState(null);
@@ -273,10 +275,7 @@ export default function BottomNavBar() {
       toast.success(t('social.published', '¡Publicado con éxito!'));
       handleEditorClose();
       
-      // Recargar feed si estamos en home
-      if (location.pathname === '/') {
-        window.location.reload();
-      }
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Error al publicar');
     }

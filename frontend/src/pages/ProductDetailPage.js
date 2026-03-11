@@ -655,20 +655,20 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Producer/Store Card - Enhanced */}
-              <Link 
-                to={storeInfo ? `/store/${storeInfo.slug}` : '#'}
-                className="block bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md hover:border-stone-300 transition-all cursor-pointer" 
-                data-testid="producer-card"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-medium text-stone-900 flex items-center gap-2">
-                    <Store className="w-4 h-4" />
-                    {t('productDetail.soldBy', 'Vendido por')}
-                  </h3>
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
-                </div>
-                
-                {storeInfo ? (
+              {storeInfo ? (
+                <Link 
+                  to={`/store/${storeInfo.slug}`}
+                  className="block bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md hover:border-stone-300 transition-all cursor-pointer" 
+                  data-testid="producer-card"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium text-stone-900 flex items-center gap-2">
+                      <Store className="w-4 h-4" />
+                      {t('productDetail.soldBy', 'Vendido por')}
+                    </h3>
+                    <ChevronRight className="w-4 h-4 text-stone-400" />
+                  </div>
+                  
                   <div>
                     {/* Store Header */}
                     <div className="flex items-center gap-3 mb-4">
@@ -744,20 +744,29 @@ export default function ProductDetailPage() {
                       }
                     </button>
                   </div>
-                ) : (
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center">
-                        <User className="w-6 h-6 text-stone-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-stone-900">{product.producer_name || 'Hispaloshop'}</h4>
-                        <p className="text-xs text-stone-500">{t('productDetail.verifiedSeller', 'Productor verificado')}</p>
-                      </div>
+                </Link>
+              ) : (
+                <div
+                  className="block rounded-xl border border-stone-200 bg-white p-5 shadow-sm"
+                  data-testid="producer-card"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium text-stone-900 flex items-center gap-2">
+                      <Store className="w-4 h-4" />
+                      {t('productDetail.soldBy', 'Vendido por')}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center">
+                      <User className="w-6 h-6 text-stone-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-stone-900">{product.producer_name || 'Hispaloshop'}</h4>
+                      <p className="text-xs text-stone-500">{t('productDetail.verifiedSeller', 'Productor verificado')}</p>
                     </div>
                   </div>
-                )}
-              </Link>
+                </div>
+              )}
 
               {/* Certificate Link */}
               {certificate && (

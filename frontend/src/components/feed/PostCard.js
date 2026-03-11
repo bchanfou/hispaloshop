@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Bookmark,
   ChevronLeft,
@@ -63,6 +63,7 @@ function ProductTag({ product, t }) {
 
 function PostCard({ post, onLike, onComment, onShare, onSave }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(post.liked || false);
   const [saved, setSaved] = useState(post.saved || false);
   const [likeCount, setLikeCount] = useState(post.likes || 0);
@@ -134,7 +135,12 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
   };
 
   const handleComment = () => {
-    onComment?.();
+    if (onComment) {
+      onComment();
+      return;
+    }
+
+    navigate(`/posts/${post.id}`);
   };
 
   const nextImage = (event) => {
@@ -371,6 +377,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
             <button
               type="button"
               onClick={handleComment}
+              aria-label={t('feed.viewCommentsAria', 'Ver comentarios')}
               className="mt-2 text-sm text-stone-500 transition-colors hover:text-stone-800"
             >
               {t('feed.viewComments', 'Ver los {{count}} comentarios', { count: post.comments })}

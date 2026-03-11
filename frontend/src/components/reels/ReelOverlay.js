@@ -41,7 +41,8 @@ function ReelOverlay({ reel }) {
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 p-4 pt-safe flex items-center justify-between z-20 bg-gradient-to-b from-black/60 to-transparent">
         <button 
-          onClick={() => window.history.back()}
+          onClick={() => navigate(-1)}
+          aria-label="Cerrar reel"
           className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-colors"
         >
           ✕

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Heart,
   MessageCircle,
@@ -32,6 +32,7 @@ function formatPrice(value) {
 
 function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, onShare }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [liked, setLiked] = useState(reel.liked || false);
@@ -94,7 +95,12 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
 
   const handleComment = (event) => {
     event?.stopPropagation?.();
-    onComment?.();
+    if (onComment) {
+      onComment();
+      return;
+    }
+
+    navigate(`/posts/${reel.id}`);
   };
 
   const handleShare = async (event) => {
@@ -215,7 +221,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
           <div className="absolute left-0 right-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/65 to-transparent p-4 pt-safe">
             <button
               type="button"
-              onClick={() => window.history.back()}
+              onClick={() => navigate(-1)}
               aria-label={t('feed.closeReel', 'Cerrar reel')}
               className="flex h-11 w-11 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm"
             >
