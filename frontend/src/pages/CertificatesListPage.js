@@ -82,7 +82,7 @@ export default function CertificatesListPage() {
         {/* Header + Filters */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-1">
-            <Shield className="w-5 h-5 md:w-6 md:h-6 text-green-600 shrink-0" />
+            <Shield className="w-5 h-5 shrink-0 text-stone-950 md:w-6 md:h-6" />
             <h1
               className="font-serif text-xl md:text-3xl font-semibold text-stone-900"
               data-testid="certificates-page-title"
@@ -151,7 +151,7 @@ export default function CertificatesListPage() {
               <Link
                 key={product.product_id}
                 to={`/products/${product.product_id}`}
-                className="group bg-white rounded-xl border border-stone-200 overflow-hidden hover:border-green-300 hover:shadow-md transition-all flex flex-col"
+                className="group flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white transition-all hover:border-stone-950 hover:shadow-md"
                 data-testid={`certificate-item-${product.product_id}`}
               >
                 {/* Square image */}
@@ -159,23 +159,24 @@ export default function CertificatesListPage() {
                   <img
                     src={product.images?.[0] || 'https://images.unsplash.com/photo-1541401154946-62f8d84bd284?w=300'}
                     alt={product.name}
+                    loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {/* Cert count badge */}
                   {product.certifications?.length > 0 && (
-                    <div className="absolute top-2 left-2 flex items-center gap-1 bg-green-600/90 backdrop-blur-sm text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                    <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-stone-950 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
                       <Shield className="w-2.5 h-2.5" />
                       {product.certifications.length}
                     </div>
                   )}
                   <div className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow">
-                    <FileCheck className="w-3 h-3 text-green-600" />
+                    <FileCheck className="w-3 h-3 text-stone-950" />
                   </div>
                 </div>
 
                 {/* Info */}
                 <div className="p-2.5 flex flex-col flex-1 min-w-0">
-                  <h3 className="font-medium text-stone-900 text-xs line-clamp-2 leading-tight group-hover:text-green-700 transition-colors">
+                  <h3 className="line-clamp-2 text-xs font-medium leading-tight text-stone-950 transition-colors group-hover:text-stone-700">
                     {product.name}
                   </h3>
                   <p className="text-[10px] text-stone-500 mt-0.5 truncate">
@@ -183,10 +184,10 @@ export default function CertificatesListPage() {
                   </p>
                   {/* First cert badge */}
                   {product.certifications?.[0] && (
-                    <span className="inline-flex items-center gap-0.5 mt-1.5 px-1.5 py-0.5 bg-green-50 text-green-700 rounded text-[9px] font-medium border border-green-100 truncate self-start max-w-full">
+                    <span className="mt-1.5 inline-flex max-w-full items-center gap-0.5 self-start truncate rounded border border-stone-200 bg-stone-100 px-1.5 py-0.5 text-[9px] font-medium text-stone-700">
                       {product.certifications[0]}
                       {product.certifications.length > 1 && (
-                        <span className="ml-0.5 text-green-500">+{product.certifications.length - 1}</span>
+                        <span className="ml-0.5 text-stone-500">+{product.certifications.length - 1}</span>
                       )}
                     </span>
                   )}
@@ -194,7 +195,7 @@ export default function CertificatesListPage() {
 
                 {/* Arrow */}
                 <div className="px-2.5 pb-2 flex justify-end">
-                  <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-green-600 transition-colors" />
+                  <ChevronRight className="h-3.5 w-3.5 text-stone-400 transition-colors group-hover:text-stone-700" />
                 </div>
               </Link>
             ))}
@@ -212,7 +213,7 @@ export default function CertificatesListPage() {
         {!isLoading && filteredProducts.length > 0 && (
           <div className="mt-4 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-stone-200 text-xs md:text-sm text-stone-600">
-              <Shield className="w-4 h-4 text-green-600" />
+              <Shield className="w-4 h-4 text-stone-950" />
               {t('certificate.allVerified', 'Todos los certificados verificados')}
             </div>
           </div>

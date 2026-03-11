@@ -101,7 +101,7 @@ function ChatContainer() {
                         clearChat();
                         setShowOptions(false);
                       }}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-100"
                     >
                       <Trash2 className="w-4 h-4" />
                       Borrar conversación

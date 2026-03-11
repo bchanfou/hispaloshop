@@ -76,8 +76,8 @@ function ChatInput({ onSend, isLoading }) {
           onClick={toggleVoice}
           className={`p-3 rounded-full transition-colors ${
             isRecording 
-              ? 'bg-red-500 text-white animate-pulse' 
-              : 'bg-stone-100 text-text-muted hover:bg-stone-200'
+              ? 'animate-pulse bg-stone-950 text-white' 
+              : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
           }`}
         >
           <Mic className="w-5 h-5" />
@@ -112,7 +112,7 @@ function ChatInput({ onSend, isLoading }) {
       {/* Recording indicator */}
       {isRecording && (
         <div className="text-center mt-2">
-          <span className="text-xs text-red-500 animate-pulse">
+          <span className="animate-pulse text-xs text-stone-700">
             Escuchando... (habla ahora)
           </span>
         </div>

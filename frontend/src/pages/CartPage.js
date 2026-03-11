@@ -215,7 +215,7 @@ export default function CartPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-stone-50">
         <Header />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <p className="text-stone-500">{t('common.loading')}</p>
@@ -230,7 +230,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-stone-50">
       <Header />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12 pb-32 md:pb-12">
         <div className="hidden md:block">
@@ -244,12 +244,12 @@ export default function CartPage() {
         </h1>
 
         {emailVerified === false && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8" data-testid="verification-banner">
+          <div className="mb-8 rounded-xl border border-stone-200 bg-white p-6" data-testid="verification-banner">
             <div className="flex items-start gap-4">
-              <AlertTriangle className="w-6 h-6 text-amber-600 mt-0.5" />
+              <AlertTriangle className="mt-0.5 h-6 w-6 text-stone-700" />
               <div className="flex-1">
-                <h3 className="font-semibold text-amber-900 mb-2">{t('checkout.verifyEmail')}</h3>
-                <p className="text-amber-800 mb-4">{t('checkout.verifyEmailMessage')} ({user.email})</p>
+                <h3 className="mb-2 font-semibold text-stone-950">{t('checkout.verifyEmail')}</h3>
+                <p className="mb-4 text-stone-500">{t('checkout.verifyEmailMessage')} ({user.email})</p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex gap-2 flex-1">
                     <Input
@@ -259,7 +259,7 @@ export default function CartPage() {
                       className="flex-1 max-w-xs"
                       data-testid="verification-input"
                     />
-                    <Button onClick={handleVerifyEmail} disabled={verifying} className="bg-amber-600 hover:bg-amber-700" data-testid="verify-button">
+                    <Button onClick={handleVerifyEmail} disabled={verifying} data-testid="verify-button">
                       {verifying ? t('checkout.verifying') : t('checkout.verify')}
                     </Button>
                   </div>
@@ -267,7 +267,7 @@ export default function CartPage() {
                     variant="outline"
                     onClick={handleResendVerification}
                     disabled={resending}
-                    className="border-amber-300 text-amber-700"
+                    className="border-stone-200 text-stone-700"
                     data-testid="resend-button"
                   >
                     <Mail className="w-4 h-4 mr-2" />
@@ -280,9 +280,9 @@ export default function CartPage() {
         )}
 
         {emailVerified === true && (
-          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-6 inline-flex items-center gap-2" data-testid="verified-badge">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <span className="text-green-800 font-medium">{t('checkout.emailVerified', 'Email verificado')}</span>
+          <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-4 py-3" data-testid="verified-badge">
+            <CheckCircle className="h-5 w-5 text-stone-950" />
+            <span className="font-medium text-stone-950">{t('checkout.emailVerified', 'Email verificado')}</span>
           </div>
         )}
 
@@ -291,7 +291,7 @@ export default function CartPage() {
         ) : cartItems.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border border-stone-200">
             <p className="text-stone-500 mb-4">{t('cart.empty')}</p>
-            <Button onClick={() => navigate('/products')} className="bg-primary hover:bg-primary-hover">
+            <Button onClick={() => navigate('/products')}>
               {t('cart.continueShopping')}
             </Button>
           </div>
@@ -304,11 +304,11 @@ export default function CartPage() {
                 return (
                   <div
                     key={itemKey}
-                    className={`bg-white rounded-xl border p-3 md:p-6 flex items-start md:items-center gap-3 md:gap-6 ${hasStockIssue ? 'border-red-300 bg-red-50' : 'border-stone-200'}`}
+                    className={`flex items-start gap-3 rounded-xl border bg-white p-3 md:items-center md:gap-6 md:p-6 ${hasStockIssue ? 'border-stone-950 bg-stone-100' : 'border-stone-200'}`}
                     data-testid={`cart-item-${itemKey}`}
                   >
                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-stone-100 overflow-hidden flex-shrink-0">
-                      {item.image && <img src={item.image} alt={item.product_name} className="w-full h-full object-cover" />}
+                      {item.image && <img src={item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-stone-950 text-sm md:text-base line-clamp-2">{item.product_name}</h3>
@@ -322,20 +322,20 @@ export default function CartPage() {
                       <div className="flex items-center justify-between mt-1 md:mt-2">
                         <div>
                           <p className="text-xs md:text-sm text-stone-500">{t('cart.quantity', 'Cantidad')}: {item.quantity}</p>
-                          <p className="text-primary font-bold text-sm md:text-base mt-0.5">
+                          <p className="mt-0.5 text-sm font-bold text-stone-950 md:text-base">
                             {convertAndFormatPrice(item.price * item.quantity, item.currency || 'EUR')}
                           </p>
                         </div>
                         <button
                           onClick={() => handleRemoveItem(item)}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors md:hidden"
+                          className="rounded-lg p-2 text-stone-700 transition-colors hover:bg-stone-100 md:hidden"
                           data-testid={`remove-item-${itemKey}-mobile`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                       {hasStockIssue && (
-                        <div className="flex items-center gap-1 mt-1 text-xs text-red-600">
+                        <div className="mt-1 flex items-center gap-1 text-xs text-stone-700">
                           <AlertCircle className="w-3 h-3" />
                           <span>{stockIssues.find((issue) => issue.product_id === item.product_id)?.message}</span>
                         </div>
@@ -343,7 +343,7 @@ export default function CartPage() {
                     </div>
                     <button
                       onClick={() => handleRemoveItem(item)}
-                      className="hidden md:flex p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="hidden rounded-lg p-2 text-stone-700 transition-colors hover:bg-stone-100 md:flex"
                       data-testid={`remove-item-${itemKey}`}
                     >
                       <Trash2 className="w-5 h-5" />
@@ -364,7 +364,7 @@ export default function CartPage() {
                       <div
                         key={addr.address_id}
                         onClick={() => setSelectedAddressId(addr.address_id)}
-                        className={`cursor-pointer p-3 md:p-4 rounded-lg border-2 transition-all ${selectedAddressId === addr.address_id ? 'border-primary bg-primary/5' : 'border-stone-200 hover:border-stone-300'}`}
+                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all md:p-4 ${selectedAddressId === addr.address_id ? 'border-stone-950 bg-stone-100' : 'border-stone-200 hover:border-stone-950'}`}
                         data-testid={`address-${addr.address_id}`}
                       >
                         <div className="flex items-start justify-between gap-2">
@@ -372,8 +372,8 @@ export default function CartPage() {
                             <div className="flex items-center gap-1.5 md:gap-2 mb-0.5 md:mb-1 flex-wrap">
                               <span className="font-medium text-stone-950 text-sm md:text-base truncate">{addr.name || t('checkout.shippingAddress')}</span>
                               {addr.is_default && (
-                                <span className="text-[10px] md:text-xs bg-primary/10 text-primary px-1.5 md:px-2 py-0.5 rounded whitespace-nowrap">
-                                  {t('checkout.default') || 'Default'}
+                                <span className="whitespace-nowrap rounded bg-stone-100 px-1.5 py-0.5 text-[10px] text-stone-700 md:px-2 md:text-xs">
+                                  {t('checkout.default') || 'Predeterminada'}
                                 </span>
                               )}
                             </div>
@@ -381,7 +381,7 @@ export default function CartPage() {
                             <p className="text-xs md:text-sm text-stone-500 truncate">{addr.street}</p>
                             <p className="text-xs md:text-sm text-stone-500">{addr.city}, {addr.postal_code}</p>
                           </div>
-                          {selectedAddressId === addr.address_id && <Check className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />}
+                          {selectedAddressId === addr.address_id && <Check className="h-4 w-4 flex-shrink-0 text-stone-950 md:h-5 md:w-5" />}
                         </div>
                       </div>
                     ))}
@@ -392,7 +392,7 @@ export default function CartPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowNewAddressForm(true)}
-                    className="w-full border-dashed border-2 hover:border-primary hover:text-primary"
+                    className="w-full border-2 border-dashed border-stone-200 hover:border-stone-950 hover:text-stone-950"
                     data-testid="add-new-address-btn"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -408,9 +408,9 @@ export default function CartPage() {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.fullName')} <span className="text-red-500">*</span></label>
-                        <Input {...registerAddr('full_name')} placeholder={t('checkout.fullName')} className={addrErrors.full_name ? 'border-red-500' : ''} data-testid="new-address-fullname" />
-                        {addrErrors.full_name && <p className="text-red-500 text-xs mt-1">{addrErrors.full_name.message}</p>}
+                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.fullName')} <span className="text-stone-700">*</span></label>
+                        <Input {...registerAddr('full_name')} placeholder={t('checkout.fullName')} className={addrErrors.full_name ? 'border-stone-950' : ''} data-testid="new-address-fullname" />
+                        {addrErrors.full_name && <p className="mt-1 text-xs text-stone-700">{addrErrors.full_name.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('common.phone')}</label>
@@ -418,25 +418,25 @@ export default function CartPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.street')} <span className="text-red-500">*</span></label>
-                      <Input {...registerAddr('street')} placeholder={t('checkout.street')} className={addrErrors.street ? 'border-red-500' : ''} data-testid="new-address-street" />
-                      {addrErrors.street && <p className="text-red-500 text-xs mt-1">{addrErrors.street.message}</p>}
+                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.street')} <span className="text-stone-700">*</span></label>
+                      <Input {...registerAddr('street')} placeholder={t('checkout.street')} className={addrErrors.street ? 'border-stone-950' : ''} data-testid="new-address-street" />
+                      {addrErrors.street && <p className="mt-1 text-xs text-stone-700">{addrErrors.street.message}</p>}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.city')} <span className="text-red-500">*</span></label>
-                        <Input {...registerAddr('city')} placeholder={t('checkout.city')} className={addrErrors.city ? 'border-red-500' : ''} data-testid="new-address-city" />
-                        {addrErrors.city && <p className="text-red-500 text-xs mt-1">{addrErrors.city.message}</p>}
+                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.city')} <span className="text-stone-700">*</span></label>
+                        <Input {...registerAddr('city')} placeholder={t('checkout.city')} className={addrErrors.city ? 'border-stone-950' : ''} data-testid="new-address-city" />
+                        {addrErrors.city && <p className="mt-1 text-xs text-stone-700">{addrErrors.city.message}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.zip')} <span className="text-red-500">*</span></label>
-                        <Input {...registerAddr('postal_code')} placeholder={t('checkout.zip')} className={addrErrors.postal_code ? 'border-red-500' : ''} data-testid="new-address-postal" />
-                        {addrErrors.postal_code && <p className="text-red-500 text-xs mt-1">{addrErrors.postal_code.message}</p>}
+                        <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.zip')} <span className="text-stone-700">*</span></label>
+                        <Input {...registerAddr('postal_code')} placeholder={t('checkout.zip')} className={addrErrors.postal_code ? 'border-stone-950' : ''} data-testid="new-address-postal" />
+                        {addrErrors.postal_code && <p className="mt-1 text-xs text-stone-700">{addrErrors.postal_code.message}</p>}
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.country')} <span className="text-red-500">*</span></label>
-                      <select {...registerAddr('country')} className={`w-full px-4 py-2 rounded-lg border bg-white text-sm ${addrErrors.country ? 'border-red-500' : 'border-stone-200'}`} data-testid="new-address-country">
+                      <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.country')} <span className="text-stone-700">*</span></label>
+                      <select {...registerAddr('country')} className={`w-full rounded-lg border bg-white px-4 py-2 text-sm ${addrErrors.country ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-country">
                         <option value="ES">Espana</option>
                         <option value="PT">Portugal</option>
                         <option value="FR">Francia</option>
@@ -448,14 +448,14 @@ export default function CartPage() {
                         <option value="AR">Argentina</option>
                         <option value="CO">Colombia</option>
                       </select>
-                      {addrErrors.country && <p className="text-red-500 text-xs mt-1">{addrErrors.country.message}</p>}
+                      {addrErrors.country && <p className="mt-1 text-xs text-stone-700">{addrErrors.country.message}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       <input type="checkbox" id="is_default" {...registerAddr('is_default')} className="rounded border-stone-300" />
                       <label htmlFor="is_default" className="text-sm text-stone-500">{t('checkout.setAsDefault') || 'Establecer como predeterminada'}</label>
                     </div>
                     <div className="flex gap-3">
-                      <Button type="submit" disabled={savingAddress} className="flex-1 bg-primary hover:bg-primary-hover" data-testid="save-new-address-btn">
+                      <Button type="submit" disabled={savingAddress} className="flex-1" data-testid="save-new-address-btn">
                         {savingAddress ? t('common.loading') : t('common.save')}
                       </Button>
                       {savedAddresses.length > 0 && (
@@ -483,16 +483,16 @@ export default function CartPage() {
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
                     <Input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 text-sm" data-testid="discount-code-input" />
-                    <Button onClick={handleApplyDiscount} disabled={discountLoading} variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white" data-testid="apply-discount-btn">
+                    <Button onClick={handleApplyDiscount} disabled={discountLoading} variant="outline" className="border-stone-200 text-stone-700 hover:bg-stone-100 hover:text-stone-950" data-testid="apply-discount-btn">
                       {discountLoading ? t('common.loading') : t('cart.apply')}
                     </Button>
                   </div>
                 ) : (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between" data-testid="applied-discount">
+                  <div className="flex items-center justify-between rounded-lg border border-stone-200 bg-stone-100 p-3" data-testid="applied-discount">
                     <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-green-600" />
-                      <span className="text-green-800 font-medium">{appliedDiscount.code}</span>
-                      <span className="text-green-600 text-sm">
+                      <Tag className="h-4 w-4 text-stone-700" />
+                      <span className="font-medium text-stone-950">{appliedDiscount.code}</span>
+                      <span className="text-sm text-stone-700">
                         {appliedDiscount.type === 'percentage'
                           ? `-${appliedDiscount.value}%`
                           : appliedDiscount.type === 'fixed'
@@ -500,7 +500,7 @@ export default function CartPage() {
                             : t('checkout.freeShipping')}
                       </span>
                     </div>
-                    <button onClick={handleRemoveDiscount} className="text-green-600 hover:text-green-800 p-1" data-testid="remove-discount-btn">
+                    <button onClick={handleRemoveDiscount} className="p-1 text-stone-700 hover:text-stone-950" data-testid="remove-discount-btn">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -513,7 +513,7 @@ export default function CartPage() {
                   <span className="text-stone-950">{convertAndFormatPrice((cartSummary.subtotal_cents || Math.round(getTotalPrice() * 100)) / 100, 'EUR')}</span>
                 </div>
                 {appliedDiscount && appliedDiscount.discount_amount > 0 && (
-                  <div className="flex justify-between text-green-600 text-sm md:text-base">
+                  <div className="flex justify-between text-sm text-stone-700 md:text-base">
                     <span>{t('cart.discount')}</span>
                     <span>-{convertAndFormatPrice(appliedDiscount.discount_amount, currency)}</span>
                   </div>
@@ -521,7 +521,7 @@ export default function CartPage() {
                 <div className="flex justify-between text-sm md:text-base">
                   <span className="text-stone-500">{t('checkout.shipping')}</span>
                   <span className="text-stone-950">
-                    {(cartSummary.shipping_cents || 0) > 0 ? convertAndFormatPrice(cartSummary.shipping_cents / 100, 'EUR') : <span className="text-green-600">{t('common.free')}</span>}
+                    {(cartSummary.shipping_cents || 0) > 0 ? convertAndFormatPrice(cartSummary.shipping_cents / 100, 'EUR') : <span className="text-stone-700">{t('common.free')}</span>}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm md:text-base">
@@ -530,7 +530,7 @@ export default function CartPage() {
                 </div>
                 <div className="border-t border-stone-200 pt-2 md:pt-3 flex justify-between">
                   <span className="font-semibold text-stone-950 text-sm md:text-base">{t('cart.total')}</span>
-                  <span className="font-bold text-lg md:text-xl text-primary">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>
+                  <span className="text-lg font-bold text-stone-950 md:text-xl">{convertAndFormatPrice(getDiscountedTotal(), currency)}</span>
                 </div>
                 {currency !== (countries[country]?.currency || 'EUR') && (
                   <div className="text-xs text-stone-500 pt-2 border-t">
@@ -572,9 +572,9 @@ export default function CartPage() {
               </Button>
 
               {!emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Email verification required'}</p>}
-              {stockIssues.length > 0 && <p className="text-xs text-red-500 mt-2 text-center">{t('checkout.stockIssues') || 'Some items have insufficient stock'}</p>}
+              {stockIssues.length > 0 && <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.stockIssues') || 'Algunos productos no tienen stock suficiente'}</p>}
               {!getSelectedAddress() && !showNewAddressForm && emailVerified && stockIssues.length === 0 && (
-                <p className="text-xs text-amber-600 mt-2 text-center">{t('checkout.pleaseSelectAddress') || 'Please select or add a shipping address'}</p>
+                <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.pleaseSelectAddress') || 'Selecciona o añade una dirección de envío'}</p>
               )}
             </div>
           </div>

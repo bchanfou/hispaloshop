@@ -350,6 +350,7 @@ export default function DiscoverPage() {
                     <img
                       src={product.image_url || product.images?.[0] || '/placeholder-product.png'}
                       alt={product.name}
+                      loading="lazy"
                       className="h-36 w-full object-cover sm:h-44"
                     />
                     <div className="p-4">
@@ -412,6 +413,7 @@ export default function DiscoverPage() {
                     <img
                       src={store.logo || store.hero_image || '/placeholder-store.png'}
                       alt={store.name}
+                      loading="lazy"
                       className="h-16 w-16 rounded-2xl object-cover"
                     />
                     <div className="min-w-0 flex-1">
@@ -482,6 +484,7 @@ export default function DiscoverPage() {
                     <img
                       src={recipe.image || '/placeholder-recipe.png'}
                       alt={recipe.name}
+                      loading="lazy"
                       className="h-28 w-full object-cover"
                     />
                     <div className="p-4">

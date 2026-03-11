@@ -320,7 +320,7 @@ export default function ProductsPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1 rounded-2xl text-red-600 hover:bg-red-50 hover:text-red-700"
+                className="gap-1 rounded-2xl text-stone-700 hover:bg-stone-100 hover:text-stone-950"
                 onClick={clearFilters}
               >
                 <X className="h-4 w-4" />

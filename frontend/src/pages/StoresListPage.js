@@ -95,26 +95,27 @@ function StoreCard({ store, isHighlighted }) {
     <Link 
       to={`/store/${store.slug}`}
       className={`bg-white rounded-xl border overflow-hidden hover:shadow-lg transition-all duration-300 group ${
-        isHighlighted ? 'ring-2 ring-amber-500 shadow-lg' : 'border-stone-200'
+        isHighlighted ? 'border-stone-950 shadow-lg ring-2 ring-stone-950' : 'border-stone-200'
       }`}
       data-testid={`store-card-${store.slug}`}
     >
       {/* Hero Image */}
-      <div className="h-24 bg-gradient-to-br from-amber-50 to-stone-100 relative overflow-hidden">
+      <div className="relative h-24 overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100">
         {store.hero_image ? (
           <img 
             src={store.hero_image} 
             alt={store.name}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-amber-100 via-stone-100 to-amber-50" />
+          <div className="h-full w-full bg-gradient-to-br from-stone-100 via-stone-50 to-stone-100" />
         )}
         
         {/* Logo */}
         <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 w-12 h-12 rounded-full border-2 border-white bg-stone-50 overflow-hidden shadow-md flex items-center justify-center">
           {store.logo ? (
-            <img src={store.logo} alt={store.name} className="w-full h-full object-cover" />
+            <img src={store.logo} alt={`Logo de ${store.name}`} loading="lazy" className="w-full h-full object-cover" />
           ) : (
             <Store className="w-5 h-5 text-stone-400" />
           )}
@@ -123,7 +124,7 @@ function StoreCard({ store, isHighlighted }) {
       
       {/* Content */}
       <div className="p-3 pt-8 text-center">
-        <h3 className="font-serif text-sm font-semibold text-stone-900 mb-1 line-clamp-1">
+        <h3 className="mb-1 line-clamp-1 text-sm font-semibold text-stone-950">
           {store.name}
         </h3>
         
@@ -136,8 +137,8 @@ function StoreCard({ store, isHighlighted }) {
         </div>
         
         <div className="flex items-center justify-center gap-1 text-xs">
-          <Star className="w-3 h-3 fill-amber-400 stroke-amber-400" />
-          <span className="font-medium text-stone-800">{store.rating?.toFixed(1) || '0.0'}</span>
+          <Star className="h-3 w-3 fill-stone-950 stroke-stone-950" />
+          <span className="font-medium text-stone-700">{store.rating?.toFixed(1) || '0.0'}</span>
           <span className="text-stone-500">({store.review_count || 0})</span>
         </div>
       </div>
@@ -305,9 +306,9 @@ export default function StoresListPage() {
         <BackButton />
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h1 className="font-serif text-xl md:text-2xl lg:text-3xl font-semibold text-stone-900 mb-0.5 md:mb-1 flex items-center gap-2">
+              <h1 className="mb-0.5 flex items-center gap-2 text-xl font-semibold text-stone-950 md:mb-1 md:text-2xl lg:text-3xl">
                 <span className="truncate">{t('stores.nearYou', 'Tiendas cerca de ti')}</span>
-                <MapPin className="w-5 h-5 md:w-6 md:h-6 text-amber-600 flex-shrink-0" />
+                <MapPin className="h-5 w-5 flex-shrink-0 text-stone-950 md:h-6 md:w-6" />
               </h1>
               <p className="text-stone-600 text-xs md:text-sm hidden sm:block">
                 {t('stores.subtitle', 'Descubre productores locales comprometidos con la calidad')}
@@ -356,13 +357,13 @@ export default function StoresListPage() {
           <Button
             variant="outline"
             onClick={() => setShowFilters(!showFilters)}
-            className={`rounded-full h-10 px-3 border-stone-300 relative ${hasActiveFilters ? 'border-amber-500 bg-amber-50' : ''}`}
+            className={`relative h-10 rounded-full border-stone-200 px-3 ${hasActiveFilters ? 'border-stone-950 bg-stone-100' : ''}`}
             data-testid="mobile-filter-toggle"
           >
             <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             <span className="ml-1">{t('stores.filters', 'Filtros')}</span>
             {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-white text-xs rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-stone-950 text-xs text-white">
                 {activeFilterCount}
               </span>
             )}
@@ -559,7 +560,7 @@ export default function StoresListPage() {
                 </p>
                 {loading ? (
                   <div className="text-center py-8 md:py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto mb-4"></div>
+                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950"></div>
                     <p className="text-stone-500">{t('common.loading', 'Cargando...')}</p>
                   </div>
                 ) : filteredStores.length === 0 ? (
@@ -593,7 +594,7 @@ export default function StoresListPage() {
               
               {loading ? (
                 <div className="text-center py-8 md:py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto mb-4"></div>
+                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950"></div>
                   <p className="text-stone-500">{t('common.loading', 'Cargando...')}</p>
                 </div>
               ) : filteredStores.length === 0 ? (

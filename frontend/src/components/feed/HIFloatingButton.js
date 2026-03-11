@@ -15,7 +15,7 @@ function HIFloatingButton({ onClick, hasNewMessages = false }) {
     >
       <div className="relative">
         {hasNewMessages && (
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-brand-red rounded-full border-2 border-white z-10" />
+          <span className="absolute -top-1 -right-1 z-10 h-3.5 w-3.5 rounded-full border-2 border-white bg-stone-950" />
         )}
 
         <div className="w-12 h-12 bg-stone-950 rounded-full shadow-[0_8px_24px_rgba(15,15,15,0.22)] flex items-center justify-center">

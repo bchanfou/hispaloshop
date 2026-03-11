@@ -203,7 +203,7 @@ export default function StorePage() {
               <div className="flex items-center gap-4">
                 <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-[24px] border border-stone-200 bg-stone-100 md:h-28 md:w-28">
                   {store.logo ? (
-                    <img src={store.logo} alt={store.name} className="h-full w-full object-cover" />
+                    <img src={store.logo} alt={`Logo de ${store.name}`} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
                     <Store className="h-8 w-8 text-stone-400" />
                   )}
