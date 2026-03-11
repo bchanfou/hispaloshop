@@ -1595,46 +1595,140 @@ class HIChatRequest(BaseModel):
 
 _HI_SYSTEM_PROMPTS = {
     "consumer": (
-        "Eres HI Nutrición, nutricionista personal de Hispaloshop. "
-        "Ayudas a los usuarios a descubrir productos alimentarios de calidad, "
+        "Eres HI, el asistente inteligente de Hispaloshop. "
+        "Ayudas a consumidores a descubrir productos alimentarios de calidad, "
         "planificar comidas saludables y tomar decisiones de compra informadas. "
-        "Sé amable, directo y práctico. Responde siempre en español."
+        "También gestionas soporte: incidencias con pedidos, devoluciones, "
+        "productos dañados, entregas tardías y reclamaciones. "
+        "Si el usuario tiene un problema con un pedido o quiere hablar con una persona, "
+        "indícale que su caso quedará registrado y que el equipo lo atenderá en breve. "
+        "Nunca des consejos médicos. Sé amable, directo y práctico. Responde siempre en español."
     ),
     "producer": (
-        "Eres HI Ventas, asistente de ventas para productores de Hispaloshop. "
-        "Ayudas a analizar ventas, optimizar precios, gestionar stock y crear calendarios de contenido. "
-        "Sé profesional y orientado a resultados. Responde siempre en español."
+        "Eres HI Ventas, asistente de negocio premium para productores de Hispaloshop. "
+        "Ayudas a analizar ventas, optimizar precios, mejorar fichas de producto, "
+        "planificar estrategia de exportación y detectar oportunidades de mercado. "
+        "Sé profesional, orientado a resultados y preciso en los datos. Responde siempre en español."
     ),
     "influencer": (
-        "Eres HI Creator, asistente creativo para influencers de Hispaloshop. "
-        "Ayudas a generar ideas de contenido, captions virales, estrategias de redes sociales "
-        "y recomendaciones de productos para promocionar. "
-        "Sé creativo y entusiasta. Responde siempre en español."
+        "Eres HI Creativo, asistente creativo premium de Hispaloshop. "
+        "Ayudas a generar ideas de contenido, redactar captions, crear ganchos para reels, "
+        "diseñar campañas y encontrar ángulos de storytelling para productos alimentarios. "
+        "Sé creativo, entusiasta y auténtico. Evita tópicos y frases genéricas. Responde siempre en español."
     ),
     "importer": (
-        "Eres HI Import, analista de mercado internacional para importadores de Hispaloshop. "
-        "Ayudas a encontrar productores, analizar márgenes, detectar tendencias y gestionar negociaciones B2B. "
-        "Sé analítico y preciso. Responde siempre en español."
+        "Eres HI Ventas para importadores, analista de mercado internacional de Hispaloshop. "
+        "Ayudas a encontrar productores, analizar márgenes, detectar tendencias de mercado "
+        "y asesorar en negociaciones B2B internacionales. "
+        "Sé analítico, preciso y orientado a rentabilidad. Responde siempre en español."
     ),
 }
+
+# ── Access control matrix ──────────────────────────────────────────
+# Maps user role → assistant roles allowed without plan check.
+# PRO/ELITE unlocks "producer" and "influencer" roles for producers/importers.
+_HI_BASE_ACCESS: Dict[str, list] = {
+    "consumer":    ["consumer"],
+    "influencer":  ["consumer", "influencer"],
+    "producer":    ["consumer"],
+    "importer":    ["consumer"],
+    "admin":       ["consumer"],
+    "super_admin": ["consumer"],
+}
+_HI_PREMIUM_ROLES = ["producer", "influencer"]
+
+async def _check_hi_access(user: User, requested_role: str) -> None:
+    """Raise HTTP 403 if user is not permitted to use the requested HI mode."""
+    user_role = (user.role or "consumer").lower()
+    allowed = _HI_BASE_ACCESS.get(user_role, ["consumer"])
+    if requested_role in allowed:
+        return
+
+    if requested_role in _HI_PREMIUM_ROLES and user_role in ("producer", "importer"):
+        user_doc = await db.users.find_one(
+            {"user_id": user.user_id}, {"_id": 0, "subscription": 1}
+        )
+        plan = ((user_doc or {}).get("subscription") or {}).get("plan", "FREE")
+        if plan in ("PRO", "ELITE"):
+            return
+
+    raise HTTPException(
+        status_code=403,
+        detail=f"No tienes acceso al modo solicitado. Actualiza tu plan para desbloquearlo.",
+    )
+
+
+class HISupportCaseRequest(BaseModel):
+    issue_type: str
+    description: str
+    order_id: Optional[str] = None
+    product_id: Optional[str] = None
+
+
+@router.post("/ai/support-case")
+async def create_support_case(req: HISupportCaseRequest, user: User = Depends(get_current_user)):
+    """Register a support case created via HI chat."""
+    case_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
+    case = {
+        "case_id": case_id,
+        "user_id": user.user_id,
+        "issue_type": req.issue_type,
+        "order_id": req.order_id,
+        "product_id": req.product_id,
+        "description": req.description,
+        "status": "abierto",
+        "created_at": now,
+        "updated_at": now,
+        "assigned_to": None,
+        "resolved_at": None,
+    }
+    await db.support_cases.insert_one(case)
+    await db.admin_notifications.insert_one({
+        "notification_id": str(uuid.uuid4()),
+        "type": "support_case",
+        "case_id": case_id,
+        "user_id": user.user_id,
+        "issue_type": req.issue_type,
+        "created_at": now,
+        "read": False,
+    })
+    logger.info("Support case %s created by user %s", case_id, user.user_id)
+    return {"case_id": case_id, "status": "abierto"}
+
+
+@router.get("/ai/support-cases")
+async def get_my_support_cases(user: User = Depends(get_current_user)):
+    """List the current user's support cases."""
+    cases = await db.support_cases.find(
+        {"user_id": user.user_id}, {"_id": 0}
+    ).sort("created_at", -1).limit(20).to_list(20)
+    return cases
+
 
 @router.post("/ai/chat")
 async def hi_chat(req: HIChatRequest, user: User = Depends(get_current_user)):
     try:
         import litellm
 
+        await _check_hi_access(user, req.assistant_role)
+
         system_prompt = _HI_SYSTEM_PROMPTS.get(req.assistant_role, _HI_SYSTEM_PROMPTS["consumer"])
+        # Cap history to last 20 exchanges to keep prompt efficient
         messages_payload = [{"role": "system", "content": system_prompt}] + [
-            {"role": m.role, "content": m.content} for m in req.messages
+            {"role": m.role, "content": m.content} for m in req.messages[-20:]
         ]
 
         response = await litellm.acompletion(
             model="anthropic/claude-haiku-4-5-20251001",
             messages=messages_payload,
             max_tokens=1024,
+            temperature=0.7,
         )
 
         return {"content": response.choices[0].message.content}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"HI chat error: {e}")
         raise HTTPException(status_code=503, detail="El asistente no está disponible ahora")

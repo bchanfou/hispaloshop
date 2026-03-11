@@ -1,14 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export function TypingIndicator({ color = '#2D5A3D' }) {
+export function TypingIndicator() {
   return (
     <div className="flex items-center gap-1 h-5">
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: color }}
+          className="w-1.5 h-1.5 rounded-full bg-stone-400"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.4, 1, 0.4],

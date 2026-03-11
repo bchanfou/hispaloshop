@@ -1,13 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Mic, Paperclip, Image, ShoppingBag, Bookmark } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 function ChatInput({ onSend, isLoading }) {
   const [message, setMessage] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
   const inputRef = useRef(null);
 
-  // Auto-focus on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -15,7 +12,6 @@ function ChatInput({ onSend, isLoading }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!message.trim() || isLoading) return;
-    
     onSend(message);
     setMessage('');
   };
@@ -27,63 +23,9 @@ function ChatInput({ onSend, isLoading }) {
     }
   };
 
-  // Simulated voice input
-  const toggleVoice = () => {
-    if (isRecording) {
-      setIsRecording(false);
-      // Simulate voice transcription
-      setTimeout(() => {
-        setMessage('¿Qué me recomiendas para cenar hoy?');
-      }, 500);
-    } else {
-      setIsRecording(true);
-      // Auto-stop after 5 seconds
-      setTimeout(() => {
-        setIsRecording(false);
-        setMessage('¿Qué me recomiendas para cenar hoy?');
-      }, 3000);
-    }
-  };
-
   return (
     <div className="bg-white border-t border-stone-100 p-3 pb-safe">
-      {/* Quick actions */}
-      <div className="flex gap-3 mb-2 px-1">
-        <button className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-900 transition-colors">
-          <Paperclip className="w-4 h-4" />
-          <span>Adjuntar</span>
-        </button>
-        <button className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-900 transition-colors">
-          <Image className="w-4 h-4" />
-          <span>Foto</span>
-        </button>
-        <button className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-900 transition-colors">
-          <ShoppingBag className="w-4 h-4" />
-          <span>Producto</span>
-        </button>
-        <button className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-900 transition-colors">
-          <Bookmark className="w-4 h-4" />
-          <span>Guardado</span>
-        </button>
-      </div>
-
-      {/* Input field */}
       <form onSubmit={handleSubmit} className="flex items-end gap-2">
-        {/* Voice button */}
-        <motion.button
-          type="button"
-          whileTap={{ scale: 0.9 }}
-          onClick={toggleVoice}
-          className={`p-3 rounded-full transition-colors ${
-            isRecording 
-              ? 'animate-pulse bg-stone-950 text-white' 
-              : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
-          }`}
-        >
-          <Mic className="w-5 h-5" />
-        </motion.button>
-
-        {/* Text input */}
         <div className="flex-1 relative">
           <textarea
             ref={inputRef}
@@ -92,11 +34,9 @@ function ChatInput({ onSend, isLoading }) {
             onKeyDown={handleKeyDown}
             placeholder="Escribe un mensaje..."
             rows={1}
-            className="w-full bg-stone-100 rounded-2xl px-4 py-3 pr-12 text-sm outline-none focus:ring-2 focus:ring-stone-950/10 resize-none max-h-32"
+            className="w-full bg-stone-100 rounded-2xl px-4 py-3 pr-12 text-sm outline-none focus:ring-2 focus:ring-stone-300 resize-none max-h-32"
             style={{ minHeight: '44px' }}
           />
-          
-          {/* Send button inside input */}
           <button
             type="submit"
             disabled={!message.trim() || isLoading}
@@ -108,15 +48,6 @@ function ChatInput({ onSend, isLoading }) {
           </button>
         </div>
       </form>
-
-      {/* Recording indicator */}
-      {isRecording && (
-        <div className="text-center mt-2">
-          <span className="animate-pulse text-xs text-stone-700">
-            Escuchando... (habla ahora)
-          </span>
-        </div>
-      )}
     </div>
   );
 }

@@ -25,7 +25,7 @@ function MessageBubble({ message, roleConfig }) {
   if (isSystem) {
     return (
       <div className="flex justify-center my-3">
-        <span className="px-3 py-1 bg-state-amber/15 text-state-amber text-xs rounded-full">
+        <span className="px-3 py-1 bg-stone-100 text-stone-500 text-xs rounded-full">
           {message.content}
         </span>
       </div>

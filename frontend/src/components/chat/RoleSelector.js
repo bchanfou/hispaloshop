@@ -1,103 +1,101 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { User, TrendingUp, Globe, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, Sparkles, TrendingUp, Wand2, Globe } from 'lucide-react';
+import { ROLE_CONFIG } from './useHIChat';
 
-const ROLES = [
-  { id: 'consumer', name: 'Nutrición', icon: User, color: 'var(--color-accent)', description: 'Tu nutricionista personal' },
-  { id: 'producer', name: 'Ventas', icon: TrendingUp, color: 'var(--color-warning)', description: 'Asistente de ventas' },
-  { id: 'importer', name: 'Import', icon: Globe, color: '#2563EB', description: 'Analista de mercado' },
-  { id: 'influencer', name: 'Creator', icon: Sparkles, color: '#9333EA', description: 'Creativo de contenido' },
-];
+const ROLE_META = {
+  consumer:   { icon: Sparkles,  label: 'HI AI',       badge: null },
+  producer:   { icon: TrendingUp, label: 'HI Ventas',  badge: 'PRO' },
+  influencer: { icon: Wand2,     label: 'HI Creativo', badge: 'PRO' },
+  importer:   { icon: Globe,     label: 'HI Ventas',   badge: 'PRO' },
+};
 
-function RoleSelector({ activeRole, onSwitch, isOpen, onClose }) {
+function RoleSelector({ activeRole, onSwitch, isOpen, onClose, availableRoles }) {
   if (!isOpen) return null;
 
   return (
-    <>
-      {/* Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="fixed inset-0 bg-black/50 z-50"
-      />
-
-      {/* Modal */}
-      <motion.div
-        initial={{ y: '100%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '100%' }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl p-6"
-      >
-        <div className="flex justify-center mb-4">
-          <div className="w-10 h-1 bg-stone-300 rounded-full" />
-        </div>
-
-        <h2 className="text-lg font-bold text-gray-900 mb-2">
-          Cambiar modo HI
-        </h2>
-        <p className="text-sm text-text-muted mb-6">
-          Selecciona cómo quieres usar HI según lo que necesites ahora
-        </p>
-
-        <div className="space-y-3">
-          {ROLES.map((role) => {
-            const Icon = role.icon;
-            const isActive = activeRole === role.id;
-
-            return (
-              <motion.button
-                key={role.id}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  onSwitch(role.id);
-                  onClose();
-                }}
-                className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
-                  isActive 
-                    ? 'ring-2' 
-                    : 'bg-stone-50 hover:bg-stone-100'
-                }`}
-                style={{
-                  backgroundColor: isActive ? role.color + '10' : undefined,
-                  ringColor: isActive ? role.color : undefined,
-                }}
-              >
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: role.color + '20' }}
-                >
-                  <Icon className="w-6 h-6" style={{ color: role.color }} />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="font-semibold text-gray-900">{role.name}</p>
-                  <p className="text-sm text-text-muted">{role.description}</p>
-                </div>
-                {isActive && (
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: role.color }}
-                  >
-                    <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>
-                  </div>
-                )}
-              </motion.button>
-            );
-          })}
-        </div>
-
-        <button
+    <AnimatePresence>
+      <>
+        <motion.div
+          key="backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           onClick={onClose}
-          className="w-full mt-6 py-3 text-text-muted font-medium"
+          className="fixed inset-0 z-50 bg-black/40"
+        />
+
+        <motion.div
+          key="sheet"
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          exit={{ y: '100%' }}
+          transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+          className="fixed inset-x-0 bottom-0 z-50 rounded-t-[28px] bg-white px-5 pb-10 pt-4"
         >
-          Cancelar
-        </button>
-      </motion.div>
-    </>
+          <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-stone-200" />
+
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-stone-400">
+            Modo HI
+          </p>
+          <h2 className="text-xl font-semibold text-stone-950">Cambiar asistente</h2>
+          <p className="mt-1 mb-6 text-sm text-stone-500">
+            Selecciona el modo según lo que necesites ahora.
+          </p>
+
+          <div className="space-y-2.5">
+            {(availableRoles || ['consumer']).map((roleId) => {
+              const meta = ROLE_META[roleId] || ROLE_META.consumer;
+              const config = ROLE_CONFIG[roleId] || ROLE_CONFIG.consumer;
+              const Icon = meta.icon;
+              const isActive = activeRole === roleId;
+
+              return (
+                <button
+                  key={roleId}
+                  type="button"
+                  onClick={() => {
+                    onSwitch(roleId);
+                    onClose();
+                  }}
+                  className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-3.5 text-left transition-all duration-150 ${
+                    isActive
+                      ? 'border-stone-950 bg-stone-50'
+                      : 'border-stone-100 bg-white hover:border-stone-200 hover:bg-stone-50'
+                  }`}
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100">
+                    <Icon className="h-5 w-5 text-stone-700" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-stone-950">{meta.label}</p>
+                      {meta.badge ? (
+                        <span className="rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
+                          {meta.badge}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-0.5 text-xs text-stone-500">{config.description}</p>
+                  </div>
+                  {isActive ? (
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-stone-950" />
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="mt-6 w-full rounded-full border border-stone-200 py-3 text-sm font-medium text-stone-500 transition-colors hover:bg-stone-50"
+          >
+            Cancelar
+          </button>
+        </motion.div>
+      </>
+    </AnimatePresence>
   );
 }
 
