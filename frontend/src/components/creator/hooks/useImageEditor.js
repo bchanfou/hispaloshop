@@ -164,6 +164,32 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     }
   }, [currentImageIndex]);
 
+  const moveImage = useCallback((fromIndex, toIndex) => {
+    setImages((prev) => {
+      if (
+        fromIndex < 0 ||
+        toIndex < 0 ||
+        fromIndex >= prev.length ||
+        toIndex >= prev.length ||
+        fromIndex === toIndex
+      ) {
+        return prev;
+      }
+
+      const next = [...prev];
+      const [movedItem] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, movedItem);
+      return next;
+    });
+
+    setCurrentImageIndex((prev) => {
+      if (prev === fromIndex) return toIndex;
+      if (fromIndex < toIndex && prev > fromIndex && prev <= toIndex) return prev - 1;
+      if (toIndex < fromIndex && prev >= toIndex && prev < fromIndex) return prev + 1;
+      return prev;
+    });
+  }, []);
+
   // Cambiar imagen actual
   const setCurrentImage = useCallback((index) => {
     setCurrentImageIndex(index);
@@ -683,6 +709,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     // Actions
     addImage,
     removeImage,
+    moveImage,
     setCurrentImage,
     updateFilterSetting,
     applyPredefinedFilter,

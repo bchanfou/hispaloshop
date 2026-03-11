@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ChevronDown, Trash2 } from 'lucide-react';
+import { ArrowLeft, ChevronDown, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useHIChat, getTimeGreeting } from './useHIChat';
 import MessageBubble from './MessageBubble';
@@ -10,23 +10,19 @@ import ChatInput from './ChatInput';
 import RoleSelector from './RoleSelector';
 import { TypingIndicator } from './TypingIndicator';
 
-// ── Status dot ───────────────────────────────────────────────────
 function StatusDot({ active }) {
   return (
-    <span className="relative flex h-2 w-2">
-      {active && (
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-      )}
-      <span className={`relative inline-flex rounded-full h-2 w-2 ${active ? 'bg-emerald-400' : 'bg-stone-500'}`} />
+    <span className="relative flex h-2.5 w-2.5">
+      {active ? <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /> : null}
+      <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${active ? 'bg-emerald-400' : 'bg-stone-500'}`} />
     </span>
   );
 }
 
-// ── Welcome screen ───────────────────────────────────────────────
 function WelcomeScreen({ user, roleConfig, suggestions, onSuggestionClick }) {
-  const greeting   = getTimeGreeting();
-  const firstName  = user?.name?.split(' ')[0] || null;
-  const roleName   = roleConfig?.name || 'Hispal AI';
+  const greeting = getTimeGreeting();
+  const firstName = user?.name?.split(' ')[0] || null;
+  const roleName = roleConfig?.name || 'Hispal AI';
 
   return (
     <motion.div
@@ -34,54 +30,49 @@ function WelcomeScreen({ user, roleConfig, suggestions, onSuggestionClick }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col items-center px-6 pt-12 pb-6"
+      className="flex flex-col items-start px-1 pb-6 pt-10"
     >
-      {/* Avatar */}
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.05, type: 'spring', stiffness: 280, damping: 22 }}
-        className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center mb-5 shadow-md"
+        className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-stone-950 shadow-[0_12px_32px_rgba(15,15,15,0.14)]"
       >
-        <span className="text-white font-bold text-lg tracking-tight">HA</span>
+        <span className="text-base font-semibold tracking-tight text-white">HA</span>
       </motion.div>
 
-      {/* Greeting */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="text-center mb-8"
+        className="mb-7"
       >
-        <h2 className="text-2xl font-semibold text-stone-950 mb-2">
-          {greeting}{firstName ? `, ${firstName}` : ''}.
+        <p className="mb-2 text-sm font-medium text-stone-500">{roleName}</p>
+        <h2 className="mb-2 text-[30px] font-semibold leading-[1.08] tracking-tight text-stone-950">
+          {greeting}
+          {firstName ? `, ${firstName}` : ''}.
         </h2>
-        <p className="text-stone-500 text-sm leading-relaxed max-w-xs">
-          Soy <span className="font-semibold text-stone-800">{roleName}</span>.
-          {' '}¿En qué puedo ayudarte hoy?
-        </p>
+        <p className="max-w-sm text-base leading-7 text-stone-500">¿Qué necesitas ahora?</p>
       </motion.div>
 
-      {/* 2×2 suggestion grid */}
-      {suggestions && suggestions.length > 0 && (
+      {suggestions?.length ? (
         <SuggestionChips
           suggestions={suggestions}
           onSelect={onSuggestionClick}
           isEmpty
         />
-      )}
+      ) : null}
     </motion.div>
   );
 }
 
-// ── Clear confirmation modal ─────────────────────────────────────
 function ClearConfirmModal({ onConfirm, onCancel }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px] flex items-end justify-center"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-blur-[2px]"
       onClick={onCancel}
     >
       <motion.div
@@ -90,22 +81,20 @@ function ClearConfirmModal({ onConfirm, onCancel }) {
         exit={{ y: 60, opacity: 0 }}
         transition={{ type: 'spring', damping: 28, stiffness: 320 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm mx-4 mb-6 bg-white rounded-3xl p-6 shadow-xl"
+        className="mx-4 mb-6 w-full max-w-sm rounded-[32px] bg-white p-6 shadow-[0_25px_60px_rgba(15,15,15,0.18)]"
       >
-        <p className="text-base font-semibold text-stone-950 mb-1">¿Borrar conversación?</p>
-        <p className="text-sm text-stone-500 mb-6">
-          Se eliminarán todos los mensajes de esta sesión. Esta acción no se puede deshacer.
-        </p>
+        <p className="mb-1 text-base font-semibold text-stone-950">¿Borrar conversación?</p>
+        <p className="mb-6 text-sm text-stone-500">Se eliminarán todos los mensajes de esta sesión.</p>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 py-3 rounded-full border border-stone-200 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors"
+            className="flex-1 rounded-full border border-stone-200 py-3 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-3 rounded-full bg-stone-950 text-sm font-medium text-white hover:bg-stone-800 transition-colors"
+            className="flex-1 rounded-full bg-stone-950 py-3 text-sm font-medium text-white transition-colors hover:bg-stone-800"
           >
             Borrar
           </button>
@@ -115,18 +104,16 @@ function ClearConfirmModal({ onConfirm, onCancel }) {
   );
 }
 
-// ── Main container ───────────────────────────────────────────────
 function ChatContainer() {
   const navigate = useNavigate();
-  const { user }  = useAuth();
-
-  const messagesEndRef    = useRef(null);
+  const { user } = useAuth();
+  const messagesEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
-  const [showRoleSelector,   setShowRoleSelector]   = useState(false);
-  const [showClearConfirm,   setShowClearConfirm]   = useState(false);
-  const [showScrollDown,     setShowScrollDown]     = useState(false);
-  const [roleConfirmMsg,     setRoleConfirmMsg]      = useState(null);
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showScrollDown, setShowScrollDown] = useState(false);
+  const [showActions, setShowActions] = useState(false);
 
   const {
     activeRole,
@@ -141,11 +128,9 @@ function ChatContainer() {
     availableRoles,
   } = useHIChat();
 
-  // Detect welcome state — only the initial assistant message, no user messages yet
   const hasUserMessages = messages.some((m) => m.role === 'user');
-  const isWelcomeState  = !hasUserMessages;
+  const isWelcomeState = !hasUserMessages;
 
-  // Scroll to bottom
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
@@ -154,7 +139,6 @@ function ChatContainer() {
     if (!showScrollDown) scrollToBottom();
   }, [messages, isLoading, showScrollDown, scrollToBottom]);
 
-  // Detect scroll position for the scroll-down button
   const handleScroll = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
@@ -162,105 +146,105 @@ function ChatContainer() {
     setShowScrollDown(distanceFromBottom > 100);
   }, []);
 
-  const handleSend = async (content) => {
-    await sendMessage(content);
-  };
-
   const handleSuggestionClick = async (suggestion) => {
     await useSuggestion(suggestion);
   };
 
   const handleSwitchRole = (newRole) => {
     switchRole(newRole);
-    const config = { consumer: 'Hispal AI', producer: 'Hispal Ventas', influencer: 'Hispal Creativo', importer: 'Hispal Ventas' };
-    const name = config[newRole] || 'Hispal AI';
-    setRoleConfirmMsg(`Ahora hablas con ${name}`);
-    setTimeout(() => setRoleConfirmMsg(null), 2800);
+    setShowActions(false);
   };
 
-  const handleClearConfirm = () => {
-    clearChat();
-    setShowClearConfirm(false);
-  };
-
-  // Compute isFirstInGroup for each message
   const enrichedMessages = messages.map((msg, i) => ({
     ...msg,
     isFirstInGroup: i === 0 || messages[i - 1].role !== msg.role,
   }));
 
   return (
-    <div className="flex flex-col h-screen bg-stone-50 overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden bg-[linear-gradient(180deg,#f7f4ef_0%,#f3f0ea_100%)]">
+      <div className="sticky top-0 z-20 border-b border-stone-200/80 bg-[rgba(247,244,239,0.82)] backdrop-blur-xl">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3.5">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              aria-label="Volver"
+              className="-ml-2 rounded-full p-2 transition-colors hover:bg-white/70"
+            >
+              <ArrowLeft className="h-5 w-5 text-stone-900" />
+            </button>
 
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-stone-800 bg-stone-950 sticky top-0 z-10">
-        {/* Left: back + identity */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            aria-label="Volver"
-            className="p-2 -ml-2 hover:bg-stone-800 rounded-full transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-
-          <div className="flex items-center gap-2.5">
-            {/* HA Avatar small */}
-            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
-              <span className="text-white font-semibold text-[11px] tracking-tight">HA</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="font-semibold text-white text-sm">Hispal AI</h1>
-                <StatusDot active={!isLoading} />
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 shadow-[0_10px_24px_rgba(15,15,15,0.12)]">
+                <span className="text-[11px] font-semibold tracking-tight text-white">HA</span>
               </div>
-              <p className="text-[11px] text-white/50">{roleConfig.name}</p>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-[15px] font-semibold text-stone-950">Hispal AI</h1>
+                  <StatusDot active={!isLoading} />
+                </div>
+                <p className="text-xs text-stone-500">{roleConfig.name}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Right: role pill + options */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowRoleSelector(true)}
-            className="px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 text-white/80 hover:bg-white/20 transition-colors"
-          >
-            Cambiar modo
-          </button>
-          <button
-            onClick={() => setShowClearConfirm(true)}
-            aria-label="Borrar conversación"
-            className="p-2 hover:bg-stone-800 rounded-full transition-colors"
-          >
-            <Trash2 className="w-4 h-4 text-white/60 hover:text-white/90" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowActions((value) => !value)}
+              aria-label="Opciones del chat"
+              className="rounded-full p-2 transition-colors hover:bg-white/70"
+            >
+              <MoreHorizontal className="h-5 w-5 text-stone-700" />
+            </button>
+
+            <AnimatePresence>
+              {showActions ? (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowActions(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                    className="absolute right-0 top-full z-20 mt-2 w-48 overflow-hidden rounded-[22px] border border-stone-200 bg-white shadow-[0_18px_40px_rgba(15,15,15,0.14)]"
+                  >
+                    <button
+                      onClick={() => {
+                        setShowRoleSelector(true);
+                        setShowActions(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                    >
+                      Cambiar modo
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowClearConfirm(true);
+                        setShowActions(false);
+                      }}
+                      className="flex w-full items-center gap-2 border-t border-stone-100 px-4 py-3 text-left text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Borrar chat
+                    </button>
+                  </motion.div>
+                </>
+              ) : null}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
-      {/* ── Role switch confirmation chip ───────────────────────── */}
-      <AnimatePresence>
-        {roleConfirmMsg && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="flex justify-center pt-2 px-4 absolute top-16 left-0 right-0 z-20"
-          >
-            <span className="px-4 py-1.5 bg-stone-950 text-white text-xs rounded-full shadow-lg">
-              {roleConfirmMsg}
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Messages area ───────────────────────────────────────── */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto"
       >
-        <div className="max-w-3xl mx-auto px-4 pb-4">
-
+        <div className="mx-auto max-w-3xl px-4 pb-6 pt-2">
           <AnimatePresence mode="wait">
             {isWelcomeState ? (
               <WelcomeScreen
@@ -272,18 +256,16 @@ function ChatContainer() {
               />
             ) : (
               <motion.div key="conversation" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                {/* Date separator — simple "Hoy" */}
-                <div className="flex items-center gap-3 my-4">
-                  <div className="flex-1 h-px bg-stone-200" />
-                  <span className="text-[11px] text-stone-400 font-medium">Hoy</span>
-                  <div className="flex-1 h-px bg-stone-200" />
+                <div className="my-5 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-stone-200/80" />
+                  <span className="text-[11px] font-medium text-stone-400">Hoy</span>
+                  <div className="h-px flex-1 bg-stone-200/80" />
                 </div>
 
                 {enrichedMessages.map((message) => (
                   <MessageBubble
                     key={message.id}
                     message={message}
-                    roleConfig={roleConfig}
                     isFirstInGroup={message.isFirstInGroup}
                   />
                 ))}
@@ -291,53 +273,52 @@ function ChatContainer() {
             )}
           </AnimatePresence>
 
-          {/* Typing indicator */}
-          {isLoading && <TypingIndicator roleConfig={roleConfig} />}
-
+          {isLoading ? <TypingIndicator /> : null}
           <div ref={messagesEndRef} />
         </div>
       </div>
 
-      {/* ── Scroll-to-bottom button ─────────────────────────────── */}
       <AnimatePresence>
-        {showScrollDown && (
+        {showScrollDown ? (
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            onClick={() => { scrollToBottom(); setShowScrollDown(false); }}
-            className="absolute bottom-32 right-4 z-20 w-9 h-9 rounded-full bg-stone-950 shadow-lg flex items-center justify-center"
+            onClick={() => {
+              scrollToBottom();
+              setShowScrollDown(false);
+            }}
+            className="absolute bottom-28 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 shadow-[0_14px_28px_rgba(15,15,15,0.2)]"
             aria-label="Ir al final"
           >
-            <ChevronDown className="w-5 h-5 text-white" />
+            <ChevronDown className="h-5 w-5 text-white" />
           </motion.button>
-        )}
+        ) : null}
       </AnimatePresence>
 
-      {/* ── Suggestion chips (conversation mode) ────────────────── */}
       <AnimatePresence>
-        {suggestions.length > 0 && !isLoading && !isWelcomeState && (
+        {suggestions.length > 0 && !isLoading && !isWelcomeState ? (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="bg-white border-t border-stone-100 py-2.5"
+            className="border-t border-stone-200/80 bg-[rgba(247,244,239,0.82)] py-3 backdrop-blur-xl"
           >
-            <SuggestionChips
-              suggestions={suggestions}
-              onSelect={handleSuggestionClick}
-              isEmpty={false}
-            />
+            <div className="mx-auto max-w-3xl px-4">
+              <SuggestionChips
+                suggestions={suggestions}
+                onSelect={handleSuggestionClick}
+                isEmpty={false}
+              />
+            </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
 
-      {/* ── Input ───────────────────────────────────────────────── */}
-      <ChatInput onSend={handleSend} isLoading={isLoading} />
+      <ChatInput onSend={sendMessage} isLoading={isLoading} />
 
-      {/* ── Role Selector bottom sheet ──────────────────────────── */}
       <AnimatePresence>
-        {showRoleSelector && (
+        {showRoleSelector ? (
           <RoleSelector
             activeRole={activeRole}
             onSwitch={handleSwitchRole}
@@ -345,17 +326,19 @@ function ChatContainer() {
             onClose={() => setShowRoleSelector(false)}
             availableRoles={availableRoles}
           />
-        )}
+        ) : null}
       </AnimatePresence>
 
-      {/* ── Clear confirmation ──────────────────────────────────── */}
       <AnimatePresence>
-        {showClearConfirm && (
+        {showClearConfirm ? (
           <ClearConfirmModal
-            onConfirm={handleClearConfirm}
+            onConfirm={() => {
+              clearChat();
+              setShowClearConfirm(false);
+            }}
             onCancel={() => setShowClearConfirm(false)}
           />
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

@@ -148,6 +148,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
 
   const productPrice = formatPrice(reel.productTag?.price);
   const reelAuthor = reel.user?.name || reel.user_name || t('common.user', 'Usuario');
+  const authorProfileId = reel.user?.id || reel.user_id || reel.author_id || reel.authorId || null;
 
   if (isInFeed) {
     return (
@@ -245,8 +246,13 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
 
           <div className="absolute bottom-24 right-3 flex flex-col items-center gap-4">
             <Link
-              to={`/user/${reel.user?.id}`}
-              className="flex flex-col items-center gap-1"
+              to={authorProfileId ? `/user/${authorProfileId}` : '#'}
+              onClick={(event) => {
+                if (!authorProfileId) {
+                  event.preventDefault();
+                }
+              }}
+              className={`flex flex-col items-center gap-1 ${authorProfileId ? '' : 'pointer-events-none'}`}
               aria-label={t('feed.openAuthorProfile', 'Abrir perfil de {{author}}', { author: reelAuthor })}
             >
               <img
@@ -303,7 +309,15 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
 
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pb-safe">
             <div className="pr-16">
-              <Link to={`/user/${reel.user?.id}`} className="text-sm font-semibold text-white">
+              <Link
+                to={authorProfileId ? `/user/${authorProfileId}` : '#'}
+                onClick={(event) => {
+                  if (!authorProfileId) {
+                    event.preventDefault();
+                  }
+                }}
+                className={`text-sm font-semibold text-white ${authorProfileId ? '' : 'pointer-events-none'}`}
+              >
                 @{reelAuthor}
               </Link>
               <p className="mt-2 line-clamp-2 text-sm text-white/90">{reel.caption}</p>

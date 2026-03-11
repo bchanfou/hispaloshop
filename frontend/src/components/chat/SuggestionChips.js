@@ -1,20 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-/**
- * SuggestionChips
- *
- * isEmpty=true  → 2×2 card grid for the welcome screen
- * isEmpty=false → horizontal scrolling compact chips during conversation
- */
 function SuggestionChips({ suggestions, onSelect, isEmpty = false }) {
   if (!suggestions || suggestions.length === 0) return null;
 
-  // ── Welcome state: 2×2 grid of cards ──────────────────────────
   if (isEmpty) {
-    const items = suggestions.slice(0, 4);
+    const items = suggestions.slice(0, 3);
+
     return (
-      <div className="grid grid-cols-2 gap-3 w-full">
+      <div className="flex w-full gap-3 overflow-x-auto pb-1 scrollbar-hide">
         {items.map((suggestion, index) => (
           <motion.button
             key={suggestion.id}
@@ -23,22 +17,19 @@ function SuggestionChips({ suggestions, onSelect, isEmpty = false }) {
             transition={{ delay: index * 0.07, duration: 0.2 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => onSelect(suggestion)}
-            className="flex flex-col items-start gap-2 p-4 rounded-2xl bg-white border border-stone-200 hover:border-stone-400 hover:shadow-sm transition-all text-left group"
+            className="flex min-w-[172px] flex-shrink-0 flex-col items-start gap-3 rounded-[24px] border border-stone-200 bg-white px-4 py-4 text-left shadow-[0_10px_24px_rgba(30,25,20,0.05)] transition-all hover:border-stone-300 hover:bg-stone-50"
           >
-            <span className="text-xl leading-none">{suggestion.emoji || '✨'}</span>
-            <span className="text-sm font-medium text-stone-800 leading-snug">
-              {suggestion.label}
-            </span>
+            <span className="text-lg leading-none">{suggestion.emoji || 'AI'}</span>
+            <span className="text-sm font-medium leading-snug text-stone-900">{suggestion.label}</span>
           </motion.button>
         ))}
       </div>
     );
   }
 
-  // ── Conversation state: compact horizontal chips ───────────────
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide px-4">
-      {suggestions.map((suggestion, index) => (
+    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      {suggestions.slice(0, 3).map((suggestion, index) => (
         <motion.button
           key={suggestion.id}
           initial={{ opacity: 0, scale: 0.9 }}
@@ -46,11 +37,9 @@ function SuggestionChips({ suggestions, onSelect, isEmpty = false }) {
           transition={{ delay: index * 0.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onSelect(suggestion)}
-          className="flex-shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-white border border-stone-200 text-stone-700 hover:border-stone-400 hover:bg-stone-50 transition-colors"
+          className="flex flex-shrink-0 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50"
         >
-          {suggestion.emoji && (
-            <span className="text-base leading-none">{suggestion.emoji}</span>
-          )}
+          {suggestion.emoji ? <span className="text-sm leading-none">{suggestion.emoji}</span> : null}
           {suggestion.label}
         </motion.button>
       ))}

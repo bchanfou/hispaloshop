@@ -81,6 +81,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
   const authorVerified = post.user?.verified || post.user_verified;
   const currentImageUrl = images[currentImageIndex]?.url;
   const postUrl = `${window.location.origin}/posts/${post.id}`;
+  const authorProfileId = post.user?.id || post.user_id || post.author_id || post.authorId || null;
 
   const handleImageTap = () => {
     const now = Date.now();
@@ -176,8 +177,13 @@ function PostCard({ post, onLike, onComment, onShare, onSave }) {
       <div className="mx-auto max-w-3xl">
         <div className="flex items-center justify-between px-4 py-3">
           <Link
-            to={`/user/${post.user?.id || post.user_id}`}
-            className="flex min-w-0 items-center gap-3"
+            to={authorProfileId ? `/user/${authorProfileId}` : '#'}
+            onClick={(event) => {
+              if (!authorProfileId) {
+                event.preventDefault();
+              }
+            }}
+            className={`flex min-w-0 items-center gap-3 ${authorProfileId ? '' : 'pointer-events-none'}`}
             aria-label={t('feed.openAuthorProfile', 'Abrir perfil de {{author}}', { author: authorName })}
           >
             <div className="h-10 w-10 overflow-hidden rounded-full border border-stone-200 bg-stone-100">

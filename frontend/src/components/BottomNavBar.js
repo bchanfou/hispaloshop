@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2, Search } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { API } from '../utils/api';
 import InternalChat from './InternalChat';
 import ContentTypeSelector from './creator/ContentTypeSelector';
 import AdvancedEditor from './creator/editor/AdvancedEditor';
+import { publishSocialContent } from './creator/publishContent';
 import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
@@ -20,6 +21,7 @@ const HIDDEN_ON_PATHS = [
   '/signup', '/vender/registro', '/vender/login', '/productor/registro', '/influencers/registro', '/influencers/login',
   '/influencer/aplicar', '/influencers/aplicar',
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
+  '/chat',
 ];
 const HIDDEN_ON_PREFIXES = [
   '/admin',
@@ -334,6 +336,19 @@ export default function BottomNavBar() {
     if (galleryRef.current) galleryRef.current.value = '';
   };
 
+  const getFilesForContentType = (contentTypeId, files) => {
+    if (contentTypeId === 'reel') {
+      const firstVideo = files.find((file) => file.type.startsWith('video/'));
+      return firstVideo ? [firstVideo] : [];
+    }
+
+    const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+    if (contentTypeId === 'story') {
+      return imageFiles.slice(0, 1);
+    }
+    return imageFiles.slice(0, 10);
+  };
+
   const handlePostButton = () => {
     if (!user) {
       navigate('/login');
@@ -348,7 +363,21 @@ export default function BottomNavBar() {
   };
 
   const handleContentTypeSelect = (contentType) => {
+    const normalizedFiles = getFilesForContentType(contentType.id, selectedFiles);
+
+    if (selectedFiles.length > 0 && normalizedFiles.length === 0) {
+      toast.error(
+        contentType.id === 'reel'
+          ? 'Elige un video'
+          : contentType.id === 'story'
+            ? 'Elige una imagen'
+            : 'Elige al menos una imagen'
+      );
+      return;
+    }
+
     setSelectedContentType(contentType.id);
+    setSelectedFiles(normalizedFiles);
     setShowContentTypeSelector(false);
     setShowAdvancedEditor(true);
   };
@@ -362,64 +391,7 @@ export default function BottomNavBar() {
 
   const handlePublish = async (publishData) => {
     try {
-      const fd = new FormData();
-      const normalizedTags = normalizeTaggedProducts(publishData.taggedProducts, publishData.aspectRatio);
-      const primaryProductId = normalizedTags[0]?.product_id;
-      
-      if (publishData.contentType === 'reel') {
-        if (!publishData.sourceFile) {
-          throw new Error('Missing reel source file');
-        }
-        fd.append('file', publishData.sourceFile);
-        fd.append('caption', publishData.caption);
-        fd.append('location', publishData.location || '');
-        fd.append('cover_frame_seconds', String(publishData.reelSettings?.coverFrameSeconds || 0));
-        fd.append('trim_start_seconds', String(publishData.reelSettings?.trimStart || 0));
-        fd.append('trim_end_seconds', String(publishData.reelSettings?.trimEnd || 0));
-        fd.append('playback_rate', String(publishData.reelSettings?.playbackRate || 1));
-        fd.append('muted', String(Boolean(publishData.reelSettings?.isMuted)));
-        fd.append('slow_motion_enabled', String(Boolean(publishData.reelSettings?.slowMotionEnabled)));
-        fd.append('slow_motion_start', String(publishData.reelSettings?.slowMotionStart || 0));
-        fd.append('slow_motion_end', String(publishData.reelSettings?.slowMotionEnd || 0));
-        if (primaryProductId) {
-          fd.append('product_id', primaryProductId);
-        }
-        if (normalizedTags.length > 0) {
-          fd.append('tagged_products_json', JSON.stringify(normalizedTags));
-        }
-        await axios.post(`${API}/reels`, fd, { 
-          withCredentials: true, 
-          headers: { 'Content-Type': 'multipart/form-data' } 
-        });
-      } else if (publishData.contentType === 'story') {
-        const base64Response = await fetch(publishData.imageData);
-        const blob = await base64Response.blob();
-        const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
-        fd.append('file', file);
-        fd.append('caption', publishData.caption);
-        fd.append('location', publishData.location || '');
-        await axios.post(`${API}/stories`, fd, {
-          withCredentials: true,
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-      } else {
-        const base64Response = await fetch(publishData.imageData);
-        const blob = await base64Response.blob();
-        const file = new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
-        fd.append('caption', publishData.caption);
-        fd.append('location', publishData.location || '');
-        fd.append('file', file);
-        if (primaryProductId) {
-          fd.append('product_id', primaryProductId);
-        }
-        if (normalizedTags.length > 0) {
-          fd.append('tagged_products_json', JSON.stringify(normalizedTags));
-        }
-        await axios.post(`${API}/posts`, fd, { 
-          withCredentials: true, 
-          headers: { 'Content-Type': 'multipart/form-data' } 
-        });
-      }
+      await publishSocialContent({ apiBase: API, publishData });
       
       toast.success(t('social.published', '¡Publicado con éxito!'));
       handleEditorClose();
@@ -439,12 +411,13 @@ export default function BottomNavBar() {
     }
   };
 
-  const profileUrl = user ? `/user/${user.user_id}` : '/login';
+  const profileUserId = user?.user_id || user?.id || null;
+  const profileUrl = profileUserId ? `/user/${profileUserId}` : '/login';
   const profileImage = user?.profile_image || user?.avatar_url || null;
 
   const navItems = [
     { id: 'home',    icon: Home,          label: t('bottomNav.home',    'Inicio'),  link: '/' },
-    { id: 'search',  icon: Search,        label: t('bottomNav.search',  'Buscar'),  link: '/search' },
+    { id: 'explore', icon: Compass,       label: t('bottomNav.explore', 'Explorar'), link: '/discover' },
     { id: 'chat',    icon: MessageCircle, label: t('bottomNav.chat',    'Chat'),    action: () => user ? togglePanel('chat') : navigate('/login') },
     { id: 'profile', icon: User,          label: t('bottomNav.profile', 'Perfil'),  link: profileUrl, isProfile: true },
   ];
@@ -480,10 +453,6 @@ export default function BottomNavBar() {
             <InternalChat isEmbedded={true} onClose={closePanel} initialChatUserId={initialChatUserId} />
           </div>
         </div>
-      )}
-
-      {activePanel === 'post' && user && !showAdvancedEditor && (
-        <CreatePostPanel user={user} onClose={closePanel} initialFile={postFile} />
       )}
 
       <input ref={galleryRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={handleGallerySelect} data-testid="gallery-file-input" />

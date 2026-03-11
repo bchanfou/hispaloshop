@@ -9,6 +9,7 @@ import uuid
 import logging
 import json
 import re
+import cloudinary
 
 try:
     from sqlalchemy import select, desc
@@ -20,6 +21,7 @@ from core.models import User
 from core.auth import get_current_user, get_optional_user
 from config import normalize_influencer_tier
 from services.cloudinary_storage import upload_image as cloudinary_upload, upload_video as cloudinary_upload_video
+from services.video_service import VideoService
 # NOTE: PostgreSQL fallback disabled - using MongoDB only for MVP
 # from database import AsyncSessionLocal
 # from models import Post as PgPost, User as PgUser
@@ -106,6 +108,40 @@ async def _record_intelligence_signal(event_type: str, payload: Dict[str, object
         await db.intelligence_signals.insert_one(signal)
     except Exception as exc:
         logger.warning("[INTELLIGENCE] signal write failed: %s", exc)
+
+
+def _normalize_post_media(post: Dict[str, object]) -> Dict[str, object]:
+    media = post.get("media") or []
+    if not media and post.get("image_url"):
+        media = [{"url": post.get("image_url"), "type": "image", "order": 0, "ratio": "1:1"}]
+    post["media"] = media
+    post["image_url"] = (media[0] or {}).get("url") if media else post.get("image_url")
+    if len(media) > 1:
+        post["type"] = "carousel"
+        post["post_type"] = "carousel"
+    else:
+        post["type"] = post.get("type") or "post"
+        post["post_type"] = post.get("post_type") or "post"
+    return post
+
+
+def _safe_float(value: object, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_bool(value: object, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes", "on"}:
+            return True
+        if normalized in {"false", "0", "no", "off"}:
+            return False
+    return default
 
 
 def _extract_keywords(*values: object) -> List[str]:
@@ -255,6 +291,16 @@ async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
                 "likes_count": reel.get("likes_count", 0),
                 "comments_count": reel.get("comments_count", 0),
                 "views_count": reel.get("views_count", 0),
+                "duration_seconds": reel.get("duration_seconds", 0),
+                "cover_frame_seconds": reel.get("cover_frame_seconds", 0),
+                "trim_start_seconds": reel.get("trim_start_seconds", 0),
+                "trim_end_seconds": reel.get("trim_end_seconds", 0),
+                "playback_rate": reel.get("playback_rate", 1),
+                "muted": reel.get("muted", False),
+                "slow_motion_enabled": reel.get("slow_motion_enabled", False),
+                "slow_motion_start": reel.get("slow_motion_start", 0),
+                "slow_motion_end": reel.get("slow_motion_end", 0),
+                "reel_settings": reel.get("reel_settings") or {},
                 "created_at": reel.get("created_at") or datetime.now(timezone.utc).isoformat(),
                 "user": {
                     "id": user_id,
@@ -280,6 +326,14 @@ async def create_reel(
     file: UploadFile = File(...),
     caption: str = Form(""),
     location: str = Form(""),
+    cover_frame_seconds: float = Form(0),
+    trim_start_seconds: float = Form(0),
+    trim_end_seconds: float = Form(0),
+    playback_rate: float = Form(1),
+    muted: str = Form("false"),
+    slow_motion_enabled: str = Form("false"),
+    slow_motion_start: float = Form(0),
+    slow_motion_end: float = Form(0),
     product_id: str = Form(""),
     tagged_products_json: str = Form(""),
     user: User = Depends(get_current_user)
@@ -292,8 +346,60 @@ async def create_reel(
         raise HTTPException(status_code=400, detail="El video no puede superar 100MB")
 
     result = await cloudinary_upload_video(contents, folder="reels", filename=f"reel_{uuid.uuid4().hex[:8]}")
-    video_url = result["url"]
-    thumbnail_url = result.get("thumbnail") or video_url
+    original_video_url = result["url"]
+    video_public_id = result.get("public_id", "")
+    duration_seconds = _safe_float(result.get("duration"), 0.0)
+
+    safe_trim_start = max(0.0, _safe_float(trim_start_seconds, 0.0))
+    requested_trim_end = _safe_float(trim_end_seconds, 0.0)
+    if duration_seconds > 0:
+        safe_trim_end = min(duration_seconds, requested_trim_end) if requested_trim_end > 0 else duration_seconds
+    else:
+        safe_trim_end = requested_trim_end
+    if safe_trim_end > 0 and safe_trim_end <= safe_trim_start:
+        safe_trim_end = safe_trim_start + 0.1
+
+    safe_cover_frame = max(0.0, _safe_float(cover_frame_seconds, 0.0))
+    if duration_seconds > 0:
+        safe_cover_frame = min(safe_cover_frame, duration_seconds)
+
+    safe_playback_rate = max(0.5, min(2.0, _safe_float(playback_rate, 1.0)))
+    is_muted = _safe_bool(muted, False)
+    has_slow_motion = _safe_bool(slow_motion_enabled, False)
+    safe_slow_motion_start = max(safe_trim_start, _safe_float(slow_motion_start, safe_trim_start))
+    safe_slow_motion_end = _safe_float(slow_motion_end, safe_trim_end or duration_seconds or safe_slow_motion_start)
+    if safe_trim_end > 0:
+        safe_slow_motion_end = min(safe_slow_motion_end, safe_trim_end)
+    if safe_slow_motion_end <= safe_slow_motion_start:
+        safe_slow_motion_end = safe_slow_motion_start
+
+    video_url = original_video_url
+    if video_public_id and (safe_trim_start > 0 or safe_trim_end > 0 or is_muted):
+        transformation = []
+        trim_step: Dict[str, object] = {}
+        if safe_trim_start > 0:
+            trim_step["start_offset"] = round(safe_trim_start, 2)
+        if safe_trim_end > 0:
+            trim_step["end_offset"] = round(safe_trim_end, 2)
+        if trim_step:
+            transformation.append(trim_step)
+        if is_muted:
+            transformation.append({"effect": "volume:-100"})
+        try:
+            video_url = cloudinary.CloudinaryVideo(video_public_id).build_url(
+                resource_type="video",
+                secure=True,
+                transformation=transformation,
+            )
+        except Exception:
+            video_url = original_video_url
+
+    thumbnail_url = result.get("thumbnail") or original_video_url
+    if video_public_id:
+        try:
+            thumbnail_url = await VideoService.generate_thumbnail_at_time(video_public_id, safe_cover_frame)
+        except Exception:
+            thumbnail_url = result.get("thumbnail") or original_video_url
 
     requested_tags = _normalize_tagged_products(tagged_products_json)
     if product_id and product_id.strip() and not requested_tags:
@@ -308,9 +414,39 @@ async def create_reel(
         "user_id": user.user_id,
         "user_name": user.name,
         "video_url": video_url,
+        "original_video_url": original_video_url,
         "thumbnail_url": thumbnail_url,
         "caption": caption[:500] if caption else "",
         "location": location[:120] if location else "",
+        "duration_seconds": duration_seconds,
+        "cover_frame_seconds": safe_cover_frame,
+        "trim_start_seconds": safe_trim_start,
+        "trim_end_seconds": safe_trim_end,
+        "playback_rate": safe_playback_rate,
+        "muted": is_muted,
+        "slow_motion_enabled": has_slow_motion,
+        "slow_motion_start": safe_slow_motion_start,
+        "slow_motion_end": safe_slow_motion_end,
+        "reel_settings": {
+            "cover_frame_seconds": safe_cover_frame,
+            "trim_start_seconds": safe_trim_start,
+            "trim_end_seconds": safe_trim_end,
+            "playback_rate": safe_playback_rate,
+            "muted": is_muted,
+            "slow_motion_enabled": has_slow_motion,
+            "slow_motion_start": safe_slow_motion_start,
+            "slow_motion_end": safe_slow_motion_end,
+        },
+        "media": [
+            {
+                "url": video_url,
+                "original_url": original_video_url,
+                "thumbnail_url": thumbnail_url,
+                "type": "video",
+                "duration_seconds": duration_seconds,
+                "order": 0,
+            }
+        ],
         "tagged_product": tagged_product,
         "tagged_products": tagged_products,
         "likes_count": 0,
@@ -465,6 +601,7 @@ async def get_user_profile(user_id: str, request: Request):
 async def get_user_posts(user_id: str, skip: int = 0, limit: int = 30):
     posts = await db.user_posts.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     for post in posts:
+        _normalize_post_media(post)
         tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
         post["tagged_products"] = tagged_products
         post["tagged_product"] = tagged_products[0] if tagged_products else None
@@ -499,7 +636,9 @@ async def create_post(
     location: str = Form(""),
     product_id: str = Form(""),
     tagged_products_json: str = Form(""),
+    post_type: str = Form("post"),
     file: UploadFile = File(None),
+    files: List[UploadFile] = File(None),
     user: User = Depends(get_current_user)
 ):
     """Create a new post. Producers and influencers MUST tag a product."""
@@ -511,17 +650,30 @@ async def create_post(
     if requires_product and not requested_tags:
         raise HTTPException(status_code=400, detail="Los vendedores e influencers deben vincular un producto a cada post")
 
-    image_url = None
-    if file and file.filename:
-        if not file.content_type.startswith('image/'):
+    incoming_files = [upload for upload in (files or []) if upload and upload.filename]
+    if not incoming_files and file and file.filename:
+        incoming_files = [file]
+
+    media = []
+    for index, upload in enumerate(incoming_files):
+        if not upload.content_type.startswith('image/'):
             raise HTTPException(status_code=400, detail="Only image files are allowed")
-        contents = await file.read()
+        contents = await upload.read()
         if len(contents) > 10 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Image size cannot exceed 10MB")
         result = await cloudinary_upload(contents, folder="posts", filename=f"post_{uuid.uuid4().hex[:8]}")
-        image_url = result["url"]
+        media.append(
+            {
+                "url": result["url"],
+                "type": "image",
+                "order": index,
+                "ratio": "1:1",
+            }
+        )
 
-    if not caption.strip() and not image_url:
+    image_url = (media[0] or {}).get("url")
+
+    if not caption.strip() and not media:
         raise HTTPException(status_code=400, detail="Post must have text or an image")
 
     tagged_products = await _hydrate_tagged_products(requested_tags)
@@ -533,8 +685,11 @@ async def create_post(
         "user_id": user.user_id,
         "user_name": user.name,
         "image_url": image_url,
+        "media": media,
         "caption": caption,
         "location": location[:120] if location else "",
+        "type": "carousel" if len(media) > 1 or post_type == "carousel" else "post",
+        "post_type": "carousel" if len(media) > 1 or post_type == "carousel" else "post",
         "tagged_product": tagged_product,
         "tagged_products": tagged_products,
         "likes_count": 0,
@@ -554,7 +709,7 @@ async def create_post(
             },
             user.user_id,
         )
-    return {k: v for k, v in post.items() if k != "_id"}
+    return _normalize_post_media({k: v for k, v in post.items() if k != "_id"})
 
 
 @router.get("/posts")
@@ -562,6 +717,7 @@ async def list_posts(skip: int = 0, limit: int = 30):
     """List public posts ordered by newest first."""
     posts = await db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     for post in posts:
+        _normalize_post_media(post)
         tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
         post["tagged_products"] = tagged_products
         post["tagged_product"] = tagged_products[0] if tagged_products else None
@@ -574,6 +730,7 @@ async def get_post(post_id: str):
     post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0})
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    _normalize_post_media(post)
     tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
     post["tagged_products"] = tagged_products
     post["tagged_product"] = tagged_products[0] if tagged_products else None

@@ -13,12 +13,11 @@ function ChatInput({ onSend, isLoading }) {
     inputRef.current?.focus();
   }, []);
 
-  // Auto-resize textarea
   useEffect(() => {
     const el = inputRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 148)}px`;
   }, [message]);
 
   const handleSubmit = (e) => {
@@ -38,68 +37,67 @@ function ChatInput({ onSend, isLoading }) {
     }
   };
 
-  const hasContent   = message.trim().length > 0;
-  const charsLeft    = MAX_CHARS - message.length;
-  const showCounter  = message.length >= SHOW_COUNTER_AT;
-  const isOverLimit  = message.length > MAX_CHARS;
+  const hasContent = message.trim().length > 0;
+  const charsLeft = MAX_CHARS - message.length;
+  const showCounter = message.length >= SHOW_COUNTER_AT;
+  const isOverLimit = message.length > MAX_CHARS;
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm border-t border-stone-100 px-4 py-3 pb-safe">
-      <div className="flex items-end gap-2">
-        {/* Input pill */}
-        <div className="flex-1 relative">
-          <textarea
-            ref={inputRef}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Escribe algo a Hispal AI..."
-            rows={1}
-            maxLength={MAX_CHARS + 50}
-            className={`w-full bg-stone-100 rounded-2xl px-4 py-3 pr-4 text-sm text-stone-950 placeholder:text-stone-400 outline-none focus:ring-2 resize-none transition-all ${
-              isOverLimit ? 'ring-2 ring-red-300' : 'focus:ring-stone-200'
-            }`}
-            style={{ minHeight: '44px', maxHeight: '128px' }}
-          />
+    <div className="border-t border-stone-200/80 bg-[rgba(246,243,238,0.94)] px-4 pb-safe pt-3 backdrop-blur-xl">
+      <div className="mx-auto max-w-3xl">
+        <div className="flex items-end gap-3 rounded-[28px] border border-stone-300/90 bg-white px-3 py-3 shadow-[0_12px_32px_rgba(30,25,20,0.08)]">
+          <div className="relative flex-1">
+            <textarea
+              ref={inputRef}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Escribe tu mensaje"
+              rows={1}
+              maxLength={MAX_CHARS + 50}
+              className={`w-full resize-none bg-transparent px-2 py-2 text-[16px] leading-7 text-stone-950 outline-none transition-all placeholder:text-stone-400 ${
+                isOverLimit ? 'ring-2 ring-red-300' : ''
+              }`}
+              style={{ minHeight: '52px', maxHeight: '148px' }}
+            />
 
-          {/* Character counter */}
-          <AnimatePresence>
-            {showCounter && (
-              <motion.span
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                className={`absolute -bottom-5 right-1 text-[10px] tabular-nums ${
-                  isOverLimit ? 'text-red-400' : 'text-stone-400'
-                }`}
+            <AnimatePresence>
+              {showCounter ? (
+                <motion.span
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  className={`absolute -bottom-5 right-2 text-[10px] tabular-nums ${
+                    isOverLimit ? 'text-red-400' : 'text-stone-400'
+                  }`}
+                >
+                  {charsLeft}
+                </motion.span>
+              ) : null}
+            </AnimatePresence>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {hasContent ? (
+              <motion.button
+                key="send"
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                type="button"
+                onClick={handleSubmit}
+                disabled={isLoading || isOverLimit}
+                className="mb-1 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-stone-950 shadow-[0_10px_24px_rgba(20,20,20,0.18)] transition-colors hover:bg-stone-800 disabled:bg-stone-300"
+                aria-label="Enviar mensaje"
               >
-                {charsLeft}
-              </motion.span>
+                <ArrowUp className="h-[18px] w-[18px] text-white" />
+              </motion.button>
+            ) : (
+              <div key="placeholder" className="mb-1 h-12 w-12 flex-shrink-0 rounded-full bg-stone-100" />
             )}
           </AnimatePresence>
         </div>
-
-        {/* Send button */}
-        <AnimatePresence mode="wait">
-          {hasContent ? (
-            <motion.button
-              key="send"
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              type="button"
-              onClick={handleSubmit}
-              disabled={isLoading || isOverLimit}
-              className="w-10 h-10 rounded-full bg-stone-950 hover:bg-stone-800 disabled:bg-stone-300 flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
-              aria-label="Enviar mensaje"
-            >
-              <ArrowUp className="w-4 h-4 text-white" />
-            </motion.button>
-          ) : (
-            <div key="placeholder" className="w-10 h-10 flex-shrink-0" />
-          )}
-        </AnimatePresence>
       </div>
     </div>
   );

@@ -178,15 +178,12 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             <MessageSquareText className="h-[18px] w-[18px]" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-stone-950">Texto libre</h3>
-            <p className="mt-1 text-xs leading-5 text-stone-500">
-              Anade texto, hashtags y menciones con presets mas cuidados y despues recoloca cada capa dentro del lienzo.
-            </p>
+            <h3 className="text-sm font-semibold text-stone-950">Texto</h3>
           </div>
         </div>
 
         <div className="mt-4">
-          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-stone-500">Presets</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-stone-500">Estilos</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {TEXT_PRESETS.map((preset) => (
               <button
@@ -213,20 +210,19 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
           >
             <Plus className="h-4 w-4" />
-            Anadir texto
+            Anadir
           </button>
         ) : (
           <div className="mt-4 space-y-3 rounded-2xl border border-stone-200 bg-white p-3">
             <textarea
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder="Escribe texto, emojis, hashtags o menciones."
+              placeholder="Escribe..."
               className="h-24 w-full resize-none rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-950 outline-none ring-1 ring-transparent transition-colors placeholder:text-stone-400 focus:ring-stone-950"
               autoFocus
             />
             <div className="rounded-2xl bg-stone-50 p-3">
-              <p className="text-xs font-medium text-stone-700">Vista de insercion: {selectedPreset.name}</p>
-              <p className="mt-1 text-xs text-stone-500">{selectedPreset.hint}</p>
+              <p className="text-xs font-medium text-stone-700">{selectedPreset.name}</p>
             </div>
             <div className="flex gap-2">
               <button
@@ -245,7 +241,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                 disabled={!draft.trim()}
                 className="flex-1 rounded-full bg-stone-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Insertar
+                Listo
               </button>
             </div>
           </div>
@@ -253,13 +249,10 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
       </div>
 
       <div className="rounded-2xl border border-stone-100 bg-white p-4">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h4 className="text-sm font-semibold text-stone-950">Capas de texto</h4>
-            <p className="mt-1 text-xs leading-5 text-stone-500">
-              Selecciona una capa para ajustar tono, escala, rotacion y presencia visual.
-            </p>
-          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h4 className="text-sm font-semibold text-stone-950">Capas</h4>
+            </div>
           <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
             {texts.length}
           </span>
@@ -268,7 +261,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
         <div className="mt-4 space-y-2">
           {texts.length === 0 ? (
             <div className="rounded-2xl bg-stone-50 px-4 py-5 text-sm text-stone-500">
-              Aun no has anadido texto.
+              Sin texto.
             </div>
           ) : (
             texts.map((text) => (
@@ -284,9 +277,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
                   <p className="truncate text-sm font-medium">
                     {text.text}
                   </p>
-                  <p className={`mt-1 text-xs ${selectedTextId === text.id ? 'text-white/70' : 'text-stone-500'}`}>
-                    Arrastralo para colocar, escala o girar desde los controles.
-                  </p>
+                  <p className={`mt-1 text-xs ${selectedTextId === text.id ? 'text-white/70' : 'text-stone-500'}`}>Mover y ajustar.</p>
                 </div>
                 <button
                   type="button"
@@ -313,10 +304,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
       {selectedText ? (
         <div className="space-y-4 rounded-2xl border border-stone-100 bg-white p-4">
           <div>
-            <h4 className="text-sm font-semibold text-stone-950">Ajustes de texto</h4>
-            <p className="mt-1 text-xs leading-5 text-stone-500">
-              Manten contraste alto y usa el fondo solo cuando la imagen lo pida.
-            </p>
+            <h4 className="text-sm font-semibold text-stone-950">Ajustes</h4>
           </div>
 
           <div className="space-y-2">

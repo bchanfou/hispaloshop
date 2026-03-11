@@ -1,41 +1,38 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Copy, ThumbsUp, ThumbsDown, Check } from 'lucide-react';
+import { Copy, Check } from 'lucide-react';
 
-// Simple markdown parser — bold, italic, line breaks
 const parseMarkdown = (text) => {
   let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
   html = html.replace(/_(.+?)_/g, '<em>$1</em>');
-  // Bullet lists
-  html = html.replace(/^[\s]*[-•]\s+(.+)$/gm, '<li class="ml-3">$1</li>');
-  html = html.replace(/(<li[\s\S]*?<\/li>)/g, '<ul class="space-y-0.5 my-1 list-none">$1</ul>');
+  html = html.replace(/^[\s]*[-•]\s+(.+)$/gm, '<li class="ml-4">$1</li>');
+  html = html.replace(/(<li[\s\S]*?<\/li>)/g, '<ul class="my-2 space-y-1 list-none">$1</ul>');
   html = html.replace(/\n/g, '<br />');
   return html;
 };
 
 function HAAvatar() {
   return (
-    <div className="w-8 h-8 rounded-full bg-stone-950 flex items-center justify-center flex-shrink-0">
-      <span className="text-white font-semibold text-[9px] tracking-tight">HA</span>
+    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-stone-950 shadow-[0_6px_16px_rgba(15,15,15,0.12)]">
+      <span className="text-[10px] font-semibold tracking-tight text-white">HA</span>
     </div>
   );
 }
 
-function MessageBubble({ message, roleConfig, isFirstInGroup }) {
-  const isUser   = message.role === 'user';
+function MessageBubble({ message, isFirstInGroup }) {
+  const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
-  const [copied, setCopied]     = useState(false);
-  const [feedback, setFeedback] = useState(null); // 'up' | 'down' | null
+  const [copied, setCopied] = useState(false);
 
   if (isSystem) {
     return (
-      <div className="flex justify-center my-3">
+      <div className="my-3 flex justify-center">
         <motion.span
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="px-4 py-1.5 bg-stone-100 text-stone-500 text-xs rounded-full"
+          className="rounded-full bg-stone-100 px-4 py-1.5 text-xs text-stone-500"
         >
           {message.content}
         </motion.span>
@@ -59,91 +56,47 @@ function MessageBubble({ message, roleConfig, isFirstInGroup }) {
       initial={{ opacity: 0, y: 8, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.18, ease: 'easeOut' }}
-      className={`flex ${isUser ? 'justify-end' : 'justify-start'} ${isFirstInGroup ? 'mt-3' : 'mt-1'} group`}
+      className={`group flex ${isUser ? 'justify-end' : 'justify-start'} ${isFirstInGroup ? 'mt-4' : 'mt-1.5'}`}
     >
-      <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[85%]`}>
-
-        {/* AI Avatar — only on first message of each group */}
-        {!isUser && (
-          <div className="flex-shrink-0 mb-0.5">
-            {isFirstInGroup ? (
-              <HAAvatar />
-            ) : (
-              <div className="w-8" /> // spacer to keep alignment
-            )}
+      <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} max-w-[92%] items-end gap-3 sm:max-w-[82%]`}>
+        {!isUser ? (
+          <div className="mb-1 flex-shrink-0">
+            {isFirstInGroup ? <HAAvatar /> : <div className="w-9" />}
           </div>
-        )}
+        ) : null}
 
         <div className="flex flex-col">
-          {/* Bubble */}
           <div
-            className={`px-4 py-3 ${
+            className={`px-5 py-4 ${
               isUser
-                ? 'bg-stone-950 text-white rounded-3xl rounded-br-md'
-                : 'bg-white text-stone-950 border border-stone-100 shadow-sm rounded-3xl rounded-bl-md'
+                ? 'rounded-[28px] rounded-br-lg bg-stone-950 text-white shadow-[0_12px_30px_rgba(15,15,15,0.16)]'
+                : 'rounded-[28px] rounded-bl-lg border border-stone-200 bg-white text-stone-950 shadow-[0_10px_24px_rgba(30,25,20,0.05)]'
             }`}
           >
-            {/* AI role label — only on first message of group */}
-            {!isUser && isFirstInGroup && (
-              <p className="text-[10px] font-semibold mb-1.5 text-stone-400 tracking-wide uppercase">
-                {roleConfig?.name || 'Hispal AI'}
-              </p>
-            )}
-
-            {/* Content */}
             {isUser ? (
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+              <p className="whitespace-pre-wrap text-[16px] leading-7">{message.content}</p>
             ) : (
               <div
-                className="text-sm leading-relaxed"
+                className="text-[17px] leading-8 text-stone-900"
                 dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}
               />
             )}
-
-            {/* Timestamp */}
-            <p className={`text-[10px] mt-2 ${isUser ? 'text-white/50 text-right' : 'text-stone-400'}`}>
-              {timestamp}
-            </p>
           </div>
 
-          {/* Action row — only for AI messages, visible on group hover */}
-          {!isUser && (
-            <div className="flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pl-1">
+          <div className={`mt-1.5 flex items-center gap-2 px-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
+            <p className={`${isUser ? 'text-stone-500' : 'text-stone-400'} text-[11px] font-medium`}>
+              {timestamp}
+            </p>
+            {!isUser ? (
               <button
                 onClick={handleCopy}
                 title="Copiar"
-                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+                className="rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
               >
-                {copied ? (
-                  <Check className="w-3.5 h-3.5 text-stone-600" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5" />
-                )}
+                {copied ? <Check className="h-3.5 w-3.5 text-stone-600" /> : <Copy className="h-3.5 w-3.5" />}
               </button>
-              <button
-                onClick={() => setFeedback('up')}
-                title="Útil"
-                className={`p-1.5 rounded-lg transition-colors ${
-                  feedback === 'up'
-                    ? 'text-stone-950 bg-stone-100'
-                    : 'text-stone-400 hover:text-stone-700 hover:bg-stone-100'
-                }`}
-              >
-                <ThumbsUp className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setFeedback('down')}
-                title="No útil"
-                className={`p-1.5 rounded-lg transition-colors ${
-                  feedback === 'down'
-                    ? 'text-stone-950 bg-stone-100'
-                    : 'text-stone-400 hover:text-stone-700 hover:bg-stone-100'
-                }`}
-              >
-                <ThumbsDown className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
+            ) : null}
+          </div>
         </div>
       </div>
     </motion.div>

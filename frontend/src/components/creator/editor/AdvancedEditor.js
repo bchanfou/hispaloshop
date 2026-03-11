@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
   Check,
+  ChevronLeft,
   ChevronRight,
   Crop,
   Film,
@@ -21,6 +22,7 @@ import {
   Undo2,
   Upload,
   X,
+  Circle,
 } from 'lucide-react';
 import useImageEditor from '../hooks/useImageEditor';
 import FilterPanel from './FilterPanel';
@@ -35,13 +37,13 @@ import { ASPECT_RATIOS } from '../types/editor.types';
 const EDITOR_SESSION_DRAFT_KEY = 'hispaloshop_editor_session_draft';
 
 const BASE_TOOLS = [
-  { id: 'reel', icon: Film, label: 'Reel', onlyFor: ['reel'] },
-  { id: 'composition', icon: LayoutTemplate, label: 'Plantillas' },
-  { id: 'filter', icon: Palette, label: 'Filtros' },
-  { id: 'adjust', icon: Layers3, label: 'Ajustes' },
+  { id: 'reel', icon: Film, label: 'Video', onlyFor: ['reel'], primary: true },
+  { id: 'composition', icon: LayoutTemplate, label: 'Plantilla', primary: false },
+  { id: 'filter', icon: Palette, label: 'Filtro', primary: true },
+  { id: 'adjust', icon: Layers3, label: 'Luz', primary: false },
   { id: 'crop', icon: Crop, label: 'Recorte' },
   { id: 'text', icon: Type, label: 'Texto' },
-  { id: 'sticker', icon: MapPin, label: 'Sellos' },
+  { id: 'sticker', icon: MapPin, label: 'Sello', primary: true },
   { id: 'product', icon: ShoppingBag, label: 'Productos' },
 ];
 
@@ -61,33 +63,30 @@ const STAGE_LABELS = {
 const CONTENT_GUIDANCE = {
   post: {
     eyebrow: 'Post',
-    title: 'Empieza con tu portada o carrusel',
-    description:
-      'Selecciona una o varias piezas para preparar una publicacion limpia, editorial y pensada para movil.',
-    accept: 'image/*,video/*',
+    title: 'Elige fotos',
+    description: 'Foto o carrusel.',
+    accept: 'image/*',
     allowMultiple: true,
     icon: ImageIcon,
-    meta: 'Puedes usar hasta 10 piezas en un mismo post.',
+    meta: 'Hasta 10.',
   },
   reel: {
     eyebrow: 'Reel',
-    title: 'Sube el video principal',
-    description:
-      'Trabaja desde una pieza vertical y despues ajusta portada, copy y capas visuales desde el mismo flujo.',
+    title: 'Elige un video',
+    description: 'Vertical recomendado.',
     accept: 'video/*',
     allowMultiple: false,
     icon: Film,
-    meta: 'Por ahora el reel usa un video principal por publicacion.',
+    meta: '1 video.',
   },
   story: {
     eyebrow: 'Story',
-    title: 'Elige la imagen base',
-    description:
-      'Crea una historia rapida y legible con texto libre, stickers y producto sin salir del flujo principal.',
+    title: 'Elige una imagen',
+    description: 'Rapida y vertical.',
     accept: 'image/*',
     allowMultiple: false,
     icon: ImageIcon,
-    meta: 'La historia mantiene una sola imagen base para conservar claridad visual.',
+    meta: '1 imagen.',
   },
 };
 
@@ -128,9 +127,6 @@ function RangeField({ label, value, min, max, step = 1, suffix = '', onChange })
 
 function StageStepper({ currentStage, theme = 'dark' }) {
   const activeIndex = STAGE_ORDER.indexOf(currentStage);
-  const baseText = theme === 'dark' ? 'text-white/55' : 'text-stone-500';
-  const activeText = theme === 'dark' ? 'text-white' : 'text-stone-950';
-  const doneText = theme === 'dark' ? 'text-white/80' : 'text-stone-700';
   const activeBg = theme === 'dark' ? 'bg-white text-stone-950' : 'bg-stone-950 text-white';
   const idleBg = theme === 'dark' ? 'bg-white/10 text-white/60' : 'bg-stone-100 text-stone-500';
 
@@ -143,19 +139,12 @@ function StageStepper({ currentStage, theme = 'dark' }) {
         return (
           <div key={stage} className="flex items-center gap-2">
             <div
-              className={`flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-xs font-semibold ${
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
                 isActive ? activeBg : idleBg
               }`}
             >
               {isCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
             </div>
-            <span
-              className={`text-xs font-medium uppercase tracking-[0.22em] ${
-                isActive ? activeText : isCompleted ? doneText : baseText
-              }`}
-            >
-              {STAGE_LABELS[stage]}
-            </span>
             {index < STAGE_ORDER.length - 1 ? (
               <ChevronRight className={`h-3.5 w-3.5 ${theme === 'dark' ? 'text-white/25' : 'text-stone-300'}`} />
             ) : null}
@@ -182,17 +171,15 @@ function LayerSummary({ editor }) {
 
   return (
     <div className="border-b border-stone-100 px-4 py-4">
-      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-stone-500">Capas activas</p>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="flex flex-wrap gap-2">
         {items.map((item) => (
-          <div key={item.id} className="rounded-2xl bg-stone-50 px-3 py-3">
-            <p className="text-xs font-medium text-stone-500">{item.label}</p>
-            <p className="mt-1 text-lg font-semibold text-stone-950">{item.value}</p>
+          <div key={item.id} className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+            {item.label} {item.value}
           </div>
         ))}
       </div>
-      <div className="mt-2 rounded-2xl bg-stone-950 px-3 py-2 text-xs font-medium text-white">
-        Plantilla: {editor.compositionSettings?.templateId || 'free'}
+      <div className="mt-3 rounded-full bg-stone-950 px-3 py-2 text-xs font-medium text-white">
+        {editor.compositionSettings?.templateId || 'free'}
       </div>
     </div>
   );
@@ -223,35 +210,9 @@ function MediaStage({ contentType, guidance, onClose, onPick, canRestoreDraft, o
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-stone-950 shadow-lg">
             <GuidanceIcon className="h-7 w-7" />
           </div>
-          <p className="mt-5 text-xs font-medium uppercase tracking-[0.28em] text-white/55">
-            {guidance.eyebrow}
-          </p>
+          <p className="mt-5 text-xs font-medium uppercase tracking-[0.28em] text-white/55">{guidance.eyebrow}</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white">{guidance.title}</h1>
-          <p className="mt-4 text-sm leading-7 text-white/72">{guidance.description}</p>
-
-          <div className="mt-6 rounded-3xl border border-white/10 bg-black/20 p-4">
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/45">Flujo</p>
-            <div className="mt-3 space-y-3 text-sm text-white/80">
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">
-                  1
-                </span>
-                <p>Selecciona la media principal desde tu galeria.</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">
-                  2
-                </span>
-                <p>Edita encuadre, filtros, texto y capas desde una sola pantalla.</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">
-                  3
-                </span>
-                <p>Revisa copy y publica sin salir del flujo.</p>
-              </div>
-            </div>
-          </div>
+          <p className="mt-3 text-sm text-white/72">{guidance.description}</p>
 
           <button
             type="button"
@@ -259,7 +220,7 @@ function MediaStage({ contentType, guidance, onClose, onPick, canRestoreDraft, o
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100"
           >
             <Upload className="h-4 w-4" />
-            Seleccionar archivo
+            Elegir
           </button>
 
           {canRestoreDraft ? (
@@ -268,14 +229,11 @@ function MediaStage({ contentType, guidance, onClose, onPick, canRestoreDraft, o
               onClick={onRestoreDraft}
               className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
-              Recuperar borrador
+              Borrador
             </button>
           ) : null}
 
           <p className="mt-4 text-center text-xs leading-5 text-white/45">{guidance.meta}</p>
-          <p className="mt-2 text-center text-xs leading-5 text-white/35">
-            Formato actual: {CONTENT_LABELS[contentType] || 'Contenido'}
-          </p>
         </div>
       </div>
     </div>
@@ -284,7 +242,6 @@ function MediaStage({ contentType, guidance, onClose, onPick, canRestoreDraft, o
 
 function ComposeStage({
   contentType,
-  contentLabel,
   aspectRatio,
   editor,
   caption,
@@ -297,13 +254,9 @@ function ComposeStage({
   onPublish,
 }) {
   const previewMeta = useMemo(() => {
-    if (contentType === 'story') {
-      return 'Historia vertical con capas limpias, texto legible y zonas seguras respetadas.';
-    }
-    if (contentType === 'reel') {
-      return 'Revisa copy, portada visual y productos antes de publicar.';
-    }
-    return 'Confirma pie de foto, ubicacion y la composicion final antes de enviar.';
+    if (contentType === 'story') return 'story';
+    if (contentType === 'reel') return 'reel';
+    return 'post';
   }, [contentType]);
 
   return (
@@ -335,8 +288,8 @@ function ComposeStage({
           <div className="w-full max-w-[420px]">
             <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType={contentType} readOnly={true} />
             <div className="mt-3 flex items-center justify-between rounded-2xl bg-white/8 px-4 py-3 text-xs text-white/75">
-              <span>Vista previa real</span>
-              <span className="uppercase tracking-[0.2em]">{editor.compositionSettings?.templateId || 'free'}</span>
+              <span className="uppercase tracking-[0.2em]">{previewMeta}</span>
+              <span>{editor.compositionSettings?.templateId || 'free'}</span>
             </div>
           </div>
         </div>
@@ -344,77 +297,53 @@ function ComposeStage({
         <div className="border-t border-white/10 bg-black/20 p-4 md:border-l md:border-t-0">
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
-              <p className="text-xs uppercase tracking-[0.24em] text-stone-500">Listo para publicar</p>
-              <h2 className="mt-2 text-base font-semibold">{contentLabel}</h2>
-              <p className="mt-1 text-sm leading-6 text-stone-600">{previewMeta}</p>
-
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <div className="rounded-2xl bg-stone-50 px-4 py-3">
-                  <p className="text-xs font-medium text-stone-500">Texto</p>
-                  <p className="mt-1 text-lg font-semibold text-stone-950">{editor.textElements.length}</p>
+              <div className="flex flex-wrap gap-2">
+                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                  Texto {editor.textElements.length}
                 </div>
-                <div className="rounded-2xl bg-stone-50 px-4 py-3">
-                  <p className="text-xs font-medium text-stone-500">Productos</p>
-                  <p className="mt-1 text-lg font-semibold text-stone-950">{taggedProductsCount}</p>
+                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                  Productos {taggedProductsCount}
                 </div>
                 {contentType === 'reel' ? (
                   <>
-                    <div className="rounded-2xl bg-stone-50 px-4 py-3">
-                      <p className="text-xs font-medium text-stone-500">Trim</p>
-                      <p className="mt-1 text-sm font-semibold text-stone-950">
-                        {editor.reelSettings.trimStart.toFixed(1)}s - {editor.reelSettings.trimEnd.toFixed(1)}s
-                      </p>
+                    <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                      {editor.reelSettings.trimStart.toFixed(1)}s - {editor.reelSettings.trimEnd.toFixed(1)}s
                     </div>
-                    <div className="rounded-2xl bg-stone-50 px-4 py-3">
-                      <p className="text-xs font-medium text-stone-500">Velocidad</p>
-                      <p className="mt-1 text-sm font-semibold text-stone-950">
-                        {editor.reelSettings.playbackRate}x · {editor.reelSettings.isMuted ? 'Mute' : 'Audio'}
-                      </p>
+                    <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
+                      {editor.reelSettings.playbackRate}x . {editor.reelSettings.isMuted ? 'Mute' : 'Audio'}
                     </div>
                   </>
                 ) : null}
               </div>
-              <div className="mt-3 rounded-2xl bg-stone-50 px-4 py-3 text-sm text-stone-700">
-                Plantilla activa: <span className="font-semibold capitalize">{editor.compositionSettings?.templateId || 'free'}</span>
-              </div>
-              <div className="mt-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-                Guardado automatico activo. Si sales ahora, podras recuperar este borrador.
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900">
+                <Circle className="h-2.5 w-2.5 fill-current" />
+                Guardado
               </div>
             </div>
 
             <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
-              <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">
-                Texto principal
-              </label>
               <textarea
                 value={caption}
                 onChange={(event) => setCaption(event.target.value)}
-                placeholder={
-                  contentType === 'story'
-                    ? 'Anade contexto breve solo si suma.'
-                    : 'Escribe una descripcion clara, natural y facil de escanear.'
-                }
-                className="mt-2 h-28 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
+                placeholder="Texto"
+                className="h-28 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
                 maxLength={contentType === 'story' ? 180 : 2200}
               />
 
               <div className="mt-4">
-                <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">
-                  Ubicacion
-                </label>
                 <input
                   type="text"
                   value={location}
                   onChange={(event) => setLocation(event.target.value)}
-                  placeholder="Anadir ubicacion"
-                  className="mt-2 h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition-colors focus:border-stone-950"
+                  placeholder="Ubicacion"
+                  className="h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-950 outline-none transition-colors focus:border-stone-950"
                 />
               </div>
 
-              <div className="mt-4 rounded-2xl bg-stone-50 px-4 py-3 text-sm text-stone-700">
+              <div className="mt-4 rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
                 {taggedProductsCount > 0
-                  ? `${taggedProductsCount} producto(s) etiquetado(s) en esta pieza.`
-                  : 'Sin productos etiquetados todavia.'}
+                  ? `${taggedProductsCount} producto(s)`
+                  : '0 productos'}
               </div>
             </div>
           </div>
@@ -426,6 +355,7 @@ function ComposeStage({
 
 function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const [activeTool, setActiveTool] = useState(contentType === 'reel' ? 'reel' : 'filter');
+  const [showMoreTools, setShowMoreTools] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[contentType][0]);
   const [currentStage, setCurrentStage] = useState(files?.length ? 'edit' : 'media');
   const [caption, setCaption] = useState('');
@@ -439,6 +369,8 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const contentLabel = CONTENT_LABELS[contentType] || 'Contenido';
   const guidance = CONTENT_GUIDANCE[contentType] || CONTENT_GUIDANCE.post;
   const tools = BASE_TOOLS.filter((tool) => !tool.onlyFor || tool.onlyFor.includes(contentType));
+  const primaryTools = tools.filter((tool) => tool.primary !== false);
+  const secondaryTools = tools.filter((tool) => tool.primary === false);
 
   React.useEffect(() => {
     if (files?.length && !hasLoadedInitialFilesRef.current) {
@@ -540,6 +472,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         aspectRatio,
         imageData: finalImage,
         sourceFile: editor.images[0]?.file || null,
+        sourceFiles: editor.images.map((image) => image.file).filter(Boolean),
         reelSettings: editor.reelSettings,
         taggedProducts: editor.stickerElements.filter((item) => item.type === 'product'),
       });
@@ -800,7 +733,6 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
       <>
         <ComposeStage
           contentType={contentType}
-          contentLabel={contentLabel}
           aspectRatio={aspectRatio}
           editor={editor}
           caption={caption}
@@ -841,7 +773,6 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
 
             <div className="min-w-0 flex-1">
               <StageStepper currentStage="edit" theme="dark" />
-              <p className="mt-2 text-xs uppercase tracking-[0.24em] text-white/45">{contentLabel}</p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -887,10 +818,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white">
                   <ImagePlus className="h-7 w-7" />
                 </div>
-                <h2 className="mt-5 text-xl font-semibold text-white">Anade tu primer archivo</h2>
-                <p className="mt-2 text-sm leading-6 text-white/70">
-                  Usa una imagen o video y despues ajusta texto, filtros, encuadre y etiquetas desde un solo sitio.
-                </p>
+                <h2 className="mt-5 text-xl font-semibold text-white">Anade un archivo</h2>
                 <button
                   type="button"
                   onClick={handleAddMore}
@@ -919,6 +847,34 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                     ) : (
                       <img src={image.src} alt="" className="h-full w-full object-cover" />
                     )}
+                    {contentType === 'post' && editor.images.length > 1 ? (
+                      <div className="absolute inset-x-1 bottom-1 flex items-center justify-between">
+                        <button
+                          type="button"
+                          disabled={index === 0}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            editor.moveImage(index, index - 1);
+                          }}
+                          className="flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white disabled:opacity-35"
+                          aria-label="Mover a la izquierda"
+                        >
+                          <ChevronLeft className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={index === editor.images.length - 1}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            editor.moveImage(index, index + 1);
+                          }}
+                          className="flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white disabled:opacity-35"
+                          aria-label="Mover a la derecha"
+                        >
+                          <ChevronRight className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ) : null}
                     <button
                       type="button"
                       onClick={(event) => {
@@ -964,14 +920,17 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
 
           <div className="border-b border-stone-100 px-4 pt-3 md:pt-4">
             <div className="flex gap-2 overflow-x-auto pb-3">
-              {tools.map((tool) => {
+              {primaryTools.map((tool) => {
                 const Icon = tool.icon;
                 const isActive = activeTool === tool.id;
                 return (
                   <button
                     key={tool.id}
                     type="button"
-                    onClick={() => setActiveTool(tool.id)}
+                    onClick={() => {
+                      setActiveTool(tool.id);
+                      setShowMoreTools(false);
+                    }}
                     className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
                       isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                     }`}
@@ -981,7 +940,44 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                   </button>
                 );
               })}
+              {secondaryTools.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setShowMoreTools((prev) => !prev)}
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                    showMoreTools ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                  }`}
+                >
+                  <Layers3 className="h-4 w-4" />
+                  Mas
+                </button>
+              ) : null}
             </div>
+
+            {showMoreTools ? (
+              <div className="flex gap-2 overflow-x-auto pb-3">
+                {secondaryTools.map((tool) => {
+                  const Icon = tool.icon;
+                  const isActive = activeTool === tool.id;
+                  return (
+                    <button
+                      key={tool.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveTool(tool.id);
+                        setShowMoreTools(false);
+                      }}
+                      className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+                        isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {tool.label}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto">

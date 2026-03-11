@@ -20,6 +20,45 @@ function buildFallbackProfile(userId) {
   };
 }
 
+function normalizeProfileResponse(data, userId) {
+  const profile =
+    data?.profile ??
+    data?.data?.profile ??
+    data?.data ??
+    data;
+
+  if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
+    return buildFallbackProfile(userId);
+  }
+
+  return {
+    ...buildFallbackProfile(userId),
+    ...profile,
+    user_id: profile.user_id || profile.id || userId,
+  };
+}
+
+function normalizeListResponse(data, candidates = []) {
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  for (const key of candidates) {
+    if (Array.isArray(data?.[key])) {
+      return data[key];
+    }
+    if (Array.isArray(data?.data?.[key])) {
+      return data.data[key];
+    }
+  }
+
+  if (Array.isArray(data?.data)) {
+    return data.data;
+  }
+
+  return [];
+}
+
 export function resolveUserImage(url) {
   if (!url) {
     return null;
@@ -37,7 +76,8 @@ export function useUserProfileQuery(userId) {
     queryKey: userKeys.profile(userId),
     queryFn: async () => {
       try {
-        return await apiClient.get(`/users/${userId}/profile`);
+        const data = await apiClient.get(`/users/${userId}/profile`);
+        return normalizeProfileResponse(data, userId);
       } catch (error) {
         if (error?.status === 404) {
           return buildFallbackProfile(userId);
@@ -53,9 +93,10 @@ export function useUserProfileQuery(userId) {
 export function useUserPostsQuery(userId, options = {}) {
   return useQuery({
     queryKey: userKeys.posts(userId, options),
-    queryFn: () => {
+    queryFn: async () => {
       const suffix = options.bookmarked ? '?bookmarked=true' : '';
-      return apiClient.get(`/users/${userId}/posts${suffix}`);
+      const data = await apiClient.get(`/users/${userId}/posts${suffix}`);
+      return normalizeListResponse(data, ['posts', 'items']);
     },
     enabled: Boolean(userId) && (options.enabled ?? true),
   });
@@ -74,7 +115,7 @@ export function useUserProductsQuery(userId, options = {}) {
     queryKey: userKeys.products(userId),
     queryFn: async () => {
       const data = await apiClient.get(`/products?seller_id=${userId}`);
-      return data?.products || data || [];
+      return normalizeListResponse(data, ['products', 'items']);
     },
     enabled: Boolean(userId) && (options.enabled ?? true),
   });
@@ -85,7 +126,7 @@ export function useUserRecipesQuery(userId, options = {}) {
     queryKey: userKeys.recipes(userId),
     queryFn: async () => {
       const data = await apiClient.get('/recipes?limit=100');
-      const recipes = Array.isArray(data) ? data : [];
+      const recipes = normalizeListResponse(data, ['recipes', 'items']);
       return recipes.filter((recipe) => recipe.author_id === userId);
     },
     enabled: Boolean(userId) && (options.enabled ?? true),

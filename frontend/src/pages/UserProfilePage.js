@@ -204,7 +204,8 @@ export default function UserProfilePage() {
   const [selectedRecipeIndex, setSelectedRecipeIndex] = useState(null);
   const avatarInputRef = useRef(null);
 
-  const isOwnProfile = currentUser?.user_id === userId;
+  const currentUserId = currentUser?.user_id || currentUser?.id || null;
+  const isOwnProfile = currentUserId === userId;
   const isSeller = profile?.role === 'producer' || profile?.role === 'importer';
   const { sellerProducts, isLoading: productsLoading } = useUserProducts(userId, activeTab === 'products' && isSeller);
   const { recipes, isLoading: recipesLoading } = useUserRecipes(userId, activeTab === 'recipes');
@@ -218,9 +219,12 @@ export default function UserProfilePage() {
     }
   }, [activeTab, isSeller]);
 
-  const postCount = posts.length || profile?.posts_count || 0;
-  const recipesCount = recipes.length;
-  const productsCount = sellerProducts.length || profile?.seller_stats?.total_products || 0;
+  const safePosts = Array.isArray(posts) ? posts : [];
+  const safeProducts = Array.isArray(sellerProducts) ? sellerProducts : [];
+  const safeRecipes = Array.isArray(recipes) ? recipes : [];
+  const postCount = safePosts.length || profile?.posts_count || 0;
+  const recipesCount = safeRecipes.length;
+  const productsCount = safeProducts.length || profile?.seller_stats?.total_products || 0;
   const displayName = profile?.username ? `@${profile.username}` : `@${profile?.name?.toLowerCase?.().replace(/\s+/g, '') || 'usuario'}`;
   const realName = profile?.name || 'Usuario';
 
@@ -450,7 +454,7 @@ export default function UserProfilePage() {
 
           <div className="pt-6">
             {activeTab === 'posts' ? (
-              posts.length === 0 ? (
+              safePosts.length === 0 ? (
                 <EmptyState
                   icon={Grid3X3}
                   title={isOwnProfile ? t('social.shareFirstPost', 'Comparte tu primera publicación') : t('social.noPosts', 'Sin publicaciones')}
@@ -470,8 +474,8 @@ export default function UserProfilePage() {
                 />
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
-                  {posts.map((post) => (
-                    <ContentTile key={post.post_id} item={post} type="post" onClick={() => setSelectedPost(post)} />
+                  {safePosts.map((post) => (
+                    <ContentTile key={post.post_id || post.id} item={post} type="post" onClick={() => setSelectedPost(post)} />
                   ))}
                 </div>
               )
@@ -490,7 +494,7 @@ export default function UserProfilePage() {
                 <div className="flex justify-center py-20">
                   <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
                 </div>
-              ) : sellerProducts.length === 0 ? (
+              ) : safeProducts.length === 0 ? (
                 <EmptyState
                   icon={ShoppingBag}
                   title={t('social.noProducts', 'Sin productos')}
@@ -498,8 +502,8 @@ export default function UserProfilePage() {
                 />
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
-                  {sellerProducts.map((product) => (
-                    <ContentTile key={product.product_id} item={product} type="product" onClick={() => setSelectedProduct(product)} />
+                  {safeProducts.map((product) => (
+                    <ContentTile key={product.product_id || product.id} item={product} type="product" onClick={() => setSelectedProduct(product)} />
                   ))}
                 </div>
               )
@@ -528,8 +532,8 @@ export default function UserProfilePage() {
                 />
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
-                  {recipes.map((recipe, index) => (
-                    <ContentTile key={recipe.recipe_id} item={recipe} type="recipe" onClick={() => setSelectedRecipeIndex(index)} />
+                  {safeRecipes.map((recipe, index) => (
+                    <ContentTile key={recipe.recipe_id || recipe.id} item={recipe} type="recipe" onClick={() => setSelectedRecipeIndex(index)} />
                   ))}
                 </div>
               )
@@ -551,7 +555,7 @@ export default function UserProfilePage() {
       {selectedPost ? (
         <PostViewer
           post={selectedPost}
-          posts={posts}
+          posts={safePosts}
           profile={profile}
           currentUser={currentUser}
           onClose={() => setSelectedPost(null)}
@@ -563,17 +567,17 @@ export default function UserProfilePage() {
         <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />
       ) : null}
 
-      {selectedRecipeIndex !== null && recipes[selectedRecipeIndex] ? (
+      {selectedRecipeIndex !== null && safeRecipes[selectedRecipeIndex] ? (
         <RecipeOverlay
-          recipe={recipes[selectedRecipeIndex]}
+          recipe={safeRecipes[selectedRecipeIndex]}
           onClose={() => setSelectedRecipeIndex(null)}
           showNavigation
           hasPrev={selectedRecipeIndex > 0}
-          hasNext={selectedRecipeIndex < recipes.length - 1}
+          hasNext={selectedRecipeIndex < safeRecipes.length - 1}
           onNavigate={(direction) =>
             setSelectedRecipeIndex((current) => {
               if (direction === 'prev') return Math.max(0, current - 1);
-              return Math.min(recipes.length - 1, current + 1);
+              return Math.min(safeRecipes.length - 1, current + 1);
             })
           }
         />
