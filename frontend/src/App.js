@@ -48,6 +48,7 @@ const StorePage = lazy(() => import('./pages/StorePage'));
 const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
 const CertificatePage = lazy(() => import('./pages/CertificatePage.jsx'));
 const CertificatesListPage = lazy(() => import('./pages/CertificatesListPage'));
+const LocaleSettingsPage = lazy(() => import('./pages/LocaleSettingsPage'));
 const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
@@ -240,6 +241,7 @@ function AppRouter() {
               <Route path="/store/:storeSlug" element={<StorePage />} />
               <Route path="/certificate/:productId" element={<CertificatePage />} />
               <Route path="/certificates" element={<CertificatesListPage />} />
+              <Route path="/settings/locale" element={<LocaleSettingsPage />} />
               <Route path="/become-influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/become-seller" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/stores" element={<StoresListPage />} />

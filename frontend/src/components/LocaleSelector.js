@@ -175,14 +175,14 @@ export default function LocaleSelector({ compact = false }) {
                 onClick={() => onSelect(code)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   selectedValue === code
-                    ? 'bg-primary/10 border border-primary'
+                    ? 'bg-stone-100 border border-stone-300'
                     : 'hover:bg-stone-100'
                 }`}
                 data-testid={`mobile-option-${code}`}
               >
                 {renderItem(code, data)}
                 {selectedValue === code && (
-                  <Check className="w-5 h-5 text-primary ml-auto" />
+                  <Check className="w-5 h-5 text-stone-950 ml-auto" />
                 )}
               </button>
             ))}
@@ -195,16 +195,16 @@ export default function LocaleSelector({ compact = false }) {
   const MobileTriggerButton = ({ icon: Icon, label, countryCode, onClick, testId }) => (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-white/70 hover:bg-white transition-colors border border-stone-200"
+      className="flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-sm text-stone-700 hover:bg-stone-200 transition-colors"
       data-testid={testId}
     >
       {countryCode ? (
         <CountryFlag countryCode={countryCode} size="md" />
       ) : (
-        <Icon className="w-5 h-5 text-text-secondary" />
+        <Icon className="w-4 h-4 text-stone-500" />
       )}
-      <span className="text-sm font-medium">{label}</span>
-      <ChevronDown className="w-4 h-4 text-text-muted ml-auto" />
+      <span className="font-medium">{label}</span>
+      <ChevronDown className="w-4 h-4 text-stone-400 ml-auto" />
     </button>
   );
 
@@ -283,7 +283,7 @@ export default function LocaleSelector({ compact = false }) {
             onSelect={handleLanguageChange}
             renderItem={(code, data) => (
               <>
-                <span className="uppercase font-bold text-sm w-8 text-text-secondary">{code}</span>
+                <span className="uppercase font-bold text-sm w-8 text-stone-600">{code}</span>
                 <span className="flex-1 text-left font-medium">{data.native}</span>
               </>
             )}
@@ -300,7 +300,7 @@ export default function LocaleSelector({ compact = false }) {
               <>
                 <span className="text-xl font-bold w-8">{data.symbol}</span>
                 <span className="flex-1 text-left font-medium">{code}</span>
-                <span className="text-sm text-text-secondary">{data.name}</span>
+                <span className="text-sm text-stone-600">{data.name}</span>
               </>
             )}
           />
@@ -415,10 +415,10 @@ export default function LocaleSelector({ compact = false }) {
       <AlertDialog open={showCountryWarning} onOpenChange={setShowCountryWarning}>
         <AlertDialogContent className="bg-stone-50 border-stone-300">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-heading text-xl text-primary">
+            <AlertDialogTitle className="font-heading text-xl text-stone-950">
               {t('locale.countryChange')}
             </AlertDialogTitle>
-            <AlertDialogDescription className="font-body text-text-secondary">
+            <AlertDialogDescription className="font-body text-stone-600">
               {unavailableItems.length > 0 && (
                 <>
                   <p className="mb-3 flex items-center gap-2 flex-wrap">
@@ -452,7 +452,7 @@ export default function LocaleSelector({ compact = false }) {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => confirmCountryChange(pendingCountry)}
-              className="font-body bg-primary text-white hover:bg-primary/90"
+              className="font-body bg-stone-950 text-white hover:bg-stone-800"
             >
               {t('common.continue')}
             </AlertDialogAction>

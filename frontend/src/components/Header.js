@@ -12,10 +12,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useLocale } from '../context/LocaleContext';
 import { getDefaultRoute } from '../lib/navigation';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import LocaleSelector from './LocaleSelector';
 
 const NAV_LINKS = [
   { label: 'Explorar', to: '/discover' },
@@ -35,8 +35,8 @@ export default function Header() {
   const { getTotalItems } = useCart();
 
   const [query, setQuery] = useState('');
-  const [scope, setScope] = useState('all');
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const { country, language, currency } = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -77,17 +77,7 @@ export default function Header() {
     event.preventDefault();
     const value = query.trim();
     if (!value) return;
-
-    if (scope === 'products') {
-      navigate(`/products?search=${encodeURIComponent(value)}`);
-    } else if (scope === 'stores') {
-      navigate(`/stores?search=${encodeURIComponent(value)}`);
-    } else if (scope === 'profiles') {
-      navigate(`/discover?scope=profiles&search=${encodeURIComponent(value)}`);
-    } else {
-      navigate(`/discover?search=${encodeURIComponent(value)}`);
-    }
-
+    navigate(`/products?search=${encodeURIComponent(value)}`);
     setMenuOpen(false);
     setMobileSearchOpen(false);
   };
@@ -139,28 +129,15 @@ export default function Header() {
             </nav>
 
             <form onSubmit={runSearch} className="hidden min-w-0 flex-1 xl:flex">
-              <div className="flex w-full max-w-2xl items-center overflow-hidden rounded-full border border-stone-200 bg-stone-50">
-                <select
-                  value={scope}
-                  onChange={(e) => setScope(e.target.value)}
-                  className="h-11 border-r border-stone-200 bg-transparent px-4 text-sm font-medium text-stone-700 outline-none"
-                  aria-label="Ámbito de búsqueda"
-                >
-                  <option value="all">Todo</option>
-                  <option value="products">Productos</option>
-                  <option value="profiles">Perfiles</option>
-                  <option value="stores">Tiendas</option>
-                </select>
-                <div className="relative min-w-0 flex-1">
-                  <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                  <Input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Buscar productos, tiendas o perfiles"
-                    className="h-11 border-0 bg-transparent pl-11 pr-4 text-sm"
-                    data-testid="header-search-input"
-                  />
-                </div>
+              <div className="relative w-full max-w-2xl">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Buscar productos, marcas o tiendas"
+                  className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 pr-4 text-sm focus:border-stone-950"
+                  data-testid="header-search-input"
+                />
               </div>
             </form>
 
@@ -257,12 +234,23 @@ export default function Header() {
                     ))}
                   </div>
 
-                  <div className="border-t border-stone-100 px-5 py-4">
-                    <div className="mb-4 flex items-center gap-2 text-sm font-medium text-stone-700">
-                      <Globe className="h-4 w-4 text-stone-500" />
-                      Idioma
-                    </div>
-                    <LocaleSelector />
+                  <div className="border-t border-stone-100 px-5 py-3">
+                    <Link
+                      to="/settings/locale"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-stone-400" />
+                        <span>Idioma y región</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-stone-500">
+                        <span className="text-xs">
+                          {country} · {language.toUpperCase()} · {currency}
+                        </span>
+                        <ChevronRight className="h-4 w-4 text-stone-400" />
+                      </div>
+                    </Link>
                   </div>
 
                   <div className="border-t border-stone-100 px-5 py-4">
@@ -307,27 +295,14 @@ export default function Header() {
 
           {mobileSearchOpen ? (
             <form onSubmit={runSearch} className="border-t border-stone-100 pb-4 pt-3 xl:hidden">
-              <div className="flex gap-2">
-                <select
-                  value={scope}
-                  onChange={(e) => setScope(e.target.value)}
-                  className="h-11 rounded-2xl border border-stone-200 bg-stone-50 px-3 text-sm font-medium text-stone-700"
-                  aria-label="Ámbito de búsqueda móvil"
-                >
-                  <option value="all">Todo</option>
-                  <option value="products">Productos</option>
-                  <option value="profiles">Perfiles</option>
-                  <option value="stores">Tiendas</option>
-                </select>
-                <div className="relative min-w-0 flex-1">
-                  <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                  <Input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Buscar en Hispaloshop"
-                    className="h-11 rounded-2xl border-stone-200 bg-stone-50 pl-11"
-                  />
-                </div>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Buscar productos, marcas o tiendas"
+                  className="h-11 w-full rounded-full border-stone-200 bg-stone-50 pl-11 pr-4 text-sm focus:border-stone-950"
+                />
               </div>
             </form>
           ) : null}
