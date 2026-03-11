@@ -2,34 +2,75 @@ import BackButton from '../components/BackButton';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Shield, Search, X, FileCheck, ChevronRight } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { useLocale } from '../context/LocaleContext';
 import { API } from '../utils/api';
 
+const PAGE_SIZE = 24;
+
+async function fetchCertifiedProducts({ pageParam = 0 }) {
+  const res = await fetch(`${API}/certificates/products?offset=${pageParam}&limit=${PAGE_SIZE}`);
+  if (!res.ok) throw new Error('Error fetching certificates');
+  const data = await res.json();
+  return {
+    products: data.products || [],
+    nextOffset: (data.products || []).length === PAGE_SIZE ? pageParam + PAGE_SIZE : undefined,
+  };
+}
+
 export default function CertificatesListPage() {
   const { t } = useLocale();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCert, setSelectedCert] = useState('');
+  const sentinelRef = useRef(null);
 
-  useEffect(() => {
-    axios.get(`${API}/certificates/products`).then(r => {
-      setProducts(r.data?.products || []);
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['certified-products'],
+    queryFn: fetchCertifiedProducts,
+    getNextPageParam: (lastPage) => lastPage.nextOffset,
+    staleTime: 60_000,
+  });
 
-  const allCertifications = [...new Set(products.flatMap(p => p.certifications || []))].sort();
+  const allProducts = data?.pages.flatMap((p) => p.products) ?? [];
 
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = !searchQuery || p.name?.toLowerCase().includes(searchQuery.toLowerCase());
+  const allCertifications = [...new Set(allProducts.flatMap((p) => p.certifications || []))].sort();
+
+  const filteredProducts = allProducts.filter((p) => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      !searchQuery ||
+      p.name?.toLowerCase().includes(q) ||
+      p.producer_name?.toLowerCase().includes(q) ||
+      p.certifications?.some((c) => c.toLowerCase().includes(q));
     const matchesCert = !selectedCert || p.certifications?.includes(selectedCert);
     return matchesSearch && matchesCert;
   });
+
+  // IntersectionObserver — load next page when sentinel enters viewport
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -42,7 +83,10 @@ export default function CertificatesListPage() {
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-1">
             <Shield className="w-5 h-5 md:w-6 md:h-6 text-green-600 shrink-0" />
-            <h1 className="font-serif text-xl md:text-3xl font-semibold text-stone-900" data-testid="certificates-page-title">
+            <h1
+              className="font-serif text-xl md:text-3xl font-semibold text-stone-900"
+              data-testid="certificates-page-title"
+            >
               {t('certificate.title', 'Certificados de producto')}
             </h1>
           </div>
@@ -50,12 +94,12 @@ export default function CertificatesListPage() {
             {filteredProducts.length} {t('certificate.productsAvailable', 'productos certificados')}
           </p>
 
-          {/* Filters — stacked on mobile */}
+          {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-2 mt-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
               <Input
-                placeholder={t('certificate.searchPlaceholder', 'Buscar producto...')}
+                placeholder={t('certificate.searchPlaceholder', 'Buscar certificado o producto...')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 h-10 w-full rounded-lg border-stone-200 text-sm"
@@ -70,7 +114,7 @@ export default function CertificatesListPage() {
                 data-testid="cert-filter-select"
               >
                 <option value="">{t('certificate.allCerts', 'Todas las certificaciones')}</option>
-                {allCertifications.map(cert => (
+                {allCertifications.map((cert) => (
                   <option key={cert} value={cert}>{cert}</option>
                 ))}
               </select>
@@ -88,7 +132,7 @@ export default function CertificatesListPage() {
         </div>
 
         {/* Product Grid */}
-        {loading ? (
+        {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-900 mx-auto mb-4" />
             <p className="text-stone-500 text-sm">{t('common.loading', 'Cargando...')}</p>
@@ -99,67 +143,74 @@ export default function CertificatesListPage() {
             <p className="text-stone-500 text-sm">{t('empty.products', 'No hay productos')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="certificates-list">
+          <div
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
+            data-testid="certificates-list"
+          >
             {filteredProducts.map((product) => (
               <Link
                 key={product.product_id}
-                to={`/product/${product.product_id}`}
-                className="group bg-white rounded-xl border border-stone-200 overflow-hidden hover:border-green-300 hover:shadow-md transition-all"
+                to={`/products/${product.product_id}`}
+                className="group bg-white rounded-xl border border-stone-200 overflow-hidden hover:border-green-300 hover:shadow-md transition-all flex flex-col"
                 data-testid={`certificate-item-${product.product_id}`}
               >
-                <div className="flex gap-3 p-3">
-                  {/* Thumbnail */}
-                  <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-stone-100">
-                    <img
-                      src={product.images?.[0] || 'https://images.unsplash.com/photo-1541401154946-62f8d84bd284?w=200'}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-1 right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow">
-                      <FileCheck className="w-3 h-3 text-white" />
+                {/* Square image */}
+                <div className="relative aspect-square w-full overflow-hidden bg-stone-100">
+                  <img
+                    src={product.images?.[0] || 'https://images.unsplash.com/photo-1541401154946-62f8d84bd284?w=300'}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {/* Cert count badge */}
+                  {product.certifications?.length > 0 && (
+                    <div className="absolute top-2 left-2 flex items-center gap-1 bg-green-600/90 backdrop-blur-sm text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                      <Shield className="w-2.5 h-2.5" />
+                      {product.certifications.length}
                     </div>
+                  )}
+                  <div className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow">
+                    <FileCheck className="w-3 h-3 text-green-600" />
                   </div>
+                </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    <div>
-                      <h3 className="font-medium text-stone-900 text-sm line-clamp-2 leading-tight group-hover:text-green-700 transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="text-xs text-stone-500 mt-0.5 truncate">
-                        {product.producer_name || product.country_origin}
-                      </p>
-                    </div>
-                    {/* Cert badges inline */}
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {product.certifications?.slice(0, 3).map((cert, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-green-50 text-green-700 rounded text-[10px] font-medium border border-green-100"
-                        >
-                          <Shield className="w-2.5 h-2.5" />
-                          {cert}
-                        </span>
-                      ))}
-                      {product.certifications?.length > 3 && (
-                        <span className="text-[10px] text-stone-400 self-center">+{product.certifications.length - 3}</span>
+                {/* Info */}
+                <div className="p-2.5 flex flex-col flex-1 min-w-0">
+                  <h3 className="font-medium text-stone-900 text-xs line-clamp-2 leading-tight group-hover:text-green-700 transition-colors">
+                    {product.name}
+                  </h3>
+                  <p className="text-[10px] text-stone-500 mt-0.5 truncate">
+                    {product.producer_name || product.country_origin}
+                  </p>
+                  {/* First cert badge */}
+                  {product.certifications?.[0] && (
+                    <span className="inline-flex items-center gap-0.5 mt-1.5 px-1.5 py-0.5 bg-green-50 text-green-700 rounded text-[9px] font-medium border border-green-100 truncate self-start max-w-full">
+                      {product.certifications[0]}
+                      {product.certifications.length > 1 && (
+                        <span className="ml-0.5 text-green-500">+{product.certifications.length - 1}</span>
                       )}
-                    </div>
-                  </div>
+                    </span>
+                  )}
+                </div>
 
-                  {/* Arrow */}
-                  <div className="flex items-center shrink-0">
-                    <ChevronRight className="w-4 h-4 text-stone-300 group-hover:text-green-600 transition-colors" />
-                  </div>
+                {/* Arrow */}
+                <div className="px-2.5 pb-2 flex justify-end">
+                  <ChevronRight className="w-3.5 h-3.5 text-stone-300 group-hover:text-green-600 transition-colors" />
                 </div>
               </Link>
             ))}
           </div>
         )}
 
+        {/* Infinite scroll sentinel */}
+        <div ref={sentinelRef} className="h-12 flex items-center justify-center mt-4">
+          {isFetchingNextPage && (
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-stone-400" />
+          )}
+        </div>
+
         {/* Trust Badge */}
-        {!loading && filteredProducts.length > 0 && (
-          <div className="mt-6 text-center">
+        {!isLoading && filteredProducts.length > 0 && (
+          <div className="mt-4 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-stone-200 text-xs md:text-sm text-stone-600">
               <Shield className="w-4 h-4 text-green-600" />
               {t('certificate.allVerified', 'Todos los certificados verificados')}

@@ -6,21 +6,23 @@ import {
   Baby,
   ChefHat,
   Compass,
+  Cookie,
   Dog,
   Droplets,
+  Dumbbell,
   Flame,
-  Gift,
+  Globe2,
   Grid3X3,
   Leaf,
   MapPin,
   Package,
   Search,
   SlidersHorizontal,
-  Sparkles,
   Star,
   Store,
   TrendingUp,
   WheatOff,
+  Zap,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -43,15 +45,18 @@ const MAIN_SECTIONS = [
 ];
 
 const CATEGORIES_MINI = [
-  { id: 'aceites', label: 'Aceites', icon: Droplets },
-  { id: 'miel', label: 'Miel', icon: Sparkles },
-  { id: 'quesos', label: 'Quesos', icon: Star },
-  { id: 'kombucha', label: 'Kombucha', icon: Flame },
-  { id: 'bebe', label: 'Bebé', icon: Baby },
+  { id: 'snacks-frutos-secos', label: 'Snacks', icon: Cookie },
+  { id: 'bebidas-naturales', label: 'Bebidas naturales', icon: Droplets },
+  { id: 'orgánico-eco', label: 'Ecológico', icon: Leaf },
+  { id: 'proteina-fitness', label: 'Fitness', icon: Dumbbell },
+  { id: 'alimentacion-infantil', label: 'Infantil', icon: Baby },
   { id: 'mascotas', label: 'Mascotas', icon: Dog },
-  { id: 'ecologico', label: 'Ecológico', icon: Leaf },
   { id: 'sin-gluten', label: 'Sin gluten', icon: WheatOff },
-  { id: 'packs', label: 'Packs', icon: Gift },
+  { id: 'sin-azucar', label: 'Sin azúcar', icon: Leaf },
+  { id: 'vegano', label: 'Vegano', icon: Leaf },
+  { id: 'superfoods', label: 'Superfoods', icon: Zap },
+  { id: 'especias-condimentos', label: 'Mediterráneo', icon: Flame },
+  { id: 'importados-premium', label: 'Gourmet', icon: Globe2 },
 ];
 
 const FILTER_FEATURES = [
@@ -141,7 +146,7 @@ export default function DiscoverPage() {
   };
 
   const handleCategoryClick = (categoryId) => {
-    navigate(`/category/${categoryId}`);
+    navigate(`/products?category=${encodeURIComponent(categoryId)}`);
   };
 
   const handleSectionClick = (sectionId) => {
