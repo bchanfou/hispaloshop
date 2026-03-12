@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -35,6 +35,32 @@ const COUNTRY_NAMES = {
   Unknown: 'Sin especificar'
 };
 
+function normalizeUserStats(rawStats) {
+  if (!rawStats) return null;
+
+  if (rawStats.customers && rawStats.producers && rawStats.influencers) {
+    return rawStats;
+  }
+
+  return {
+    customers: {
+      total: rawStats.total_customers || 0,
+      active: rawStats.total_customers || 0,
+      suspended: 0,
+    },
+    producers: {
+      total: rawStats.total_producers || 0,
+      active: rawStats.total_producers || 0,
+      suspended: 0,
+    },
+    influencers: {
+      total: rawStats.total_influencers || 0,
+      active: rawStats.total_influencers || 0,
+      suspended: 0,
+    },
+  };
+}
+
 export default function UserManagement() {
   const { t } = useTranslation();
   const [users, setUsers] = useState([]);
@@ -51,6 +77,7 @@ export default function UserManagement() {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const normalizedStats = useMemo(() => normalizeUserStats(stats), [stats]);
 
   useEffect(() => {
     fetchCountries();
@@ -99,10 +126,14 @@ export default function UserManagement() {
   const updateUserStatus = async (userId, newStatus) => {
     setActionLoading(userId);
     try {
+      const action = newStatus === 'suspended' ? 'suspend' : 'reactivate';
       await axios.put(
         `${API}/super-admin/users/${userId}/status`,
-        { status: newStatus },
-        { withCredentials: true }
+        null,
+        {
+          withCredentials: true,
+          params: { action },
+        }
       );
       toast.success(newStatus === 'suspended' 
         ? t('userManagement.messages.suspended') 
@@ -202,7 +233,7 @@ export default function UserManagement() {
       </div>
 
       {/* Stats Cards */}
-      {stats && (
+      {normalizedStats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div 
             onClick={() => setSelectedRole('customer')}
@@ -219,15 +250,15 @@ export default function UserManagement() {
             <div className="grid grid-cols-3 gap-2 text-sm">
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.total')}</p>
-                <p className="text-xl font-bold text-text-primary">{stats.customers.total}</p>
+                <p className="text-xl font-bold text-text-primary">{normalizedStats.customers.total}</p>
               </div>
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.active')}</p>
-                <p className="text-xl font-bold text-green-600">{stats.customers.active}</p>
+                <p className="text-xl font-bold text-green-600">{normalizedStats.customers.active}</p>
               </div>
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.suspended')}</p>
-                <p className="text-xl font-bold text-red-600">{stats.customers.suspended}</p>
+                <p className="text-xl font-bold text-red-600">{normalizedStats.customers.suspended}</p>
               </div>
             </div>
           </div>
@@ -247,15 +278,15 @@ export default function UserManagement() {
             <div className="grid grid-cols-3 gap-2 text-sm">
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.total')}</p>
-                <p className="text-xl font-bold text-text-primary">{stats.producers.total}</p>
+                <p className="text-xl font-bold text-text-primary">{normalizedStats.producers.total}</p>
               </div>
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.active')}</p>
-                <p className="text-xl font-bold text-green-600">{stats.producers.active}</p>
+                <p className="text-xl font-bold text-green-600">{normalizedStats.producers.active}</p>
               </div>
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.suspended')}</p>
-                <p className="text-xl font-bold text-red-600">{stats.producers.suspended}</p>
+                <p className="text-xl font-bold text-red-600">{normalizedStats.producers.suspended}</p>
               </div>
             </div>
           </div>
@@ -275,15 +306,15 @@ export default function UserManagement() {
             <div className="grid grid-cols-3 gap-2 text-sm">
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.total')}</p>
-                <p className="text-xl font-bold text-text-primary">{stats.influencers.total}</p>
+                <p className="text-xl font-bold text-text-primary">{normalizedStats.influencers.total}</p>
               </div>
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.active')}</p>
-                <p className="text-xl font-bold text-green-600">{stats.influencers.active}</p>
+                <p className="text-xl font-bold text-green-600">{normalizedStats.influencers.active}</p>
               </div>
               <div>
                 <p className="text-text-muted">{t('userManagement.stats.suspended')}</p>
-                <p className="text-xl font-bold text-red-600">{stats.influencers.suspended}</p>
+                <p className="text-xl font-bold text-red-600">{normalizedStats.influencers.suspended}</p>
               </div>
             </div>
           </div>
@@ -317,7 +348,7 @@ export default function UserManagement() {
               <option value="all">{t('userManagement.filters.allCountries')}</option>
               {countries.map(c => (
                 <option key={c.code} value={c.code}>
-                  {COUNTRY_NAMES[c.code] || c.code} ({c.count})
+                  {COUNTRY_NAMES[c.code] || c.code} ({c.user_count ?? c.count ?? 0})
                 </option>
               ))}
             </select>

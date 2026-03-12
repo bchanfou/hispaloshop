@@ -51,6 +51,11 @@ export default function AdminOverview() {
     () => (stats?.pending_producers || 0) + (stats?.pending_products || 0) + (stats?.pending_certificates || 0),
     [stats],
   );
+  const producerTotal = stats?.total_producers || 0;
+  const productTotal = stats?.total_products || 0;
+  const pendingProducers = stats?.pending_producers || stats?.pending_moderation?.users || 0;
+  const pendingProducts = stats?.pending_products || stats?.pending_moderation?.products || 0;
+  const pendingCertificates = stats?.pending_certificates || 0;
 
   if (loading) {
     return (
@@ -69,10 +74,10 @@ export default function AdminOverview() {
         </header>
 
         <section className="ds-section ds-grid-4">
-          <AdminCard icon={Users} title="Usuarios" value={stats?.total_producers || 0} description={`${stats?.pending_producers || 0} pendientes`} to="/admin/producers" />
-          <AdminCard icon={Package} title="Productos" value={stats?.total_products || 0} description={`${stats?.pending_products || 0} por revisar`} to="/admin/products" />
+          <AdminCard icon={Users} title="Usuarios" value={producerTotal} description={`${pendingProducers} pendientes`} to="/admin/producers" />
+          <AdminCard icon={Package} title="Productos" value={productTotal} description={`${pendingProducts} por revisar`} to="/admin/products" />
           <AdminCard icon={ShieldAlert} title="Informes" value={pendingCount} description="Revisión operativa" to="/admin/reviews" />
-          <AdminCard icon={FileCheck} title="Certificados" value={stats?.pending_certificates || 0} description="Validaciones abiertas" to="/admin/certificates" />
+          <AdminCard icon={FileCheck} title="Certificados" value={pendingCertificates} description="Validaciones abiertas" to="/admin/certificates" />
         </section>
 
         <section className="ds-section grid gap-6 lg:grid-cols-2">
@@ -81,15 +86,15 @@ export default function AdminOverview() {
             <div className="mt-5 space-y-3">
               <Link to="/admin/producers" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
                 <span>Productores e importadores</span>
-                <span>{stats?.pending_producers || 0}</span>
+                <span>{pendingProducers}</span>
               </Link>
               <Link to="/admin/products" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
                 <span>Productos pendientes</span>
-                <span>{stats?.pending_products || 0}</span>
+                <span>{pendingProducts}</span>
               </Link>
               <Link to="/admin/certificates" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
                 <span>Certificados</span>
-                <span>{stats?.pending_certificates || 0}</span>
+                <span>{pendingCertificates}</span>
               </Link>
             </div>
           </div>

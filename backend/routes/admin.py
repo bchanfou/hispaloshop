@@ -700,7 +700,8 @@ async def get_user_countries(user: User = Depends(get_current_user)):
             countries.append({
                 "code": country_code,
                 "name": SUPPORTED_COUNTRIES.get(country_code, {}).get("name", country_code),
-                "user_count": r["count"]
+                "user_count": r["count"],
+                "count": r["count"],
             })
     
     return countries
@@ -724,19 +725,43 @@ async def get_user_stats(user: User = Depends(get_current_user)):
     
     results = await db.users.aggregate(pipeline).to_list(120)
     
+    total_customers = await db.users.count_documents({"role": "customer"})
+    total_producers = await db.users.count_documents({"role": {"$in": ["producer", "importer"]}})
+    total_influencers = await db.users.count_documents({"role": "influencer"})
+
+    customers_suspended = await db.users.count_documents({"role": "customer", "account_status": "suspended"})
+    producers_suspended = await db.users.count_documents({"role": {"$in": ["producer", "importer"]}, "account_status": "suspended"})
+    influencers_suspended = await db.users.count_documents({"role": "influencer", "account_status": "suspended"})
+
     return {
         "by_role_month": results,
-        "total_customers": await db.users.count_documents({"role": "customer"}),
-        "total_producers": await db.users.count_documents({"role": {"$in": ["producer", "importer"]}}),
-        "total_influencers": await db.users.count_documents({"role": "influencer"}),
-        "suspended": await db.users.count_documents({"account_status": "suspended"})
+        "total_customers": total_customers,
+        "total_producers": total_producers,
+        "total_influencers": total_influencers,
+        "suspended": customers_suspended + producers_suspended + influencers_suspended,
+        "customers": {
+            "total": total_customers,
+            "active": max(0, total_customers - customers_suspended),
+            "suspended": customers_suspended,
+        },
+        "producers": {
+            "total": total_producers,
+            "active": max(0, total_producers - producers_suspended),
+            "suspended": producers_suspended,
+        },
+        "influencers": {
+            "total": total_influencers,
+            "active": max(0, total_influencers - influencers_suspended),
+            "suspended": influencers_suspended,
+        },
     }
 
 @router.put("/super-admin/users/{user_id}/status")
 async def update_user_status(
     user_id: str,
-    action: str,
+    action: Optional[str] = None,
     reason: Optional[str] = None,
+    request: Request = None,
     user: User = Depends(get_current_user)
 ):
     """Update user account status (Super Admin only)"""
@@ -746,6 +771,17 @@ async def update_user_status(
     if not target_user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    if not action and request is not None:
+        body = await request.json()
+        action = body.get("action")
+        if not action:
+            status = body.get("status")
+            if status == "suspended":
+                action = "suspend"
+            elif status == "active":
+                action = "reactivate"
+        reason = reason or body.get("reason")
+
     if action == "suspend":
         await db.users.update_one(
             {"user_id": user_id},
