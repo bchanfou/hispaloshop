@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area
 } from 'recharts';
 import { 
-  Globe, Users, Brain, ShieldCheck, TrendingUp, AlertTriangle,
+  Globe, Users, Brain, ShieldCheck, TrendingUp, BarChart3, AlertTriangle,
   Settings, ChevronDown, RefreshCw, Eye, EyeOff, Lock, CheckCircle2, XCircle
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -161,7 +161,7 @@ export default function InsightsDashboard() {
           { id: 'overview', label: t('superAdmin.insights.tabs.overview'), icon: Globe },
           { id: 'countries', label: t('superAdmin.insights.tabs.countries'), icon: Users },
           { id: 'ai', label: t('superAdmin.insights.tabs.ai'), icon: TrendingUp },
-          { id: 'trends', label: t('superAdmin.insights.tabs.trends'), icon: BarChart },
+          { id: 'trends', label: t('superAdmin.insights.tabs.trends'), icon: BarChart3 },
           { id: 'compliance', label: t('superAdmin.insights.tabs.compliance'), icon: ShieldCheck }
         ].map(tab => (
           <button
@@ -383,13 +383,13 @@ function GlobalOverviewTab({ data }) {
       <div className="bg-white rounded-xl border border-stone-200 p-6 md:col-span-2 lg:col-span-3" data-testid="card-countries">
         <h3 className="font-medium text-text-muted mb-4">Top Countries</h3>
         <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={data.top_countries.slice(0, 8)}>
+          <RechartsBarChart data={data.top_countries.slice(0, 8)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
             <XAxis dataKey="country" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
             <Bar dataKey="count" fill="#1C1C1C" radius={[4, 4, 0, 0]} />
-          </BarChart>
+          </RechartsBarChart>
         </ResponsiveContainer>
       </div>
     </div>
@@ -595,13 +595,13 @@ function AIPerformanceTab({ data }) {
         <h3 className="font-medium text-primary mb-4">AI Action Usage</h3>
         {actionData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={actionData} layout="vertical">
+            <RechartsBarChart data={actionData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
               <XAxis type="number" tick={{ fontSize: 12 }} />
               <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={150} />
               <Tooltip />
               <Bar dataKey="value" fill="#1C1C1C" radius={[0, 4, 4, 0]} />
-            </BarChart>
+            </RechartsBarChart>
           </ResponsiveContainer>
         ) : (
           <p className="text-center text-text-muted py-8">No action data yet</p>
@@ -650,13 +650,13 @@ function TrendsTab({ data }) {
           <h3 className="font-medium text-primary mb-4">Diet Goal Trends</h3>
           {data.diet_trends.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={data.diet_trends.slice(0, 8)}>
+              <RechartsBarChart data={data.diet_trends.slice(0, 8)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
                 <XAxis dataKey="tag" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip formatter={(value) => `${value}%`} />
                 <Bar dataKey="percentage" fill="#3182CE" radius={[4, 4, 0, 0]} />
-              </BarChart>
+              </RechartsBarChart>
             </ResponsiveContainer>
           ) : (
             <p className="text-center text-text-muted py-8">Insufficient data</p>

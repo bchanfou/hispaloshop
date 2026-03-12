@@ -260,7 +260,7 @@ function StoryViewer({ group, onClose }) {
       ) : null}
 
       {parsedCaption.product ? (
-        <Link to={`/products/${parsedCaption.product.product_id || parsedCaption.product.id}`} onClick={onClose} className="absolute bottom-20 left-4 right-4 z-[6]">
+        <Link to={`/products/${parsedCaption.product.id}`} onClick={onClose} className="absolute bottom-20 left-4 right-4 z-[6]">
           <div className="flex items-center gap-2 rounded-xl bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm">
             <ShoppingBag className="h-4 w-4 shrink-0 text-stone-950" />
             <div className="min-w-0 flex-1">

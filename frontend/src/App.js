@@ -381,10 +381,20 @@ function AppRouter() {
                 <Route path="insights" element={<InsightsDashboard />} />
                 <Route path="finance" element={<FinancialDashboard />} />
                 <Route path="markets" element={<MarketCoverage />} />
-                <Route path="analytics" element={<AdminOverview />} />
+                <Route path="analytics" element={<InsightsDashboard />} />
                 <Route path="admins" element={<AdminManagement />} />
                 <Route path="escalation" element={<EscalationChat />} />
               </Route>
+
+              {/* Legacy super-admin routes kept for old menu links */}
+              <Route path="/admin/users" element={<Navigate to="/super-admin/users" replace />} />
+              <Route path="/admin/admins" element={<Navigate to="/super-admin/admins" replace />} />
+              <Route path="/admin/finance" element={<Navigate to="/super-admin/finance" replace />} />
+              <Route path="/admin/markets" element={<Navigate to="/super-admin/markets" replace />} />
+              <Route path="/admin/content" element={<Navigate to="/super-admin/content" replace />} />
+              <Route path="/admin/insights" element={<Navigate to="/super-admin/insights" replace />} />
+              <Route path="/admin/analytics" element={<Navigate to="/super-admin/analytics" replace />} />
+              <Route path="/admin/escalations" element={<Navigate to="/super-admin/escalation" replace />} />
 
               <Route
                 path="/producer"
