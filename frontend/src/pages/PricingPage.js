@@ -46,7 +46,7 @@ export default function PricingPage() {
 
   const handleSellerEntry = () => {
     if (!user) {
-      navigate(`/productor/registro?plan=${String(planKey || 'free').toLowerCase()}`);
+      navigate(sellerSignupPath);
       return;
     }
 

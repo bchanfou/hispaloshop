@@ -615,10 +615,7 @@ function PostCard({ post, currentUser, onDelete }) {
     if (navigator.share) {
       try { await navigator.share({ title: text, url }); } catch { /* ignore */ }
     } else {
-      // Desktop: show share options
-      if (false) shareToWhatsApp();
-      const waUrl = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
-      window.open(waUrl, '_blank');
+      shareToWhatsApp();
     }
   };
 
@@ -720,8 +717,6 @@ function PostCard({ post, currentUser, onDelete }) {
           {likeAnim && <div className="absolute inset-0 flex items-center justify-center pointer-events-none"><Heart className="h-14 w-14 fill-white text-white animate-pulse opacity-85" /></div>}
         </div>
       )}
-      {false && post.tagged_product && <TaggedProductCard product={post.tagged_product} />}
-
       {/* Actions */}
       <div className="px-3 sm:px-4 pt-3">
         <div className="mb-2 flex items-center justify-between">

@@ -41,7 +41,6 @@ export default function AuthCallback() {
             return;
           }
           throw new Error('Google session was not established');
-          return;
         }
 
         // Legacy: Extract session_id from URL fragment (old Emergent auth)

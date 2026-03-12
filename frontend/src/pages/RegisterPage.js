@@ -105,7 +105,7 @@ const renderField = ({ id, label, required, error, children }) => (
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { language } = useLocale();
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role');

@@ -81,7 +81,9 @@ export default function EscalationChat() {
           }
           fetchEscalations();
         }
-      } catch {}
+      } catch {
+        // Ignore malformed websocket payloads and keep stream alive.
+      }
     };
     return () => ws.close();
   }, [user, activeConvId, fetchEscalations]);

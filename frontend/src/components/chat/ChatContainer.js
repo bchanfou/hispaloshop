@@ -125,7 +125,7 @@ function ChatContainer() {
     sendMessage,
     switchRole,
     clearChat,
-    useSuggestion,
+    useSuggestion: applySuggestion,
     availableRoles,
   } = useHIChat();
 
@@ -169,7 +169,7 @@ function ChatContainer() {
   }, []);
 
   const handleSuggestionClick = async (suggestion) => {
-    await useSuggestion(suggestion);
+    await applySuggestion(suggestion);
   };
 
   const handleSwitchRole = (newRole) => {

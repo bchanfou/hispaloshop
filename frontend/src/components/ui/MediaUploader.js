@@ -139,7 +139,9 @@ export default function MediaUploader({
           try {
             const body = JSON.parse(xhr.responseText);
             if (body?.detail) msg = body.detail;
-          } catch {}
+          } catch {
+            // Ignore invalid JSON body and keep generic upload error message.
+          }
           if (xhr.status === 503) msg = 'Almacenamiento de medios no configurado. Contacta al administrador.';
           setError(msg);
           onError?.(msg);
