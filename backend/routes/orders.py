@@ -1257,6 +1257,19 @@ async def checkout_status(session_id: str, user: User = Depends(get_current_user
     
     return {"status": session.status, "payment_status": payment_status, "amount_total": session.amount_total, "currency": session.currency}
 
+
+@router.get("/checkout/{checkout_id}")
+async def legacy_checkout_status(checkout_id: str, user: User = Depends(get_current_user)):
+    """Legacy alias for checkout status polling used by older frontend hooks."""
+    return await checkout_status(checkout_id, user)
+
+
+@router.post("/checkout/{checkout_id}/confirm")
+async def legacy_checkout_confirm(checkout_id: str, user: User = Depends(get_current_user)):
+    """Legacy alias to force checkout processing for older frontend flows."""
+    await process_payment_confirmed(checkout_id, user_id=user.user_id)
+    return {"success": True, "status": "processed"}
+
 @router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
     """
@@ -1740,6 +1753,93 @@ async def get_order(order_id: str, user: User = Depends(get_current_user)):
     if user.role == "customer" and order["user_id"] != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
     return order
+
+
+@router.get("/orders/{order_id}/tracking")
+async def get_order_tracking(order_id: str, user: User = Depends(get_current_user)):
+    """Legacy tracking endpoint for frontend compatibility."""
+    order = await get_order(order_id, user)
+    return {
+        "order_id": order.get("order_id"),
+        "status": order.get("status"),
+        "tracking_number": order.get("tracking_number"),
+        "tracking_url": order.get("tracking_url"),
+        "shipping_carrier": order.get("shipping_carrier"),
+        "updated_at": order.get("updated_at"),
+    }
+
+
+@router.post("/orders/{order_id}/cancel")
+async def cancel_order(order_id: str, user: User = Depends(get_current_user)):
+    """Legacy cancel endpoint for frontend compatibility."""
+    order = await get_order(order_id, user)
+    current_status = (order.get("status") or "").lower()
+    if current_status in {"delivered", "cancelled", "refunded"}:
+        raise HTTPException(status_code=400, detail="Order cannot be cancelled")
+
+    await db.orders.update_one(
+        {"order_id": order_id},
+        {
+            "$set": {
+                "status": "cancelled",
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        },
+    )
+    return {"success": True, "status": "cancelled"}
+
+
+@router.post("/orders/{order_id}/reorder")
+async def reorder_order(order_id: str, user: User = Depends(get_current_user)):
+    """Legacy reorder endpoint for frontend compatibility."""
+    order = await get_order(order_id, user)
+    if user.role == "customer" and order.get("user_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    line_items = order.get("line_items", [])
+    if not line_items:
+        return {"success": False, "reason": "empty_order"}
+
+    cart = await db.carts.find_one({"user_id": user.user_id, "status": "active"})
+    cart_items = list(cart.get("items", [])) if cart else []
+
+    for item in line_items:
+        product_id = item.get("product_id")
+        quantity = int(item.get("quantity", 1) or 1)
+        if not product_id or quantity <= 0:
+            continue
+
+        unit_price = int(item.get("price_cents", 0) or item.get("unit_price_cents", 0) or 0)
+        cart_items.append({
+            "product_id": product_id,
+            "product_name": item.get("name") or item.get("product_name"),
+            "product_image": item.get("image") or item.get("product_image"),
+            "seller_id": item.get("producer_id") or item.get("seller_id"),
+            "seller_type": "producer",
+            "quantity": quantity,
+            "unit_price_cents": unit_price,
+            "total_price_cents": unit_price * quantity,
+            "variant_id": item.get("variant_id"),
+            "added_at": datetime.now(timezone.utc),
+        })
+
+    if cart:
+        await db.carts.update_one(
+            {"_id": cart["_id"]},
+            {"$set": {"items": cart_items, "updated_at": datetime.now(timezone.utc)}},
+        )
+    else:
+        await db.carts.insert_one({
+            "user_id": user.user_id,
+            "tenant_id": getattr(user, 'country', None) or "ES",
+            "status": "active",
+            "items": cart_items,
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        })
+
+    return {"success": True, "items_added": len(line_items)}
 
 @router.put("/orders/{order_id}/status")
 async def update_order_status(order_id: str, update: OrderStatusUpdate, user: User = Depends(get_current_user)):

@@ -43,7 +43,7 @@ const MOCK_COMMENTS = [
   },
 ];
 
-function CommentItem({ comment, onLike }) {
+function CommentItem({ comment, onLike, onReply }) {
   const [liked, setLiked] = useState(comment.liked);
   const [likes, setLikes] = useState(comment.likes);
   const [showReplies, setShowReplies] = useState(false);
@@ -85,7 +85,13 @@ function CommentItem({ comment, onLike }) {
           <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
             <span>{formatTime(comment.timestamp)}</span>
             {likes > 0 && <span>{likes} me gusta</span>}
-            <button className="font-semibold">Responder</button>
+            <button
+              type="button"
+              onClick={() => onReply?.(comment.user?.username)}
+              className="font-semibold"
+            >
+              Responder
+            </button>
           </div>
           
           {/* Replies */}
@@ -160,6 +166,18 @@ function ReelComments({ isOpen, onClose, commentsCount }) {
     console.log('Like comment:', commentId, liked);
   };
 
+  const handleReplyToUser = (username) => {
+    if (!username) return;
+    const mention = `@${username} `;
+    setNewComment((current) => {
+      if (current.startsWith(mention)) return current;
+      return mention;
+    });
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -206,6 +224,7 @@ function ReelComments({ isOpen, onClose, commentsCount }) {
                     key={comment.id}
                     comment={comment}
                     onLike={handleLikeComment}
+                    onReply={handleReplyToUser}
                   />
                 ))
               )}

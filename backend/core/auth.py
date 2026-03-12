@@ -11,6 +11,16 @@ from .models import User
 logger = logging.getLogger(__name__)
 
 
+def _normalize_role(raw_role: Optional[str]) -> str:
+    role = str(raw_role or '').lower().replace('-', '_')
+    role_map = {
+        'superadmin': 'super_admin',
+        'consumer': 'customer',
+        'seller': 'producer',
+    }
+    return role_map.get(role, role)
+
+
 async def get_current_user(request: Request, authorization: Optional[str] = Header(None)) -> User:
     """Authenticate via session token (cookie or Authorization header)."""
     session_token = request.cookies.get('session_token')
@@ -33,18 +43,21 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
 
 async def require_role(user: User, allowed_roles: List[str]):
     """Raise 403 if user role not in allowed_roles. super_admin has access to all admin routes."""
+    user_role = _normalize_role(getattr(user, 'role', None))
+    normalized_allowed_roles = [_normalize_role(role) for role in allowed_roles]
+
     # super_admin has access to everything
-    if user.role == "super_admin":
+    if user_role == "super_admin":
         return
-    if "admin" in allowed_roles and user.role == "super_admin":
+    if "admin" in normalized_allowed_roles and user_role == "super_admin":
         return
-    if user.role not in allowed_roles:
+    if user_role not in normalized_allowed_roles:
         raise HTTPException(status_code=403, detail="Insufficient permissions")
 
 
 async def require_super_admin(user: User):
     """Raise 403 if user is not super_admin."""
-    if user.role != "super_admin":
+    if _normalize_role(getattr(user, 'role', None)) != "super_admin":
         raise HTTPException(status_code=403, detail="Super admin access required")
 
 

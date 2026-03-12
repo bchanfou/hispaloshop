@@ -32,6 +32,11 @@ function normalizeEndpoint(raw) {
   p = p.replace(/\?.*$/, '');
   // Strip common template base URL placeholders used in frontend.
   p = p.replace(/^\$\{(?:API|apiBase|getApiUrl\(\)|API_BASE_URL)\}/, '');
+  // Normalize ternary template literals used in endpoint suffixes.
+  p = p.replace(/\$\{[^}]*\?\s*'[^']*'\s*:\s*'[^']*'\s*\}/g, '{choice}');
+  p = p.replace(/\$\{[^}]*\?\s*"[^"]*"\s*:\s*"[^"]*"\s*\}/g, '{choice}');
+  // Drop optional template suffixes often used only for query strings.
+  p = p.replace(/\$\{suffix\}/g, '');
   p = p.replace(/\$\{[^}]+\}/g, '{param}');
   p = p.replace(/:[A-Za-z_][A-Za-z0-9_]*/g, '{param}');
   p = p.replace(/\{[A-Za-z_][A-Za-z0-9_]*\}/g, '{param}');

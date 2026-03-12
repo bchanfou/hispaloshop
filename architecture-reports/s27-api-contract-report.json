@@ -1,80 +1,14 @@
 {
-  "generated_at": "2026-03-12T12:40:46.779Z",
+  "generated_at": "2026-03-12T13:15:45.185Z",
   "frontend_calls": 398,
-  "backend_routes": 614,
-  "potential_mismatches": 31,
+  "backend_routes": 625,
+  "potential_mismatches": 13,
   "mismatches": [
-    {
-      "file": "frontend/src/features/cart/queries/useCartQueries.js",
-      "method": "PUT",
-      "endpoint": "/cart/items/{param}",
-      "raw": "/cart/items/${itemId}"
-    },
-    {
-      "file": "frontend/src/features/cart/queries/useCartQueries.js",
-      "method": "POST",
-      "endpoint": "/cart/sync",
-      "raw": "/cart/sync"
-    },
-    {
-      "file": "frontend/src/features/cart/queries/useCartQueries.js",
-      "method": "GET",
-      "endpoint": "/checkout/{param}",
-      "raw": "/checkout/${checkoutId}"
-    },
-    {
-      "file": "frontend/src/features/cart/queries/useCartQueries.js",
-      "method": "POST",
-      "endpoint": "/checkout/{param}/confirm",
-      "raw": "/checkout/${checkoutId}/confirm"
-    },
-    {
-      "file": "frontend/src/features/cart/queries/useCartQueries.js",
-      "method": "GET",
-      "endpoint": "/orders/{param}/tracking",
-      "raw": "/orders/${orderId}/tracking"
-    },
-    {
-      "file": "frontend/src/features/cart/queries/useCartQueries.js",
-      "method": "POST",
-      "endpoint": "/orders/{param}/cancel",
-      "raw": "/orders/${orderId}/cancel"
-    },
-    {
-      "file": "frontend/src/features/cart/queries/useCartQueries.js",
-      "method": "POST",
-      "endpoint": "/orders/{param}/reorder",
-      "raw": "/orders/${orderId}/reorder"
-    },
-    {
-      "file": "frontend/src/features/chat/queries/useHIChatQueries.js",
-      "method": "GET",
-      "endpoint": "/hi/conversations",
-      "raw": "/hi/conversations"
-    },
-    {
-      "file": "frontend/src/features/chat/queries/useHIChatQueries.js",
-      "method": "GET",
-      "endpoint": "/hi/conversations/{param}",
-      "raw": "/hi/conversations/${conversationId}"
-    },
-    {
-      "file": "frontend/src/features/chat/queries/useHIChatQueries.js",
-      "method": "POST",
-      "endpoint": "/hi/chat",
-      "raw": "/hi/chat"
-    },
     {
       "file": "frontend/src/features/chat/queries/useHIChatQueries.js",
       "method": "DELETE",
       "endpoint": "/hi/conversations/{param}",
       "raw": "/hi/conversations/${conversationId}"
-    },
-    {
-      "file": "frontend/src/features/chat/queries/useHIChatQueries.js",
-      "method": "GET",
-      "endpoint": "/hi/suggestions",
-      "raw": "/hi/suggestions"
     },
     {
       "file": "frontend/src/features/chat/queries/useHIChatQueries.js",
@@ -87,36 +21,6 @@
       "method": "POST",
       "endpoint": "/hi/feedback",
       "raw": "/hi/feedback"
-    },
-    {
-      "file": "frontend/src/features/chat/queries/useHIChatQueries.js",
-      "method": "POST",
-      "endpoint": "/hi/conversations",
-      "raw": "/hi/conversations"
-    },
-    {
-      "file": "frontend/src/features/feed/queries/useFeedQueries.js",
-      "method": "POST",
-      "endpoint": "/posts/{param}/${liked ",
-      "raw": "/posts/${postId}/${liked ? 'unlike' : 'like'}"
-    },
-    {
-      "file": "frontend/src/features/feed/queries/useFeedQueries.js",
-      "method": "POST",
-      "endpoint": "/posts/{param}/${saved ",
-      "raw": "/posts/${postId}/${saved ? 'unsave' : 'save'}"
-    },
-    {
-      "file": "frontend/src/features/feed/queries/useFeedQueries.js",
-      "method": "POST",
-      "endpoint": "/users/{param}/${following ",
-      "raw": "/users/${userId}/${following ? 'unfollow' : 'follow'}"
-    },
-    {
-      "file": "frontend/src/features/onboarding/queries/useOnboardingQueries.js",
-      "method": "POST",
-      "endpoint": "/user/onboarding",
-      "raw": "/user/onboarding"
     },
     {
       "file": "frontend/src/features/products/queries/useProductQueries.js",
@@ -138,12 +42,6 @@
     },
     {
       "file": "frontend/src/features/products/queries/useProductQueries.js",
-      "method": "POST",
-      "endpoint": "/products/{param}/reviews",
-      "raw": "/products/${productId}/reviews"
-    },
-    {
-      "file": "frontend/src/features/products/queries/useProductQueries.js",
       "method": "GET",
       "endpoint": "/products/b2b",
       "raw": "/products/b2b"
@@ -153,12 +51,6 @@
       "method": "GET",
       "endpoint": "/products/b2b/{param}/moq",
       "raw": "/products/b2b/${productId}/moq"
-    },
-    {
-      "file": "frontend/src/features/user/queries/useUserQueries.js",
-      "method": "GET",
-      "endpoint": "/users/{param}/posts{param}",
-      "raw": "/users/${userId}/posts${suffix}"
     },
     {
       "file": "frontend/src/hooks/api/useAuth.js",

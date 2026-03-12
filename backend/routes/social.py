@@ -507,6 +507,88 @@ async def like_reel(reel_id: str, user: User = Depends(get_current_user)):
     return {"liked": True}
 
 
+@router.get("/reels/{reel_id}/comments")
+async def get_reel_comments(reel_id: str, request: Request, skip: int = 0, limit: int = 50):
+    """Get reel comments (latest first)."""
+    comments = await db.reel_comments.find(
+        {"reel_id": reel_id},
+        {"_id": 0},
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+
+    if current_user and comments:
+        comment_ids = [c.get("comment_id") for c in comments if c.get("comment_id")]
+        if comment_ids:
+            liked_rows = await db.reel_comment_likes.find(
+                {"comment_id": {"$in": comment_ids}, "user_id": current_user.user_id},
+                {"_id": 0, "comment_id": 1},
+            ).to_list(len(comment_ids))
+            liked_set = {row.get("comment_id") for row in liked_rows}
+            for comment in comments:
+                comment["is_liked"] = comment.get("comment_id") in liked_set
+    return comments
+
+
+@router.post("/reels/{reel_id}/comments")
+async def add_reel_comment(reel_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Add a comment to a reel."""
+    body = await request.json()
+    text = (body.get("text") or body.get("message") or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Comment text required")
+
+    filter_q = {"$or": [{"reel_id": reel_id}, {"id": reel_id}]}
+    reel = await db.reels.find_one(filter_q, {"_id": 0, "reel_id": 1, "id": 1})
+    if not reel:
+        raise HTTPException(status_code=404, detail="Reel not found")
+
+    comment_id = f"rcom_{uuid.uuid4().hex[:10]}"
+    comment = {
+        "comment_id": comment_id,
+        "reel_id": reel.get("reel_id") or reel.get("id") or reel_id,
+        "user_id": user.user_id,
+        "user_name": user.get("name") if hasattr(user, "get") else getattr(user, "name", "Usuario"),
+        "user_profile_image": user.get("profile_image") if hasattr(user, "get") else getattr(user, "profile_image", None),
+        "text": text[:500],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "likes_count": 0,
+        "replies": [],
+    }
+    await db.reel_comments.insert_one(comment)
+    await db.reels.update_one(filter_q, {"$inc": {"comments_count": 1}})
+    await _record_intelligence_signal("content_engagement", {"content_type": "reel", "content_id": reel_id, "action": "comment"}, user.user_id)
+    return {k: v for k, v in comment.items() if k != "_id"}
+
+
+@router.post("/reels/{reel_id}/comments/{comment_id}/like")
+async def like_reel_comment(reel_id: str, comment_id: str, user: User = Depends(get_current_user)):
+    """Toggle like on a reel comment."""
+    comment = await db.reel_comments.find_one({"comment_id": comment_id, "reel_id": reel_id}, {"_id": 0, "likes_count": 1})
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    existing = await db.reel_comment_likes.find_one({"comment_id": comment_id, "user_id": user.user_id})
+    if existing:
+        await db.reel_comment_likes.delete_one({"comment_id": comment_id, "user_id": user.user_id})
+        await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": -1}})
+        liked = False
+    else:
+        await db.reel_comment_likes.insert_one({
+            "comment_id": comment_id,
+            "user_id": user.user_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        await db.reel_comments.update_one({"comment_id": comment_id}, {"$inc": {"likes_count": 1}})
+        liked = True
+
+    updated = await db.reel_comments.find_one({"comment_id": comment_id}, {"_id": 0, "likes_count": 1})
+    return {"liked": liked, "likes_count": (updated or {}).get("likes_count", 0)}
+
+
 @router.get("/users/{user_id}/profile")
 async def get_user_profile(user_id: str, request: Request):
     """Get public user profile — enhanced with seller stats for producers."""
@@ -1276,6 +1358,8 @@ async def create_story(
         "created_at": now.isoformat(),
         "expires_at": (now + timedelta(hours=24)).isoformat(),
         "views": [],
+        "likes_count": 0,
+        "replies_count": 0,
     }
     await db.hispalostories.insert_one(story)
     return {k: v for k, v in story.items() if k != "_id"}
@@ -1357,6 +1441,54 @@ async def view_story(story_id: str, request: Request):
         {"$push": {"views": current_user.user_id}}
     )
     return {"status": "ok"}
+
+
+@router.post("/stories/{story_id}/like")
+async def like_story(story_id: str, user: User = Depends(get_current_user)):
+    """Toggle like on a story."""
+    existing = await db.story_likes.find_one({"story_id": story_id, "user_id": user.user_id})
+    if existing:
+        await db.story_likes.delete_one({"story_id": story_id, "user_id": user.user_id})
+        await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"likes_count": -1}})
+        liked = False
+    else:
+        await db.story_likes.insert_one({
+            "story_id": story_id,
+            "user_id": user.user_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"likes_count": 1}})
+        liked = True
+
+    story = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "likes_count": 1})
+    return {"liked": liked, "likes_count": (story or {}).get("likes_count", 0)}
+
+
+@router.post("/stories/{story_id}/reply")
+async def reply_story(story_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Reply to a story (stored for the owner)."""
+    body = await request.json()
+    message = (body.get("message") or body.get("text") or "").strip()
+    if not message:
+        raise HTTPException(status_code=400, detail="Reply message required")
+
+    story = await db.hispalostories.find_one({"story_id": story_id}, {"_id": 0, "user_id": 1})
+    if not story:
+        raise HTTPException(status_code=404, detail="Story not found")
+
+    reply = {
+        "reply_id": f"srep_{uuid.uuid4().hex[:10]}",
+        "story_id": story_id,
+        "story_owner_id": story.get("user_id"),
+        "user_id": user.user_id,
+        "user_name": user.get("name") if hasattr(user, "get") else getattr(user, "name", "Usuario"),
+        "user_profile_image": user.get("profile_image") if hasattr(user, "get") else getattr(user, "profile_image", None),
+        "message": message[:500],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.story_replies.insert_one(reply)
+    await db.hispalostories.update_one({"story_id": story_id}, {"$inc": {"replies_count": 1}})
+    return {k: v for k, v in reply.items() if k != "_id"}
 
 
 @router.delete("/stories/{story_id}")

@@ -423,3 +423,64 @@ async def clear_cart(current_user = Depends(get_current_user)):
     )
     
     return {"success": True, "message": "Cart cleared"}
+
+
+@router.post("/sync")
+async def sync_cart(request: Request, current_user = Depends(get_current_user)):
+    """Sync cart items from client payload for legacy frontend compatibility."""
+    db = get_db()
+    payload = await request.json()
+    incoming_items = payload.get("items", []) if isinstance(payload, dict) else []
+
+    if not isinstance(incoming_items, list):
+        raise HTTPException(status_code=400, detail="items must be a list")
+
+    normalized_items = []
+    for item in incoming_items:
+        if not isinstance(item, dict):
+            continue
+        product_id = item.get("product_id") or item.get("id")
+        quantity = int(item.get("quantity", 1) or 1)
+        if not product_id or quantity <= 0:
+            continue
+
+        normalized_items.append({
+            "product_id": str(product_id),
+            "product_name": item.get("product_name") or item.get("name"),
+            "product_image": item.get("product_image") or item.get("image"),
+            "seller_id": item.get("seller_id") or item.get("producer_id"),
+            "seller_type": item.get("seller_type", "producer"),
+            "quantity": quantity,
+            "unit_price_cents": int(item.get("unit_price_cents", 0) or 0),
+            "total_price_cents": int(item.get("total_price_cents", 0) or 0),
+            "variant_id": item.get("variant_id"),
+            "added_at": datetime.utcnow(),
+        })
+
+    existing_cart = await db.carts.find_one({
+        "user_id": current_user.user_id,
+        "status": "active",
+    })
+
+    if existing_cart:
+        await db.carts.update_one(
+            {"_id": existing_cart["_id"]},
+            {
+                "$set": {
+                    "items": normalized_items,
+                    "updated_at": datetime.utcnow(),
+                }
+            },
+        )
+    else:
+        await db.carts.insert_one({
+            "user_id": current_user.user_id,
+            "tenant_id": getattr(current_user, 'country', None) or "ES",
+            "status": "active",
+            "items": normalized_items,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+            "expires_at": datetime.utcnow() + timedelta(days=7),
+        })
+
+    return {"success": True, "items_count": len(normalized_items)}

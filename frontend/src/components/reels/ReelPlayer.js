@@ -225,6 +225,7 @@ function ReelPlayer({ reel, isActive, onNext, onPrev }) {
       <ReelComments
         isOpen={showComments}
         onClose={() => setShowComments(false)}
+        reelId={reel.id}
         commentsCount={reel.stats.comments}
       />
 

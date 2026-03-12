@@ -250,9 +250,11 @@ function AppRouter() {
               <Route path="/post/:postId" element={<PostDetailPage />} />
               <Route path="/store/:storeSlug" element={<StorePage />} />
               <Route path="/tienda/:storeSlug" element={<StorePage />} />
+              <Route path="/tiendas/:storeSlug" element={<StorePage />} />
               <Route path="/certificate/:productId" element={<CertificatePage />} />
               <Route path="/certificado/:productId" element={<CertificatePage />} />
               <Route path="/certificates" element={<CertificatesListPage />} />
+              <Route path="/certificados" element={<Navigate to="/certificates" replace />} />
               <Route path="/settings/locale" element={<LocaleSettingsPage />} />
               <Route path="/configuracion/idioma" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/configuracion/pais" element={<Navigate to="/settings/locale" replace />} />
@@ -260,6 +262,7 @@ function AppRouter() {
               <Route path="/become-influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/become-seller" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/stores" element={<StoresListPage />} />
+              <Route path="/tiendas" element={<Navigate to="/stores" replace />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/discover" element={<DiscoverPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />

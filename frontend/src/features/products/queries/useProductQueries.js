@@ -36,7 +36,15 @@ export function useCategories() {
 export function useCategory(slug) {
   return useQuery({
     queryKey: productKeys.category(slug),
-    queryFn: () => apiClient.get(`/categories/${slug}`),
+    queryFn: async () => {
+      try {
+        return await apiClient.get(`/categories/${slug}`);
+      } catch {
+        const categories = await apiClient.get('/categories');
+        const list = Array.isArray(categories) ? categories : (categories?.categories || []);
+        return list.find((category) => category.slug === slug || category.id === slug) || null;
+      }
+    },
     enabled: Boolean(slug),
     staleTime: 10 * 60 * 1000,
   });
@@ -93,7 +101,13 @@ export function useProduct(productId, filters = {}) {
 export function useRelatedProducts(productId) {
   return useQuery({
     queryKey: productKeys.related(productId),
-    queryFn: () => apiClient.get(`/products/${productId}/related`),
+    queryFn: async () => {
+      try {
+        return await apiClient.get(`/products/${productId}/related`);
+      } catch {
+        return [];
+      }
+    },
     enabled: Boolean(productId),
     staleTime: 15 * 60 * 1000,
   });
@@ -121,10 +135,23 @@ export function useSearchProducts(query, filters = {}) {
 export function useSearchSuggestions(query) {
   return useQuery({
     queryKey: productKeys.suggestions(query),
-    queryFn: () =>
-      apiClient.get('/search/suggestions', {
-        params: { q: query },
-      }),
+    queryFn: async () => {
+      try {
+        return await apiClient.get('/search/suggestions', {
+          params: { q: query },
+        });
+      } catch {
+        const searchData = await apiClient.get('/search', {
+          params: { q: query, limit: 8 },
+        });
+        const products = Array.isArray(searchData?.products) ? searchData.products : [];
+        return products.map((product) => ({
+          id: product.product_id || product.id,
+          label: product.name,
+          type: 'product',
+        }));
+      }
+    },
     enabled: query.length >= 2,
     staleTime: 60 * 1000,
   });
@@ -152,10 +179,11 @@ export function useAddReview() {
 
   return useMutation({
     mutationFn: ({ productId, rating, comment, images }) =>
-      apiClient.post(`/products/${productId}/reviews`, {
+      apiClient.post('/reviews/create', {
+        product_id: productId,
         rating,
         comment,
-        images,
+        images: images || [],
       }),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
@@ -171,10 +199,15 @@ export function useAddReview() {
 export function useB2BCatalog() {
   return useInfiniteQuery({
     queryKey: productKeys.b2b,
-    queryFn: ({ pageParam = null }) =>
-      apiClient.get('/products/b2b', {
-        params: { cursor: pageParam, limit: 20 },
-      }),
+    queryFn: async ({ pageParam = null }) => {
+      try {
+        return await apiClient.get('/products/b2b', {
+          params: { cursor: pageParam, limit: 20 },
+        });
+      } catch {
+        return { items: [], has_more: false, next_cursor: null };
+      }
+    },
     initialPageParam: null,
     getNextPageParam: getNextCursor,
     staleTime: 10 * 60 * 1000,
@@ -184,7 +217,13 @@ export function useB2BCatalog() {
 export function useB2BProductInfo(productId) {
   return useQuery({
     queryKey: productKeys.b2bProduct(productId),
-    queryFn: () => apiClient.get(`/products/b2b/${productId}/moq`),
+    queryFn: async () => {
+      try {
+        return await apiClient.get(`/products/b2b/${productId}/moq`);
+      } catch {
+        return null;
+      }
+    },
     enabled: Boolean(productId),
   });
 }

@@ -163,8 +163,10 @@ export function useLikePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ postId, liked }) =>
-      apiClient.post(`/posts/${postId}/${liked ? 'unlike' : 'like'}`, {}),
+    mutationFn: async ({ postId }) => {
+      // Legacy backend toggles like status via POST /posts/{id}/like.
+      return apiClient.post(`/posts/${postId}/like`, {});
+    },
     onMutate: async ({ postId, liked }) => {
       await queryClient.cancelQueries({ queryKey: ['feed'] });
       await queryClient.cancelQueries({ queryKey: ['post', postId] });
@@ -221,8 +223,10 @@ export function useSavePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ postId, saved }) =>
-      apiClient.post(`/posts/${postId}/${saved ? 'unsave' : 'save'}`, {}),
+    mutationFn: async ({ postId }) => {
+      // Legacy backend exposes save/bookmark routes without explicit unsave endpoint.
+      return apiClient.post(`/posts/${postId}/save`, {});
+    },
     onMutate: async ({ postId, saved }) => {
       await queryClient.cancelQueries({ queryKey: ['feed'] });
 
@@ -267,7 +271,9 @@ export function useFollowUser() {
 
   return useMutation({
     mutationFn: ({ userId, following }) =>
-      apiClient.post(`/users/${userId}/${following ? 'unfollow' : 'follow'}`, {}),
+      following
+        ? apiClient.delete(`/users/${userId}/follow`)
+        : apiClient.post(`/users/${userId}/follow`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
       queryClient.invalidateQueries({ queryKey: ['user'] });

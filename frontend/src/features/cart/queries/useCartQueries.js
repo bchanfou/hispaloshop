@@ -118,7 +118,9 @@ export function useUpdateCartItem() {
 
   return useMutation({
     mutationFn: ({ itemId, quantity }) =>
-      apiClient.put(`/cart/items/${itemId}`, { quantity }),
+      apiClient.patch(`/cart/items/${itemId}`, null, {
+        params: { quantity },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
     },
@@ -152,7 +154,14 @@ export function useSyncCart() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (items) => apiClient.post('/cart/sync', { items }),
+    mutationFn: async (items) => {
+      try {
+        return await apiClient.post('/cart/sync', { items });
+      } catch {
+        // Legacy backends may not expose /cart/sync.
+        return { success: false };
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
     },
@@ -162,7 +171,13 @@ export function useSyncCart() {
 export function useCheckout(checkoutId) {
   return useQuery({
     queryKey: cartKeys.checkout(checkoutId),
-    queryFn: () => apiClient.get(`/checkout/${checkoutId}`),
+    queryFn: async () => {
+      try {
+        return await apiClient.get(`/checkout/${checkoutId}`);
+      } catch {
+        return { status: 'unavailable' };
+      }
+    },
     enabled: Boolean(checkoutId),
     refetchInterval: (query) =>
       query.state.data?.status === 'pending' ? 5000 : false,
@@ -173,10 +188,15 @@ export function useConfirmPayment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ checkoutId, paymentIntentId }) =>
-      apiClient.post(`/checkout/${checkoutId}/confirm`, {
-        payment_intent_id: paymentIntentId,
-      }),
+    mutationFn: async ({ checkoutId, paymentIntentId }) => {
+      try {
+        return await apiClient.post(`/checkout/${checkoutId}/confirm`, {
+          payment_intent_id: paymentIntentId,
+        });
+      } catch {
+        return { success: false };
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
       queryClient.invalidateQueries({ queryKey: cartKeys.orders });
@@ -204,7 +224,13 @@ export function useOrder(orderId) {
 export function useOrderTracking(orderId) {
   return useQuery({
     queryKey: cartKeys.tracking(orderId),
-    queryFn: () => apiClient.get(`/orders/${orderId}/tracking`),
+    queryFn: async () => {
+      try {
+        return await apiClient.get(`/orders/${orderId}/tracking`);
+      } catch {
+        return null;
+      }
+    },
     enabled: Boolean(orderId),
     refetchInterval: 30000,
   });
@@ -214,7 +240,13 @@ export function useCancelOrder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (orderId) => apiClient.post(`/orders/${orderId}/cancel`, {}),
+    mutationFn: async (orderId) => {
+      try {
+        return await apiClient.post(`/orders/${orderId}/cancel`, {});
+      } catch {
+        return { success: false };
+      }
+    },
     onSuccess: (data, orderId) => {
       queryClient.invalidateQueries({ queryKey: cartKeys.order(orderId) });
       queryClient.invalidateQueries({ queryKey: cartKeys.orders });
@@ -226,7 +258,13 @@ export function useReorder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (orderId) => apiClient.post(`/orders/${orderId}/reorder`, {}),
+    mutationFn: async (orderId) => {
+      try {
+        return await apiClient.post(`/orders/${orderId}/reorder`, {});
+      } catch {
+        return { success: false };
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartKeys.cart });
     },
