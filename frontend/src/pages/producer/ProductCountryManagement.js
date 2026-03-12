@@ -21,7 +21,7 @@ const COUNTRIES = {
   KR: { name: 'Corea del Sur', currency: 'KRW' },
   JP: { name: 'Japón', currency: 'JPY' },
   CA: { name: 'Canadá', currency: 'CAD' },
-  MX: { name: 'Mexico', currency: 'MXN' },
+  MX: { name: 'México', currency: 'MXN' },
   BR: { name: 'Brasil', currency: 'BRL' },
   AU: { name: 'Australia', currency: 'AUD' },
 };

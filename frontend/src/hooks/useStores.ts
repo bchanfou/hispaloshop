@@ -17,12 +17,27 @@ export interface Store {
   store_type?: 'producer' | 'importer';
 }
 
+function normalizeStoresResponse(data: unknown): { stores: Store[]; pagination?: unknown } {
+  if (Array.isArray(data)) {
+    return {
+      stores: data as Store[],
+      pagination: undefined,
+    };
+  }
+
+  const stores = data && typeof data === 'object' && Array.isArray((data as { stores?: Store[] }).stores)
+    ? (data as { stores: Store[] }).stores
+    : [];
+
+  const pagination = data && typeof data === 'object'
+    ? (data as { pagination?: unknown }).pagination
+    : undefined;
+
+  return { stores, pagination };
+}
+
 // Hook para obtener listado de tiendas
 export function useStores(params?: { type?: string; page?: number }) {
-  const queryString = new URLSearchParams();
-  if (params?.type) queryString.append('type', params.type);
-  if (params?.page) queryString.append('page', params.page.toString());
-
   const { data, error, isLoading } = useSWR(
     ['stores', params],
     () => api.getStores(params),
@@ -31,9 +46,11 @@ export function useStores(params?: { type?: string; page?: number }) {
     }
   );
 
+  const normalized = normalizeStoresResponse(data);
+
   return {
-    stores: data?.stores || [],
-    pagination: data?.pagination,
+    stores: normalized.stores,
+    pagination: normalized.pagination,
     isLoading,
     error,
   };
@@ -60,7 +77,7 @@ export function useStore(slug: string) {
 export function useStoreProducts(slug: string) {
   const { data, error, isLoading } = useSWR(
     slug ? ['store-products', slug] : null,
-    () => api.getStoreProducts(slug),
+    () => api.get(`/store/${slug}/products`),
     {
       revalidateOnFocus: false,
     }

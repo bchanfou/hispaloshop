@@ -120,8 +120,10 @@ function CreatorRow({ c }) {
 }
 
 function StoreRow({ s }) {
+  const storeIdentifier = s.slug || s.store_slug || s.store_id;
+
   return (
-    <Link to={`/stores/${s.store_id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-stone-50 transition-colors">
+    <Link to={`/store/${storeIdentifier}`} className="flex items-center gap-3 px-4 py-3 hover:bg-stone-50 transition-colors">
       <div className="w-11 h-11 rounded-xl bg-stone-200 overflow-hidden flex-shrink-0">
         {s.profile_image || s.cover_image ? (
           <img src={s.profile_image || s.cover_image} alt={s.name} className="w-full h-full object-cover" />

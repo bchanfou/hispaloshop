@@ -325,7 +325,7 @@ export default function ProducerProducts() {
     { code: 'IE', name: 'Irlanda' }, { code: 'SE', name: 'Suecia' },
     { code: 'DK', name: 'Dinamarca' }, { code: 'NO', name: 'Noruega' },
     { code: 'TR', name: 'Turquia' }, { code: 'US', name: 'Estados Unidos' },
-    { code: 'CA', name: 'Canadá' }, { code: 'MX', name: 'Mexico' },
+    { code: 'CA', name: 'Canadá' }, { code: 'MX', name: 'México' },
     { code: 'CO', name: 'Colombia' }, { code: 'AR', name: 'Argentina' },
     { code: 'CL', name: 'Chile' }, { code: 'PE', name: 'Peru' },
     { code: 'BR', name: 'Brasil' }, { code: 'EC', name: 'Ecuador' },

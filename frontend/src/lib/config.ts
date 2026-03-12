@@ -1,6 +1,6 @@
-import { getApiUrl } from '../utils/api';
+﻿import { getApiUrl } from '../utils/api';
 
-// Configuracion de la aplicacion
+// Configuración de la aplicación
 
 // Feature Flags
 export const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK === 'true';
@@ -13,21 +13,21 @@ export const isProduction = process.env.NODE_ENV === 'production';
 export const API_URL = getApiUrl();
 export const API_TIMEOUT = parseInt(process.env.REACT_APP_API_TIMEOUT || '30000', 10);
 
-// Validacion de configuracion critica en produccion
+// Validación de configuración crítica en producción
 if (isProduction) {
   if (USE_MOCK_DATA) {
-    console.error('WARNING: USE_MOCK_DATA esta activado en produccion. Esto no deberia ocurrir.');
+    console.error('WARNING: USE_MOCK_DATA está activado en producción. Esto no debería ocurrir.');
   }
 
   if (!process.env.REACT_APP_API_URL && !process.env.REACT_APP_BACKEND_URL) {
-    console.warn('WARNING: No hay configuracion explicita de API. Usando fallback runtime.');
+    console.warn('WARNING: No hay configuración explícita de API. Usando fallback runtime.');
   }
 }
 
-// Configuracion de paginacion
+// Configuración de paginación
 export const DEFAULT_PAGE_SIZE = 20;
 
-// Configuracion de cache (SWR)
+// Configuración de caché (SWR)
 export const SWR_CONFIG = {
   refreshInterval: 0,
   revalidateOnFocus: false,
@@ -55,7 +55,7 @@ export const ORDER_STATUSES = {
   CANCELLED: 'cancelled',
 } as const;
 
-// Configuracion de imagenes
+// Configuración de imágenes
 export const IMAGE_CONFIG = {
   MAX_FILE_SIZE: 5 * 1024 * 1024,
   ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
@@ -63,10 +63,11 @@ export const IMAGE_CONFIG = {
   DEFAULT_PRODUCT_IMAGE: '/default-product.png',
 };
 
-// Configuracion de validacion
+// Configuración de validación
 export const VALIDATION = {
   PASSWORD_MIN_LENGTH: 8,
   USERNAME_MIN_LENGTH: 3,
   USERNAME_MAX_LENGTH: 30,
   BIO_MAX_LENGTH: 500,
 };
+

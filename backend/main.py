@@ -65,6 +65,7 @@ from routes.rfq import router as rfq_router
 from routes.support import router as support_router
 from routes.moderation import router as moderation_router
 from routes.discovery import router as discovery_router
+from routes.posts import router as legacy_posts_router
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +153,7 @@ app.include_router(frontend_compat_router, prefix="/api", tags=["frontend-compat
 app.include_router(legacy_auth_router, prefix="/api", tags=["auth"])
 app.include_router(legacy_config_router, prefix="/api", tags=["config"])
 app.include_router(legacy_feed_router, prefix="/api", tags=["feed"])
+app.include_router(legacy_posts_router, prefix="/api", tags=["posts"])
 app.include_router(legacy_products_router, prefix="/api", tags=["products"])
 app.include_router(legacy_social_router, prefix="/api", tags=["social"])
 app.include_router(legacy_stores_router, prefix="/api", tags=["stores"])

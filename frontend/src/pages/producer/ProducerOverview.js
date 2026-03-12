@@ -513,7 +513,7 @@ export default function ProducerOverview() {
           low_stock_products: [],
           recent_reviews: [],
         });
-        warnings.push('No se pudieron cargar las metricas del catalogo y la tienda.');
+        warnings.push('No se pudieron cargar las métricas del catálogo y la tienda.');
       }
 
       if (paymentsRes.status === 'fulfilled') {

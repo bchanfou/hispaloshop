@@ -13,7 +13,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const COUNTRY_NAMES = {
   ES: 'España', US: 'USA', DE: 'Alemania', FR: 'Francia', IT: 'Italia',
   PT: 'Portugal', GB: 'Reino Unido', KR: 'Corea', JP: 'Japón', CN: 'China',
-  IN: 'India', BR: 'Brasil', MX: 'Mexico', CA: 'Canadá', AU: 'Australia',
+  IN: 'India', BR: 'Brasil', MX: 'México', CA: 'Canadá', AU: 'Australia',
 };
 
 export default function MarketCoverage() {

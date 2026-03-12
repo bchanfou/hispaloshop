@@ -122,7 +122,7 @@ function ProducerDashboard() {
     {
       id: 'analytics',
       icon: BarChart3,
-      label: 'Analisis',
+      label: 'Análisis',
       color: 'var(--color-info)',
       onClick: () => navigate('/producer/payments')
     },

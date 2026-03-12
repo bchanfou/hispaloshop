@@ -444,7 +444,7 @@ export default function CartPage() {
                         <option value="IT">Italia</option>
                         <option value="GB">Reino Unido</option>
                         <option value="US">Estados Unidos</option>
-                        <option value="MX">Mexico</option>
+                        <option value="MX">México</option>
                         <option value="AR">Argentina</option>
                         <option value="CO">Colombia</option>
                       </select>

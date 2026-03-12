@@ -21,16 +21,16 @@ export const getAuthErrorMessage = (error, fallbackMessage = 'Ha ocurrido un err
 
   if (typeof detail === 'string') {
     const knownMessages = {
-      'Invalid credentials': 'Email, usuario o contrasena incorrectos.',
+      'Invalid credentials': 'Email, usuario o contraseña incorrectos.',
       'Please use Google login for this account': 'Esta cuenta usa acceso con Google. Inicia sesión con Google.',
       'Your account is pending admin approval': 'Tu cuenta esta pendiente de aprobacion del administrador.',
       'Email already registered': 'Este email ya esta registrado.',
       'Invalid email format': 'El formato del email no es valido.',
-      'Password too weak': 'La contrasena es demasiado debil.',
-      'Password must be at least 6 characters': 'La contrasena debe tener al menos 6 caracteres.',
-      'Country is required': 'El pais es obligatorio.',
+      'Password too weak': 'La contraseña es demasiado débil.',
+      'Password must be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres.',
+      'Country is required': 'El país es obligatorio.',
       'Name is required': 'El nombre es obligatorio.',
-      'Invalid country code': 'El pais indicado no es valido.',
+      'Invalid country code': 'El país indicado no es válido.',
       'VAT/CIF already registered': 'Este CIF/NIF ya esta registrado.',
       'Phone number is required': 'El teléfono es obligatorio.',
       'Fiscal address is required': 'La dirección fiscal es obligatoria.',

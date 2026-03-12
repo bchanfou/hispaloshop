@@ -161,7 +161,7 @@ export function InfluencerDashboard() {
                 ))
               ) : (
                 <p className="text-gray-500 text-center py-4">
-                  Aun no tienes ventas. ¡Comparte tu link!
+                  Aún no tienes ventas. ¡Comparte tu link!
                 </p>
               )}
             </div>

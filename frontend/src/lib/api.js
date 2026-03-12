@@ -327,7 +327,7 @@ class HispaloAPI {
   }
 
   getStore(slug) {
-    return this.get(`/stores/${slug}`);
+    return this.get(`/store/${slug}`);
   }
 
   // ==========================================
