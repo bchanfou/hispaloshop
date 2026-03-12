@@ -110,7 +110,16 @@ async function fetchFeedPage({ source, categorySlug, pageParam = null, limit = 2
       }
     }
 
-    throw primaryError;
+    console.error('[feed] all feed fallbacks failed', primaryError);
+    return normalizeFeedPage(
+      {
+        items: [],
+        has_more: false,
+        next_cursor: null,
+      },
+      pageParam,
+      limit,
+    );
   }
 }
 

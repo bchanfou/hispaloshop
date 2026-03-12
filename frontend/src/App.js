@@ -244,13 +244,19 @@ function AppRouter() {
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/productos" element={<Navigate to="/products" replace />} />
+              <Route path="/producto/:productId" element={<ProductDetailPage />} />
               <Route path="/products/:productId" element={<ProductDetailPage />} />
               <Route path="/posts/:postId" element={<PostDetailPage />} />
               <Route path="/post/:postId" element={<PostDetailPage />} />
               <Route path="/store/:storeSlug" element={<StorePage />} />
+              <Route path="/tienda/:storeSlug" element={<StorePage />} />
               <Route path="/certificate/:productId" element={<CertificatePage />} />
+              <Route path="/certificado/:productId" element={<CertificatePage />} />
               <Route path="/certificates" element={<CertificatesListPage />} />
               <Route path="/settings/locale" element={<LocaleSettingsPage />} />
+              <Route path="/configuracion/idioma" element={<Navigate to="/settings/locale" replace />} />
+              <Route path="/configuracion/pais" element={<Navigate to="/settings/locale" replace />} />
+              <Route path="/configuracion/moneda" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/become-influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/become-seller" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/stores" element={<StoresListPage />} />
@@ -322,6 +328,7 @@ function AppRouter() {
               <Route path="/b2b/chat" element={<B2BChatPage />} />
               <Route path="/orders" element={<LegacyOrdersRedirect />} />
               <Route path="/profile" element={<LegacyProfileRedirect />} />
+              <Route path="/perfil" element={<LegacyProfileRedirect />} />
               <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/legal" element={<Navigate to="/terms" replace />} />
@@ -395,6 +402,14 @@ function AppRouter() {
               <Route path="/admin/insights" element={<Navigate to="/super-admin/insights" replace />} />
               <Route path="/admin/analytics" element={<Navigate to="/super-admin/analytics" replace />} />
               <Route path="/admin/escalations" element={<Navigate to="/super-admin/escalation" replace />} />
+              <Route path="/admin/usuarios" element={<Navigate to="/super-admin/users" replace />} />
+              <Route path="/admin/administradores" element={<Navigate to="/super-admin/admins" replace />} />
+              <Route path="/admin/finanzas" element={<Navigate to="/super-admin/finance" replace />} />
+              <Route path="/admin/mercados" element={<Navigate to="/super-admin/markets" replace />} />
+              <Route path="/admin/contenido" element={<Navigate to="/super-admin/content" replace />} />
+              <Route path="/admin/estadisticas" element={<Navigate to="/super-admin/insights" replace />} />
+              <Route path="/admin/analitica" element={<Navigate to="/super-admin/analytics" replace />} />
+              <Route path="/admin/escalaciones" element={<Navigate to="/super-admin/escalation" replace />} />
 
               <Route
                 path="/producer"
@@ -496,6 +511,7 @@ function AppRouter() {
               />
 
               <Route path="/reels" element={<Navigate to="/discover?tab=feeds" replace />} />
+              <Route path="/feed" element={<Navigate to="/discover?tab=feeds" replace />} />
               <Route path="/chat" element={<ChatContainer />} />
               <Route path="/profile/:userId" element={<UserProfilePage />} />
               <Route path="/dashboard/new" element={<DashboardPage />} />

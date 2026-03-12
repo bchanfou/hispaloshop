@@ -46,6 +46,7 @@ function formatPrice(value) {
 function ProductTag({ product, t }) {
   if (!product) return null;
   const productId = product.id || product.product_id;
+  if (!productId) return null;
   const price = formatPrice(product.price);
 
   return (
