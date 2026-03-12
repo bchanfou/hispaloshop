@@ -4,7 +4,7 @@ user management, product/certificate management, stock management,
 country availability, and variants/packs management.
 Extracted from server.py.
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import Optional, List
 from datetime import datetime, timezone
 import uuid
