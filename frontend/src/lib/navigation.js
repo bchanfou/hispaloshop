@@ -2,6 +2,19 @@
  * Navigation utilities for role-based redirects
  */
 
+function normalizeRole(rawRole) {
+  if (!rawRole) return null;
+  const role = String(rawRole).toLowerCase().replace(/-/g, '_');
+
+  const roleMap = {
+    superadmin: 'super_admin',
+    consumer: 'customer',
+    seller: 'producer',
+  };
+
+  return roleMap[role] || role;
+}
+
 /**
  * Get the default route for a user based on their role
  * @param {Object} user - User object with role property
@@ -11,7 +24,7 @@
 export function getDefaultRoute(user, onboardingCompleted = true) {
   if (!user) return '/login';
 
-  const role = user.role ? String(user.role).toLowerCase() : null;
+  const role = normalizeRole(user.role);
   const hasCompletedOnboarding =
     onboardingCompleted ??
     user.onboarding_completed ??
@@ -58,6 +71,8 @@ export function getDefaultRoute(user, onboardingCompleted = true) {
  * @returns {boolean}
  */
 export function hasRouteAccess(route, role) {
+  const normalizedRole = normalizeRole(role);
+
   // Public routes - accessible to all
   const publicRoutes = ['/', '/products', '/stores', '/login', '/register', '/onboarding'];
   if (publicRoutes.includes(route)) return true;
@@ -72,7 +87,7 @@ export function hasRouteAccess(route, role) {
     super_admin: ['/admin', '/super-admin', '/dashboard'],
   };
   
-  const allowedRoutes = roleRoutes[role] || [];
+  const allowedRoutes = roleRoutes[normalizedRole] || [];
   return allowedRoutes.some(r => route.startsWith(r));
 }
 

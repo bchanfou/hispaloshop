@@ -7,14 +7,43 @@ export const feedKeys = {
   category: (slug) => ['feed', 'category', slug],
 };
 
+function normalizeFeedItem(item) {
+  const normalizedId = item?.id || item?.post_id || item?._id || null;
+  const media = Array.isArray(item?.media)
+    ? item.media
+    : (item?.image_url || item?.thumbnail ? [{ url: item?.image_url || item?.thumbnail, ratio: '1:1' }] : []);
+
+  return {
+    ...item,
+    id: normalizedId,
+    post_id: item?.post_id || normalizedId,
+    user_id: item?.user_id || item?.author_id || item?.user?.id || null,
+    user_name: item?.user_name || item?.author_name || item?.user?.name || 'Usuario',
+    user_profile_image: item?.user_profile_image || item?.author_avatar || item?.user?.avatar || null,
+    user_verified: item?.user_verified ?? item?.user?.verified ?? false,
+    caption: item?.caption || item?.content || '',
+    image_url: item?.image_url || item?.thumbnail || media?.[0]?.url || null,
+    media,
+    likes_count: item?.likes_count ?? item?.likes ?? 0,
+    comments_count: item?.comments_count ?? item?.comments ?? 0,
+    shares_count: item?.shares_count ?? item?.shares ?? 0,
+    is_liked: item?.is_liked ?? item?.liked ?? false,
+    liked: item?.liked ?? item?.is_liked ?? false,
+    product_tag: item?.product_tag || item?.productTag || item?.tagged_product || null,
+    type: item?.type || item?.post_type || null,
+    created_at: item?.created_at || item?.timestamp || null,
+  };
+}
+
 function normalizeFeedPage(data, pageParam, limit = 20) {
-  const items = Array.isArray(data?.items)
+  const rawItems = Array.isArray(data?.items)
     ? data.items
     : Array.isArray(data?.posts)
       ? data.posts
       : Array.isArray(data?.data?.posts)
         ? data.data.posts
         : [];
+  const items = rawItems.map(normalizeFeedItem).filter((post) => Boolean(post.id));
 
   const hasMore = Boolean(
     data?.has_more ??
@@ -141,7 +170,11 @@ export function useLikePost() {
           pages: old.pages.map((page) => ({
             ...page,
             items: page.items.map((item) => {
-              if (item.id === postId || item.postId === postId) {
+              if (
+                String(item.id) === String(postId)
+                || String(item.post_id) === String(postId)
+                || String(item.postId) === String(postId)
+              ) {
                 return {
                   ...item,
                   liked: !liked,
@@ -196,7 +229,11 @@ export function useSavePost() {
           pages: old.pages.map((page) => ({
             ...page,
             items: page.items.map((item) => {
-              if (item.id === postId) {
+              if (
+                String(item.id) === String(postId)
+                || String(item.post_id) === String(postId)
+                || String(item.postId) === String(postId)
+              ) {
                 return { ...item, saved: !saved };
               }
 

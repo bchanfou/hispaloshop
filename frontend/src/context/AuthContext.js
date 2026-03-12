@@ -3,6 +3,19 @@ import { authApi } from '../lib/authApi';
 
 const AuthContext = createContext(null);
 
+function normalizeRole(rawRole) {
+  if (!rawRole) return null;
+  const role = String(rawRole).toLowerCase().replace(/-/g, '_');
+
+  const roleMap = {
+    superadmin: 'super_admin',
+    consumer: 'customer',
+    seller: 'producer',
+  };
+
+  return roleMap[role] || role;
+}
+
 function normalizeUser(rawUser) {
   if (!rawUser) return null;
 
@@ -12,7 +25,7 @@ function normalizeUser(rawUser) {
     normalizedUser.onboardingCompleted ??
     false;
 
-  normalizedUser.role = normalizedUser.role ? String(normalizedUser.role).toLowerCase() : null;
+  normalizedUser.role = normalizeRole(normalizedUser.role);
   normalizedUser.onboarding_completed = Boolean(onboardingCompleted);
   normalizedUser.onboardingCompleted = Boolean(onboardingCompleted);
 

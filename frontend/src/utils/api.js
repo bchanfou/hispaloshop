@@ -1,6 +1,22 @@
 const API_PREFIX = process.env.REACT_APP_API_PREFIX || '/api';
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0']);
 
+const isPrivateIpHost = (host) => {
+  if (!host || typeof host !== 'string') return false;
+
+  if (host === '::1') return true;
+  if (/^127\./.test(host)) return true;
+  if (/^10\./.test(host)) return true;
+  if (/^192\.168\./.test(host)) return true;
+
+  const octets = host.split('.').map((chunk) => Number(chunk));
+  if (octets.length === 4 && octets.every((n) => Number.isInteger(n) && n >= 0 && n <= 255)) {
+    if (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) return true;
+  }
+
+  return false;
+};
+
 const normalizeUrl = (value) => {
   if (!value || typeof value !== 'string') return '';
   return value.trim().replace(/\/+$/, '');
@@ -16,9 +32,15 @@ const buildApiUrl = (baseUrl) => {
 const getDefaultBackendOrigin = () => {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
+    const runtimeOverride = normalizeUrl(window.localStorage.getItem('hispaloshop_api_origin'));
 
-    if (LOCAL_HOSTS.has(host)) {
-      return 'http://localhost:8000';
+    if (runtimeOverride) {
+      return runtimeOverride;
+    }
+
+    if (LOCAL_HOSTS.has(host) || isPrivateIpHost(host)) {
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+      return `${protocol}//${host}:8000`;
     }
 
     // In deployed environments prefer same-origin `/api` so rewrites handle
