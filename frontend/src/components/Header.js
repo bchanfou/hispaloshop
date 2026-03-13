@@ -255,7 +255,7 @@ export default function Header() {
                         <span>{t('locale.settings', 'Idioma y región')}</span>
                       </div>
                       <div className="flex items-center gap-2 text-stone-500">
-                        <span className="text-xs">{country} · {language.toUpperCase()} · {currency}</span>
+                        <span className="text-xs">{country || 'ES'} · {(language || 'es').toUpperCase()} · {currency || 'EUR'}</span>
                         <ChevronRight className="h-4 w-4 text-stone-400" />
                       </div>
                     </Link>

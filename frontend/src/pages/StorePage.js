@@ -186,7 +186,7 @@ export default function StorePage() {
   const avgRating = reviewsQuery.data?.average_rating || store?.rating || 0;
   const hasFastShipping = Boolean(store?.delivery_time);
   const isVerified = Boolean(store?.verified || store?.producer_verified);
-  const { isFollowing, followLoading, handleFollowStore } = useStoreFollow(store?.slug);
+  const { isFollowing, followLoading, handleFollowStore } = useStoreFollow(store?.slug || store?.store_slug);
 
   const ownerLabel = useMemo(() => {
     if (!store) return '';
@@ -480,8 +480,11 @@ export default function StorePage() {
                 {activeTab === 'certificates' ? (
                   certificates.length > 0 ? (
                     <div className="grid gap-4 md:grid-cols-2">
-                      {certificates.map((certificate) => (
-                        <div key={certificate.certificate_id || certificate.product_id} className="rounded-3xl border border-stone-100 bg-stone-50 p-4">
+                      {certificates.map((certificate) => {
+                        const certificateProductId = certificate.product_id || certificate.product?.product_id || certificate.product?.id;
+
+                        return (
+                        <div key={certificate.certificate_id || certificateProductId} className="rounded-3xl border border-stone-100 bg-stone-50 p-4">
                           <div className="flex items-start gap-3">
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-stone-700">
                               <Award className="h-5 w-5" />
@@ -491,20 +494,32 @@ export default function StorePage() {
                                 {certificate.product_name || 'Certificado digital'}
                               </p>
                               <p className="mt-1 text-sm text-stone-500">Documento validado para este producto.</p>
-                              <Link to={`/certificate/${certificate.product_id}`} className="mt-3 inline-flex">
+                              {certificateProductId ? (
+                                <Link to={`/certificate/${certificateProductId}`} className="mt-3 inline-flex">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                                    aria-label={`Ver certificado digital de ${certificate.product_name || 'producto'}`}
+                                  >
+                                    Ver certificado digital
+                                  </Button>
+                                </Link>
+                              ) : (
                                 <Button
                                   type="button"
                                   variant="outline"
-                                  className="rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
-                                  aria-label={`Ver certificado digital de ${certificate.product_name || 'producto'}`}
+                                  className="mt-3 rounded-full border-stone-200 bg-white text-stone-700"
+                                  disabled
+                                  aria-label={`Certificado no disponible para ${certificate.product_name || 'producto'}`}
                                 >
                                   Ver certificado digital
                                 </Button>
-                              </Link>
+                              )}
                             </div>
                           </div>
                         </div>
-                      ))}
+                      );})}
                     </div>
                   ) : (
                     <EmptyPanel

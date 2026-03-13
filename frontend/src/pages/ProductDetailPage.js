@@ -75,7 +75,10 @@ export default function ProductDetailPage() {
     isFollowing,
     followLoading,
     handleFollowStore: toggleStoreFollow,
-  } = useStoreFollow(storeInfo?.slug);
+  } = useStoreFollow(storeInfo?.slug || storeInfo?.store_slug);
+  const storeSlug = storeInfo?.slug || storeInfo?.store_slug || null;
+  const normalizedAverageRating = Number(averageRating || 0);
+  const normalizedStoreRating = Number(storeInfo?.rating || 0);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
@@ -295,7 +298,7 @@ export default function ProductDetailPage() {
             <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4 flex-wrap">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 md:w-5 md:h-5 fill-stone-950 stroke-stone-950" />
-                <span className="font-semibold text-stone-950 text-sm md:text-base">{averageRating?.toFixed(1) || '0.0'}</span>
+                <span className="font-semibold text-stone-950 text-sm md:text-base">{Number.isFinite(normalizedAverageRating) ? normalizedAverageRating.toFixed(1) : '0.0'}</span>
               </div>
               <span className="text-stone-500 text-xs md:text-sm">({totalReviews} {t('productDetail.reviews', 'reseñas')})</span>
               {product.units_sold > 0 && (
@@ -657,7 +660,7 @@ export default function ProductDetailPage() {
               {/* Producer/Store Card - Enhanced */}
               {storeInfo ? (
                 <Link 
-                  to={`/store/${storeInfo.slug}`}
+                  to={storeSlug ? `/store/${storeSlug}` : '/stores'}
                   className="block bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md hover:border-stone-300 transition-all cursor-pointer" 
                   data-testid="producer-card"
                 >
@@ -695,7 +698,7 @@ export default function ProductDetailPage() {
                       <div className="bg-stone-50 rounded-lg p-2">
                         <div className="flex items-center justify-center gap-1">
                           <Star className="w-3.5 h-3.5 fill-stone-950 stroke-stone-950" />
-                          <span className="font-semibold text-stone-900 text-sm">{storeInfo.rating?.toFixed(1) || '0.0'}</span>
+                          <span className="font-semibold text-stone-900 text-sm">{Number.isFinite(normalizedStoreRating) ? normalizedStoreRating.toFixed(1) : '0.0'}</span>
                         </div>
                         <p className="text-[10px] text-stone-500 mt-0.5">{storeInfo.review_count || 0} reviews</p>
                       </div>

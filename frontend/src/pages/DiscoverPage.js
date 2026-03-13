@@ -36,6 +36,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '../components/ui/sheet';
+import { toast } from 'sonner';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { api } from '../lib/api';
@@ -457,10 +458,19 @@ export default function DiscoverPage() {
             ) : (
               <div className="grid gap-3 md:grid-cols-3">
                 {stores.slice(0, 3).map((store) => (
+                  (() => {
+                    const storeSlug = store.slug || store.store_slug;
+                    return (
                   <motion.button
-                    key={store.id}
+                    key={store.id || store.store_id || storeSlug}
                     whileTap={{ scale: 0.985 }}
-                    onClick={() => navigate(`/store/${store.slug}`)}
+                    onClick={() => {
+                      if (!storeSlug) {
+                        toast.error('Esta tienda no está disponible ahora');
+                        return;
+                      }
+                      navigate(`/store/${storeSlug}`);
+                    }}
                     className="flex w-full gap-3 rounded-[24px] border border-stone-200 bg-white p-4 text-left shadow-sm transition-shadow hover:shadow-md"
                   >
                     <img
@@ -486,6 +496,8 @@ export default function DiscoverPage() {
                       </div>
                     </div>
                   </motion.button>
+                    );
+                  })()
                 ))}
               </div>
             )}

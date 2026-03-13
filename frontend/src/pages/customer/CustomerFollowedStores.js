@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { API } from '../../utils/api';
 
 function FollowedStoreCard({ store, onUnfollow }) {
+    const storeSlug = store.slug || store.store_slug || null;
+
   const { t } = useTranslation();
   const [unfollowing, setUnfollowing] = useState(false);
 
@@ -82,12 +84,19 @@ function FollowedStoreCard({ store, onUnfollow }) {
 
         {/* Actions */}
         <div className="flex items-center gap-2 mt-4">
-          <Link to={`/store/${store.slug}`} className="flex-1">
-            <Button variant="outline" size="sm" className="w-full text-xs">
+          {storeSlug ? (
+            <Link to={`/store/${storeSlug}`} className="flex-1">
+              <Button variant="outline" size="sm" className="w-full text-xs">
+                <ExternalLink className="w-3 h-3 mr-1" />
+                {t('followedStores.visitStore', 'Ver tienda')}
+              </Button>
+            </Link>
+          ) : (
+            <Button variant="outline" size="sm" className="w-full text-xs" disabled>
               <ExternalLink className="w-3 h-3 mr-1" />
               {t('followedStores.visitStore', 'Ver tienda')}
             </Button>
-          </Link>
+          )}
           <Button 
             variant="ghost" 
             size="sm" 

@@ -13,6 +13,13 @@ import { API } from '../../utils/api';
 const statusIcons = { paid: Check, confirmed: Check, preparing: Package, shipped: Truck, delivered: Check, pending: Clock };
 const statusColors = { paid: 'bg-green-100 text-green-600', confirmed: 'bg-blue-100 text-blue-600', preparing: 'bg-amber-100 text-amber-600', shipped: 'bg-purple-100 text-purple-600', delivered: 'bg-green-100 text-green-600', pending: 'bg-stone-100 text-stone-500' };
 
+const getProductId = (product) => product?.product_id || product?.id || null;
+const getStoreSlug = (store) => store?.store_slug || store?.slug || null;
+const formatPrice = (value) => {
+  const numeric = Number(value || 0);
+  return Number.isFinite(numeric) ? numeric.toFixed(2) : '0.00';
+};
+
 export default function CustomerOverview() {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -147,17 +154,19 @@ export default function CustomerOverview() {
           <Link to="/products" className="text-xs text-primary hover:underline flex items-center gap-0.5">{t('customerDashboard.seeAll')} <ChevronRight className="w-3 h-3" /></Link>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-          {recommended.map(p => (
-            <Link key={p.product_id} to={`/products/${p.product_id}`} className="shrink-0 w-[160px] bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition-all group">
+          {recommended.map(p => {
+            const productId = getProductId(p);
+            return (
+            <Link key={productId || p.name} to={productId ? `/products/${productId}` : '/products'} className="shrink-0 w-[160px] bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition-all group">
               <div className="aspect-square bg-stone-100 overflow-hidden">
                 {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <ShoppingBag className="w-8 h-8 text-stone-300 m-auto mt-12" />}
               </div>
               <div className="p-2.5">
                 <p className="text-xs font-medium text-text-primary truncate">{p.name}</p>
-                <p className="text-sm font-bold text-primary">{(p.display_price || p.price)?.toFixed(2)}€</p>
+                <p className="text-sm font-bold text-primary">{formatPrice(p.display_price || p.price)}€</p>
               </div>
             </Link>
-          ))}
+          );})}
         </div>
       </div>
 
@@ -169,14 +178,16 @@ export default function CustomerOverview() {
             <Link to="/stores" className="text-xs text-primary hover:underline">{t('customerDashboard.seeAll')}</Link>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
-            {followedStores.map(s => (
-              <Link key={s.store_id || s.follower_id} to={`/store/${s.store_slug}`} className="shrink-0 flex flex-col items-center gap-1">
+            {followedStores.map(s => {
+              const storeSlug = getStoreSlug(s);
+              return (
+              <Link key={s.store_id || s.follower_id || storeSlug} to={storeSlug ? `/store/${storeSlug}` : '/stores'} className="shrink-0 flex flex-col items-center gap-1">
                 <div className="w-14 h-14 rounded-full bg-stone-200 border-2 border-stone-200 overflow-hidden">
                   {s.store_logo ? <img src={s.store_logo} alt="" className="w-full h-full object-cover" /> : <Store className="w-6 h-6 text-stone-400 m-auto mt-3" />}
                 </div>
                 <span className="text-[10px] text-text-muted w-14 truncate text-center">{s.store_name}</span>
               </Link>
-            ))}
+            );})}
           </div>
         </div>
       )}
@@ -191,8 +202,10 @@ export default function CustomerOverview() {
             </div>
           </div>
           <div className="space-y-2">
-            {trending.map((p, i) => (
-              <Link key={p.product_id} to={`/products/${p.product_id}`} className="flex items-center gap-3 bg-white rounded-xl border border-stone-200 p-3 hover:shadow-sm transition-all">
+            {trending.map((p, i) => {
+              const productId = getProductId(p);
+              return (
+              <Link key={productId || `${p.name}-${i}`} to={productId ? `/products/${productId}` : '/products'} className="flex items-center gap-3 bg-white rounded-xl border border-stone-200 p-3 hover:shadow-sm transition-all">
                 <span className="text-lg font-bold text-stone-300 w-6 text-center">{i + 1}</span>
                 <div className="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden shrink-0">
                   {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-cover" /> : <ShoppingBag className="w-5 h-5 text-stone-300 m-auto mt-3" />}
@@ -201,9 +214,9 @@ export default function CustomerOverview() {
                   <p className="text-sm font-medium text-text-primary truncate">{p.name}</p>
                   <p className="text-xs text-text-muted">{p.store_name || ''}</p>
                 </div>
-                <p className="text-sm font-bold text-primary shrink-0">{(p.display_price || p.price)?.toFixed(2)}€</p>
+                <p className="text-sm font-bold text-primary shrink-0">{formatPrice(p.display_price || p.price)}€</p>
               </Link>
-            ))}
+            );})}
           </div>
         </div>
       )}

@@ -81,10 +81,11 @@ function GoogleMapEmbed({ stores, selectedStore, countryName, regionName }) {
 function StoreCard({ store, isActive, onHover, onLeave, onFocusMap, t }) {
   const location = store.location || 'España';
   const heroImage = store.hero_image || store.logo || null;
+  const storeSlug = store.slug || store.store_slug || null;
 
   return (
     <Link
-      to={`/store/${store.slug}`}
+      to={storeSlug ? `/store/${storeSlug}` : '/stores'}
       className={`group block overflow-hidden rounded-2xl border bg-white transition-all duration-150 ease-out hover:-translate-y-[1px] hover:shadow-md ${
         isActive ? 'border-stone-950 shadow-sm' : 'border-stone-100 hover:border-stone-300'
       }`}
@@ -97,7 +98,7 @@ function StoreCard({ store, isActive, onHover, onLeave, onFocusMap, t }) {
         onHover();
         onFocusMap();
       }}
-      data-testid={`store-card-${store.slug}`}
+      data-testid={`store-card-${storeSlug || store.store_id || 'unknown'}`}
     >
       <div className="relative overflow-hidden">
         <div className="aspect-video bg-stone-100">

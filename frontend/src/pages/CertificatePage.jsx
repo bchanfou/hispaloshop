@@ -64,8 +64,11 @@ export default function CertificatePage() {
   const ingredients = useMemo(() => normalizeList(product?.ingredients), [product?.ingredients]);
   const allergens = useMemo(() => normalizeList(product?.allergens || certificate?.data?.allergens), [certificate?.data?.allergens, product?.allergens]);
   const ingredientOrigins = useMemo(() => normalizeIngredientOrigins(certificate?.data?.ingredient_origins), [certificate?.data?.ingredient_origins]);
-  const certifications = product?.certifications || [certificate?.certificate_type].filter(Boolean);
-  const canBuyFromStore = Boolean(storeInfo?.slug);
+  const certifications = Array.isArray(product?.certifications)
+    ? product.certifications
+    : normalizeList(product?.certifications || certificate?.certificate_type);
+  const storeSlug = storeInfo?.slug || storeInfo?.store_slug || null;
+  const canBuyFromStore = Boolean(storeSlug);
 
   const handleBuy = () => {
     if (!canBuyFromStore) {
@@ -73,7 +76,7 @@ export default function CertificatePage() {
       return;
     }
 
-    navigate(`/store/${storeInfo.slug}?product=${productId}`);
+    navigate(`/store/${storeSlug}?product=${productId}`);
   };
 
   if (isLoading) {

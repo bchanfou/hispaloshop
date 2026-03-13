@@ -21,12 +21,13 @@ async function fetchCertifiedProducts() {
 function CertificateRow({ product }) {
   const thumbnail = product.images?.[0] || null;
   const certCount = product.certifications?.length || 0;
+  const certificateProductId = product.product_id || product.id;
 
   return (
     <Link
-      to={`/certificate/${product.product_id}`}
+      to={certificateProductId ? `/certificate/${certificateProductId}` : '/certificates'}
       className="group flex items-center gap-4 rounded-2xl border border-stone-100 bg-white px-4 py-3 transition-colors duration-150 ease-out hover:bg-stone-50"
-      data-testid={`certificate-item-${product.product_id}`}
+      data-testid={`certificate-item-${certificateProductId || 'unknown'}`}
     >
       <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-stone-100">
         {thumbnail ? (
