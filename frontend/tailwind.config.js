@@ -207,11 +207,17 @@ module.exports = {
       },
 
       animation: {
-        'slide-up':   'slideUp 0.3s ease-out',
-        'slide-down': 'slideDown 0.3s ease-out',
-        'fade-in':    'fadeIn 0.2s ease-out',
-        'ripple':     'ripple 0.6s linear',
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'slide-up':        'slideUp 0.3s ease-out',
+        'slide-down':      'slideDown 0.3s ease-out',
+        'fade-in':         'fadeIn 0.2s ease-out',
+        'ripple':          'ripple 0.6s linear',
+        'pulse-slow':      'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        // Motion system — spring-based
+        'pop-in':          'popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'slide-up-spring': 'slideUpSpring 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'fade-scale-in':   'fadeScaleIn 0.2s cubic-bezier(0, 0, 0.2, 1) both',
+        'overlay-in':      'overlayIn 0.2s cubic-bezier(0, 0, 0.2, 1) both',
+        'enter-page':      'enterPage 0.35s cubic-bezier(0, 0, 0.2, 1) both',
       },
 
       keyframes: {
@@ -230,6 +236,27 @@ module.exports = {
         ripple: {
           '0%':   { transform: 'scale(0)', opacity: '1' },
           '100%': { transform: 'scale(4)', opacity: '0' },
+        },
+        // Motion system keyframes
+        popIn: {
+          '0%':   { opacity: '0', transform: 'scale(0.94) translateY(4px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        slideUpSpring: {
+          '0%':   { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeScaleIn: {
+          '0%':   { opacity: '0', transform: 'scale(0.97)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        overlayIn: {
+          '0%':   { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        enterPage: {
+          '0%':   { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
 

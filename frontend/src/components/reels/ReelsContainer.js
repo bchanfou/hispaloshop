@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import ReelPlayer from './ReelPlayer';
 
 /**
@@ -58,12 +57,9 @@ function ReelsContainer() {
   const containerRef = useRef(null);
 
   const fetchReels = useCallback(async (skip = 0) => {
-    const res = await axios.get(`${API}/reels`, {
-      params: { skip, limit: 10 },
-      withCredentials: true,
-    });
-    const items = (res.data?.items || []).map(normalizeReel).filter(r => r.videoUrl);
-    return { items, hasMore: res.data?.has_more ?? items.length === 10 };
+    const data = await apiClient.get('/reels', { params: { skip, limit: 10 } });
+    const items = (data?.items || []).map(normalizeReel).filter(r => r.videoUrl);
+    return { items, hasMore: data?.has_more ?? items.length === 10 };
   }, []);
 
   // Initial load

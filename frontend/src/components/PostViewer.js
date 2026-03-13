@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import {
   Heart, MessageCircle, Send, Bookmark, BookmarkCheck,
   X, Loader2, ChevronLeft, ChevronRight, Share2, MoreHorizontal, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 import { sanitizeImageUrl } from '../utils/helpers';
+import { usePostComments } from '../features/posts/hooks/usePostComments';
 import ProductDetailOverlay from './store/ProductDetailOverlay';
 import ProductTagMarkers from './intelligence/ProductTagMarkers';
 import ContextualProductSuggestions from './intelligence/ContextualProductSuggestions';
@@ -32,15 +32,14 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
   const [liked, setLiked] = useState(post.is_liked || false);
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
   const [saved, setSaved] = useState(post.is_bookmarked || false);
-  const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
-  const [loadingComments, setLoadingComments] = useState(true);
-  const [sendingComment, setSendingComment] = useState(false);
   const [likeAnim, setLikeAnim] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const commentInputRef = useRef(null);
   const menuRef = useRef(null);
+
+  const { comments, isLoading: loadingComments, submitComment: submitCommentMutation, isSubmitting: sendingComment } = usePostComments(post.post_id);
 
   const safePosts = Array.isArray(posts) ? posts : [];
   const currentIdx = safePosts.findIndex(p => p.post_id === post.post_id);
@@ -56,7 +55,6 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
     setSaved(post.is_bookmarked || false);
     setCommentText('');
     setShowMenu(false);
-    loadComments();
   }, [post.post_id]);
 
   // Keyboard navigation
@@ -68,7 +66,7 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [currentIdx, hasPrev, hasNext]);
+  }, [currentIdx, hasPrev, hasNext, onClose, onNavigate, safePosts]);
 
   // Lock body scroll
   useEffect(() => {
@@ -83,23 +81,14 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
     return () => document.removeEventListener('mousedown', handler);
   }, [showMenu]);
 
-  const loadComments = async () => {
-    setLoadingComments(true);
-    try {
-      const res = await axios.get(`${API}/posts/${post.post_id}/comments`);
-      setComments(res.data || []);
-    } catch { /* ignore */ }
-    finally { setLoadingComments(false); }
-  };
-
   const handleLike = async () => {
     if (!currentUser) { toast.error(t('social.loginToLike')); return; }
     setLikeAnim(true);
     setTimeout(() => setLikeAnim(false), 600);
     try {
-      const res = await axios.post(`${API}/posts/${post.post_id}/like`, {}, { withCredentials: true });
-      setLiked(res.data.liked);
-      setLikesCount(prev => res.data.liked ? prev + 1 : prev - 1);
+      const data = await apiClient.post(`/posts/${post.post_id}/like`, {});
+      setLiked(data.liked);
+      setLikesCount(prev => data.liked ? prev + 1 : prev - 1);
     } catch { toast.error('Error'); }
   };
 
@@ -111,28 +100,25 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
   const handleBookmark = async () => {
     if (!currentUser) { toast.error(t('social.loginToSave')); return; }
     try {
-      const res = await axios.post(`${API}/posts/${post.post_id}/bookmark`, {}, { withCredentials: true });
-      setSaved(res.data.bookmarked);
-      toast.success(res.data.bookmarked ? t('social.saved') : t('social.unsaved'));
+      const data = await apiClient.post(`/posts/${post.post_id}/bookmark`, {});
+      setSaved(data.bookmarked);
+      toast.success(data.bookmarked ? t('social.saved') : t('social.unsaved'));
     } catch { toast.error('Error'); }
   };
 
   const submitComment = async () => {
     if (!currentUser) { toast.error(t('social.login')); return; }
     if (!commentText.trim()) return;
-    setSendingComment(true);
     try {
-      const res = await axios.post(`${API}/posts/${post.post_id}/comments`, { text: commentText.trim() }, { withCredentials: true });
-      setComments(prev => [res.data, ...prev]);
+      await submitCommentMutation(commentText.trim());
       setCommentText('');
     } catch { toast.error(t('social.errorComment')); }
-    finally { setSendingComment(false); }
   };
 
   const handleDelete = async () => {
     if (!window.confirm(t('social.deleteConfirm'))) return;
     try {
-      await axios.delete(`${API}/posts/${post.post_id}`, { withCredentials: true });
+      await apiClient.delete(`/posts/${post.post_id}`);
       toast.success(t('social.deleted'));
       onClose();
     } catch { toast.error(t('social.errorDelete')); }
@@ -155,17 +141,13 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
   const handleSelectProduct = async (product) => {
     setSelectedProduct(product);
     try {
-      await axios.post(
-        `${API}/intelligence/track`,
-        {
-          event_type: 'product_click',
-          content_type: 'post',
-          content_id: post.post_id,
-          product_id: product.product_id || product.id,
-          producer_id: product.producer_id,
-        },
-        { withCredentials: true },
-      );
+      await apiClient.post('/intelligence/track', {
+        event_type: 'product_click',
+        content_type: 'post',
+        content_id: post.post_id,
+        product_id: product.product_id || product.id,
+        producer_id: product.producer_id,
+      });
     } catch {
       // ignore tracking errors
     }

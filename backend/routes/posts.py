@@ -337,64 +337,9 @@ async def add_comment(
     return {"success": True, "data": comment_doc}
 
 
-@router.post("/users/{target_user_id}/follow")
-async def follow_user(
-    target_user_id: str,
-    current_user = Depends(get_current_user)
-):
-    """Seguir/dejar de seguir usuario"""
-    db = get_db()
-    
-    if target_user_id == current_user.user_id:
-        raise HTTPException(status_code=400, detail="Cannot follow yourself")
-    
-    target = await db.users.find_one({"user_id": target_user_id})
-    if not target:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    existing = await db.follows.find_one({
-        "follower_id": current_user.user_id,
-        "following_id": target_user_id
-    })
-    
-    if existing:
-        # Unfollow
-        await db.follows.delete_one({"_id": existing.get("_id")})
-        return {"success": True, "action": "unfollowed"}
-    
-    # Follow
-    follow_doc = {
-        "tenant_id": getattr(current_user, 'country', None) or "ES",
-        "follower_id": current_user.user_id,
-        "following_id": target_user_id,
-        "follow_type": target.get("role", "user"),
-        "notifications_enabled": True,
-        "created_at": datetime.utcnow()
-    }
-    await db.follows.insert_one(follow_doc)
-    
-    return {"success": True, "action": "followed"}
-
-
-@router.get("/users/{target_user_id}/posts")
-async def get_user_posts(
-    target_user_id: str,
-    page: int = 1,
-    limit: int = 20
-):
-    """Posts de un usuario"""
-    db = get_db()
-    
-    posts = await db.posts.find({
-        "author_id": target_user_id,
-        "status": "published"
-    }).sort("published_at", -1).skip((page - 1) * limit).limit(limit).to_list(length=limit)
-    
-    for p in posts:
-        p["id"] = str(p.pop("_id", ""))
-    
-    return {"success": True, "data": posts, "meta": {"page": page, "limit": limit}}
-
+# NOTA: follow y user-posts eliminados aquí — la autoridad canónica es social.py
+# que usa db.user_follows y db.user_posts (colecciones activas).
+# Las rutas /api/users/{id}/follow y /api/users/{id}/posts las sirve social.py.
 
 @router.post("/admin/mark-viral")
 async def admin_mark_viral(

@@ -99,6 +99,22 @@ webpackConfig.devServer = (devServerConfig) => {
     };
   }
 
+  // Proxy /api → backend en desarrollo (evita CORS y errores de URL)
+  if (!process.env.REACT_APP_API_URL) {
+    devServerConfig.proxy = {
+      '/api': {
+        target: process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/uploads': {
+        target: process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    };
+  }
+
   return devServerConfig;
 };
 

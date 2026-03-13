@@ -26,6 +26,7 @@ import { getDefaultRoute, getDashboardLabel } from '../lib/navigation';
 import PostViewer from '../components/PostViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeOverlay from '../components/recipes/RecipeOverlay';
+import OverlayErrorBoundary from '../components/OverlayErrorBoundary';
 import {
   useUserAvatar,
   useUserFollow,
@@ -556,34 +557,40 @@ export default function UserProfilePage() {
       ) : null}
 
       {selectedPost ? (
-        <PostViewer
-          post={selectedPost}
-          posts={safePosts}
-          profile={profile}
-          currentUser={currentUser}
-          onClose={() => setSelectedPost(null)}
-          onNavigate={setSelectedPost}
-        />
+        <OverlayErrorBoundary overlayKey={selectedPost?.post_id} onClose={() => setSelectedPost(null)}>
+          <PostViewer
+            post={selectedPost}
+            posts={safePosts}
+            profile={profile}
+            currentUser={currentUser}
+            onClose={() => setSelectedPost(null)}
+            onNavigate={setSelectedPost}
+          />
+        </OverlayErrorBoundary>
       ) : null}
 
       {selectedProduct ? (
-        <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />
+        <OverlayErrorBoundary overlayKey={selectedProduct?.product_id} onClose={() => setSelectedProduct(null)}>
+          <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />
+        </OverlayErrorBoundary>
       ) : null}
 
       {selectedRecipeIndex !== null && safeRecipes[selectedRecipeIndex] ? (
-        <RecipeOverlay
-          recipe={safeRecipes[selectedRecipeIndex]}
-          onClose={() => setSelectedRecipeIndex(null)}
-          showNavigation
-          hasPrev={selectedRecipeIndex > 0}
-          hasNext={selectedRecipeIndex < safeRecipes.length - 1}
-          onNavigate={(direction) =>
-            setSelectedRecipeIndex((current) => {
-              if (direction === 'prev') return Math.max(0, current - 1);
-              return Math.min(safeRecipes.length - 1, current + 1);
-            })
-          }
-        />
+        <OverlayErrorBoundary overlayKey={safeRecipes[selectedRecipeIndex]?.recipe_id} onClose={() => setSelectedRecipeIndex(null)}>
+          <RecipeOverlay
+            recipe={safeRecipes[selectedRecipeIndex]}
+            onClose={() => setSelectedRecipeIndex(null)}
+            showNavigation
+            hasPrev={selectedRecipeIndex > 0}
+            hasNext={selectedRecipeIndex < safeRecipes.length - 1}
+            onNavigate={(direction) =>
+              setSelectedRecipeIndex((current) => {
+                if (direction === 'prev') return Math.max(0, current - 1);
+                return Math.min(safeRecipes.length - 1, current + 1);
+              })
+            }
+          />
+        </OverlayErrorBoundary>
       ) : null}
     </div>
   );

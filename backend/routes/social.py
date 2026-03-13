@@ -700,6 +700,16 @@ async def get_user_posts(user_id: str, skip: int = 0, limit: int = 30):
     return posts
 
 
+@router.get("/users/{user_id}/recipes")
+async def get_user_recipes(user_id: str, skip: int = 0, limit: int = 50):
+    """Recetas públicas de un usuario, filtradas en base de datos (no en cliente)."""
+    recipes = await db.recipes.find(
+        {"author_id": user_id, "status": "active"},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return recipes
+
+
 @router.post("/users/{user_id}/follow")
 async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     if user.user_id == user_id:

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../services/api/client';
 import { 
   Package, FileCheck, ShoppingBag, CreditCard, 
   AlertCircle, Users, TrendingUp, Heart, Star, 
@@ -13,7 +13,6 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import PlanManager from '../../components/PlanManager';
 import LockedFeature from '../../components/LockedFeature';
 import { useProducerPlan } from '../../context/ProducerPlanContext';
-import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
 import HealthScoreHero from '../../components/dashboard/HealthScoreHero';
 import StatCardMobile from '../../components/dashboard/StatCardMobile';
@@ -41,14 +40,14 @@ function StripeConnectSection() {
 
   const fetchStripeStatus = async () => {
     try {
-      const response = await axios.get(`${API}/producer/stripe/status`, { withCredentials: true });
+      const data = await apiClient.get('/producer/stripe/status');
       setStripeStatus({
-        has_account: Boolean(response.data?.stripe_account_id),
-        account_id: response.data?.stripe_account_id || null,
-        status: response.data?.status || 'not_connected',
-        charges_enabled: Boolean(response.data?.charges_enabled),
-        payouts_enabled: Boolean(response.data?.payouts_enabled),
-        onboarding_completed: Boolean(response.data?.connected),
+        has_account: Boolean(data?.stripe_account_id),
+        account_id: data?.stripe_account_id || null,
+        status: data?.status || 'not_connected',
+        charges_enabled: Boolean(data?.charges_enabled),
+        payouts_enabled: Boolean(data?.payouts_enabled),
+        onboarding_completed: Boolean(data?.connected),
         requirements_due: [],
       });
     } catch (error) {
@@ -67,15 +66,15 @@ function StripeConnectSection() {
   const handleConnectStripe = async () => {
     setConnecting(true);
     try {
-      const response = await axios.post(`${API}/producer/stripe/create-account`, {}, { withCredentials: true });
-      const onboardingUrl = response.data?.url || null;
+      const data = await apiClient.post('/producer/stripe/create-account', {});
+      const onboardingUrl = data?.url || null;
       if (onboardingUrl) {
         window.location.href = onboardingUrl;
       } else {
         await fetchStripeStatus();
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al conectar Stripe');
+      toast.error(error.message || 'Error al conectar Stripe');
     } finally {
       setConnecting(false);
     }
@@ -83,9 +82,9 @@ function StripeConnectSection() {
 
   const handleViewStripeDashboard = async () => {
     try {
-      const response = await axios.post(`${API}/producer/stripe/create-login-link`, {}, { withCredentials: true });
-      if (response.data.url) {
-        window.open(response.data.url, '_blank');
+      const data = await apiClient.post('/producer/stripe/create-login-link', {});
+      if (data?.url) {
+        window.open(data.url, '_blank');
       }
     } catch (error) {
       toast.error('Error al abrir Stripe dashboard');
@@ -189,8 +188,8 @@ function HealthScoreCard() {
 
   const fetchHealthScore = async () => {
     try {
-      const response = await axios.get(`${API}/producer/health-score`, { withCredentials: true });
-      setHealthData(response.data);
+      const data = await apiClient.get('/producer/health-score');
+      setHealthData(data);
     } catch (error) {
       console.error('Error fetching health score:', error);
     } finally {
@@ -386,8 +385,8 @@ function FollowerGrowthChart() {
 
   const fetchFollowerStats = async () => {
     try {
-      const response = await axios.get(`${API}/producer/follower-stats?days=${days}`, { withCredentials: true });
-      setData(response.data.chart_data || []);
+      const data = await apiClient.get(`/producer/follower-stats?days=${days}`);
+      setData(data?.chart_data || []);
     } catch (error) {
       console.error('Error fetching follower stats:', error);
     } finally {
@@ -497,14 +496,14 @@ export default function ProducerOverview() {
       setError(null);
       setDataWarnings([]);
       const [statsRes, paymentsRes, demandRes] = await Promise.allSettled([
-        axios.get(`${API}/producer/stats`, { withCredentials: true }),
-        axios.get(`${API}/producer/payments`, { withCredentials: true }),
-        axios.get(`${API}/intelligence/producer-demand`, { withCredentials: true }),
+        apiClient.get('/producer/stats'),
+        apiClient.get('/producer/payments'),
+        apiClient.get('/intelligence/producer-demand'),
       ]);
       const warnings = [];
 
       if (statsRes.status === 'fulfilled') {
-        setStats(statsRes.value.data);
+        setStats(statsRes.value);
       } else {
         setStats({
           total_products: 0,
@@ -518,7 +517,7 @@ export default function ProducerOverview() {
       }
 
       if (paymentsRes.status === 'fulfilled') {
-        setPayments(paymentsRes.value.data);
+        setPayments(paymentsRes.value);
       } else {
         setPayments({
           total_gross: 0,
@@ -532,7 +531,7 @@ export default function ProducerOverview() {
       }
 
       if (demandRes.status === 'fulfilled') {
-        setDemandSignals(demandRes.value.data || { trending_ingredients: [], most_tagged_products: [], content_driving_sales: [] });
+        setDemandSignals(demandRes.value || { trending_ingredients: [], most_tagged_products: [], content_driving_sales: [] });
       } else {
         setDemandSignals({ trending_ingredients: [], most_tagged_products: [], content_driving_sales: [] });
       }
@@ -548,6 +547,8 @@ export default function ProducerOverview() {
       setLoading(false);
     }
   };
+
+  const publicProfileUrl = user?.user_id ? `/user/${user.user_id}` : null;
 
   // Loading state
   if (loading) {
@@ -696,13 +697,23 @@ export default function ProducerOverview() {
       </div>
 
       {/* Header */}
-      <div className="mb-0">
-        <h1 
+      <div className="mb-0 flex items-center justify-between gap-4">
+        <h1
           className="text-3xl font-semibold tracking-tight text-stone-950"
           data-testid="producer-title"
         >
           {user?.company_name || user?.name}
         </h1>
+        {publicProfileUrl && (
+          <Link
+            to={publicProfileUrl}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+            data-testid="view-public-profile"
+          >
+            <Users className="h-4 w-4" />
+            Ver perfil público
+          </Link>
+        )}
       </div>
 
       {/* Plan Manager */}

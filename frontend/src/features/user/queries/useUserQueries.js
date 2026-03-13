@@ -125,9 +125,8 @@ export function useUserRecipesQuery(userId, options = {}) {
   return useQuery({
     queryKey: userKeys.recipes(userId),
     queryFn: async () => {
-      const data = await apiClient.get('/recipes?limit=100');
-      const recipes = normalizeListResponse(data, ['recipes', 'items']);
-      return recipes.filter((recipe) => recipe.author_id === userId);
+      const data = await apiClient.get(`/users/${userId}/recipes`);
+      return normalizeListResponse(data, ['recipes', 'items']);
     },
     enabled: Boolean(userId) && (options.enabled ?? true),
   });

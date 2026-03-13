@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/api/client';
 import { ChefHat, Clock3, Loader2, Plus, Search, User, Users } from 'lucide-react';
 import Header from '../components/Header';
 import { asLowerText } from '../utils/safe';
@@ -10,7 +10,6 @@ import SEO from '../components/SEO';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { API } from '../utils/api';
 import { resolveUserImage } from '../features/user/queries';
 
 const INITIAL_BATCH = 12;
@@ -78,11 +77,11 @@ export default function RecipesPage() {
     let active = true;
     setLoading(true);
 
-    axios
-      .get(`${API}/recipes`)
-      .then((response) => {
+    apiClient
+      .get('/recipes')
+      .then((data) => {
         if (active) {
-          setRecipes(Array.isArray(response.data) ? response.data : []);
+          setRecipes(Array.isArray(data) ? data : []);
         }
       })
       .catch(() => {

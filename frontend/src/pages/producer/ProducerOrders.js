@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { ShoppingBag, MapPin, Package, Truck, Check, Clock, X, ExternalLink, Loader2, Send } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -7,7 +6,7 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { asNumber } from '../../utils/safe';
 
 const statusColors = {
@@ -76,22 +75,18 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
     setLoading(true);
 
     try {
-      await axios.put(
-        `${API}/orders/${order.order_id}/status`,
-        {
-          status: 'shipped',
-          tracking_number: formData.tracking_number || undefined,
-          shipping_carrier: formData.shipping_carrier || undefined,
-          notes: formData.notes || undefined
-        },
-        { withCredentials: true }
-      );
+      await apiClient.put(`/orders/${order.order_id}/status`, {
+        status: 'shipped',
+        tracking_number: formData.tracking_number || undefined,
+        shipping_carrier: formData.shipping_carrier || undefined,
+        notes: formData.notes || undefined,
+      });
 
       toast.success(t('orders.shipping.success'));
       onSuccess(order.order_id, formData);
       onClose();
     } catch (error) {
-      const msg = error.response?.data?.detail || t('orders.errorUpdating');
+      const msg = error.message || t('orders.errorUpdating');
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -247,8 +242,8 @@ export default function ProducerOrders() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`${API}/producer/orders`, { withCredentials: true });
-      setOrders(response.data);
+      const data = await apiClient.get('/producer/orders');
+      setOrders(data);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -268,12 +263,7 @@ export default function ProducerOrders() {
 
   const handleUpdateStatus = async (order, newStatus) => {
     try {
-      await axios.put(
-        `${API}/orders/${order.order_id}/status`,
-        { status: newStatus },
-        { withCredentials: true }
-      );
-      
+      await apiClient.put(`/orders/${order.order_id}/status`, { status: newStatus });
       toast.success(`${t('orders.orderUpdatedTo')}: ${statusLabels[newStatus]}`);
       setOrders(orders.map(o =>
         o.order_id === order.order_id
@@ -281,7 +271,7 @@ export default function ProducerOrders() {
           : o
       ));
     } catch (error) {
-      const msg = error.response?.data?.detail || t('orders.errorUpdating');
+      const msg = error.message || t('orders.errorUpdating');
       toast.error(msg);
     }
   };

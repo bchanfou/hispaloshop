@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Clock, Loader2, ShoppingCart, User, Users, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import ProductDetailOverlay from '../store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from './RecipeShoppingListOverlay';
 import ContextualProductSuggestions from '../intelligence/ContextualProductSuggestions';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { resolveUserImage } from '../../features/user/queries';
 
 function normalizeStep(step) {
@@ -55,9 +54,9 @@ export default function RecipeOverlay({
     const loadRecipe = async () => {
       setLoadingDetail(true);
       try {
-        const data = await axios.get(`${API}/recipes/${recipe.recipe_id}`);
+        const data = await apiClient.get(`/recipes/${recipe.recipe_id}`);
         if (active) {
-          setRecipeDetail(data.data || recipe);
+          setRecipeDetail(data || recipe);
         }
       } catch {
         if (active) {

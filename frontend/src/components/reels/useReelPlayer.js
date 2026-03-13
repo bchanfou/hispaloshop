@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 export const useReelPlayer = (reel) => {
   const videoRef = useRef(null);
@@ -70,8 +69,8 @@ export const useReelPlayer = (reel) => {
     setIsLiked(newLiked);
     setLikesCount(prev => newLiked ? prev + 1 : prev - 1);
     if (reel?.id) {
-      axios
-        .post(`${API}/reels/${reel.id}/like`, {}, { withCredentials: true })
+      apiClient
+        .post(`/reels/${reel.id}/like`, {})
         .catch(() => {
           // Revert on error
           setIsLiked(!newLiked);

@@ -3,14 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import apiClient from '../../services/api/client';
 import {
   ArrowLeft, Lock, MapPin, Truck, Check, Plus, Shield,
   ShoppingBag, Trash2, Star, Loader2, Tag, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
-import { API } from '../../utils/api';
 
 // ─── Zod schema ────────────────────────────────────────────────────────────
 const addressSchema = z.object({
@@ -197,9 +196,9 @@ const CheckoutPage = () => {
   const fetchAddresses = async () => {
     setLoadingAddresses(true);
     try {
-      const res = await axios.get(`${API}/customer/addresses`, { withCredentials: true });
-      const addrs = res.data.addresses || [];
-      const defaultId = res.data.default_address_id;
+      const data = await apiClient.get('/customer/addresses');
+      const addrs = data?.addresses || [];
+      const defaultId = data?.default_address_id;
       setAddresses(addrs);
       setDefaultAddressId(defaultId);
       // Auto-select default or first
@@ -218,15 +217,11 @@ const CheckoutPage = () => {
     setError(null);
     try {
       const isFirst = addresses.length === 0;
-      await axios.post(
-        `${API}/customer/addresses`,
-        { ...data, is_default: isFirst },
-        { withCredentials: true }
-      );
+      await apiClient.post('/customer/addresses', { ...data, is_default: isFirst });
       await fetchAddresses();
       setShowAddressForm(false);
     } catch (e) {
-      setError(e.response?.data?.detail || 'Error al guardar la dirección');
+      setError(e.message || 'Error al guardar la dirección');
     } finally {
       setSavingAddress(false);
     }
@@ -234,7 +229,7 @@ const CheckoutPage = () => {
 
   const handleDeleteAddress = async (addressId) => {
     try {
-      await axios.delete(`${API}/customer/addresses/${addressId}`, { withCredentials: true });
+      await apiClient.delete(`/customer/addresses/${addressId}`);
       await fetchAddresses();
     } catch {
       setError('Error al eliminar la dirección');
@@ -243,7 +238,7 @@ const CheckoutPage = () => {
 
   const handleSetDefault = async (addressId) => {
     try {
-      await axios.put(`${API}/customer/addresses/${addressId}/default`, {}, { withCredentials: true });
+      await apiClient.put(`/customer/addresses/${addressId}/default`, {});
       await fetchAddresses();
     } catch {
       setError('Error al actualizar la dirección predeterminada');
@@ -277,13 +272,13 @@ const CheckoutPage = () => {
         payload.discount_code = discountCode.trim();
       }
 
-      const res = await axios.post(`${API}/payments/create-checkout`, payload, { withCredentials: true });
-      const { url } = res.data;
+      const data = await apiClient.post('/payments/create-checkout', payload);
+      const url = data?.url;
       if (!url) throw new Error('No se recibió URL de pago');
       clearCart();
       window.location.href = url;
     } catch (e) {
-      const msg = e.response?.data?.detail || e.message || 'Error al procesar el pago';
+      const msg = e.message || 'Error al procesar el pago';
       setError(typeof msg === 'string' ? msg : 'Error al procesar el pago');
       setIsProcessing(false);
     }

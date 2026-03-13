@@ -40,8 +40,7 @@ import { toast } from 'sonner';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { api } from '../lib/api';
-import axios from 'axios';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 
 const MAIN_SECTIONS = [
   { id: 'todo', label: 'Todo', icon: Grid3X3 },
@@ -148,8 +147,8 @@ export default function DiscoverPage() {
         }
 
         try {
-          const exploreData = await axios.get(`${API}/discovery/explore`, { withCredentials: true });
-          setSuggestedCreators(exploreData.data?.suggested_creators || []);
+          const exploreData = await apiClient.get('/discovery/explore');
+          setSuggestedCreators(exploreData?.suggested_creators || []);
         } catch {
           setSuggestedCreators([]);
         }

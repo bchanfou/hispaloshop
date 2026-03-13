@@ -139,8 +139,8 @@ app.add_middleware(
 # 2. Security Headers Middleware
 app.add_middleware(SecurityHeadersMiddleware)
 
-# 3. Rate Limiting Middleware (100 req/min, burst 20)
-app.add_middleware(RateLimitMiddleware, requests_per_minute=100, burst_size=20)
+# 3. Rate Limiting Middleware (100 req/min, burst 50 — páginas de perfil hacen 6+ requests simultáneas)
+app.add_middleware(RateLimitMiddleware, requests_per_minute=100, burst_size=50)
 
 # 4. Request Logging (solo en desarrollo)
 if settings.ENV == "development":
@@ -197,9 +197,7 @@ app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
 
-# Social Routes (Fase 3)
-from routes.posts import router as posts_router
-app.include_router(posts_router, prefix="/api/posts", tags=["Posts"])
+# Social Routes (Fase 3) — posts_router ya registrado como legacy_posts_router en /api arriba
 
 # B2B Routes (Fase 4)
 from routes.b2b import router as b2b_router
@@ -218,9 +216,7 @@ app.include_router(superadmin_dashboard_router, prefix="/api", tags=["Superadmin
 app.include_router(superadmin_audit_router, prefix="/api", tags=["Superadmin Audit"])
 app.include_router(superadmin_moderation_router, prefix="/api", tags=["Superadmin Moderation"])
 
-# Notifications Routes (Fase 5)
-from routes.notifications import router as notifications_v2_router
-app.include_router(notifications_v2_router, prefix="/api/v2/notifications", tags=["Notifications V2"])
+# Notifications Routes (Fase 5) — notifications ya registradas en /api arriba con su propio prefix /notifications
 
 # WebSocket Routes (Fase 5)
 from routes.websocket_chat import router as websocket_router

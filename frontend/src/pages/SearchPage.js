@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp } from 'lucide-react';
-import axios from 'axios';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 
 const HISTORY_KEY = 'hispal_search_history';
 const MAX_HISTORY = 8;
@@ -182,9 +181,8 @@ export default function SearchPage() {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const { data } = await axios.get(`${API}/search`, {
+        const data = await apiClient.get('/search', {
           params: { q: query.trim(), limit: 8 },
-          withCredentials: true,
         });
         setResults(data);
         setSearchParams({ q: query.trim() }, { replace: true });

@@ -7,6 +7,8 @@ import ProductImage from '../ui/ProductImage.tsx';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useLocale } from '../../context/LocaleContext';
+import { useProductReviews as useProductReviewsHook } from '../../features/products/hooks';
+import { useProductCertificate } from '../../features/products/queries';
 
 const normalizeEntityId = (value) => (value == null ? '' : String(value));
 
@@ -60,6 +62,14 @@ export default function ProductDetailOverlay({
   const { convertAndFormatPrice } = useLocale();
   const productId = product?.product_id || product?.id;
 
+  // Auto-fetch cuando el padre no pasa datos (p.ej. al abrir desde perfil de usuario)
+  const { reviews: fetchedReviews } = useProductReviewsHook(reviews.length === 0 ? productId : null);
+  const { data: certData } = useProductCertificate(certificates.length === 0 ? productId : null);
+
+  const effectiveReviews = reviews.length > 0 ? reviews : (fetchedReviews ?? []);
+  const fetchedCertArray = certData ? [{ ...certData, product_id: productId, product_name: product?.name }] : [];
+  const effectiveCertificates = certificates.length > 0 ? certificates : fetchedCertArray;
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     const handleKeyDown = (event) => {
@@ -82,10 +92,10 @@ export default function ProductDetailOverlay({
     return [];
   }, [product?.image_url, product?.images]);
 
-  const relatedCertificates = certificates.filter(
+  const relatedCertificates = effectiveCertificates.filter(
     (certificate) => normalizeEntityId(certificate.product_id) === normalizeEntityId(productId),
   );
-  const relatedReviews = reviews.filter(
+  const relatedReviews = effectiveReviews.filter(
     (review) => normalizeEntityId(review.product_id) === normalizeEntityId(productId),
   );
   const price = convertAndFormatPrice(product?.display_price || product?.price || 0, product?.display_currency || product?.currency || 'EUR');

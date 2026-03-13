@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { 
@@ -13,7 +13,6 @@ import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 
-import { API } from '../utils/api';
 import { sanitizeImageUrl } from '../utils/helpers';
 import { asNumber } from '../utils/safe';
 
@@ -107,8 +106,8 @@ function StoriesSection() {
   const [activeStory, setActiveStory] = useState(null);
 
   useEffect(() => {
-    axios.get(`${API}/feed/stories`, { withCredentials: true })
-      .then(r => setStories(r.data || []))
+    apiClient.get('/feed/stories')
+      .then(data => setStories(data || []))
       .catch(() => {});
   }, []);
 
@@ -190,8 +189,8 @@ function ProductSelector({ onSelect, onCancel }) {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${API}/post-products/search?q=${encodeURIComponent(query)}&limit=5`, { withCredentials: true });
-        setResults(res.data || []);
+        const data = await apiClient.get(`/post-products/search?q=${encodeURIComponent(query)}&limit=5`);
+        setResults(data || []);
       } catch { setResults([]); }
       finally { setLoading(false); }
     }, 300);
@@ -200,7 +199,7 @@ function ProductSelector({ onSelect, onCancel }) {
 
   useEffect(() => {
     (async () => {
-      try { const res = await axios.get(`${API}/post-products/search?limit=5`, { withCredentials: true }); setResults(res.data || []); } catch { /* ignore */ }
+      try { const data = await apiClient.get('/post-products/search?limit=5'); setResults(data || []); } catch { /* ignore */ }
     })();
   }, []);
 
@@ -239,29 +238,29 @@ function QuickBuyModal({ product, onClose }) {
   const imgUrl = getImgUrl(product.image);
 
   const trackEvt = (type) => {
-    axios.post(`${API}/track/social-event`, { event_type: type, product_id: product.product_id }).catch(() => {});
+    apiClient.post('/track/social-event', { event_type: type, product_id: product.product_id }).catch(() => {});
   };
 
   const handleAddToCart = async () => {
     setAdding(true);
     try {
-      await axios.post(`${API}/cart/add`, { product_id: product.product_id, quantity }, { withCredentials: true });
+      await apiClient.post('/cart/add', { product_id: product.product_id, quantity });
       trackEvt('add_to_cart_from_post');
       toast.success('Agregado al carrito');
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.detail || t('social.errorAdd'));
+      toast.error(err.message || t('social.errorAdd'));
     } finally { setAdding(false); }
   };
 
   const handleBuyNow = async () => {
     setBuying(true);
     try {
-      const res = await axios.post(`${API}/checkout/buy-now`, { product_id: product.product_id, quantity }, { withCredentials: true });
+      const data = await apiClient.post('/checkout/buy-now', { product_id: product.product_id, quantity });
       trackEvt('buy_from_post');
-      if (res.data.checkout_url) window.location.href = res.data.checkout_url;
+      if (data?.checkout_url) window.location.href = data.checkout_url;
     } catch (err) {
-      toast.error(err.response?.data?.detail || t('social.errorBuy'));
+      toast.error(err.message || t('social.errorBuy'));
     } finally { setBuying(false); }
   };
 
@@ -333,7 +332,7 @@ function TaggedProductCard({ product }) {
   if (!product) return null;
 
   const trackClick = () => {
-    axios.post(`${API}/track/social-event`, { event_type: 'click_product_from_post', product_id: product.product_id }).catch(() => {});
+    apiClient.post('/track/social-event', { event_type: 'click_product_from_post', product_id: product.product_id }).catch(() => {});
   };
 
   return (
@@ -407,11 +406,11 @@ function CreatePostInline({ user, onPostCreated }) {
       fd.append('caption', text.trim());
       if (file) fd.append('file', file);
       if (taggedProduct) fd.append('product_id', taggedProduct.product_id);
-      const res = await axios.post(`${API}/posts`, fd, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
+      const newPost = await apiClient.post('/posts', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       setText(''); removeFile(); setTaggedProduct(null); setFocused(false); setShowProductSelector(false);
       toast.success('Publicado');
-      if (onPostCreated) onPostCreated(res.data);
-    } catch (err) { toast.error(err.response?.data?.detail || t('social.errorPublish')); }
+      if (onPostCreated) onPostCreated(newPost);
+    } catch (err) { toast.error(err.message || t('social.errorPublish')); }
     finally { setPosting(false); }
   };
 
@@ -492,7 +491,7 @@ function CommentItem({ comment, currentUser, postId, onUpdate, onDelete }) {
   const handleEdit = async () => {
     if (!editText.trim()) return;
     try {
-      await axios.put(`${API}/comments/${comment.comment_id}`, { text: editText.trim() }, { withCredentials: true });
+      await apiClient.put(`/comments/${comment.comment_id}`, { text: editText.trim() });
       onUpdate({ comment_id: comment.comment_id, text: editText.trim(), edited_at: new Date().toISOString() });
       setEditing(false);
       toast.success(t('social.commentUpdated', 'Comentario actualizado'));
@@ -501,7 +500,7 @@ function CommentItem({ comment, currentUser, postId, onUpdate, onDelete }) {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}/comments/${comment.comment_id}`, { withCredentials: true });
+      await apiClient.delete(`/comments/${comment.comment_id}`);
       onDelete(comment.comment_id);
       toast.success(t('social.commentDeleted', 'Comentario eliminado'));
     } catch { toast.error('Error'); }
@@ -581,8 +580,8 @@ function PostCard({ post, currentUser, onDelete }) {
     if (!currentUser) { toast.error(t('social.loginToLike')); return; }
     setLikeAnim(true); setTimeout(() => setLikeAnim(false), 600);
     try {
-      const res = await axios.post(`${API}/posts/${post.post_id}/like`, {}, { withCredentials: true });
-      setLiked(res.data.liked); setLikesCount(prev => res.data.liked ? prev + 1 : prev - 1);
+      const data = await apiClient.post(`/posts/${post.post_id}/like`, {});
+      setLiked(data.liked); setLikesCount(prev => data.liked ? prev + 1 : prev - 1);
     } catch { toast.error('Error'); }
   };
 
@@ -591,9 +590,9 @@ function PostCard({ post, currentUser, onDelete }) {
   const handleBookmark = async () => {
     if (!currentUser) { toast.error(t('social.loginToSave')); return; }
     try {
-      const res = await axios.post(`${API}/posts/${post.post_id}/bookmark`, {}, { withCredentials: true });
-      setSaved(res.data.bookmarked); toast.success(res.data.bookmarked ? t('social.saved') : t('social.unsaved'));
-      if (res.data.bookmarked) axios.post(`${API}/track/social-event`, { event_type: 'save_post', post_id: post.post_id }).catch(() => {});
+      const data = await apiClient.post(`/posts/${post.post_id}/bookmark`, {});
+      setSaved(data.bookmarked); toast.success(data.bookmarked ? t('social.saved') : t('social.unsaved'));
+      if (data.bookmarked) apiClient.post('/track/social-event', { event_type: 'save_post', post_id: post.post_id }).catch(() => {});
     } catch { toast.error('Error'); }
   };
 
@@ -601,7 +600,7 @@ function PostCard({ post, currentUser, onDelete }) {
     if (!window.confirm(t('social.deleteConfirm'))) return;
     setDeleting(true);
     try {
-      await axios.delete(`${API}/posts/${post.post_id}`, { withCredentials: true });
+      await apiClient.delete(`/posts/${post.post_id}`);
       toast.success('Publicacion eliminada');
       if (onDelete) onDelete(post.post_id);
     } catch { toast.error(t('social.errorDelete')); }
@@ -609,7 +608,7 @@ function PostCard({ post, currentUser, onDelete }) {
   };
 
   const handleShare = async () => {
-    axios.post(`${API}/track/social-event`, { event_type: 'share_post', post_id: post.post_id }).catch(() => {});
+    apiClient.post('/track/social-event', { event_type: 'share_post', post_id: post.post_id }).catch(() => {});
     const url = `${window.location.origin}/user/${post.user_id}`;
     const text = post.caption ? `${post.caption.slice(0, 100)} - Hispaloshop` : 'Mira esto en Hispaloshop';
     
@@ -629,7 +628,7 @@ function PostCard({ post, currentUser, onDelete }) {
   };
 
   const loadComments = async () => {
-    try { const res = await axios.get(`${API}/posts/${post.post_id}/comments`); setComments(res.data || []); } catch { /* ignore */ }
+    try { const data = await apiClient.get(`/posts/${post.post_id}/comments`); setComments(data || []); } catch { /* ignore */ }
   };
   const toggleComments = () => { if (!showComments) loadComments(); setShowComments(!showComments); };
 
@@ -638,8 +637,8 @@ function PostCard({ post, currentUser, onDelete }) {
     if (!commentText.trim()) return;
     setLoadingComment(true);
     try {
-      const res = await axios.post(`${API}/posts/${post.post_id}/comments`, { text: commentText.trim() }, { withCredentials: true });
-      setComments(prev => [res.data, ...prev]); setCommentText('');
+      const newComment = await apiClient.post(`/posts/${post.post_id}/comments`, { text: commentText.trim() });
+      setComments(prev => [newComment, ...prev]); setCommentText('');
     } catch { toast.error(t('social.errorComment')); }
     finally { setLoadingComment(false); }
   };
@@ -809,19 +808,19 @@ export default function SocialFeed({ selectedCategory = '' }) {
     try {
       const skip = reset ? 0 : pageToLoad * LIMIT;
       const scope = user ? 'following' : 'hybrid';
-      const res = await axios.get(`${API}/feed?skip=${skip}&limit=${LIMIT}&scope=${scope}`, { withCredentials: true });
-      const items = res.data.posts || [];
+      const data = await apiClient.get(`/feed?skip=${skip}&limit=${LIMIT}&scope=${scope}`);
+      const items = data?.posts || [];
       if (reset) {
         if (items.length > 0) {
           setPosts(items);
-          setHasMore(res.data.has_more || false);
+          setHasMore(data?.has_more || false);
         } else {
           setPosts([]);
           setHasMore(false);
         }
       } else {
         setPosts(prev => [...prev, ...items]);
-        setHasMore(res.data.has_more || false);
+        setHasMore(data?.has_more || false);
       }
     } catch (err) {
       console.error('Feed error:', err);
