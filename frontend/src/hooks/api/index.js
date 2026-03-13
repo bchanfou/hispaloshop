@@ -67,7 +67,7 @@ export {
   useRemoveFromCart,
   useApplyCoupon, 
   useSyncCart,
-  useCreateCheckout, 
+  useCreateStripeCheckout,
   useCheckout, 
   useConfirmPayment,
   useOrders, 
