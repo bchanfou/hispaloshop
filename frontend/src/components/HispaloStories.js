@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../services/api/client';
-import { Camera, ChevronRight, Loader2, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
+import { Camera, ChevronRight, Loader2, Plus, ShoppingBag, Trash2, User, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
@@ -604,6 +604,8 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
   const [activeGroup, setActiveGroup] = useState(null);
   const [showUpload, setShowUpload] = useState(false);
 
+  const userAvatar = user?.profile_image || user?.avatar_url || null;
+
   const fetchStories = useCallback(() => {
     apiClient
       .get('/stories')
@@ -617,7 +619,12 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
 
   return (
     <>
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" data-testid="stories-row">
+      {/* ── Scroll row — edge-to-edge como Instagram ── */}
+      <div
+        className="flex gap-4 overflow-x-auto pl-3 pr-3 py-3 scrollbar-hide"
+        data-testid="stories-row"
+      >
+        {/* ── "Tu historia" — avatar del usuario + badge + ── */}
         {user ? (
           <button
             type="button"
@@ -625,50 +632,90 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
               onCreateStory?.();
               setShowUpload(true);
             }}
-            className="flex shrink-0 flex-col items-center gap-1"
+            className="flex shrink-0 flex-col items-center gap-[5px] active:opacity-70"
             data-testid="add-story-btn"
             aria-label={t('stories.addStory', 'Añadir historia')}
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-stone-300 bg-stone-50 transition-colors hover:bg-stone-100">
-              <Plus className="h-6 w-6 text-stone-400" />
-            </div>
-            <span className="text-[10px] font-medium text-stone-500">{t('stories.addStory', 'Añadir')}</span>
-          </button>
-        ) : null}
-
-        {storyGroups.map((group) => (
-          <button
-            key={group.user_id}
-            type="button"
-            onClick={() => {
-              onViewStory?.(group);
-              setActiveGroup(group);
-            }}
-            className="flex shrink-0 flex-col items-center gap-1"
-            data-testid={`story-circle-${group.user_id}`}
-            aria-label={group.is_own ? t('stories.yourStory', 'Tu historia') : t('stories.openStory', 'Abrir historia de {{name}}', { name: group.user_name })}
-          >
-            <div className={`h-16 w-16 rounded-full p-[2px] ${group.is_own ? 'bg-gradient-to-br from-stone-950 to-stone-500' : 'bg-gradient-to-br from-orange-400 to-pink-500'}`}>
-              <div className="h-full w-full overflow-hidden rounded-full bg-white p-[2px]">
-                {group.profile_image ? (
+            {/* Círculo con avatar del usuario */}
+            <div className="relative">
+              <div className="h-[62px] w-[62px] overflow-hidden rounded-full border border-stone-200 bg-stone-100">
+                {userAvatar ? (
                   <img
-                    src={group.profile_image}
-                    alt={group.is_own ? t('stories.yourStory', 'Tu historia') : t('stories.storyAvatar', 'Historia de {{name}}', { name: group.user_name })}
-                    loading="lazy"
-                    className="h-full w-full rounded-full object-cover"
+                    src={userAvatar}
+                    alt=""
+                    loading="eager"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center rounded-full bg-stone-200 text-sm font-semibold text-stone-500">
-                    {(group.user_name || '?')[0].toUpperCase()}
+                  <div className="flex h-full w-full items-center justify-center">
+                    <User className="h-6 w-6 text-stone-400" />
                   </div>
                 )}
               </div>
+              {/* Badge + en esquina inferior derecha — exacto al de IG */}
+              <div className="absolute bottom-0 right-0 flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-white bg-stone-950">
+                <Plus className="h-3 w-3 text-white" strokeWidth={3} />
+              </div>
             </div>
-            <span className="max-w-16 truncate text-[10px] font-medium text-stone-600">
-              {group.is_own ? t('stories.yourStory', 'Tu historia') : firstToken(group.user_name, '')}
+            <span className="w-[62px] truncate text-center text-[11px] font-medium text-stone-600">
+              Tu historia
             </span>
           </button>
-        ))}
+        ) : null}
+
+        {/* ── Story circles de otros usuarios ── */}
+        {storyGroups.map((group) => {
+          const isOwn = group.is_own;
+          return (
+            <button
+              key={group.user_id}
+              type="button"
+              onClick={() => {
+                onViewStory?.(group);
+                setActiveGroup(group);
+              }}
+              className="flex shrink-0 flex-col items-center gap-[5px] active:opacity-70"
+              data-testid={`story-circle-${group.user_id}`}
+              aria-label={
+                isOwn
+                  ? t('stories.yourStory', 'Tu historia')
+                  : t('stories.openStory', 'Abrir historia de {{name}}', { name: group.user_name })
+              }
+            >
+              {/* Ring B&W: propio → gris claro · ajeno → negro */}
+              <div
+                className={`flex h-[62px] w-[62px] shrink-0 items-center justify-center rounded-full ${
+                  isOwn
+                    ? 'ring-[2px] ring-stone-300 ring-offset-[2px] ring-offset-white'
+                    : 'ring-[2px] ring-stone-950 ring-offset-[2px] ring-offset-white'
+                }`}
+              >
+                <div className="h-full w-full overflow-hidden rounded-full bg-stone-100">
+                  {group.profile_image ? (
+                    <img
+                      src={group.profile_image}
+                      alt={
+                        isOwn
+                          ? t('stories.yourStory', 'Tu historia')
+                          : t('stories.storyAvatar', 'Historia de {{name}}', { name: group.user_name })
+                      }
+                      loading="lazy"
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center rounded-full text-[18px] font-semibold text-stone-500">
+                      {(group.user_name || '?')[0].toUpperCase()}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <span className="w-[62px] truncate text-center text-[11px] font-medium text-stone-600">
+                {isOwn ? t('stories.yourStory', 'Tu historia') : firstToken(group.user_name, '')}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {activeGroup ? (

@@ -130,7 +130,7 @@ function FollowingFeed() {
   }
 
   return (
-    <div className="pb-20">
+    <div>
       {isLoading && allPosts.length === 0 ? (
         <FeedSkeleton count={3} />
       ) : (

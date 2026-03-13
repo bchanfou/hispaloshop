@@ -106,13 +106,21 @@ export default function BottomNavBar() {
       setActivePanel((prev) => (prev === 'chat' ? null : 'chat'));
     };
 
+    // Lanzado desde HomeHeader (botón ✏) y FeedContainer (historias)
+    const handleOpenCreator = () => {
+      if (!user) { navigate('/login'); return; }
+      setShowContentTypeSelector(true);
+    };
+
     window.addEventListener('open-chat-with-user', handleOpenChat);
     window.addEventListener('toggle-chat', handleToggleChat);
+    window.addEventListener('open-creator', handleOpenCreator);
     return () => {
       window.removeEventListener('open-chat-with-user', handleOpenChat);
       window.removeEventListener('toggle-chat', handleToggleChat);
+      window.removeEventListener('open-creator', handleOpenCreator);
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const token = getToken();
@@ -275,15 +283,16 @@ export default function BottomNavBar() {
   };
 
   const profileUserId = user?.user_id || user?.id || null;
-  const profileUrl = profileUserId ? `/user/${profileUserId}` : (user ? '/profile' : '/login');
+  const profileUrl   = profileUserId ? `/user/${profileUserId}` : (user ? '/profile' : '/login');
   const profileImage = user?.profile_image || user?.avatar_url || null;
 
-  const navItems = [
-    { id: 'home', icon: Home, label: t('bottomNav.home', 'Inicio'), link: '/' },
-    { id: 'explore', icon: Compass, label: t('bottomNav.explore', 'Explorar'), link: '/discover' },
-    { id: 'chat', icon: MessageCircle, label: t('bottomNav.chat', 'Chat'), action: () => (user ? togglePanel('chat') : navigate('/login')) },
-    { id: 'profile', icon: User, label: t('bottomNav.profile', 'Perfil'), link: profileUrl, isProfile: true },
-  ];
+  const isHome       = location.pathname === '/';
+  const isExplore    = location.pathname.startsWith('/discover') || location.pathname.startsWith('/products');
+  const isChatActive = activePanel === 'chat';
+  const isProfile    = profileUserId
+    ? location.pathname === `/user/${profileUserId}`
+    : location.pathname === '/profile';
+  const isCreating   = showAdvancedEditor || showContentTypeSelector;
 
   return (
     <>
@@ -309,7 +318,7 @@ export default function BottomNavBar() {
       ) : null}
 
       {activePanel === 'chat' ? (
-        <div className="fixed inset-0 z-50 md:inset-auto md:bottom-[82px] md:right-4" data-testid="chat-panel">
+        <div className="fixed inset-0 z-50 md:inset-auto md:bottom-[70px] md:right-4" data-testid="chat-panel">
           <div className="flex h-full flex-col bg-white shadow-2xl md:h-[550px] md:w-[380px] md:rounded-2xl md:border md:border-stone-200">
             <InternalChat isEmbedded={true} onClose={closePanel} initialChatUserId={initialChatUserId} />
           </div>
@@ -326,136 +335,130 @@ export default function BottomNavBar() {
         data-testid="gallery-file-input"
       />
 
-      <nav className="pointer-events-none fixed bottom-2 left-0 right-0 z-40 md:bottom-5" data-testid="bottom-nav-bar">
-        <div className="pointer-events-auto mx-auto max-w-xl px-2 sm:px-3">
-          <div className="grid h-[76px] grid-cols-[1fr_1fr_auto_1fr_1fr] items-center rounded-[28px] border border-stone-200/90 bg-white/96 px-2 shadow-[0_16px_40px_rgba(15,15,15,0.12)] backdrop-blur-xl">
-            {navItems.slice(0, 2).map((item) => {
-              const Icon = item.icon;
-              const isActive = item.match ? item.match(location) : location.pathname === item.link;
+      {/* ── Instagram-style flat bottom nav ── */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl"
+        data-testid="bottom-nav-bar"
+      >
+        <div className="grid h-[50px] grid-cols-5 items-center px-1">
 
-              return item.link ? (
-                <Link
-                  key={item.id}
-                  to={item.link}
-                  aria-label={item.label}
-                  className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors ${
-                    isActive ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
-                  }`}
-                  data-testid={`bottom-nav-${item.id}`}
-                >
-                  <div className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                    isActive ? 'bg-stone-950 text-white' : 'bg-transparent text-current'
-                  }`}>
-                    <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
-                  </div>
-                  <span className="max-w-full truncate text-[11px] font-medium">{item.label}</span>
-                </Link>
+          {/* 1 — Home */}
+          <Link
+            to="/"
+            aria-label={t('bottomNav.home', 'Inicio')}
+            data-testid="bottom-nav-home"
+            className="flex items-center justify-center active:opacity-60"
+          >
+            {isHome ? (
+              /* Filled house — active */
+              <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+              </svg>
+            ) : (
+              <Home className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
+            )}
+          </Link>
+
+          {/* 2 — Explore / Buscar */}
+          <Link
+            to="/discover"
+            aria-label={t('bottomNav.explore', 'Explorar')}
+            data-testid="bottom-nav-explore"
+            className="flex items-center justify-center active:opacity-60"
+          >
+            {isExplore ? (
+              /* Filled search — active */
+              <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+              </svg>
+            ) : (
+              <Compass className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
+            )}
+          </Link>
+
+          {/* 3 — Crear (+) */}
+          <button
+            type="button"
+            onClick={handlePostButton}
+            aria-label={t('bottomNav.create', 'Crear')}
+            data-testid="bottom-nav-post"
+            className="flex items-center justify-center active:opacity-60"
+          >
+            <div className={`flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border transition-all active:scale-95 ${
+              isCreating
+                ? 'border-stone-400 bg-stone-200'
+                : 'border-stone-300 bg-white'
+            }`}>
+              {isCreating ? (
+                <X className="h-5 w-5 text-stone-700" strokeWidth={2} />
               ) : (
-                <button
-                  key={item.id}
-                  onClick={item.action}
-                  aria-label={item.label}
-                  className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors ${
-                    isActive ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
-                  }`}
-                  data-testid={`bottom-nav-${item.id}`}
-                >
-                  <div className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                    isActive ? 'bg-stone-950 text-white' : 'bg-transparent text-current'
-                  }`}>
-                    <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
-                  </div>
-                  <span className="max-w-full truncate text-[11px] font-medium">{item.label}</span>
-                </button>
-              );
-            })}
+                <Plus className="h-5 w-5 text-stone-800" strokeWidth={2} />
+              )}
+            </div>
+          </button>
 
-            <button
-              onClick={handlePostButton}
-              aria-label={t('bottomNav.create', 'Crear')}
-              className="mx-1.5 flex flex-col items-center justify-center gap-1"
-              data-testid="bottom-nav-post"
-            >
-              <div className={`flex h-11 w-11 items-center justify-center rounded-full shadow-[0_10px_25px_rgba(15,15,15,0.2)] transition-all active:scale-95 ${
-                activePanel === 'post' || showAdvancedEditor || showContentTypeSelector ? 'bg-stone-700' : 'bg-stone-950 hover:bg-stone-800'
+          {/* 4 — Chat / Mensajes */}
+          <button
+            type="button"
+            onClick={() => (user ? togglePanel('chat') : navigate('/login'))}
+            aria-label={t('bottomNav.chat', 'Mensajes')}
+            data-testid="bottom-nav-chat"
+            className="relative flex items-center justify-center active:opacity-60"
+          >
+            {isChatActive ? (
+              /* Filled message — active */
+              <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+              </svg>
+            ) : (
+              <MessageCircle className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
+            )}
+            {/* Unread badge */}
+            {unreadCount > 0 && !isChatActive ? (
+              <span className="absolute right-[10px] top-[7px] flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-stone-950 px-[3px] text-[8px] font-bold leading-none text-white">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            ) : null}
+          </button>
+
+          {/* 5 — Perfil */}
+          <Link
+            to={profileUrl}
+            aria-label={t('bottomNav.profile', 'Perfil')}
+            data-testid="bottom-nav-profile"
+            className="flex items-center justify-center active:opacity-60"
+          >
+            {profileImage && !profileAvatarError ? (
+              <div className={`h-[26px] w-[26px] overflow-hidden rounded-full transition-all ${
+                isProfile
+                  ? 'ring-[2px] ring-stone-950 ring-offset-[2px] ring-offset-white'
+                  : 'ring-[1.5px] ring-stone-300 ring-offset-0'
               }`}>
-                {activePanel === 'post' || showAdvancedEditor || showContentTypeSelector ? (
-                  <X className="h-5 w-5 text-white" strokeWidth={2.2} />
-                ) : (
-                  <Plus className="h-5 w-5 text-white" strokeWidth={2.2} />
-                )}
+                <img
+                  src={profileImage}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  onError={() => setProfileAvatarError(true)}
+                />
               </div>
-              <span className="text-[11px] font-medium text-stone-600">{t('bottomNav.create', 'Crear')}</span>
-            </button>
-
-            {navItems.slice(2).map((item) => {
-              const Icon = item.icon;
-              const isPathActive = item.match ? item.match(location) : item.link ? location.pathname.startsWith(item.link) : false;
-              const isActive = item.id === 'chat' ? activePanel === 'chat' : isPathActive;
-
-              if (item.isProfile) {
-                const isProfileActive = item.link && location.pathname === item.link;
-
-                return (
-                  <div
-                    key={item.id}
-                    className="flex min-w-0 flex-col items-center justify-center gap-1 py-2"
-                    data-testid={`bottom-nav-${item.id}`}
-                  >
-                    <Link to={item.link} className="relative flex items-center justify-center" aria-label={item.label}>
-                      {profileImage && !profileAvatarError ? (
-                        <div className={`h-9 w-9 overflow-hidden rounded-full border-2 ${
-                          isProfileActive ? 'border-stone-950' : 'border-stone-200'
-                        }`}>
-                          <img
-                            src={profileImage}
-                            alt=""
-                            className="h-full w-full object-cover"
-                            onError={() => setProfileAvatarError(true)}
-                          />
-                        </div>
-                      ) : (
-                        <div className={`flex h-9 w-9 items-center justify-center rounded-full border-2 ${
-                          isProfileActive ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-500'
-                        }`}>
-                          <Icon className="h-[18px] w-[18px]" strokeWidth={1.9} />
-                        </div>
-                      )}
-                      {unreadCount > 0 ? (
-                        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-stone-950 px-1 text-[9px] font-bold leading-none text-white">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      ) : null}
-                    </Link>
-                    <span className="max-w-full truncate text-[11px] font-medium text-stone-600">{item.label}</span>
-                  </div>
-                );
-              }
-
-              return (
-                <button
-                  key={item.id}
-                  onClick={item.action}
-                  aria-label={item.label}
-                  className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-colors ${
-                    isActive ? 'text-stone-950' : 'text-stone-500 hover:text-stone-950'
-                  }`}
-                  data-testid={`bottom-nav-${item.id}`}
-                >
-                  <div className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                    isActive ? 'bg-stone-950 text-white' : 'bg-transparent text-current'
-                  }`}>
-                    {isActive ? <X className="h-[18px] w-[18px]" strokeWidth={1.8} /> : <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} />}
-                  </div>
-                  <span className="max-w-full truncate text-[11px] font-medium">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
+            ) : (
+              isProfile ? (
+                <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                </svg>
+              ) : (
+                <User className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
+              )
+            )}
+          </Link>
         </div>
+
+        {/* Safe area para iPhones con home indicator */}
+        <div className="h-[env(safe-area-inset-bottom,0px)]" />
       </nav>
 
-      <div className="h-[78px] md:hidden" />
+      {/* Spacer para que el contenido no quede tapado por la nav */}
+      <div className="h-[calc(50px+env(safe-area-inset-bottom,0px))]" />
     </>
   );
 }

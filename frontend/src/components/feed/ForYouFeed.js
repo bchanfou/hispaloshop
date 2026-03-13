@@ -101,7 +101,7 @@ export default function ForYouFeed() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className="pb-20"
+      className=""
     >
       {isLoading && allPosts.length === 0 ? (
         <FeedSkeleton count={3} />

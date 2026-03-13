@@ -1,37 +1,40 @@
 import React from 'react';
 
 function SkeletonPulse({ className }) {
-  return <div className={`animate-pulse bg-stone-200 ${className}`} />;
+  return <div className={`animate-pulse bg-stone-100 ${className}`} />;
 }
 
+// Skeleton que refleja el layout IG del nuevo PostCard (sin max-w, avatar 32px)
 function PostSkeleton() {
   return (
     <div className="border-b border-stone-100 bg-white">
-      <div className="mx-auto max-w-3xl">
-        <div className="flex items-center gap-3 px-4 py-3">
+      {/* Header: avatar 32px + líneas de nombre */}
+      <div className="flex items-center gap-2.5 px-3 py-2.5">
+        <SkeletonPulse className="h-8 w-8 shrink-0 rounded-full" />
+        <div className="space-y-1.5">
+          <SkeletonPulse className="h-3 w-24 rounded-full" />
+          <SkeletonPulse className="h-2.5 w-14 rounded-full" />
+        </div>
+      </div>
+
+      {/* Imagen full-width */}
+      <SkeletonPulse className="aspect-square w-full" />
+
+      {/* Acciones */}
+      <div className="flex items-center justify-between px-3 py-1">
+        <div className="flex gap-0">
           <SkeletonPulse className="h-10 w-10 rounded-full" />
-          <div className="space-y-2">
-            <SkeletonPulse className="h-4 w-28 rounded-full" />
-            <SkeletonPulse className="h-3 w-16 rounded-full" />
-          </div>
-        </div>
-
-        <SkeletonPulse className="aspect-square w-full" />
-
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex gap-2">
-            <SkeletonPulse className="h-10 w-10 rounded-full" />
-            <SkeletonPulse className="h-10 w-10 rounded-full" />
-            <SkeletonPulse className="h-10 w-10 rounded-full" />
-          </div>
+          <SkeletonPulse className="h-10 w-10 rounded-full" />
           <SkeletonPulse className="h-10 w-10 rounded-full" />
         </div>
+        <SkeletonPulse className="h-10 w-10 rounded-full" />
+      </div>
 
-        <div className="space-y-2 px-4 pb-4">
-          <SkeletonPulse className="h-4 w-24 rounded-full" />
-          <SkeletonPulse className="h-4 w-full rounded-full" />
-          <SkeletonPulse className="h-4 w-2/3 rounded-full" />
-        </div>
+      {/* Caption */}
+      <div className="space-y-2 px-3 pb-4">
+        <SkeletonPulse className="h-3 w-20 rounded-full" />
+        <SkeletonPulse className="h-3 w-full rounded-full" />
+        <SkeletonPulse className="h-3 w-3/5 rounded-full" />
       </div>
     </div>
   );
@@ -44,7 +47,7 @@ function ReelSkeleton() {
 function FeedSkeleton({ count = 3, type = 'posts' }) {
   if (type === 'mixed') {
     return (
-      <div className="pb-20">
+      <div>
         <div className="grid grid-cols-2 gap-3 p-4 md:grid-cols-3">
           {[...Array(4)].map((_, index) => (
             <ReelSkeleton key={index} />
@@ -56,7 +59,7 @@ function FeedSkeleton({ count = 3, type = 'posts' }) {
   }
 
   return (
-    <div className="pb-20">
+    <div>
       {[...Array(count)].map((_, index) => (
         <PostSkeleton key={index} />
       ))}

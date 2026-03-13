@@ -11,7 +11,7 @@ function HIFloatingButton({ onClick, hasNewMessages = false }) {
       whileTap={{ scale: 0.94 }}
       onClick={onClick}
       aria-label="Abrir asistente HI"
-      className="fixed bottom-24 right-4 z-40 flex flex-col items-center gap-1.5"
+      className="fixed bottom-[68px] right-4 z-40 flex flex-col items-center gap-1.5"
     >
       <div className="relative">
         {hasNewMessages && (

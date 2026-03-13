@@ -1,14 +1,22 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { FeedContainer, HIFloatingButton } from '../components/feed';
+import HomeHeader from '../components/feed/HomeHeader';
 import SEO from '../components/SEO';
 import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState(
+    () => localStorage.getItem('feedTab') || 'foryou'
+  );
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem('feedTab', tab);
+  };
 
   const structuredData = useMemo(
     () => [
@@ -24,12 +32,8 @@ export default function HomePage() {
     []
   );
 
-  const handleOpenAI = () => {
-    navigate(user ? '/chat' : '/login');
-  };
-
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-stone-50">
+    <div className="relative min-h-screen overflow-x-hidden bg-white">
       <SEO
         title="Hispaloshop - Productos reales y productores honestos"
         description="Social commerce alimentario para descubrir productores honestos, comprar con claridad y hablar con la comunidad."
@@ -37,15 +41,13 @@ export default function HomePage() {
         structuredData={structuredData}
       />
 
-      <Header />
+      <HomeHeader activeTab={activeTab} onTabChange={handleTabChange} />
 
-      <main id="main-content" className="pb-24">
-        <FeedContainer />
+      <main id="main-content">
+        <FeedContainer activeTab={activeTab} onTabChange={handleTabChange} />
       </main>
 
-      <HIFloatingButton onClick={handleOpenAI} />
-
-      <Footer />
+      <HIFloatingButton onClick={() => navigate(user ? '/chat' : '/login')} />
     </div>
   );
 }

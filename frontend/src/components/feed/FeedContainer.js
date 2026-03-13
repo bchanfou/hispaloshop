@@ -1,20 +1,25 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import LandingNavPills from './LandingNavPills';
+import React, { useCallback, useState } from 'react';
 import FollowingFeed from './FollowingFeed';
 import ForYouFeed from './ForYouFeed';
-import TabToggle from './TabToggle';
 import StoriesCarousel from '../stories/StoriesCarousel';
 
-function FeedContainer() {
-  const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('feedTab') || 'foryou');
-  const [selectedCategory] = useState('foryou');
-  const [isRefreshing, setIsRefreshing] = useState(false);
+/**
+ * FeedContainer — recibe activeTab desde HomePage (via HomeHeader)
+ * Si no se pasa prop, gestiona su propio estado (fallback).
+ */
+function FeedContainer({ activeTab: tabProp, onTabChange }) {
+  // Fallback: estado propio si no llega prop (ej. uso fuera de HomePage)
+  const [localTab, setLocalTab] = useState(
+    () => localStorage.getItem('feedTab') || 'foryou'
+  );
 
-  useEffect(() => {
-    localStorage.setItem('feedTab', activeTab);
-  }, [activeTab]);
+  const activeTab = tabProp ?? localTab;
+  const setActiveTab = onTabChange ?? ((t) => {
+    setLocalTab(t);
+    localStorage.setItem('feedTab', t);
+  });
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -32,25 +37,26 @@ function FeedContainer() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <TabToggle activeTab={activeTab} onChange={setActiveTab} />
-      <LandingNavPills />
+    <div className="min-h-screen bg-white">
+      {/* Stories — pegadas al header, sin padding extra */}
       <StoriesCarousel onCreateStory={handleCreateStory} onViewStory={handleViewStory} />
 
+      {/* Spinner de refresh */}
       {isRefreshing ? (
-        <div className="bg-white py-4">
-          <div className="flex items-center justify-center">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
-            <span className="ml-2 text-sm text-stone-500">{t('feed.refreshing', 'Actualizando...')}</span>
+        <div className="py-4">
+          <div className="flex items-center justify-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
+            <span className="text-[13px] text-stone-400">Actualizando...</span>
           </div>
         </div>
       ) : null}
 
+      {/* Feed */}
       <div className="relative">
         {activeTab === 'following' ? (
-          <FollowingFeed key={`following-${selectedCategory}-${isRefreshing}`} onRefresh={handleRefresh} />
+          <FollowingFeed key={`following-${isRefreshing}`} onRefresh={handleRefresh} />
         ) : (
-          <ForYouFeed key={`foryou-${selectedCategory}-${isRefreshing}`} onRefresh={handleRefresh} />
+          <ForYouFeed key={`foryou-${isRefreshing}`} onRefresh={handleRefresh} />
         )}
       </div>
     </div>
