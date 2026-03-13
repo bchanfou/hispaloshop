@@ -225,7 +225,10 @@ export default function UserProfilePage() {
   const postCount = safePosts.length || profile?.posts_count || 0;
   const recipesCount = safeRecipes.length;
   const productsCount = safeProducts.length || profile?.seller_stats?.total_products || 0;
-  const displayName = profile?.username ? `@${profile.username}` : `@${profile?.name?.toLowerCase?.().replace(/\s+/g, '') || 'usuario'}`;
+  const fallbackHandle = typeof profile?.name === 'string'
+    ? profile.name.toLowerCase().replace(/\s+/g, '')
+    : '';
+  const displayName = profile?.username ? `@${profile.username}` : `@${fallbackHandle || 'usuario'}`;
   const realName = profile?.name || 'Usuario';
 
   const highlights = useMemo(() => {
