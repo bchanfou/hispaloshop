@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { ShoppingBag, Package, ArrowLeft, XCircle, Truck, Check, Clock, MapPin, ExternalLink, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { API } from '../../utils/api';
+import { asNumber } from '../../utils/safe';
 
 
 
@@ -210,14 +211,14 @@ export default function CustomerOrders() {
                     <p className="text-sm text-stone-500">{t('orders.quantity', 'Qty')}: {item.quantity}</p>
                   </div>
                 </div>
-                <p className="font-medium text-stone-950">€{item.amount?.toFixed(2)}</p>
+                <p className="font-medium text-stone-950">€{asNumber(item.amount).toFixed(2)}</p>
               </div>
             ))}
           </div>
 
           <div className="pt-6 border-t border-stone-200 flex justify-between items-center">
             <span className="font-medium text-stone-950">{t('common.total', 'Total')}</span>
-            <span className="font-bold text-2xl text-stone-950">€{selectedOrder.total_amount?.toFixed(2)}</span>
+            <span className="font-bold text-2xl text-stone-950">€{asNumber(selectedOrder.total_amount).toFixed(2)}</span>
           </div>
 
           {/* Status History */}
@@ -227,7 +228,7 @@ export default function CustomerOrders() {
               <div className="space-y-3">
                 {selectedOrder.status_history.slice().reverse().map((entry, idx) => (
                   <div key={idx} className="flex items-start gap-3 text-sm">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${statusColors[entry.status]?.split(' ')[0] || 'bg-gray-300'}`} />
+                    <div className={`w-2 h-2 rounded-full mt-2 ${((statusColors[entry.status] || '').split(' ')[0]) || 'bg-gray-300'}`} />
                     <div>
                       <p className="font-medium text-stone-950 capitalize">
                         {t(`orders.status.${entry.status}`, entry.status)}
@@ -286,7 +287,7 @@ export default function CustomerOrders() {
                   {/* Order info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-stone-950">€{order.total_amount?.toFixed(2)}</span>
+                      <span className="text-sm font-semibold text-stone-950">€{asNumber(order.total_amount).toFixed(2)}</span>
                       <span className="text-xs text-stone-500">·</span>
                       <span className="text-xs text-stone-500">{order.line_items?.length || 0} items</span>
                     </div>

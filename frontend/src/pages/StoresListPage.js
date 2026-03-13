@@ -10,6 +10,7 @@ import PremiumSelect from '../components/ui/PremiumSelect';
 import { ArrowUpRight, Grid3X3, Map, MapPin, Search, Sparkles, Store, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { API } from '../utils/api';
+import { asLowerText } from '../utils/safe';
 
 const FALLBACK_REGIONS = {
   ES: {
@@ -317,11 +318,11 @@ export default function StoresListPage() {
 
   const filteredStores = stores.filter((store) => {
     if (!searchQuery) return true;
-    const needle = searchQuery.toLowerCase();
+    const needle = asLowerText(searchQuery);
     return (
-      store.name?.toLowerCase().includes(needle) ||
-      store.location?.toLowerCase().includes(needle) ||
-      store.tagline?.toLowerCase().includes(needle)
+      asLowerText(store.name).includes(needle) ||
+      asLowerText(store.location).includes(needle) ||
+      asLowerText(store.tagline).includes(needle)
     );
   });
 

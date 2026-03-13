@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import { asLowerText, asText } from '../../utils/safe';
 
 // ─── Inline edit/create form ────────────────────────────────────────────────
 function CategoryForm({ initial = {}, onSave, onCancel, saving }) {
@@ -112,9 +113,10 @@ export default function CategoriesPage() {
     }
   };
 
+  const searchNeedle = asLowerText(searchTerm);
   const filtered = categories.filter(c =>
-    c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    asLowerText(c.name).includes(searchNeedle) ||
+    asLowerText(c.description).includes(searchNeedle)
   );
 
   return (
@@ -213,7 +215,7 @@ export default function CategoriesPage() {
                       </td>
                       <td className="px-6 py-4 hidden md:table-cell">
                         <code className="text-xs bg-stone-100 px-2 py-0.5 rounded text-text-secondary">
-                          {cat.slug || cat.name?.toLowerCase().replace(/\s+/g, '-')}
+                          {cat.slug || asLowerText(asText(cat.name)).replace(/\s+/g, '-')}
                         </code>
                       </td>
                       <td className="px-6 py-4 text-right">

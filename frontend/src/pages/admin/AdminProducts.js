@@ -9,7 +9,7 @@ import {
   Package, DollarSign, ClipboardList
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { asLowerText } from '../../utils/safe';
+import { asLowerText, asNumber } from '../../utils/safe';
 
 
 
@@ -386,7 +386,7 @@ export default function AdminProducts() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-text-primary">{product.price?.toFixed(2)}€</span>
+                        <span className="font-medium text-text-primary">{asNumber(product.price).toFixed(2)}€</span>
                         <button
                           onClick={() => setEditingProduct(product.product_id)}
                           className="text-text-muted hover:text-primary"

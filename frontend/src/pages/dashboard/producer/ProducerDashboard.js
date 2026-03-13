@@ -19,6 +19,7 @@ import {
   Tag,
   Loader2
 } from 'lucide-react';
+import { asNumber } from '../../../utils/safe';
 
 function ProducerDashboard() {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ function ProducerDashboard() {
             ? 'En preparación'
             : `Pedido ${order.status}`,
       description: order.items?.map((item) => item.product_name).join(', ') || 'Productos',
-      amount: `EUR ${order.total_amount?.toFixed(2) || '0.00'}`,
+      amount: `EUR ${asNumber(order.total_amount).toFixed(2)}`,
       status: order.status,
       actionLabel: order.status === 'pending' ? 'Preparar' : 'Ver',
       onAction: () => navigate('/producer/orders')

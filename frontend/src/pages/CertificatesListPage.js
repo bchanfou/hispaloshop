@@ -10,6 +10,7 @@ import { Button } from '../components/ui/button';
 import PremiumSelect from '../components/ui/PremiumSelect';
 import { Input } from '../components/ui/input';
 import { API } from '../utils/api';
+import { asLowerText } from '../utils/safe';
 
 async function fetchCertifiedProducts() {
   const res = await fetch(`${API}/certificates/products`);
@@ -73,15 +74,15 @@ export default function CertificatesListPage() {
   );
 
   const filteredProducts = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = asLowerText(searchQuery.trim());
 
     return [...data]
       .filter((product) => {
         const matchesSearch =
           !query ||
-          product.name?.toLowerCase().includes(query) ||
-          product.producer_name?.toLowerCase().includes(query) ||
-          product.certifications?.some((certification) => certification.toLowerCase().includes(query));
+          asLowerText(product.name).includes(query) ||
+          asLowerText(product.producer_name).includes(query) ||
+          product.certifications?.some((certification) => asLowerText(certification).includes(query));
         const matchesCert = !selectedCert || product.certifications?.includes(selectedCert);
         return matchesSearch && matchesCert;
       })

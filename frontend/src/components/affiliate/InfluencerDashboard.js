@@ -224,7 +224,7 @@ export function InfluencerDashboard() {
           <CardTitle className="text-lg">Generar link de producto</CardTitle>
         </CardHeader>
         <CardContent>
-          <ProductLinkGenerator affiliateCode={affiliate_link.split('/r/')[1]?.split('/')[0]} />
+          <ProductLinkGenerator affiliateCode={affiliate_link.split('/r/')[1]?.split('/')?.[0]} />
         </CardContent>
       </Card>
     </div>

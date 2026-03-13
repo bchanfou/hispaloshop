@@ -18,6 +18,7 @@ import {
   TrendingUp,
   Loader2
 } from 'lucide-react';
+import { asNumber } from '../../../utils/safe';
 
 function ImporterDashboard() {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ function ImporterDashboard() {
         title: `#${order.order_number || order.id.slice(-4)} · ${order.customer_name || 'Cliente'}`,
         subtitle: order.status === 'pending' ? 'Nuevo' : `Pedido ${order.status}`,
         description: order.items?.map((item) => item.product_name).join(', ') || 'Productos',
-        amount: `EUR ${order.total_amount?.toFixed(2) || '0.00'}`,
+        amount: `EUR ${asNumber(order.total_amount).toFixed(2)}`,
         status: order.status,
         actionLabel: 'Ver',
         onAction: () => navigate(`/importer/orders/${order.id}`)

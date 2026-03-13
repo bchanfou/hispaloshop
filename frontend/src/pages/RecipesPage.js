@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { ChefHat, Clock3, Loader2, Plus, Search, User, Users } from 'lucide-react';
 import Header from '../components/Header';
+import { asLowerText } from '../utils/safe';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
 import SEO from '../components/SEO';
@@ -108,13 +109,13 @@ export default function RecipesPage() {
   ];
 
   const filteredRecipes = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
+    const normalizedSearch = asLowerText(search.trim());
     const visibleRecipes = recipes.filter((recipe) => {
       const matchesSearch =
         !normalizedSearch ||
-        recipe.title?.toLowerCase().includes(normalizedSearch) ||
-        recipe.author_name?.toLowerCase().includes(normalizedSearch) ||
-        recipe.tags?.some((tag) => tag.toLowerCase().includes(normalizedSearch));
+        asLowerText(recipe.title).includes(normalizedSearch) ||
+        asLowerText(recipe.author_name).includes(normalizedSearch) ||
+        recipe.tags?.some((tag) => asLowerText(tag).includes(normalizedSearch));
       const matchesFilter = filter === 'all' || recipe.difficulty === filter;
       return matchesSearch && matchesFilter;
     });

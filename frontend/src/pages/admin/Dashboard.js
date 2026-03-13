@@ -11,6 +11,7 @@ import {
   Store, Percent, Star, Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { asNumber } from '../../utils/safe';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -226,7 +227,7 @@ export default function AdminDashboard() {
                       <div>
                         <div className="font-medium text-text-primary">#{order.order_id?.slice(-6)}</div>
                         <div className="text-sm text-text-secondary">
-                          {order.line_items?.length || 0} items • ${order.total_amount?.toFixed(2)}
+                          {order.line_items?.length || 0} items • ${asNumber(order.total_amount).toFixed(2)}
                         </div>
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${

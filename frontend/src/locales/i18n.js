@@ -11,7 +11,7 @@ supportedLanguages.forEach(lang => {
 // Detect browser/device language
 const detectBrowserLanguage = () => {
   // Try navigator.language first (most specific)
-  const navLang = navigator.language?.split('-')[0]?.toLowerCase();
+  const navLang = navigator.language?.split?.('-')?.[0]?.toLowerCase?.();
   if (navLang && supportedLanguages.includes(navLang)) {
     console.log('[i18n] Detected browser language:', navLang);
     return navLang;

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../utils/api';
-import { firstToken } from '../utils/safe';
+import { asNumber, firstToken } from '../utils/safe';
 
 const STORY_DURATION = 5000;
 const STICKERS = ['🍕', '🥑', '🍓', '🔥', '❤️', '⭐', '🎉', '🛒', '🌿', '😋'];
@@ -428,7 +428,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                     <ShoppingBag className="h-4 w-4 shrink-0 text-stone-950" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-semibold text-stone-900">{taggedProduct.name}</p>
-                      <p className="text-xs font-bold text-stone-600">{taggedProduct.price?.toFixed(2)} €</p>
+                      <p className="text-xs font-bold text-stone-600">{asNumber(taggedProduct.price).toFixed(2)} €</p>
                     </div>
                   </div>
                 </div>
@@ -552,7 +552,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                       ) : null}
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-xs font-medium">{product.name}</p>
-                        <p className="text-xs text-stone-600">{product.price?.toFixed(2)} €</p>
+                        <p className="text-xs text-stone-600">{asNumber(product.price).toFixed(2)} €</p>
                       </div>
                     </button>
                   ))}

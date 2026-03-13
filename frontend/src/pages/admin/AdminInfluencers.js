@@ -9,6 +9,7 @@ import { Plus, DollarSign, Ban, Play, Trash2, Eye, Send, Pencil } from 'lucide-r
 import { toast } from 'sonner';
 import axios from 'axios';
 import { API } from '../../utils/api';
+import { asNumber } from '../../utils/safe';
 
 
 export default function AdminInfluencers() {
@@ -462,8 +463,8 @@ export default function AdminInfluencers() {
                         {selectedInfluencer.recent_commissions.map((c) => (
                           <tr key={c.commission_id} className="border-b border-stone-100">
                             <td className="py-2 font-mono text-xs">{c.order_id}</td>
-                            <td className="py-2">€{c.order_total?.toFixed(2)}</td>
-                            <td className="py-2 text-green-600">€{c.commission_amount?.toFixed(2)}</td>
+                            <td className="py-2">€{asNumber(c.order_total).toFixed(2)}</td>
+                            <td className="py-2 text-green-600">€{asNumber(c.commission_amount).toFixed(2)}</td>
                             <td className="py-2">
                               <span className={`px-2 py-0.5 rounded text-xs ${
                                 c.commission_status === 'paid' ? 'bg-green-100 text-green-700' :

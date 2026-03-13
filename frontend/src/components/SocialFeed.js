@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext';
 
 import { API } from '../utils/api';
 import { sanitizeImageUrl } from '../utils/helpers';
+import { asNumber } from '../utils/safe';
 
 
 // Normalize image URLs — ensure /api prefix for local uploads
@@ -220,7 +221,7 @@ function ProductSelector({ onSelect, onCancel }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-primary truncate">{p.name}</p>
-              <p className="text-xs text-accent font-semibold">{p.price?.toFixed(2)} {p.currency}</p>
+              <p className="text-xs text-accent font-semibold">{asNumber(p.price).toFixed(2)} {p.currency}</p>
             </div>
           </button>
         ))}
@@ -278,7 +279,7 @@ function QuickBuyModal({ product, onClose }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-primary line-clamp-2">{product.name}</p>
-              <p className="text-lg font-bold text-accent mt-1">{product.price?.toFixed(2)}€</p>
+              <p className="text-lg font-bold text-accent mt-1">{asNumber(product.price).toFixed(2)}€</p>
               {product.avg_rating > 0 && (
                 <div className="flex items-center gap-1 mt-1">
                   <Heart className="w-3 h-3 fill-yellow-500 text-yellow-500" />
@@ -352,7 +353,7 @@ function TaggedProductCard({ product }) {
               <p className="text-xs sm:text-sm font-semibold text-primary truncate hover:text-accent">{product.name}</p>
             </Link>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm font-bold text-accent">{product.price?.toFixed(2)}€</span>
+              <span className="text-sm font-bold text-accent">{asNumber(product.price).toFixed(2)}€</span>
               {product.avg_rating > 0 && (
                 <span className="text-[10px] text-text-muted flex items-center gap-0.5">
                   <Heart className="w-2.5 h-2.5 fill-yellow-500 text-yellow-500" />{product.avg_rating}
@@ -441,7 +442,7 @@ function CreatePostInline({ user, onPostCreated }) {
             <div className="mt-2 flex items-center gap-2 p-2 bg-stone-50 rounded-lg border border-stone-200">
               <Tag className="w-3.5 h-3.5 text-accent shrink-0" />
               <span className="text-xs font-medium text-primary truncate">{taggedProduct.name}</span>
-              <span className="text-xs text-accent font-bold shrink-0">{taggedProduct.price?.toFixed(2)} {taggedProduct.currency}</span>
+              <span className="text-xs text-accent font-bold shrink-0">{asNumber(taggedProduct.price).toFixed(2)} {taggedProduct.currency}</span>
               <button onClick={() => setTaggedProduct(null)} className="ml-auto"><X className="w-3.5 h-3.5 text-text-muted" /></button>
             </div>
           )}
@@ -622,7 +623,7 @@ function PostCard({ post, currentUser, onDelete }) {
   const shareToWhatsApp = () => {
     const url = `${window.location.origin}/user/${post.user_id}`;
     const text = post.tagged_product 
-      ? `${post.tagged_product.name} - ${post.tagged_product.price?.toFixed(2)}€ en Hispaloshop`
+      ? `${post.tagged_product.name} - ${asNumber(post.tagged_product.price).toFixed(2)}€ en Hispaloshop`
       : post.caption?.slice(0, 100) || 'Mira esto en Hispaloshop';
     window.open(`https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`, '_blank');
   };

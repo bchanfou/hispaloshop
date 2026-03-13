@@ -197,7 +197,7 @@ export function LocaleProvider({ children }) {
     let detectedLang = 'en'; // Default to English if device language not supported
     
     for (const browserLang of browserLangs) {
-      const shortLang = browserLang?.split('-')[0]?.toLowerCase();
+      const shortLang = browserLang?.split?.('-')?.[0]?.toLowerCase?.();
       if (shortLang && supportedLangs.includes(shortLang)) {
         detectedLang = shortLang;
         console.log('[LocaleContext] Detected device language:', detectedLang);

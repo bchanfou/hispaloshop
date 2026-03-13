@@ -21,6 +21,7 @@ import {
   useInfluencerStripeStatus,
   useInfluencerWithdrawal,
 } from '../../features/influencer/hooks';
+import { asNumber } from '../../utils/safe';
 
 const MINIMUM_WITHDRAWAL = 50; // €50 minimum
 
@@ -462,11 +463,11 @@ export default function InfluencerDashboard() {
         {/* === 2 Big Earnings Circles === */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="rounded-2xl border border-stone-100 bg-white p-6 text-center shadow-sm" data-testid="total-earned">
-            <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{dashboard.total_commission_earned?.toFixed(0) || 0}</p>
+            <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{asNumber(dashboard.total_commission_earned).toFixed(0)}</p>
             <p className="mt-2 text-xs text-stone-500">Total ganado</p>
           </div>
           <div className="rounded-2xl border border-stone-100 bg-white p-6 text-center shadow-sm" data-testid="available-withdraw">
-            <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{dashboard.available_balance?.toFixed(0) || 0}</p>
+            <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{asNumber(dashboard.available_balance).toFixed(0)}</p>
             <p className="mt-2 text-xs text-stone-500">Disponible</p>
             {(dashboard.available_balance || 0) >= 50 && (
               <Button
