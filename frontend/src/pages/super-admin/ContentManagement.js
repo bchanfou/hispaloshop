@@ -43,7 +43,8 @@ export default function ContentManagement() {
       if (statusFilter !== 'all') url += `?status=${statusFilter}`;
       
       const response = await axios.get(url, { withCredentials: true });
-      setProducts(response.data);
+      const payload = response.data;
+      setProducts(Array.isArray(payload) ? payload : (Array.isArray(payload?.products) ? payload.products : []));
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error(t('contentManagement.errors.loadFailed'));
@@ -59,7 +60,8 @@ export default function ContentManagement() {
       if (statusFilter !== 'all') url += `?status=${statusFilter}`;
       
       const response = await axios.get(url, { withCredentials: true });
-      setCertificates(response.data);
+      const payload = response.data;
+      setCertificates(Array.isArray(payload) ? payload : (Array.isArray(payload?.certificates) ? payload.certificates : []));
     } catch (error) {
       console.error('Error fetching certificates:', error);
       toast.error(t('contentManagement.errors.loadFailed'));
@@ -330,7 +332,7 @@ export default function ContentManagement() {
                         <p className="text-xs text-text-muted">{product.producer_email}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-medium text-text-primary">€{product.price?.toFixed(2)}</p>
+                        <p className="font-medium text-text-primary">€{Number(product.price || 0).toFixed(2)}</p>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${

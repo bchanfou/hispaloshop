@@ -20,6 +20,13 @@ const EVENT_LABELS = {
   refund: 'Reembolso',
 };
 
+const safeNumber = (value, fallback = 0) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const fixed2 = (value) => safeNumber(value).toFixed(2);
+
 function StatCard({ icon: Icon, label, value, sub, color = 'blue', testId }) {
   const palette = {
     blue: 'bg-blue-50 text-blue-600 border-blue-200',
@@ -76,8 +83,9 @@ export default function FinancialDashboard() {
         axios.get(`${API}/admin/financial-ledger?limit=500`, { withCredentials: true }),
         axios.get(`${API}/payments/scheduled-payouts`, { withCredentials: true }),
       ]);
-      setLedger(ledgerRes.data);
-      setPayouts(payoutsRes.data);
+      setLedger(ledgerRes.data || null);
+      const payoutsPayload = payoutsRes.data;
+      setPayouts(Array.isArray(payoutsPayload) ? payoutsPayload : (Array.isArray(payoutsPayload?.payouts) ? payoutsPayload.payouts : []));
     } catch (err) {
       toast.error('Error cargando datos financieros');
     } finally {
@@ -134,8 +142,8 @@ export default function FinancialDashboard() {
     );
   }
 
-  const entries = ledger?.entries || [];
-  const summary = ledger?.summary || {};
+  const entries = Array.isArray(ledger?.entries) ? ledger.entries : [];
+  const summary = ledger?.summary && typeof ledger.summary === 'object' ? ledger.summary : {};
 
   // Regional breakdown
   const euCountries = new Set(['ES','FR','DE','IT','PT','NL','BE','AT','IE','GR','PL','SE','DK','FI','NO']);
@@ -229,7 +237,7 @@ export default function FinancialDashboard() {
                 {duePayouts.length} payout{duePayouts.length > 1 ? 's' : ''} de influencer pendiente{duePayouts.length > 1 ? 's' : ''} de ejecutar
               </p>
               <p className="text-xs text-amber-700">
-                Total: {duePayouts.reduce((s, p) => s + p.amount, 0).toFixed(2)}€
+                Total: {duePayouts.reduce((s, p) => s + safeNumber(p.amount), 0).toFixed(2)}€
               </p>
             </div>
           </div>
@@ -248,10 +256,10 @@ export default function FinancialDashboard() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <StatCard icon={DollarSign} label={t('superAdmin.grossRevenue')} value={`${summary.total_gross?.toFixed(2) || '0.00'}€`} color="blue" testId="stat-gross" />
-        <StatCard icon={TrendingUp} label={t('superAdmin.platformCommission')} value={`${summary.total_platform_fee?.toFixed(2) || '0.00'}€`} color="green" testId="stat-platform-fee" />
-        <StatCard icon={Receipt} label={t('superAdmin.paidToSellers')} value={`${summary.total_seller_net?.toFixed(2) || '0.00'}€`} color="amber" testId="stat-seller-net" />
-        <StatCard icon={Globe} label="Consolidado USD" value={`$${summary.total_usd_equivalent?.toFixed(2) || '0.00'}`} sub="Florida LLC" color="slate" testId="stat-usd" />
+        <StatCard icon={DollarSign} label={t('superAdmin.grossRevenue')} value={`${fixed2(summary.total_gross)}€`} color="blue" testId="stat-gross" />
+        <StatCard icon={TrendingUp} label={t('superAdmin.platformCommission')} value={`${fixed2(summary.total_platform_fee)}€`} color="green" testId="stat-platform-fee" />
+        <StatCard icon={Receipt} label={t('superAdmin.paidToSellers')} value={`${fixed2(summary.total_seller_net)}€`} color="amber" testId="stat-seller-net" />
+        <StatCard icon={Globe} label="Consolidado USD" value={`$${fixed2(summary.total_usd_equivalent)}`} sub="Florida LLC" color="slate" testId="stat-usd" />
         <StatCard
           icon={Clock}
           label={t('superAdmin.pendingPayouts')}
@@ -279,7 +287,7 @@ export default function FinancialDashboard() {
                   <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `$${v}`} />
                   <Tooltip
                     contentStyle={{ borderRadius: '8px', border: '1px solid #e5e5e5', fontSize: '12px' }}
-                    formatter={(v, name) => [`$${v.toFixed(2)}`, name]}
+                    formatter={(v, name) => [`$${fixed2(v)}`, name]}
                   />
                   <Bar dataKey="US" stackId="a" fill={REGION_COLORS.US} />
                   <Bar dataKey="EU" stackId="a" fill={REGION_COLORS.EU} />
@@ -315,7 +323,7 @@ export default function FinancialDashboard() {
                       <Cell key={entry.name} fill={REGION_COLORS[entry.name] || '#6b7280'} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v) => [`$${v.toFixed(2)}`, 'USD']} />
+                  <Tooltip formatter={(v) => [`$${fixed2(v)}`, 'USD']} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -384,14 +392,14 @@ export default function FinancialDashboard() {
                       <td className="px-3 py-2.5 text-text-secondary font-mono">
                         {(e.order_id || '').slice(-8)}
                       </td>
-                      <td className={`px-3 py-2.5 text-right font-medium ${e.product_subtotal < 0 ? 'text-red-600' : 'text-text-primary'}`}>
-                        {e.product_subtotal?.toFixed(2)} {e.currency}
+                      <td className={`px-3 py-2.5 text-right font-medium ${safeNumber(e.product_subtotal) < 0 ? 'text-red-600' : 'text-text-primary'}`}>
+                        {fixed2(e.product_subtotal)} {e.currency}
                       </td>
                       <td className="px-3 py-2.5 text-right text-text-muted">
-                        {e.product_tax_amount > 0 ? `${e.product_tax_amount.toFixed(2)}` : '-'}
+                        {safeNumber(e.product_tax_amount) > 0 ? `${fixed2(e.product_tax_amount)}` : '-'}
                       </td>
                       <td className="px-3 py-2.5 text-right font-medium text-text-secondary">
-                        ${e.usd_equivalent?.toFixed(2)}
+                        ${fixed2(e.usd_equivalent)}
                       </td>
                       <td className="px-3 py-2.5 text-text-muted">{e.buyer_country || '-'}</td>
                       <td className="px-2 py-2.5">
@@ -403,18 +411,18 @@ export default function FinancialDashboard() {
                         <td colSpan={8} className="px-4 py-3">
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                             <div><span className="text-text-muted">Productor:</span> <span className="text-text-secondary">{e.seller_id || '-'}</span></div>
-                            <div><span className="text-text-muted">Neto productor:</span> <span className="text-text-secondary">{e.seller_net?.toFixed(2)} {e.currency}</span></div>
-                            <div><span className="text-text-muted">Platform Fee:</span> <span className="text-text-secondary">{e.platform_fee?.toFixed(2)} {e.currency}</span></div>
-                            <div><span className="text-text-muted">Platform Net:</span> <span className="text-text-secondary">{e.platform_net?.toFixed(2)} {e.currency}</span></div>
+                            <div><span className="text-text-muted">Neto productor:</span> <span className="text-text-secondary">{fixed2(e.seller_net)} {e.currency}</span></div>
+                            <div><span className="text-text-muted">Platform Fee:</span> <span className="text-text-secondary">{fixed2(e.platform_fee)} {e.currency}</span></div>
+                            <div><span className="text-text-muted">Platform Net:</span> <span className="text-text-secondary">{fixed2(e.platform_net)} {e.currency}</span></div>
                             <div><span className="text-text-muted">Tax Type:</span> <span className="text-text-secondary">{e.product_tax_type}</span></div>
-                            <div><span className="text-text-muted">VAT Rate:</span> <span className="text-text-secondary">{(e.vat_rate_applied * 100).toFixed(1)}%</span></div>
+                            <div><span className="text-text-muted">VAT Rate:</span> <span className="text-text-secondary">{(safeNumber(e.vat_rate_applied) * 100).toFixed(1)}%</span></div>
                             <div><span className="text-text-muted">Reverse Charge:</span> <span className="text-text-secondary">{e.reverse_charge_applied ? 'Si' : 'No'}</span></div>
                             <div><span className="text-text-muted">Transfer ID:</span> <span className="text-text-secondary font-mono">{e.transfer_id || '-'}</span></div>
                             {e.influencer_id && (
                               <div><span className="text-text-muted">Influencer:</span> <span className="text-text-secondary">{e.influencer_id}</span></div>
                             )}
-                            {e.influencer_amount > 0 && (
-                              <div><span className="text-text-muted">Influencer Amount:</span> <span className="text-text-secondary">{e.influencer_amount?.toFixed(2)} {e.currency}</span></div>
+                            {safeNumber(e.influencer_amount) > 0 && (
+                              <div><span className="text-text-muted">Influencer Amount:</span> <span className="text-text-secondary">{fixed2(e.influencer_amount)} {e.currency}</span></div>
                             )}
                           </div>
                         </td>
@@ -455,7 +463,7 @@ export default function FinancialDashboard() {
                     <tr key={p.payout_id} className="border-t border-stone-100">
                       <td className="px-4 py-2.5 text-text-secondary">{p.influencer_id}</td>
                       <td className="px-3 py-2.5 font-mono text-text-muted">{(p.order_id || '').slice(-8)}</td>
-                      <td className="px-3 py-2.5 text-right font-medium text-text-primary">{p.amount?.toFixed(2)} {p.currency}</td>
+                      <td className="px-3 py-2.5 text-right font-medium text-text-primary">{fixed2(p.amount)} {p.currency}</td>
                       <td className="px-3 py-2.5 text-text-secondary">{(p.due_date || '').slice(0, 10)}</td>
                       <td className="px-3 py-2.5">
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${isDue ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>

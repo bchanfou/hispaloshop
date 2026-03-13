@@ -57,10 +57,11 @@ export default function MarketCoverage() {
     );
   }
 
-  const { coverage, products_without_inventory } = data;
-  const totalProducts = coverage.reduce((s, c) => s + c.active_products, 0);
-  const totalStock = coverage.reduce((s, c) => s + c.total_stock, 0);
-  const totalSellers = new Set(coverage.flatMap(c => [c.active_sellers])).size;
+  const coverage = Array.isArray(data?.coverage) ? data.coverage : [];
+  const products_without_inventory = Number(data?.products_without_inventory || 0);
+  const totalProducts = coverage.reduce((s, c) => s + Number(c.active_products || 0), 0);
+  const totalStock = coverage.reduce((s, c) => s + Number(c.total_stock || 0), 0);
+  const totalSellers = coverage.reduce((s, c) => s + Number(c.active_sellers || 0), 0);
 
   const chartData = coverage.map(c => ({
     country: c.country_code,

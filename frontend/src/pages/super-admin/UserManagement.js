@@ -96,7 +96,8 @@ export default function UserManagement() {
       if (selectedStatus !== 'all') url += `&status=${selectedStatus}`;
       
       const response = await axios.get(url, { withCredentials: true });
-      setUsers(response.data);
+      const payload = response.data;
+      setUsers(Array.isArray(payload) ? payload : (Array.isArray(payload?.users) ? payload.users : []));
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error(t('userManagement.errors.loadFailed'));
@@ -108,9 +109,11 @@ export default function UserManagement() {
   const fetchCountries = async () => {
     try {
       const response = await axios.get(`${API}/super-admin/users/countries`, { withCredentials: true });
-      setCountries(response.data);
+      const payload = response.data;
+      setCountries(Array.isArray(payload) ? payload : (Array.isArray(payload?.countries) ? payload.countries : []));
     } catch (error) {
       console.error('Error fetching countries:', error);
+      setCountries([]);
     }
   };
 

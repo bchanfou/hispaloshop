@@ -62,7 +62,8 @@ export default function AdminManagement() {
     try {
       setLoading(true);
       const response = await axios.get(`${API}/super-admin/admins`, { withCredentials: true });
-      setAdmins(response.data);
+      const payload = response.data;
+      setAdmins(Array.isArray(payload) ? payload : (Array.isArray(payload?.admins) ? payload.admins : []));
     } catch (error) {
       console.error('Error fetching admins:', error);
       toast.error(t('errors.generic'));

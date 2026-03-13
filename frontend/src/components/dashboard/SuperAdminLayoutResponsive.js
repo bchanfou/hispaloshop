@@ -19,9 +19,13 @@ export default function SuperAdminLayoutResponsive() {
   const logoutMutation = useDashboardLogout();
 
   const handleLogout = async () => {
-    await logoutMutation.mutateAsync();
-    navigate('/login');
-    window.location.reload();
+    try {
+      await logoutMutation.mutateAsync();
+      navigate('/login');
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   // All navigation items

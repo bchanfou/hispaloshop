@@ -26,6 +26,13 @@ const COLORS = {
 
 const PIE_COLORS = ['#1C1C1C', '#E53E3E', '#3182CE', '#38A169', '#D69E2E', '#805AD5'];
 
+const asArray = (value) => (Array.isArray(value) ? value : []);
+const asObject = (value) => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
+const asNumber = (value, fallback = 0) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
 export default function InsightsDashboard() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
@@ -273,15 +280,19 @@ function GlobalOverviewTab({ data }) {
     );
   }
 
-  const consentData = [
-    { name: 'With Consent', value: data.consent_coverage.users_with_consent, color: '#38A169' },
-    { name: 'Without Consent', value: data.total_users - data.consent_coverage.users_with_consent, color: '#E6DFD6' }
-  ];
+  const consentCoverage = asObject(data?.consent_coverage);
+  const aiCoverage = asObject(data?.ai_coverage);
+  const insightsCoverage = asObject(data?.insights_coverage);
+  const sensitiveSignals = asObject(data?.sensitive_signals);
+  const safeTopCountries = asArray(data?.top_countries);
+  const totalUsers = asNumber(data?.total_users);
+  const totalCustomers = asNumber(data?.customers);
+  const totalProducers = asNumber(data?.producers);
 
   const userBreakdown = [
-    { name: 'Customers', value: data.customers },
-    { name: 'Producers', value: data.producers },
-    { name: 'Admins', value: data.total_users - data.customers - data.producers }
+    { name: 'Customers', value: totalCustomers },
+    { name: 'Producers', value: totalProducers },
+    { name: 'Admins', value: Math.max(0, totalUsers - totalCustomers - totalProducers) }
   ];
 
   return (
@@ -292,9 +303,9 @@ function GlobalOverviewTab({ data }) {
           <h3 className="font-medium text-text-muted">Total Users</h3>
           <Users className="w-5 h-5 text-primary" />
         </div>
-        <p className="text-4xl font-bold text-primary">{data.total_users}</p>
+        <p className="text-4xl font-bold text-primary">{totalUsers}</p>
         <p className="text-sm text-text-muted mt-2">
-          {data.countries_count} countries • {data.customers} customers
+          {asNumber(data?.countries_count)} countries • {totalCustomers} customers
         </p>
       </div>
 
@@ -304,9 +315,9 @@ function GlobalOverviewTab({ data }) {
           <h3 className="font-medium text-text-muted">Analytics Consent</h3>
           <ShieldCheck className="w-5 h-5 text-green-600" />
         </div>
-        <p className="text-4xl font-bold text-primary">{data.consent_coverage.consent_rate_percent}%</p>
+        <p className="text-4xl font-bold text-primary">{asNumber(consentCoverage.consent_rate_percent)}%</p>
         <p className="text-sm text-text-muted mt-2">
-          {data.consent_coverage.users_with_consent} users consented
+          {asNumber(consentCoverage.users_with_consent)} users consented
         </p>
       </div>
 
@@ -316,9 +327,9 @@ function GlobalOverviewTab({ data }) {
           <h3 className="font-medium text-text-muted">AI Profile Coverage</h3>
           <Brain className="w-5 h-5 text-blue-600" />
         </div>
-        <p className="text-4xl font-bold text-primary">{data.ai_coverage.ai_profile_rate_percent}%</p>
+        <p className="text-4xl font-bold text-primary">{asNumber(aiCoverage.ai_profile_rate_percent)}%</p>
         <p className="text-sm text-text-muted mt-2">
-          {data.ai_coverage.users_with_ai_profile} profiles created
+          {asNumber(aiCoverage.users_with_ai_profile)} profiles created
         </p>
       </div>
 
@@ -328,9 +339,9 @@ function GlobalOverviewTab({ data }) {
           <h3 className="font-medium text-text-muted">Inferred Insights</h3>
           <TrendingUp className="w-5 h-5 text-purple-600" />
         </div>
-        <p className="text-4xl font-bold text-primary">{data.insights_coverage.insights_rate_percent}%</p>
+        <p className="text-4xl font-bold text-primary">{asNumber(insightsCoverage.insights_rate_percent)}%</p>
         <p className="text-sm text-text-muted mt-2">
-          {data.insights_coverage.users_with_insights} users with AI-inferred signals
+          {asNumber(insightsCoverage.users_with_insights)} users with AI-inferred signals
         </p>
       </div>
 
@@ -343,16 +354,16 @@ function GlobalOverviewTab({ data }) {
         <div className="space-y-2">
           <div className="flex justify-between">
             <span className="text-sm text-text-muted">Fear signals:</span>
-            <span className="font-medium">{data.sensitive_signals.users_with_fear_signals}</span>
+            <span className="font-medium">{asNumber(sensitiveSignals.users_with_fear_signals)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-text-muted">Allergy signals:</span>
-            <span className="font-medium">{data.sensitive_signals.users_with_allergy_signals}</span>
+            <span className="font-medium">{asNumber(sensitiveSignals.users_with_allergy_signals)}</span>
           </div>
         </div>
         <p className="text-xs text-amber-600 mt-3 flex items-center gap-1">
           <AlertTriangle className="w-3 h-3" />
-          Threshold: {data.anonymity_threshold} users
+          Threshold: {asNumber(data?.anonymity_threshold, 15)} users
         </p>
       </div>
 
@@ -383,7 +394,7 @@ function GlobalOverviewTab({ data }) {
       <div className="bg-white rounded-xl border border-stone-200 p-6 md:col-span-2 lg:col-span-3" data-testid="card-countries">
         <h3 className="font-medium text-text-muted mb-4">Top Countries</h3>
         <ResponsiveContainer width="100%" height={200}>
-          <RechartsBarChart data={data.top_countries.slice(0, 8)}>
+          <RechartsBarChart data={safeTopCountries.slice(0, 8)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
             <XAxis dataKey="country" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
@@ -408,13 +419,18 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
     );
   }
 
+  const topCountries = asArray(globalData?.top_countries);
+  const preferences = asObject(countryData?.preferences);
+  const sensitive = asObject(countryData?.sensitive_signals);
+  const budgetDistribution = asObject(countryData?.budget_distribution);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Country Selector */}
       <div className="bg-white rounded-xl border border-stone-200 p-6">
         <h3 className="font-medium text-primary mb-4">Select Country</h3>
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {globalData.top_countries.map((country) => (
+          {topCountries.map((country) => (
             <button
               key={country.country}
               onClick={() => onSelectCountry(country.country)}
@@ -458,13 +474,13 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
                     <Eye className="w-4 h-4" /> Top Likes
                   </h3>
                   <div className="space-y-2">
-                    {countryData.preferences.top_likes.slice(0, 5).map((item, i) => (
+                    {asArray(preferences.top_likes).slice(0, 5).map((item, i) => (
                       <div key={i} className="flex items-center justify-between">
                         <span className="text-sm text-text-secondary">{item.tag.replace(/_/g, ' ')}</span>
                         <span className="text-sm font-medium text-green-600">{item.percentage}%</span>
                       </div>
                     ))}
-                    {countryData.preferences.top_likes.length === 0 && (
+                    {asArray(preferences.top_likes).length === 0 && (
                       <p className="text-sm text-text-muted">No data yet</p>
                     )}
                   </div>
@@ -476,13 +492,13 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
                     <EyeOff className="w-4 h-4" /> Top Dislikes
                   </h3>
                   <div className="space-y-2">
-                    {countryData.preferences.top_dislikes.slice(0, 5).map((item, i) => (
+                    {asArray(preferences.top_dislikes).slice(0, 5).map((item, i) => (
                       <div key={i} className="flex items-center justify-between">
                         <span className="text-sm text-text-secondary">{item.tag.replace(/_/g, ' ')}</span>
                         <span className="text-sm font-medium text-red-600">{item.percentage}%</span>
                       </div>
                     ))}
-                    {countryData.preferences.top_dislikes.length === 0 && (
+                    {asArray(preferences.top_dislikes).length === 0 && (
                       <p className="text-sm text-text-muted">No data yet</p>
                     )}
                   </div>
@@ -493,7 +509,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
               <div className="bg-white rounded-xl border border-stone-200 p-6">
                 <h3 className="font-medium text-primary mb-4">Budget Distribution</h3>
                 <div className="flex gap-4">
-                  {Object.entries(countryData.budget_distribution).map(([level, percent]) => (
+                  {Object.entries(budgetDistribution).map(([level, percent]) => (
                     <div key={level} className="flex-1 text-center">
                       <div className="text-2xl font-bold text-primary">{percent}%</div>
                       <div className="text-sm text-text-muted capitalize">{level}</div>
@@ -503,7 +519,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
               </div>
 
               {/* Sensitive Signals (if compliant) */}
-              {countryData.sensitive_signals.anonymity_compliant && (
+              {Boolean(sensitive.anonymity_compliant) && (
                 <div className="bg-amber-50 rounded-xl border border-amber-200 p-6">
                   <h3 className="font-medium text-amber-800 mb-4 flex items-center gap-2">
                     <Lock className="w-4 h-4" /> Sensitive Signals (Aggregated)
@@ -511,7 +527,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <h4 className="text-sm font-medium text-amber-700 mb-2">Health Fears</h4>
-                      {countryData.sensitive_signals.fears.slice(0, 3).map((item, i) => (
+                      {asArray(sensitive.fears).slice(0, 3).map((item, i) => (
                         <div key={i} className="flex justify-between text-sm">
                           <span>{item.tag.replace(/_/g, ' ')}</span>
                           <span className="font-medium">{item.percentage}%</span>
@@ -520,7 +536,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-amber-700 mb-2">Allergies</h4>
-                      {countryData.sensitive_signals.allergies.slice(0, 3).map((item, i) => (
+                      {asArray(sensitive.allergies).slice(0, 3).map((item, i) => (
                         <div key={i} className="flex justify-between text-sm">
                           <span>{item.tag.replace(/_/g, ' ')}</span>
                           <span className="font-medium">{item.percentage}%</span>
@@ -561,11 +577,14 @@ function AIPerformanceTab({ data }) {
     );
   }
 
-  const actionData = Object.entries(data.action_usage)
-    .filter(([_, v]) => v > 0)
+  const aiInteractions = asObject(data?.ai_interactions);
+  const conversionMetrics = asObject(data?.conversion_metrics);
+
+  const actionData = Object.entries(asObject(data?.action_usage))
+    .filter(([_, v]) => asNumber(v) > 0)
     .map(([key, value]) => ({
       name: key.replace(/_/g, ' '),
-      value
+      value: asNumber(value)
     }));
 
   return (
@@ -574,19 +593,19 @@ function AIPerformanceTab({ data }) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl border border-stone-200 p-6">
           <h3 className="text-sm text-text-muted mb-2">Total AI Messages</h3>
-          <p className="text-3xl font-bold text-primary">{data.ai_interactions.total_messages}</p>
+          <p className="text-3xl font-bold text-primary">{asNumber(aiInteractions.total_messages)}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-6">
           <h3 className="text-sm text-text-muted mb-2">Unique Sessions</h3>
-          <p className="text-3xl font-bold text-primary">{data.ai_interactions.unique_sessions}</p>
+          <p className="text-3xl font-bold text-primary">{asNumber(aiInteractions.unique_sessions)}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-6">
           <h3 className="text-sm text-text-muted mb-2">Recommendation Acceptance</h3>
-          <p className="text-3xl font-bold text-green-600">{data.conversion_metrics.recommendation_acceptance_rate}%</p>
+          <p className="text-3xl font-bold text-green-600">{asNumber(conversionMetrics.recommendation_acceptance_rate)}%</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-6">
           <h3 className="text-sm text-text-muted mb-2">AI-Influenced Orders</h3>
-          <p className="text-3xl font-bold text-blue-600">{data.conversion_metrics.ai_influenced_orders_percent}%</p>
+          <p className="text-3xl font-bold text-blue-600">{asNumber(conversionMetrics.ai_influenced_orders_percent)}%</p>
         </div>
       </div>
 
@@ -614,15 +633,15 @@ function AIPerformanceTab({ data }) {
         <div className="grid grid-cols-3 gap-4 text-center">
           <div className="p-4 bg-stone-50 rounded-lg">
             <p className="text-sm text-text-muted">Total Orders</p>
-            <p className="text-2xl font-bold text-primary">{data.conversion_metrics.total_orders}</p>
+            <p className="text-2xl font-bold text-primary">{asNumber(conversionMetrics.total_orders)}</p>
           </div>
           <div className="p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-700">From AI Users</p>
-            <p className="text-2xl font-bold text-blue-600">{data.conversion_metrics.orders_from_ai_users}</p>
+            <p className="text-2xl font-bold text-blue-600">{asNumber(conversionMetrics.orders_from_ai_users)}</p>
           </div>
           <div className="p-4 bg-green-50 rounded-lg">
             <p className="text-sm text-green-700">&quot;Add All&quot; Usage</p>
-            <p className="text-2xl font-bold text-green-600">{data.conversion_metrics.add_all_to_cart_usage}</p>
+            <p className="text-2xl font-bold text-green-600">{asNumber(conversionMetrics.add_all_to_cart_usage)}</p>
           </div>
         </div>
       </div>
@@ -648,9 +667,9 @@ function TrendsTab({ data }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-stone-200 p-6">
           <h3 className="font-medium text-primary mb-4">Diet Goal Trends</h3>
-          {data.diet_trends.length > 0 ? (
+          {asArray(data?.diet_trends).length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
-              <RechartsBarChart data={data.diet_trends.slice(0, 8)}>
+              <RechartsBarChart data={asArray(data?.diet_trends).slice(0, 8)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
                 <XAxis dataKey="tag" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
                 <YAxis tick={{ fontSize: 12 }} />
@@ -665,11 +684,11 @@ function TrendsTab({ data }) {
 
         <div className="bg-white rounded-xl border border-stone-200 p-6">
           <h3 className="font-medium text-primary mb-4">Product Interest Trends</h3>
-          {data.product_interest_trends.length > 0 ? (
+          {asArray(data?.product_interest_trends).length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
-                  data={data.product_interest_trends.slice(0, 6)}
+                  data={asArray(data?.product_interest_trends).slice(0, 6)}
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
@@ -677,7 +696,7 @@ function TrendsTab({ data }) {
                   nameKey="tag"
                   label={({ tag, percentage }) => `${tag.replace(/_/g, ' ')} ${percentage}%`}
                 >
-                  {data.product_interest_trends.slice(0, 6).map((_, index) => (
+                  {asArray(data?.product_interest_trends).slice(0, 6).map((_, index) => (
                     <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
@@ -696,9 +715,9 @@ function TrendsTab({ data }) {
           <AlertTriangle className="w-4 h-4" />
           Health Concern Trends (Sensitive - Aggregated Only)
         </h3>
-        {Array.isArray(data.fear_trends) && data.fear_trends.length > 0 ? (
+        {asArray(data?.fear_trends).length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {data.fear_trends.slice(0, 8).map((item, i) => (
+            {asArray(data?.fear_trends).slice(0, 8).map((item, i) => (
               <div key={i} className="bg-white p-3 rounded-lg">
                 <p className="text-sm text-amber-700 font-medium">{item.tag.replace(/_/g, ' ')}</p>
                 <p className="text-xl font-bold text-amber-900">{item.percentage}%</p>
@@ -721,9 +740,9 @@ function TrendsTab({ data }) {
         <p className="text-sm text-text-muted mb-4">
           Products users are asking about but may not be well represented in catalog
         </p>
-        {data.potential_catalog_gaps.length > 0 ? (
+        {asArray(data?.potential_catalog_gaps).length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {data.potential_catalog_gaps.slice(0, 8).map((gap, i) => (
+            {asArray(data?.potential_catalog_gaps).slice(0, 8).map((gap, i) => (
               <div key={i} className="bg-stone-50 p-3 rounded-lg">
                 <p className="font-medium text-primary">{gap.interest.replace(/_/g, ' ')}</p>
                 <p className="text-sm text-text-muted">{gap.demand_signals} demand signals</p>
@@ -778,6 +797,13 @@ function ComplianceTab({ data, config }) {
     );
   }
 
+  const riskAssessment = asObject(data?.risk_assessment);
+  const consentMetrics = asObject(data?.consent_metrics);
+  const sensitiveCoverage = asObject(data?.sensitive_data_coverage);
+  const anonymityCompliance = asObject(data?.anonymity_compliance);
+  const dataRetention = asObject(data?.data_retention);
+  const riskLevel = ['green', 'amber', 'red'].includes(riskAssessment.level) ? riskAssessment.level : 'amber';
+
   const riskColor = {
     green: 'bg-green-100 text-green-800 border-green-200',
     amber: 'bg-amber-100 text-amber-800 border-amber-200',
@@ -817,16 +843,16 @@ function ComplianceTab({ data, config }) {
       {activeSubTab === 'overview' && (
         <>
           {/* Risk Assessment */}
-          <div className={`rounded-xl border-2 p-6 ${riskColor[data.risk_assessment.level]}`}>
+          <div className={`rounded-xl border-2 p-6 ${riskColor[riskLevel]}`}>
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-xl flex items-center gap-2">
                   <ShieldCheck className="w-6 h-6" />
-                  Legal Risk Level: {data.risk_assessment.level.toUpperCase()}
+                  Legal Risk Level: {String(riskLevel).toUpperCase()}
                 </h3>
-                {data.risk_assessment.factors.length > 0 ? (
+                {asArray(riskAssessment.factors).length > 0 ? (
                   <ul className="mt-3 text-sm space-y-1">
-                    {data.risk_assessment.factors.map((factor, i) => (
+                    {asArray(riskAssessment.factors).map((factor, i) => (
                       <li key={i} className="flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4" />
                         {factor}
@@ -838,7 +864,7 @@ function ComplianceTab({ data, config }) {
                 )}
               </div>
               <div className="text-6xl font-bold opacity-50 flex items-center justify-center">
-                <RiskIcon level={data.risk_assessment.level} />
+                <RiskIcon level={riskLevel} />
               </div>
             </div>
           </div>
@@ -855,34 +881,34 @@ function ComplianceTab({ data, config }) {
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-text-muted">Analytics Consent Rate</span>
-                    <span className="font-bold text-lg">{data.consent_metrics.consent_rate_percent}%</span>
+                    <span className="font-bold text-lg">{asNumber(consentMetrics.consent_rate_percent)}%</span>
                   </div>
                   <div className="w-full bg-stone-200 rounded-full h-4 overflow-hidden">
                     <div 
                       className={`h-4 rounded-full transition-all ${
-                        data.consent_metrics.consent_rate_percent >= 70 ? 'bg-green-500' :
-                        data.consent_metrics.consent_rate_percent >= 40 ? 'bg-amber-500' : 'bg-red-500'
+                        asNumber(consentMetrics.consent_rate_percent) >= 70 ? 'bg-green-500' :
+                        asNumber(consentMetrics.consent_rate_percent) >= 40 ? 'bg-amber-500' : 'bg-red-500'
                       }`}
-                      style={{ width: `${data.consent_metrics.consent_rate_percent}%` }}
+                      style={{ width: `${asNumber(consentMetrics.consent_rate_percent)}%` }}
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-green-50 p-4 rounded-lg text-center">
-                    <p className="text-3xl font-bold text-green-600">{data.consent_metrics.users_with_consent}</p>
+                    <p className="text-3xl font-bold text-green-600">{asNumber(consentMetrics.users_with_consent)}</p>
                     <p className="text-xs text-green-700 font-medium">Consented Users</p>
                   </div>
                   <div className="bg-stone-100 p-4 rounded-lg text-center">
-                    <p className="text-3xl font-bold text-stone-600">{data.consent_metrics.users_without_consent}</p>
+                    <p className="text-3xl font-bold text-stone-600">{asNumber(consentMetrics.users_without_consent)}</p>
                     <p className="text-xs text-stone-600 font-medium">No Consent</p>
                   </div>
                 </div>
                 {/* Consent Versions */}
-                {data.consent_metrics.consent_versions && Object.keys(data.consent_metrics.consent_versions).length > 0 && (
+                {Object.keys(asObject(consentMetrics.consent_versions)).length > 0 && (
                   <div className="pt-3 border-t border-stone-200">
                     <p className="text-xs text-text-muted mb-2">Consent by Version:</p>
                     <div className="flex gap-2">
-                      {Object.entries(data.consent_metrics.consent_versions).map(([version, count]) => (
+                      {Object.entries(asObject(consentMetrics.consent_versions)).map(([version, count]) => (
                         <span key={version} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
                           v{version}: {count} users
                         </span>
@@ -902,20 +928,20 @@ function ComplianceTab({ data, config }) {
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
                   <span className="text-amber-800 text-sm">Fear/Health Signals</span>
-                  <span className="font-bold text-amber-900">{data.sensitive_data_coverage.users_with_fear_signals}</span>
+                  <span className="font-bold text-amber-900">{asNumber(sensitiveCoverage.users_with_fear_signals)}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
                   <span className="text-red-800 text-sm">Allergy Signals</span>
-                  <span className="font-bold text-red-900">{data.sensitive_data_coverage.users_with_allergy_signals}</span>
+                  <span className="font-bold text-red-900">{asNumber(sensitiveCoverage.users_with_allergy_signals)}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
                   <span className="text-purple-800 text-sm">Health Goal Signals</span>
-                  <span className="font-bold text-purple-900">{data.sensitive_data_coverage.users_with_health_signals}</span>
+                  <span className="font-bold text-purple-900">{asNumber(sensitiveCoverage.users_with_health_signals)}</span>
                 </div>
               </div>
               <p className="text-xs text-text-muted mt-4 flex items-center gap-1">
                 <Lock className="w-3 h-3" />
-                All sensitive data displayed only in aggregates of {data.anonymity_compliance.threshold}+ users
+                All sensitive data displayed only in aggregates of {asNumber(anonymityCompliance.threshold, 15)}+ users
               </p>
             </div>
           </div>
@@ -924,10 +950,10 @@ function ComplianceTab({ data, config }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Anonymity Compliance */}
             <div className={`rounded-xl border-2 p-6 ${
-              data.anonymity_compliance.fully_compliant ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
+              anonymityCompliance.fully_compliant ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
             }`}>
               <h3 className="font-medium mb-3 flex items-center gap-2">
-                {data.anonymity_compliance.fully_compliant ? (
+                {anonymityCompliance.fully_compliant ? (
                   <ShieldCheck className="w-5 h-5 text-green-600" />
                 ) : (
                   <AlertTriangle className="w-5 h-5 text-amber-600" />
@@ -935,14 +961,14 @@ function ComplianceTab({ data, config }) {
                 Anonymity Status
               </h3>
               <p className="text-3xl font-bold mb-2">
-                {data.anonymity_compliance.fully_compliant ? 'Compliant' : 'Review Needed'}
+                {anonymityCompliance.fully_compliant ? 'Compliant' : 'Review Needed'}
               </p>
               <p className="text-sm opacity-70">
-                Threshold: {data.anonymity_compliance.threshold} users
+                Threshold: {asNumber(anonymityCompliance.threshold, 15)} users
               </p>
-              {data.anonymity_compliance.countries_below_threshold > 0 && (
+              {asNumber(anonymityCompliance.countries_below_threshold) > 0 && (
                 <p className="text-sm mt-2 text-amber-700">
-                  {data.anonymity_compliance.countries_below_threshold} countries below threshold
+                  {asNumber(anonymityCompliance.countries_below_threshold)} countries below threshold
                 </p>
               )}
             </div>
@@ -951,9 +977,9 @@ function ComplianceTab({ data, config }) {
             <div className="bg-white rounded-xl border border-stone-200 p-6">
               <h3 className="font-medium text-primary mb-3">Data Retention</h3>
               <p className="text-2xl font-bold text-primary mb-2">
-                {data.data_retention.retention_days} days
+                {asNumber(dataRetention.retention_days)} days
               </p>
-              <p className="text-sm text-text-muted">{data.data_retention.policy}</p>
+              <p className="text-sm text-text-muted">{dataRetention.policy || 'N/A'}</p>
             </div>
 
             {/* Export Status */}
@@ -983,11 +1009,11 @@ function ComplianceTab({ data, config }) {
           ) : auditLog ? (
             <>
               {/* Consent Trend Chart */}
-              {auditLog.consent_trend.length > 0 && (
+              {asArray(auditLog?.consent_trend).length > 0 && (
                 <div className="bg-white rounded-xl border border-stone-200 p-6">
                   <h3 className="font-medium text-primary mb-4">Consent Trend (Last 14 Days)</h3>
                   <ResponsiveContainer width="100%" height={200}>
-                    <AreaChart data={auditLog.consent_trend}>
+                    <AreaChart data={asArray(auditLog?.consent_trend)}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
                       <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                       <YAxis tick={{ fontSize: 12 }} />
@@ -1001,7 +1027,7 @@ function ComplianceTab({ data, config }) {
               {/* Recent Consents */}
               <div className="bg-white rounded-xl border border-stone-200 p-6">
                 <h3 className="font-medium text-primary mb-4">Recent Consent Grants (Anonymized)</h3>
-                {auditLog.recent_consents.length > 0 ? (
+                {asArray(auditLog?.recent_consents).length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
@@ -1013,7 +1039,7 @@ function ComplianceTab({ data, config }) {
                         </tr>
                       </thead>
                       <tbody>
-                        {auditLog.recent_consents.slice(0, 10).map((consent, i) => (
+                        {asArray(auditLog?.recent_consents).slice(0, 10).map((consent, i) => (
                           <tr key={i} className="border-b border-stone-50">
                             <td className="py-2 font-mono text-xs">{consent.masked_email}</td>
                             <td className="py-2">{consent.country || '-'}</td>
@@ -1055,8 +1081,8 @@ function ComplianceTab({ data, config }) {
                 <div className="flex items-center gap-4">
                   <ShieldCheck className="w-12 h-12 text-green-600" />
                   <div>
-                    <h2 className="text-2xl font-bold text-green-800">{gdprSummary.compliance_status}</h2>
-                    <p className="text-green-700">Data Controller: {gdprSummary.data_controller}</p>
+                    <h2 className="text-2xl font-bold text-green-800">{gdprSummary?.compliance_status || 'COMPLIANT'}</h2>
+                    <p className="text-green-700">Data Controller: {gdprSummary?.data_controller || 'Hispaloshop'}</p>
                   </div>
                 </div>
               </div>
@@ -1065,7 +1091,7 @@ function ComplianceTab({ data, config }) {
               <div className="bg-white rounded-xl border border-stone-200 p-6">
                 <h3 className="font-medium text-primary mb-4">Data Categories & Legal Basis</h3>
                 <div className="space-y-4">
-                  {Object.entries(gdprSummary.data_categories).map(([key, category]) => (
+                  {Object.entries(asObject(gdprSummary?.data_categories)).map(([key, category]) => (
                     <div key={key} className="p-4 bg-stone-50 rounded-lg">
                       <h4 className="font-medium text-primary capitalize mb-2">{key} Data</h4>
                       <p className="text-sm text-text-muted mb-2">{category.description}</p>
@@ -1091,7 +1117,7 @@ function ComplianceTab({ data, config }) {
               <div className="bg-white rounded-xl border border-stone-200 p-6">
                 <h3 className="font-medium text-primary mb-4">Technical & Organizational Measures</h3>
                 <ul className="space-y-2">
-                  {gdprSummary.technical_measures.map((measure, i) => (
+                  {asArray(gdprSummary?.technical_measures).map((measure, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm">
                       <div className="w-2 h-2 bg-green-500 rounded-full" />
                       {measure}
@@ -1102,7 +1128,7 @@ function ComplianceTab({ data, config }) {
 
               {/* Generated timestamp */}
               <p className="text-xs text-text-muted text-right">
-                Generated: {new Date(gdprSummary.generated_at).toLocaleString()}
+                Generated: {gdprSummary?.generated_at ? new Date(gdprSummary.generated_at).toLocaleString() : '-'}
               </p>
             </>
           ) : (
