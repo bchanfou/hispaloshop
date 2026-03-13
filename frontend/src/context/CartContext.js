@@ -46,7 +46,7 @@ export function CartProvider({ children }) {
     } catch (error) {
       console.error('[CartContext] Error adding to cart:', error);
 
-      if (error.response?.status === 401) {
+      if (error.status === 401) {
         sessionStorage.setItem('pendingCartAction', JSON.stringify({ productId, quantity, variantId, packId }));
         window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
         return 'redirect';

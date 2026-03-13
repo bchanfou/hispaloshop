@@ -261,7 +261,7 @@ export default function BottomNavBar() {
         toast('Cancelado');
         return;
       }
-      toast.error(error.response?.data?.detail || 'Error');
+      toast.error(error.message || 'Error');
     }
   };
 

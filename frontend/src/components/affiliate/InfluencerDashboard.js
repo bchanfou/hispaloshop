@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { 
@@ -20,8 +20,8 @@ export function InfluencerDashboard() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['influencer-dashboard'],
     queryFn: async () => {
-      const response = await API.get('/affiliates/dashboard');
-      return response.data.data;
+      const data = await apiClient.get('/affiliates/dashboard');
+      return data.data ?? data;
     },
     refetchInterval: 30000 // Refrescar cada 30 segundos
   });

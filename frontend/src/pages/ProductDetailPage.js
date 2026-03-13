@@ -125,7 +125,7 @@ export default function ProductDetailPage() {
       setReviewComment('');
       setReviewRating(5);
     } catch (error) {
-      toast.error(error.response?.data?.detail || error.message || 'No hemos podido enviar la reseña');
+      toast.error(error.message || 'No hemos podido enviar la reseña');
     }
   };
 

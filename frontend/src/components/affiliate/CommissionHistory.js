@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { 
@@ -35,8 +35,8 @@ export function CommissionHistory() {
         params.append('status', statusFilter);
       }
       
-      const response = await API.get(`/affiliates/commissions?${params}`);
-      return response.data.data;
+      const data = await apiClient.get(`/affiliates/commissions?${params}`);
+      return data.data ?? data;
     }
   });
 

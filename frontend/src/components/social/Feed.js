@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { PostCard } from './PostCard';
 import { Loader2 } from 'lucide-react';
 
@@ -17,8 +17,8 @@ export function SocialFeed({ type = 'for_you' }) {
   } = useInfiniteQuery({
     queryKey: ['feed', type],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = await API.get(`/posts/feed?type=${type}&page=${pageParam}`);
-      return response.data.data;
+      const data = await apiClient.get(`/posts/feed?type=${type}&page=${pageParam}`);
+      return data.data ?? data;
     },
     getNextPageParam: (lastPage) => {
       if (!lastPage.meta.has_more) return undefined;

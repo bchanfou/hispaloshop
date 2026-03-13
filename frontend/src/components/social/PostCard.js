@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Heart, MessageCircle, Share2, Bookmark, ShoppingBag } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
 export function PostCard({ post }) {
@@ -14,9 +14,9 @@ export function PostCard({ post }) {
   const navigate = useNavigate();
 
   const likeMutation = useMutation({
-    mutationFn: () => API.post(`/posts/${post.id || post._id}/like`),
+    mutationFn: () => apiClient.post(`/posts/${post.id || post._id}/like`),
     onSuccess: (data) => {
-      if (data.data.action === 'liked') {
+      if (data.action === 'liked') {
         setLocalLiked(true);
         setLocalLikesCount(prev => prev + 1);
       } else {
@@ -30,9 +30,9 @@ export function PostCard({ post }) {
   });
 
   const saveMutation = useMutation({
-    mutationFn: () => API.post(`/posts/${post.id || post._id}/save`),
+    mutationFn: () => apiClient.post(`/posts/${post.id || post._id}/save`),
     onSuccess: (data) => {
-      if (data.data.action === 'saved') {
+      if (data.action === 'saved') {
         setLocalSaved(true);
         toast.success('Guardado en coleccion');
       } else {
@@ -48,7 +48,7 @@ export function PostCard({ post }) {
 
   const handleQuickBuy = async (product) => {
     try {
-      await API.post('/cart/quick-buy', {
+      await apiClient.post('/cart/quick-buy', {
         product_id: product.product_id,
         quantity: 1,
         affiliate_code: product.affiliate_code,

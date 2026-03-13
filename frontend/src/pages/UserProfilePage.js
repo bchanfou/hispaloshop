@@ -1,28 +1,24 @@
-import BackButton from '../components/BackButton';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import ProfilePageHeader from '../components/profile/ProfilePageHeader';
+import ProfessionalBanner from '../components/profile/ProfessionalBanner';
 import {
   BookOpen,
   Camera,
   Grid3X3,
   Loader2,
-  MessageCircle,
   Package,
   PlaySquare,
-  Settings,
   Share2,
   ShoppingBag,
   User,
-  UserMinus,
-  UserPlus,
   X,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import { getDefaultRoute, getDashboardLabel } from '../lib/navigation';
+import { getDefaultRoute } from '../lib/navigation';
 import PostViewer from '../components/PostViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeOverlay from '../components/recipes/RecipeOverlay';
@@ -157,7 +153,7 @@ function ContentTile({ item, type, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="group relative aspect-square overflow-hidden rounded-2xl bg-stone-100 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      className="group relative aspect-square overflow-hidden bg-stone-100 text-left transition-opacity duration-150 active:opacity-80"
     >
       {imageUrl ? (
         <img
@@ -181,7 +177,7 @@ function ContentTile({ item, type, onClick }) {
 
 function EmptyState({ icon: Icon, title, description, action }) {
   return (
-    <div className="rounded-[28px] border border-dashed border-stone-200 bg-white px-6 py-16 text-center">
+    <div className="mx-4 mt-2 rounded-[24px] border border-dashed border-stone-200 bg-white px-6 py-16 text-center">
       <Icon className="mx-auto h-12 w-12 text-stone-300" />
       <h3 className="mt-4 text-lg font-semibold text-stone-950">{title}</h3>
       <p className="mt-2 text-sm text-stone-500">{description}</p>
@@ -208,11 +204,12 @@ export default function UserProfilePage() {
   const currentUserId = currentUser?.user_id || currentUser?.id || null;
   const isOwnProfile = currentUserId === userId;
   const isSeller = profile?.role === 'producer' || profile?.role === 'importer';
+  const isProfessional = ['producer', 'importer', 'influencer'].includes(profile?.role);
+  const profileViewCount = profile?.profile_views_30d ?? profile?.seller_stats?.profile_views ?? null;
   const { sellerProducts, isLoading: productsLoading } = useUserProducts(userId, activeTab === 'products' && isSeller);
   const { recipes, isLoading: recipesLoading } = useUserRecipes(userId, activeTab === 'recipes');
   const loading = profileLoading || postsLoading;
   const dashboardUrl = currentUser ? getDefaultRoute(currentUser, currentUser.onboarding_completed) : '/login';
-  const dashboardLabel = currentUser ? getDashboardLabel(currentUser.role) : 'Panel';
 
   useEffect(() => {
     if (!isSeller && activeTab === 'products') {
@@ -295,10 +292,12 @@ export default function UserProfilePage() {
     }
   };
 
+  const headerUsername = profile?.username || fallbackHandle || 'usuario';
+
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50">
-        <Header />
+        <ProfilePageHeader username={headerUsername} isOwnProfile={isOwnProfile} onShare={handleShare} />
         <div className="flex h-[60vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-stone-500" />
         </div>
@@ -308,25 +307,34 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <Header />
+      <ProfilePageHeader username={headerUsername} isOwnProfile={isOwnProfile} onShare={handleShare} />
 
-      <main className="mx-auto max-w-6xl px-4 pb-16 pt-6">
-        <BackButton />
+      <main className="mx-auto max-w-6xl px-4 pb-24 pt-4">
 
-        <section className="mt-6 rounded-[32px] border border-stone-100 bg-white p-6 sm:p-8">
-          <div className="flex flex-col gap-8 md:flex-row md:items-start">
-            <div className="relative mx-auto md:mx-0">
-              <div className="relative h-28 w-28 overflow-hidden rounded-full border border-stone-200 bg-stone-100 sm:h-36 sm:w-36">
+        {/* ── Hero — Instagram mobile-first ── */}
+        <section className="-mx-4 bg-white px-4 pt-4 pb-2">
+
+          {/* Fila 1: Avatar + Stats */}
+          <div className="flex items-center gap-5">
+
+            {/* Avatar */}
+            <div className="relative shrink-0">
+              <div className="h-[86px] w-[86px] overflow-hidden rounded-full border-2 border-stone-200 bg-stone-100">
                 {profile?.profile_image ? (
-                  <img src={resolveUserImage(profile.profile_image)} alt={`Avatar de ${realName}`} loading="lazy" className="h-full w-full object-cover" />
+                  <img
+                    src={resolveUserImage(profile.profile_image)}
+                    alt={`Avatar de ${realName}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-stone-400">
-                    <User className="h-12 w-12" />
+                  <div className="flex h-full items-center justify-center text-stone-300">
+                    <User className="h-10 w-10" />
                   </div>
                 )}
                 {uploadingAvatar ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/35">
-                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/35">
+                    <Loader2 className="h-5 w-5 animate-spin text-white" />
                   </div>
                 ) : null}
               </div>
@@ -334,99 +342,109 @@ export default function UserProfilePage() {
                 <>
                   <button
                     onClick={() => avatarInputRef.current?.click()}
-                    className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 text-white shadow-sm"
+                    className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 text-white shadow-md"
                     data-testid="change-avatar-btn"
+                    aria-label="Cambiar foto de perfil"
                   >
-                    <Camera className="h-4 w-4" />
+                    <Camera className="h-3.5 w-3.5" />
                   </button>
                   <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                 </>
               ) : null}
             </div>
 
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h1 className="text-2xl font-semibold tracking-tight text-stone-950">{displayName}</h1>
-                    {profile?.role && profile.role !== 'customer' ? (
-                      <span className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs text-stone-600">
-                        {profile.role === 'producer' ? 'Productor' : profile.role === 'importer' ? 'Importador' : profile.role}
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-base font-medium text-stone-950">{realName}</p>
-                  {profile?.bio ? <p className="mt-3 max-w-2xl whitespace-pre-line text-sm leading-relaxed text-stone-600">{profile.bio}</p> : null}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {isOwnProfile ? (
-                    <>
-                      <Link to={dashboardUrl}>
-                        <Button variant="outline" className="h-10 rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50">
-                          <Settings className="h-4 w-4" />
-                          {dashboardLabel}
-                        </Button>
-                      </Link>
-                      <Button onClick={() => setShowCreatePost(true)} className="h-10 rounded-full bg-stone-950 text-white hover:bg-stone-800">
-                        <Camera className="h-4 w-4" />
-                        {t('social.newPost')}
-                      </Button>
-                      <Link to="/recipes/create">
-                        <Button variant="outline" className="h-10 rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50">
-                          <BookOpen className="h-4 w-4" />
-                          {t('recipes.createRecipe', 'Crear receta')}
-                        </Button>
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        onClick={handleFollow}
-                        className={`h-10 rounded-full ${isFollowing ? 'bg-stone-100 text-stone-800 hover:bg-stone-200' : 'bg-stone-950 text-white hover:bg-stone-800'}`}
-                        data-testid="follow-btn"
-                      >
-                        {isFollowing ? <UserMinus className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
-                        {isFollowing ? 'Siguiendo' : t('social.follow')}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId } }));
-                        }}
-                        className="h-10 rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                        {t('social.message')}
-                      </Button>
-                    </>
-                  )}
-
-                  <Button variant="outline" onClick={handleShare} className="h-10 rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
+            {/* Stats */}
+            <div className="flex flex-1 items-center justify-around">
+              <button
+                className="flex flex-col items-center gap-0.5 transition-opacity active:opacity-70"
+                onClick={() => setActiveTab('posts')}
+              >
+                <span className="text-[17px] font-semibold leading-tight text-stone-950">{postCount}</span>
+                <span className="text-[12px] text-stone-500">publicaciones</span>
+              </button>
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-[17px] font-semibold leading-tight text-stone-950">{followersCount}</span>
+                <span className="text-[12px] text-stone-500">seguidores</span>
               </div>
-
-              <div className="mt-6 flex flex-wrap gap-8">
-                <div>
-                  <p className="text-lg font-semibold text-stone-950">{postCount}</p>
-                  <p className="text-sm text-stone-500">{t('social.posts', 'Posts')}</p>
-                </div>
-                <div>
-                  <p className="text-lg font-semibold text-stone-950">{followersCount}</p>
-                  <p className="text-sm text-stone-500">{t('social.followers', 'Seguidores')}</p>
-                </div>
-                <div>
-                  <p className="text-lg font-semibold text-stone-950">{followingCount}</p>
-                  <p className="text-sm text-stone-500">{t('social.following', 'Siguiendo')}</p>
-                </div>
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-[17px] font-semibold leading-tight text-stone-950">{followingCount}</span>
+                <span className="text-[12px] text-stone-500">seguidos</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 overflow-x-auto">
-            <div className="flex gap-5 pb-2">
+          {/* Fila 2: Nombre + rol + bio */}
+          <div className="mt-3 space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-[14px] font-semibold leading-tight text-stone-950">{realName}</p>
+              {profile?.role && profile.role !== 'customer' && profile.role !== 'consumer' ? (
+                <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600">
+                  {profile.role === 'producer'
+                    ? 'Productor'
+                    : profile.role === 'importer'
+                      ? 'Importador'
+                      : profile.role === 'influencer'
+                        ? 'Influencer'
+                        : profile.role}
+                </span>
+              ) : null}
+            </div>
+            {profile?.bio ? (
+              <p className="whitespace-pre-line text-[13px] leading-[1.45] text-stone-700">{profile.bio}</p>
+            ) : null}
+          </div>
+
+          {/* Fila 3: Botones de acción */}
+          <div className="mt-3 flex gap-2">
+            {isOwnProfile ? (
+              <>
+                <Link to={dashboardUrl} className="flex-1">
+                  <button className="h-9 w-full rounded-xl bg-stone-100 text-[13px] font-semibold text-stone-950 transition-colors hover:bg-stone-200 active:bg-stone-200">
+                    Editar perfil
+                  </button>
+                </Link>
+                <button
+                  onClick={handleShare}
+                  className="flex-1 h-9 rounded-xl bg-stone-100 text-[13px] font-semibold text-stone-950 transition-colors hover:bg-stone-200 active:bg-stone-200"
+                >
+                  Compartir perfil
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleFollow}
+                  className={`flex-1 h-9 rounded-xl text-[13px] font-semibold transition-colors ${
+                    isFollowing
+                      ? 'bg-stone-100 text-stone-950 hover:bg-stone-200 active:bg-stone-200'
+                      : 'bg-stone-950 text-white hover:bg-stone-800 active:bg-stone-700'
+                  }`}
+                  data-testid="follow-btn"
+                >
+                  {isFollowing ? 'Siguiendo' : t('social.follow', 'Seguir')}
+                </button>
+                <button
+                  onClick={() =>
+                    window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId } }))
+                  }
+                  className="flex-1 h-9 rounded-xl bg-stone-100 text-[13px] font-semibold text-stone-950 transition-colors hover:bg-stone-200 active:bg-stone-200"
+                >
+                  {t('social.message', 'Mensaje')}
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-700 transition-colors hover:bg-stone-200 active:bg-stone-200"
+                  aria-label="Compartir perfil"
+                >
+                  <Share2 className="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Fila 4: Story Highlights */}
+          <div className="-mx-4 mt-4 overflow-x-auto px-4 pb-3">
+            <div className="flex gap-4">
               {highlights.map((item) => (
                 <ProfileHighlight key={item} label={item} />
               ))}
@@ -434,9 +452,17 @@ export default function UserProfilePage() {
           </div>
         </section>
 
-        <section className="mt-8">
-          <div className="border-b border-stone-200">
-            <div className="flex gap-8 overflow-x-auto">
+        {/* ── Banner profesional ── */}
+        {isOwnProfile && isProfessional ? (
+          <div className="-mx-4 bg-white px-4 py-3 border-t border-stone-100">
+            <ProfessionalBanner role={profile.role} viewCount={profileViewCount} />
+          </div>
+        ) : null}
+
+        <section className="-mx-4 mt-px bg-white">
+          {/* Tabs — solo iconos, estilo Instagram */}
+          <div className="border-b border-stone-100">
+            <div className="flex">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -444,19 +470,21 @@ export default function UserProfilePage() {
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveTab(tab.key)}
-                    className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm transition-colors ${
-                      activeTab === tab.key ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500 hover:text-stone-950'
+                    aria-label={tab.label}
+                    className={`flex flex-1 items-center justify-center border-b-[1.5px] py-3 transition-colors ${
+                      activeTab === tab.key
+                        ? 'border-stone-950 text-stone-950'
+                        : 'border-transparent text-stone-400 hover:text-stone-700'
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
-                    {tab.label}
+                    <Icon className="h-[22px] w-[22px]" strokeWidth={activeTab === tab.key ? 2 : 1.5} />
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="pt-6">
+          <div className="pt-1 pb-4">
             {activeTab === 'posts' ? (
               safePosts.length === 0 ? (
                 <EmptyState
@@ -477,7 +505,7 @@ export default function UserProfilePage() {
                   }
                 />
               ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+                <div className="grid grid-cols-3 gap-0.5">
                   {safePosts.map((post) => (
                     <ContentTile key={post.post_id || post.id} item={post} type="post" onClick={() => setSelectedPost(post)} />
                   ))}
@@ -505,7 +533,7 @@ export default function UserProfilePage() {
                   description="Este perfil aún no tiene productos publicados."
                 />
               ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+                <div className="grid grid-cols-3 gap-0.5">
                   {safeProducts.map((product) => (
                     <ContentTile key={product.product_id || product.id} item={product} type="product" onClick={() => setSelectedProduct(product)} />
                   ))}
@@ -535,7 +563,7 @@ export default function UserProfilePage() {
                   }
                 />
               ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+                <div className="grid grid-cols-3 gap-0.5">
                   {safeRecipes.map((recipe, index) => (
                     <ContentTile key={recipe.recipe_id || recipe.id} item={recipe} type="recipe" onClick={() => setSelectedRecipeIndex(index)} />
                   ))}
