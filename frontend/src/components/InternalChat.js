@@ -7,12 +7,13 @@ import {
   Images,
   Loader2,
   Package,
-  Paperclip,
   PenSquare,
+  Phone,
   Search,
   Send,
   UserPlus,
   UtensilsCrossed,
+  Video,
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -148,32 +149,28 @@ function MessageBubble({ message, isOwn }) {
       transition={{ duration: 0.18, ease: 'easeOut' }}
       className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
     >
-      <div className={`max-w-[78%] ${isOwn ? 'items-end' : 'items-start'}`}>
+      <div className={`max-w-[72%] ${isOwn ? 'items-end' : 'items-start'}`}>
         {message?.shared_item ? (
-          <div className="mb-2">
+          <div className="mb-1.5">
             <SharedItemCard item={message.shared_item} compact />
           </div>
         ) : null}
         {message?.image_url ? (
-          <div
-            className={`mb-2 overflow-hidden rounded-[24px] border shadow-[0_12px_32px_rgba(15,23,42,0.08)] ${
-              isOwn ? 'border-stone-900/10' : 'border-white/80'
-            }`}
-          >
+          <div className={`mb-1.5 overflow-hidden rounded-[18px] ${isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
             <img
               src={message.image_url}
               alt="Imagen compartida en el chat"
               loading="lazy"
-              className="max-w-[280px] object-cover"
+              className="max-w-[260px] object-cover"
             />
           </div>
         ) : null}
         {message?.content ? (
           <div
-            className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+            className={`px-3.5 py-2.5 text-[15px] leading-[1.4] ${
               isOwn
-                ? 'rounded-br-md bg-gradient-to-br from-stone-950 via-stone-900 to-stone-800 text-white shadow-[0_10px_30px_rgba(15,23,42,0.16)]'
-                : 'rounded-bl-md border border-white/80 bg-white/90 text-stone-900 shadow-[0_10px_24px_rgba(15,23,42,0.06)] backdrop-blur-sm'
+                ? 'rounded-[20px] rounded-br-[4px] bg-stone-950 text-white'
+                : 'rounded-[20px] rounded-bl-[4px] bg-stone-100 text-stone-950'
             }`}
           >
             {message.content}
@@ -191,31 +188,28 @@ function TypingIndicator() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
-      className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/90 px-3 py-2 text-xs text-stone-500 shadow-sm backdrop-blur-sm"
+      className="inline-flex items-center gap-1 rounded-[20px] rounded-bl-[4px] bg-stone-100 px-3.5 py-3"
     >
-      <div className="flex items-center gap-1">
-        {[0, 1, 2].map((index) => (
-          <motion.span
-            key={index}
-            animate={{ y: [0, -3, 0], opacity: [0.35, 1, 0.35] }}
-            transition={{ duration: 0.9, repeat: Infinity, delay: index * 0.12, ease: 'easeInOut' }}
-            className="h-1.5 w-1.5 rounded-full bg-stone-500"
-          />
-        ))}
-      </div>
-      <span>Escribiendo...</span>
+      {[0, 1, 2].map((index) => (
+        <motion.span
+          key={index}
+          animate={{ y: [0, -3, 0], opacity: [0.35, 1, 0.35] }}
+          transition={{ duration: 0.9, repeat: Infinity, delay: index * 0.15, ease: 'easeInOut' }}
+          className="h-1.5 w-1.5 rounded-full bg-stone-500"
+        />
+      ))}
     </motion.div>
   );
 }
 
 function LoadingConversationSkeleton() {
   return (
-    <div className="relative z-10 space-y-4">
+    <div className="space-y-4">
       {[0, 1, 2, 3].map((value) => (
         <div key={value} className={`flex ${value % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
           <div className={`space-y-2 ${value % 2 === 0 ? 'w-[58%]' : 'w-[48%]'}`}>
-            <div className="h-20 animate-pulse rounded-[24px] bg-white/70 shadow-sm" />
-            <div className="h-3 w-16 animate-pulse rounded-full bg-white/60" />
+            <div className="h-12 animate-pulse rounded-[20px] bg-stone-100" />
+            <div className="h-2.5 w-14 animate-pulse rounded-full bg-stone-100" />
           </div>
         </div>
       ))}
@@ -226,7 +220,7 @@ function LoadingConversationSkeleton() {
 function EmptyState({ title, description }) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-      <div className="rounded-full border border-white/70 bg-white/80 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-stone-500 shadow-sm backdrop-blur-sm">
+      <div className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-stone-400">
         Hispaloshop
       </div>
       <h3 className="mt-4 text-lg font-medium text-stone-950">{title}</h3>
@@ -242,8 +236,8 @@ function FilterChip({ label, active, onClick }) {
       onClick={onClick}
       className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
         active
-          ? 'bg-stone-950 text-white shadow-[0_8px_18px_rgba(15,23,42,0.16)]'
-          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+          ? 'bg-stone-950 text-white'
+          : 'bg-stone-100 text-stone-600 active:bg-stone-200'
       }`}
     >
       {label}
@@ -257,16 +251,16 @@ function ComposerActionButton({ icon: Icon, label, onClick, disabled = false, ba
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex min-w-[92px] items-center gap-2 rounded-2xl border px-3 py-2.5 text-left text-sm transition-colors ${
-        disabled
-          ? 'cursor-not-allowed border-stone-200/70 bg-stone-100/80 text-stone-400'
-          : 'border-stone-200/80 bg-white text-stone-700 hover:bg-stone-50 hover:text-stone-950'
+      className={`relative flex flex-col items-center gap-1.5 rounded-[14px] px-2 py-2.5 transition-colors active:bg-stone-50 ${
+        disabled ? 'opacity-40' : ''
       }`}
     >
-      <Icon className="h-4 w-4 shrink-0" />
-      <span className="truncate">{label}</span>
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100">
+        <Icon className="h-[18px] w-[18px] text-stone-800" strokeWidth={1.8} />
+      </div>
+      <span className="text-[10px] font-medium text-stone-600">{label}</span>
       {badge ? (
-        <span className="ml-auto rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+        <span className="absolute -right-1 -top-1 rounded-full bg-stone-300 px-1.5 py-px text-[9px] font-semibold text-stone-600">
           {badge}
         </span>
       ) : null}
@@ -301,8 +295,8 @@ function SharedItemCard({ item, compact = false }) {
     <motion.div
       whileHover={{ y: -1 }}
       transition={{ duration: 0.16, ease: 'easeOut' }}
-      className={`overflow-hidden rounded-[24px] border border-white/80 bg-white/95 shadow-[0_12px_30px_rgba(15,23,42,0.08)] ${
-        compact ? 'max-w-[320px]' : ''
+      className={`overflow-hidden rounded-[18px] border border-stone-100 bg-white shadow-[0_2px_8px_rgba(15,23,42,0.06)] ${
+        compact ? 'max-w-[300px]' : ''
       }`}
     >
       {item.image_url ? (
@@ -372,35 +366,30 @@ function ShareItemSheet({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.98 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="flex w-full max-w-lg flex-col overflow-hidden rounded-[30px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(248,247,244,0.98)_100%)] shadow-[0_24px_80px_rgba(15,23,42,0.18)]"
+          className="flex w-full max-w-lg flex-col overflow-hidden rounded-[24px] border border-stone-100 bg-white shadow-[0_8px_40px_rgba(15,23,42,0.12)]"
         >
-          <div className="border-b border-stone-200/70 px-5 py-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="inline-flex rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500">
-                  Compartir
-                </div>
-                <h3 className="mt-3 text-[22px] font-semibold tracking-[-0.03em] text-stone-950">{title}</h3>
-                <p className="mt-1 text-sm text-stone-500">{hint}</p>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
-                aria-label="Cerrar compartir contenido"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+          <div className="flex h-12 shrink-0 items-center justify-between border-b border-stone-100 px-4">
+            <span className="text-[15px] font-semibold text-stone-950">{title}</span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+              aria-label="Cerrar compartir contenido"
+            >
+              <X className="h-4 w-4" strokeWidth={2} />
+            </button>
+          </div>
 
-            <div className="mt-5 flex items-center gap-2">
-              <label className="flex min-w-0 flex-1 items-center rounded-full border border-stone-200 bg-white px-4 py-3">
+          <div className="border-b border-stone-100 px-4 py-3">
+            <p className="mb-3 text-[12px] text-stone-400">{hint}</p>
+            <div className="flex items-center gap-2">
+              <label className="flex min-w-0 flex-1 items-center rounded-full bg-stone-100 px-4 py-2.5">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(event) => onInputChange(event.target.value)}
                   placeholder="https://hispaloshop.com/..."
-                  className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+                  className="w-full bg-transparent text-[13px] text-stone-950 outline-none placeholder:text-stone-400"
                   aria-label="Enlace del contenido a compartir"
                 />
               </label>
@@ -408,21 +397,21 @@ function ShareItemSheet({
                 type="button"
                 onClick={onSubmit}
                 disabled={!inputValue.trim() || isLoading}
-                className="inline-flex h-11 items-center justify-center rounded-full bg-stone-950 px-4 text-sm font-medium text-white transition-colors hover:bg-stone-800 disabled:bg-stone-300"
+                className="inline-flex h-9 items-center justify-center rounded-full bg-stone-950 px-4 text-[13px] font-semibold text-white transition-opacity active:opacity-80 disabled:opacity-30"
               >
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Cargar'}
               </button>
             </div>
           </div>
 
-          <div className="px-5 py-5">
+          <div className="px-4 py-4">
             {preview ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <SharedItemCard item={preview} />
                 <button
                   type="button"
                   onClick={onAttach}
-                  className="inline-flex w-full items-center justify-center rounded-full bg-stone-950 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-stone-950 px-4 py-2.5 text-[13px] font-semibold text-white transition-opacity active:opacity-80"
                 >
                   Adjuntar al mensaje
                 </button>
@@ -430,7 +419,7 @@ function ShareItemSheet({
             ) : (
               <EmptyState
                 title="Carga una vista previa"
-                description="Al pegar un enlace valido de Hispaloshop generaremos una tarjeta compacta dentro del chat."
+                description="Pega un enlace válido de Hispaloshop para generar una tarjeta compacta."
               />
             )}
           </div>
@@ -467,102 +456,92 @@ function DirectorySheet({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.98 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="flex max-h-[86vh] w-full max-w-xl flex-col overflow-hidden rounded-[30px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(248,247,244,0.98)_100%)] shadow-[0_24px_80px_rgba(15,23,42,0.18)]"
+          className="flex max-h-[86vh] w-full max-w-xl flex-col overflow-hidden rounded-[24px] border border-stone-100 bg-white shadow-[0_8px_40px_rgba(15,23,42,0.12)]"
         >
-          <div className="border-b border-stone-200/70 px-5 py-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="inline-flex rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500">
-                  Nuevo mensaje
-                </div>
-                <h3 className="mt-3 text-[22px] font-semibold tracking-[-0.03em] text-stone-950">
-                  Elige a quien escribir
-                </h3>
-                <p className="mt-1 text-sm text-stone-500">
-                  Busca perfiles y empieza una conversación limpia, sin salir del chat.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
-                aria-label="Cerrar nuevo mensaje"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+          {/* Compact header */}
+          <div className="flex h-12 shrink-0 items-center justify-between border-b border-stone-100 px-4">
+            <span className="text-[15px] font-semibold text-stone-950">Nuevo mensaje</span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+              aria-label="Cerrar nuevo mensaje"
+            >
+              <X className="h-4 w-4" strokeWidth={2} />
+            </button>
+          </div>
 
-            <label className="mt-5 flex items-center gap-3 rounded-full border border-stone-200/80 bg-white px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition-colors focus-within:border-stone-400">
-              <Search className="h-4 w-4 text-stone-400" />
+          {/* Search + filters */}
+          <div className="shrink-0 border-b border-stone-100 px-3 py-2.5">
+            <label className="flex items-center gap-2.5 rounded-full bg-stone-100 px-3.5 py-2">
+              <Search className="h-3.5 w-3.5 shrink-0 text-stone-400" strokeWidth={2} />
               <input
                 type="search"
                 value={searchValue}
                 onChange={(event) => onSearchChange(event.target.value)}
                 placeholder="Buscar nombre o rol"
-                className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+                className="w-full bg-transparent text-[13px] text-stone-950 outline-none placeholder:text-stone-400"
                 aria-label="Buscar usuario en directorio"
               />
             </label>
-
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-2.5 flex flex-wrap gap-1.5 px-0.5">
               <FilterChip label="Todos" active={roleFilter === 'all'} onClick={() => onRoleFilterChange('all')} />
-              <FilterChip
-                label="Productores"
-                active={roleFilter === 'producer'}
-                onClick={() => onRoleFilterChange('producer')}
-              />
-              <FilterChip
-                label="Influencers"
-                active={roleFilter === 'influencer'}
-                onClick={() => onRoleFilterChange('influencer')}
-              />
+              <FilterChip label="Productores" active={roleFilter === 'producer'} onClick={() => onRoleFilterChange('producer')} />
+              <FilterChip label="Influencers" active={roleFilter === 'influencer'} onClick={() => onRoleFilterChange('influencer')} />
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="space-y-3">
+              <div className="space-y-px px-4 py-3">
                 {[0, 1, 2, 3].map((value) => (
-                  <div key={value} className="h-16 animate-pulse rounded-[24px] bg-stone-100" />
+                  <div key={value} className="flex items-center gap-3 py-3">
+                    <div className="h-11 w-11 shrink-0 animate-pulse rounded-full bg-stone-100" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-28 animate-pulse rounded-full bg-stone-100" />
+                      <div className="h-2.5 w-16 animate-pulse rounded-full bg-stone-100" />
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : users.length > 0 ? (
-              <div className="space-y-2">
+              <div>
                 {users.map((entry) => (
                   <button
                     key={entry.user_id}
                     type="button"
                     onClick={() => onStartConversation(entry.user_id)}
                     disabled={startingConversation}
-                    className="flex w-full items-center justify-between rounded-[24px] border border-white/80 bg-white/90 px-4 py-3 text-left shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-70"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 hover:bg-stone-50 disabled:cursor-wait disabled:opacity-60"
+                    style={{ minHeight: '64px' }}
                   >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <ChatAvatar
-                        src={entry.avatar}
-                        name={entry.name}
-                        alt={`Avatar de ${entry.name}`}
-                        size="h-11 w-11"
-                      />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-stone-950">{entry.name}</p>
-                        <p className="truncate text-xs text-stone-500">
-                          {getRoleLabel(entry.role) || 'Miembro de la comunidad'}
-                        </p>
-                      </div>
+                    <ChatAvatar
+                      src={entry.avatar}
+                      name={entry.name}
+                      alt={`Avatar de ${entry.name}`}
+                      size="h-11 w-11"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-medium text-stone-950">{entry.name}</p>
+                      <p className="truncate text-[12px] text-stone-400">
+                        {getRoleLabel(entry.role) || 'Miembro de la comunidad'}
+                      </p>
                     </div>
                     {startingConversation ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-stone-400" />
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin text-stone-400" />
                     ) : (
-                      <UserPlus className="h-4 w-4 text-stone-400" />
+                      <UserPlus className="h-4 w-4 shrink-0 text-stone-300" strokeWidth={1.8} />
                     )}
                   </button>
                 ))}
               </div>
             ) : (
-              <EmptyState
-                title="No hay resultados"
-                description="Prueba con otro nombre o cambia el filtro para encontrar a quien quieres escribir."
-              />
+              <div className="py-8">
+                <EmptyState
+                  title="No hay resultados"
+                  description="Prueba con otro nombre o cambia el filtro."
+                />
+              </div>
             )}
           </div>
         </motion.div>
@@ -1227,64 +1206,58 @@ export default function InternalChat({
   const showBackButton = isEmbedded || Boolean(onClose);
 
   return (
-    <div className="relative flex h-full min-h-0 overflow-hidden rounded-[32px] bg-[linear-gradient(180deg,#fcfcfb_0%,#f5f3ef_100%)] text-stone-950">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[-8%] top-[-12%] h-56 w-56 rounded-full bg-amber-100/70 blur-3xl" />
-        <div className="absolute bottom-[-10%] right-[-4%] h-64 w-64 rounded-full bg-stone-200/70 blur-3xl" />
-      </div>
+    <div className="relative flex h-full min-h-0 overflow-hidden rounded-[32px] bg-white text-stone-950">
 
+      {/* ── Inbox sidebar ── */}
       <div
-        className={`relative z-10 flex h-full min-h-0 w-full flex-col border-r border-stone-200/70 bg-white/78 backdrop-blur-xl ${
+        className={`flex h-full min-h-0 w-full flex-col border-r border-stone-100 bg-white ${
           activeConversation ? 'max-md:hidden md:w-[340px]' : ''
         }`}
       >
-        <div className="border-b border-stone-200/70 px-5 py-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="inline-flex rounded-full border border-stone-200 bg-white/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-500 shadow-sm">
-                Inbox
-              </div>
-              <h2 className="mt-3 text-[24px] font-semibold tracking-[-0.03em] text-stone-950">Mensajes</h2>
-              <p className="mt-1 text-sm text-stone-500">Conversaciones directas dentro de Hispaloshop</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsDirectoryOpen(true)}
-                className="inline-flex h-10 items-center gap-2 rounded-full border border-stone-200/80 bg-white/85 px-4 text-sm font-medium text-stone-700 shadow-sm transition-colors hover:bg-white hover:text-stone-950"
-              >
-                <PenSquare className="h-4 w-4" />
-                <span className="hidden md:inline">Nuevo</span>
-              </button>
-              {onClose ? (
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200/80 bg-white/85 text-stone-500 shadow-sm transition-colors hover:bg-stone-100 hover:text-stone-950"
-                  aria-label="Cerrar chat"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              ) : null}
-            </div>
-          </div>
+        {/* ── Header IG-style 48px ── */}
+        <div className="flex h-12 shrink-0 items-center justify-between px-4 border-b border-stone-100">
+          {onClose ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+              aria-label="Cerrar chat"
+            >
+              <X className="h-5 w-5" strokeWidth={2} />
+            </button>
+          ) : (
+            <div className="w-9" />
+          )}
+          <span className="text-[15px] font-semibold tracking-tight text-stone-950">Mensajes</span>
+          <button
+            type="button"
+            onClick={() => setIsDirectoryOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+            aria-label="Nuevo mensaje"
+          >
+            <PenSquare className="h-5 w-5" strokeWidth={1.8} />
+          </button>
+        </div>
 
-          <label className="mt-5 flex items-center gap-3 rounded-full border border-stone-200/80 bg-stone-50/90 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] transition-colors focus-within:border-stone-400 focus-within:bg-white">
-            <Search className="h-4 w-4 text-stone-400" />
+        {/* ── Search bar flat pill ── */}
+        <div className="px-3 py-2 shrink-0">
+          <label className="flex items-center gap-2.5 rounded-full bg-stone-100 px-3.5 py-2">
+            <Search className="h-3.5 w-3.5 shrink-0 text-stone-400" strokeWidth={2} />
             <input
               type="search"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Buscar conversación"
-              className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
+              placeholder="Buscar"
+              className="w-full bg-transparent text-[13px] text-stone-950 outline-none placeholder:text-stone-400"
               aria-label="Buscar conversación"
             />
           </label>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 py-4">
+        {/* ── Conversation list flat rows ── */}
+        <div className="flex-1 overflow-y-auto">
           {filteredConversations.length > 0 ? (
-            <div className="space-y-2">
+            <div>
               {filteredConversations.map((conversation) => {
                 const isActive = conversation.conversation_id === selectedConversationId;
                 const lastMessage =
@@ -1298,127 +1271,142 @@ export default function InternalChat({
                     key={conversation.conversation_id}
                     type="button"
                     onClick={() => loadConversation(conversation.conversation_id)}
-                    className={`relative flex w-full items-center gap-3 rounded-[24px] border px-3 py-3.5 text-left transition-all duration-200 ease-out active:scale-[0.985] ${
-                      isActive
-                        ? 'border-stone-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.08)]'
-                        : 'border-transparent bg-white/50 hover:-translate-y-[1px] hover:border-stone-200/80 hover:bg-white/80'
+                    className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 ${
+                      isActive ? 'bg-stone-50' : 'hover:bg-stone-50'
                     }`}
+                    style={{ minHeight: '72px' }}
                   >
-                    <div className="relative shrink-0">
+                    <div className="shrink-0">
                       <ChatAvatar
                         src={conversation.other_user_avatar}
                         name={conversation.other_user_name}
                         alt={`Avatar de ${conversation.other_user_name}`}
                       />
-                      {unreadCount > 0 ? (
-                        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white shadow-[0_8px_18px_rgba(239,68,68,0.35)]">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      ) : null}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p
-                            className={`truncate text-sm text-stone-950 ${
-                              unreadCount > 0 ? 'font-semibold' : 'font-medium'
-                            }`}
-                          >
-                            {conversation.other_user_name}
-                          </p>
-                          <p className="mt-1 truncate text-sm text-stone-500">{lastMessage}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p
+                          className={`truncate text-[14px] text-stone-950 ${
+                            unreadCount > 0 ? 'font-semibold' : 'font-normal'
+                          }`}
+                        >
+                          {conversation.other_user_name}
+                        </p>
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          <span className={`text-[12px] ${unreadCount > 0 ? 'font-medium text-stone-950' : 'text-stone-400'}`}>
+                            {formatConversationTime(conversation.last_message?.created_at || conversation.updated_at)}
+                          </span>
+                          {unreadCount > 0 ? (
+                            <span className="h-2 w-2 rounded-full bg-stone-950 shrink-0" />
+                          ) : null}
                         </div>
-                        <span className="shrink-0 text-xs text-stone-400">
-                          {formatConversationTime(conversation.last_message?.created_at || conversation.updated_at)}
-                        </span>
                       </div>
+                      <p className={`mt-0.5 truncate text-[13px] ${unreadCount > 0 ? 'font-medium text-stone-800' : 'text-stone-400'}`}>
+                        {lastMessage}
+                      </p>
                     </div>
                   </button>
                 );
               })}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 px-4 py-8">
               <EmptyState
                 title="No tienes conversaciones"
                 description="Empieza un chat nuevo desde el botón superior y mantendrás el inbox mucho más limpio."
               />
-              <div className="px-3">
-                <button
-                  type="button"
-                  onClick={() => setIsDirectoryOpen(true)}
-                  className="flex w-full items-center justify-center gap-2 rounded-[22px] border border-stone-200 bg-white px-4 py-3 text-sm font-medium text-stone-900 shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition-colors hover:bg-stone-50"
-                >
-                  <PenSquare className="h-4 w-4" />
-                  Nuevo mensaje
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsDirectoryOpen(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 px-4 py-2.5 text-[13px] font-semibold text-white transition-opacity active:opacity-80"
+              >
+                <PenSquare className="h-4 w-4" strokeWidth={2} />
+                Nuevo mensaje
+              </button>
             </div>
           )}
         </div>
       </div>
 
-      <div className={`relative z-10 flex min-h-0 flex-1 flex-col ${activeConversation ? '' : 'max-md:hidden'}`}>
+      <div className={`flex min-h-0 flex-1 flex-col ${activeConversation ? '' : 'max-md:hidden'}`}>
         {activeConversation ? (
           <>
-            <div className="border-b border-white/60 bg-white/75 px-5 py-4 backdrop-blur-xl">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex min-w-0 items-center gap-3">
-                  {showBackButton ? (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedConversationId(null)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200/80 bg-white/80 text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-950 md:hidden"
-                      aria-label="Volver a conversaciones"
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                    </button>
-                  ) : null}
-                  <ChatAvatar
-                    src={activeConversation.other_user_avatar}
-                    name={activeConversation.other_user_name}
-                    size="h-10 w-10"
-                    alt={`Avatar de ${activeConversation.other_user_name}`}
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-stone-950">
-                      {activeConversation.other_user_name}
+            {/* ── Conversation header IG-style 48px ── */}
+            <div className="flex h-14 shrink-0 items-center gap-2 border-b border-stone-100 bg-white px-3">
+              {/* Back / close */}
+              {showBackButton ? (
+                <button
+                  type="button"
+                  onClick={() => setSelectedConversationId(null)}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100 md:hidden"
+                  aria-label="Volver a conversaciones"
+                >
+                  <ArrowLeft className="h-5 w-5" strokeWidth={2} />
+                </button>
+              ) : null}
+
+              {/* Avatar + name (centre) */}
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                <ChatAvatar
+                  src={activeConversation.other_user_avatar}
+                  name={activeConversation.other_user_name}
+                  size="h-9 w-9"
+                  alt={`Avatar de ${activeConversation.other_user_name}`}
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-[14px] font-semibold leading-tight text-stone-950">
+                    {activeConversation.other_user_name}
+                  </p>
+                  {typingUserId ? (
+                    <p className="text-[11px] text-stone-400">Escribiendo…</p>
+                  ) : getRoleLabel(activeConversation.other_user_role) ? (
+                    <p className="text-[11px] text-stone-400">
+                      {getRoleLabel(activeConversation.other_user_role)}
                     </p>
-                    {typingUserId ? (
-                      <p className="mt-1 text-[11px] font-medium text-stone-400">Escribiendo ahora</p>
-                    ) : null}
-                    {getRoleLabel(activeConversation.other_user_role) ? (
-                      <span className="mt-1 inline-flex rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 text-[11px] text-stone-500">
-                        {getRoleLabel(activeConversation.other_user_role)}
-                      </span>
-                    ) : null}
-                  </div>
+                  ) : null}
                 </div>
+              </div>
+
+              {/* Action icons */}
+              <div className="flex shrink-0 items-center gap-0.5">
+                <button
+                  type="button"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                  aria-label="Llamada de voz"
+                >
+                  <Phone className="h-[18px] w-[18px]" strokeWidth={1.8} />
+                </button>
+                <button
+                  type="button"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                  aria-label="Videollamada"
+                >
+                  <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
+                </button>
                 {onClose ? (
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200/80 bg-white/80 text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-950"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
                     aria-label="Cerrar chat"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4" strokeWidth={2} />
                   </button>
                 ) : null}
               </div>
             </div>
 
-            <div className="relative flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(245,243,239,0.9)_100%)] px-5 py-5">
-              <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(rgba(120,113,108,0.08)_0.6px,transparent_0.6px)] [background-size:18px_18px]" />
+            <div className="relative flex-1 overflow-y-auto bg-white px-4 py-4">
               {loadingMessages ? (
                 <LoadingConversationSkeleton />
               ) : visibleMessages.length > 0 ? (
-                <div className="relative z-10 space-y-4">
+                <div className="space-y-4">
                   {visibleTimeline.map((item) =>
                     item.type === 'separator' ? (
                       <div key={item.id} className="flex justify-center py-1">
-                        <div className="rounded-full border border-white/80 bg-white/85 px-3 py-1 text-[11px] font-medium text-stone-400 shadow-sm backdrop-blur-sm">
+                        <span className="text-[11px] font-medium text-stone-400">
                           {item.label}
-                        </div>
+                        </span>
                       </div>
                     ) : (
                       <MessageBubble
@@ -1441,149 +1429,180 @@ export default function InternalChat({
               )}
             </div>
 
-            <div className="border-t border-white/70 bg-white/80 px-5 py-4 backdrop-blur-xl">
-              <div className="space-y-3 rounded-[30px] border border-stone-200/80 bg-white/90 p-3 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
-                <AnimatePresence>
-                  {isComposerActionsOpen ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      className="grid grid-cols-2 gap-2 md:grid-cols-5"
-                    >
-                      <ComposerActionButton
-                        icon={Images}
-                        label="Imagen"
-                        onClick={() => fileInputRef.current?.click()}
-                      />
-                      <ComposerActionButton
-                        icon={FileText}
-                        label="Documento"
-                        badge="Soon"
-                        onClick={() => handleComposerActionUnavailable('Documento')}
-                      />
-                      <ComposerActionButton
-                        icon={Package}
-                        label="Producto"
-                        onClick={() => openShareSheet('product')}
-                      />
-                      <ComposerActionButton
-                        icon={Clapperboard}
-                        label="Post o reel"
-                        onClick={() => openShareSheet('post')}
-                      />
-                      <ComposerActionButton
-                        icon={UtensilsCrossed}
-                        label="Receta"
-                        onClick={() => openShareSheet('recipe')}
-                      />
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-
-                <AnimatePresence>
-                  {pendingSharedItem ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      className="rounded-[24px] border border-stone-200 bg-stone-50/80 p-3"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <SharedItemCard item={pendingSharedItem} compact />
-                        <button
-                          type="button"
-                          onClick={clearPendingSharedItem}
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
-                          aria-label="Quitar contenido compartido"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-
-                <AnimatePresence>
-                  {pendingImage ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      className="flex items-center gap-3 rounded-[24px] border border-stone-200 bg-stone-50/80 p-3"
-                    >
-                      <img
-                        src={pendingImage.previewUrl}
-                        alt="Vista previa de la imagen adjunta"
-                        className="h-16 w-16 rounded-2xl object-cover"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-stone-950">{pendingImage.name}</p>
-                        <p className="mt-1 text-xs text-stone-500">
-                          Se enviara junto al mensaje. {pendingImage.sizeLabel}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={clearPendingImage}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-950"
-                        aria-label="Quitar imagen adjunta"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-
-                <div className="flex items-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsComposerActionsOpen((current) => !current)}
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors ${
-                      isComposerActionsOpen
-                        ? 'bg-stone-950 text-white'
-                        : 'bg-stone-100 text-stone-500 hover:bg-stone-200 hover:text-stone-950'
-                    }`}
-                    aria-label="Abrir acciones del mensaje"
+            {/* ── Composer IG-style ── */}
+            <div
+              className="shrink-0 border-t border-stone-100 bg-white px-3 py-2"
+              style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}
+            >
+              {/* Actions grid — slides in above input row */}
+              <AnimatePresence>
+                {isComposerActionsOpen ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ duration: 0.15 }}
+                    className="mb-1 grid grid-cols-5 border-b border-stone-100 pb-1"
                   >
-                    <Paperclip className="h-4 w-4" />
-                  </button>
-                  <label className="flex min-h-[52px] min-w-0 flex-1 items-center rounded-[24px] bg-transparent px-2 py-2">
-                    <input
-                      type="text"
-                      value={composerValue}
-                      onChange={handleComposerChange}
-                      onFocus={() => setIsComposerActionsOpen(false)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' && !event.shiftKey) {
-                          event.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                      placeholder="Escribe un mensaje o adjunta algo..."
-                      className="w-full bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
-                      aria-label="Escribe un mensaje"
+                    <ComposerActionButton
+                      icon={Images}
+                      label="Imagen"
+                      onClick={() => { fileInputRef.current?.click(); setIsComposerActionsOpen(false); }}
                     />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleSendMessage}
-                    disabled={(!composerValue.trim() && !pendingImage && !pendingSharedItem) || sendingMessage || uploadingImage}
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white shadow-[0_10px_24px_rgba(15,23,42,0.2)] transition-all duration-150 ease-out ${
-                      (!composerValue.trim() && !pendingImage && !pendingSharedItem) || sendingMessage || uploadingImage
-                        ? 'bg-stone-300'
-                        : 'bg-stone-950 hover:scale-[1.03] hover:bg-stone-800 active:scale-[0.97]'
-                    }`}
-                    aria-label="Enviar mensaje"
+                    <ComposerActionButton
+                      icon={FileText}
+                      label="Documento"
+                      badge="Soon"
+                      disabled
+                      onClick={() => handleComposerActionUnavailable('Documento')}
+                    />
+                    <ComposerActionButton
+                      icon={Package}
+                      label="Producto"
+                      onClick={() => { openShareSheet('product'); setIsComposerActionsOpen(false); }}
+                    />
+                    <ComposerActionButton
+                      icon={Clapperboard}
+                      label="Post"
+                      onClick={() => { openShareSheet('post'); setIsComposerActionsOpen(false); }}
+                    />
+                    <ComposerActionButton
+                      icon={UtensilsCrossed}
+                      label="Receta"
+                      onClick={() => { openShareSheet('recipe'); setIsComposerActionsOpen(false); }}
+                    />
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {/* Pending shared item preview */}
+              <AnimatePresence>
+                {pendingSharedItem ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    className="mb-2 flex items-start gap-2 rounded-[16px] bg-stone-50 p-2.5"
                   >
-                    {sendingMessage || uploadingImage ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
+                    <div className="min-w-0 flex-1">
+                      <SharedItemCard item={pendingSharedItem} compact />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={clearPendingSharedItem}
+                      className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-600 transition-colors active:bg-stone-300"
+                      aria-label="Quitar contenido compartido"
+                    >
+                      <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    </button>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {/* Pending image preview */}
+              <AnimatePresence>
+                {pendingImage ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    className="mb-2 flex items-center gap-2.5 rounded-[16px] bg-stone-50 p-2.5"
+                  >
+                    <img
+                      src={pendingImage.previewUrl}
+                      alt="Vista previa de la imagen adjunta"
+                      className="h-12 w-12 rounded-[10px] object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-stone-950">{pendingImage.name}</p>
+                      <p className="text-[11px] text-stone-400">{pendingImage.sizeLabel}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={clearPendingImage}
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-600 transition-colors active:bg-stone-300"
+                      aria-label="Quitar imagen adjunta"
+                    >
+                      <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    </button>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
+              {/* Input row */}
+              <div className="flex items-center gap-1.5">
+                {/* ⊕ toggle — rotates 45° to become × */}
+                <motion.button
+                  type="button"
+                  animate={{ rotate: isComposerActionsOpen ? 45 : 0 }}
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                  onClick={() => setIsComposerActionsOpen((c) => !c)}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                  aria-label="Más opciones"
+                >
+                  <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={2.3} strokeLinecap="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </motion.button>
+
+                {/* Pill input */}
+                <label className="flex min-h-[36px] flex-1 items-center rounded-full bg-stone-100 px-4 py-2">
+                  <input
+                    type="text"
+                    value={composerValue}
+                    onChange={handleComposerChange}
+                    onFocus={() => setIsComposerActionsOpen(false)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' && !event.shiftKey) {
+                        event.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    placeholder="Mensaje..."
+                    className="w-full bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
+                    aria-label="Escribe un mensaje"
+                  />
+                </label>
+
+                {/* Right icon: camera (idle) → filled send circle (has content) */}
+                <AnimatePresence mode="wait">
+                  {composerValue.trim() || pendingImage || pendingSharedItem ? (
+                    <motion.button
+                      key="send"
+                      type="button"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ duration: 0.14 }}
+                      onClick={handleSendMessage}
+                      disabled={sendingMessage || uploadingImage}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition-opacity active:opacity-75 disabled:opacity-50"
+                      aria-label="Enviar"
+                    >
+                      {sendingMessage || uploadingImage ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" strokeWidth={2} />
+                      )}
+                    </motion.button>
+                  ) : (
+                    <motion.button
+                      key="camera"
+                      type="button"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ duration: 0.14 }}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                      aria-label="Adjuntar imagen"
+                    >
+                      <Images className="h-[22px] w-[22px]" strokeWidth={1.8} />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
               </div>
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -1595,8 +1614,8 @@ export default function InternalChat({
           </>
         ) : (
           <EmptyState
-            title="Selecciona una conversacion"
-                description="Abre un chat existente o usa el botÃ³n Nuevo para empezar una conversaciÃ³n."
+            title="Selecciona una conversación"
+            description="Abre un chat existente o pulsa ✏ para empezar una conversación nueva."
           />
         )}
       </div>
