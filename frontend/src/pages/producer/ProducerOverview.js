@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import HealthScoreHero from '../../components/dashboard/HealthScoreHero';
 import StatCardMobile from '../../components/dashboard/StatCardMobile';
 import QuickActionsMobile from '../../components/dashboard/QuickActionsMobile';
+import { asNumber } from '../../utils/safe';
 
 // ===== STRIPE CONNECT COMPONENT =====
 function StripeConnectSection() {
@@ -226,7 +227,7 @@ function HealthScoreCard() {
             <div className="text-[10px] text-text-muted uppercase tracking-wider">{t('customerDashboard.orders', 'Pedidos')}</div>
           </div>
           <div className="dashboard-card p-3 text-center">
-            <div className="text-xl font-bold text-text-primary">€{healthData.metrics.revenue_30d.toFixed(0)}</div>
+            <div className="text-xl font-bold text-text-primary">€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
             <div className="text-[10px] text-text-muted uppercase tracking-wider">Ventas</div>
           </div>
           <div className="dashboard-card p-3 text-center">
@@ -681,7 +682,7 @@ export default function ProducerOverview() {
 
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
-          <p className="text-2xl font-bold text-accent">{payments?.total_gross?.toFixed(0) || '0'}€</p>
+          <p className="text-2xl font-bold text-accent">{asNumber(payments?.total_gross).toFixed(0)}€</p>
           <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.totalSales', 'Total sales')}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
@@ -689,7 +690,7 @@ export default function ProducerOverview() {
           <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.pendingShip', 'To ship')}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
-          <p className="text-2xl font-bold text-emerald-600">{payments?.total_net?.toFixed(0) || '0'}€</p>
+          <p className="text-2xl font-bold text-emerald-600">{asNumber(payments?.total_net).toFixed(0)}€</p>
           <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.earned', 'Earned')}</p>
         </div>
       </div>
@@ -790,7 +791,7 @@ export default function ProducerOverview() {
         <StatCardMobile
           icon={CreditCard}
           label={t('producer.totalSold')}
-          value={`€${payments?.total_sold?.toFixed(0) || '0'}`}
+          value={`€${asNumber(payments?.total_sold).toFixed(0)}`}
           linkTo="/producer/payments"
           color="warning"
         />
@@ -799,7 +800,7 @@ export default function ProducerOverview() {
           <StatCardMobile
             icon={CreditCard}
             label={t('producer.yourEarnings')}
-            value={`€${payments?.producer_share?.toFixed(0) || '0'}`}
+            value={`€${asNumber(payments?.producer_share).toFixed(0)}`}
             linkTo="/producer/payments"
             color="success"
           />

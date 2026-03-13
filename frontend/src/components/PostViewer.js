@@ -42,9 +42,10 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
   const commentInputRef = useRef(null);
   const menuRef = useRef(null);
 
-  const currentIdx = posts.findIndex(p => p.post_id === post.post_id);
+  const safePosts = Array.isArray(posts) ? posts : [];
+  const currentIdx = safePosts.findIndex(p => p.post_id === post.post_id);
   const hasPrev = currentIdx > 0;
-  const hasNext = currentIdx < posts.length - 1;
+  const hasNext = currentIdx < safePosts.length - 1;
   const isOwner = currentUser?.user_id === post.user_id;
   const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super_admin';
 
@@ -62,8 +63,8 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
   useEffect(() => {
     const handler = (e) => {
       if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowLeft' && hasPrev) onNavigate(posts[currentIdx - 1]);
-      if (e.key === 'ArrowRight' && hasNext) onNavigate(posts[currentIdx + 1]);
+      if (e.key === 'ArrowLeft' && hasPrev) onNavigate(safePosts[currentIdx - 1]);
+      if (e.key === 'ArrowRight' && hasNext) onNavigate(safePosts[currentIdx + 1]);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);

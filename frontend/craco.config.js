@@ -34,12 +34,18 @@ if (config.enableHealthCheck) {
 
 const webpackConfig = {
   // Disable CRACO's default ESLint merge step to avoid plugin lookup noise in build.
-  eslint: false,
+  eslint: { enable: false },
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
     },
     configure: (webpackConfig) => {
+
+      // Remove ESLintWebpackPlugin to avoid version conflicts with eslint.config.js (flat config)
+      webpackConfig.plugins = webpackConfig.plugins.filter(
+        (plugin) => plugin.constructor.name !== 'ESLintWebpackPlugin'
+      );
+
 
       // Add ignored patterns to reduce watched directories
         webpackConfig.watchOptions = {

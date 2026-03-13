@@ -11,6 +11,7 @@ import {
   useProducerProductMutations,
   useProducerProducts,
 } from '../../features/producer/hooks';
+import { asNumber } from '../../utils/safe';
 
 
 
@@ -1068,7 +1069,7 @@ export default function ProducerProducts() {
                         <p className="font-medium text-text-primary truncate">{product.name}</p>
                         <p className="text-sm text-text-muted">{product.country_origin}</p>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="font-semibold text-text-primary">${product.price?.toFixed(2)}</span>
+                          <span className="font-semibold text-text-primary">${asNumber(product.price).toFixed(2)}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${product.approved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                             {product.approved ? t('producerProducts.table.approved') : t('producerProducts.table.pending')}
                           </span>
@@ -1138,7 +1139,7 @@ export default function ProducerProducts() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-text-primary">${product.price?.toFixed(2)}</p>
+                      <p className="font-medium text-text-primary">${asNumber(product.price).toFixed(2)}</p>
                     </td>
                     <td className="px-6 py-4">
                       <StockEditor 

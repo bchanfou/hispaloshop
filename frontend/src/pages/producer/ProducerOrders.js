@@ -8,6 +8,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { API } from '../../utils/api';
+import { asNumber } from '../../utils/safe';
 
 const statusColors = {
   pending: 'bg-gray-100 text-gray-700',
@@ -433,11 +434,11 @@ export default function ProducerOrders() {
                             <div className="flex-1">
                               <p className="text-sm font-medium text-text-primary">{item.product_name}</p>
                               <p className="text-xs text-text-muted">
-                                {item.quantity} x €{item.price?.toFixed(2)}
+                                {item.quantity} x €{asNumber(item.price).toFixed(2)}
                               </p>
                             </div>
                             <p className="text-sm font-semibold text-text-primary">
-                              €{(item.quantity * item.price).toFixed(2)}
+                              €{(asNumber(item.quantity) * asNumber(item.price)).toFixed(2)}
                             </p>
                           </div>
                         ))}
@@ -490,8 +491,8 @@ export default function ProducerOrders() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-text-muted">{t('orders.orderTotal')}</p>
-                      <p className="text-xl font-bold text-text-primary">€{(order.total_amount || 0).toFixed(2)}</p>
-                      <p className="text-xs text-green-600">{t('orders.yourShare')}: €{((order.total_amount || 0) * 0.82).toFixed(2)}</p>
+                      <p className="text-xl font-bold text-text-primary">€{asNumber(order.total_amount).toFixed(2)}</p>
+                      <p className="text-xs text-green-600">{t('orders.yourShare')}: €{(asNumber(order.total_amount) * 0.82).toFixed(2)}</p>
                     </div>
                   </div>
                 </div>

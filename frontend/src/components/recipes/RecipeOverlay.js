@@ -266,7 +266,7 @@ export default function RecipeOverlay({
                     </div>
                   </section>
 
-                  <ContextualProductSuggestions contentType="recipe" contentId={recipe.recipe_id} />
+                  {recipe?.recipe_id ? <ContextualProductSuggestions contentType="recipe" contentId={recipe.recipe_id} /> : null}
                 </div>
               </div>
             )}
@@ -277,7 +277,7 @@ export default function RecipeOverlay({
       {selectedProduct ? (
         <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />
       ) : null}
-      {showShoppingList ? <RecipeShoppingListOverlay recipeId={recipe.recipe_id} defaultServings={recipeDetail?.servings || 1} onClose={() => setShowShoppingList(false)} /> : null}
+      {showShoppingList && recipe?.recipe_id ? <RecipeShoppingListOverlay recipeId={recipe.recipe_id} defaultServings={recipeDetail?.servings || 1} onClose={() => setShowShoppingList(false)} /> : null}
     </>
   );
 }

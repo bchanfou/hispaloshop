@@ -76,11 +76,11 @@ export default function ProductDetailOverlay({
   }, [onClose]);
 
   const images = useMemo(() => {
-    const gallery = Array.isArray(product.images) ? product.images.filter(Boolean) : [];
+    const gallery = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
     if (gallery.length > 0) return gallery;
-    if (product.image_url) return [product.image_url];
+    if (product?.image_url) return [product.image_url];
     return [];
-  }, [product.image_url, product.images]);
+  }, [product?.image_url, product?.images]);
 
   const relatedCertificates = certificates.filter(
     (certificate) => normalizeEntityId(certificate.product_id) === normalizeEntityId(productId),
@@ -88,7 +88,7 @@ export default function ProductDetailOverlay({
   const relatedReviews = reviews.filter(
     (review) => normalizeEntityId(review.product_id) === normalizeEntityId(productId),
   );
-  const price = convertAndFormatPrice(product.display_price || product.price || 0, product.display_currency || product.currency || 'EUR');
+  const price = convertAndFormatPrice(product?.display_price || product?.price || 0, product?.display_currency || product?.currency || 'EUR');
 
   const handleAddToCart = async () => {
     if (!user) {
