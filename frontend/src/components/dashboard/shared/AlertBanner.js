@@ -5,24 +5,24 @@ import { AlertTriangle, X, AlertCircle, Info } from 'lucide-react';
 const VARIANTS = {
   warning: {
     icon: AlertTriangle,
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    text: 'text-amber-800',
-    iconColor: 'text-amber-600'
+    bg: 'bg-stone-100',
+    border: 'border-stone-200',
+    text: 'text-stone-800',
+    iconColor: 'text-stone-700'
   },
   error: {
     icon: AlertCircle,
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    text: 'text-red-800',
-    iconColor: 'text-red-600'
+    bg: 'bg-stone-950',
+    border: 'border-stone-950',
+    text: 'text-white',
+    iconColor: 'text-stone-300'
   },
   info: {
     icon: Info,
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    text: 'text-blue-800',
-    iconColor: 'text-blue-600'
+    bg: 'bg-stone-50',
+    border: 'border-stone-200',
+    text: 'text-stone-600',
+    iconColor: 'text-stone-500'
   }
 };
 
@@ -52,7 +52,7 @@ function AlertBanner({ type = 'warning', message, actionLabel, onAction, onDismi
       {onDismiss && (
         <button 
           onClick={onDismiss}
-          className="p-1 hover:bg-slate-950/5 rounded-full transition-colors"
+          className="p-1 hover:bg-stone-950/5 rounded-full transition-colors"
         >
           <X className={`w-4 h-4 ${variant.iconColor}`} />
         </button>

@@ -38,10 +38,10 @@ export default function InfluencerLayoutResponsive({ children }) {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-text-muted">Cargando...</p>
+          <div className="w-10 h-10 border-2 border-stone-950 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-stone-500">Cargando...</p>
         </div>
       </div>
     );
@@ -50,12 +50,12 @@ export default function InfluencerLayoutResponsive({ children }) {
   // Access denied
   if (!user || user.role !== 'influencer') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="w-8 h-8 text-purple-500" />
+          <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="w-8 h-8 text-stone-700" />
           </div>
-          <p className="text-text-secondary mb-4">Acceso denegado. Se requiere cuenta de influencer.</p>
+          <p className="text-stone-600 mb-4">Acceso denegado. Se requiere cuenta de influencer.</p>
           <button 
             onClick={() => navigate('/login')} 
             className="text-stone-950 hover:underline font-medium"
@@ -68,12 +68,12 @@ export default function InfluencerLayoutResponsive({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* ===== MOBILE HEADER ===== */}
       <header className="mobile-header md:hidden">
         <button 
           onClick={() => navigate('/')}
-          className="p-2 -ml-2 text-text-muted hover:text-text-primary transition-colors"
+          className="p-2 -ml-2 text-stone-500 hover:text-stone-950 transition-colors"
           data-testid="mobile-back-button"
         >
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
@@ -81,7 +81,7 @@ export default function InfluencerLayoutResponsive({ children }) {
         
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-stone-700" />
-          <h1 className="font-heading text-base font-semibold text-text-primary">
+          <h1 className="text-base font-semibold text-stone-950">
             Influencer
           </h1>
         </div>
@@ -90,13 +90,13 @@ export default function InfluencerLayoutResponsive({ children }) {
       </header>
 
       {/* ===== DESKTOP HEADER (no sidebar for influencer) ===== */}
-      <header className="hidden md:block border-b border-border-default bg-white">
+      <header className="hidden md:block border-b border-stone-200 bg-white">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => navigate('/')}
-                className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm"
+                className="flex items-center gap-2 text-stone-500 hover:text-stone-950 transition-colors text-sm"
                 data-testid="desktop-back-button"
               >
                 <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
@@ -105,7 +105,7 @@ export default function InfluencerLayoutResponsive({ children }) {
               <div className="h-6 w-px bg-border-default" />
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-stone-700" />
-                <span className="font-heading text-lg font-semibold text-text-primary">
+                <span className="text-lg font-semibold text-stone-950">
                   {t('influencer.dashboard', 'Panel Influencer')}
                 </span>
               </div>
@@ -115,7 +115,7 @@ export default function InfluencerLayoutResponsive({ children }) {
               <LanguageSwitcher variant="minimal" />
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 text-sm text-text-muted hover:text-red-600 transition-colors"
+                className="flex items-center gap-2 text-sm text-stone-500 hover:text-stone-700 transition-colors"
                 data-testid="desktop-logout-button"
               >
                 <LogOut className="w-4 h-4" strokeWidth={1.5} />
@@ -167,7 +167,7 @@ export default function InfluencerLayoutResponsive({ children }) {
           </button>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 border-transparent text-red-500 shrink-0"
+            className="flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 border-transparent text-stone-500 shrink-0"
             data-testid="mobile-nav-salir"
           >
             <LogOut className="w-4 h-4" strokeWidth={1.5} />

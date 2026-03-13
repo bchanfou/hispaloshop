@@ -56,7 +56,7 @@ const FileUpload = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-900 mb-2">
+        <label className="block text-sm font-medium text-stone-900 mb-2">
           {label}
         </label>
       )}
@@ -71,16 +71,16 @@ const FileUpload = ({
           handleFiles(e.dataTransfer.files);
         }}
         className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
-          dragOver 
-            ? 'border-accent bg-accent/5' 
-            : 'border-gray-300 hover:border-gray-400'
+          dragOver
+            ? 'border-stone-400 bg-stone-50'
+            : 'border-stone-300 hover:border-stone-400'
         }`}
       >
-        <Upload className="w-8 h-8 mx-auto text-text-muted mb-2" />
-        <p className="text-sm text-gray-900 font-medium">
+        <Upload className="w-8 h-8 mx-auto text-stone-500 mb-2" />
+        <p className="text-sm text-stone-900 font-medium">
           Arrastra archivos aquí o haz clic para seleccionar
         </p>
-        <p className="text-xs text-text-muted mt-1">
+        <p className="text-xs text-stone-500 mt-1">
           Máximo {maxSize}MB • {accept.split(',').join(', ')}
         </p>
         <input
@@ -93,13 +93,13 @@ const FileUpload = ({
         />
       </div>
 
-      {hint && <p className="text-xs text-text-muted mt-2">{hint}</p>}
+      {hint && <p className="text-xs text-stone-500 mt-2">{hint}</p>}
 
       {/* Error messages */}
       {errors.length > 0 && (
         <div className="mt-2 space-y-1">
           {errors.map((error, index) => (
-            <p key={index} className="text-xs text-state-error">{error}</p>
+            <p key={index} className="text-xs text-stone-600">{error}</p>
           ))}
         </div>
       )}
@@ -108,23 +108,23 @@ const FileUpload = ({
       {files.length > 0 && (
         <div className="mt-3 space-y-2">
           {files.map((file) => (
-            <div key={file.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div key={file.id} className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg">
               {file.preview ? (
                 <img src={file.preview} alt="" className="w-10 h-10 rounded object-cover" />
               ) : (
-                <FileText className="w-10 h-10 text-text-muted" />
+                <FileText className="w-10 h-10 text-stone-500" />
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                <p className="text-xs text-text-muted">{file.size}</p>
+                <p className="text-sm font-medium text-stone-900 truncate">{file.name}</p>
+                <p className="text-xs text-stone-500">{file.size}</p>
               </div>
-              <Check className="w-5 h-5 text-state-success" />
+              <Check className="w-5 h-5 text-stone-700" />
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); removeFile(file.id); }}
-                className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                className="p-1 hover:bg-stone-200 rounded-full transition-colors"
               >
-                <X className="w-4 h-4 text-text-muted" />
+                <X className="w-4 h-4 text-stone-500" />
               </button>
             </div>
           ))}

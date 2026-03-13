@@ -32,7 +32,7 @@ function formatPrice(value) {
   }).format(amount);
 }
 
-function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, onShare }) {
+function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, onShare, priority = false }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -162,7 +162,8 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
         <img
           src={reel.thumbnail || reel.videoUrl}
           alt={reel.caption || t('feed.reelThumbnailAlt', 'Vista previa del reel de {{author}}', { author: reelAuthor })}
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         />
 
@@ -270,7 +271,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
               aria-label={liked ? t('feed.unlikePost', 'Quitar me gusta') : t('feed.likePost', 'Me gusta')}
               className="flex flex-col items-center gap-1"
             >
-              <Heart className={`h-7 w-7 ${liked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+              <Heart className={`h-7 w-7 ${liked ? 'fill-white text-white' : 'text-white'}`} />
               <span className="text-xs font-medium text-white">{formatCount(likeCount)}</span>
             </motion.button>
 

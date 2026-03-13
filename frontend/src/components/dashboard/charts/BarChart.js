@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-function BarChart({ data, labels, height = 160, color = '#2D5A3D' }) {
+function BarChart({ data, labels, height = 160, color = '#1c1917' }) {
   const maxValue = Math.max(...data);
   
   return (
@@ -16,7 +16,7 @@ function BarChart({ data, labels, height = 160, color = '#2D5A3D' }) {
                 initial={{ height: 0 }}
                 animate={{ height: `${heightPercent}%` }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
-                className="w-full rounded-t-lg"
+                className="w-full rounded-t-xl"
                 style={{ backgroundColor: color }}
               />
             </div>
@@ -27,7 +27,7 @@ function BarChart({ data, labels, height = 160, color = '#2D5A3D' }) {
       {/* Labels */}
       <div className="flex justify-between mt-2">
         {labels.map((label, index) => (
-          <span key={index} className="text-xs text-text-muted flex-1 text-center">
+          <span key={index} className="text-xs text-stone-500 flex-1 text-center">
             {label}
           </span>
         ))}

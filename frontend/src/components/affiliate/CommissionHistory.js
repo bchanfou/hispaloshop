@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { 
-  DollarSign, 
-  Clock, 
-  CheckCircle, 
+import {
+  DollarSign,
+  Clock,
+  CheckCircle,
   AlertCircle,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
 
 const STATUS_CONFIG = {
-  pending: { label: 'Pendiente', color: 'text-yellow-600', bg: 'bg-yellow-50', icon: Clock },
-  approved: { label: 'Aprobado', color: 'text-blue-600', bg: 'bg-blue-50', icon: CheckCircle },
-  paid: { label: 'Pagado', color: 'text-green-600', bg: 'bg-green-50', icon: DollarSign },
-  disputed: { label: 'Disputado', color: 'text-red-600', bg: 'bg-red-50', icon: AlertCircle }
+  pending: { label: 'Pendiente', color: 'text-stone-600', bg: 'bg-stone-100', icon: Clock },
+  approved: { label: 'Aprobado', color: 'text-stone-700', bg: 'bg-stone-100', icon: CheckCircle },
+  paid: { label: 'Pagado', color: 'text-stone-950', bg: 'bg-stone-100', icon: DollarSign },
+  disputed: { label: 'Disputado', color: 'text-stone-500', bg: 'bg-stone-50', icon: AlertCircle }
 };
 
 export function CommissionHistory() {
@@ -34,7 +32,7 @@ export function CommissionHistory() {
       if (statusFilter !== 'all') {
         params.append('status', statusFilter);
       }
-      
+
       const data = await apiClient.get(`/affiliates/commissions?${params}`);
       return data.data ?? data;
     }
@@ -42,15 +40,15 @@ export function CommissionHistory() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-6">
+      <div className="border border-stone-200 rounded-2xl bg-white">
+        <div className="p-6">
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-16 bg-gray-100 animate-pulse rounded" />
+              <div key={i} className="h-16 bg-stone-100 animate-pulse rounded" />
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
@@ -61,34 +59,35 @@ export function CommissionHistory() {
       {/* Filtros */}
       <div className="flex flex-wrap gap-2">
         {['all', 'pending', 'approved', 'paid'].map((status) => (
-          <Button
+          <button
             key={status}
-            variant={statusFilter === status ? 'default' : 'outline'}
-            size="sm"
             onClick={() => {
               setStatusFilter(status);
               setPage(1);
             }}
+            className={statusFilter === status
+              ? 'px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors text-sm'
+              : 'px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-sm'}
           >
             {status === 'all' ? 'Todos' : STATUS_CONFIG[status]?.label || status}
-          </Button>
+          </button>
         ))}
       </div>
 
       {/* Lista de comisiones */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center justify-between">
+      <div className="border border-stone-200 rounded-2xl bg-white">
+        <div className="px-5 pt-5 pb-2">
+          <div className="text-lg flex items-center justify-between font-semibold">
             <span>Historial de comisiones</span>
-            <span className="text-sm font-normal text-gray-500">
+            <span className="text-sm font-normal text-stone-500">
               {total} total
             </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </div>
+        </div>
+        <div className="px-5 pb-5">
           <div className="space-y-3">
             {commissions.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">
+              <p className="text-center text-stone-500 py-8">
                 No hay comisiones {statusFilter !== 'all' ? 'con este filtro' : ''}
               </p>
             ) : (
@@ -101,31 +100,29 @@ export function CommissionHistory() {
           {/* Paginacion */}
           {pages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t">
-              <Button
-                variant="outline"
-                size="sm"
+              <button
                 onClick={() => setPage(p => p - 1)}
                 disabled={page === 1}
+                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50 flex items-center text-sm"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
-              </Button>
-              
-              <span className="text-sm text-gray-600">
+              </button>
+
+              <span className="text-sm text-stone-600">
                 Página {page} de {pages}
               </span>
-              
-              <Button
-                variant="outline"
-                size="sm"
+
+              <button
                 onClick={() => setPage(p => p + 1)}
                 disabled={page >= pages}
+                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50 flex items-center text-sm"
               >
                 Siguiente <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
+              </button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -135,18 +132,18 @@ function CommissionRow({ commission }) {
   const StatusIcon = status.icon;
 
   return (
-    <div className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 transition">
+    <div className="flex items-center gap-4 p-4 border border-stone-100 rounded-lg hover:bg-stone-50 transition">
       <div className={`p-2 rounded-full ${status.bg}`}>
         <StatusIcon className={`w-5 h-5 ${status.color}`} />
       </div>
-      
+
       <div className="flex-1 min-w-0">
         <p className="font-medium truncate">{commission.product_name}</p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-stone-500">
           Orden {commission.order_number} • {new Date(commission.created_at).toLocaleDateString()}
         </p>
       </div>
-      
+
       <div className="text-right shrink-0">
         <p className="font-bold text-lg">
           €{(commission.commission_cents / 100).toFixed(2)}

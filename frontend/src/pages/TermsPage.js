@@ -16,10 +16,10 @@ export default function TermsPage() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <BackButton />
         <section className="bg-white border border-stone-200 rounded-2xl p-6 md:p-8 mt-3">
-          <h1 className="font-heading text-2xl md:text-3xl font-semibold text-primary mb-4">
+          <h1 className="text-2xl md:text-3xl font-semibold text-stone-950 mb-4">
             Terminos de Servicio
           </h1>
-          <div className="space-y-4 text-sm text-text-secondary leading-relaxed">
+          <div className="space-y-4 text-sm text-stone-600 leading-relaxed">
             <p>
               Al usar Hispaloshop aceptas estas condiciones de uso, incluyendo politicas de compra, venta,
               contenido y pagos.

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import apiClient from '../services/api/client';
 
 const typeIcons = { user: Users, product: Package, order: ShoppingBag };
-const typeColors = { user: 'text-blue-500', product: 'text-emerald-500', order: 'text-purple-500' };
+const typeColors = { user: 'text-stone-500', product: 'text-stone-700', order: 'text-stone-500' };
 
 export default function GlobalSearch() {
   const { t } = useTranslation();
@@ -69,26 +69,26 @@ export default function GlobalSearch() {
         <div className="bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden">
           {/* Search input */}
           <div className="flex items-center gap-3 px-4 border-b border-stone-100">
-            <Search className="w-5 h-5 text-text-muted shrink-0" />
+            <Search className="w-5 h-5 text-stone-500 shrink-0" />
             <input
               ref={inputRef}
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t('search.placeholder', 'Buscar usuarios, productos y pedidos...')}
-              className="flex-1 py-4 text-sm bg-transparent outline-none placeholder:text-text-muted"
+              className="flex-1 py-4 text-sm bg-transparent outline-none placeholder:text-stone-500"
               data-testid="search-input"
             />
-            {loading && <Loader2 className="w-4 h-4 animate-spin text-text-muted" />}
+            {loading && <Loader2 className="w-4 h-4 animate-spin text-stone-500" />}
             <button onClick={() => setOpen(false)} className="p-1 hover:bg-stone-100 rounded">
-              <X className="w-4 h-4 text-text-muted" />
+              <X className="w-4 h-4 text-stone-500" />
             </button>
           </div>
 
           {/* Results */}
           <div className="max-h-[50vh] overflow-y-auto">
             {results.length === 0 && query.length >= 2 && !loading && (
-              <div className="py-8 text-center text-sm text-text-muted">{t('search.noResults', 'No hay resultados para')} "{query}"</div>
+              <div className="py-8 text-center text-sm text-stone-500">{t('search.noResults', 'No hay resultados para')} "{query}"</div>
             )}
             {results.map((r, i) => {
               const Icon = typeIcons[r.type] || Package;
@@ -102,17 +102,17 @@ export default function GlobalSearch() {
                 >
                   <Icon className={`w-4 h-4 ${color} shrink-0`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-text-primary truncate">{r.title}</p>
-                    <p className="text-xs text-text-muted truncate">{r.subtitle}</p>
+                    <p className="text-sm font-medium text-stone-950 truncate">{r.title}</p>
+                    <p className="text-xs text-stone-500 truncate">{r.subtitle}</p>
                   </div>
-                  <span className="text-[10px] text-text-muted uppercase bg-stone-100 px-2 py-0.5 rounded-full shrink-0">{r.type}</span>
+                  <span className="text-[10px] text-stone-500 uppercase bg-stone-100 px-2 py-0.5 rounded-full shrink-0">{r.type}</span>
                 </button>
               );
             })}
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2 border-t border-stone-100 flex items-center justify-between text-[10px] text-text-muted">
+          <div className="px-4 py-2 border-t border-stone-100 flex items-center justify-between text-[10px] text-stone-500">
             <span>Ctrl+K {t('search.toSearch', 'to search')}</span>
             <span>Esc {t('search.toClose', 'to close')}</span>
           </div>

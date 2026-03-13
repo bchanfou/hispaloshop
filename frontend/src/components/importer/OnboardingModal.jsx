@@ -14,9 +14,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Checkbox } from '../ui/checkbox';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
 import { redirectAfterAuth } from '../../lib/navigation';
@@ -126,14 +123,14 @@ function loadStripeJs() {
 }
 
 function fieldClass(hasError, isValid) {
-  if (hasError) return 'border-red-500 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20';
-  if (isValid) return 'border-emerald-500 focus-visible:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-500/20';
-  return 'border-slate-300 focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/20';
+  if (hasError) return 'border-stone-700 focus:outline-none focus:border-stone-950';
+  if (isValid) return 'border-stone-400 focus:outline-none focus:border-stone-950';
+  return 'border-stone-300 focus:outline-none focus:border-stone-950';
 }
 
 function StatusIcon({ valid }) {
   if (!valid) return null;
-  return <CheckCircle2 className="pointer-events-none absolute right-3 top-11 h-4 w-4 text-emerald-500" aria-hidden="true" />;
+  return <CheckCircle2 className="pointer-events-none absolute right-3 top-11 h-4 w-4 text-stone-500" aria-hidden="true" />;
 }
 
 export default function OnboardingModal({ open, onOpenChange, initialPlan = 'free' }) {
@@ -469,7 +466,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
   };
 
   const renderError = (field) => (
-    errors[field] ? <p className="mt-2 text-sm text-red-500" role="alert">{errors[field]}</p> : null
+    errors[field] ? <p className="mt-2 text-sm text-stone-600" role="alert">{errors[field]}</p> : null
   );
 
   const closeModal = () => {
@@ -482,69 +479,69 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
   const renderStepOne = () => (
     <div className="grid gap-5 md:grid-cols-2">
       <div className="relative md:col-span-2">
-        <Label htmlFor="importer-full-name" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Nombre completo</Label>
-        <Input
+        <label htmlFor="importer-full-name" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Nombre completo</label>
+        <input
           id="importer-full-name"
           ref={firstRef}
           value={formData.fullName}
           onChange={(event) => updateField('fullName', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, fullName: true }))}
           placeholder="Tu nombre y apellidos"
-          className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.fullName), touched.fullName && validity.fullName)}`}
+          className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.fullName), touched.fullName && validity.fullName)}`}
         />
         <StatusIcon valid={touched.fullName && validity.fullName} />
         {renderError('fullName')}
       </div>
 
       <div className="relative">
-        <Label htmlFor="importer-email" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Email</Label>
-        <Input
+        <label htmlFor="importer-email" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Email</label>
+        <input
           id="importer-email"
           type="email"
           value={formData.email}
           onChange={(event) => updateField('email', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, email: true }))}
           placeholder="tu@empresa.com"
-          className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.email), touched.email && validity.email)}`}
+          className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.email), touched.email && validity.email)}`}
         />
         <StatusIcon valid={touched.email && validity.email} />
         {renderError('email')}
       </div>
 
       <div className="relative">
-        <Label htmlFor="importer-password" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Contraseña</Label>
-        <Input
+        <label htmlFor="importer-password" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Contraseña</label>
+        <input
           id="importer-password"
           type="password"
           value={formData.password}
           onChange={(event) => updateField('password', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, password: true }))}
           placeholder="Mínimo 6 caracteres"
-          className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
+          className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
         />
         <StatusIcon valid={touched.password && validity.password} />
         {renderError('password')}
       </div>
 
       <div>
-        <Label htmlFor="importer-phone" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Teléfono</Label>
+        <label htmlFor="importer-phone" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Teléfono</label>
         <div className="mt-2 grid gap-3 sm:grid-cols-[140px_1fr]">
           <select
             value={formData.phonePrefix}
             onChange={(event) => updateField('phonePrefix', event.target.value)}
-            className="h-12 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="h-12 rounded-xl border border-stone-300 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
           >
             {PHONE_PREFIXES.map((prefix) => <option key={prefix.value} value={prefix.value}>{prefix.label}</option>)}
           </select>
           <div className="relative">
-            <Input
+            <input
               id="importer-phone"
               inputMode="numeric"
               value={formData.phoneNumber}
               onChange={(event) => updateField('phoneNumber', sanitizePhone(event.target.value))}
               onBlur={() => setTouched((current) => ({ ...current, phoneNumber: true }))}
               placeholder="Número sin espacios"
-              className={`h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`}
+              className={`h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`}
             />
             <StatusIcon valid={touched.phoneNumber && validity.phoneNumber} />
           </div>
@@ -553,13 +550,13 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       </div>
 
       <div>
-        <Label htmlFor="importer-country" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">País donde operarás</Label>
+        <label htmlFor="importer-country" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">País donde operarás</label>
         <select
           id="importer-country"
           value={formData.country}
           onChange={(event) => updateField('country', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, country: true }))}
-          className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-base text-slate-900 focus:outline-none ${fieldClass(Boolean(errors.country), touched.country && validity.country)}`}
+          className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-base text-stone-950 focus:outline-none ${fieldClass(Boolean(errors.country), touched.country && validity.country)}`}
         >
           <option value="">Selecciona tu país principal</option>
           {countryOptions.map((option) => <option key={option.code} value={option.code}>{option.name}</option>)}
@@ -572,7 +569,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
   const renderStepTwo = () => (
     <div className="space-y-8">
       <div>
-        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Ya importas o quieres empezar</p>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Ya importas o quieres empezar</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {['Ya tengo stock', 'Buscando productos'].map((option, index) => (
             <button
@@ -580,7 +577,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               ref={index === 0 ? secondRef : undefined}
               type="button"
               onClick={() => updateField('tradeStage', option)}
-              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.tradeStage === option ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
+              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.tradeStage === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
             >
               {option}
             </button>
@@ -590,7 +587,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       </div>
 
       <div>
-        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Tipo de productos principales</p>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Tipo de productos principales</p>
         <div className="mt-3 flex flex-wrap gap-3">
           {PRODUCT_TYPES.map((type) => {
             const active = formData.productTypes.includes(type);
@@ -599,7 +596,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                 key={type}
                 type="button"
                 onClick={() => toggleProductType(type)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
               >
                 {type}
               </button>
@@ -610,14 +607,14 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       </div>
 
       <div>
-        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Volumen estimado mensual</p>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Volumen estimado mensual</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {VOLUME_OPTIONS.map((option) => (
             <button
               key={option}
               type="button"
               onClick={() => updateField('monthlyVolume', option)}
-              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.monthlyVolume === option ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
+              className={`rounded-2xl border px-4 py-4 text-left text-sm font-semibold transition ${formData.monthlyVolume === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
             >
               {option}
             </button>
@@ -626,19 +623,19 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
         {renderError('monthlyVolume')}
       </div>
 
-      <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+      <div className="rounded-[28px] border border-stone-200 bg-stone-50 p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Empresa constituida</p>
-              <p className="mt-2 text-sm text-slate-600">Lo usamos para facturación y aprobación comercial.</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Empresa constituida</p>
+              <p className="mt-2 text-sm text-stone-600">Lo usamos para facturación y aprobación comercial.</p>
           </div>
-          <div className="inline-flex rounded-full border border-slate-300 bg-white p-1">
+          <div className="inline-flex rounded-full border border-stone-300 bg-white p-1">
             {[{ label: 'Si', value: true }, { label: 'No', value: false }].map((option) => (
               <button
                 key={option.label}
                 type="button"
                 onClick={() => updateField('hasCompany', option.value)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${formData.hasCompany === option.value ? 'bg-slate-900 text-white' : 'text-slate-600'}`}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${formData.hasCompany === option.value ? 'bg-stone-900 text-white' : 'text-stone-600'}`}
               >
                 {option.label}
               </button>
@@ -648,42 +645,42 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
 
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           <div className="relative">
-            <Label htmlFor="importer-company" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Empresa o autonomo</Label>
-            <Input
+          <label htmlFor="importer-company" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Empresa o autonomo</label>
+            <input
               id="importer-company"
               value={formData.companyName}
               onChange={(event) => updateField('companyName', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, companyName: true }))}
               placeholder="Nombre fiscal o comercial"
-              className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.companyName), touched.companyName && validity.companyName)}`}
+              className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.companyName), touched.companyName && validity.companyName)}`}
             />
             <StatusIcon valid={touched.companyName && validity.companyName} />
             {renderError('companyName')}
           </div>
 
           <div className="relative">
-            <Label htmlFor="importer-vat" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">VAT / CIF / NIF</Label>
-            <Input
+          <label htmlFor="importer-vat" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">VAT / CIF / NIF</label>
+            <input
               id="importer-vat"
               value={formData.vatCif}
               onChange={(event) => updateField('vatCif', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, vatCif: true }))}
               placeholder="Identificacion fiscal"
-              className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.vatCif), touched.vatCif && validity.vatCif)}`}
+              className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.vatCif), touched.vatCif && validity.vatCif)}`}
             />
             <StatusIcon valid={touched.vatCif && validity.vatCif} />
             {renderError('vatCif')}
           </div>
 
           <div className="relative md:col-span-2">
-            <Label htmlFor="importer-address" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Dirección fiscal</Label>
-            <Input
+          <label htmlFor="importer-address" className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Dirección fiscal</label>
+            <input
               id="importer-address"
               value={formData.fiscalAddress}
               onChange={(event) => updateField('fiscalAddress', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, fiscalAddress: true }))}
               placeholder="Dirección completa para facturación"
-              className={`mt-2 h-12 rounded-xl bg-white pr-10 text-base ${fieldClass(Boolean(errors.fiscalAddress), touched.fiscalAddress && validity.fiscalAddress)}`}
+              className={`mt-2 h-12 w-full rounded-xl border bg-white pr-10 text-base ${fieldClass(Boolean(errors.fiscalAddress), touched.fiscalAddress && validity.fiscalAddress)}`}
             />
             <StatusIcon valid={touched.fiscalAddress && validity.fiscalAddress} />
             {renderError('fiscalAddress')}
@@ -696,7 +693,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
   const renderStepThree = () => (
     <div className="space-y-8">
       <div>
-        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Elige tu plan</p>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Elige tu plan</p>
         <div className="mt-3 grid gap-3 xl:grid-cols-3">
           {Object.entries(PLAN_META).map(([key, plan]) => (
             <button
@@ -704,87 +701,88 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               ref={key === 'free' ? thirdRef : undefined}
               type="button"
               onClick={() => updateField('plan', key)}
-              className={`rounded-[26px] border px-5 py-5 text-left transition ${selectedPlan === key ? key === 'pro' ? 'border-blue-500 bg-blue-50' : key === 'elite' ? 'border-slate-900 bg-slate-900 text-white' : 'border-amber-500 bg-amber-50' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}`}
+              className={`rounded-[26px] border px-5 py-5 text-left transition ${selectedPlan === key ? key === 'elite' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-950 bg-stone-100' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
             >
               <div className="flex items-center justify-between gap-3">
-                <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${key === 'pro' ? 'bg-blue-100 text-blue-600' : key === 'elite' ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${key === 'elite' ? 'bg-white/10 text-white' : 'bg-stone-100 text-stone-700'}`}>
                   {plan.badge}
                 </span>
                 <span className="text-sm font-semibold">{plan.name}</span>
               </div>
               <p className="mt-4 text-3xl font-extrabold tracking-[-0.03em]">{plan.price}</p>
-              <p className={`mt-3 text-sm leading-7 ${selectedPlan === key && key === 'elite' ? 'text-white/75' : 'text-slate-600'}`}>{plan.summary}</p>
+              <p className={`mt-3 text-sm leading-7 ${selectedPlan === key && key === 'elite' ? 'text-white/75' : 'text-stone-600'}`}>{plan.summary}</p>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
-        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Resumen</p>
+      <div className="rounded-[28px] border border-stone-200 bg-stone-50 p-5">
+        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Resumen</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl bg-white p-4">
-            <p className="text-sm text-slate-500">Plan</p>
-            <p className="mt-2 text-2xl font-extrabold text-slate-900">{activePlan.name}</p>
-            <p className="mt-1 text-sm text-slate-600">{activePlan.price}</p>
+            <p className="text-sm text-stone-500">Plan</p>
+            <p className="mt-2 text-2xl font-extrabold text-stone-900">{activePlan.name}</p>
+            <p className="mt-1 text-sm text-stone-600">{activePlan.price}</p>
           </div>
           <div className="rounded-2xl bg-white p-4">
-            <p className="text-sm text-slate-500">Perfil</p>
-            <p className="mt-2 text-lg font-bold text-slate-900">{formData.companyName || 'Importador en construcción'}</p>
-            <p className="mt-1 text-sm text-slate-600">{formData.country || 'Sin país'}</p>
+            <p className="text-sm text-stone-500">Perfil</p>
+            <p className="mt-2 text-lg font-bold text-stone-900">{formData.companyName || 'Importador en construcción'}</p>
+            <p className="mt-1 text-sm text-stone-600">{formData.country || 'Sin país'}</p>
           </div>
         </div>
       </div>
 
       {selectedPlan === 'free' ? (
-        <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-5">
+        <div className="rounded-[28px] border border-stone-200 bg-stone-50 p-5">
           <div className="flex items-start gap-3">
-            <Checkbox
+            <input
+              type="checkbox"
               id="accept-commission"
               checked={formData.acceptCommission}
-              onCheckedChange={(checked) => updateField('acceptCommission', Boolean(checked))}
-              className="mt-1 h-5 w-5 rounded-md border-amber-300 data-[state=checked]:bg-amber-500 data-[state=checked]:text-gray-900"
+              onChange={(e) => updateField('acceptCommission', e.target.checked)}
+              className="mt-1 h-5 w-5 rounded accent-stone-950 cursor-pointer"
             />
             <div>
-              <Label htmlFor="accept-commission" className="text-sm font-semibold text-amber-950">Acepto comisión del 20% sobre ventas</Label>
-              <p className="mt-2 text-sm leading-7 text-amber-900/80">Empezamos sin cuota fija. Si el mercado responde, luego decides si subes a PRO o ELITE.</p>
+              <label htmlFor="accept-commission" className="text-sm font-semibold text-stone-950">Acepto comisión del 20% sobre ventas</label>
+              <p className="mt-2 text-sm leading-7 text-stone-700">Empezamos sin cuota fija. Si el mercado responde, luego decides si subes a PRO o ELITE.</p>
               {renderError('acceptCommission')}
             </div>
           </div>
         </div>
       ) : (
-        <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_18px_40px_-26px_rgba(15,23,42,0.18)]">
+        <div className="rounded-[28px] border border-stone-200 bg-white p-5 shadow-[0_18px_40px_-26px_rgba(15,23,42,0.18)]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-slate-500">Pago seguro</p>
-              <h4 className="mt-2 text-xl font-extrabold tracking-[-0.02em] text-slate-900">Tarjeta segura inline</h4>
-              <p className="mt-2 text-sm leading-7 text-slate-600">Pago seguro. Cancela cuando quieras. No te sacamos del flujo.</p>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-stone-500">Pago seguro</p>
+              <h4 className="mt-2 text-xl font-extrabold tracking-[-0.02em] text-stone-900">Tarjeta segura inline</h4>
+              <p className="mt-2 text-sm leading-7 text-stone-600">Pago seguro. Cancela cuando quieras. No te sacamos del flujo.</p>
             </div>
-            <div className="rounded-2xl bg-blue-50 p-3 text-blue-600">
+            <div className="rounded-2xl bg-stone-100 p-3 text-stone-600">
               <CreditCard className="h-5 w-5" />
             </div>
           </div>
-          <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-            {stripeLoading ? <div className="flex items-center gap-3 text-sm text-slate-500"><Loader2 className="h-4 w-4 animate-spin" />Preparando Stripe Elements...</div> : null}
+          <div className="mt-5 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
+            {stripeLoading ? <div className="flex items-center gap-3 text-sm text-stone-500"><Loader2 className="h-4 w-4 animate-spin" />Preparando Stripe Elements...</div> : null}
             <div ref={cardMountRef} className={`${stripeLoading ? 'hidden' : 'block'} min-h-[48px]`} />
           </div>
           {renderError('card')}
-          {stripeError && !errors.card ? <p className="mt-3 text-sm text-red-500">{stripeError}</p> : null}
+          {stripeError && !errors.card ? <p className="mt-3 text-sm text-stone-600">{stripeError}</p> : null}
         </div>
       )}
     </div>
   );
 
   const renderSuccess = () => (
-    <motion.div key="success" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }} className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.28)] sm:p-10">
+    <motion.div key="success" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -24 }} className="relative overflow-hidden rounded-[32px] border border-stone-200 bg-white p-8 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.28)] sm:p-10">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {CONFETTI.map((piece) => (
           <motion.span key={piece.id} initial={{ opacity: 0, y: -20, rotate: 0 }} animate={{ opacity: [0, 1, 0], y: [0, 260], rotate: [0, 120, 200] }} transition={{ duration: piece.duration, delay: piece.delay, repeat: Infinity, ease: 'easeInOut' }} style={{ left: piece.left, backgroundColor: piece.color }} className="absolute top-0 h-3 w-3 rounded-full" />
         ))}
       </div>
       <div className="relative z-10 max-w-2xl">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-emerald-500"><CircleCheckBig className="h-9 w-9" /></div>
-                <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-slate-900">Bienvenido a la revolución.</h3>
-        <p className="mt-4 text-lg leading-8 text-slate-600">Revisa tu email para verificar tu cuenta. Ya tienes la infraestructura que a mi me habria ahorrado perder dinero y tiempo.</p>
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 text-stone-500"><CircleCheckBig className="h-9 w-9" /></div>
+                <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.03em] text-stone-900">Bienvenido a la revolución.</h3>
+        <p className="mt-4 text-lg leading-8 text-stone-600">Revisa tu email para verificar tu cuenta. Ya tienes la infraestructura que a mi me habria ahorrado perder dinero y tiempo.</p>
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
           <button
             type="button"
@@ -794,7 +792,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               clearFlow();
               redirectAfterAuth(activeUser, navigate);
             }}
-            className="rounded-2xl bg-slate-900 px-6 py-4 text-sm font-semibold text-white transition hover:bg-slate-950"
+            className="rounded-2xl bg-stone-900 px-6 py-4 text-sm font-semibold text-white transition hover:bg-stone-800"
           >
             Ir a mi Dashboard
           </button>
@@ -805,7 +803,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
               clearFlow();
               navigate('/b2b/marketplace');
             }}
-            className="rounded-2xl border border-slate-300 px-6 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900"
+            className="rounded-2xl border border-stone-300 px-6 py-4 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
           >
             Ver catálogo de productores disponibles
           </button>
@@ -819,29 +817,29 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       <DialogContent className="left-0 top-0 h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 rounded-none border-0 bg-white p-0">
         <DialogTitle className="sr-only">Alta de importador Hispaloshop</DialogTitle>
         <div className="flex h-full flex-col">
-          <div className="border-b border-slate-200 px-4 py-4 sm:px-6 lg:px-10">
+          <div className="border-b border-stone-200 px-4 py-4 sm:px-6 lg:px-10">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Onboarding importador</p>
-                <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-slate-900">{successState ? 'Infraestructura activada' : step === 1 ? 'Quien eres' : step === 2 ? 'Tu negocio' : 'Confirma tu plan'}</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-400">Onboarding importador</p>
+                <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-stone-900">{successState ? 'Infraestructura activada' : step === 1 ? 'Quien eres' : step === 2 ? 'Tu negocio' : 'Confirma tu plan'}</h2>
               </div>
-              <button type="button" onClick={closeModal} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900">Cerrar</button>
+              <button type="button" onClick={closeModal} className="rounded-full border border-stone-200 px-4 py-2 text-sm font-semibold text-stone-600 transition hover:border-stone-300 hover:text-stone-900">Cerrar</button>
             </div>
             <div className="mt-5">
-              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-stone-400">
                 <span>Paso {successState ? 'final' : step} de 3</span>
                 <span>{progress}%</span>
               </div>
-              <div className="mt-3 h-2 rounded-full bg-slate-200">
-                <motion.div initial={false} animate={{ width: `${progress}%` }} transition={{ duration: 0.35, ease: 'easeOut' }} className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-amber-500" />
+              <div className="mt-3 h-2 rounded-full bg-stone-200">
+                <motion.div initial={false} animate={{ width: `${progress}%` }} transition={{ duration: 0.35, ease: 'easeOut' }} className="h-2 rounded-full bg-gradient-to-r from-stone-700 to-stone-950" />
               </div>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-slate-50">
+          <div className="flex-1 overflow-y-auto bg-stone-50">
             <div className="mx-auto flex h-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:flex-row lg:gap-12 lg:px-10 lg:py-10">
-              <aside className="w-full rounded-[28px] bg-slate-900 p-6 text-white lg:max-w-[340px]">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-500">Plan elegido</p>
+              <aside className="w-full rounded-[28px] bg-stone-900 p-6 text-white lg:max-w-[340px]">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-400">Plan elegido</p>
                 <h3 className="mt-4 text-3xl font-extrabold tracking-[-0.03em]">{successState ? 'Listo para salir al mercado' : activePlan.name}</h3>
                   <p className="mt-4 text-sm leading-7 text-white/78">{successState ? 'La cuenta ya está creada y ahora tienes una infraestructura real para vender sin intermediarios.' : activePlan.summary}</p>
                 <div className="mt-8 rounded-[24px] border border-white/10 bg-white/5 p-5">
@@ -850,9 +848,9 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                   <p className="mt-2 text-sm text-white/70">Comisión sobre ventas: {activePlan.commission}</p>
                 </div>
                 <div className="mt-6 space-y-3 text-sm text-white/72">
-                  <div className="flex items-start gap-3"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-emerald-500" /><p>Sin alerts agresivos y con guardado local del progreso.</p></div>
-                  <div className="flex items-start gap-3"><LockKeyhole className="mt-1 h-4 w-4 shrink-0 text-[#3b82f6]" /><p>Tu contraseña no se persiste en localStorage.</p></div>
-                  <div className="flex items-start gap-3"><CreditCard className="mt-1 h-4 w-4 shrink-0 text-amber-500" /><p>PRO y ELITE usan Stripe inline. FREE crea la cuenta al instante.</p></div>
+                  <div className="flex items-start gap-3"><ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>Sin alerts agresivos y con guardado local del progreso.</p></div>
+                  <div className="flex items-start gap-3"><LockKeyhole className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>Tu contraseña no se persiste en localStorage.</p></div>
+                  <div className="flex items-start gap-3"><CreditCard className="mt-1 h-4 w-4 shrink-0 text-stone-400" /><p>PRO y ELITE usan Stripe inline. FREE crea la cuenta al instante.</p></div>
                 </div>
               </aside>
 
@@ -861,23 +859,23 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
                   {successState ? (
                     renderSuccess()
                   ) : (
-                    <motion.div key={`step-${step}`} initial={{ opacity: 0, x: 28 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -28 }} transition={{ duration: 0.28, ease: 'easeOut' }} className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.24)] sm:p-8">
-                      {paymentNotice ? <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{paymentNotice}</div> : null}
+                    <motion.div key={`step-${step}`} initial={{ opacity: 0, x: 28 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -28 }} transition={{ duration: 0.28, ease: 'easeOut' }} className="rounded-[32px] border border-stone-200 bg-white p-6 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.24)] sm:p-8">
+                      {paymentNotice ? <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">{paymentNotice}</div> : null}
                       {step === 1 ? renderStepOne() : null}
                       {step === 2 ? renderStepTwo() : null}
                       {step === 3 ? renderStepThree() : null}
 
-                      <div className="mt-10 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="text-sm text-slate-500">{step === 1 ? 'Te pedimos solo lo necesario para no empezar con fricción.' : step === 2 ? 'Esto nos permite darte de alta como importador real.' : 'Configurando tu infraestructura comercial.'}</div>
+                      <div className="mt-10 flex flex-col gap-3 border-t border-stone-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="text-sm text-stone-500">{step === 1 ? 'Te pedimos solo lo necesario para no empezar con fricción.' : step === 2 ? 'Esto nos permite darte de alta como importador real.' : 'Configurando tu infraestructura comercial.'}</div>
                         <div className="flex flex-col gap-3 sm:flex-row">
-                          {step > 1 ? <button type="button" onClick={() => setStep((current) => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900"><ArrowLeft className="h-4 w-4" />Atrás</button> : null}
+                          {step > 1 ? <button type="button" onClick={() => setStep((current) => Math.max(current - 1, 1))} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"><ArrowLeft className="h-4 w-4" />Atrás</button> : null}
                           {step < 3 ? (
-                            <button type="button" onClick={proceed} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-950">
+                            <button type="button" onClick={proceed} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800">
                               Continuar
                               <ArrowRight className="h-4 w-4" />
                             </button>
                           ) : (
-                            <button type="button" onClick={submitFlow} disabled={submitting} className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-amber-500 px-6 py-3 text-sm font-semibold text-[#1a1a1a] transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-70">
+                            <button type="button" onClick={submitFlow} disabled={submitting} className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70">
                               {submitting ? <><Loader2 className="h-4 w-4 animate-spin" />Configurando tu infraestructura...</> : selectedPlan === 'free' ? 'Crear mi cuenta GRATIS' : <><Sparkles className="h-4 w-4" />Completar suscripción y crear cuenta</>}
                             </button>
                           )}

@@ -17,10 +17,10 @@ export default function RolePills() {
             <Link
               key={pill.id}
               to={pill.to}
-              className="group inline-flex min-h-[40px] items-center justify-center rounded-full border border-stone-200/80 bg-white/70 px-4 py-2 text-sm font-medium text-stone-600 transition-colors duration-200 hover:bg-white hover:text-primary"
+              className="group inline-flex min-h-[40px] items-center justify-center rounded-full border border-stone-200/80 bg-white/70 px-4 py-2 text-sm font-medium text-stone-600 transition-colors duration-200 hover:bg-white hover:text-stone-950"
               data-testid={`role-pill-${pill.id}`}
             >
-              <span className="border-b border-transparent pb-0.5 transition-colors duration-200 group-hover:border-primary/35">
+              <span className="border-b border-transparent pb-0.5 transition-colors duration-200 group-hover:border-stone-400">
                 {pill.label}
               </span>
             </Link>

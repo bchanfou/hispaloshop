@@ -24,9 +24,9 @@ export const ROLE_OPTIONS = [
     previewIcon: Sprout,
     previewTitle: 'Compra con contexto, no a ciegas',
     previewCopy: 'Empieza por productores cercanos y guarda tu zona para ver una home cada vez más afín.',
-    cardClassName: 'bg-gradient-to-br from-emerald-50 via-stone-50 to-white border-emerald-100',
-    iconColor: 'text-emerald-700',
-    previewColor: 'bg-emerald-50',
+    cardClassName: 'bg-stone-50 border-stone-200',
+    iconColor: 'text-stone-950',
+    previewColor: 'bg-stone-100',
     seoTitle: 'Comprar producto local y auténtico',
     seoDescription: 'Descubre productos artesanales de tu zona y delicatessen importadas con trazabilidad real y pago seguro.',
     canonical: 'https://www.hispaloshop.com/products',
@@ -43,9 +43,9 @@ export const ROLE_OPTIONS = [
     previewTitle: 'Contenido que convierte sin sonar a anuncio',
     previewCopy: 'María ganó EUR 340 el mes pasado recomendando productos reales a una audiencia pequeña pero fiel.',
     socialProof: 'Maria gano EUR 340 el mes pasado',
-    cardClassName: 'bg-gradient-to-br from-fuchsia-50 via-violet-50 to-white border-violet-100',
-    iconColor: 'text-violet-700',
-    previewColor: 'bg-violet-50',
+    cardClassName: 'bg-stone-50 border-stone-200',
+    iconColor: 'text-stone-950',
+    previewColor: 'bg-stone-100',
     seoTitle: 'Programa para influencers de producto real',
     seoDescription: 'Monetiza recomendaciones honestas y gana comisiones verificables con el programa de influencers de Hispaloshop.',
     canonical: 'https://www.hispaloshop.com/influencers',
@@ -63,9 +63,9 @@ export const ROLE_OPTIONS = [
     previewCopy: 'Sube tu catálogo, define envío y empieza a recibir pedidos sin ceder el margen al intermediario.',
     badge: 'Más solicitado',
     socialProof: 'Setup en 8 minutos, primera venta esta semana',
-    cardClassName: 'bg-gradient-to-br from-orange-100 via-amber-50 to-white border-orange-200',
-    iconColor: 'text-orange-700',
-    previewColor: 'bg-orange-50',
+    cardClassName: 'bg-stone-50 border-stone-200',
+    iconColor: 'text-stone-950',
+    previewColor: 'bg-stone-100',
     seoTitle: 'Vender como productor sin intermediarios',
     seoDescription: 'Vende producto artesanal con más margen, trazabilidad y control total sobre precio y envío.',
     canonical: 'https://www.hispaloshop.com/productor',
@@ -81,9 +81,9 @@ export const ROLE_OPTIONS = [
     previewIcon: PackageCheck,
     previewTitle: 'Importa con una narrativa de confianza',
     previewCopy: 'Activa certificados digitales, ficha completa y un escaparate listo para vender producto ya presente en el país.',
-    cardClassName: 'bg-gradient-to-br from-sky-50 via-cyan-50 to-white border-sky-100',
-    iconColor: 'text-sky-700',
-    previewColor: 'bg-sky-50',
+    cardClassName: 'bg-stone-50 border-stone-200',
+    iconColor: 'text-stone-950',
+    previewColor: 'bg-stone-100',
     seoTitle: 'Marketplace para importadores con trazabilidad',
     seoDescription: 'Gestiona tu catálogo importado con pago seguro, certificados digitales y trazabilidad completa.',
     canonical: 'https://www.hispaloshop.com/importador',
@@ -101,8 +101,8 @@ export default function RoleSelector({
       <div className="mx-auto max-w-5xl px-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-text-muted">Elige tu rol</p>
-            <h2 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-primary">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">Elige tu rol</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-stone-950">
           Entra por el camino que más te conviene hoy
             </h2>
           </div>
@@ -131,10 +131,10 @@ export default function RoleSelector({
             transition={{ duration: 0.24, ease: 'easeOut' }}
             className="mt-4 rounded-[1.5rem] border border-stone-200 bg-white/85 p-4 shadow-sm"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-muted">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
               Preferencia activa
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#3D3934]">
+            <p className="mt-2 text-sm leading-6 text-stone-800">
                   {activeRole.id === 'buyer' && 'Te mostraremos primero producto auténtico y cercanía.'}
               {activeRole.id === 'influencer' && 'Priorizaremos oportunidades para monetizar recomendaciones reales.'}
                   {activeRole.id === 'producer' && 'Priorizaremos herramientas para vender con más margen y control.'}

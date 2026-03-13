@@ -20,7 +20,7 @@ export default function MobileBottomNav({ items, className = '' }) {
           <item.icon className="w-5 h-5" strokeWidth={1.5} />
           <span>{item.shortLabel || item.label}</span>
           {item.badge > 0 && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent-alert text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-stone-950 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {item.badge > 9 ? '9+' : item.badge}
             </span>
           )}

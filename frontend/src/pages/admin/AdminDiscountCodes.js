@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import {
@@ -77,7 +75,7 @@ export default function AdminDiscountCodes() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const payload = {
       code: formData.code.toUpperCase(),
       type: formData.type,
@@ -107,7 +105,7 @@ export default function AdminDiscountCodes() {
 
   const handleDelete = async (codeId) => {
     if (!window.confirm('Are you sure you want to delete this discount code?')) return;
-    
+
     try {
       await apiClient.delete(`/admin/discount-codes/${codeId}`);
       toast.success('Discount code deleted');
@@ -190,7 +188,7 @@ export default function AdminDiscountCodes() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
       </div>
     );
   }
@@ -200,59 +198,59 @@ export default function AdminDiscountCodes() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-semibold text-primary">Códigos de Descuento</h1>
-          <p className="text-text-muted text-sm mt-1">Gestiona códigos promocionales e influencers</p>
+          <h1 className="text-2xl font-semibold text-stone-950">Códigos de Descuento</h1>
+          <p className="text-stone-500 text-sm mt-1">Gestiona códigos promocionales e influencers</p>
         </div>
-        <Button
+        <button
+          type="button"
           onClick={() => setShowCreateForm(true)}
-          className="bg-primary hover:bg-primary-hover text-white"
+          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
           data-testid="create-discount-btn"
         >
           <Plus className="w-4 h-4 mr-2" />
           Nuevo código
-        </Button>
+        </button>
       </div>
 
       {/* Pending influencer codes */}
       {pendingInfluencerCodes.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+        <div className="bg-stone-50 border border-stone-200 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-5 h-5 text-amber-600" />
-            <h2 className="font-semibold text-amber-800">
+            <Clock className="w-5 h-5 text-stone-700" />
+            <h2 className="font-semibold text-stone-950">
               Códigos de influencer pendientes de aprobación ({pendingInfluencerCodes.length})
             </h2>
           </div>
           <div className="space-y-3">
             {pendingInfluencerCodes.map((code) => (
-              <div key={code.code_id} className="bg-white rounded-lg border border-amber-200 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div key={code.code_id} className="bg-white rounded-xl border border-stone-200 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-9 h-9 rounded-full bg-fuchsia-100 flex items-center justify-center shrink-0">
-                    <Sparkles className="w-4 h-4 text-fuchsia-600" />
+                  <div className="w-9 h-9 rounded-full bg-stone-100 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-4 h-4 text-stone-700" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-primary text-lg tracking-wide">{code.code}</p>
-                    <p className="text-sm text-text-muted truncate">
+                    <p className="font-bold text-stone-950 text-lg tracking-wide">{code.code}</p>
+                    <p className="text-sm text-stone-500 truncate">
                       {code.influencer_name || 'Influencer'}{code.influencer_handle ? ` · ${code.influencer_handle}` : ''} · 10% descuento · uso ilimitado
                     </p>
-                    <p className="text-xs text-text-muted">Solicitado: {new Date(code.created_at).toLocaleDateString('es-ES')}</p>
+                    <p className="text-xs text-stone-500">Solicitado: {new Date(code.created_at).toLocaleDateString('es-ES')}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white rounded-full px-4"
+                  <button
+                    type="button"
+                    className="flex items-center px-4 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-full transition-colors"
                     onClick={() => handleApproveInfluencerCode(code.code_id, code.code)}
                   >
                     <Check className="w-4 h-4 mr-1" /> Aprobar
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-red-300 text-red-600 hover:bg-red-50 rounded-full px-4"
+                  </button>
+                  <button
+                    type="button"
+                    className="flex items-center px-4 py-1.5 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-full transition-colors"
                     onClick={() => handleRejectInfluencerCode(code.code_id, code.code)}
                   >
                     <X className="w-4 h-4 mr-1" /> Rechazar
-                  </Button>
+                  </button>
                 </div>
               </div>
             ))}
@@ -262,36 +260,36 @@ export default function AdminDiscountCodes() {
 
       {/* Create/Edit Form */}
       {showCreateForm && (
-        <div className="bg-white border border-stone-300 rounded-lg p-6" data-testid="discount-form">
-          <h2 className="font-heading text-lg font-medium text-primary mb-4">
+        <div className="bg-white border border-stone-200 rounded-xl p-6" data-testid="discount-form">
+          <h2 className="text-lg font-semibold text-stone-950 mb-4">
             {editingCode ? 'Edit Discount Code' : 'Create New Discount Code'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Code */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
-                  Code <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-stone-600 mb-1">
+                  Code <span className="text-stone-500">*</span>
                 </label>
-                <Input
+                <input
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                   placeholder="e.g., SAVE20"
                   required
-                  className="uppercase"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 uppercase placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                   data-testid="discount-code-input"
                 />
               </div>
 
               {/* Type */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
-                  Type <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-stone-600 mb-1">
+                  Type <span className="text-stone-500">*</span>
                 </label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full border border-stone-300 rounded-md px-3 py-2 text-sm"
+                  className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-type-select"
                 >
                   <option value="percentage">{t('admin.percentageOff')}</option>
@@ -303,14 +301,14 @@ export default function AdminDiscountCodes() {
               {/* Value */}
               {formData.type !== 'free_shipping' && (
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1">
-                    Value <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-stone-600 mb-1">
+                    Value <span className="text-stone-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500">
                       {formData.type === 'percentage' ? '%' : '$'}
                     </span>
-                    <Input
+                    <input
                       type="number"
                       step={formData.type === 'percentage' ? '1' : '0.01'}
                       min="0"
@@ -319,7 +317,7 @@ export default function AdminDiscountCodes() {
                       onChange={(e) => setFormData({ ...formData, value: e.target.value })}
                       placeholder={formData.type === 'percentage' ? '10' : '5.00'}
                       required={formData.type !== 'free_shipping'}
-                      className="pl-8"
+                      className="w-full pl-8 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                       data-testid="discount-value-input"
                     />
                   </div>
@@ -328,19 +326,19 @@ export default function AdminDiscountCodes() {
 
               {/* Minimum Cart Amount */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
+                <label className="block text-sm font-medium text-stone-600 mb-1">
                   Minimum Cart Amount
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">$</span>
-                  <Input
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500">$</span>
+                  <input
                     type="number"
                     step="0.01"
                     min="0"
                     value={formData.min_cart_amount}
                     onChange={(e) => setFormData({ ...formData, min_cart_amount: e.target.value })}
                     placeholder="0.00"
-                    className="pl-8"
+                    className="w-full pl-8 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                     data-testid="discount-min-amount-input"
                   />
                 </div>
@@ -348,41 +346,44 @@ export default function AdminDiscountCodes() {
 
               {/* Usage Limit */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
+                <label className="block text-sm font-medium text-stone-600 mb-1">
                   Usage Limit
                 </label>
-                <Input
+                <input
                   type="number"
                   min="1"
                   value={formData.usage_limit}
                   onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
                   placeholder="Unlimited"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-usage-limit-input"
                 />
               </div>
 
               {/* Start Date */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
+                <label className="block text-sm font-medium text-stone-600 mb-1">
                   Start Date
                 </label>
-                <Input
+                <input
                   type="datetime-local"
                   value={formData.start_date}
                   onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-start-date-input"
                 />
               </div>
 
               {/* End Date */}
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
+                <label className="block text-sm font-medium text-stone-600 mb-1">
                   End Date
                 </label>
-                <Input
+                <input
                   type="datetime-local"
                   value={formData.end_date}
                   onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                   data-testid="discount-end-date-input"
                 />
               </div>
@@ -394,10 +395,10 @@ export default function AdminDiscountCodes() {
                   id="active"
                   checked={formData.active}
                   onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  className="w-4 h-4 rounded border-stone-300"
+                  className="w-4 h-4 rounded border-stone-200 accent-stone-950"
                   data-testid="discount-active-checkbox"
                 />
-                <label htmlFor="active" className="text-sm text-text-secondary">
+                <label htmlFor="active" className="text-sm text-stone-600">
                   Active
                 </label>
               </div>
@@ -405,12 +406,12 @@ export default function AdminDiscountCodes() {
 
             {/* Form Actions */}
             <div className="flex gap-3 pt-4 border-t border-stone-200">
-              <Button type="submit" className="bg-primary hover:bg-primary-hover text-white" data-testid="save-discount-btn">
+              <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors" data-testid="save-discount-btn">
                 {editingCode ? 'Update Code' : 'Create Code'}
-              </Button>
-              <Button type="button" variant="outline" onClick={resetForm} data-testid="cancel-discount-btn">
+              </button>
+              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors" data-testid="cancel-discount-btn">
                 Cancel
-              </Button>
+              </button>
             </div>
           </form>
         </div>
@@ -418,33 +419,33 @@ export default function AdminDiscountCodes() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-        <Input
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+        <input
           placeholder="Search discount codes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
+          className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
           data-testid="search-discount-input"
         />
       </div>
 
       {/* Discount Codes List */}
-      <div className="bg-white border border-stone-300 rounded-lg overflow-hidden">
+      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
         <table className="w-full">
-          <thead className="bg-stone-50 border-b border-stone-300">
+          <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Code</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Type</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Value</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Usage</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Status</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Actions</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Code</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Type</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Value</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Usage</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Status</th>
+              <th className="text-right px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200">
             {filteredCodes.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-6 py-12 text-center text-text-muted">
+                <td colSpan="6" className="px-6 py-12 text-center text-stone-500">
                   {searchTerm ? 'No discount codes found' : 'No discount codes yet. Create one to get started.'}
                 </td>
               </tr>
@@ -453,21 +454,21 @@ export default function AdminDiscountCodes() {
                 <tr key={code.code_id} className="hover:bg-stone-50" data-testid={`discount-row-${code.code_id}`}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-text-muted" />
-                      <span className="font-mono font-medium text-primary">{code.code}</span>
+                      <Tag className="w-4 h-4 text-stone-500" />
+                      <span className="font-mono font-medium text-stone-950">{code.code}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-text-secondary">
+                    <div className="flex items-center gap-2 text-stone-600">
                       {getTypeIcon(code.type)}
                       <span className="text-sm">{getTypeLabel(code.type)}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-medium text-primary">{formatValue(code)}</span>
+                    <span className="font-medium text-stone-950">{formatValue(code)}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-1 text-sm text-text-secondary">
+                    <div className="flex items-center gap-1 text-sm text-stone-600">
                       <Users className="w-4 h-4" />
                       <span>
                         {code.usage_count || 0}
@@ -480,8 +481,8 @@ export default function AdminDiscountCodes() {
                       onClick={() => handleToggleActive(code)}
                       className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
                         code.active
-                          ? 'bg-green-50 text-green-700 border border-green-200'
-                          : 'bg-stone-100 text-stone-500 border border-stone-200'
+                          ? 'bg-stone-950 text-white'
+                          : 'border border-stone-200 text-stone-400 bg-white'
                       }`}
                       data-testid={`toggle-status-${code.code_id}`}
                     >
@@ -499,15 +500,17 @@ export default function AdminDiscountCodes() {
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button
+                        type="button"
                         onClick={() => startEdit(code)}
-                        className="p-2 text-text-muted hover:text-primary hover:bg-stone-50 rounded"
+                        className="p-2 text-stone-500 hover:text-stone-950 hover:bg-stone-50 rounded-xl transition-colors"
                         data-testid={`edit-discount-${code.code_id}`}
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleDelete(code.code_id)}
-                        className="p-2 text-text-muted hover:text-red-500 hover:bg-red-50 rounded"
+                        className="p-2 text-stone-500 hover:text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
                         data-testid={`delete-discount-${code.code_id}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -524,40 +527,40 @@ export default function AdminDiscountCodes() {
       {/* Summary Stats */}
       {discountCodes.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white border border-stone-300 rounded-lg p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-50 rounded-lg">
-                <Check className="w-5 h-5 text-green-600" />
+              <div className="p-2 bg-stone-100 rounded-xl">
+                <Check className="w-5 h-5 text-stone-700" />
               </div>
               <div>
-                <p className="text-xs text-text-muted uppercase tracking-wider">Active Codes</p>
-                <p className="font-heading text-xl font-semibold text-primary">
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Active Codes</p>
+                <p className="text-xl font-semibold text-stone-950">
                   {discountCodes.filter(c => c.active).length}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-white border border-stone-300 rounded-lg p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <Users className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-stone-100 rounded-xl">
+                <Users className="w-5 h-5 text-stone-700" />
               </div>
               <div>
-                <p className="text-xs text-text-muted uppercase tracking-wider">Total Uses</p>
-                <p className="font-heading text-xl font-semibold text-primary">
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Total Uses</p>
+                <p className="text-xl font-semibold text-stone-950">
                   {discountCodes.reduce((sum, c) => sum + (c.usage_count || 0), 0)}
                 </p>
               </div>
             </div>
           </div>
-          <div className="bg-white border border-stone-300 rounded-lg p-4">
+          <div className="bg-white border border-stone-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-50 rounded-lg">
-                <Tag className="w-5 h-5 text-purple-600" />
+              <div className="p-2 bg-stone-100 rounded-xl">
+                <Tag className="w-5 h-5 text-stone-700" />
               </div>
               <div>
-                <p className="text-xs text-text-muted uppercase tracking-wider">Total Codes</p>
-                <p className="font-heading text-xl font-semibold text-primary">
+                <p className="text-xs text-stone-500 uppercase tracking-wider">Total Codes</p>
+                <p className="text-xl font-semibold text-stone-950">
                   {discountCodes.length}
                 </p>
               </div>

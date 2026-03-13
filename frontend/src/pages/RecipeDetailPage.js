@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
-import { Button } from '../components/ui/button';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
 import ContextualProductSuggestions from '../components/intelligence/ContextualProductSuggestions';
@@ -156,13 +155,14 @@ export default function RecipeDetailPage() {
                 <p className="mt-5 text-sm leading-relaxed text-stone-700">{recipe.description}</p>
               ) : null}
 
-              <Button
+              <button
+                type="button"
                 onClick={handleAddAllToCart}
-                className="mt-6 h-11 rounded-full bg-stone-950 px-5 text-white hover:bg-stone-800"
+                className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-stone-950 px-5 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800"
               >
                 <ShoppingCart className="h-4 w-4" />
                 {t('recipes.buyAll', 'Comprar ingredientes')}
-              </Button>
+              </button>
             </div>
           </section>
 

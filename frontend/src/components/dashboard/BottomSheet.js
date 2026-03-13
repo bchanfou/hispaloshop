@@ -87,11 +87,11 @@ export default function BottomSheet({
         {showHandle && <div className="bottom-sheet-handle" aria-hidden="true" />}
 
         {title && (
-          <div className="flex items-center justify-between px-4 pb-4 border-b border-border-default">
-            <h2 id="bottom-sheet-title" className="font-heading text-lg font-semibold text-text-primary">{title}</h2>
+          <div className="flex items-center justify-between px-4 pb-4 border-b border-stone-200">
+            <h2 id="bottom-sheet-title" className="text-lg font-semibold text-stone-950">{title}</h2>
             <button
               onClick={onClose}
-              className="p-2 -mr-2 text-text-muted hover:text-text-primary transition-colors"
+              className="p-2 -mr-2 text-stone-500 hover:text-stone-950 transition-colors"
               aria-label="Cerrar"
               data-testid="bottom-sheet-close"
             >

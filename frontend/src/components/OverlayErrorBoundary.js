@@ -50,8 +50,8 @@ export default class OverlayErrorBoundary extends React.Component {
           >
             <X className="h-4 w-4" />
           </button>
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
-            <AlertCircle className="h-7 w-7 text-red-500" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-50">
+            <AlertCircle className="h-7 w-7 text-stone-600" />
           </div>
           <div>
             <p className="text-base font-semibold text-stone-950">Algo salió mal</p>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/api/client';
-import { Input } from '../../components/ui/input';
 import { Search, ShoppingBag, DollarSign, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { asLowerText, asNumber } from '../../utils/safe';
@@ -42,41 +41,41 @@ export default function AdminOrders() {
   );
 
   const statusColors = {
-    pending: 'bg-amber-100 text-amber-800',
-    processing: 'bg-blue-100 text-blue-800',
-    completed: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800',
-    shipped: 'bg-purple-100 text-purple-800'
+    pending: 'bg-stone-200 text-stone-700',
+    processing: 'bg-stone-200 text-stone-700',
+    completed: 'bg-stone-950 text-white',
+    cancelled: 'border border-stone-200 text-stone-400 bg-white',
+    shipped: 'bg-stone-200 text-stone-700'
   };
 
   return (
     <div>
-      <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
+      <h1 className="text-3xl font-bold text-stone-950 mb-2">
         {t('adminOrders.title')}
       </h1>
-      <p className="text-text-muted mb-6">{t('adminOrders.subtitle')}</p>
+      <p className="text-stone-500 mb-6">{t('adminOrders.subtitle')}</p>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <ShoppingBag className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-stone-100 rounded-xl">
+              <ShoppingBag className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <p className="text-sm text-text-muted">{t('adminOrders.summary.totalOrders')}</p>
-              <p className="text-2xl font-bold text-text-primary">{orders.length}</p>
+              <p className="text-sm text-stone-500">{t('adminOrders.summary.totalOrders')}</p>
+              <p className="text-2xl font-bold text-stone-950">{orders.length}</p>
             </div>
           </div>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <DollarSign className="w-5 h-5 text-green-600" />
+            <div className="p-2 bg-stone-100 rounded-xl">
+              <DollarSign className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <p className="text-sm text-text-muted">{t('adminOrders.summary.totalRevenue')}</p>
-              <p className="text-2xl font-bold text-text-primary">
+              <p className="text-sm text-stone-500">{t('adminOrders.summary.totalRevenue')}</p>
+              <p className="text-2xl font-bold text-stone-950">
                 {asNumber(payments.summary?.total_amount).toFixed(2)}€
               </p>
             </div>
@@ -84,12 +83,12 @@ export default function AdminOrders() {
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-primary" />
+            <div className="p-2 bg-stone-100 rounded-xl">
+              <TrendingUp className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <p className="text-sm text-text-muted">{t('adminOrders.summary.platformCommission')}</p>
-              <p className="text-2xl font-bold text-text-primary">
+              <p className="text-sm text-stone-500">{t('adminOrders.summary.platformCommission')}</p>
+              <p className="text-2xl font-bold text-stone-950">
                 {asNumber(payments.summary?.platform_commission).toFixed(2)}€
               </p>
             </div>
@@ -97,12 +96,12 @@ export default function AdminOrders() {
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <DollarSign className="w-5 h-5 text-amber-600" />
+            <div className="p-2 bg-stone-100 rounded-xl">
+              <DollarSign className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <p className="text-sm text-text-muted">{t('adminOrders.summary.producerPayouts')}</p>
-              <p className="text-2xl font-bold text-text-primary">
+              <p className="text-sm text-stone-500">{t('adminOrders.summary.producerPayouts')}</p>
+              <p className="text-2xl font-bold text-stone-950">
                 {asNumber(payments.summary?.producer_share).toFixed(2)}€
               </p>
             </div>
@@ -115,9 +114,9 @@ export default function AdminOrders() {
         <button
           onClick={() => setActiveTab('orders')}
           className={`pb-4 px-2 font-medium transition-colors ${
-            activeTab === 'orders' 
-              ? 'text-primary border-b-2 border-primary' 
-              : 'text-text-muted hover:text-text-primary'
+            activeTab === 'orders'
+              ? 'text-stone-950 border-b-2 border-stone-950'
+              : 'text-stone-500 hover:text-stone-950'
           }`}
         >
           {t('adminOrders.tabs.orders')}
@@ -125,9 +124,9 @@ export default function AdminOrders() {
         <button
           onClick={() => setActiveTab('payments')}
           className={`pb-4 px-2 font-medium transition-colors ${
-            activeTab === 'payments' 
-              ? 'text-primary border-b-2 border-primary' 
-              : 'text-text-muted hover:text-text-primary'
+            activeTab === 'payments'
+              ? 'text-stone-950 border-b-2 border-stone-950'
+              : 'text-stone-500 hover:text-stone-950'
           }`}
         >
           {t('adminOrders.tabs.payments')}
@@ -136,12 +135,13 @@ export default function AdminOrders() {
 
       {/* Search */}
       <div className="relative max-w-md mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-        <Input
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+        <input
+          type="text"
           placeholder={activeTab === 'orders' ? t('adminOrders.searchOrdersPlaceholder') : t('adminOrders.searchPaymentsPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
+          className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl bg-white text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
           data-testid="search-input"
         />
       </div>
@@ -149,45 +149,45 @@ export default function AdminOrders() {
       {/* Content */}
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-text-muted">{t('common.loading')}</div>
+          <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : activeTab === 'orders' ? (
           filteredOrders.length === 0 ? (
-            <div className="p-8 text-center text-text-muted">{t('adminOrders.noOrders')}</div>
+            <div className="p-8 text-center text-stone-500">{t('adminOrders.noOrders')}</div>
           ) : (
             <table className="w-full" data-testid="orders-table">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.ordersTable.orderId')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.ordersTable.customer')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.ordersTable.items')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.ordersTable.total')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.ordersTable.status')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.ordersTable.date')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.ordersTable.orderId')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.ordersTable.customer')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.ordersTable.items')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.ordersTable.total')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.ordersTable.status')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.ordersTable.date')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200">
                 {filteredOrders.map((order) => (
                   <tr key={order.order_id} className="hover:bg-stone-50">
                     <td className="px-6 py-4">
-                      <p className="font-mono text-sm text-text-primary">{order.order_id}</p>
+                      <p className="font-mono text-sm text-stone-950">{order.order_id}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-text-primary">{order.user_name}</p>
-                      <p className="text-sm text-text-muted">{order.user_email}</p>
+                      <p className="font-medium text-stone-950">{order.user_name}</p>
+                      <p className="text-sm text-stone-500">{order.user_email}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-text-primary">{t('adminOrders.ordersTable.itemsCount', { count: order.line_items?.length || 0 })}</p>
+                      <p className="text-stone-950">{t('adminOrders.ordersTable.itemsCount', { count: order.line_items?.length || 0 })}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-text-primary">{asNumber(order.total_amount).toFixed(2)}€</p>
+                      <p className="font-medium text-stone-950">{asNumber(order.total_amount).toFixed(2)}€</p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-800'}`}>
+                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColors[order.status] || 'bg-stone-100 text-stone-700'}`}>
                         {t(`adminOrders.status.${order.status}`) || order.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-text-muted text-sm">
+                      <p className="text-stone-500 text-sm">
                         {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A'}
                       </p>
                     </td>
@@ -198,41 +198,39 @@ export default function AdminOrders() {
           )
         ) : (
           payments.payments?.length === 0 ? (
-            <div className="p-8 text-center text-text-muted">{t('adminOrders.noPayments')}</div>
+            <div className="p-8 text-center text-stone-500">{t('adminOrders.noPayments')}</div>
           ) : (
             <table className="w-full" data-testid="payments-table">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.paymentsTable.transactionId')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.paymentsTable.orderId')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.paymentsTable.amount')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.paymentsTable.status')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminOrders.paymentsTable.date')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.paymentsTable.transactionId')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.paymentsTable.orderId')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.paymentsTable.amount')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.paymentsTable.status')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminOrders.paymentsTable.date')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200">
                 {payments.payments.map((payment) => (
                   <tr key={payment.transaction_id} className="hover:bg-stone-50">
                     <td className="px-6 py-4">
-                      <p className="font-mono text-sm text-text-primary">{payment.transaction_id}</p>
+                      <p className="font-mono text-sm text-stone-950">{payment.transaction_id}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-mono text-sm text-text-muted">{payment.order_id || 'N/A'}</p>
+                      <p className="font-mono text-sm text-stone-500">{payment.order_id || 'N/A'}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-text-primary">
+                      <p className="font-medium text-stone-950">
                         ${asNumber(payment.amount).toFixed(2)} {payment.currency?.toUpperCase()}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                        payment.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
-                      }`}>
+                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${['paid', 'succeeded', 'completed'].includes(payment.payment_status || payment.status) ? 'bg-stone-950 text-white' : ['pending', 'processing'].includes(payment.payment_status || payment.status) ? 'bg-stone-200 text-stone-700' : 'border border-stone-200 text-stone-400 bg-white'}`}>
                         {t(`adminOrders.status.${payment.payment_status || payment.status}`) || payment.payment_status || payment.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-text-muted text-sm">
+                      <p className="text-stone-500 text-sm">
                         {payment.created_at ? new Date(payment.created_at).toLocaleDateString() : 'N/A'}
                       </p>
                     </td>

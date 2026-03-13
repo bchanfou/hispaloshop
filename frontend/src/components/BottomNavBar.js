@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, Film, Plus, User, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -60,6 +60,7 @@ export default function BottomNavBar() {
   const [showAdvancedEditor,    setShowAdvancedEditor]    = useState(false);
   const [profileAvatarError, setProfileAvatarError] = useState(false);
   const toastTimeoutRef = useRef(null);
+  const chatDragControls = useDragControls();
   const activePanelRef = useRef(null);
   const conversationsRef = useRef(conversations);
 
@@ -236,6 +237,14 @@ export default function BottomNavBar() {
     }
   };
 
+  // Al pulsar el tab activo → scroll to top (igual que Instagram/Twitter)
+  const handleNavClick = (e, isActive) => {
+    if (isActive) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const profileUserId = user?.user_id || user?.id || null;
   const profileUrl   = profileUserId ? `/user/${profileUserId}` : (user ? '/profile' : '/login');
   const profileImage = user?.profile_image || user?.avatar_url || null;
@@ -274,30 +283,75 @@ export default function BottomNavBar() {
         />
       ) : null}
 
-      {activePanel === 'chat' ? (
-        <div className="fixed inset-0 z-50 md:inset-auto md:bottom-[70px] md:right-4" data-testid="chat-panel">
-          <div className="flex h-full flex-col bg-white shadow-2xl md:h-[550px] md:w-[380px] md:rounded-2xl md:border md:border-stone-200">
-            <InternalChat isEmbedded={true} onClose={closePanel} initialChatUserId={initialChatUserId} />
-          </div>
-        </div>
-      ) : null}
+      <AnimatePresence>
+        {activePanel === 'chat' ? (
+          <>
+            {/* Backdrop mobile */}
+            <motion.div
+              key="chat-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 bg-black/30 md:hidden"
+              onClick={closePanel}
+            />
+
+            {/* Panel */}
+            <motion.div
+              key="chat-panel"
+              initial={{ y: '100%', opacity: 0.6 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 34, stiffness: 300, mass: 0.8 }}
+              drag="y"
+              dragControls={chatDragControls}
+              dragListener={false}
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0, bottom: 0.3 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 90 || info.velocity.y > 450) closePanel();
+              }}
+              className="fixed bottom-0 left-0 right-0 z-[51] flex flex-col rounded-t-[28px] bg-white shadow-2xl md:inset-auto md:bottom-[70px] md:right-4 md:h-[550px] md:w-[380px] md:rounded-2xl md:border md:border-stone-200"
+              data-testid="chat-panel"
+            >
+              {/* Drag handle — solo mobile */}
+              <div
+                onPointerDown={(e) => chatDragControls.start(e)}
+                className="flex cursor-grab touch-none items-center justify-center py-2.5 active:cursor-grabbing md:hidden"
+                aria-hidden="true"
+              >
+                <div className="h-[5px] w-10 rounded-full bg-stone-200" />
+              </div>
+
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <InternalChat isEmbedded={true} onClose={closePanel} initialChatUserId={initialChatUserId} />
+              </div>
+            </motion.div>
+          </>
+        ) : null}
+      </AnimatePresence>
 
       {/* ── Instagram-style flat bottom nav ── */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl"
         data-testid="bottom-nav-bar"
       >
-        <div className="grid h-[50px] grid-cols-5 items-center px-1">
+        <div className="grid h-[50px] grid-cols-5 items-stretch px-1">
 
           {/* 1 — Home */}
           <Link
             to="/"
             aria-label={t('bottomNav.home', 'Inicio')}
             data-testid="bottom-nav-home"
-            className="flex items-center justify-center active:opacity-60"
+            onClick={(e) => handleNavClick(e, isHome)}
+            className="relative flex h-full items-center justify-center active:opacity-60"
           >
+            <div
+              className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
+              style={{ transform: `translateX(-50%) scaleX(${isHome ? 1 : 0})` }}
+            />
             {isHome ? (
-              /* Filled house — active */
               <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
               </svg>
@@ -311,10 +365,14 @@ export default function BottomNavBar() {
             to="/discover"
             aria-label={t('bottomNav.explore', 'Explorar')}
             data-testid="bottom-nav-explore"
-            className="flex items-center justify-center active:opacity-60"
+            onClick={(e) => handleNavClick(e, isExplore)}
+            className="relative flex h-full items-center justify-center active:opacity-60"
           >
+            <div
+              className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
+              style={{ transform: `translateX(-50%) scaleX(${isExplore ? 1 : 0})` }}
+            />
             {isExplore ? (
-              /* Filled search — active */
               <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
                 <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
               </svg>
@@ -329,12 +387,10 @@ export default function BottomNavBar() {
             onClick={handlePostButton}
             aria-label={t('bottomNav.create', 'Crear')}
             data-testid="bottom-nav-post"
-            className="flex items-center justify-center active:opacity-60"
+            className="relative flex h-full items-center justify-center active:opacity-60"
           >
             <div className={`flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border transition-all active:scale-95 ${
-              isCreating
-                ? 'border-stone-400 bg-stone-200'
-                : 'border-stone-300 bg-white'
+              isCreating ? 'border-stone-400 bg-stone-200' : 'border-stone-300 bg-white'
             }`}>
               {isCreating ? (
                 <X className="h-5 w-5 text-stone-700" strokeWidth={2} />
@@ -349,10 +405,14 @@ export default function BottomNavBar() {
             to="/reels"
             aria-label={t('bottomNav.reels', 'Reels')}
             data-testid="bottom-nav-reels"
-            className="flex items-center justify-center active:opacity-60"
+            onClick={(e) => handleNavClick(e, isReels)}
+            className="relative flex h-full items-center justify-center active:opacity-60"
           >
+            <div
+              className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
+              style={{ transform: `translateX(-50%) scaleX(${isReels ? 1 : 0})` }}
+            />
             {isReels ? (
-              /* Filled clapperboard — active */
               <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
                 <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
               </svg>
@@ -366,8 +426,13 @@ export default function BottomNavBar() {
             to={profileUrl}
             aria-label={t('bottomNav.profile', 'Perfil')}
             data-testid="bottom-nav-profile"
-            className="flex items-center justify-center active:opacity-60"
+            onClick={(e) => handleNavClick(e, isProfile)}
+            className="relative flex h-full items-center justify-center active:opacity-60"
           >
+            <div
+              className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
+              style={{ transform: `translateX(-50%) scaleX(${isProfile ? 1 : 0})` }}
+            />
             {profileImage && !profileAvatarError ? (
               <div className={`h-[26px] w-[26px] overflow-hidden rounded-full transition-all ${
                 isProfile

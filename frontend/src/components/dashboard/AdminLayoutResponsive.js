@@ -66,10 +66,10 @@ export default function AdminLayoutResponsive() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-ds-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-text-muted">Cargando...</p>
+          <div className="w-10 h-10 border-2 border-stone-950 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-stone-500">Cargando...</p>
         </div>
       </div>
     );
@@ -83,9 +83,9 @@ export default function AdminLayoutResponsive() {
   // Access denied
   if (!user || user.role !== 'admin') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="text-center">
-          <p className="text-text-secondary mb-4">Acceso denegado. Se requieren privilegios de administrador.</p>
+          <p className="text-stone-600 mb-4">Acceso denegado. Se requieren privilegios de administrador.</p>
           <button 
             onClick={() => navigate('/login')} 
             className="text-stone-950 hover:underline font-medium"
@@ -98,18 +98,18 @@ export default function AdminLayoutResponsive() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* ===== MOBILE HEADER ===== */}
       <header className="mobile-header md:hidden">
         <button 
           onClick={() => navigate('/')}
-          className="p-2 -ml-2 text-text-muted hover:text-text-primary transition-colors"
+          className="p-2 -ml-2 text-stone-500 hover:text-stone-950 transition-colors"
           data-testid="mobile-back-button"
         >
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
         
-        <h1 className="font-heading text-base font-semibold text-text-primary">
+        <h1 className="text-base font-semibold text-stone-950">
           Admin Panel
         </h1>
         
@@ -119,11 +119,11 @@ export default function AdminLayoutResponsive() {
       {/* ===== DESKTOP SIDEBAR ===== */}
       <aside className="hidden md:flex desktop-sidebar">
         {/* Header */}
-        <div className="p-5 border-b border-border-default">
+        <div className="p-5 border-b border-stone-200">
           <div className="flex items-center justify-between mb-4">
             <button 
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm"
+              className="flex items-center gap-2 text-stone-500 hover:text-stone-950 transition-colors text-sm"
               data-testid="desktop-back-button"
             >
               <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
@@ -131,10 +131,10 @@ export default function AdminLayoutResponsive() {
             </button>
             <LanguageSwitcher variant="minimal" />
           </div>
-          <h1 className="font-heading text-lg font-semibold text-text-primary tracking-editorial">
+          <h1 className="text-lg font-semibold text-stone-950 tracking-editorial">
             {t('admin.dashboard')}
           </h1>
-          <p className="text-xs text-text-muted mt-1">Hispaloshop Management</p>
+          <p className="text-xs text-stone-500 mt-1">Hispaloshop Management</p>
         </div>
 
         {/* Navigation */}
@@ -145,10 +145,10 @@ export default function AdminLayoutResponsive() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 text-sm ${
+                `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
                   isActive
                     ? 'bg-stone-100 text-stone-950 font-medium'
-                    : 'text-text-secondary hover:bg-stone-100'
+                    : 'text-stone-600 hover:bg-stone-100'
                 }`
               }
               data-testid={`desktop-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
@@ -158,7 +158,7 @@ export default function AdminLayoutResponsive() {
                 <span>{item.label}</span>
               </div>
               {item.badge > 0 && (
-                <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                <span className="bg-stone-950 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
                   {item.badge}
                 </span>
               )}
@@ -167,15 +167,15 @@ export default function AdminLayoutResponsive() {
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-border-default">
+        <div className="p-4 border-t border-stone-200">
           <div className="flex items-center justify-between">
             <div className="min-w-0">
-              <p className="text-sm font-medium text-text-primary truncate">{user.name}</p>
-              <p className="text-xs text-text-muted">Administrador</p>
+              <p className="text-sm font-medium text-stone-950 truncate">{user.name}</p>
+              <p className="text-xs text-stone-500">Administrador</p>
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 text-text-muted hover:text-red-600 transition-colors"
+              className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
               data-testid="desktop-logout-button"
@@ -228,7 +228,7 @@ export default function AdminLayoutResponsive() {
                 <div className="relative">
                   <item.icon className="w-4 h-4" strokeWidth={1.5} />
                   {item.badge > 0 && (
-                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-stone-950 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
                       {item.badge > 9 ? '9+' : item.badge}
                     </span>
                   )}
@@ -253,19 +253,19 @@ export default function AdminLayoutResponsive() {
               to={item.to}
               onClick={() => setMoreMenuOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-4 p-4 rounded-lg transition-colors ${
+                `flex items-center gap-4 p-4 rounded-xl transition-colors ${
                   isActive ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-100'
                 }`
               }
             >
-              <div className="w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
                 <item.icon className="w-5 h-5" strokeWidth={1.5} />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-text-primary">{item.label}</p>
+                <p className="font-medium text-stone-950">{item.label}</p>
               </div>
               {item.badge > 0 && (
-                <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-stone-950 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                   {item.badge}
                 </span>
               )}
@@ -278,13 +278,13 @@ export default function AdminLayoutResponsive() {
               setMoreMenuOpen(false);
               handleLogout();
             }}
-            className="flex items-center gap-4 p-4 rounded-lg hover:bg-red-50 w-full text-left"
+            className="flex items-center gap-4 p-4 rounded-xl hover:bg-stone-100 w-full text-left"
           >
-            <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
-              <LogOut className="w-5 h-5 text-red-600" strokeWidth={1.5} />
+            <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
+              <LogOut className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="font-medium text-red-600">{t('common.logout')}</p>
+              <p className="font-medium text-stone-700">{t('common.logout')}</p>
             </div>
           </button>
         </div>

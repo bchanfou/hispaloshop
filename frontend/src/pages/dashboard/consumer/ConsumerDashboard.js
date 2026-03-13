@@ -113,42 +113,42 @@ function ConsumerDashboard() {
       id: 'reorder',
       icon: RefreshCw,
       label: 'Reordenar favorito',
-      color: 'var(--color-accent)',
+      color: '#1c1917',
       onClick: () => navigate('/dashboard/orders')
     },
     {
       id: 'discover',
       icon: Gift,
       label: 'Descubrir novedades',
-      color: 'var(--color-warning)',
+      color: '#44403c',
       onClick: () => navigate('/discover')
     },
     {
       id: 'plan',
       icon: Calendar,
       label: 'Planificar semana',
-      color: 'var(--color-info)',
+      color: '#78716c',
       onClick: () => navigate('/recipes')
     },
     {
       id: 'stores',
       icon: MapPin,
       label: 'Tiendas cerca',
-      color: 'var(--color-success)',
+      color: '#1c1917',
       onClick: () => navigate('/stores')
     }
   ];
 
   if (dashboardQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-background-subtle flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-subtle p-4 pb-24">
+    <div className="min-h-screen bg-stone-50 p-4 pb-24">
       <DashboardHeader
         userName={firstToken(user?.name, 'Usuario')}
         subtitle="Aqui esta tu resumen de hoy"
@@ -168,7 +168,7 @@ function ConsumerDashboard() {
           value={dashboardData.kpis.favorites}
           label="Favoritos"
           subtext="guardados"
-          accentColor="#E6A532"
+          accentColor="#44403c"
           onClick={() => navigate('/dashboard/wishlist')}
         />
         <KPICard
@@ -176,14 +176,14 @@ function ConsumerDashboard() {
           value={dashboardData.kpis.savings}
           label="Ahorrado"
           subtext="estimado"
-          accentColor="#16A34A"
+          accentColor="#1c1917"
         />
       </div>
 
       <div className="bg-white rounded-2xl p-4 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-stone-950">Gasto mensual</h3>
-          <span className="text-xs text-accent font-medium">
+          <span className="text-xs text-stone-500 font-medium">
             Total gastado: EUR {dashboardData.chart.data.reduce((a, b) => a + b, 0).toFixed(0)}
           </span>
         </div>
@@ -201,7 +201,7 @@ function ConsumerDashboard() {
             <h3 className="font-semibold text-stone-950">Pedidos recientes</h3>
             <button
               onClick={() => navigate('/dashboard/orders')}
-              className="text-sm text-accent font-medium"
+              className="text-sm text-stone-500 font-medium"
             >
               Ver todos
             </button>

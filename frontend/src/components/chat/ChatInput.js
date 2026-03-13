@@ -59,7 +59,7 @@ function ChatInput({ onSend, isLoading, compact = false }) {
               rows={1}
               maxLength={MAX_CHARS + 50}
               className={`w-full resize-none bg-transparent px-2 py-2 text-[16px] leading-7 text-stone-950 outline-none transition-all placeholder:text-stone-400 ${
-                isOverLimit ? 'ring-2 ring-red-300' : ''
+                isOverLimit ? 'ring-2 ring-stone-300' : ''
               }`}
               style={{ minHeight: compact ? '48px' : '52px', maxHeight: '148px' }}
             />
@@ -71,7 +71,7 @@ function ChatInput({ onSend, isLoading, compact = false }) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   className={`absolute -bottom-5 right-2 text-[10px] tabular-nums ${
-                    isOverLimit ? 'text-red-400' : 'text-stone-400'
+                    isOverLimit ? 'text-stone-400' : 'text-stone-400'
                   }`}
                 >
                   {charsLeft}

@@ -4,7 +4,6 @@ import { useLocale } from '../context/LocaleContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { Button } from './ui/button';
 import CountryFlag from './CountryFlag';
 import {
   AlertDialog,
@@ -156,7 +155,7 @@ export default function LocaleSelector({ compact = false }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-sm max-h-[80vh] bg-stone-50">
         <DialogHeader>
-          <DialogTitle className="font-heading text-lg">{title}</DialogTitle>
+          <DialogTitle className="text-lg">{title}</DialogTitle>
         </DialogHeader>
         <div className="overflow-y-auto max-h-[60vh] py-2">
           <div className="space-y-1">
@@ -200,10 +199,8 @@ export default function LocaleSelector({ compact = false }) {
   );
 
   const DesktopTrigger = ({ menu, icon: Icon, children, testId }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className={`h-9 ${compact ? 'w-9 px-0 justify-center' : 'gap-1.5'} font-body text-sm hover:bg-white/60 ${desktopMenu === menu ? 'bg-white/70' : ''}`}
+    <button
+      className={`h-9 ${compact ? 'w-9 px-0 justify-center' : 'gap-1.5'} text-sm hover:bg-white/60 inline-flex items-center rounded ${desktopMenu === menu ? 'bg-white/70' : ''}`}
       onClick={() => setDesktopMenu((prev) => (prev === menu ? null : menu))}
       data-testid={testId}
       type="button"
@@ -211,7 +208,7 @@ export default function LocaleSelector({ compact = false }) {
       <Icon className="w-4 h-4" />
       {!compact && children}
       <ChevronDown className={`w-4 h-4 transition-transform ${desktopMenu === menu ? 'rotate-180' : ''}`} />
-    </Button>
+    </button>
   );
 
   const DesktopMenu = ({ isOpen, title, children }) => {
@@ -301,10 +298,8 @@ export default function LocaleSelector({ compact = false }) {
           <div className="flex items-center gap-2">
             {compact ? (
               <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 ${desktopMenu === 'country' ? 'bg-white/70' : ''}`}
+                <button
+                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 inline-flex items-center rounded ${desktopMenu === 'country' ? 'bg-white/70' : ''}`}
                   onClick={() => setDesktopMenu((prev) => (prev === 'country' ? null : 'country'))}
                   data-testid="country-selector"
                   type="button"
@@ -312,11 +307,9 @@ export default function LocaleSelector({ compact = false }) {
                 >
                   <CountryFlag countryCode={country} size="md" />
                   <span className="text-[11px] font-semibold text-stone-700">{country}</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 ${desktopMenu === 'language' ? 'bg-white/70' : ''}`}
+                </button>
+                <button
+                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 inline-flex items-center rounded ${desktopMenu === 'language' ? 'bg-white/70' : ''}`}
                   onClick={() => setDesktopMenu((prev) => (prev === 'language' ? null : 'language'))}
                   data-testid="language-selector"
                   type="button"
@@ -324,11 +317,9 @@ export default function LocaleSelector({ compact = false }) {
                 >
                   <Languages className="w-4 h-4" />
                   <span className="text-[11px] font-semibold text-stone-700 uppercase">{language}</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 ${desktopMenu === 'currency' ? 'bg-white/70' : ''}`}
+                </button>
+                <button
+                  className={`h-9 px-2 gap-1 justify-center hover:bg-white/60 inline-flex items-center rounded ${desktopMenu === 'currency' ? 'bg-white/70' : ''}`}
                   onClick={() => setDesktopMenu((prev) => (prev === 'currency' ? null : 'currency'))}
                   data-testid="currency-selector"
                   type="button"
@@ -336,7 +327,7 @@ export default function LocaleSelector({ compact = false }) {
                 >
                   <DollarSign className="w-4 h-4" />
                   <span className="text-[11px] font-semibold text-stone-700">{currency}</span>
-                </Button>
+                </button>
               </>
             ) : (
               <>
@@ -366,7 +357,7 @@ export default function LocaleSelector({ compact = false }) {
               >
                 <CountryFlag countryCode={code} size="md" />
                 <span className="flex-1">{data.name}</span>
-                {country === code && <Check className="w-4 h-4 text-accent" />}
+                {country === code && <Check className="w-4 h-4 text-stone-950" />}
               </button>
             ))}
           </DesktopMenu>
@@ -381,7 +372,7 @@ export default function LocaleSelector({ compact = false }) {
               >
                 <span className="uppercase font-semibold text-xs w-7">{code}</span>
                 <span className="flex-1">{data.native}</span>
-                {language === code && <Check className="w-4 h-4 text-accent" />}
+                {language === code && <Check className="w-4 h-4 text-stone-950" />}
               </button>
             ))}
           </DesktopMenu>
@@ -396,7 +387,7 @@ export default function LocaleSelector({ compact = false }) {
               >
                 <span className="text-base w-6">{data.symbol}</span>
                 <span className="flex-1">{code}</span>
-                {currency === code && <Check className="w-4 h-4 text-accent" />}
+                {currency === code && <Check className="w-4 h-4 text-stone-950" />}
               </button>
             ))}
           </DesktopMenu>
@@ -406,10 +397,10 @@ export default function LocaleSelector({ compact = false }) {
       <AlertDialog open={showCountryWarning} onOpenChange={setShowCountryWarning}>
         <AlertDialogContent className="bg-stone-50 border-stone-300">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-heading text-xl text-stone-950">
+            <AlertDialogTitle className="text-xl text-stone-950">
               {t('locale.countryChange')}
             </AlertDialogTitle>
-            <AlertDialogDescription className="font-body text-stone-600">
+            <AlertDialogDescription className="text-stone-600">
               {unavailableItems.length > 0 && (
                 <>
                   <p className="mb-3 flex items-center gap-2 flex-wrap">
@@ -437,13 +428,12 @@ export default function LocaleSelector({ compact = false }) {
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setShowCountryWarning(false)}
-              className="font-body"
             >
               {t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => confirmCountryChange(pendingCountry)}
-              className="font-body bg-stone-950 text-white hover:bg-stone-800"
+              className="bg-stone-950 text-white hover:bg-stone-800"
             >
               {t('common.continue')}
             </AlertDialogAction>

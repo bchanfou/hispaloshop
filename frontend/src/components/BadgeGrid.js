@@ -20,11 +20,11 @@ const ICON_MAP = {
 };
 
 const CATEGORY_COLORS = {
-  shopping: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', ring: 'ring-emerald-400' },
-  social: { bg: 'bg-violet-50', border: 'border-violet-200', text: 'text-violet-700', ring: 'ring-violet-400' },
-  recipes: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', ring: 'ring-orange-400' },
-  reviews: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', ring: 'ring-amber-400' },
-  explore: { bg: 'bg-sky-50', border: 'border-sky-200', text: 'text-sky-700', ring: 'ring-sky-400' },
+  shopping: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-700', ring: 'ring-stone-400' },
+  social: { bg: 'bg-stone-100', border: 'border-stone-200', text: 'text-stone-700', ring: 'ring-stone-400' },
+  recipes: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-600', ring: 'ring-stone-300' },
+  reviews: { bg: 'bg-stone-100', border: 'border-stone-200', text: 'text-stone-700', ring: 'ring-stone-400' },
+  explore: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-600', ring: 'ring-stone-300' },
 };
 
 function BadgeItem({ badge }) {

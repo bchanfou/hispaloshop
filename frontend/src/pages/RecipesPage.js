@@ -7,7 +7,6 @@ import { asLowerText } from '../utils/safe';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
 import SEO from '../components/SEO';
-import { Button } from '../components/ui/button';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { resolveUserImage } from '../features/user/queries';
@@ -165,11 +164,13 @@ export default function RecipesPage() {
           </div>
 
           {user ? (
-            <Link to="/recipes/create" className="shrink-0">
-              <Button className="h-11 rounded-full bg-stone-950 px-5 text-white hover:bg-stone-800" data-testid="create-recipe-btn">
-                <Plus className="h-4 w-4" />
-                {t('recipes.createRecipe', 'Crear receta')}
-              </Button>
+            <Link
+              to="/recipes/create"
+              className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-stone-950 px-5 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800"
+              data-testid="create-recipe-btn"
+            >
+              <Plus className="h-4 w-4" />
+              {t('recipes.createRecipe', 'Crear receta')}
             </Link>
           ) : null}
         </section>

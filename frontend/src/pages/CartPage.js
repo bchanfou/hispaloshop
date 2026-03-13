@@ -10,8 +10,6 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { toast } from 'sonner';
 import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Check } from 'lucide-react';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
@@ -199,7 +197,6 @@ export default function CartPage() {
       const response = await createCheckout({ shippingAddress: addressToUse, origin: window.location.origin });
       window.location.href = response.url;
     } catch (error) {
-      console.error('Checkout error:', error);
       if (error?.data?.detail?.issues) {
         error.data.detail.issues.forEach((issue) => toast.error(issue));
       } else {
@@ -239,7 +236,7 @@ export default function CartPage() {
         <div className="mb-4 md:mb-6 hidden md:block">
           <BackButton label={t('checkout.continueShopping')} />
         </div>
-        <h1 className="font-heading text-2xl md:text-4xl lg:text-5xl font-bold text-stone-950 mb-4 md:mb-8" data-testid="cart-page-title">
+        <h1 className="text-[18px] font-semibold text-stone-950 mb-4 md:mb-6" data-testid="cart-page-title">
           {t('cart.title')}
         </h1>
 
@@ -252,27 +249,27 @@ export default function CartPage() {
                 <p className="mb-4 text-stone-500">{t('checkout.verifyEmailMessage')} ({user.email})</p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex gap-2 flex-1">
-                    <Input
+                    <input
                       placeholder={t('checkout.verificationCodePlaceholder')}
                       value={verificationToken}
                       onChange={(event) => setVerificationToken(event.target.value)}
-                      className="flex-1 max-w-xs"
+                      className="flex-1 max-w-xs h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors"
                       data-testid="verification-input"
                     />
-                    <Button onClick={handleVerifyEmail} disabled={verifying} data-testid="verify-button">
+                    <button type="button" onClick={handleVerifyEmail} disabled={verifying} className="rounded-xl bg-stone-950 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-60" data-testid="verify-button">
                       {verifying ? t('checkout.verifying') : t('checkout.verify')}
-                    </Button>
+                    </button>
                   </div>
-                  <Button
-                    variant="outline"
+                  <button
+                    type="button"
                     onClick={handleResendVerification}
                     disabled={resending}
-                    className="border-stone-200 text-stone-700"
+                    className="inline-flex items-center gap-2 rounded-xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 disabled:opacity-60"
                     data-testid="resend-button"
                   >
-                    <Mail className="w-4 h-4 mr-2" />
+                    <Mail className="w-4 h-4" />
                     {resending ? t('checkout.sending') : t('checkout.resendCode')}
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
@@ -280,7 +277,7 @@ export default function CartPage() {
         )}
 
         {emailVerified === true && (
-          <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-4 py-3" data-testid="verified-badge">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-3" data-testid="verified-badge">
             <CheckCircle className="h-5 w-5 text-stone-950" />
             <span className="font-medium text-stone-950">{t('checkout.emailVerified', 'Email verificado')}</span>
           </div>
@@ -289,11 +286,15 @@ export default function CartPage() {
         {cartLoading ? (
           <p className="text-stone-500 text-center py-12">{t('common.loading')}</p>
         ) : cartItems.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-stone-200">
-            <p className="text-stone-500 mb-4">{t('cart.empty')}</p>
-            <Button onClick={() => navigate('/products')}>
+          <div className="flex flex-col items-center py-16 text-center">
+            <p className="mb-4 text-[14px] text-stone-400">{t('cart.empty')}</p>
+            <button
+              type="button"
+              onClick={() => navigate('/products')}
+              className="rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+            >
               {t('cart.continueShopping')}
-            </Button>
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -307,7 +308,7 @@ export default function CartPage() {
                     className={`flex items-start gap-3 rounded-xl border bg-white p-3 md:items-center md:gap-6 md:p-6 ${hasStockIssue ? 'border-stone-950 bg-stone-100' : 'border-stone-200'}`}
                     data-testid={`cart-item-${itemKey}`}
                   >
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-stone-100 overflow-hidden flex-shrink-0">
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
                       {item.image && <img src={item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -328,7 +329,7 @@ export default function CartPage() {
                         </div>
                         <button
                           onClick={() => handleRemoveItem(item)}
-                          className="rounded-lg p-2 text-stone-700 transition-colors hover:bg-stone-100 md:hidden"
+                          className="rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:hidden"
                           data-testid={`remove-item-${itemKey}-mobile`}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -343,7 +344,7 @@ export default function CartPage() {
                     </div>
                     <button
                       onClick={() => handleRemoveItem(item)}
-                      className="hidden rounded-lg p-2 text-stone-700 transition-colors hover:bg-stone-100 md:flex"
+                      className="hidden rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:flex"
                       data-testid={`remove-item-${itemKey}`}
                     >
                       <Trash2 className="w-5 h-5" />
@@ -353,7 +354,7 @@ export default function CartPage() {
               })}
 
               <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-address-section">
-                <h3 className="font-heading text-base md:text-lg font-semibold text-stone-950 mb-3 md:mb-4 flex items-center gap-2">
+                <h3 className="text-base md:text-lg font-semibold text-stone-950 mb-3 md:mb-4 flex items-center gap-2">
                   <MapPin className="w-4 h-4 md:w-5 md:h-5" />
                   {t('checkout.shippingAddress')}
                 </h3>
@@ -364,7 +365,7 @@ export default function CartPage() {
                       <div
                         key={addr.address_id}
                         onClick={() => setSelectedAddressId(addr.address_id)}
-                        className={`cursor-pointer rounded-lg border-2 p-3 transition-all md:p-4 ${selectedAddressId === addr.address_id ? 'border-stone-950 bg-stone-100' : 'border-stone-200 hover:border-stone-950'}`}
+                        className={`cursor-pointer rounded-xl border-2 p-3 transition-all md:p-4 ${selectedAddressId === addr.address_id ? 'border-stone-950 bg-stone-100' : 'border-stone-200 hover:border-stone-950'}`}
                         data-testid={`address-${addr.address_id}`}
                       >
                         <div className="flex items-start justify-between gap-2">
@@ -389,54 +390,54 @@ export default function CartPage() {
                 )}
 
                 {!showNewAddressForm && (
-                  <Button
-                    variant="outline"
+                  <button
+                    type="button"
                     onClick={() => setShowNewAddressForm(true)}
-                    className="w-full border-2 border-dashed border-stone-200 hover:border-stone-950 hover:text-stone-950"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-[13px] font-medium text-stone-500 transition-colors hover:border-stone-950 hover:text-stone-950"
                     data-testid="add-new-address-btn"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t('checkout.addNewAddress') || 'Add New Address'}
-                  </Button>
+                    <Plus className="w-4 h-4" />
+                    {t('checkout.addNewAddress', 'Nueva dirección')}
+                  </button>
                 )}
 
                 {showNewAddressForm && (
-                  <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 border border-stone-200 rounded-lg" data-testid="new-address-form">
+                  <form onSubmit={handleAddrSubmit(handleSaveNewAddress)} className="space-y-4 p-4 border border-stone-200 rounded-xl" data-testid="new-address-form">
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.addressName') || 'Nombre de direccion'}</label>
-                      <Input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} data-testid="new-address-name" />
+                      <input {...registerAddr('name')} placeholder={t('checkout.addressNamePlaceholder') || 'Ej: Casa, Trabajo'} className="w-full h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" data-testid="new-address-name" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.fullName')} <span className="text-stone-700">*</span></label>
-                        <Input {...registerAddr('full_name')} placeholder={t('checkout.fullName')} className={addrErrors.full_name ? 'border-stone-950' : ''} data-testid="new-address-fullname" />
+                        <input {...registerAddr('full_name')} placeholder={t('checkout.fullName')} className={`w-full h-10 rounded-xl border bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors ${addrErrors.full_name ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-fullname" />
                         {addrErrors.full_name && <p className="mt-1 text-xs text-stone-700">{addrErrors.full_name.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('common.phone')}</label>
-                        <Input {...registerAddr('phone')} type="tel" placeholder={t('common.phone')} data-testid="new-address-phone" />
+                        <input {...registerAddr('phone')} type="tel" placeholder={t('common.phone')} className="w-full h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" data-testid="new-address-phone" />
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.street')} <span className="text-stone-700">*</span></label>
-                      <Input {...registerAddr('street')} placeholder={t('checkout.street')} className={addrErrors.street ? 'border-stone-950' : ''} data-testid="new-address-street" />
+                      <input {...registerAddr('street')} placeholder={t('checkout.street')} className={`w-full h-10 rounded-xl border bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors ${addrErrors.street ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-street" />
                       {addrErrors.street && <p className="mt-1 text-xs text-stone-700">{addrErrors.street.message}</p>}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.city')} <span className="text-stone-700">*</span></label>
-                        <Input {...registerAddr('city')} placeholder={t('checkout.city')} className={addrErrors.city ? 'border-stone-950' : ''} data-testid="new-address-city" />
+                        <input {...registerAddr('city')} placeholder={t('checkout.city')} className={`w-full h-10 rounded-xl border bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors ${addrErrors.city ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-city" />
                         {addrErrors.city && <p className="mt-1 text-xs text-stone-700">{addrErrors.city.message}</p>}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.zip')} <span className="text-stone-700">*</span></label>
-                        <Input {...registerAddr('postal_code')} placeholder={t('checkout.zip')} className={addrErrors.postal_code ? 'border-stone-950' : ''} data-testid="new-address-postal" />
+                        <input {...registerAddr('postal_code')} placeholder={t('checkout.zip')} className={`w-full h-10 rounded-xl border bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors ${addrErrors.postal_code ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-postal" />
                         {addrErrors.postal_code && <p className="mt-1 text-xs text-stone-700">{addrErrors.postal_code.message}</p>}
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-stone-950 mb-1">{t('checkout.country')} <span className="text-stone-700">*</span></label>
-                      <select {...registerAddr('country')} className={`w-full rounded-lg border bg-white px-4 py-2 text-sm ${addrErrors.country ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-country">
+                      <select {...registerAddr('country')} className={`w-full rounded-xl border bg-white px-4 py-2 text-sm ${addrErrors.country ? 'border-stone-950' : 'border-stone-200'}`} data-testid="new-address-country">
                         <option value="ES">Espana</option>
                         <option value="PT">Portugal</option>
                         <option value="FR">Francia</option>
@@ -451,25 +452,25 @@ export default function CartPage() {
                       {addrErrors.country && <p className="mt-1 text-xs text-stone-700">{addrErrors.country.message}</p>}
                     </div>
                     <div className="flex items-center gap-2">
-                      <input type="checkbox" id="is_default" {...registerAddr('is_default')} className="rounded border-stone-300" />
+                      <input type="checkbox" id="is_default" {...registerAddr('is_default')} className="rounded border-stone-200" />
                       <label htmlFor="is_default" className="text-sm text-stone-500">{t('checkout.setAsDefault') || 'Establecer como predeterminada'}</label>
                     </div>
-                    <div className="flex gap-3">
-                      <Button type="submit" disabled={savingAddress} className="flex-1" data-testid="save-new-address-btn">
+                    <div className="flex gap-2.5">
+                      <button type="submit" disabled={savingAddress} className="flex-1 rounded-full bg-stone-950 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-60" data-testid="save-new-address-btn">
                         {savingAddress ? t('common.loading') : t('common.save')}
-                      </Button>
+                      </button>
                       {savedAddresses.length > 0 && (
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
                           onClick={() => {
                             setShowNewAddressForm(false);
                             resetAddr({ country: 'ES', is_default: false });
                           }}
+                          className="rounded-full border border-stone-200 px-5 py-2.5 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
                           data-testid="cancel-new-address-btn"
                         >
                           {t('common.cancel')}
-                        </Button>
+                        </button>
                       )}
                     </div>
                   </form>
@@ -478,17 +479,17 @@ export default function CartPage() {
             </div>
 
             <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 h-fit lg:sticky lg:top-24">
-              <h2 className="font-heading text-lg md:text-xl font-semibold text-stone-950 mb-3 md:mb-4">{t('checkout.orderSummary')}</h2>
+              <h2 className="text-[16px] font-semibold text-stone-950 mb-3 md:mb-4">{t('checkout.orderSummary')}</h2>
               <div className="mb-4 md:mb-6">
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
-                    <Input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 text-sm" data-testid="discount-code-input" />
-                    <Button onClick={handleApplyDiscount} disabled={discountLoading} variant="outline" className="border-stone-200 text-stone-700 hover:bg-stone-100 hover:text-stone-950" data-testid="apply-discount-btn">
+                    <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" data-testid="discount-code-input" />
+                    <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-60" data-testid="apply-discount-btn">
                       {discountLoading ? t('common.loading') : t('cart.apply')}
-                    </Button>
+                    </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between rounded-lg border border-stone-200 bg-stone-100 p-3" data-testid="applied-discount">
+                  <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-stone-100 p-3" data-testid="applied-discount">
                     <div className="flex items-center gap-2">
                       <Tag className="h-4 w-4 text-stone-700" />
                       <span className="font-medium text-stone-950">{appliedDiscount.code}</span>
@@ -544,7 +545,7 @@ export default function CartPage() {
               </div>
 
               {(getSelectedAddress() || showNewAddressForm) && (
-                <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-stone-50 rounded-lg">
+                <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-stone-50 rounded-xl">
                   <p className="text-[10px] md:text-xs text-stone-500 mb-0.5 md:mb-1">{t('checkout.shippingTo') || 'Shipping to'}:</p>
                   {showNewAddressForm ? (
                     <p className="text-xs md:text-sm text-stone-950">{t('checkout.newAddressForm') || 'New address (fill form below)'}</p>
@@ -554,10 +555,11 @@ export default function CartPage() {
                 </div>
               )}
 
-              <Button
+              <button
+                type="button"
                 onClick={handleCheckout}
                 disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
-                className={`w-full rounded-full py-3 md:py-2 text-sm md:text-base font-medium ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 hover:bg-stone-800 text-white' : 'bg-stone-200 cursor-not-allowed text-stone-400'}`}
+                className={`w-full rounded-full py-3 text-[14px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-400'}`}
                 data-testid="checkout-button"
               >
                 {checkoutLoading
@@ -567,9 +569,9 @@ export default function CartPage() {
                     : stockIssues.length > 0
                       ? t('errors.generic')
                       : (!getSelectedAddress() && !showNewAddressForm)
-                        ? (t('checkout.selectAddress') || 'Selecciona una dirección')
+                        ? (t('checkout.selectAddress', 'Selecciona una dirección'))
                         : t('cart.checkout')}
-              </Button>
+              </button>
 
               {!emailVerified && <p className="text-xs text-stone-500 mt-2 text-center">{t('checkout.emailVerificationRequired') || 'Debes verificar tu correo electrónico'}</p>}
               {stockIssues.length > 0 && <p className="mt-2 text-center text-xs text-stone-700">{t('checkout.stockIssues') || 'Algunos productos no tienen stock suficiente'}</p>}

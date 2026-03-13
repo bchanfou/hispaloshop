@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { 
+import {
   Package, Search, Trash2, AlertTriangle, RefreshCw,
   FileCheck, CheckCircle, Clock, XCircle, Filter,
   Image as ImageIcon
@@ -136,10 +134,10 @@ export default function ContentManagement() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
+        <h1 className="text-3xl font-bold text-stone-950 mb-2">
           {t('contentManagement.title')}
         </h1>
-        <p className="text-text-muted">{t('contentManagement.subtitle')}</p>
+        <p className="text-stone-500">{t('contentManagement.subtitle')}</p>
       </div>
 
       {/* Tabs */}
@@ -147,9 +145,9 @@ export default function ContentManagement() {
         <button
           onClick={() => { setActiveTab('products'); setSearchTerm(''); setStatusFilter('all'); }}
           className={`pb-4 px-2 font-medium transition-colors flex items-center gap-2 ${
-            activeTab === 'products' 
-              ? 'text-primary border-b-2 border-primary' 
-              : 'text-text-muted hover:text-text-primary'
+            activeTab === 'products'
+              ? 'text-stone-950 border-b-2 border-stone-950'
+              : 'text-stone-500 hover:text-stone-950'
           }`}
         >
           <Package className="w-4 h-4" />
@@ -163,9 +161,9 @@ export default function ContentManagement() {
         <button
           onClick={() => { setActiveTab('certificates'); setSearchTerm(''); setStatusFilter('all'); }}
           className={`pb-4 px-2 font-medium transition-colors flex items-center gap-2 ${
-            activeTab === 'certificates' 
-              ? 'text-primary border-b-2 border-primary' 
-              : 'text-text-muted hover:text-text-primary'
+            activeTab === 'certificates'
+              ? 'text-stone-950 border-b-2 border-stone-950'
+              : 'text-stone-500 hover:text-stone-950'
           }`}
         >
           <FileCheck className="w-4 h-4" />
@@ -182,25 +180,25 @@ export default function ContentManagement() {
       {activeTab === 'products' && productStats && (
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-white rounded-xl border border-stone-200 p-4">
-            <div className="flex items-center gap-2 text-text-muted mb-1">
+            <div className="flex items-center gap-2 text-stone-500 mb-1">
               <Package className="w-4 h-4" />
               <span className="text-sm">{t('contentManagement.stats.total')}</span>
             </div>
-            <p className="text-2xl font-bold text-text-primary">{productStats.total}</p>
+            <p className="text-2xl font-bold text-stone-950">{productStats.total}</p>
           </div>
           <div className="bg-white rounded-xl border border-stone-200 p-4">
-            <div className="flex items-center gap-2 text-green-600 mb-1">
+            <div className="flex items-center gap-2 text-stone-600 mb-1">
               <CheckCircle className="w-4 h-4" />
               <span className="text-sm">{t('contentManagement.stats.approved')}</span>
             </div>
-            <p className="text-2xl font-bold text-green-600">{productStats.approved}</p>
+            <p className="text-2xl font-bold text-stone-600">{productStats.approved}</p>
           </div>
           <div className="bg-white rounded-xl border border-stone-200 p-4">
-            <div className="flex items-center gap-2 text-amber-600 mb-1">
+            <div className="flex items-center gap-2 text-stone-600 mb-1">
               <Clock className="w-4 h-4" />
               <span className="text-sm">{t('contentManagement.stats.pending')}</span>
             </div>
-            <p className="text-2xl font-bold text-amber-600">{productStats.pending}</p>
+            <p className="text-2xl font-bold text-stone-600">{productStats.pending}</p>
           </div>
         </div>
       )}
@@ -208,32 +206,32 @@ export default function ContentManagement() {
       {activeTab === 'certificates' && certStats && (
         <div className="grid grid-cols-4 gap-4">
           <div className="bg-white rounded-xl border border-stone-200 p-4">
-            <div className="flex items-center gap-2 text-text-muted mb-1">
+            <div className="flex items-center gap-2 text-stone-500 mb-1">
               <FileCheck className="w-4 h-4" />
               <span className="text-sm">{t('contentManagement.stats.total')}</span>
             </div>
-            <p className="text-2xl font-bold text-text-primary">{certStats.total}</p>
+            <p className="text-2xl font-bold text-stone-950">{certStats.total}</p>
           </div>
           <div className="bg-white rounded-xl border border-stone-200 p-4">
-            <div className="flex items-center gap-2 text-green-600 mb-1">
+            <div className="flex items-center gap-2 text-stone-600 mb-1">
               <CheckCircle className="w-4 h-4" />
               <span className="text-sm">{t('contentManagement.stats.approved')}</span>
             </div>
-            <p className="text-2xl font-bold text-green-600">{certStats.approved}</p>
+            <p className="text-2xl font-bold text-stone-600">{certStats.approved}</p>
           </div>
           <div className="bg-white rounded-xl border border-stone-200 p-4">
-            <div className="flex items-center gap-2 text-amber-600 mb-1">
+            <div className="flex items-center gap-2 text-stone-600 mb-1">
               <Clock className="w-4 h-4" />
               <span className="text-sm">{t('contentManagement.stats.pending')}</span>
             </div>
-            <p className="text-2xl font-bold text-amber-600">{certStats.pending}</p>
+            <p className="text-2xl font-bold text-stone-600">{certStats.pending}</p>
           </div>
           <div className="bg-white rounded-xl border border-stone-200 p-4">
-            <div className="flex items-center gap-2 text-red-600 mb-1">
+            <div className="flex items-center gap-2 text-stone-600 mb-1">
               <XCircle className="w-4 h-4" />
               <span className="text-sm">{t('contentManagement.stats.rejected')}</span>
             </div>
-            <p className="text-2xl font-bold text-red-600">{certStats.rejected}</p>
+            <p className="text-2xl font-bold text-stone-600">{certStats.rejected}</p>
           </div>
         </div>
       )}
@@ -242,16 +240,16 @@ export default function ContentManagement() {
       <div className="bg-white rounded-xl border border-stone-200 p-4">
         <div className="flex flex-wrap gap-4 items-center">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-            <Input
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+            <input
               placeholder={t('contentManagement.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950 pl-10"
             />
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-text-muted" />
+            <Filter className="w-4 h-4 text-stone-500" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -265,13 +263,12 @@ export default function ContentManagement() {
               )}
             </select>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
             onClick={() => activeTab === 'products' ? fetchProducts() : fetchCertificates()}
           >
             <RefreshCw className="w-4 h-4" />
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -279,9 +276,9 @@ export default function ContentManagement() {
       {activeTab === 'products' && (
         <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-text-muted">{t('common.loading')}</div>
+            <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
           ) : filteredProducts.length === 0 ? (
-            <div className="p-8 text-center text-text-muted">
+            <div className="p-8 text-center text-stone-500">
               {t('contentManagement.noProductsFound')}
             </div>
           ) : (
@@ -289,19 +286,19 @@ export default function ContentManagement() {
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-200">
                   <tr>
-                    <th className="text-left px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.product')}
                     </th>
-                    <th className="text-left px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.producer')}
                     </th>
-                    <th className="text-left px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.price')}
                     </th>
-                    <th className="text-left px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.status')}
                     </th>
-                    <th className="text-right px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-right px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.actions')}
                     </th>
                   </tr>
@@ -321,24 +318,20 @@ export default function ContentManagement() {
                             )}
                           </div>
                           <div>
-                            <p className="font-medium text-text-primary">{product.name}</p>
-                            <p className="text-xs text-text-muted">{product.country_origin}</p>
+                            <p className="font-medium text-stone-950">{product.name}</p>
+                            <p className="text-xs text-stone-500">{product.country_origin}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-text-primary">{product.producer_name}</p>
-                        <p className="text-xs text-text-muted">{product.producer_email}</p>
+                        <p className="text-stone-950">{product.producer_name}</p>
+                        <p className="text-xs text-stone-500">{product.producer_email}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-medium text-text-primary">€{Number(product.price || 0).toFixed(2)}</p>
+                        <p className="font-medium text-stone-950">€{Number(product.price || 0).toFixed(2)}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          product.approved
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
                           {product.approved ? (
                             <><CheckCircle className="w-3 h-3" /> {t('contentManagement.status.approved')}</>
                           ) : (
@@ -347,14 +340,12 @@ export default function ContentManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-red-300 text-red-600 hover:bg-red-50"
+                        <button
+                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
                           onClick={() => { setConfirmDelete(product); setDeleteType('product'); }}
                         >
                           <Trash2 className="w-4 h-4" />
-                        </Button>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -369,9 +360,9 @@ export default function ContentManagement() {
       {activeTab === 'certificates' && (
         <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-text-muted">{t('common.loading')}</div>
+            <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
           ) : filteredCertificates.length === 0 ? (
-            <div className="p-8 text-center text-text-muted">
+            <div className="p-8 text-center text-stone-500">
               {t('contentManagement.noCertificatesFound')}
             </div>
           ) : (
@@ -379,19 +370,19 @@ export default function ContentManagement() {
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-200">
                   <tr>
-                    <th className="text-left px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.certificate')}
                     </th>
-                    <th className="text-left px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.producer')}
                     </th>
-                    <th className="text-left px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.issuer')}
                     </th>
-                    <th className="text-left px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-left px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.status')}
                     </th>
-                    <th className="text-right px-6 py-3 text-sm font-medium text-text-secondary">
+                    <th className="text-right px-6 py-3 text-sm font-medium text-stone-600">
                       {t('contentManagement.table.actions')}
                     </th>
                   </tr>
@@ -400,40 +391,32 @@ export default function ContentManagement() {
                   {filteredCertificates.map((cert) => (
                     <tr key={cert.certificate_id} className="hover:bg-stone-50">
                       <td className="px-6 py-4">
-                        <p className="font-medium text-text-primary">{cert.name}</p>
-                        <p className="text-xs text-text-muted">
+                        <p className="font-medium text-stone-950">{cert.name}</p>
+                        <p className="text-xs text-stone-500">
                           {cert.expiry_date ? `Exp: ${new Date(cert.expiry_date).toLocaleDateString()}` : 'Sin expiración'}
                         </p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-text-primary">{cert.producer_name}</p>
-                        <p className="text-xs text-text-muted">{cert.producer_email}</p>
+                        <p className="text-stone-950">{cert.producer_name}</p>
+                        <p className="text-xs text-stone-500">{cert.producer_email}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-text-primary">{cert.issuer || 'N/A'}</p>
+                        <p className="text-stone-950">{cert.issuer || 'N/A'}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          cert.status === 'approved'
-                            ? 'bg-green-100 text-green-800'
-                            : cert.status === 'rejected'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
                           {cert.status === 'approved' && <><CheckCircle className="w-3 h-3" /> {t('contentManagement.status.approved')}</>}
                           {cert.status === 'rejected' && <><XCircle className="w-3 h-3" /> {t('contentManagement.status.rejected')}</>}
                           {cert.status === 'pending' && <><Clock className="w-3 h-3" /> {t('contentManagement.status.pending')}</>}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-red-300 text-red-600 hover:bg-red-50"
+                        <button
+                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
                           onClick={() => { setConfirmDelete(cert); setDeleteType('certificate'); }}
                         >
                           <Trash2 className="w-4 h-4" />
-                        </Button>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -446,7 +429,7 @@ export default function ContentManagement() {
 
       {/* Delete Confirmation Modal */}
       {confirmDelete && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
           onClick={(e) => {
             // Close when clicking on backdrop
@@ -457,42 +440,41 @@ export default function ContentManagement() {
         >
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-100 rounded-full">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div className="p-2 bg-stone-100 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-stone-600" />
               </div>
-              <h3 className="text-lg font-bold text-text-primary">
-                {deleteType === 'product' 
+              <h3 className="text-lg font-bold text-stone-950">
+                {deleteType === 'product'
                   ? t('contentManagement.deleteModal.titleProduct')
                   : t('contentManagement.deleteModal.titleCertificate')
                 }
               </h3>
             </div>
-            
-            <p className="text-text-secondary mb-2">
+
+            <p className="text-stone-600 mb-2">
               {t('contentManagement.deleteModal.message')}
             </p>
-            
+
             <div className="bg-stone-50 rounded-lg p-3 mb-4">
-              <p className="font-medium text-text-primary">{confirmDelete.name}</p>
-              <p className="text-sm text-text-muted">
+              <p className="font-medium text-stone-950">{confirmDelete.name}</p>
+              <p className="text-sm text-stone-500">
                 {confirmDelete.producer_name}
               </p>
             </div>
-            
-            <p className="text-sm text-red-600 mb-4">
+
+            <p className="text-sm text-stone-600 mb-4">
               {t('contentManagement.deleteModal.warning')}
             </p>
-            
+
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
+              <button
+                className="flex-1 px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
                 onClick={() => setConfirmDelete(null)}
               >
                 {t('common.cancel')}
-              </Button>
-              <Button
-                className="flex-1 bg-red-600 hover:bg-red-700"
+              </button>
+              <button
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
                 onClick={() => {
                   if (deleteType === 'product') {
                     deleteProduct(confirmDelete.product_id);
@@ -508,7 +490,7 @@ export default function ContentManagement() {
                   <Trash2 className="w-4 h-4 mr-2" />
                 )}
                 {t('contentManagement.deleteModal.confirm')}
-              </Button>
+              </button>
             </div>
           </div>
         </div>

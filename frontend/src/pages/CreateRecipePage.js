@@ -4,9 +4,6 @@ import { ChefHat, ImagePlus, Loader2, Package, Plus, Search, UploadCloud, X } fr
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -288,7 +285,7 @@ export default function CreateRecipePage() {
 
         <div className="space-y-6">
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-950">1. Imagen principal</Label>
+            <label className="text-sm font-medium text-stone-950">1. Imagen principal</label>
             <div
               onDragOver={(event) => {
                 event.preventDefault();
@@ -336,18 +333,18 @@ export default function CreateRecipePage() {
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-950">2. {t('recipes.recipeName', 'Título')}</Label>
-            <Input
+            <label className="text-sm font-medium text-stone-950">2. {t('recipes.recipeName', 'Título')}</label>
+            <input
               value={recipe.title}
               onChange={(event) => updateRecipe('title', event.target.value)}
               placeholder={t('recipes.recipeName', 'Título de la receta')}
-              className="mt-4 h-12 rounded-full border-stone-200"
+              className="mt-4 h-12 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
               data-testid="recipe-title-input"
             />
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-950">3. Descripción</Label>
+            <label className="text-sm font-medium text-stone-950">3. Descripción</label>
             <textarea
               value={recipe.description}
               onChange={(event) => updateRecipe('description', event.target.value)}
@@ -356,7 +353,7 @@ export default function CreateRecipePage() {
             />
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <div>
-                <Label className="text-xs uppercase tracking-[0.22em] text-stone-500">Dificultad</Label>
+                <label className="text-xs uppercase tracking-[0.22em] text-stone-500">Dificultad</label>
                 <select
                   value={recipe.difficulty}
                   onChange={(event) => updateRecipe('difficulty', event.target.value)}
@@ -369,22 +366,22 @@ export default function CreateRecipePage() {
                 </select>
               </div>
               <div>
-                <Label className="text-xs uppercase tracking-[0.22em] text-stone-500">Tiempo</Label>
-                <Input
+                <label className="text-xs uppercase tracking-[0.22em] text-stone-500">Tiempo</label>
+                <input
                   type="number"
                   value={recipe.time_minutes}
                   onChange={(event) => updateRecipe('time_minutes', Number(event.target.value) || 0)}
-                  className="mt-2 h-11 rounded-full border-stone-200"
+                  className="mt-2 h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
                   data-testid="recipe-time"
                 />
               </div>
               <div>
-                <Label className="text-xs uppercase tracking-[0.22em] text-stone-500">Raciones</Label>
-                <Input
+                <label className="text-xs uppercase tracking-[0.22em] text-stone-500">Raciones</label>
+                <input
                   type="number"
                   value={recipe.servings}
                   onChange={(event) => updateRecipe('servings', Number(event.target.value) || 1)}
-                  className="mt-2 h-11 rounded-full border-stone-200"
+                  className="mt-2 h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
                   data-testid="recipe-servings"
                 />
               </div>
@@ -392,9 +389,9 @@ export default function CreateRecipePage() {
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-950">4. Ingredientes</Label>
+            <label className="text-sm font-medium text-stone-950">4. Ingredientes</label>
             <div className="mt-4 flex gap-2">
-              <Input
+              <input
                 value={manualIngredientInput}
                 onChange={(event) => setManualIngredientInput(event.target.value)}
                 onKeyDown={(event) => {
@@ -404,11 +401,11 @@ export default function CreateRecipePage() {
                   }
                 }}
                 placeholder="Añadir ingrediente manual"
-                className="h-11 rounded-full border-stone-200 bg-white"
+                className="flex-1 h-11 rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
               />
-              <Button type="button" variant="outline" className="h-11 rounded-full" onClick={addManualIngredient}>
+              <button type="button" className="h-11 w-11 rounded-full border border-stone-200 bg-white flex items-center justify-center transition-colors hover:bg-stone-50" onClick={addManualIngredient}>
                 <Plus className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
 
             {suggestionLoading ? (
@@ -462,17 +459,17 @@ export default function CreateRecipePage() {
                         {ingredient.product_id ? 'Conectado con producto de Hispaloshop' : 'Ingrediente personalizado'}
                       </p>
                     </div>
-                    <Input
+                    <input
                       value={ingredient.quantity}
                       onChange={(event) => updateIngredientField(index, 'quantity', event.target.value)}
                       placeholder="Cantidad"
-                      className="h-10 rounded-full border-stone-200 bg-white"
+                      className="h-10 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
                     />
-                    <Input
+                    <input
                       value={ingredient.unit}
                       onChange={(event) => updateIngredientField(index, 'unit', event.target.value)}
                       placeholder="Unidad"
-                      className="h-10 rounded-full border-stone-200 bg-white"
+                      className="h-10 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
                     />
                   </div>
                 ))}
@@ -481,7 +478,7 @@ export default function CreateRecipePage() {
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-950">5. Pasos</Label>
+            <label className="text-sm font-medium text-stone-950">5. Pasos</label>
             <div className="mt-4 space-y-4">
               {recipe.steps.map((step, index) => (
                 <div key={`step-${index}`} className="rounded-xl border border-stone-100 bg-white p-4">
@@ -531,21 +528,21 @@ export default function CreateRecipePage() {
                 </div>
               ))}
             </div>
-            <Button type="button" variant="outline" onClick={addStep} className="mt-4 rounded-full border-stone-200">
+            <button type="button" onClick={addStep} className="mt-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50">
               <Plus className="h-4 w-4" />
               {t('recipes.addStep', 'Añadir paso')}
-            </Button>
+            </button>
           </section>
 
           <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <Label className="text-sm font-medium text-stone-950">6. Ingredientes desde la plataforma</Label>
+            <label className="text-sm font-medium text-stone-950">6. Ingredientes desde la plataforma</label>
             <div className="relative mt-4">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <Input
+              <input
                 value={productQuery}
                 onChange={(event) => searchProducts(event.target.value)}
                 placeholder="Buscar productos de Hispaloshop"
-                className="h-11 rounded-full border-stone-200 bg-white pl-11"
+                className="h-11 w-full rounded-full border border-stone-200 bg-white pl-11 pr-4 text-sm outline-none focus:border-stone-950 transition-colors"
               />
             </div>
 
@@ -597,15 +594,16 @@ export default function CreateRecipePage() {
             </div>
           </section>
 
-          <Button
+          <button
+            type="button"
             onClick={handleSubmit}
             disabled={submitting}
-            className="h-12 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800"
+            className="inline-flex items-center justify-center gap-2 h-12 w-full rounded-full bg-stone-950 text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
             data-testid="publish-recipe-btn"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChefHat className="h-4 w-4" />}
             {t('recipes.publish', 'Publicar receta')}
-          </Button>
+          </button>
         </div>
       </main>
       <Footer />

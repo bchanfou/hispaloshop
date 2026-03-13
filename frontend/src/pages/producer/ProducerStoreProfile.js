@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Textarea } from '../../components/ui/textarea';
 import { toast } from 'sonner';
 import { resolveApiAssetUrl } from '../../utils/api';
 import apiClient from '../../services/api/client';
@@ -56,15 +53,15 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-text-secondary">{label}</label>
-      <div className={`relative ${aspectRatio} rounded-lg border-2 border-dashed border-stone-300 overflow-hidden bg-stone-50`}>
+      <label className="block text-sm font-medium text-stone-600">{label}</label>
+      <div className={`relative ${aspectRatio} rounded-xl border-2 border-dashed border-stone-200 overflow-hidden bg-stone-50`}>
         {value ? (
           <>
             <img src={value} alt={label} className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => onChange('')}
-              className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+              className="absolute top-2 right-2 p-1 bg-stone-950 text-white rounded-full hover:bg-stone-800"
             >
               <X className="w-4 h-4" />
             </button>
@@ -74,7 +71,7 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-stone-400 hover:text-primary transition-colors"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-stone-400 hover:text-stone-950 transition-colors"
           >
             {uploading ? (
               <Loader2 className="w-8 h-8 animate-spin" />
@@ -134,7 +131,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-text-secondary">
+      <label className="block text-sm font-medium text-stone-600">
         Galería de fotos ({images.length}/{maxImages})
       </label>
       <div className="grid grid-cols-3 gap-3">
@@ -144,7 +141,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
             <button
               type="button"
               onClick={() => removeImage(idx)}
-              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+              className="absolute top-1 right-1 p-1 bg-stone-950 text-white rounded-full hover:bg-stone-800"
             >
               <X className="w-3 h-3" />
             </button>
@@ -155,7 +152,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="aspect-square rounded-lg border-2 border-dashed border-stone-300 flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-primary hover:border-primary transition-colors"
+            className="aspect-square rounded-xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-950 hover:border-stone-950 transition-colors"
           >
             {uploading ? (
               <Loader2 className="w-6 h-6 animate-spin" />
@@ -175,7 +172,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
         onChange={handleUpload}
         className="hidden"
       />
-      <p className="text-xs text-text-muted">Fotos del obrador, equipo, proceso de elaboración</p>
+      <p className="text-xs text-stone-500">Fotos del obrador, equipo, proceso de elaboración</p>
     </div>
   );
 }
@@ -240,7 +237,7 @@ export default function ProducerStoreProfile() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-stone-950" />
       </div>
     );
   }
@@ -250,33 +247,38 @@ export default function ProducerStoreProfile() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-serif font-bold text-text-primary flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-stone-950 flex items-center gap-2">
             <Store className="w-6 h-6" />
             Perfil de Tienda
           </h1>
-          <p className="text-text-secondary mt-1">Personaliza la página pública de tu tienda</p>
+          <p className="text-stone-600 mt-1">Personaliza la página pública de tu tienda</p>
         </div>
         <div className="flex items-center gap-3">
           {profile.slug && (
             <Link to={`/store/${profile.slug}`} target="_blank">
-              <Button variant="outline" className="flex items-center gap-2">
+              <button type="button" className="flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-lg text-sm text-stone-700 hover:bg-stone-50 transition-colors">
                 <Eye className="w-4 h-4" />
                 Ver tienda
-              </Button>
+              </button>
             </Link>
           )}
-          <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm rounded-xl transition-colors"
+          >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Guardar cambios
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* URL Preview */}
       {profile.slug && (
         <div className="bg-stone-50 rounded-lg p-3 border border-stone-200">
-          <p className="text-sm text-text-muted">URL de tu tienda:</p>
-          <p className="text-primary font-medium">{window.location.origin}/store/{profile.slug}</p>
+          <p className="text-sm text-stone-500">URL de tu tienda:</p>
+          <p className="text-stone-950 font-medium">{window.location.origin}/store/{profile.slug}</p>
         </div>
       )}
 
@@ -285,7 +287,7 @@ export default function ProducerStoreProfile() {
         <div className="space-y-6">
           {/* Hero & Logo */}
           <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
-            <h2 className="font-semibold text-text-primary flex items-center gap-2">
+            <h2 className="font-semibold text-stone-950 flex items-center gap-2">
               <Image className="w-5 h-5" />
               Identidad Visual
             </h2>
@@ -309,60 +311,65 @@ export default function ProducerStoreProfile() {
 
           {/* Basic Info */}
           <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
-            <h2 className="font-semibold text-text-primary">Información básica</h2>
+            <h2 className="font-semibold text-stone-950">Información básica</h2>
             
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Nombre de la tienda</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">Nombre de la tienda</label>
+              <input
                 value={profile.name}
                 onChange={(e) => updateField('name', e.target.value)}
                 placeholder="Artisan Foods Co"
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Tagline (eslogan corto)</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">Tagline (eslogan corto)</label>
+              <input
                 value={profile.tagline || ''}
                 onChange={(e) => updateField('tagline', e.target.value)}
                 placeholder="Aceites ecológicos desde 1985"
                 maxLength={150}
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
-              <p className="text-xs text-text-muted mt-1">{(profile.tagline || '').length}/150 caracteres</p>
+              <p className="text-xs text-stone-500 mt-1">{(profile.tagline || '').length}/150 caracteres</p>
             </div>
           </div>
 
           {/* Story */}
           <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
-            <h2 className="font-semibold text-text-primary">Nuestra Historia</h2>
+            <h2 className="font-semibold text-stone-950">Nuestra Historia</h2>
             
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Historia de la marca</label>
-              <Textarea
+              <label className="block text-sm font-medium text-stone-600 mb-1">Historia de la marca</label>
+              <textarea
                 value={profile.story || ''}
                 onChange={(e) => updateField('story', e.target.value)}
                 placeholder="Cuenta la historia de tu marca, cómo empezaste, tu filosofía..."
                 rows={5}
                 maxLength={500}
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
               />
-              <p className="text-xs text-text-muted mt-1">{(profile.story || '').length}/500 caracteres</p>
+              <p className="text-xs text-stone-500 mt-1">{(profile.story || '').length}/500 caracteres</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">Nombre del fundador</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">Nombre del fundador</label>
+                <input
                   value={profile.founder_name || ''}
                   onChange={(e) => updateField('founder_name', e.target.value)}
                   placeholder="Carlos Martínez"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">Cita destacada</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">Cita destacada</label>
+                <input
                   value={profile.founder_quote || ''}
                   onChange={(e) => updateField('founder_quote', e.target.value)}
                   placeholder="La calidad no es un accidente..."
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -378,44 +385,48 @@ export default function ProducerStoreProfile() {
         <div className="space-y-6">
           {/* Location */}
           <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
-            <h2 className="font-semibold text-text-primary flex items-center gap-2">
+            <h2 className="font-semibold text-stone-950 flex items-center gap-2">
               <MapPin className="w-5 h-5" />
               Ubicación y Envío
             </h2>
             
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Ubicación (ciudad, región)</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">Ubicación (ciudad, región)</label>
+              <input
                 value={profile.location || ''}
                 onChange={(e) => updateField('location', e.target.value)}
                 placeholder="Jaén, Andalucía, España"
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Dirección completa</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">Dirección completa</label>
+              <input
                 value={profile.full_address || ''}
                 onChange={(e) => updateField('full_address', e.target.value)}
                 placeholder="Ctra. de los Olivares, km 12, 23001 Jaén"
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">Zona de envío</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">Zona de envío</label>
+                <input
                   value={profile.coverage_area || ''}
                   onChange={(e) => updateField('coverage_area', e.target.value)}
                   placeholder="Toda España peninsular"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">Tiempo de entrega</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">Tiempo de entrega</label>
+                <input
                   value={profile.delivery_time || ''}
                   onChange={(e) => updateField('delivery_time', e.target.value)}
                   placeholder="24-48 horas"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -423,87 +434,94 @@ export default function ProducerStoreProfile() {
 
           {/* Contact */}
           <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
-            <h2 className="font-semibold text-text-primary flex items-center gap-2">
+            <h2 className="font-semibold text-stone-950 flex items-center gap-2">
               <Phone className="w-5 h-5" />
               Contacto
             </h2>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">Email de contacto</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">Email de contacto</label>
+                <input
                   type="email"
                   value={profile.contact_email || ''}
                   onChange={(e) => updateField('contact_email', e.target.value)}
                   placeholder="info@tutienda.es"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">Teléfono</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">Teléfono</label>
+                <input
                   value={profile.contact_phone || ''}
                   onChange={(e) => updateField('contact_phone', e.target.value)}
                   placeholder="+34 953 123 456"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">WhatsApp</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">WhatsApp</label>
+                <input
                   value={profile.whatsapp || ''}
                   onChange={(e) => updateField('whatsapp', e.target.value)}
                   placeholder="+34 600 123 456"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">Sitio web</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">Sitio web</label>
+                <input
                   value={profile.website || ''}
                   onChange={(e) => updateField('website', e.target.value)}
                   placeholder="https://tutienda.es"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">Horario de atención</label>
-              <Textarea
+              <label className="block text-sm font-medium text-stone-600 mb-1">Horario de atención</label>
+              <textarea
                 value={profile.business_hours || ''}
                 onChange={(e) => updateField('business_hours', e.target.value)}
                 placeholder="Lun-Vie: 9:00-18:00&#10;Sáb: 9:00-14:00"
                 rows={2}
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
               />
             </div>
           </div>
 
           {/* Social */}
           <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
-            <h2 className="font-semibold text-text-primary flex items-center gap-2">
+            <h2 className="font-semibold text-stone-950 flex items-center gap-2">
               <Globe className="w-5 h-5" />
               Redes Sociales
             </h2>
             
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1 flex items-center gap-2">
+              <label className="block text-sm font-medium text-stone-600 mb-1 flex items-center gap-2">
                 <Instagram className="w-4 h-4" /> Instagram
               </label>
-              <Input
+              <input
                 value={profile.social_instagram || ''}
                 onChange={(e) => updateField('social_instagram', e.target.value)}
                 placeholder="https://instagram.com/tutienda"
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1 flex items-center gap-2">
+              <label className="block text-sm font-medium text-stone-600 mb-1 flex items-center gap-2">
                 <Facebook className="w-4 h-4" /> Facebook
               </label>
-              <Input
+              <input
                 value={profile.social_facebook || ''}
                 onChange={(e) => updateField('social_facebook', e.target.value)}
                 placeholder="https://facebook.com/tutienda"
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
           </div>
@@ -512,10 +530,15 @@ export default function ProducerStoreProfile() {
 
       {/* Save Button (bottom) */}
       <div className="flex justify-end pt-4 border-t border-stone-200">
-        <Button onClick={handleSave} disabled={saving} size="lg" className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-2 px-5 py-2.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
+        >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Guardar todos los cambios
-        </Button>
+        </button>
       </div>
     </div>
   );

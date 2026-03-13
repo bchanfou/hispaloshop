@@ -85,7 +85,7 @@ export default function OnboardingPage() {
   return (
     <OnboardingLayout currentStep={currentStep} totalSteps={TOTAL_STEPS} showSkip={false}>
       {error ? (
-        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700">
           {error}
         </div>
       ) : null}

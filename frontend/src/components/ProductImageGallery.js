@@ -58,14 +58,14 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
       >
         {isOutOfStock && (
           <div className="absolute inset-0 bg-white/70 z-10 flex items-center justify-center rounded-lg" data-testid="out-of-stock-overlay">
-            <div className="bg-red-500 text-white px-4 md:px-6 py-2 md:py-3 rounded-full font-medium text-sm md:text-lg">
+            <div className="bg-stone-950 text-white px-4 md:px-6 py-2 md:py-3 rounded-full font-medium text-sm md:text-lg">
               Agotado
             </div>
           </div>
         )}
 
         <div
-          className={`aspect-square rounded-lg md:rounded-xl overflow-hidden bg-white border border-border-default transition-opacity duration-300 ${isOutOfStock ? 'opacity-60' : ''}`}
+          className={`aspect-square rounded-lg md:rounded-xl overflow-hidden bg-white border border-stone-200 transition-opacity duration-300 ${isOutOfStock ? 'opacity-60' : ''}`}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -92,7 +92,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
               disabled={selectedImageIndex === 0}
               aria-label="Previous image"
             >
-              <ChevronLeft className="w-5 h-5 text-text-primary" />
+              <ChevronLeft className="w-5 h-5 text-stone-950" />
             </button>
             <button
               onClick={goToNext}
@@ -102,7 +102,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
               disabled={selectedImageIndex === productImages.length - 1}
               aria-label="Next image"
             >
-              <ChevronRight className="w-5 h-5 text-text-primary" />
+              <ChevronRight className="w-5 h-5 text-stone-950" />
             </button>
           </>
         )}
@@ -114,7 +114,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
                 key={idx}
                 onClick={() => setSelectedImageIndex(idx)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  selectedImageIndex === idx ? 'bg-text-primary w-4' : 'bg-white/70'
+                  selectedImageIndex === idx ? 'bg-stone-950 w-4' : 'bg-white/70'
                 }`}
                 aria-label={`Go to image ${idx + 1}`}
               />
@@ -124,7 +124,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
       </div>
 
       {showThumbnails && (
-        <div className="hidden md:flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-border-default scrollbar-track-transparent">
+        <div className="hidden md:flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-stone-200 scrollbar-track-transparent">
           {productImages.map((img, idx) => (
             <button
               key={idx}
@@ -133,8 +133,8 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
                 flex-shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden bg-white border-2
                 transition-all duration-200 hover:scale-105
                 ${selectedImageIndex === idx
-                  ? 'border-ds-primary ring-2 ring-ds-primary/20'
-                  : 'border-border-default hover:border-text-muted'
+                  ? 'border-stone-950 ring-2 ring-stone-200'
+                  : 'border-stone-200 hover:border-stone-400'
                 }
               `}
               data-testid={`product-thumbnail-${idx}`}
@@ -154,7 +154,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
 
       {showThumbnails && (
         <div className="hidden md:block text-center">
-          <p className="text-xs text-text-muted font-body">
+          <p className="text-xs text-stone-500">
             {selectedImageIndex + 1} / {productImages.length}
           </p>
         </div>

@@ -58,7 +58,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
               className="absolute right-4 top-4 rounded-full bg-white/80 p-2 backdrop-blur-sm"
               aria-label="Cerrar producto"
             >
-              <X className="h-5 w-5 text-text-muted" />
+              <X className="h-5 w-5 text-stone-500" />
             </button>
 
             <div className="relative h-64 bg-stone-100">
@@ -74,11 +74,11 @@ function ProductDrawer({ isOpen, onClose, product }) {
                 <div className="flex-1">
                   <h2 className="text-xl font-bold text-stone-950">{product.name}</h2>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="text-2xl font-bold text-accent">
+                    <span className="text-2xl font-bold text-stone-950">
                       €{product.price.toFixed(2)}
                     </span>
                     {product.originalPrice ? (
-                      <span className="text-sm text-text-muted line-through">
+                      <span className="text-sm text-stone-500 line-through">
                         €{product.originalPrice.toFixed(2)}
                       </span>
                     ) : null}
@@ -88,10 +88,10 @@ function ProductDrawer({ isOpen, onClose, product }) {
 
               <div className="mt-3 flex items-center gap-2">
                 <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-state-amber text-state-amber" />
+                  <Star className="h-4 w-4 fill-stone-400 text-stone-400" />
                   <span className="text-sm font-semibold">{product.rating || '4.8'}</span>
                 </div>
-                <span className="text-sm text-text-muted">
+                <span className="text-sm text-stone-500">
                   ({product.reviews || '124'} valoraciones)
                 </span>
               </div>
@@ -100,19 +100,19 @@ function ProductDrawer({ isOpen, onClose, product }) {
                 onClick={handleViewStore}
                 className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl bg-stone-50 p-3 transition-colors hover:bg-stone-100"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent font-bold text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 font-bold text-white">
                   {product.seller?.[0] || 'V'}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">{product.seller || 'Vendedor'}</p>
-                  <p className="text-xs text-text-muted">Ver tienda completa</p>
+                  <p className="text-xs text-stone-500">Ver tienda completa</p>
                 </div>
-                <Store className="h-5 w-5 text-text-muted" />
+                <Store className="h-5 w-5 text-stone-500" />
               </div>
 
               <div className="mt-4">
                 <h3 className="mb-2 text-sm font-semibold">Descripción</h3>
-                <p className="text-sm leading-relaxed text-text-muted">
+                <p className="text-sm leading-relaxed text-stone-500">
                   {product.description || 'Producto artesanal de alta calidad elaborado con ingredientes seleccionados. Envío en 24-48 h.'}
                 </p>
               </div>
@@ -121,7 +121,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
                 {['Envío gratis', 'Garantía', 'Devolución 14 d'].map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent"
+                    className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700"
                   >
                     {tag}
                   </span>
@@ -133,7 +133,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
               <button
                 onClick={handleAddToCart}
                 className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-semibold transition-colors ${
-                  addedToCart ? 'bg-green-500 text-white' : 'bg-accent text-white hover:bg-accent/90'
+                  addedToCart ? 'bg-stone-700 text-white' : 'bg-stone-950 text-white hover:bg-stone-800'
                 }`}
               >
                 {addedToCart ? (
@@ -151,7 +151,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
 
               <button
                 onClick={() => toast.info('Chat con vendedor próximamente')}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-accent py-3.5 font-semibold text-accent hover:bg-accent/5"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-stone-950 py-3.5 font-semibold text-stone-950 hover:bg-stone-50"
               >
                 <MessageCircle className="h-5 w-5" />
                 Consultar al vendedor
@@ -159,7 +159,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
 
               <button
                 onClick={handleViewProduct}
-                className="w-full py-3 text-sm font-medium text-text-muted"
+                className="w-full py-3 text-sm font-medium text-stone-500"
               >
                 Ver ficha completa del producto
               </button>

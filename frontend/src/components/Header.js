@@ -15,8 +15,6 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
 import { getDefaultRoute } from '../lib/navigation';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
 
 const NAV_LINKS = [
   { labelKey: 'nav.explore', fallback: 'Explorar', to: '/discover' },
@@ -112,7 +110,7 @@ export default function Header() {
                 <img src="/logo.png" alt="Hispaloshop" className="h-7 w-7 object-contain" loading="lazy" />
               </div>
               <div className="min-w-0">
-                <span className="block font-body text-base font-semibold tracking-tight text-stone-950 md:text-lg">
+                <span className="block text-base font-semibold tracking-tight text-stone-950 md:text-lg">
                   Hispaloshop
                 </span>
                 <span className="hidden text-xs text-stone-500 md:block">
@@ -136,12 +134,13 @@ export default function Header() {
             <form onSubmit={runSearch} className="hidden min-w-0 flex-1 xl:flex">
               <div className="relative w-full max-w-2xl">
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                <Input
+                <input
+                  type="text"
                   aria-label={t('nav.search', 'Buscar')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t('nav.searchPlaceholder', 'Buscar productos, marcas o tiendas')}
-                  className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 pr-4 text-sm focus:border-stone-950"
+                  className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 pr-4 text-sm outline-none focus:border-stone-950"
                   data-testid="header-search-input"
                 />
               </div>
@@ -187,19 +186,17 @@ export default function Header() {
                 </Link>
               ) : (
                 <>
-                  <Link to="/login" className="hidden md:block">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-10 rounded-full px-4 text-sm text-stone-700 hover:bg-stone-100 hover:text-stone-950"
-                    >
-                      {t('auth.login', 'Iniciar sesión')}
-                    </Button>
+                  <Link
+                    to="/login"
+                    className="hidden h-10 items-center rounded-full px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-stone-950 md:flex"
+                  >
+                    {t('auth.login', 'Iniciar sesión')}
                   </Link>
-                  <Link to="/register/new" className="hidden md:block">
-                    <Button size="sm" className="h-10 rounded-full bg-stone-950 px-5 text-sm text-white hover:bg-stone-800">
-                      {t('auth.createAccount', 'Crear cuenta')}
-                    </Button>
+                  <Link
+                    to="/register/new"
+                    className="hidden h-10 items-center rounded-full bg-stone-950 px-5 text-sm font-medium text-white transition-colors hover:bg-stone-800 md:flex"
+                  >
+                    {t('auth.createAccount', 'Crear cuenta')}
                   </Link>
                 </>
               )}
@@ -264,34 +261,37 @@ export default function Header() {
                   <div className="border-t border-stone-100 px-5 py-4">
                     {user ? (
                       <div className="space-y-2">
-                        <Link to={dashboardUrl} onClick={() => setMenuOpen(false)}>
-                          <Button className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800">
-                            <LayoutDashboard className="h-4 w-4" />
-                            {t('nav.goToDashboard', 'Ir a mi panel')}
-                          </Button>
+                        <Link
+                          to={dashboardUrl}
+                          onClick={() => setMenuOpen(false)}
+                          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-stone-950 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          {t('nav.goToDashboard', 'Ir a mi panel')}
                         </Link>
-                        <Button
-                          variant="outline"
+                        <button
+                          type="button"
                           onClick={handleLogout}
-                          className="h-11 w-full rounded-full border-stone-300 text-stone-700 hover:bg-stone-50"
+                          className="h-11 w-full rounded-full border border-stone-300 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
                         >
                           {t('auth.logout', 'Cerrar sesión')}
-                        </Button>
+                        </button>
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        <Link to="/register/new" onClick={() => setMenuOpen(false)}>
-                          <Button className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800">
-                            {t('auth.createAccount', 'Crear cuenta')}
-                          </Button>
+                        <Link
+                          to="/register/new"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex h-11 w-full items-center justify-center rounded-full bg-stone-950 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+                        >
+                          {t('auth.createAccount', 'Crear cuenta')}
                         </Link>
-                        <Link to="/login" onClick={() => setMenuOpen(false)}>
-                          <Button
-                            variant="outline"
-                            className="h-11 w-full rounded-full border-stone-300 text-stone-700 hover:bg-stone-50"
-                          >
-                            {t('auth.login', 'Iniciar sesión')}
-                          </Button>
+                        <Link
+                          to="/login"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex h-11 w-full items-center justify-center rounded-full border border-stone-300 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                        >
+                          {t('auth.login', 'Iniciar sesión')}
                         </Link>
                       </div>
                     )}
@@ -305,12 +305,13 @@ export default function Header() {
             <form onSubmit={runSearch} className="border-t border-stone-100 pb-4 pt-3 xl:hidden">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                <Input
+                <input
+                  type="text"
                   aria-label={t('nav.search', 'Buscar')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t('nav.searchPlaceholder', 'Buscar productos, marcas o tiendas')}
-                  className="h-11 w-full rounded-full border-stone-200 bg-stone-50 pl-11 pr-4 text-sm focus:border-stone-950"
+                  className="h-11 w-full rounded-full border-stone-200 bg-stone-50 pl-11 pr-4 text-sm border outline-none focus:border-stone-950"
                 />
               </div>
             </form>

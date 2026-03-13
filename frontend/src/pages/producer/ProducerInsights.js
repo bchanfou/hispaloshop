@@ -56,7 +56,7 @@ export default function ProducerInsights() {
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="font-body text-xl font-semibold text-stone-950">Insights de producto</h1>
+              <h1 className="text-xl font-semibold text-stone-950">Insights de producto</h1>
               <p className="text-sm text-stone-500">Descubrimiento y conversión de tu catálogo</p>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default function ProducerInsights() {
 
         {/* Products table */}
         <div>
-          <h2 className="mb-4 font-body text-base font-semibold text-stone-950">
+          <h2 className="mb-4 text-base font-semibold text-stone-950">
             Rendimiento por producto
           </h2>
           <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
@@ -161,7 +161,7 @@ export default function ProducerInsights() {
         {/* Recipes featuring products */}
         {recipes.length > 0 && (
           <div>
-            <h2 className="mb-4 font-body text-base font-semibold text-stone-950">
+            <h2 className="mb-4 text-base font-semibold text-stone-950">
               Recetas que usan tus productos
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -50,10 +50,10 @@ export default function CustomerLayoutResponsive() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-ds-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-text-muted">Cargando...</p>
+          <div className="w-10 h-10 border-2 border-stone-950 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-stone-500">Cargando...</p>
         </div>
       </div>
     );
@@ -62,9 +62,9 @@ export default function CustomerLayoutResponsive() {
   // Not logged in
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-text-secondary mb-4">Inicia sesión para acceder a tu cuenta.</p>
+          <p className="text-stone-600 mb-4">Inicia sesión para acceder a tu cuenta.</p>
           <button 
             onClick={() => navigate('/login')} 
             className="text-stone-950 hover:underline font-medium"
@@ -91,18 +91,18 @@ export default function CustomerLayoutResponsive() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* ===== MOBILE HEADER ===== */}
       <header className="mobile-header md:hidden">
         <button 
           onClick={() => navigate('/')}
-          className="p-2 -ml-2 text-text-muted hover:text-text-primary transition-colors"
+          className="p-2 -ml-2 text-stone-500 hover:text-stone-950 transition-colors"
           data-testid="mobile-back-button"
         >
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
         
-        <h1 className="font-heading text-base font-semibold text-text-primary">
+        <h1 className="text-base font-semibold text-stone-950">
           {t('customer.myAccount', 'Mi Cuenta')}
         </h1>
         
@@ -112,11 +112,11 @@ export default function CustomerLayoutResponsive() {
       {/* ===== DESKTOP SIDEBAR ===== */}
       <aside className="hidden md:flex desktop-sidebar">
         {/* Header */}
-        <div className="p-5 border-b border-border-default">
+        <div className="p-5 border-b border-stone-200">
           <div className="flex items-center justify-between mb-4">
             <button 
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm"
+              className="flex items-center gap-2 text-stone-500 hover:text-stone-950 transition-colors text-sm"
               data-testid="desktop-back-button"
             >
               <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
@@ -124,10 +124,10 @@ export default function CustomerLayoutResponsive() {
             </button>
             <LanguageSwitcher variant="minimal" />
           </div>
-          <h1 className="font-heading text-lg font-semibold text-text-primary tracking-editorial">
+          <h1 className="text-lg font-semibold text-stone-950 tracking-editorial">
             {t('customer.myAccount', 'Mi Cuenta')}
           </h1>
-          <p className="text-xs text-text-muted mt-1">{t('customer.manageAccount', 'Gestiona tu cuenta')}</p>
+          <p className="text-xs text-stone-500 mt-1">{t('customer.manageAccount', 'Gestiona tu cuenta')}</p>
         </div>
 
         {/* Navigation */}
@@ -138,10 +138,10 @@ export default function CustomerLayoutResponsive() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 text-sm ${
+                `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
                   isActive
                     ? 'bg-stone-100 text-stone-950 font-medium'
-                    : 'text-text-secondary hover:bg-stone-100'
+                    : 'text-stone-600 hover:bg-stone-100'
                 }`
               }
               data-testid={`desktop-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
@@ -151,7 +151,7 @@ export default function CustomerLayoutResponsive() {
                 <span>{item.label}</span>
               </div>
               {item.badge > 0 && (
-                <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                <span className="bg-stone-950 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
                   {item.badge}
                 </span>
               )}
@@ -161,7 +161,7 @@ export default function CustomerLayoutResponsive() {
           {/* Shop Link */}
           <NavLink
             to="/products"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-stone-100 mt-4 border-t border-border-default pt-4 text-sm"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-600 hover:bg-stone-100 mt-4 border-t border-stone-200 pt-4 text-sm"
           >
             <Store className="w-5 h-5" strokeWidth={1.5} />
             <span>{t('customer.continueShopping', 'Seguir Comprando')}</span>
@@ -169,15 +169,15 @@ export default function CustomerLayoutResponsive() {
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-border-default">
+        <div className="p-4 border-t border-stone-200">
           <div className="flex items-center justify-between">
             <div className="min-w-0">
-              <p className="text-sm font-medium text-text-primary truncate">{user.name}</p>
-              <p className="text-xs text-text-muted truncate">{user.email}</p>
+              <p className="text-sm font-medium text-stone-950 truncate">{user.name}</p>
+              <p className="text-xs text-stone-500 truncate">{user.email}</p>
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 text-text-muted hover:text-red-600 transition-colors"
+              className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
               title="Cerrar sesión"
               data-testid="desktop-logout-button"
             >
@@ -214,7 +214,7 @@ export default function CustomerLayoutResponsive() {
               <div className="relative">
                 <item.icon className="w-4 h-4" strokeWidth={1.5} />
                 {item.badge > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-stone-950 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
                     {item.badge > 9 ? '9+' : item.badge}
                   </span>
                 )}

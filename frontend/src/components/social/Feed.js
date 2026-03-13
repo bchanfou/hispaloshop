@@ -47,7 +47,7 @@ export function SocialFeed({ type = 'for_you' }) {
   if (status === 'loading') {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-stone-600" />
       </div>
     );
   }
@@ -55,10 +55,10 @@ export function SocialFeed({ type = 'for_you' }) {
   if (status === 'error') {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600 mb-4">Error cargando feed</p>
-        <button 
+        <p className="text-stone-600 mb-4">Error cargando feed</p>
+        <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+          className="px-4 py-2 bg-stone-950 text-white rounded-lg hover:bg-stone-800 transition-colors"
         >
           Reintentar
         </button>

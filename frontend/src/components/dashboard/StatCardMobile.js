@@ -13,28 +13,28 @@ export default function StatCardMobile({
   className = ''
 }) {
   const colorClasses = {
-    primary: 'bg-ds-accent/10 text-ds-accent',
-    success: 'bg-green-50 text-green-600',
-    warning: 'bg-amber-50 text-amber-600',
-    danger: 'bg-red-50 text-red-600',
-    info: 'bg-blue-50 text-blue-600',
+    primary: 'bg-stone-100 text-stone-700',
+    success: 'bg-stone-950 text-white',
+    warning: 'bg-stone-200 text-stone-700',
+    danger: 'bg-stone-800 text-stone-100',
+    info: 'bg-stone-100 text-stone-600',
   };
 
   const Content = () => (
     <div className={`stat-card-mobile ${className}`}>
       {Icon && (
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${colorClasses[color]}`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-2 ${colorClasses[color]}`}>
           <Icon className="w-5 h-5" strokeWidth={1.5} />
         </div>
       )}
       <div className="stat-value">{value}</div>
       <div className="stat-label">{label}</div>
       {sublabel && (
-        <div className="text-xs text-text-muted mt-1">{sublabel}</div>
+        <div className="text-xs text-stone-500 mt-1">{sublabel}</div>
       )}
       {trend && (
         <div className={`flex items-center gap-1 mt-2 text-xs font-medium ${
-          trend === 'up' ? 'text-green-600' : trend === 'down' ? 'text-red-600' : 'text-text-muted'
+          trend === 'up' ? 'text-stone-700' : trend === 'down' ? 'text-stone-700' : 'text-stone-500'
         }`}>
           {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'}
           <span>{trendValue}</span>

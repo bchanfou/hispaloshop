@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Bookmark, ChefHat, Heart, Loader2, MessageCircle, Package, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
-import { Button } from '../../components/ui/button';
 import apiClient from '../../services/api/client';
 
 function SummaryCard({ icon: Icon, title, value, description, to }) {
@@ -106,7 +105,7 @@ export default function CustomerDashboard() {
                 <Package className="mx-auto h-10 w-10 text-stone-300" />
                 <p className="mt-3 text-sm text-stone-500">Todavía no tienes pedidos.</p>
                 <Link to="/products">
-                  <Button className="mt-4">Explorar productos</Button>
+                  <button className="mt-4 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors">Explorar productos</button>
                 </Link>
               </div>
             ) : (

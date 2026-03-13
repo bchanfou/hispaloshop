@@ -110,42 +110,42 @@ function ProducerDashboard() {
       id: 'add',
       icon: Plus,
       label: 'Añadir producto',
-      color: 'var(--color-accent)',
+      color: '#1c1917',
       onClick: () => navigate('/producer/products')
     },
     {
       id: 'orders',
       icon: ShoppingCart,
       label: 'Gestionar pedidos',
-      color: 'var(--color-warning)',
+      color: '#44403c',
       onClick: () => navigate('/producer/orders')
     },
     {
       id: 'analytics',
       icon: BarChart3,
       label: 'Análisis',
-      color: 'var(--color-info)',
+      color: '#78716c',
       onClick: () => navigate('/producer/payments')
     },
     {
       id: 'promo',
       icon: Tag,
       label: 'Promociones',
-      color: 'var(--color-success)',
+      color: '#1c1917',
       onClick: () => navigate('/producer/store')
     }
   ];
 
   if (dashboardQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-background-subtle flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-subtle p-4 pb-24">
+    <div className="min-h-screen bg-stone-50 p-4 pb-24">
       <DashboardHeader
         userName={user?.name || 'Productor'}
         subtitle="Resumen de tu negocio"
@@ -174,7 +174,7 @@ function ProducerDashboard() {
           value={dashboardData.kpis.orders}
           label="Pedidos"
           subtext="este mes"
-          accentColor="#E6A532"
+          accentColor="#44403c"
           onClick={() => navigate('/producer/orders')}
         />
         <KPICard
@@ -182,7 +182,7 @@ function ProducerDashboard() {
           value={dashboardData.kpis.rating}
           label="Valoracion"
           subtext="media"
-          accentColor="#16A34A"
+          accentColor="#1c1917"
         />
       </div>
 
@@ -202,7 +202,7 @@ function ProducerDashboard() {
           <h3 className="font-semibold text-stone-950">Evolución de ventas</h3>
           <p className="text-xs text-stone-500">Ingresos semanales</p>
         </div>
-        <AreaChart data={dashboardData.chart.actual} labels={dashboardData.chart.labels} color="#2D5A3D" />
+        <AreaChart data={dashboardData.chart.actual} labels={dashboardData.chart.labels} color="#1c1917" />
       </div>
 
       <div className="mb-6">
@@ -213,7 +213,7 @@ function ProducerDashboard() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-stone-950">Pedidos pendientes</h3>
-          <button onClick={() => navigate('/producer/orders')} className="text-sm text-accent font-medium">
+          <button onClick={() => navigate('/producer/orders')} className="text-sm text-stone-500 font-medium">
             Ver todos
           </button>
         </div>

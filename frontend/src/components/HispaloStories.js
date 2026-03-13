@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import apiClient from '../services/api/client';
 import { Camera, ChevronRight, Loader2, Plus, ShoppingBag, Trash2, User, X } from 'lucide-react';
@@ -247,7 +248,7 @@ function StoryViewer({ group, onClose }) {
 
       {parsedCaption.text ? (
         <div className="pointer-events-none absolute z-[3]" style={{ left: `${parsedCaption.text.x}%`, top: `${parsedCaption.text.y}%` }}>
-          <p className="inline-block rounded-lg bg-black/20 px-3 py-1.5 text-lg font-bold text-white backdrop-blur-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          <p className="inline-block rounded-xl bg-black/20 px-3 py-1.5 text-lg font-bold text-white backdrop-blur-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             {parsedCaption.text.value}
           </p>
         </div>
@@ -264,7 +265,7 @@ function StoryViewer({ group, onClose }) {
           <div className="flex items-center gap-2 rounded-xl bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm">
             <ShoppingBag className="h-4 w-4 shrink-0 text-stone-950" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-stone-900">{parsedCaption.product.name}</p>
+              <p className="truncate text-xs font-semibold text-stone-950">{parsedCaption.product.name}</p>
               <p className="text-xs font-bold text-stone-600">{parsedCaption.product.price} €</p>
             </div>
             <ChevronRight className="h-4 w-4 text-stone-400" />
@@ -389,7 +390,7 @@ function StoryUploadModal({ onClose, onPublished }) {
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4" data-testid="story-upload-modal">
       <div className="flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl bg-white">
         <div className="flex shrink-0 items-center justify-between border-b border-stone-100 p-4">
-          <h3 className="font-semibold text-stone-900">{t('stories.uploadStory', 'Subir historia')}</h3>
+          <h3 className="font-semibold text-stone-950">{t('stories.uploadStory', 'Subir historia')}</h3>
           <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-stone-100" aria-label={t('common.close', 'Cerrar')}>
             <X className="h-5 w-5 text-stone-500" />
           </button>
@@ -408,7 +409,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                   onRemove={() => removeOverlay(overlay.id)}
                 >
                   {overlay.type === 'text' ? (
-                    <p className="whitespace-nowrap rounded-lg bg-black/30 px-3 py-1 text-base font-bold text-white backdrop-blur-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                    <p className="whitespace-nowrap rounded-xl bg-black/30 px-3 py-1 text-base font-bold text-white backdrop-blur-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                       {overlay.value}
                     </p>
                   ) : (
@@ -422,7 +423,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                   <div className="flex items-center gap-2 rounded-xl bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm">
                     <ShoppingBag className="h-4 w-4 shrink-0 text-stone-950" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-stone-900">{taggedProduct.name}</p>
+                      <p className="truncate text-xs font-semibold text-stone-950">{taggedProduct.name}</p>
                       <p className="text-xs font-bold text-stone-600">{asNumber(taggedProduct.price).toFixed(2)} €</p>
                     </div>
                   </div>
@@ -447,7 +448,7 @@ function StoryUploadModal({ onClose, onPublished }) {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="mb-3 flex aspect-[9/16] max-h-[40vh] w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-stone-300 bg-stone-50 transition-colors hover:bg-stone-100"
+              className="mb-3 flex aspect-[9/16] max-h-[40vh] w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-stone-200 bg-stone-50 transition-colors hover:bg-stone-100"
               data-testid="story-upload-area"
             >
               <Camera className="h-10 w-10 text-stone-400" />
@@ -463,7 +464,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                 <button
                   type="button"
                   onClick={() => setShowTextInput((current) => !current)}
-                  className={`flex-1 rounded-lg border py-2 text-xs font-medium transition-colors ${
+                  className={`flex-1 rounded-xl border py-2 text-xs font-medium transition-colors ${
                     showTextInput ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100'
                   }`}
                   data-testid="story-text-btn"
@@ -473,7 +474,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                 <button
                   type="button"
                   onClick={() => setShowProductSearch((current) => !current)}
-                  className={`flex-1 rounded-lg border py-2 text-xs font-medium transition-colors ${
+                  className={`flex-1 rounded-xl border py-2 text-xs font-medium transition-colors ${
                     showProductSearch ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100'
                   }`}
                   data-testid="story-product-btn"
@@ -512,7 +513,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                     key={sticker}
                     type="button"
                     onClick={() => addSticker(sticker)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-stone-50 text-lg transition-all hover:scale-110 hover:bg-stone-100 active:scale-95"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-50 text-lg transition-all hover:scale-110 hover:bg-stone-100 active:scale-95"
                     aria-label={t('stories.addSticker', 'Añadir sticker')}
                   >
                     {sticker}
@@ -540,7 +541,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                         setProductSearch('');
                         setProductResults([]);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg p-2 text-left hover:bg-stone-50"
+                      className="flex w-full items-center gap-2 rounded-xl p-2 text-left hover:bg-stone-50"
                     >
                       {product.images?.[0] ? (
                         <img src={product.images[0]} alt={product.name} loading="lazy" className="h-8 w-8 rounded object-cover" />
@@ -552,7 +553,7 @@ function StoryUploadModal({ onClose, onPublished }) {
                     </button>
                   ))}
                   {taggedProduct ? (
-                    <div className="mt-1 flex items-center gap-2 rounded-lg bg-stone-100 p-2">
+                    <div className="mt-1 flex items-center gap-2 rounded-xl bg-stone-100 p-2">
                       <ShoppingBag className="h-4 w-4 text-stone-950" />
                       <span className="flex-1 truncate text-xs font-medium">{taggedProduct.name}</span>
                       <button type="button" onClick={() => setTaggedProduct(null)} className="p-0.5" aria-label={t('common.remove', 'Eliminar')}>
@@ -626,8 +627,9 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
       >
         {/* ── "Tu historia" — avatar del usuario + badge + ── */}
         {user ? (
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.9 }}
             onClick={() => {
               onCreateStory?.();
               setShowUpload(true);
@@ -660,16 +662,17 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
             <span className="w-[62px] truncate text-center text-[11px] font-medium text-stone-600">
               Tu historia
             </span>
-          </button>
+          </motion.button>
         ) : null}
 
         {/* ── Story circles de otros usuarios ── */}
         {storyGroups.map((group) => {
           const isOwn = group.is_own;
           return (
-            <button
+            <motion.button
               key={group.user_id}
               type="button"
+              whileTap={{ scale: 0.9 }}
               onClick={() => {
                 onViewStory?.(group);
                 setActiveGroup(group);
@@ -713,7 +716,7 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
               <span className="w-[62px] truncate text-center text-[11px] font-medium text-stone-600">
                 {isOwn ? t('stories.yourStory', 'Tu historia') : firstToken(group.user_name, '')}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>

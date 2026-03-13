@@ -10,7 +10,7 @@ export default function ProducerConnectRefresh() {
 
   return (
     <div className="flex items-center justify-center py-16">
-      <p className="text-sm text-text-muted">Redirigiendo...</p>
+      <p className="text-sm text-stone-500">Redirigiendo...</p>
     </div>
   );
 }

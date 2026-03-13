@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-function ComboChart({ barData, lineData, labels, height = 160, barColor = '#2D5A3D', lineColor = '#E6A532' }) {
+function ComboChart({ barData, lineData, labels, height = 160, barColor = '#1c1917', lineColor = '#78716c' }) {
   const maxBarValue = Math.max(...barData);
   const maxLineValue = Math.max(...lineData);
   
@@ -19,7 +19,7 @@ function ComboChart({ barData, lineData, labels, height = 160, barColor = '#2D5A
                   initial={{ height: 0 }}
                   animate={{ height: `${heightPercent}%` }}
                   transition={{ duration: 0.5, delay: index * 0.05 }}
-                  className="w-full rounded-t-lg opacity-80"
+                  className="w-full rounded-t-xl opacity-80"
                   style={{ backgroundColor: barColor }}
                 />
               </div>
@@ -76,7 +76,7 @@ function ComboChart({ barData, lineData, labels, height = 160, barColor = '#2D5A
       {/* Labels */}
       <div className="flex justify-between mt-2">
         {labels.map((label, index) => (
-          <span key={index} className="text-xs text-text-muted flex-1 text-center">
+          <span key={index} className="text-xs text-stone-500 flex-1 text-center">
             {label}
           </span>
         ))}

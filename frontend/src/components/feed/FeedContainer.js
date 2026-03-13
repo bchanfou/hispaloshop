@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import FollowingFeed from './FollowingFeed';
 import ForYouFeed from './ForYouFeed';
 import StoriesCarousel from '../stories/StoriesCarousel';
@@ -28,8 +29,7 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
   }, []);
 
   const handleCreateStory = () => {
-    const event = new CustomEvent('open-creator', { detail: { mode: 'story' } });
-    window.dispatchEvent(event);
+    window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
   };
 
   const handleViewStory = () => {
@@ -38,27 +38,41 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Stories — pegadas al header, sin padding extra */}
+      {/* Stories */}
       <StoriesCarousel onCreateStory={handleCreateStory} onViewStory={handleViewStory} />
 
-      {/* Spinner de refresh */}
-      {isRefreshing ? (
-        <div className="py-4">
-          <div className="flex items-center justify-center gap-2">
+      {/* Refresh indicator */}
+      <AnimatePresence>
+        {isRefreshing ? (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-center justify-center gap-2 py-3"
+          >
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
-            <span className="text-[13px] text-stone-400">Actualizando...</span>
-          </div>
-        </div>
-      ) : null}
+            <span className="text-[12px] font-medium text-stone-400">Actualizando</span>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
-      {/* Feed */}
-      <div className="relative">
-        {activeTab === 'following' ? (
-          <FollowingFeed key={`following-${isRefreshing}`} onRefresh={handleRefresh} />
-        ) : (
-          <ForYouFeed key={`foryou-${isRefreshing}`} onRefresh={handleRefresh} />
-        )}
-      </div>
+      {/* Feed — crossfade al cambiar tab */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.18, ease: [0, 0, 0.2, 1] }}
+        >
+          {activeTab === 'following' ? (
+            <FollowingFeed key={`following-${isRefreshing}`} onRefresh={handleRefresh} />
+          ) : (
+            <ForYouFeed key={`foryou-${isRefreshing}`} onRefresh={handleRefresh} />
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

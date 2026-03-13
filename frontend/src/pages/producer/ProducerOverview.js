@@ -7,7 +7,6 @@ import {
   AlertCircle, Users, TrendingUp, Heart, Star, 
   Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle
 } from 'lucide-react';
-import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import PlanManager from '../../components/PlanManager';
@@ -94,7 +93,7 @@ function StripeConnectSection() {
   if (loading) {
     return (
       <div className="dashboard-card p-4 md:p-6">
-        <div className="flex items-center gap-2 text-text-muted">
+        <div className="flex items-center gap-2 text-stone-500">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span className="text-sm">Cargando estado de Stripe...</span>
         </div>
@@ -107,17 +106,17 @@ function StripeConnectSection() {
 
   return (
     <div 
-      className={`dashboard-card p-4 md:p-6 ${isConnected ? 'border-green-200 bg-green-50/50' : 'border-amber-200 bg-amber-50/50'}`}
+      className={`dashboard-card p-4 md:p-6 ${isConnected ? 'border-stone-200 bg-stone-50' : 'border-stone-200 bg-stone-50'}`}
       data-testid="stripe-connect-section"
     >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className={`p-2.5 rounded-lg ${isConnected ? 'bg-green-100' : 'bg-amber-100'}`}>
-            <CreditCard className={`w-5 h-5 ${isConnected ? 'text-green-600' : 'text-amber-600'}`} />
+          <div className={`p-2.5 rounded-lg bg-stone-100`}>
+            <CreditCard className={`w-5 h-5 text-stone-700`} />
           </div>
           <div>
-            <h3 className="font-medium text-text-primary">Stripe Payouts</h3>
-            <p className={`text-sm flex items-center gap-1 ${isConnected ? 'text-green-700' : 'text-amber-700'}`}>
+            <h3 className="font-medium text-stone-950">Stripe Payouts</h3>
+            <p className={`text-sm flex items-center gap-1 text-stone-700`}>
               {isConnected ? (
                 <>
                   <CheckCircle className="w-4 h-4" />
@@ -130,13 +129,13 @@ function StripeConnectSection() {
                 </>
               )}
             </p>
-            <p className="text-xs text-text-muted mt-1">
+            <p className="text-xs text-stone-500 mt-1">
               {isConnected 
                 ? 'Recibirás el 82% de cada venta automáticamente.'
                 : 'Conecta Stripe para recibir pagos.'}
             </p>
             {!isConnected && pendingRequirements.length > 0 && (
-              <p className="text-xs text-amber-700 mt-1">
+              <p className="text-xs text-stone-600 mt-1">
                 Pendientes: {pendingRequirements.length} requisito(s) en Stripe.
               </p>
             )}
@@ -145,22 +144,21 @@ function StripeConnectSection() {
         
         <div className="ml-10 md:ml-0">
           {isConnected ? (
-            <Button
-              variant="outline"
-              size="sm"
+            <button
+              type="button"
               onClick={handleViewStripeDashboard}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 px-3 py-1.5 border border-stone-200 rounded-lg text-sm text-stone-700 hover:bg-stone-50 transition-colors"
               data-testid="view-stripe-dashboard"
             >
               <ExternalLink className="w-4 h-4" />
               <span className="hidden sm:inline">Ver Dashboard</span>
-            </Button>
+            </button>
           ) : (
-            <Button
+            <button
+              type="button"
               onClick={handleConnectStripe}
               disabled={connecting}
-              size="sm"
-              className="bg-ds-accent hover:bg-ds-accent/90 text-white"
+              className="flex items-center gap-2 px-3 py-1.5 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm rounded-lg transition-colors"
               data-testid="connect-stripe-button"
             >
               {connecting ? (
@@ -168,7 +166,7 @@ function StripeConnectSection() {
               ) : (
                 'Conectar Stripe'
               )}
-            </Button>
+            </button>
           )}
         </div>
       </div>
@@ -222,19 +220,19 @@ function HealthScoreCard() {
         {/* Metrics Summary - Mobile */}
         <div className="grid grid-cols-3 gap-3 mt-4">
           <div className="dashboard-card p-3 text-center">
-            <div className="text-xl font-bold text-text-primary">{healthData.metrics.orders_30d}</div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider">{t('customerDashboard.orders', 'Pedidos')}</div>
+            <div className="text-xl font-bold text-stone-950">{healthData.metrics.orders_30d}</div>
+            <div className="text-[10px] text-stone-500 uppercase tracking-wider">{t('customerDashboard.orders', 'Pedidos')}</div>
           </div>
           <div className="dashboard-card p-3 text-center">
-            <div className="text-xl font-bold text-text-primary">€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider">Ventas</div>
+            <div className="text-xl font-bold text-stone-950">€{asNumber(healthData.metrics.revenue_30d).toFixed(0)}</div>
+            <div className="text-[10px] text-stone-500 uppercase tracking-wider">Ventas</div>
           </div>
           <div className="dashboard-card p-3 text-center">
             <div className="flex items-center justify-center gap-1">
-              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-              <span className="text-xl font-bold text-text-primary">{healthData.metrics.avg_rating || '-'}</span>
+              <Star className="w-4 h-4 text-stone-400 fill-stone-400" />
+              <span className="text-xl font-bold text-stone-950">{healthData.metrics.avg_rating || '-'}</span>
             </div>
-            <div className="text-[10px] text-text-muted uppercase tracking-wider">{healthData.metrics.review_count} Reviews</div>
+            <div className="text-[10px] text-stone-500 uppercase tracking-wider">{healthData.metrics.review_count} Reviews</div>
           </div>
         </div>
       </div>
@@ -249,51 +247,22 @@ function HealthScoreCard() {
 
 // Desktop health score (original style enhanced)
 function DesktopHealthScore({ healthData, t }) {
-  const getStatusBgColor = (color) => {
-    const colors = {
-      green: 'bg-green-50 border-green-200',
-      blue: 'bg-blue-50 border-blue-200',
-      yellow: 'bg-yellow-50 border-yellow-200',
-      orange: 'bg-orange-50 border-orange-200',
-      red: 'bg-red-50 border-red-200'
-    };
-    return colors[color] || 'bg-gray-50 border-gray-200';
-  };
-
-  const getStatusColor = (color) => {
-    const colors = {
-      green: 'bg-green-500',
-      blue: 'bg-blue-500',
-      yellow: 'bg-yellow-500',
-      orange: 'bg-orange-500',
-      red: 'bg-red-500'
-    };
-    return colors[color] || 'bg-gray-500';
-  };
-
-  const getStatusTextColor = (color) => {
-    const colors = {
-      green: 'text-green-700',
-      blue: 'text-blue-700',
-      yellow: 'text-yellow-700',
-      orange: 'text-orange-700',
-      red: 'text-red-700'
-    };
-    return colors[color] || 'text-gray-700';
-  };
+  const getStatusBgColor = (_color) => 'bg-stone-50 border-stone-200';
+  const getStatusColor = (_color) => 'bg-stone-950';
+  const getStatusTextColor = (_color) => 'text-stone-700';
 
   return (
     <div className={`dashboard-card p-6 ${getStatusBgColor(healthData.status_color)}`}>
       <div className="flex items-start justify-between mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Heart className="w-5 h-5 text-red-500" />
-            <h2 className="font-heading font-semibold text-text-primary">{t('producer.healthScore.title')}</h2>
+            <Heart className="w-5 h-5 text-stone-500" />
+            <h2 className="font-semibold text-stone-950">{t('producer.healthScore.title')}</h2>
           </div>
-          <p className="text-sm text-text-muted">{t('producer.healthScore.subtitle')}</p>
+          <p className="text-sm text-stone-500">{t('producer.healthScore.subtitle')}</p>
         </div>
         <div className="text-right">
-          <div className="text-4xl font-bold text-text-primary">{healthData.total_score}</div>
+          <div className="text-4xl font-bold text-stone-950">{healthData.total_score}</div>
           <div className={`text-sm font-medium ${getStatusTextColor(healthData.status_color)}`}>
             {healthData.status_label}
           </div>
@@ -314,9 +283,9 @@ function DesktopHealthScore({ healthData, t }) {
       <div className="grid grid-cols-5 gap-3 mb-6">
         {Object.entries(healthData.breakdown).map(([key, item]) => (
           <div key={key} className="bg-white rounded-lg p-3 text-center">
-            <div className="text-lg font-bold text-text-primary">{item.score}</div>
-            <div className="text-xs text-text-muted">/{item.max}</div>
-            <div className="text-xs font-medium text-text-secondary mt-1">{item.label}</div>
+            <div className="text-lg font-bold text-stone-950">{item.score}</div>
+            <div className="text-xs text-stone-500">/{item.max}</div>
+            <div className="text-xs font-medium text-stone-600 mt-1">{item.label}</div>
           </div>
         ))}
       </div>
@@ -324,45 +293,37 @@ function DesktopHealthScore({ healthData, t }) {
       {/* Metrics Summary */}
       <div className="grid grid-cols-3 gap-4 py-4 border-y border-stone-200">
         <div className="text-center">
-          <div className="text-xl font-bold text-text-primary">{healthData.metrics.orders_30d}</div>
-          <div className="text-xs text-text-muted">{t('producer.healthScore.orders30d')}</div>
+          <div className="text-xl font-bold text-stone-950">{healthData.metrics.orders_30d}</div>
+          <div className="text-xs text-stone-500">{t('producer.healthScore.orders30d')}</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold text-text-primary">€{healthData.metrics.revenue_30d.toFixed(0)}</div>
-          <div className="text-xs text-text-muted">{t('producer.healthScore.revenue30d')}</div>
+          <div className="text-xl font-bold text-stone-950">€{healthData.metrics.revenue_30d.toFixed(0)}</div>
+          <div className="text-xs text-stone-500">{t('producer.healthScore.revenue30d')}</div>
         </div>
         <div className="text-center">
           <div className="flex items-center justify-center gap-1">
-            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-            <span className="text-xl font-bold text-text-primary">{healthData.metrics.avg_rating || '-'}</span>
+            <Star className="w-4 h-4 text-stone-400 fill-stone-400" />
+            <span className="text-xl font-bold text-stone-950">{healthData.metrics.avg_rating || '-'}</span>
           </div>
-          <div className="text-xs text-text-muted">{healthData.metrics.review_count} {t('producer.healthScore.reviews')}</div>
+          <div className="text-xs text-stone-500">{healthData.metrics.review_count} {t('producer.healthScore.reviews')}</div>
         </div>
       </div>
 
       {/* Recommendations */}
       {healthData.recommendations?.length > 0 && (
         <div className="mt-4">
-          <h3 className="font-medium text-text-primary mb-3 flex items-center gap-2">
+          <h3 className="font-medium text-stone-950 mb-3 flex items-center gap-2">
             <Target className="w-4 h-4" />
             {t('producer.healthScore.recommendations')}
           </h3>
           <div className="space-y-2">
             {healthData.recommendations.map((rec, idx) => (
-              <div 
+              <div
                 key={idx}
-                className={`flex items-start gap-3 p-3 rounded-lg bg-white ${
-                  rec.priority === 'high' ? 'border-l-4 border-red-400' :
-                  rec.priority === 'medium' ? 'border-l-4 border-yellow-400' :
-                  'border-l-4 border-blue-400'
-                }`}
+                className={`flex items-start gap-3 p-3 rounded-lg bg-white border-l-4 border-stone-300`}
               >
-                <Zap className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                  rec.priority === 'high' ? 'text-red-500' :
-                  rec.priority === 'medium' ? 'text-yellow-500' :
-                  'text-blue-500'
-                }`} />
-                <p className="text-sm text-text-secondary">{rec.message}</p>
+                <Zap className="w-4 h-4 mt-0.5 flex-shrink-0 text-stone-500" />
+                <p className="text-sm text-stone-600">{rec.message}</p>
               </div>
             ))}
           </div>
@@ -398,7 +359,7 @@ function FollowerGrowthChart() {
     return (
       <div className="dashboard-card p-4 md:p-6">
         <div className="flex items-center justify-center h-48">
-          <Loader2 className="w-6 h-6 animate-spin text-ds-accent" />
+          <Loader2 className="w-6 h-6 animate-spin text-stone-950" />
         </div>
       </div>
     );
@@ -408,15 +369,15 @@ function FollowerGrowthChart() {
     <div className="dashboard-card p-4 md:p-6">
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-ds-accent" />
-          <h2 className="font-medium text-text-primary text-sm md:text-base">
+          <TrendingUp className="w-5 h-5 text-stone-950" />
+          <h2 className="font-medium text-stone-950 text-sm md:text-base">
             {t('producer.followerGrowth.title')}
           </h2>
         </div>
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          className="text-xs md:text-sm border border-border-default rounded-lg px-2 md:px-3 py-1.5 bg-white"
+          className="text-xs md:text-sm border border-stone-200 rounded-lg px-2 md:px-3 py-1.5 bg-white"
         >
           <option value={7}>{t('producer.followerGrowth.last7Days')}</option>
           <option value={30}>{t('producer.followerGrowth.last30Days')}</option>
@@ -462,7 +423,7 @@ function FollowerGrowthChart() {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center h-48 text-text-muted">
+        <div className="flex flex-col items-center justify-center h-48 text-stone-500">
           <Users className="w-12 h-12 mb-2 opacity-30" />
           <p className="text-sm">{t('producer.followerGrowth.noFollowers')}</p>
           <p className="text-xs">{t('producer.followerGrowth.shareStore')}</p>
@@ -555,8 +516,8 @@ export default function ProducerOverview() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-ds-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-text-muted">{t('producer.loadingDashboard')}</p>
+          <div className="w-8 h-8 border-2 border-stone-950 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-stone-500">{t('producer.loadingDashboard')}</p>
         </div>
       </div>
     );
@@ -566,11 +527,15 @@ export default function ProducerOverview() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4">
-        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <p className="text-red-600 mb-4 text-center">{error}</p>
-        <Button onClick={fetchData} className="bg-ds-accent hover:bg-ds-accent/90 text-white">
+        <AlertCircle className="w-12 h-12 text-stone-400 mb-4" />
+        <p className="text-stone-600 mb-4 text-center">{error}</p>
+        <button
+          type="button"
+          onClick={fetchData}
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white rounded-lg transition-colors"
+        >
           Reintentar
-        </Button>
+        </button>
       </div>
     );
   }
@@ -579,34 +544,50 @@ export default function ProducerOverview() {
 
   // Quick actions data
   const quickActions = [
-    { 
-      icon: Package, 
-      label: t('producer.createNewProduct'), 
+    {
+      icon: Package,
+      label: t('producer.createNewProduct'),
       description: 'Añadir nuevo producto',
       to: '/producer/products',
-      bgColor: '#2D5A27',
-      iconColor: '#FFFFFF'
+      bgColor: '#0c0a09',
+      iconColor: '#fafaf9'
     },
-    { 
-      icon: FileCheck, 
-      label: t('producer.manageCertificates'), 
+    {
+      icon: FileCheck,
+      label: t('producer.manageCertificates'),
       description: 'Certificaciones de calidad',
       to: '/producer/certificates',
-      bgColor: '#EFF6FF',
-      iconColor: '#2563EB'
+      bgColor: '#f5f5f4',
+      iconColor: '#44403c'
     },
-    { 
-      icon: ShoppingBag, 
-      label: t('producer.viewOrders'), 
+    {
+      icon: ShoppingBag,
+      label: t('producer.viewOrders'),
       description: 'Gestionar pedidos',
       to: '/producer/orders',
-      bgColor: '#F0FDF4',
-      iconColor: '#16A34A'
+      bgColor: '#f5f5f4',
+      iconColor: '#44403c'
     },
   ];
 
   return (
     <div className="space-y-4 md:space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-3xl font-semibold tracking-tight text-stone-950" data-testid="producer-title">
+          {user?.company_name || user?.name}
+        </h1>
+        {publicProfileUrl && (
+          <Link
+            to={publicProfileUrl}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+            data-testid="view-public-profile"
+          >
+            <Users className="h-4 w-4" />
+            Ver perfil público
+          </Link>
+        )}
+      </div>
       {dataWarnings.length > 0 && !error && (
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
           <div className="flex items-start gap-2">
@@ -626,9 +607,9 @@ export default function ProducerOverview() {
           <span className="text-sm font-semibold">{t('sellerDashboard.newProduct', 'New Product')}</span>
         </Link>
         <Link to="/producer/orders" className="relative flex flex-col items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white p-5 transition-all hover:scale-[1.02] hover:shadow-sm" data-testid="quick-orders">
-          <ShoppingBag className="w-8 h-8 text-primary" />
-          <span className="text-sm font-semibold text-primary">{t('customerDashboard.orders', 'Pedidos')}</span>
-          {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">{stats.pending_orders}</span>}
+          <ShoppingBag className="w-8 h-8 text-stone-950" />
+          <span className="text-sm font-semibold text-stone-950">{t('customerDashboard.orders', 'Pedidos')}</span>
+          {stats?.pending_orders > 0 && <span className="absolute top-3 right-3 bg-stone-950 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full">{stats.pending_orders}</span>}
         </Link>
       </div>
 
@@ -683,37 +664,17 @@ export default function ProducerOverview() {
 
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
-          <p className="text-2xl font-bold text-accent">{asNumber(payments?.total_gross).toFixed(0)}€</p>
-          <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.totalSales', 'Total sales')}</p>
+          <p className="text-2xl font-bold text-stone-950">{asNumber(payments?.total_gross).toFixed(0)}€</p>
+          <p className="text-[10px] text-stone-500 uppercase mt-1">{t('sellerDashboard.totalSales', 'Total sales')}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
-          <p className="text-2xl font-bold text-primary">{payments?.pending_orders || 0}</p>
-          <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.pendingShip', 'To ship')}</p>
+          <p className="text-2xl font-bold text-stone-950">{payments?.pending_orders || 0}</p>
+          <p className="text-[10px] text-stone-500 uppercase mt-1">{t('sellerDashboard.pendingShip', 'To ship')}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-4 text-center">
-          <p className="text-2xl font-bold text-emerald-600">{asNumber(payments?.total_net).toFixed(0)}€</p>
-          <p className="text-[10px] text-text-muted uppercase mt-1">{t('sellerDashboard.earned', 'Earned')}</p>
+          <p className="text-2xl font-bold text-stone-950">{asNumber(payments?.total_net).toFixed(0)}€</p>
+          <p className="text-[10px] text-stone-500 uppercase mt-1">{t('sellerDashboard.earned', 'Earned')}</p>
         </div>
-      </div>
-
-      {/* Header */}
-      <div className="mb-0 flex items-center justify-between gap-4">
-        <h1
-          className="text-3xl font-semibold tracking-tight text-stone-950"
-          data-testid="producer-title"
-        >
-          {user?.company_name || user?.name}
-        </h1>
-        {publicProfileUrl && (
-          <Link
-            to={publicProfileUrl}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
-            data-testid="view-public-profile"
-          >
-            <Users className="h-4 w-4" />
-            Ver perfil público
-          </Link>
-        )}
       </div>
 
       {/* Plan Manager */}
@@ -723,14 +684,14 @@ export default function ProducerOverview() {
       {stats?.low_stock_products?.length > 0 && (
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4" data-testid="low-stock-alert">
           <div className="flex items-center gap-2 mb-2">
-            <AlertCircle className="w-4 h-4 text-red-600" />
-            <span className="text-sm font-semibold text-red-800">{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
+            <AlertCircle className="w-4 h-4 text-stone-700" />
+            <span className="text-sm font-semibold text-stone-950">{stats.low_stock_products.length} {t('sellerDashboard.lowStockAlert')}</span>
           </div>
           <div className="space-y-1">
             {stats.low_stock_products.slice(0, 3).map(p => (
-              <Link key={p.product_id} to={`/producer/products`} className="flex items-center justify-between text-xs py-1.5 border-t border-red-100 first:border-0">
-                <span className="text-red-700 truncate flex-1">{p.name}</span>
-                <span className="text-red-600 font-bold ml-2">{p.stock} uds</span>
+              <Link key={p.product_id} to={`/producer/products`} className="flex items-center justify-between text-xs py-1.5 border-t border-stone-100 first:border-0">
+                <span className="text-stone-700 truncate flex-1">{p.name}</span>
+                <span className="text-stone-950 font-bold ml-2">{p.stock} uds</span>
               </Link>
             ))}
           </div>
@@ -740,14 +701,14 @@ export default function ProducerOverview() {
       {/* Recent Reviews */}
       {stats?.recent_reviews?.length > 0 && (
         <div className="bg-white rounded-xl border border-stone-200 p-4" data-testid="recent-reviews">
-          <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">{t('sellerDashboard.latestReviews')}</h3>
+          <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3">{t('sellerDashboard.latestReviews')}</h3>
           <div className="space-y-2">
             {stats.recent_reviews.slice(0, 3).map((r, i) => (
               <div key={i} className="flex items-start gap-2 text-xs">
-                <div className="flex items-center gap-0.5 bg-yellow-50 px-1.5 py-0.5 rounded text-yellow-700 shrink-0">
-                  <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" /> {r.rating}
+                <div className="flex items-center gap-0.5 bg-stone-100 px-1.5 py-0.5 rounded text-stone-700 shrink-0">
+                  <Star className="w-3 h-3 fill-stone-400 text-stone-400" /> {r.rating}
                 </div>
-                <p className="text-text-secondary line-clamp-2">{r.comment || t('sellerDashboard.noComment')}</p>
+                <p className="text-stone-600 line-clamp-2">{r.comment || t('sellerDashboard.noComment')}</p>
               </div>
             ))}
           </div>
@@ -758,10 +719,10 @@ export default function ProducerOverview() {
       {isPending && (
         <div className="dashboard-card border-stone-200 bg-stone-50 p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-stone-500 mt-0.5" />
             <div>
-              <h3 className="font-medium text-amber-900">{t('producer.accountPending')}</h3>
-              <p className="text-sm text-amber-800">{t('producer.accountPendingDesc')}</p>
+              <h3 className="font-medium text-stone-950">{t('producer.accountPending')}</h3>
+              <p className="text-sm text-stone-600">{t('producer.accountPendingDesc')}</p>
             </div>
           </div>
         </div>
@@ -833,7 +794,7 @@ export default function ProducerOverview() {
       
       {/* Desktop Quick Actions */}
       <div className="hidden md:block dashboard-card p-6">
-        <h2 className="font-heading text-lg font-semibold text-text-primary mb-4">
+        <h2 className="text-lg font-semibold text-stone-950 mb-4">
           {t('producer.quickActions')}
         </h2>
         <div className="grid grid-cols-3 gap-4">
@@ -841,7 +802,7 @@ export default function ProducerOverview() {
             <Link
               key={idx}
               to={action.to}
-              className="flex items-center gap-3 p-4 rounded-lg border border-border-default hover:border-ds-accent/30 hover:bg-ds-accent/5 transition-colors"
+              className="flex items-center gap-3 p-4 rounded-lg border border-stone-200 hover:border-stone-400 hover:bg-stone-50 transition-colors"
               data-testid={`desktop-quick-action-${idx}`}
             >
               <div 
@@ -850,7 +811,7 @@ export default function ProducerOverview() {
               >
                 <action.icon className="w-5 h-5" style={{ color: action.iconColor }} />
               </div>
-              <span className="font-medium text-text-primary">{action.label}</span>
+              <span className="font-medium text-stone-950">{action.label}</span>
             </Link>
           ))}
         </div>

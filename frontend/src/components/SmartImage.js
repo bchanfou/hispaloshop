@@ -29,14 +29,14 @@ export default function SmartImage({
   const getColor = () => {
     const text = fallbackText || alt || '';
     const colors = [
-      'bg-amber-100 text-amber-700',
-      'bg-emerald-100 text-emerald-700',
-      'bg-blue-100 text-blue-700',
-      'bg-purple-100 text-purple-700',
-      'bg-rose-100 text-rose-700',
-      'bg-orange-100 text-orange-700',
-      'bg-teal-100 text-teal-700',
-      'bg-indigo-100 text-indigo-700',
+      'bg-stone-100 text-stone-700',
+      'bg-stone-200 text-stone-800',
+      'bg-stone-100 text-stone-600',
+      'bg-stone-200 text-stone-700',
+      'bg-stone-100 text-stone-700',
+      'bg-stone-200 text-stone-600',
+      'bg-stone-100 text-stone-800',
+      'bg-stone-200 text-stone-700',
     ];
     const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];

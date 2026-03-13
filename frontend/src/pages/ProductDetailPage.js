@@ -4,8 +4,6 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ProductImageGallery from '../components/ProductImageGallery';
-import { Button } from '../components/ui/button';
-import { Textarea } from '../components/ui/textarea';
 import { ShoppingCart, FileCheck, AlertTriangle, AlertCircle, Star, CheckCircle, User, Package, Store, MapPin, Truck, Shield, ChevronRight, Heart, Users, Leaf } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -225,8 +223,11 @@ export default function ProductDetailPage() {
         <Header />
         <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-12 md:py-20 text-center">
           <p className="text-stone-500 text-lg mb-4">{t('productDetail.notFound')}</p>
-          <Link to="/products">
-            <Button className="rounded-full bg-stone-950 text-white hover:bg-black">{t('productDetail.backToProducts')}</Button>
+          <Link
+            to="/products"
+            className="inline-flex items-center rounded-full bg-stone-950 px-5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
+          >
+            {t('productDetail.backToProducts')}
           </Link>
         </div>
         <Footer />
@@ -311,9 +312,9 @@ export default function ProductDetailPage() {
 
             {/* Stock Status */}
             {isOutOfStock && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 md:px-4 py-2 mb-3 md:mb-4">
-                <AlertTriangle className="w-4 h-4 text-red-500" />
-                <span className="text-red-700 text-xs md:text-sm font-medium">{t('productDetail.outOfStock')}</span>
+              <div className="flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-100 px-3 py-2 mb-3 md:px-4 md:mb-4">
+                <AlertTriangle className="w-4 h-4 text-stone-700 shrink-0" />
+                <span className="text-stone-700 text-xs md:text-sm font-medium">{t('productDetail.outOfStock')}</span>
               </div>
             )}
             {isLowStock && (
@@ -553,7 +554,7 @@ export default function ProductDetailPage() {
                           <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
                             isSelected 
                               ? 'border-stone-950 bg-stone-950' 
-                              : 'border-stone-300'
+                              : 'border-stone-200'
                           }`}>
                             {isSelected && (
                               <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -607,41 +608,39 @@ export default function ProductDetailPage() {
                 {/* Total */}
                 <div className="flex justify-between items-center mb-4 pb-4 border-b border-stone-100">
                   <span className="text-stone-600">Total</span>
-                  <span className="font-serif text-2xl font-bold text-stone-900">
+                  <span className="text-[22px] font-semibold text-stone-950">
                     {convertAndFormatPrice((selectedPack?.price || currentPrice || product.price) * quantity, product.currency || 'EUR')}
                   </span>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="space-y-3">
-                  <Button
-                    onClick={handleBuyNow}
-                    disabled={isOutOfStock}
-                    className="w-full bg-stone-900 text-white hover:bg-stone-800 rounded-full py-6 font-medium"
-                    data-testid="buy-now-button"
-                  >
-                    {t('products.buyNow', 'Comprar ahora')}
-                  </Button>
-                  <Button
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
-                    variant="outline"
-                    className="w-full border-stone-300 text-stone-700 hover:bg-stone-50 rounded-full py-6 font-medium"
+                    className={`flex-1 rounded-full py-3 text-[14px] font-semibold transition-colors ${
+                      isOutOfStock
+                        ? 'cursor-not-allowed bg-stone-100 text-stone-400'
+                        : 'bg-stone-950 text-white hover:bg-stone-800 active:scale-[0.98]'
+                    }`}
                     data-testid="add-to-cart-button"
                   >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    {t('products.addToCart', 'Añadir al carrito')}
-                  </Button>
-                  <Button
+                    {isOutOfStock ? t('products.soldOut', 'Agotado') : t('products.addToCart', 'Añadir al carrito')}
+                  </button>
+                  <button
+                    type="button"
                     onClick={toggleWishlist}
                     disabled={wishlistLoading}
-                    variant="ghost"
-                    className={`w-full rounded-full py-5 font-medium transition-colors ${inWishlist ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'text-stone-500 hover:text-stone-700 hover:bg-stone-50'}`}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 transition-colors hover:bg-stone-50 active:scale-95"
                     data-testid="wishlist-button"
+                    aria-label={inWishlist ? t('wishlist.inWishlist', 'En tu lista') : t('wishlist.addToWishlist', 'Guardar')}
                   >
-                    <Heart className={`w-4 h-4 mr-2 ${inWishlist ? 'fill-red-500' : ''}`} />
-                    {inWishlist ? t('wishlist.inWishlist', 'En tu lista de deseos') : t('wishlist.addToWishlist', 'Guardar en lista de deseos')}
-                  </Button>
+                    <Heart
+                      className={`h-5 w-5 transition-all duration-150 ${inWishlist ? 'fill-stone-950 text-stone-950' : 'text-stone-500'}`}
+                      strokeWidth={inWishlist ? 0 : 1.8}
+                    />
+                  </button>
                 </div>
 
                 {/* Trust Signals */}
@@ -661,7 +660,7 @@ export default function ProductDetailPage() {
               {storeInfo ? (
                 <Link 
                   to={storeSlug ? `/store/${storeSlug}` : '/stores'}
-                  className="block bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md hover:border-stone-300 transition-all cursor-pointer" 
+                  className="block bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md hover:border-stone-400 transition-all cursor-pointer"
                   data-testid="producer-card"
                 >
                   <div className="flex items-center justify-between mb-4">
@@ -733,12 +732,12 @@ export default function ProductDetailPage() {
                       disabled={followLoading}
                       className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                         isFollowing
-                          ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
+                          ? 'bg-stone-100 text-stone-700 border border-stone-200 hover:bg-stone-200'
                           : 'bg-stone-900 text-white hover:bg-stone-800'
                       }`}
                       data-testid="follow-store-button"
                     >
-                      <Heart className={`w-4 h-4 ${isFollowing ? 'fill-red-500' : ''}`} />
+                      <Heart className={`w-4 h-4 ${isFollowing ? 'fill-stone-950' : ''}`} />
                       {followLoading 
                         ? t('common.loading', 'Cargando...')
                         : isFollowing 
@@ -775,7 +774,7 @@ export default function ProductDetailPage() {
               {certificate && (
                 <Link 
                   to={`/certificate/${productId}`}
-                  className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-4 transition-colors hover:border-stone-300 hover:bg-stone-50"
+                  className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-4 transition-colors hover:border-stone-400 hover:bg-stone-50"
                   data-testid="certificate-link"
                 >
                   <div className="flex items-center gap-3">
@@ -795,17 +794,17 @@ export default function ProductDetailPage() {
         {/* Reviews Section */}
         <div className="mt-12 pt-8 border-t border-stone-200">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-serif text-2xl font-semibold text-stone-900">
+            <h2 className="text-[18px] font-semibold text-stone-950">
               {t('productDetail.customerReviews', 'Reseñas de clientes')}
             </h2>
             {canReview && !showReviewForm && (
-              <Button
+              <button
+                type="button"
                 onClick={() => setShowReviewForm(true)}
-                variant="outline"
-                className="rounded-full"
+                className="rounded-full border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 active:scale-95"
               >
                 {t('productDetail.writeReview', 'Escribir reseña')}
-              </Button>
+              </button>
             )}
           </div>
 
@@ -831,29 +830,30 @@ export default function ProductDetailPage() {
               </div>
               <div className="mb-4">
                 <label className="block text-sm text-stone-600 mb-2">{t('productDetail.comment', 'Comentario')}</label>
-                <Textarea
+                <textarea
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
                   placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia con este producto...')}
                   rows={4}
-                  className="rounded-lg"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
                 />
               </div>
-              <div className="flex gap-3">
-                <Button
+              <div className="flex gap-2.5">
+                <button
+                  type="button"
                   onClick={handleSubmitReview}
                   disabled={submittingReview}
-                  className="rounded-full"
+                  className="rounded-full bg-stone-950 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
                 >
                   {submittingReview ? t('common.loading', 'Enviando...') : t('productDetail.submitReview', 'Enviar reseña')}
-                </Button>
-                <Button
+                </button>
+                <button
+                  type="button"
                   onClick={() => setShowReviewForm(false)}
-                  variant="outline"
-                  className="rounded-full"
+                  className="rounded-full border border-stone-200 px-5 py-2.5 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
                 >
                   {t('common.cancel', 'Cancelar')}
-                </Button>
+                </button>
               </div>
             </div>
           )}
@@ -932,14 +932,19 @@ export default function ProductDetailPage() {
           </div>
           
           {/* Buy Button */}
-          <Button
-            onClick={handleBuyNow}
+          <button
+            type="button"
+            onClick={handleAddToCart}
             disabled={isOutOfStock}
-            className="rounded-full bg-stone-950 px-6 font-medium text-white hover:bg-black"
+            className={`rounded-full px-6 py-2.5 text-[14px] font-semibold transition-colors active:scale-[0.98] ${
+              isOutOfStock
+                ? 'cursor-not-allowed bg-stone-100 text-stone-400'
+                : 'bg-stone-950 text-white hover:bg-stone-800'
+            }`}
             data-testid="mobile-buy-button"
           >
-            {isOutOfStock ? t('products.soldOut', 'Agotado') : t('products.buyNow', 'Comprar')}
-          </Button>
+            {isOutOfStock ? t('products.soldOut', 'Agotado') : t('products.addToCart', 'Añadir')}
+          </button>
         </div>
       </div>
 

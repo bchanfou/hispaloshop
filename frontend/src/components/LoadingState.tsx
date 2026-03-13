@@ -100,8 +100,8 @@ export function GenericSkeleton({ className = '' }: { className?: string }) {
 export function CenteredSpinner({ message = 'Cargando...' }: { message?: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-12">
-      <div className="w-8 h-8 border-2 border-stone-200 border-t-accent rounded-full animate-spin" />
-      <p className="mt-4 text-sm text-text-muted">{message}</p>
+      <div className="w-8 h-8 border-2 border-stone-200 border-t-stone-950 rounded-full animate-spin" />
+      <p className="mt-4 text-sm text-stone-500">{message}</p>
     </div>
   );
 }

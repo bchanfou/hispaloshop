@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/api/client';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import {
   Search, CheckCircle, XCircle, Trash2, Edit, ArrowLeft, Plus,
@@ -168,7 +166,7 @@ export default function AdminProducts() {
       <div>
         <button
           onClick={() => setShowCreateForm(false)}
-          className="flex items-center gap-2 text-text-secondary hover:text-primary mb-6"
+          className="flex items-center gap-2 text-stone-600 hover:text-stone-950 mb-6"
           data-testid="back-button"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -176,12 +174,13 @@ export default function AdminProducts() {
         </button>
 
         <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-2xl">
-          <h2 className="font-heading text-2xl font-bold text-text-primary mb-6">{t('adminProducts.createProduct')}</h2>
+          <h2 className="text-2xl font-bold text-stone-950 mb-6">{t('adminProducts.createProduct')}</h2>
           
           <form onSubmit={createProduct} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.name')} *</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.name')} *</label>
+              <input
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -189,11 +188,11 @@ export default function AdminProducts() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.category')} *</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.category')} *</label>
               <select
                 value={formData.category_id}
                 onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-stone-200"
+                className="w-full px-4 py-2 rounded-xl border border-stone-200"
                 required
               >
                 <option value="">{t('adminProducts.form.selectCategory')}</option>
@@ -204,19 +203,20 @@ export default function AdminProducts() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.description')} *</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.description')} *</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-stone-200 min-h-[100px]"
+                className="w-full px-4 py-2 rounded-xl border border-stone-200 min-h-[100px]"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.price')} *</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.price')} *</label>
+                <input
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                   type="number"
                   step="0.01"
                   value={formData.price}
@@ -225,8 +225,9 @@ export default function AdminProducts() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.countryOrigin')} *</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.countryOrigin')} *</label>
+                <input
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                   value={formData.country_origin}
                   onChange={(e) => setFormData({ ...formData, country_origin: e.target.value })}
                   required
@@ -235,8 +236,9 @@ export default function AdminProducts() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.imageUrl')}</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.imageUrl')}</label>
+              <input
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.images[0]}
                 onChange={(e) => setFormData({ ...formData, images: [e.target.value] })}
                 placeholder="https://..."
@@ -244,8 +246,9 @@ export default function AdminProducts() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.ingredients')}</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.ingredients')}</label>
+              <input
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.ingredientsStr || ''}
                 onChange={(e) => setFormData({ ...formData, ingredientsStr: e.target.value })}
                 placeholder={t('adminProducts.form.ingredientsPlaceholder')}
@@ -253,8 +256,9 @@ export default function AdminProducts() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.allergens')}</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.allergens')}</label>
+              <input
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.allergensStr || ''}
                 onChange={(e) => setFormData({ ...formData, allergensStr: e.target.value })}
                 placeholder={t('adminProducts.form.allergensPlaceholder')}
@@ -262,8 +266,9 @@ export default function AdminProducts() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">{t('adminProducts.form.certifications')}</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('adminProducts.form.certifications')}</label>
+              <input
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 value={formData.certificationsStr || ''}
                 onChange={(e) => setFormData({ ...formData, certificationsStr: e.target.value })}
                 placeholder={t('adminProducts.form.certificationsPlaceholder')}
@@ -271,8 +276,8 @@ export default function AdminProducts() {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button type="submit" className="bg-primary">{t('adminProducts.createProduct')}</Button>
-              <Button type="button" variant="outline" onClick={() => setShowCreateForm(false)}>{t('common.cancel')}</Button>
+              <button type="submit" className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors">{t('adminProducts.createProduct')}</button>
+              <button type="button" className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setShowCreateForm(false)}>{t('common.cancel')}</button>
             </div>
           </form>
         </div>
@@ -286,32 +291,33 @@ export default function AdminProducts() {
       <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
+          <h1 className="text-3xl font-bold text-stone-950 mb-2">
             {t('adminProducts.title')}
           </h1>
-          <p className="text-text-muted">{t('adminProducts.subtitle')}</p>
+          <p className="text-stone-500">{t('adminProducts.subtitle')}</p>
         </div>
-        <Button onClick={() => setShowCreateForm(true)} className="bg-primary" data-testid="create-product">
+        <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors" data-testid="create-product">
           <Plus className="w-4 h-4 mr-2" /> {t('adminProducts.createProduct')}
-        </Button>
+        </button>
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-          <Input
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+          <input
+            type="text"
+            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
             placeholder={t('adminProducts.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
             data-testid="search-input"
           />
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 rounded-lg border border-stone-200 bg-white"
+          className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
           data-testid="status-filter"
         >
           <option value="all">{t('adminProducts.allProducts')}</option>
@@ -323,18 +329,18 @@ export default function AdminProducts() {
       {/* Table */}
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-text-muted">{t('common.loading')}</div>
+          <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : filteredProducts.length === 0 ? (
-          <div className="p-8 text-center text-text-muted">{t('adminProducts.noProductsFound')}</div>
+          <div className="p-8 text-center text-stone-500">{t('adminProducts.noProductsFound')}</div>
         ) : (
           <table className="w-full" data-testid="products-table">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
-                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.product')}</th>
-                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.producer')}</th>
-                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.price')}</th>
-                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.status')}</th>
-                <th scope="col" className="text-right px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducts.table.actions')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducts.table.product')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducts.table.producer')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducts.table.price')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducts.table.status')}</th>
+                <th scope="col" className="text-right px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducts.table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200">
@@ -342,53 +348,54 @@ export default function AdminProducts() {
                 <tr key={product.product_id} className="hover:bg-stone-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden">
+                      <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden">
                         {product.images?.[0] && (
                           <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-text-primary">{product.name}</p>
-                        <p className="text-sm text-text-muted">{product.country_origin}</p>
+                        <p className="font-medium text-stone-950">{product.name}</p>
+                        <p className="text-sm text-stone-500">{product.country_origin}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="text-text-primary">{product.producer_name}</p>
+                    <p className="text-stone-950">{product.producer_name}</p>
                   </td>
                   <td className="px-6 py-4">
                     {editingProduct === product.product_id ? (
                       <div className="flex items-center gap-2">
-                        <Input
+                        <input
                           type="number"
                           step="0.01"
                           defaultValue={product.price}
-                          className="w-24"
+                          className="w-24 px-2 py-1 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                           id={`price-${product.product_id}`}
                         />
-                        <Button
-                          size="sm"
+                        <button
+                          type="button"
+                          className="px-2 py-1 text-xs font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors"
                           onClick={() => {
                             const input = document.getElementById(`price-${product.product_id}`);
                             updatePrice(product.product_id, parseFloat(input.value));
                           }}
                         >
                           {t('common.save')}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
+                        </button>
+                        <button
+                          type="button"
+                          className="px-2 py-1 text-xs font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
                           onClick={() => setEditingProduct(null)}
                         >
                           {t('common.cancel')}
-                        </Button>
+                        </button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-text-primary">{asNumber(product.price).toFixed(2)}€</span>
+                        <span className="font-medium text-stone-950">{asNumber(product.price).toFixed(2)}€</span>
                         <button
                           onClick={() => setEditingProduct(product.product_id)}
-                          className="text-text-muted hover:text-primary"
+                          className="text-stone-500 hover:text-stone-950"
                           aria-label={`${t('common.edit')} ${t('adminProducts.table.price')}`}
                           title={t('common.edit')}
                         >
@@ -399,7 +406,7 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                      product.approved ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                      product.approved ? 'bg-stone-950 text-white' : 'bg-stone-200 text-stone-700'
                     }`}>
                       {product.approved ? t('adminProducts.table.approved') : t('adminProducts.table.pending')}
                     </span>
@@ -407,37 +414,35 @@ export default function AdminProducts() {
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       {!product.approved && (
-                        <Button
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700"
+                        <button
+                          type="button"
+                          className="p-1.5 bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
                           onClick={() => openApprovalChecklist(product)}
                           aria-label={`${t('adminProducts.table.pending')} — ${product.name}`}
                           data-testid={`approve-${product.product_id}`}
                         >
                           <ClipboardList className="w-4 h-4" aria-hidden="true" />
-                        </Button>
+                        </button>
                       )}
                       {product.approved && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-amber-300 text-amber-600"
+                        <button
+                          type="button"
+                          className="p-1.5 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
                           onClick={() => approveProduct(product.product_id, false)}
                           aria-label={`${t('adminProducts.messages.productRejected')} — ${product.name}`}
                         >
                           <XCircle className="w-4 h-4" aria-hidden="true" />
-                        </Button>
+                        </button>
                       )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-red-300 text-red-600 hover:bg-red-50"
+                      <button
+                        type="button"
+                        className="p-1.5 border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
                         onClick={() => deleteProduct(product.product_id)}
                         aria-label={`${t('adminProducts.messages.confirmDelete')} — ${product.name}`}
                         data-testid={`delete-${product.product_id}`}
                       >
                         <Trash2 className="w-4 h-4" aria-hidden="true" />
-                      </Button>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -458,10 +463,10 @@ export default function AdminProducts() {
       >
         <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
           <div className="flex items-center gap-3 mb-4">
-            <ClipboardList className="w-6 h-6 text-amber-600" aria-hidden="true" />
-            <h2 id="checklist-title" className="text-lg font-semibold text-primary">Checklist de Aprobación</h2>
+            <ClipboardList className="w-6 h-6 text-stone-600" aria-hidden="true" />
+            <h2 id="checklist-title" className="text-lg font-semibold text-stone-950">Checklist de Aprobación</h2>
           </div>
-          <p className="text-sm text-text-muted mb-5">
+          <p className="text-sm text-stone-500 mb-5">
             Verifica que el producto <strong>{checklistProduct.name}</strong> cumple todos los requisitos antes de aprobar.
           </p>
           <div className="space-y-3 mb-6">
@@ -478,34 +483,35 @@ export default function AdminProducts() {
                   type="checkbox"
                   checked={!!checklistItems[key]}
                   onChange={(e) => setChecklistItems(prev => ({ ...prev, [key]: e.target.checked }))}
-                  className="mt-0.5 w-4 h-4 accent-green-600"
+                  className="mt-0.5 w-4 h-4 accent-stone-950"
                 />
-                <span className={`text-sm ${checklistItems[key] ? 'text-primary' : 'text-text-muted'}`}>
+                <span className={`text-sm ${checklistItems[key] ? 'text-stone-950' : 'text-stone-500'}`}>
                   {label}
-                  {checklistItems[key] === false && <span className="ml-1 text-amber-500 text-xs">(falta)</span>}
+                  {checklistItems[key] === false && <span className="ml-1 text-stone-500 text-xs">(falta)</span>}
                 </span>
               </label>
             ))}
           </div>
           <div className="flex gap-3">
-            <Button
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-40"
+            <button
+              type="button"
+              className="flex-1 flex items-center justify-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors disabled:opacity-40"
               disabled={!Object.values(checklistItems).every(Boolean)}
               onClick={() => approveProduct(checklistProduct.product_id, true)}
             >
               <CheckCircle className="w-4 h-4 mr-2" />
               Aprobar Producto
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
+            </button>
+            <button
+              type="button"
+              className="flex-1 px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
               onClick={() => setChecklistProduct(null)}
             >
               Cancelar
-            </Button>
+            </button>
           </div>
           {!Object.values(checklistItems).every(Boolean) && (
-            <p className="text-xs text-amber-600 mt-3 text-center">
+            <p className="text-xs text-stone-600 mt-3 text-center">
               Marca todos los ítems para poder aprobar
             </p>
           )}

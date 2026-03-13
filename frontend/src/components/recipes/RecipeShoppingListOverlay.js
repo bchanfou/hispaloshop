@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../services/api/client';
 import { Loader2, Minus, Plus, ShoppingCart, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from '../ui/button';
 import { resolveUserImage } from '../../features/user/queries';
 
 export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 1, onClose }) {
@@ -144,15 +143,15 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
             <span className="text-stone-500">Total estimado</span>
             <span className="font-semibold text-stone-950">€{total.toFixed(2)}</span>
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleSubmit}
             disabled={submitting || loading || !(preview?.items || []).length}
-            className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800"
+            className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
             Añadir todo al carrito
-          </Button>
+          </button>
         </div>
       </div>
     </div>

@@ -193,7 +193,7 @@ export default function NotificationsPage() {
   const GROUP_ORDER = ['Hoy', 'Ayer', 'Esta semana', 'Anterior'];
 
   return (
-    <div className="min-h-screen bg-white max-w-2xl mx-auto">
+    <div className="min-h-screen bg-white max-w-2xl mx-auto pb-20">
 
       {/* ── Header ────────────────────────────────────────────── */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-stone-100">
@@ -244,7 +244,7 @@ export default function NotificationsPage() {
                 <div key={label}>
                   {/* Group header */}
                   <div className="px-4 pt-5 pb-2">
-                    <span className="text-xs font-semibold text-stone-400 uppercase tracking-widest">
+                    <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
                       {label}
                     </span>
                   </div>

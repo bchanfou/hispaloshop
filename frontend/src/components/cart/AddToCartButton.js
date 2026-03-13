@@ -51,22 +51,22 @@ const AddToCartButton = ({
 
   const variants = {
     'default': {
-      button: 'flex-1 py-3 px-4 bg-accent text-white rounded-xl font-medium',
+      button: 'flex-1 py-3 px-4 bg-stone-950 text-white rounded-xl font-medium',
       icon: 'w-5 h-5',
       text: inCartQuantity > 0 ? `${inCartQuantity} en cesta` : 'Añadir al carrito'
     },
     'small': {
-      button: 'p-2 bg-accent text-white rounded-lg',
+      button: 'p-2 bg-stone-950 text-white rounded-lg',
       icon: 'w-4 h-4',
       text: ''
     },
     'quick': {
-      button: 'w-full py-2 bg-accent text-white rounded-lg text-sm font-medium',
+      button: 'w-full py-2 bg-stone-950 text-white rounded-lg text-sm font-medium',
       icon: 'w-4 h-4',
       text: inCartQuantity > 0 ? `+${inCartQuantity}` : 'Añadir'
     },
     'buy-now': {
-      button: 'w-full py-3 bg-state-amber text-white rounded-xl font-semibold',
+      button: 'w-full py-3 bg-stone-700 text-white rounded-xl font-semibold',
       icon: 'w-5 h-5',
       text: 'Comprar ahora'
     }
@@ -92,7 +92,7 @@ const AddToCartButton = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {showQuantity && (
-        <div className="flex items-center bg-gray-100 rounded-lg">
+        <div className="flex items-center bg-stone-100 rounded-lg">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             className="p-2 hover:bg-stone-200 rounded-l-lg transition-colors"
@@ -115,8 +115,8 @@ const AddToCartButton = ({
         onClick={handleAdd}
         disabled={state === 'loading'}
         className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-70 ${
-          state === 'success' ? 'bg-state-success' : ''
-        } ${inCartQuantity > 0 && state === 'idle' ? 'bg-state-amber' : ''}`}
+          state === 'success' ? 'bg-stone-700' : ''
+        } ${inCartQuantity > 0 && state === 'idle' ? 'bg-stone-700' : ''}`}
         whileTap={{ scale: 0.98 }}
       >
         <AnimatePresence mode="wait">

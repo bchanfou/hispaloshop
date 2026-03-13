@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/api/client';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
-import { 
+import {
   Search, Star, Eye, EyeOff, Trash2, User, Package
 } from 'lucide-react';
 import { asLowerText } from '../../utils/safe';
@@ -49,7 +47,7 @@ export default function AdminReviews() {
     if (!window.confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
       return;
     }
-    
+
     try {
       await apiClient.delete(`/admin/reviews/${reviewId}`);
       toast.success('Review deleted');
@@ -77,7 +75,7 @@ export default function AdminReviews() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
       </div>
     );
   }
@@ -86,45 +84,45 @@ export default function AdminReviews() {
     <div className="space-y-6" data-testid="admin-reviews">
       {/* Header */}
       <div>
-        <h1 className="font-heading text-2xl font-semibold text-primary">Reviews</h1>
-        <p className="text-text-muted text-sm mt-1">Moderate customer reviews</p>
+        <h1 className="text-2xl font-semibold text-stone-950">Reviews</h1>
+        <p className="text-stone-500 text-sm mt-1">Moderate customer reviews</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-stone-300 rounded-lg p-4">
+        <div className="bg-white border border-stone-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <Star className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-stone-100 rounded-xl">
+              <Star className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <p className="text-xs text-text-muted uppercase tracking-wider">Total Reviews</p>
-              <p className="font-heading text-xl font-semibold text-primary">{reviews.length}</p>
+              <p className="text-xs text-stone-500 uppercase tracking-wider">Total Reviews</p>
+              <p className="text-xl font-semibold text-stone-950">{reviews.length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white border border-stone-300 rounded-lg p-4">
+        <div className="bg-white border border-stone-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-50 rounded-lg">
-              <Eye className="w-5 h-5 text-green-600" />
+            <div className="p-2 bg-stone-100 rounded-xl">
+              <Eye className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <p className="text-xs text-text-muted uppercase tracking-wider">Visible</p>
-              <p className="font-heading text-xl font-semibold text-primary">
+              <p className="text-xs text-stone-500 uppercase tracking-wider">Visible</p>
+              <p className="text-xl font-semibold text-stone-950">
                 {reviews.filter(r => r.visible).length}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white border border-stone-300 rounded-lg p-4">
+        <div className="bg-white border border-stone-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-50 rounded-lg">
-              <Star className="w-5 h-5 text-amber-600 fill-amber-400" />
+            <div className="p-2 bg-stone-100 rounded-xl">
+              <Star className="w-5 h-5 text-stone-500 fill-stone-400" />
             </div>
             <div>
-              <p className="text-xs text-text-muted uppercase tracking-wider">Average Rating</p>
-              <p className="font-heading text-xl font-semibold text-primary">
-                {reviews.length > 0 
+              <p className="text-xs text-stone-500 uppercase tracking-wider">Average Rating</p>
+              <p className="text-xl font-semibold text-stone-950">
+                {reviews.length > 0
                   ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
                   : '—'
                 }
@@ -136,34 +134,34 @@ export default function AdminReviews() {
 
       {/* Search */}
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-        <Input
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+        <input
           placeholder="Search reviews..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
+          className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
           data-testid="search-reviews-input"
         />
       </div>
 
       {/* Reviews Table */}
-      <div className="bg-white border border-stone-300 rounded-lg overflow-hidden">
+      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
         <table className="w-full">
-          <thead className="bg-stone-50 border-b border-stone-300">
+          <thead className="bg-stone-50 border-b border-stone-200">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Product</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">User</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Rating</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Comment</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Date</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Visibility</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Actions</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Product</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">User</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Rating</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Comment</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Date</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Visibility</th>
+              <th className="text-right px-6 py-3 text-xs font-medium text-stone-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200">
             {filteredReviews.length === 0 ? (
               <tr>
-                <td colSpan="7" className="px-6 py-12 text-center text-text-muted">
+                <td colSpan="7" className="px-6 py-12 text-center text-stone-500">
                   {searchTerm ? 'No reviews found' : 'No reviews yet'}
                 </td>
               </tr>
@@ -172,34 +170,34 @@ export default function AdminReviews() {
                 <tr key={review.review_id} className="hover:bg-stone-50" data-testid={`review-row-${review.review_id}`}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <Package className="w-4 h-4 text-text-muted" />
-                      <span className="font-body text-sm text-primary truncate max-w-[150px]">
+                      <Package className="w-4 h-4 text-stone-500" />
+                      <span className="text-sm text-stone-950 truncate max-w-[150px]">
                         {review.product_name || 'Unknown'}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-text-muted" />
-                      <span className="font-body text-sm text-text-secondary">
+                      <User className="w-4 h-4 text-stone-500" />
+                      <span className="text-sm text-stone-600">
                         {review.user_name || 'Anonymous'}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span className="font-medium text-primary">{review.rating}</span>
-                      <span className="text-xs text-text-muted">/10</span>
+                      <Star className="w-4 h-4 fill-stone-400 text-stone-400" />
+                      <span className="font-medium text-stone-950">{review.rating}</span>
+                      <span className="text-xs text-stone-500">/10</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="font-body text-sm text-text-secondary truncate max-w-[200px]" title={review.comment}>
+                    <p className="text-sm text-stone-600 truncate max-w-[200px]" title={review.comment}>
                       {review.comment}
                     </p>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-body text-sm text-text-muted">
+                    <span className="text-sm text-stone-500">
                       {formatDate(review.created_at)}
                     </span>
                   </td>
@@ -208,8 +206,8 @@ export default function AdminReviews() {
                       onClick={() => handleToggleVisibility(review)}
                       className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
                         review.visible
-                          ? 'bg-green-50 text-green-700 border border-green-200'
-                          : 'bg-stone-100 text-stone-500 border border-stone-200'
+                          ? 'bg-stone-950 text-white'
+                          : 'border border-stone-200 text-stone-400 bg-white'
                       }`}
                       data-testid={`toggle-visibility-${review.review_id}`}
                     >
@@ -226,8 +224,9 @@ export default function AdminReviews() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button
+                      type="button"
                       onClick={() => handleDelete(review.review_id)}
-                      className="p-2 text-text-muted hover:text-red-500 hover:bg-red-50 rounded"
+                      className="p-2 text-stone-500 hover:text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
                       data-testid={`delete-review-${review.review_id}`}
                     >
                       <Trash2 className="w-4 h-4" />

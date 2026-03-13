@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
 import {
   Store, MapPin, Package, Users, Heart, ExternalLink,
   Loader2, Bell, BellOff
@@ -34,8 +32,8 @@ function FollowedStoreCard({ store, onUnfollow }) {
       {/* Hero Image */}
       <div className="h-24 bg-gradient-to-br from-stone-100 to-stone-200 relative">
         {store.hero_image_url && (
-          <img 
-            src={store.hero_image_url} 
+          <img
+            src={store.hero_image_url}
             alt={store.name}
             className="w-full h-full object-cover"
           />
@@ -47,20 +45,20 @@ function FollowedStoreCard({ store, onUnfollow }) {
           </div>
         )}
       </div>
-      
+
       {/* Content */}
       <div className="p-4 pt-8">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="font-heading font-semibold text-primary truncate">{store.name}</h3>
+            <h3 className="font-semibold text-stone-950 truncate">{store.name}</h3>
             {store.tagline && (
-              <p className="text-xs text-text-muted mt-0.5 line-clamp-1 font-body">{store.tagline}</p>
+              <p className="text-xs text-stone-500 mt-0.5 line-clamp-1">{store.tagline}</p>
             )}
           </div>
         </div>
-        
+
         {/* Stats */}
-        <div className="flex items-center gap-3 mt-3 text-xs text-text-muted font-body">
+        <div className="flex items-center gap-3 mt-3 text-xs text-stone-500">
           {store.location && (
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
@@ -85,35 +83,33 @@ function FollowedStoreCard({ store, onUnfollow }) {
         <div className="flex items-center gap-2 mt-4">
           {storeSlug ? (
             <Link to={`/store/${storeSlug}`} className="flex-1">
-              <Button variant="outline" size="sm" className="w-full text-xs">
+              <button className="w-full px-3 py-1.5 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-xs flex items-center justify-center">
                 <ExternalLink className="w-3 h-3 mr-1" />
                 {t('followedStores.visitStore', 'Ver tienda')}
-              </Button>
+              </button>
             </Link>
           ) : (
-            <Button variant="outline" size="sm" className="w-full text-xs" disabled>
+            <button className="flex-1 px-3 py-1.5 border border-stone-200 text-stone-600 rounded-lg text-xs flex items-center justify-center opacity-50" disabled>
               <ExternalLink className="w-3 h-3 mr-1" />
               {t('followedStores.visitStore', 'Ver tienda')}
-            </Button>
+            </button>
           )}
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <button
             onClick={handleUnfollow}
             disabled={unfollowing}
-            className="text-red-500 hover:text-red-600 hover:bg-red-50"
+            className="p-2 text-stone-500 hover:text-stone-950 hover:bg-stone-100 rounded-lg transition-colors disabled:opacity-50"
           >
             {unfollowing ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <BellOff className="w-4 h-4" />
             )}
-          </Button>
+          </button>
         </div>
 
         {/* Followed since */}
         {store.followed_at && (
-          <p className="text-xs text-text-muted mt-3 font-body">
+          <p className="text-xs text-stone-500 mt-3">
             {t('followedStores.followedSince', 'Siguiendo desde')} {new Date(store.followed_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
           </p>
         )}
@@ -150,7 +146,7 @@ export default function CustomerFollowedStores() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-text-muted" />
+        <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
       </div>
     );
   }
@@ -159,68 +155,68 @@ export default function CustomerFollowedStores() {
     <div data-testid="followed-stores-page">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="font-heading text-2xl font-semibold text-primary tracking-[0.02em]">
+        <h1 className="text-2xl font-semibold text-stone-950 tracking-[0.02em]">
           {t('followedStores.title', 'Tiendas Seguidas')}
         </h1>
-        <p className="font-body text-sm text-text-muted mt-1">
+        <p className="text-sm text-stone-500 mt-1">
           {t('followedStores.subtitle', 'Recibe notificaciones cuando tus tiendas favoritas añadan nuevos productos')}
         </p>
       </div>
 
       {stores.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
+        <div className="bg-white rounded-xl border border-stone-200">
+          <div className="py-12 text-center px-6">
             <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4">
               <Heart className="w-8 h-8 text-stone-300" />
             </div>
-            <h3 className="font-heading font-semibold text-primary mb-2">
+            <h3 className="font-semibold text-stone-950 mb-2">
               {t('followedStores.noStores', 'No sigues ninguna tienda')}
             </h3>
-            <p className="text-sm text-text-muted font-body mb-6 max-w-sm mx-auto">
+            <p className="text-sm text-stone-500 mb-6 max-w-sm mx-auto">
               {t('followedStores.noStoresDesc', 'Explora nuestras tiendas y sigue a tus favoritas para recibir notificaciones de nuevos productos.')}
             </p>
             <Link to="/stores">
-              <Button className="bg-primary hover:bg-primary-hover">
-                <Store className="w-4 h-4 mr-2" />
+              <button className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto">
+                <Store className="w-4 h-4" />
                 {t('followedStores.exploreStores', 'Explorar tiendas')}
-              </Button>
+              </button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : (
         <>
           {/* Stats */}
-          <Card className="mb-6">
-            <CardContent className="py-4">
+          <div className="mb-6 bg-white rounded-xl border border-stone-200">
+            <div className="py-4 px-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Bell className="w-5 h-5 text-primary" />
+                  <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-stone-950" />
                   </div>
                   <div>
-                    <p className="font-heading font-semibold text-primary">
+                    <p className="font-semibold text-stone-950">
                       {stores.length} {stores.length === 1 ? t('followedStores.store', 'tienda') : t('followedStores.storesPlural', 'tiendas')}
                     </p>
-                    <p className="text-xs text-text-muted font-body">
+                    <p className="text-xs text-stone-500">
                       {t('followedStores.notificationsActive', 'Recibirás notificaciones de nuevos productos')}
                     </p>
                   </div>
                 </div>
                 <Link to="/stores">
-                  <Button variant="outline" size="sm">
+                  <button className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-sm">
                     {t('followedStores.discoverMore', 'Descubrir más')}
-                  </Button>
+                  </button>
                 </Link>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {stores.map((store) => (
-              <FollowedStoreCard 
-                key={store.store_id} 
-                store={store} 
+              <FollowedStoreCard
+                key={store.store_id}
+                store={store}
                 onUnfollow={handleUnfollow}
               />
             ))}

@@ -6,9 +6,9 @@ function TierProgress({ currentTier, currentRate, nextTier, progress, onViewBene
   const percentage = Math.round(progress * 100);
   
   return (
-    <div className="bg-gradient-to-r from-accent to-accent rounded-2xl p-4 text-white">
+    <div className="bg-stone-950 rounded-2xl p-4 text-white">
       <div className="flex items-center gap-2 mb-3">
-        <Trophy className="w-5 h-5 text-state-amber" />
+        <Trophy className="w-5 h-5 text-stone-300" />
         <span className="font-bold">Nivel {currentTier}</span>
         <span className="text-white/70 text-sm">({(currentRate * 100).toFixed(0)}% comisión)</span>
       </div>
@@ -24,7 +24,7 @@ function TierProgress({ currentTier, currentRate, nextTier, progress, onViewBene
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
             transition={{ duration: 1, ease: 'easeOut' }}
-            className="h-full bg-state-amber rounded-full"
+            className="h-full bg-stone-300 rounded-full"
           />
         </div>
         

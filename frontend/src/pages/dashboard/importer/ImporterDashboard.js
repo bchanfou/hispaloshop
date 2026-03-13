@@ -84,42 +84,42 @@ function ImporterDashboard() {
       id: 'add',
       icon: Plus,
       label: 'Añadir producto',
-      color: 'var(--color-accent)',
+      color: '#1c1917',
       onClick: () => navigate('/importer/products/new')
     },
     {
       id: 'orders',
       icon: ShoppingCart,
       label: 'Pedidos',
-      color: 'var(--color-warning)',
+      color: '#44403c',
       onClick: () => navigate('/importer/orders')
     },
     {
       id: 'producers',
       icon: Users,
       label: 'Productores',
-      color: 'var(--color-info)',
+      color: '#78716c',
       onClick: () => navigate('/b2b/producers')
     },
     {
       id: 'analytics',
       icon: TrendingUp,
       label: 'Análisis',
-      color: 'var(--color-success)',
+      color: '#1c1917',
       onClick: () => navigate('/importer/analytics')
     }
   ];
 
   if (dashboardQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-background-subtle flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-subtle p-4 pb-24">
+    <div className="min-h-screen bg-stone-50 p-4 pb-24">
       <DashboardHeader userName={user?.name || 'Importador'} subtitle="Panel de importador" notificationCount={0} />
 
       <div className="grid grid-cols-2 gap-3 mb-4">
@@ -128,28 +128,28 @@ function ImporterDashboard() {
           value={`EUR ${dashboardData.kpis.revenue.toFixed(0)}`}
           label="Ingresos"
           subtext="este mes"
-          accentColor="#2D5A3D"
+          accentColor="#1c1917"
         />
         <KPICard
           icon={Package}
           value={dashboardData.kpis.orders}
           label="Pedidos"
           subtext="totales"
-          accentColor="#E6A532"
+          accentColor="#44403c"
         />
         <KPICard
           icon={Globe}
           value={dashboardData.kpis.countries}
           label="Países"
           subtext="de origen"
-          accentColor="#3B82F6"
+          accentColor="#78716c"
         />
         <KPICard
           icon={Package}
           value={dashboardData.kpis.products}
           label="Productos"
           subtext="activos"
-          accentColor="#16A34A"
+          accentColor="#1c1917"
         />
       </div>
 
@@ -158,7 +158,7 @@ function ImporterDashboard() {
           <h3 className="font-semibold text-stone-950">Evolución de ventas</h3>
           <p className="text-xs text-stone-500">Ingresos semanales</p>
         </div>
-        <AreaChart data={dashboardData.chart.data} labels={dashboardData.chart.labels} color="#2D5A3D" />
+        <AreaChart data={dashboardData.chart.data} labels={dashboardData.chart.labels} color="#1c1917" />
       </div>
 
       <div className="mb-6">
@@ -170,7 +170,7 @@ function ImporterDashboard() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-stone-950">Pedidos recientes</h3>
-            <button onClick={() => navigate('/importer/orders')} className="text-sm text-accent font-medium">
+            <button onClick={() => navigate('/importer/orders')} className="text-sm text-stone-500 font-medium">
               Ver todos
             </button>
           </div>

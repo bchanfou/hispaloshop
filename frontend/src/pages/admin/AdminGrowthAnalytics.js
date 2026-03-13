@@ -23,7 +23,7 @@ function StatCard({ icon: Icon, label, value, sub }) {
 
 function SectionTitle({ title }) {
   return (
-    <h2 className="mb-4 font-body text-base font-semibold text-stone-950">{title}</h2>
+    <h2 className="mb-4 text-base font-semibold text-stone-950">{title}</h2>
   );
 }
 
@@ -65,7 +65,7 @@ export default function AdminGrowthAnalytics() {
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="font-body text-xl font-semibold text-stone-950">Crecimiento</h1>
+              <h1 className="text-xl font-semibold text-stone-950">Crecimiento</h1>
               <p className="text-sm text-stone-500">Análisis de conversión y descubrimiento</p>
             </div>
           </div>

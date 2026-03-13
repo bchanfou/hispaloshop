@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import apiClient from '../../services/api/client';
 import { Link } from 'react-router-dom';
 import { Activity, AlertTriangle, BarChart3, FileCheck, Loader2, Shield, Users } from 'lucide-react';
-import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 
 function MetricCard({ icon: Icon, title, value, description, to }) {
@@ -64,9 +63,9 @@ export default function SuperAdminOverview() {
         <AlertTriangle className="mx-auto h-8 w-8 text-stone-400" />
         <h2 className="mt-4 text-2xl font-semibold text-stone-950">No se pudo cargar el overview</h2>
         <p className="mt-2 text-sm text-stone-500">Revisa la conexión con el backend e inténtalo de nuevo.</p>
-        <Button variant="outline" className="mt-5" onClick={() => { setLoading(true); fetchData(); }}>
+        <button className="mt-5 px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors" onClick={() => { setLoading(true); fetchData(); }}>
           Reintentar
-        </Button>
+        </button>
       </div>
     );
   }

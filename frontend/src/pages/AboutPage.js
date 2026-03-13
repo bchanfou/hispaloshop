@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
-import { Button } from '../components/ui/button';
 import {
   Shield,
   Sparkles,
@@ -32,12 +31,12 @@ export default function AboutPage() {
   ];
 
   const features = [
-    { icon: Shield, title: 'Calidad y trazabilidad', desc: 'Productos con información verificable y certificado digital.', color: 'bg-emerald-50 text-emerald-600' },
-    { icon: Globe, title: 'Operación internacional', desc: 'Catálogo único para compra y venta en varios mercados.', color: 'bg-blue-50 text-blue-600' },
-    { icon: Heart, title: 'Commerce + social', desc: 'Feed, posts y reels conectados con conversión real.', color: 'bg-rose-50 text-rose-600' },
-    { icon: CreditCard, title: 'Pagos centralizados', desc: 'Checkout seguro, comisiones y conciliación por operación.', color: 'bg-amber-50 text-amber-600' },
-    { icon: ChefHat, title: 'Contenido útil', desc: 'Recetas, descubrimiento y comunidad alrededor del producto.', color: 'bg-orange-50 text-orange-600' },
-    { icon: Users, title: 'Ecosistema completo', desc: 'Clientes, productores, importadores e influencers en un solo flujo.', color: 'bg-stone-100 text-stone-600' },
+    { icon: Shield, title: 'Calidad y trazabilidad', desc: 'Productos con información verificable y certificado digital.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Globe, title: 'Operación internacional', desc: 'Catálogo único para compra y venta en varios mercados.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Heart, title: 'Commerce + social', desc: 'Feed, posts y reels conectados con conversión real.', color: 'bg-stone-100 text-stone-700' },
+    { icon: CreditCard, title: 'Pagos centralizados', desc: 'Checkout seguro, comisiones y conciliación por operación.', color: 'bg-stone-100 text-stone-700' },
+    { icon: ChefHat, title: 'Contenido útil', desc: 'Recetas, descubrimiento y comunidad alrededor del producto.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Users, title: 'Ecosistema completo', desc: 'Clientes, productores, importadores e influencers en un solo flujo.', color: 'bg-stone-100 text-stone-700' },
   ];
 
   const audience = [
@@ -52,7 +51,7 @@ export default function AboutPage() {
       ],
       cta: 'Explorar productos',
       to: '/products',
-      border: 'border-emerald-200 bg-emerald-50/30',
+      border: 'border-stone-200 bg-stone-50/30',
     },
     {
       icon: Globe,
@@ -65,7 +64,7 @@ export default function AboutPage() {
       ],
       cta: 'Ser Productor',
       to: '/productor/registro',
-      border: 'border-blue-200 bg-blue-50/30',
+      border: 'border-stone-200 bg-stone-50/30',
     },
     {
       icon: Sparkles,
@@ -78,7 +77,7 @@ export default function AboutPage() {
       ],
       cta: 'Ser Influencer',
       to: '/influencer/aplicar',
-      border: 'border-purple-200 bg-purple-50/30',
+      border: 'border-stone-200 bg-stone-50/30',
     },
     {
       icon: TrendingUp,
@@ -91,15 +90,15 @@ export default function AboutPage() {
       ],
       cta: 'Ser Importador',
       to: '/importer/onboarding',
-      border: 'border-amber-200 bg-amber-50/30',
+      border: 'border-stone-200 bg-stone-50/30',
     },
   ];
 
   const newFeatures = [
-    { icon: Layers, title: 'Catálogo limpio', desc: 'Navegación por categorías con foco en conversión.', color: 'bg-yellow-50 text-yellow-700' },
-    { icon: ChefHat, title: 'Recetas conectadas', desc: 'Contenido útil enlazado a productos reales.', color: 'bg-orange-50 text-orange-700' },
-    { icon: Smartphone, title: 'Feed social', desc: 'Publicaciones y reels para descubrimiento diario.', color: 'bg-rose-50 text-rose-700' },
-    { icon: Languages, title: 'Contexto local', desc: 'Idioma y moneda aplicados por preferencia.', color: 'bg-blue-50 text-blue-700' },
+    { icon: Layers, title: 'Catálogo limpio', desc: 'Navegación por categorías con foco en conversión.', color: 'bg-stone-100 text-stone-700' },
+    { icon: ChefHat, title: 'Recetas conectadas', desc: 'Contenido útil enlazado a productos reales.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Smartphone, title: 'Feed social', desc: 'Publicaciones y reels para descubrimiento diario.', color: 'bg-stone-100 text-stone-700' },
+    { icon: Languages, title: 'Contexto local', desc: 'Idioma y moneda aplicados por preferencia.', color: 'bg-stone-100 text-stone-700' },
   ];
 
   return (
@@ -109,85 +108,90 @@ export default function AboutPage() {
         <BackButton />
 
         <section className="text-center mb-12" data-testid="about-hero">
-          <p className="text-xs font-semibold text-accent uppercase tracking-widest mb-3">Qué es Hispaloshop</p>
-          <h1 className="font-heading text-3xl md:text-4xl font-semibold text-primary mb-4">
+          <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-3">Qué es Hispaloshop</p>
+          <h1 className="text-3xl md:text-4xl font-semibold text-stone-950 mb-4">
             Marketplace social para producto real
           </h1>
-          <p className="text-sm text-text-secondary max-w-xl mx-auto mb-6">
+          <p className="text-sm text-stone-600 max-w-xl mx-auto mb-6">
             Unimos compra, venta, influencia y trazabilidad en una plataforma operativa.
           </p>
           <div className="flex justify-center gap-5 sm:gap-8 mb-6">
             {stats.map((s, i) => (
               <div key={i} className="text-center">
-                <p className="text-2xl font-bold text-accent">{s.value}</p>
-                <p className="text-xs text-text-muted uppercase">{s.label}</p>
+                <p className="text-2xl font-bold text-stone-950">{s.value}</p>
+                <p className="text-xs text-stone-500 uppercase">{s.label}</p>
               </div>
             ))}
           </div>
           <div className="flex justify-center gap-3">
-            <Link to="/products">
-              <Button className="bg-primary hover:bg-primary-hover text-white rounded-full px-6 h-11" data-testid="about-explore-btn">
-                Explorar productos <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
+            <Link
+              to="/products"
+              className="inline-flex h-11 items-center gap-1 rounded-full bg-stone-950 px-6 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
+              data-testid="about-explore-btn"
+            >
+              Explorar productos <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link to="/signup">
-              <Button variant="outline" className="rounded-full px-6 h-11" data-testid="about-signup-btn">
-                Crear cuenta gratis
-              </Button>
+            <Link
+              to="/signup"
+              className="inline-flex h-11 items-center rounded-full border border-stone-200 bg-white px-6 text-[14px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
+              data-testid="about-signup-btn"
+            >
+              Crear cuenta gratis
             </Link>
           </div>
         </section>
 
         <section className="mb-12" data-testid="about-whats-new">
-          <h2 className="font-heading text-2xl font-semibold text-primary text-center mb-2">Lo que ya está activo</h2>
-          <p className="text-sm text-text-muted text-center mb-8">Funcionalidad real de producto en esta versión.</p>
+          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-2">Lo que ya está activo</h2>
+          <p className="text-sm text-stone-500 text-center mb-8">Funcionalidad real de producto en esta versión.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {newFeatures.map((nf, i) => (
               <div key={i} className="bg-white rounded-2xl border border-stone-200 p-4 text-center hover:shadow-md transition-all">
                 <div className={`w-10 h-10 rounded-xl ${nf.color} flex items-center justify-center mx-auto mb-2`}>
                   <nf.icon className="w-5 h-5" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-semibold text-primary text-sm mb-1">{nf.title}</h3>
-                <p className="text-[11px] text-text-muted leading-relaxed">{nf.desc}</p>
+                <h3 className="font-semibold text-stone-950 text-sm mb-1">{nf.title}</h3>
+                <p className="text-[11px] text-stone-500 leading-relaxed">{nf.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         <section className="mb-12">
-          <h2 className="font-heading text-2xl font-semibold text-primary text-center mb-8">Por qué la plataforma funciona</h2>
+          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-8">Por qué la plataforma funciona</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((f, i) => (
               <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 hover:shadow-md transition-all" data-testid={`about-feature-${i}`}>
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${f.color}`}>
                   <f.icon className="w-5 h-5" />
                 </div>
-                <h3 className="font-semibold text-primary text-sm mb-1">{f.title}</h3>
-                <p className="text-xs text-text-muted leading-relaxed">{f.desc}</p>
+                <h3 className="font-semibold text-stone-950 text-sm mb-1">{f.title}</h3>
+                <p className="text-xs text-stone-500 leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         <section className="mb-12">
-          <h2 className="font-heading text-2xl font-semibold text-primary text-center mb-8">Para quién está hecho</h2>
+          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-8">Para quién está hecho</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {audience.map((a, i) => (
               <div key={i} className={`rounded-2xl border p-5 ${a.border}`} data-testid={`about-audience-${i}`}>
-                <a.icon className="w-7 h-7 text-primary mb-3" />
-                <h3 className="font-heading text-lg font-semibold text-primary mb-3">{a.title}</h3>
+                <a.icon className="w-7 h-7 text-stone-950 mb-3" />
+                <h3 className="text-lg font-semibold text-stone-950 mb-3">{a.title}</h3>
                 <ul className="space-y-2 mb-4">
                   {a.points.map((p, j) => (
-                    <li key={j} className="flex items-start gap-2 text-xs text-text-primary">
-                      <CheckCircle className="w-3.5 h-3.5 text-accent mt-0.5 shrink-0" />
+                    <li key={j} className="flex items-start gap-2 text-xs text-stone-950">
+                      <CheckCircle className="w-3.5 h-3.5 text-stone-500 mt-0.5 shrink-0" />
                       {p}
                     </li>
                   ))}
                 </ul>
-                <Link to={a.to}>
-                  <Button variant="outline" size="sm" className="w-full rounded-xl hover:bg-primary hover:text-white">
-                    {a.cta} <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                  </Button>
+                <Link
+                  to={a.to}
+                  className="inline-flex w-full items-center justify-center gap-1 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-950 hover:text-white"
+                >
+                  {a.cta} <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             ))}
@@ -195,9 +199,9 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-12">
-          <h2 className="font-heading text-2xl font-semibold text-primary text-center mb-2">Por qué existe Hispaloshop</h2>
-          <p className="text-sm text-text-muted text-center mb-8">La historia real detrás del proyecto.</p>
-          <div className="bg-primary rounded-2xl p-6 sm:p-8 text-white">
+          <h2 className="text-2xl font-semibold text-stone-950 text-center mb-2">Por qué existe Hispaloshop</h2>
+          <p className="text-sm text-stone-500 text-center mb-8">La historia real detrás del proyecto.</p>
+          <div className="bg-stone-950 rounded-2xl p-6 sm:p-8 text-white">
             <div className="flex items-center gap-3 mb-6">
               <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
                 {!founderAvatarError ? (
@@ -217,7 +221,7 @@ export default function AboutPage() {
                 <p className="font-semibold text-white text-sm">Bil Chanfou</p>
                 <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-white/70 hover:text-white transition-colors" aria-label="Seguir a Bil Chanfou en Instagram">@bchanfuah</a>
               </div>
-              <span className="ml-auto text-xs text-stone-500 uppercase tracking-widest">Fundador</span>
+              <span className="ml-auto text-xs text-stone-400 uppercase tracking-wide">Fundador</span>
             </div>
             <div className="space-y-4 text-sm leading-7 text-white/80">
               <p>
@@ -237,7 +241,7 @@ export default function AboutPage() {
         </section>
 
         <section className="mb-12 text-center">
-          <h2 className="font-heading text-2xl font-semibold text-primary mb-8">Cómo funciona</h2>
+          <h2 className="text-2xl font-semibold text-stone-950 mb-8">Cómo funciona</h2>
           <div className="grid grid-cols-3 gap-4">
             {[
               { icon: Sparkles, title: 'Descubre', desc: 'Explora catálogo, tiendas y contenido.' },
@@ -245,29 +249,31 @@ export default function AboutPage() {
               { icon: Truck, title: 'Recibe', desc: 'Seguimiento operativo y entrega.' },
             ].map((s, i) => (
               <div key={i}>
-                <div className="w-12 h-12 rounded-2xl bg-accent text-white flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-2xl bg-stone-950 text-white flex items-center justify-center mx-auto mb-3">
                   <s.icon className="w-6 h-6" />
                 </div>
                 <h3 className="font-semibold text-sm mb-1">{s.title}</h3>
-                <p className="text-xs text-text-muted">{s.desc}</p>
+                <p className="text-xs text-stone-500">{s.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="bg-primary rounded-2xl p-8 text-center" data-testid="about-cta">
-          <h2 className="font-heading text-2xl font-semibold text-white mb-3">Empieza hoy</h2>
+        <section className="bg-stone-950 rounded-2xl p-8 text-center" data-testid="about-cta">
+          <h2 className="text-2xl font-semibold text-white mb-3">Empieza hoy</h2>
           <p className="mb-6 text-sm text-white/80">Entra como comprador, productor, influencer o importador.</p>
           <div className="flex justify-center gap-3">
-            <Link to="/signup">
-              <Button className="bg-primary hover:bg-primary-hover text-white rounded-full px-7 h-11">
-                Crear cuenta gratis <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
+            <Link
+              to="/signup"
+              className="inline-flex h-11 items-center gap-1 rounded-full bg-white px-7 text-[14px] font-medium text-stone-950 transition-colors hover:bg-stone-100"
+            >
+              Crear cuenta gratis <ArrowRight className="w-4 h-4" />
             </Link>
-            <Link to="/products">
-              <Button variant="outline" className="h-11 rounded-full border-stone-600 px-7 text-white/80 hover:bg-stone-800 hover:text-white">
-                Solo explorar
-              </Button>
+            <Link
+              to="/products"
+              className="inline-flex h-11 items-center rounded-full border border-white/20 px-7 text-[14px] font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              Solo explorar
             </Link>
           </div>
         </section>

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/api/client';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { 
   Search, CheckCircle, XCircle, Pause, Eye, Edit, ArrowLeft,
@@ -14,10 +12,10 @@ import { asLowerText } from '../../utils/safe';
 
 
 const statusColors = {
-  approved: 'bg-green-100 text-green-800',
-  pending: 'bg-amber-100 text-amber-800',
-  rejected: 'bg-red-100 text-red-800',
-  paused: 'bg-gray-100 text-gray-800'
+  approved: 'bg-stone-950 text-white',
+  pending: 'bg-stone-200 text-stone-700',
+  rejected: 'border border-stone-200 text-stone-400 bg-white',
+  paused: 'bg-stone-200 text-stone-600'
 };
 
 const roleLabels = {
@@ -100,7 +98,7 @@ export default function AdminProducers() {
       <div>
         <button
           onClick={() => { setSelectedProducer(null); setEditMode(false); }}
-          className="flex items-center gap-2 text-text-secondary hover:text-primary mb-6"
+          className="flex items-center gap-2 text-stone-600 hover:text-stone-950 mb-6"
           data-testid="back-button"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -110,12 +108,12 @@ export default function AdminProducers() {
         <div className="bg-white rounded-xl border border-stone-200 p-6">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h2 className="font-heading text-2xl font-bold text-text-primary">
+              <h2 className="text-2xl font-bold text-stone-950">
                 {editMode ? (
-                  <Input
+                  <input
+                    className="w-full px-3 py-2 text-xl font-bold border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={editData.company_name || selectedProducer.company_name}
                     onChange={(e) => setEditData({ ...editData, company_name: e.target.value })}
-                    className="text-xl font-bold"
                   />
                 ) : (
                   selectedProducer.company_name || selectedProducer.name
@@ -131,13 +129,13 @@ export default function AdminProducers() {
             <div className="flex gap-2">
               {editMode ? (
                 <>
-                  <Button onClick={saveEdits} className="bg-primary">{t('common.save')}</Button>
-                  <Button variant="outline" onClick={() => setEditMode(false)}>{t('common.cancel')}</Button>
+                  <button type="button" onClick={saveEdits} className="px-4 py-2 text-sm font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors">{t('common.save')}</button>
+                  <button type="button" className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => setEditMode(false)}>{t('common.cancel')}</button>
                 </>
               ) : (
-                <Button variant="outline" onClick={() => { setEditMode(true); setEditData(selectedProducer); }}>
+                <button type="button" className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors" onClick={() => { setEditMode(true); setEditData(selectedProducer); }}>
                   <Edit className="w-4 h-4 mr-2" /> {t('common.edit')}
-                </Button>
+                </button>
               )}
             </div>
           </div>
@@ -145,13 +143,14 @@ export default function AdminProducers() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-text-muted" />
+                <Mail className="w-5 h-5 text-stone-500" />
                 <span>{selectedProducer.email}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-text-muted" />
+                <Phone className="w-5 h-5 text-stone-500" />
                 {editMode ? (
-                  <Input
+                  <input
+                    className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={editData.phone || selectedProducer.phone || ''}
                     onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
                   />
@@ -160,15 +159,16 @@ export default function AdminProducers() {
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <Building className="w-5 h-5 text-text-muted" />
+                <Building className="w-5 h-5 text-stone-500" />
                 <span>{t('adminProducers.detail.vat')}: {selectedProducer.vat_cif || t('adminProducers.detail.na')}</span>
               </div>
             </div>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-text-muted mt-1" />
+                <MapPin className="w-5 h-5 text-stone-500 mt-1" />
                 {editMode ? (
-                  <Input
+                  <input
+                    className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={editData.fiscal_address || selectedProducer.fiscal_address || ''}
                     onChange={(e) => setEditData({ ...editData, fiscal_address: e.target.value })}
                   />
@@ -177,9 +177,10 @@ export default function AdminProducers() {
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-text-muted">{t('adminProducers.detail.country')}:</span>
+                <span className="text-stone-500">{t('adminProducers.detail.country')}:</span>
                 {editMode ? (
-                  <Input
+                  <input
+                    className="flex-1 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                     value={editData.country || selectedProducer.country || ''}
                     onChange={(e) => setEditData({ ...editData, country: e.target.value })}
                   />
@@ -192,44 +193,46 @@ export default function AdminProducers() {
 
           {/* Actions */}
           <div className="border-t border-stone-200 pt-6">
-            <h3 className="font-medium text-text-primary mb-4">{t('adminProducers.detail.actions')}</h3>
+            <h3 className="font-medium text-stone-950 mb-4">{t('adminProducers.detail.actions')}</h3>
             <div className="flex flex-wrap gap-3">
               {status !== 'approved' && (
-                <Button 
+                <button
+                  type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'approved')}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
                   data-testid="approve-producer"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.approve')}
-                </Button>
+                </button>
               )}
               {status !== 'rejected' && (
-                <Button 
+                <button
+                  type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'rejected')}
-                  variant="outline"
-                  className="border-red-300 text-red-600 hover:bg-red-50"
+                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-700 hover:bg-stone-50 rounded-xl transition-colors"
                   data-testid="reject-producer"
                 >
                   <XCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.reject')}
-                </Button>
+                </button>
               )}
               {status === 'approved' && (
-                <Button 
+                <button
+                  type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'paused')}
-                  variant="outline"
-                  className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                  className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 rounded-xl transition-colors"
                   data-testid="pause-producer"
                 >
                   <Pause className="w-4 h-4 mr-2" /> {t('adminProducers.detail.pause')}
-                </Button>
+                </button>
               )}
               {status === 'paused' && (
-                <Button 
+                <button
+                  type="button"
                   onClick={() => updateStatus(selectedProducer.user_id, 'approved')}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" /> {t('adminProducers.detail.reactivate')}
-                </Button>
+                </button>
               )}
             </div>
           </div>
@@ -241,27 +244,28 @@ export default function AdminProducers() {
   // List View
   return (
     <div>
-      <h1 className="font-heading text-3xl font-bold text-text-primary mb-2">
+      <h1 className="text-3xl font-bold text-stone-950 mb-2">
         {t('adminProducers.title', 'Productores e Importadores')}
       </h1>
-      <p className="text-text-muted mb-6">{t('adminProducers.subtitle', 'Gestión de productores e importadores por estado y pais')}</p>
+      <p className="text-stone-500 mb-6">{t('adminProducers.subtitle', 'Gestión de productores e importadores por estado y pais')}</p>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-          <Input
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+          <input
+            type="text"
+            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
             placeholder={t('adminProducers.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
             data-testid="search-input"
           />
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 rounded-lg border border-stone-200 bg-white"
+          className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
           data-testid="status-filter"
         >
           <option value="all">{t('adminProducers.allStatuses')}</option>
@@ -273,7 +277,7 @@ export default function AdminProducers() {
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-4 py-2 rounded-lg border border-stone-200 bg-white"
+          className="px-4 py-2 rounded-xl border border-stone-200 bg-white"
           data-testid="role-filter"
         >
           <option value="all">Todos los tipos</option>
@@ -285,18 +289,18 @@ export default function AdminProducers() {
       {/* Table */}
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-text-muted">{t('common.loading')}</div>
+          <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : filteredProducers.length === 0 ? (
-          <div className="p-8 text-center text-text-muted">{t('adminProducers.noProducersFound')}</div>
+          <div className="p-8 text-center text-stone-500">{t('adminProducers.noProducersFound')}</div>
         ) : (
           <table className="w-full" data-testid="producers-table">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
-                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.company')}</th>
-                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.contact')}</th>
-                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">Tipo</th>
-                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.status')}</th>
-                <th scope="col" className="text-right px-6 py-4 text-sm font-medium text-text-secondary">{t('adminProducers.table.actions')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducers.table.company')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducers.table.contact')}</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">Tipo</th>
+                <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducers.table.status')}</th>
+                <th scope="col" className="text-right px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducers.table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200">
@@ -305,12 +309,12 @@ export default function AdminProducers() {
                 return (
                   <tr key={producer.user_id} className="hover:bg-stone-50">
                     <td className="px-6 py-4">
-                      <p className="font-medium text-text-primary">{producer.company_name || producer.name}</p>
-                      <p className="text-sm text-text-muted">{producer.country}</p>
+                      <p className="font-medium text-stone-950">{producer.company_name || producer.name}</p>
+                      <p className="text-sm text-stone-500">{producer.country}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-text-primary">{producer.email}</p>
-                      <p className="text-sm text-text-muted">{producer.phone}</p>
+                      <p className="text-stone-950">{producer.email}</p>
+                      <p className="text-sm text-stone-500">{producer.phone}</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
@@ -324,22 +328,22 @@ export default function AdminProducers() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
+                        <button
+                          type="button"
+                          className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
                           onClick={() => setSelectedProducer(producer)}
                           data-testid={`view-${producer.user_id}`}
                         >
                           <Eye className="w-4 h-4 mr-1" /> {t('adminProducers.table.view')}
-                        </Button>
+                        </button>
                         {status === 'pending' && (
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700"
+                          <button
+                            type="button"
+                            className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
                             onClick={() => updateStatus(producer.user_id, 'approved')}
                           >
                             <CheckCircle className="w-4 h-4 mr-1" /> {t('adminProducers.detail.approve')}
-                          </Button>
+                          </button>
                         )}
                       </div>
                     </td>

@@ -22,10 +22,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogTitle } from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Checkbox } from '../ui/checkbox';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { useAuth } from '../../context/AuthContext';
 import { redirectAfterAuth } from '../../lib/navigation';
 import apiClient from '../../services/api/client';
@@ -40,8 +36,8 @@ export const PRODUCER_PLANS = {
     price: '0€ / mes',
     chargeLabel: 'No pagarás nada hasta que vendas.',
     commission: '20%',
-    accentClass: 'border-green-400 bg-white',
-    buttonClass: 'bg-green-700 text-white hover:bg-green-800',
+    accentClass: 'border-stone-400 bg-white',
+    buttonClass: 'bg-stone-950 text-white hover:bg-stone-800',
     summary: 'Para productores que quieren empezar a vender sin riesgo.',
     features: [
       'Tienda virtual personalizada con tu historia y origen',
@@ -58,8 +54,8 @@ export const PRODUCER_PLANS = {
     price: '79€ + IVA / mes',
     chargeLabel: '79€ + IVA (95,59€) mensuales',
     commission: '18%',
-    accentClass: 'border-amber-600 bg-white shadow-[0_26px_60px_-38px_rgba(217,119,6,0.45)] lg:scale-[1.04]',
-    buttonClass: 'bg-amber-600 text-white hover:bg-amber-700',
+    accentClass: 'border-stone-600 bg-white shadow-[0_26px_60px_-38px_rgba(80,80,80,0.45)] lg:scale-[1.04]',
+    buttonClass: 'bg-stone-950 text-white hover:bg-stone-800',
     summary: 'Para productores serios que quieren escalar sin locura.',
     features: [
       'Herramientas de IA para marketing',
@@ -78,8 +74,8 @@ export const PRODUCER_PLANS = {
     price: '149€ + IVA / mes',
     chargeLabel: '149€ + IVA (180,29€) mensuales',
     commission: '17%',
-    accentClass: 'border-indigo-500 bg-white',
-    buttonClass: 'bg-indigo-600 text-white hover:bg-indigo-700',
+    accentClass: 'border-stone-500 bg-white',
+    buttonClass: 'bg-stone-950 text-white hover:bg-stone-800',
     summary: 'Para cooperativas y productores con ambición global.',
     features: [
       'Todo lo del PRO',
@@ -259,19 +255,19 @@ function readStoredState(initialPlan) {
 
 function fieldClass(hasError, isValid) {
   if (hasError) {
-    return 'border-red-600 focus-visible:border-red-600 focus-visible:ring-4 focus-visible:ring-red-600/15';
+    return 'border-stone-700 focus:outline-none focus:border-stone-950';
   }
   if (isValid) {
-    return 'border-emerald-500 focus-visible:border-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-600/15';
+    return 'border-stone-400 focus:outline-none focus:border-stone-950';
   }
-  return 'border-stone-300 focus-visible:border-green-900 focus-visible:ring-4 focus-visible:ring-green-900/15';
+  return 'border-stone-300 focus:outline-none focus:border-stone-950';
 }
 
 function StatusIcon({ valid }) {
   if (!valid) {
     return null;
   }
-  return <CheckCircle2 className="pointer-events-none absolute right-3 top-[42px] h-4 w-4 text-emerald-500" aria-hidden="true" />;
+  return <CheckCircle2 className="pointer-events-none absolute right-3 top-[42px] h-4 w-4 text-stone-500" aria-hidden="true" />;
 }
 
 function PlanPill({ label, selected, accent }) {
@@ -296,7 +292,7 @@ function ProgressDots({ step, success }) {
           initial={false}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.32, ease: 'easeOut' }}
-          className="absolute left-0 top-4 h-[2px] rounded-full bg-gradient-to-r from-green-900 via-amber-600 to-indigo-600"
+          className="absolute left-0 top-4 h-[2px] rounded-full bg-gradient-to-r from-stone-700 to-stone-950"
         />
         <div className="relative flex items-center justify-between">
           {[1, 2, 3].map((point) => {
@@ -304,7 +300,7 @@ function ProgressDots({ step, success }) {
             const label = point === 1 ? 'Quién eres' : point === 2 ? 'Tu producción' : 'Confirma tu plan';
             return (
               <div key={label} className="flex flex-col items-center gap-2">
-                <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition ${active ? 'border-green-900 bg-green-900 text-white' : 'border-stone-300 bg-white text-stone-500'}`}>
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-300 bg-white text-stone-500'}`}>
                   {point}
                 </div>
                 <span className={`hidden text-[11px] font-medium sm:block ${active ? 'text-stone-700' : 'text-stone-400'}`}>{label}</span>
@@ -321,7 +317,7 @@ function InlineError({ message }) {
   if (!message) {
     return null;
   }
-  return <p className="mt-2 text-sm text-red-600">{message}</p>;
+  return <p className="mt-2 text-sm text-stone-600">{message}</p>;
 }
 
 export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }) {
@@ -710,50 +706,50 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
   const renderStepOne = () => (
     <div className="grid gap-5 lg:grid-cols-2">
       <div className="relative lg:col-span-2">
-        <Label htmlFor="producer-full-name" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+        <label htmlFor="producer-full-name" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
           Nombre del responsable
-        </Label>
+        </label>
         <UserRound className="pointer-events-none absolute left-4 top-[43px] h-4 w-4 text-stone-400" />
-        <Input
+        <input
           id="producer-full-name"
           ref={firstRef}
           value={formData.fullName}
           onChange={(event) => updateField('fullName', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, fullName: true }))}
           placeholder="Tu nombre y apellidos"
-          className={`mt-2 h-12 rounded-[10px] bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.fullName), touched.fullName && validity.fullName)}`}
+          className={`mt-2 h-12 w-full rounded-[10px] border bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.fullName), touched.fullName && validity.fullName)}`}
         />
         <StatusIcon valid={touched.fullName && validity.fullName} />
         <InlineError message={errors.fullName} />
       </div>
 
       <div className="relative">
-        <Label htmlFor="producer-email" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+        <label htmlFor="producer-email" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
           Email de contacto
-        </Label>
+        </label>
         <Mail className="pointer-events-none absolute left-4 top-[43px] h-4 w-4 text-stone-400" />
-        <Input
+        <input
           id="producer-email"
           type="email"
           value={formData.email}
           onChange={(event) => updateField('email', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, email: true }))}
           placeholder="tu@obrador.com"
-          className={`mt-2 h-12 rounded-[10px] bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.email), touched.email && validity.email)}`}
+          className={`mt-2 h-12 w-full rounded-[10px] border bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.email), touched.email && validity.email)}`}
         />
         <StatusIcon valid={touched.email && validity.email} />
         <InlineError message={errors.email} />
       </div>
 
       <div>
-        <Label htmlFor="producer-phone" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+        <label htmlFor="producer-phone" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
           Teléfono
-        </Label>
+        </label>
         <div className="mt-2 grid gap-3 sm:grid-cols-[128px_1fr]">
           <select
             value={formData.phonePrefix}
             onChange={(event) => updateField('phonePrefix', event.target.value)}
-            className="h-12 rounded-[10px] border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-4 focus:ring-green-900/15"
+            className="h-12 rounded-[10px] border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-700 shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] focus:outline-none focus:border-stone-950"
           >
             {PHONE_PREFIXES.map((prefix) => (
               <option key={prefix.value} value={prefix.value}>
@@ -763,13 +759,13 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           </select>
           <div className="relative">
             <Phone className="pointer-events-none absolute left-4 top-[15px] h-4 w-4 text-stone-400" />
-            <Input
+            <input
               id="producer-phone"
               value={formData.phoneNumber}
               onChange={(event) => updateField('phoneNumber', event.target.value)}
               onBlur={() => setTouched((current) => ({ ...current, phoneNumber: true }))}
               placeholder="600 000 000"
-              className={`h-12 rounded-[10px] bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`}
+              className={`h-12 w-full rounded-[10px] border bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.phoneNumber), touched.phoneNumber && validity.phoneNumber)}`}
             />
             <StatusIcon valid={touched.phoneNumber && validity.phoneNumber} />
           </div>
@@ -778,18 +774,18 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
       </div>
 
       <div className="relative">
-        <Label htmlFor="producer-password" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+        <label htmlFor="producer-password" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
           Contraseña
-        </Label>
+        </label>
         <LockKeyhole className="pointer-events-none absolute left-4 top-[43px] h-4 w-4 text-stone-400" />
-        <Input
+        <input
           id="producer-password"
           type={showPassword ? 'text' : 'password'}
           value={formData.password}
           onChange={(event) => updateField('password', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, password: true }))}
               placeholder="Mínimo 6 caracteres"
-          className={`mt-2 h-12 rounded-[10px] bg-white pl-11 pr-12 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
+          className={`mt-2 h-12 w-full rounded-[10px] border bg-white pl-11 pr-12 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.password), touched.password && validity.password)}`}
         />
         <button
           type="button"
@@ -812,21 +808,22 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
         <InlineError message={errors.password} />
       </div>
 
-      <div className="lg:col-span-2 rounded-[18px] border border-stone-200 bg-stone-50 px-4 py-4">
+        <div className="lg:col-span-2 rounded-[18px] border border-stone-200 bg-stone-50 px-4 py-4">
         <div className="flex items-start gap-3">
-          <Checkbox
+          <input
+            type="checkbox"
             id="producer-legal"
             checked={formData.acceptLegal}
-            onCheckedChange={(checked) => updateField('acceptLegal', Boolean(checked))}
-            className="mt-1 h-5 w-5 rounded-md border-stone-400 data-[state=checked]:bg-green-900 data-[state=checked]:text-white"
+            onChange={(e) => updateField('acceptLegal', e.target.checked)}
+            className="mt-1 h-5 w-5 rounded accent-stone-950 cursor-pointer"
           />
           <div>
-            <Label htmlFor="producer-legal" className="mb-0 text-sm font-semibold text-stone-800">
+            <label htmlFor="producer-legal" className="mb-0 text-sm font-semibold text-stone-800">
               Acepto la política de privacidad y los términos
-            </Label>
+            </label>
             <p className="mt-1 text-sm text-stone-600">
               Puedes revisarlos antes de seguir en{' '}
-              <Link to="/legal" target="_blank" className="font-semibold text-green-900 underline underline-offset-2">
+              <Link to="/legal" target="_blank" className="font-semibold text-stone-950 underline underline-offset-2">
                 /legal
               </Link>
               .
@@ -841,18 +838,18 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
   const renderStepTwo = () => (
     <div className="space-y-6">
       <div className="relative">
-        <Label htmlFor="producer-brand" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+        <label htmlFor="producer-brand" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
           Marca o cooperativa
-        </Label>
+        </label>
         <Store className="pointer-events-none absolute left-4 top-[43px] h-4 w-4 text-stone-400" />
-        <Input
+        <input
           id="producer-brand"
           ref={secondRef}
           value={formData.brandName}
           onChange={(event) => updateField('brandName', event.target.value)}
           onBlur={() => setTouched((current) => ({ ...current, brandName: true }))}
           placeholder="Nombre de tu obrador, marca o cooperativa"
-          className={`mt-2 h-12 rounded-[10px] bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.brandName), touched.brandName && validity.brandName)}`}
+          className={`mt-2 h-12 w-full rounded-[10px] border bg-white pl-11 pr-10 text-base shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] ${fieldClass(Boolean(errors.brandName), touched.brandName && validity.brandName)}`}
         />
         <StatusIcon valid={touched.brandName && validity.brandName} />
         <InlineError message={errors.brandName} />
@@ -868,7 +865,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 key={type}
                 type="button"
                 onClick={() => toggleProductType(type)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-green-900 bg-green-900 text-white shadow-[0_12px_24px_-20px_rgba(20,83,45,0.6)]' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
               >
                 {type}
               </button>
@@ -886,7 +883,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
               key={option}
               type="button"
               onClick={() => updateField('exportStage', option)}
-              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${formData.exportStage === option ? 'border-amber-600 bg-amber-50 text-amber-800' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${formData.exportStage === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
             >
               {option}
             </button>
@@ -897,9 +894,9 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
 
       <div className="grid gap-5 lg:grid-cols-2">
         <div>
-          <Label htmlFor="producer-region" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+        <label htmlFor="producer-region" className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
             Región de producción
-          </Label>
+          </label>
           <div className="relative">
             <MapPinned className="pointer-events-none absolute left-4 top-[15px] h-4 w-4 text-stone-400" />
             <select
@@ -927,10 +924,10 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 key={option}
                 type="button"
                 onClick={() => updateField('references', option)}
-                className={`flex w-full items-center justify-between rounded-[14px] border px-4 py-3 text-sm font-semibold transition ${formData.references === option ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
+                className={`flex w-full items-center justify-between rounded-[14px] border px-4 py-3 text-sm font-semibold transition ${formData.references === option ? 'border-stone-950 bg-stone-100 text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'}`}
               >
                 <span>{option}</span>
-                <span className={`h-3 w-3 rounded-full border ${formData.references === option ? 'border-indigo-600 bg-indigo-600' : 'border-stone-300 bg-white'}`} />
+                <span className={`h-3 w-3 rounded-full border ${formData.references === option ? 'border-stone-950 bg-stone-950' : 'border-stone-300 bg-white'}`} />
               </button>
             ))}
           </div>
@@ -942,79 +939,83 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
 
   const renderStepThree = () => (
     <div className="space-y-7">
-      <Tabs value={selectedPlan} onValueChange={(value) => updateField('plan', normalizeProducerPlan(value))}>
-        <TabsList className="grid h-auto w-full grid-cols-3 rounded-[18px] bg-stone-100 p-1">
+      <div>
+        <div className="grid h-auto w-full grid-cols-3 rounded-[18px] bg-stone-100 p-1">
           {Object.values(PRODUCER_PLANS).map((plan) => (
-            <TabsTrigger
+            <button
               key={plan.key}
-              value={plan.key}
+              type="button"
               ref={plan.key === 'free' ? thirdRef : undefined}
-              className="rounded-[14px] px-3 py-3 text-left data-[state=active]:bg-white data-[state=active]:shadow-[0_12px_24px_-22px_rgba(0,0,0,0.25)]"
+              onClick={() => updateField('plan', plan.key)}
+              className={`rounded-[14px] px-3 py-3 text-left transition ${selectedPlan === plan.key ? 'bg-white shadow-[0_12px_24px_-22px_rgba(0,0,0,0.25)]' : ''}`}
             >
               <div className="flex w-full flex-col items-start gap-2">
                 <PlanPill
                   label={plan.badge}
                   selected={selectedPlan === plan.key}
-                  accent={plan.key === 'pro' ? 'bg-amber-50 text-amber-700' : plan.key === 'elite' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-green-800'}
+                  accent={plan.key === 'pro' ? 'bg-stone-200 text-stone-700' : plan.key === 'elite' ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-800'}
                 />
                 <div>
                   <p className="text-base font-bold text-stone-900">{plan.name}</p>
                   <p className="text-xs text-stone-500">{plan.price}</p>
                 </div>
               </div>
-            </TabsTrigger>
+            </button>
           ))}
-        </TabsList>
+        </div>
 
         {Object.values(PRODUCER_PLANS).map((plan) => (
-          <TabsContent key={plan.key} value={plan.key} className="mt-6">
-            <div className={`rounded-[26px] border p-6 transition ${plan.accentClass}`}>
-              <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-                <div>
-                  <PlanPill
-                    label={plan.badge}
-                    selected={true}
-                    accent={plan.key === 'pro' ? 'bg-amber-50 text-amber-700' : plan.key === 'elite' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-green-800'}
-                  />
-                  <h3 className="mt-4 text-3xl font-bold tracking-[-0.03em] text-stone-900">{plan.name}</h3>
-                  <p className="mt-2 text-sm leading-7 text-stone-600">{plan.summary}</p>
-                  <div className="mt-5 rounded-[18px] border border-stone-200 bg-stone-50 p-4">
-                    <p className="text-sm font-semibold text-stone-500">Cargo o comisión</p>
-                    <p className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-stone-900">{plan.chargeLabel}</p>
-                    <p className="mt-2 text-sm text-stone-600">Comisión de plataforma: {plan.commission}</p>
+          selectedPlan === plan.key ? (
+            <div key={plan.key} className="mt-6">
+              <div className={`rounded-[26px] border p-6 transition ${plan.accentClass}`}>
+                <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+                  <div>
+                    <PlanPill
+                      label={plan.badge}
+                      selected={true}
+                      accent={plan.key === 'pro' ? 'bg-stone-200 text-stone-700' : plan.key === 'elite' ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-800'}
+                    />
+                    <h3 className="mt-4 text-3xl font-bold tracking-[-0.03em] text-stone-900">{plan.name}</h3>
+                    <p className="mt-2 text-sm leading-7 text-stone-600">{plan.summary}</p>
+                    <div className="mt-5 rounded-[18px] border border-stone-200 bg-stone-50 p-4">
+                      <p className="text-sm font-semibold text-stone-500">Cargo o comisión</p>
+                      <p className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-stone-900">{plan.chargeLabel}</p>
+                      <p className="mt-2 text-sm text-stone-600">Comisión de plataforma: {plan.commission}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="rounded-[18px] border border-stone-200 bg-white p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">Incluye</p>
-                  <ul className="mt-4 space-y-3">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3 text-sm leading-7 text-stone-700">
-                        <Wheat className="mt-1 h-4 w-4 shrink-0 text-amber-600" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="rounded-[18px] border border-stone-200 bg-white p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">Incluye</p>
+                    <ul className="mt-4 space-y-3">
+                      {plan.features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-3 text-sm leading-7 text-stone-700">
+                          <Wheat className="mt-1 h-4 w-4 shrink-0 text-stone-500" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
-          </TabsContent>
+          ) : null
         ))}
-      </Tabs>
+      </div>
 
       {selectedPlan === 'free' ? (
-        <div className="rounded-[22px] border border-green-200 bg-green-50 p-5">
+        <div className="rounded-[22px] border border-stone-200 bg-stone-50 p-5">
           <div className="flex items-start gap-3">
-            <Checkbox
+            <input
+              type="checkbox"
               id="producer-commission"
               checked={formData.acceptCommission}
-              onCheckedChange={(checked) => updateField('acceptCommission', Boolean(checked))}
-              className="mt-1 h-5 w-5 rounded-md border-green-300 data-[state=checked]:bg-green-700 data-[state=checked]:text-white"
+              onChange={(e) => updateField('acceptCommission', e.target.checked)}
+              className="mt-1 h-5 w-5 rounded accent-stone-950 cursor-pointer"
             />
             <div>
-              <Label htmlFor="producer-commission" className="mb-0 text-sm font-semibold text-green-900">
+              <label htmlFor="producer-commission" className="mb-0 text-sm font-semibold text-stone-950">
                 Entiendo que Hispaloshop retiene un 20% de comisión por venta
-              </Label>
-              <p className="mt-2 text-sm leading-7 text-green-800">
+              </label>
+              <p className="mt-2 text-sm leading-7 text-stone-700">
                 No pagarás nada hasta que vendas. Cuando vendas, te quedarás con el 80%.
               </p>
               <InlineError message={errors.acceptCommission} />
@@ -1031,7 +1032,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 Pago seguro por Stripe. Cancela cuando quieras desde tu panel.
               </p>
             </div>
-            <div className="rounded-2xl bg-violet-50 p-3 text-indigo-600">
+            <div className="rounded-2xl bg-stone-100 p-3 text-stone-600">
               <CreditCard className="h-5 w-5" />
             </div>
           </div>
@@ -1050,7 +1051,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
             Pago seguro por Stripe. Si tu banco pide una confirmación extra, la resolvemos aquí mismo sin sacarte de la página.
           </p>
           <InlineError message={errors.card} />
-          {stripeError && !errors.card ? <p className="mt-3 text-sm text-red-600">{stripeError}</p> : null}
+          {stripeError && !errors.card ? <p className="mt-3 text-sm text-stone-600">{stripeError}</p> : null}
         </div>
       )}
     </div>
@@ -1067,11 +1068,11 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
         className="rounded-[32px] border border-stone-200 bg-white p-8 shadow-[0_28px_70px_-40px_rgba(0,0,0,0.22)] sm:p-10"
       >
         <div className="mx-auto max-w-2xl">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 shadow-[0_18px_44px_-26px_rgba(16,185,129,0.45)]">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-stone-100 text-stone-500 shadow-[0_18px_44px_-26px_rgba(28,28,28,0.25)]">
             <CircleCheckBig className="h-10 w-10" />
           </div>
           <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-stone-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
-            <Sparkles className="h-4 w-4 text-amber-600" />
+            <Sparkles className="h-4 w-4 text-stone-500" />
             Infraestructura activada
           </div>
           <h3 className="mt-6 text-4xl font-extrabold tracking-[-0.04em] text-stone-900">
@@ -1082,7 +1083,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           </p>
           <div className="mt-8 rounded-[22px] border border-stone-200 bg-stone-50 p-5">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-1 h-5 w-5 shrink-0 text-green-900" />
+              <ShieldCheck className="mt-1 h-5 w-5 shrink-0 text-stone-400" />
               <p className="text-sm leading-7 text-stone-600">
                 Si tu alta queda pendiente de revisión, verás primero el estado de aprobación. Desde ahí sigues el proceso sin perder nada.
               </p>
@@ -1096,7 +1097,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 clearFlow();
                 redirectAfterAuth(activeUser, navigate);
               }}
-              className="rounded-2xl bg-green-900 px-6 py-4 text-sm font-semibold text-white transition hover:bg-green-800"
+              className="rounded-2xl bg-stone-950 px-6 py-4 text-sm font-semibold text-white transition hover:bg-stone-800"
             >
               Ir a mi panel de control
             </button>
@@ -1155,7 +1156,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           <div className="flex-1 overflow-y-auto bg-[#fdfcf8]">
             <div className="mx-auto flex h-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:flex-row lg:gap-12 lg:px-10 lg:py-10">
               <aside className="w-full rounded-[28px] bg-[#2c241b] p-6 text-[#faf9f6] shadow-[0_24px_70px_-36px_rgba(44,36,27,0.6)] lg:max-w-[360px]">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-400">Lo que te llevas</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-400">Lo que te llevas</p>
                 <h3 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-white">
                   {successState ? 'Ya tienes la escalera construida.' : activePlan.name}
                 </h3>
@@ -1171,15 +1172,15 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                 </div>
                 <div className="mt-6 space-y-4 text-sm text-white/74">
                   <div className="flex items-start gap-3">
-                    <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-emerald-500" />
+                    <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-stone-400" />
                     <p>Guardamos el progreso en localStorage con la clave `hispalo_producer_signup`.</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-amber-400" />
+                    <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-stone-400" />
                     <p>La contraseña no se guarda en localStorage, así evitas dejar un secreto expuesto.</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CreditCard className="mt-1 h-4 w-4 shrink-0 text-indigo-400" />
+                    <CreditCard className="mt-1 h-4 w-4 shrink-0 text-stone-400" />
                     <p>FREE crea la cuenta al instante. PRO y ELITE activan Stripe inline sin salir del flujo.</p>
                   </div>
                 </div>
@@ -1199,7 +1200,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                       className="rounded-[32px] border border-stone-200 bg-white p-6 shadow-[0_28px_70px_-42px_rgba(0,0,0,0.22)] sm:p-8"
                     >
                       {paymentNotice ? (
-                        <div className="mb-6 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                        <div className="mb-6 rounded-[18px] border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
                           {paymentNotice}
                         </div>
                       ) : null}
@@ -1234,7 +1235,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                               type="button"
                               onClick={proceed}
                               disabled={step === 1 && !formData.acceptLegal}
-                              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-green-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:bg-stone-300"
+                              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-300"
                             >
                               Continuar
                               <ArrowRight className="h-4 w-4" />
@@ -1244,7 +1245,7 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
                               type="button"
                               onClick={submitFlow}
                               disabled={submitting}
-                              className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-amber-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-70"
+                              className="inline-flex min-w-[250px] items-center justify-center gap-2 rounded-2xl bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-70"
                             >
                               {submitting ? (
                                 <>

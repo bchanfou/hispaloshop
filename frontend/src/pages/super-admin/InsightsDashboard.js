@@ -8,7 +8,6 @@ import {
   Globe, Users, Brain, ShieldCheck, TrendingUp, BarChart3, AlertTriangle,
   Settings, ChevronDown, RefreshCw, Eye, EyeOff, Lock, CheckCircle2, XCircle
 } from 'lucide-react';
-import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 
@@ -120,7 +119,7 @@ export default function InsightsDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
       </div>
     );
   }
@@ -130,34 +129,30 @@ export default function InsightsDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-primary flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-stone-950 flex items-center gap-3">
             <Brain className="w-7 h-7" />
             {t('superAdmin.insights.title')}
           </h1>
-          <p className="text-text-muted text-sm mt-1">
+          <p className="text-stone-500 text-sm mt-1">
             {t('superAdmin.insights.subtitle', { threshold: config?.anonymity_threshold || 15 })}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="gap-2"
+            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors gap-2 inline-flex items-center disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             {t('superAdmin.insights.refresh')}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
+          </button>
+          <button
             onClick={() => setShowConfigModal(true)}
-            className="gap-2"
+            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors gap-2 inline-flex items-center"
           >
             <Settings className="w-4 h-4" />
             {t('superAdmin.insights.config')}
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -175,8 +170,8 @@ export default function InsightsDashboard() {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-primary text-white'
-                : 'text-text-muted hover:bg-stone-50'
+                ? 'bg-stone-950 text-white'
+                : 'text-stone-500 hover:bg-stone-50'
             }`}
             data-testid={`tab-${tab.id}`}
           >
@@ -206,14 +201,14 @@ export default function InsightsDashboard() {
       {showConfigModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <h2 className="font-heading text-xl font-bold text-primary mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-stone-950 mb-4 flex items-center gap-2">
               <Settings className="w-5 h-5" />
               Insights Configuration
             </h2>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">
+                <label className="block text-sm font-medium text-stone-600 mb-1">
                   Anonymity Threshold
                 </label>
                 <input
@@ -224,15 +219,15 @@ export default function InsightsDashboard() {
                   onChange={(e) => setConfigForm({...configForm, anonymity_threshold: parseInt(e.target.value)})}
                   className="w-full px-3 py-2 border border-stone-200 rounded-lg"
                 />
-                <p className="text-xs text-text-muted mt-1">
+                <p className="text-xs text-stone-500 mt-1">
                   Minimum users required to display sensitive aggregated data
                 </p>
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-text-secondary">Fear Tracking</label>
-                  <p className="text-xs text-text-muted">Infer health concerns from AI chats</p>
+                  <label className="text-sm font-medium text-stone-600">Fear Tracking</label>
+                  <p className="text-xs text-stone-500">Infer health concerns from AI chats</p>
                 </div>
                 <input
                   type="checkbox"
@@ -244,8 +239,8 @@ export default function InsightsDashboard() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-text-secondary">Health Inference</label>
-                  <p className="text-xs text-text-muted">Detect diet goals and health objectives</p>
+                  <label className="text-sm font-medium text-stone-600">Health Inference</label>
+                  <p className="text-xs text-stone-500">Detect diet goals and health objectives</p>
                 </div>
                 <input
                   type="checkbox"
@@ -257,8 +252,8 @@ export default function InsightsDashboard() {
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <Button variant="outline" onClick={() => setShowConfigModal(false)}>Cancel</Button>
-              <Button onClick={saveConfig} className="bg-primary hover:bg-primary-hover">Save</Button>
+              <button onClick={() => setShowConfigModal(false)} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors">Cancel</button>
+              <button onClick={saveConfig} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white rounded-lg transition-colors">Save</button>
             </div>
           </div>
         </div>
@@ -274,7 +269,7 @@ function GlobalOverviewTab({ data }) {
   if (!data) {
     return (
       <div className="bg-white rounded-xl border border-stone-200 p-8 text-center">
-        <p className="text-sm text-text-muted">No hay datos globales disponibles.</p>
+        <p className="text-sm text-stone-500">No hay datos globales disponibles.</p>
       </div>
     );
   }
@@ -299,11 +294,11 @@ function GlobalOverviewTab({ data }) {
       {/* Total Users Card */}
       <div className="bg-white rounded-xl border border-stone-200 p-6" data-testid="card-total-users">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-medium text-text-muted">Total Users</h3>
-          <Users className="w-5 h-5 text-primary" />
+          <h3 className="font-medium text-stone-500">Total Users</h3>
+          <Users className="w-5 h-5 text-stone-950" />
         </div>
-        <p className="text-4xl font-bold text-primary">{totalUsers}</p>
-        <p className="text-sm text-text-muted mt-2">
+        <p className="text-4xl font-bold text-stone-950">{totalUsers}</p>
+        <p className="text-sm text-stone-500 mt-2">
           {asNumber(data?.countries_count)} countries • {totalCustomers} customers
         </p>
       </div>
@@ -311,11 +306,11 @@ function GlobalOverviewTab({ data }) {
       {/* Consent Coverage Card */}
       <div className="bg-white rounded-xl border border-stone-200 p-6" data-testid="card-consent">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-medium text-text-muted">Analytics Consent</h3>
-          <ShieldCheck className="w-5 h-5 text-green-600" />
+          <h3 className="font-medium text-stone-500">Analytics Consent</h3>
+          <ShieldCheck className="w-5 h-5 text-stone-600" />
         </div>
-        <p className="text-4xl font-bold text-primary">{asNumber(consentCoverage.consent_rate_percent)}%</p>
-        <p className="text-sm text-text-muted mt-2">
+        <p className="text-4xl font-bold text-stone-950">{asNumber(consentCoverage.consent_rate_percent)}%</p>
+        <p className="text-sm text-stone-500 mt-2">
           {asNumber(consentCoverage.users_with_consent)} users consented
         </p>
       </div>
@@ -323,11 +318,11 @@ function GlobalOverviewTab({ data }) {
       {/* AI Profile Coverage */}
       <div className="bg-white rounded-xl border border-stone-200 p-6" data-testid="card-ai-coverage">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-medium text-text-muted">AI Profile Coverage</h3>
-          <Brain className="w-5 h-5 text-blue-600" />
+          <h3 className="font-medium text-stone-500">AI Profile Coverage</h3>
+          <Brain className="w-5 h-5 text-stone-600" />
         </div>
-        <p className="text-4xl font-bold text-primary">{asNumber(aiCoverage.ai_profile_rate_percent)}%</p>
-        <p className="text-sm text-text-muted mt-2">
+        <p className="text-4xl font-bold text-stone-950">{asNumber(aiCoverage.ai_profile_rate_percent)}%</p>
+        <p className="text-sm text-stone-500 mt-2">
           {asNumber(aiCoverage.users_with_ai_profile)} profiles created
         </p>
       </div>
@@ -335,11 +330,11 @@ function GlobalOverviewTab({ data }) {
       {/* Insights Coverage */}
       <div className="bg-white rounded-xl border border-stone-200 p-6" data-testid="card-insights-coverage">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-medium text-text-muted">Inferred Insights</h3>
-          <TrendingUp className="w-5 h-5 text-purple-600" />
+          <h3 className="font-medium text-stone-500">Inferred Insights</h3>
+          <TrendingUp className="w-5 h-5 text-stone-600" />
         </div>
-        <p className="text-4xl font-bold text-primary">{asNumber(insightsCoverage.insights_rate_percent)}%</p>
-        <p className="text-sm text-text-muted mt-2">
+        <p className="text-4xl font-bold text-stone-950">{asNumber(insightsCoverage.insights_rate_percent)}%</p>
+        <p className="text-sm text-stone-500 mt-2">
           {asNumber(insightsCoverage.users_with_insights)} users with AI-inferred signals
         </p>
       </div>
@@ -347,20 +342,20 @@ function GlobalOverviewTab({ data }) {
       {/* Sensitive Signals */}
       <div className="bg-white rounded-xl border border-stone-200 p-6" data-testid="card-sensitive">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-medium text-text-muted">Sensitive Signals</h3>
-          <Lock className="w-5 h-5 text-amber-600" />
+          <h3 className="font-medium text-stone-500">Sensitive Signals</h3>
+          <Lock className="w-5 h-5 text-stone-500" />
         </div>
         <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="text-sm text-text-muted">Fear signals:</span>
+            <span className="text-sm text-stone-500">Fear signals:</span>
             <span className="font-medium">{asNumber(sensitiveSignals.users_with_fear_signals)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm text-text-muted">Allergy signals:</span>
+            <span className="text-sm text-stone-500">Allergy signals:</span>
             <span className="font-medium">{asNumber(sensitiveSignals.users_with_allergy_signals)}</span>
           </div>
         </div>
-        <p className="text-xs text-amber-600 mt-3 flex items-center gap-1">
+        <p className="text-xs text-stone-500 mt-3 flex items-center gap-1">
           <AlertTriangle className="w-3 h-3" />
           Threshold: {asNumber(data?.anonymity_threshold, 15)} users
         </p>
@@ -368,7 +363,7 @@ function GlobalOverviewTab({ data }) {
 
       {/* User Breakdown Chart */}
       <div className="bg-white rounded-xl border border-stone-200 p-6" data-testid="card-breakdown">
-        <h3 className="font-medium text-text-muted mb-4">User Distribution</h3>
+        <h3 className="font-medium text-stone-500 mb-4">User Distribution</h3>
         <ResponsiveContainer width="100%" height={150}>
           <PieChart>
             <Pie
@@ -391,7 +386,7 @@ function GlobalOverviewTab({ data }) {
 
       {/* Top Countries */}
       <div className="bg-white rounded-xl border border-stone-200 p-6 md:col-span-2 lg:col-span-3" data-testid="card-countries">
-        <h3 className="font-medium text-text-muted mb-4">Top Countries</h3>
+        <h3 className="font-medium text-stone-500 mb-4">Top Countries</h3>
         <ResponsiveContainer width="100%" height={200}>
           <RechartsBarChart data={safeTopCountries.slice(0, 8)}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
@@ -413,7 +408,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
   if (!globalData) {
     return (
       <div className="bg-white rounded-xl border border-stone-200 p-8 text-center">
-        <p className="text-sm text-text-muted">No hay datos de países para mostrar.</p>
+        <p className="text-sm text-stone-500">No hay datos de países para mostrar.</p>
       </div>
     );
   }
@@ -427,7 +422,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Country Selector */}
       <div className="bg-white rounded-xl border border-stone-200 p-6">
-        <h3 className="font-medium text-primary mb-4">Select Country</h3>
+        <h3 className="font-medium text-stone-950 mb-4">Select Country</h3>
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {topCountries.map((country) => (
             <button
@@ -435,8 +430,8 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
               onClick={() => onSelectCountry(country.country)}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
                 selectedCountry === country.country
-                  ? 'bg-primary text-white'
-                  : 'bg-stone-50 text-primary hover:bg-stone-200'
+                  ? 'bg-stone-950 text-white'
+                  : 'bg-stone-50 text-stone-950 hover:bg-stone-200'
               }`}
               data-testid={`country-${country.country}`}
             >
@@ -456,8 +451,8 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
               <div className="bg-white rounded-xl border border-stone-200 p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-heading text-2xl font-bold text-primary">{countryData.country}</h2>
-                    <p className="text-text-muted">
+                    <h2 className="text-2xl font-bold text-stone-950">{countryData.country}</h2>
+                    <p className="text-stone-500">
                       {countryData.total_users} total users • {countryData.users_with_insights} with insights
                     </p>
                   </div>
@@ -469,36 +464,36 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Top Likes */}
                 <div className="bg-white rounded-xl border border-stone-200 p-6">
-                  <h3 className="font-medium text-green-700 mb-4 flex items-center gap-2">
+                  <h3 className="font-medium text-stone-700 mb-4 flex items-center gap-2">
                     <Eye className="w-4 h-4" /> Top Likes
                   </h3>
                   <div className="space-y-2">
                     {asArray(preferences.top_likes).slice(0, 5).map((item, i) => (
                       <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm text-text-secondary">{item.tag.replace(/_/g, ' ')}</span>
-                        <span className="text-sm font-medium text-green-600">{item.percentage}%</span>
+                        <span className="text-sm text-stone-600">{item.tag.replace(/_/g, ' ')}</span>
+                        <span className="text-sm font-medium text-stone-600">{item.percentage}%</span>
                       </div>
                     ))}
                     {asArray(preferences.top_likes).length === 0 && (
-                      <p className="text-sm text-text-muted">No data yet</p>
+                      <p className="text-sm text-stone-500">No data yet</p>
                     )}
                   </div>
                 </div>
 
                 {/* Top Dislikes */}
                 <div className="bg-white rounded-xl border border-stone-200 p-6">
-                  <h3 className="font-medium text-red-700 mb-4 flex items-center gap-2">
+                  <h3 className="font-medium text-stone-700 mb-4 flex items-center gap-2">
                     <EyeOff className="w-4 h-4" /> Top Dislikes
                   </h3>
                   <div className="space-y-2">
                     {asArray(preferences.top_dislikes).slice(0, 5).map((item, i) => (
                       <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm text-text-secondary">{item.tag.replace(/_/g, ' ')}</span>
-                        <span className="text-sm font-medium text-red-600">{item.percentage}%</span>
+                        <span className="text-sm text-stone-600">{item.tag.replace(/_/g, ' ')}</span>
+                        <span className="text-sm font-medium text-stone-600">{item.percentage}%</span>
                       </div>
                     ))}
                     {asArray(preferences.top_dislikes).length === 0 && (
-                      <p className="text-sm text-text-muted">No data yet</p>
+                      <p className="text-sm text-stone-500">No data yet</p>
                     )}
                   </div>
                 </div>
@@ -506,12 +501,12 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
 
               {/* Budget Distribution */}
               <div className="bg-white rounded-xl border border-stone-200 p-6">
-                <h3 className="font-medium text-primary mb-4">Budget Distribution</h3>
+                <h3 className="font-medium text-stone-950 mb-4">Budget Distribution</h3>
                 <div className="flex gap-4">
                   {Object.entries(budgetDistribution).map(([level, percent]) => (
                     <div key={level} className="flex-1 text-center">
-                      <div className="text-2xl font-bold text-primary">{percent}%</div>
-                      <div className="text-sm text-text-muted capitalize">{level}</div>
+                      <div className="text-2xl font-bold text-stone-950">{percent}%</div>
+                      <div className="text-sm text-stone-500 capitalize">{level}</div>
                     </div>
                   ))}
                 </div>
@@ -519,13 +514,13 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
 
               {/* Sensitive Signals (if compliant) */}
               {Boolean(sensitive.anonymity_compliant) && (
-                <div className="bg-amber-50 rounded-xl border border-amber-200 p-6">
-                  <h3 className="font-medium text-amber-800 mb-4 flex items-center gap-2">
+                <div className="bg-stone-50 rounded-xl border border-stone-200 p-6">
+                  <h3 className="font-medium text-stone-700 mb-4 flex items-center gap-2">
                     <Lock className="w-4 h-4" /> Sensitive Signals (Aggregated)
                   </h3>
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <h4 className="text-sm font-medium text-amber-700 mb-2">Health Fears</h4>
+                      <h4 className="text-sm font-medium text-stone-600 mb-2">Health Fears</h4>
                       {asArray(sensitive.fears).slice(0, 3).map((item, i) => (
                         <div key={i} className="flex justify-between text-sm">
                           <span>{item.tag.replace(/_/g, ' ')}</span>
@@ -534,7 +529,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
                       ))}
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-amber-700 mb-2">Allergies</h4>
+                      <h4 className="text-sm font-medium text-stone-600 mb-2">Allergies</h4>
                       {asArray(sensitive.allergies).slice(0, 3).map((item, i) => (
                         <div key={i} className="flex justify-between text-sm">
                           <span>{item.tag.replace(/_/g, ' ')}</span>
@@ -547,16 +542,16 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
               )}
             </div>
           ) : (
-            <div className="bg-amber-50 rounded-xl border border-amber-200 p-8 text-center">
-              <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-              <h3 className="font-medium text-amber-800 mb-2">Insufficient Data</h3>
-              <p className="text-amber-700 text-sm">{countryData.message}</p>
+            <div className="bg-stone-50 rounded-xl border border-stone-200 p-8 text-center">
+              <AlertTriangle className="w-12 h-12 text-stone-400 mx-auto mb-4" />
+              <h3 className="font-medium text-stone-700 mb-2">Insufficient Data</h3>
+              <p className="text-stone-600 text-sm">{countryData.message}</p>
             </div>
           )
         ) : (
           <div className="bg-stone-50 rounded-xl border border-stone-200 p-8 text-center">
             <Globe className="w-12 h-12 text-stone-200 mx-auto mb-4" />
-            <p className="text-text-muted">Select a country to view detailed insights</p>
+            <p className="text-stone-500">Select a country to view detailed insights</p>
           </div>
         )}
       </div>
@@ -571,7 +566,7 @@ function AIPerformanceTab({ data }) {
   if (!data) {
     return (
       <div className="bg-white rounded-xl border border-stone-200 p-8 text-center">
-        <p className="text-sm text-text-muted">No hay métricas de IA disponibles.</p>
+        <p className="text-sm text-stone-500">No hay métricas de IA disponibles.</p>
       </div>
     );
   }
@@ -591,26 +586,26 @@ function AIPerformanceTab({ data }) {
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl border border-stone-200 p-6">
-          <h3 className="text-sm text-text-muted mb-2">Total AI Messages</h3>
-          <p className="text-3xl font-bold text-primary">{asNumber(aiInteractions.total_messages)}</p>
+          <h3 className="text-sm text-stone-500 mb-2">Total AI Messages</h3>
+          <p className="text-3xl font-bold text-stone-950">{asNumber(aiInteractions.total_messages)}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-6">
-          <h3 className="text-sm text-text-muted mb-2">Unique Sessions</h3>
-          <p className="text-3xl font-bold text-primary">{asNumber(aiInteractions.unique_sessions)}</p>
+          <h3 className="text-sm text-stone-500 mb-2">Unique Sessions</h3>
+          <p className="text-3xl font-bold text-stone-950">{asNumber(aiInteractions.unique_sessions)}</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-6">
-          <h3 className="text-sm text-text-muted mb-2">Recommendation Acceptance</h3>
-          <p className="text-3xl font-bold text-green-600">{asNumber(conversionMetrics.recommendation_acceptance_rate)}%</p>
+          <h3 className="text-sm text-stone-500 mb-2">Recommendation Acceptance</h3>
+          <p className="text-3xl font-bold text-stone-950">{asNumber(conversionMetrics.recommendation_acceptance_rate)}%</p>
         </div>
         <div className="bg-white rounded-xl border border-stone-200 p-6">
-          <h3 className="text-sm text-text-muted mb-2">AI-Influenced Orders</h3>
-          <p className="text-3xl font-bold text-blue-600">{asNumber(conversionMetrics.ai_influenced_orders_percent)}%</p>
+          <h3 className="text-sm text-stone-500 mb-2">AI-Influenced Orders</h3>
+          <p className="text-3xl font-bold text-stone-950">{asNumber(conversionMetrics.ai_influenced_orders_percent)}%</p>
         </div>
       </div>
 
       {/* Action Usage Chart */}
       <div className="bg-white rounded-xl border border-stone-200 p-6">
-        <h3 className="font-medium text-primary mb-4">AI Action Usage</h3>
+        <h3 className="font-medium text-stone-950 mb-4">AI Action Usage</h3>
         {actionData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <RechartsBarChart data={actionData} layout="vertical">
@@ -622,25 +617,25 @@ function AIPerformanceTab({ data }) {
             </RechartsBarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-center text-text-muted py-8">No action data yet</p>
+          <p className="text-center text-stone-500 py-8">No action data yet</p>
         )}
       </div>
 
       {/* Conversion Funnel */}
       <div className="bg-white rounded-xl border border-stone-200 p-6">
-        <h3 className="font-medium text-primary mb-4">Conversion Impact</h3>
+        <h3 className="font-medium text-stone-950 mb-4">Conversion Impact</h3>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div className="p-4 bg-stone-50 rounded-lg">
-            <p className="text-sm text-text-muted">Total Orders</p>
-            <p className="text-2xl font-bold text-primary">{asNumber(conversionMetrics.total_orders)}</p>
+            <p className="text-sm text-stone-500">Total Orders</p>
+            <p className="text-2xl font-bold text-stone-950">{asNumber(conversionMetrics.total_orders)}</p>
           </div>
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-700">From AI Users</p>
-            <p className="text-2xl font-bold text-blue-600">{asNumber(conversionMetrics.orders_from_ai_users)}</p>
+          <div className="p-4 bg-stone-50 rounded-lg">
+            <p className="text-sm text-stone-600">From AI Users</p>
+            <p className="text-2xl font-bold text-stone-950">{asNumber(conversionMetrics.orders_from_ai_users)}</p>
           </div>
-          <div className="p-4 bg-green-50 rounded-lg">
-            <p className="text-sm text-green-700">&quot;Add All&quot; Usage</p>
-            <p className="text-2xl font-bold text-green-600">{asNumber(conversionMetrics.add_all_to_cart_usage)}</p>
+          <div className="p-4 bg-stone-50 rounded-lg">
+            <p className="text-sm text-stone-600">&quot;Add All&quot; Usage</p>
+            <p className="text-2xl font-bold text-stone-950">{asNumber(conversionMetrics.add_all_to_cart_usage)}</p>
           </div>
         </div>
       </div>
@@ -655,7 +650,7 @@ function TrendsTab({ data }) {
   if (!data) {
     return (
       <div className="bg-white rounded-xl border border-stone-200 p-8 text-center">
-        <p className="text-sm text-text-muted">No hay tendencias disponibles.</p>
+        <p className="text-sm text-stone-500">No hay tendencias disponibles.</p>
       </div>
     );
   }
@@ -665,7 +660,7 @@ function TrendsTab({ data }) {
       {/* Diet Trends */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-stone-200 p-6">
-          <h3 className="font-medium text-primary mb-4">Diet Goal Trends</h3>
+          <h3 className="font-medium text-stone-950 mb-4">Diet Goal Trends</h3>
           {asArray(data?.diet_trends).length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <RechartsBarChart data={asArray(data?.diet_trends).slice(0, 8)}>
@@ -673,16 +668,16 @@ function TrendsTab({ data }) {
                 <XAxis dataKey="tag" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip formatter={(value) => `${value}%`} />
-                <Bar dataKey="percentage" fill="#3182CE" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="percentage" fill="#d6d3d1" radius={[4, 4, 0, 0]} />
               </RechartsBarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-center text-text-muted py-8">Insufficient data</p>
+            <p className="text-center text-stone-500 py-8">Insufficient data</p>
           )}
         </div>
 
         <div className="bg-white rounded-xl border border-stone-200 p-6">
-          <h3 className="font-medium text-primary mb-4">Product Interest Trends</h3>
+          <h3 className="font-medium text-stone-950 mb-4">Product Interest Trends</h3>
           {asArray(data?.product_interest_trends).length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -703,14 +698,14 @@ function TrendsTab({ data }) {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-center text-text-muted py-8">Insufficient data</p>
+            <p className="text-center text-stone-500 py-8">Insufficient data</p>
           )}
         </div>
       </div>
 
       {/* Fear Trends (Sensitive) */}
-      <div className="bg-amber-50 rounded-xl border border-amber-200 p-6">
-        <h3 className="font-medium text-amber-800 mb-4 flex items-center gap-2">
+      <div className="bg-stone-50 rounded-xl border border-stone-200 p-6">
+        <h3 className="font-medium text-stone-700 mb-4 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" />
           Health Concern Trends (Sensitive - Aggregated Only)
         </h3>
@@ -718,14 +713,14 @@ function TrendsTab({ data }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {asArray(data?.fear_trends).slice(0, 8).map((item, i) => (
               <div key={i} className="bg-white p-3 rounded-lg">
-                <p className="text-sm text-amber-700 font-medium">{item.tag.replace(/_/g, ' ')}</p>
-                <p className="text-xl font-bold text-amber-900">{item.percentage}%</p>
-                <p className="text-xs text-text-muted">{item.count} users</p>
+                <p className="text-sm text-stone-600 font-medium">{item.tag.replace(/_/g, ' ')}</p>
+                <p className="text-xl font-bold text-stone-900">{item.percentage}%</p>
+                <p className="text-xs text-stone-500">{item.count} users</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-amber-700 text-sm">
+          <p className="text-stone-600 text-sm">
             {typeof data.fear_trends === 'object' && data.fear_trends.message 
               ? data.fear_trends.message 
               : 'Insufficient users for anonymized display'}
@@ -735,21 +730,21 @@ function TrendsTab({ data }) {
 
       {/* Catalog Gaps */}
       <div className="bg-white rounded-xl border border-stone-200 p-6">
-        <h3 className="font-medium text-primary mb-4">Potential Catalog Gaps</h3>
-        <p className="text-sm text-text-muted mb-4">
+        <h3 className="font-medium text-stone-950 mb-4">Potential Catalog Gaps</h3>
+        <p className="text-sm text-stone-500 mb-4">
           Products users are asking about but may not be well represented in catalog
         </p>
         {asArray(data?.potential_catalog_gaps).length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {asArray(data?.potential_catalog_gaps).slice(0, 8).map((gap, i) => (
               <div key={i} className="bg-stone-50 p-3 rounded-lg">
-                <p className="font-medium text-primary">{gap.interest.replace(/_/g, ' ')}</p>
-                <p className="text-sm text-text-muted">{gap.demand_signals} demand signals</p>
+                <p className="font-medium text-stone-950">{gap.interest.replace(/_/g, ' ')}</p>
+                <p className="text-sm text-stone-500">{gap.demand_signals} demand signals</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-center text-text-muted py-4">No significant gaps detected</p>
+          <p className="text-center text-stone-500 py-4">No significant gaps detected</p>
         )}
       </div>
     </div>
@@ -791,7 +786,7 @@ function ComplianceTab({ data, config }) {
   if (!data) {
     return (
       <div className="bg-white rounded-xl border border-stone-200 p-8 text-center">
-        <p className="text-sm text-text-muted">No hay datos de compliance disponibles.</p>
+        <p className="text-sm text-stone-500">No hay datos de compliance disponibles.</p>
       </div>
     );
   }
@@ -804,15 +799,15 @@ function ComplianceTab({ data, config }) {
   const riskLevel = ['green', 'amber', 'red'].includes(riskAssessment.level) ? riskAssessment.level : 'amber';
 
   const riskColor = {
-    green: 'bg-green-100 text-green-800 border-green-200',
-    amber: 'bg-amber-100 text-amber-800 border-amber-200',
-    red: 'bg-red-100 text-red-800 border-red-200'
+    green: 'bg-stone-100 text-stone-700 border-stone-200',
+    amber: 'bg-stone-100 text-stone-700 border-stone-200',
+    red: 'bg-stone-100 text-stone-700 border-stone-200'
   };
 
   const RiskIcon = ({ level }) => {
-    if (level === 'green') return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-    if (level === 'amber') return <AlertTriangle className="w-4 h-4 text-amber-600" />;
-    return <XCircle className="w-4 h-4 text-red-600" />;
+    if (level === 'green') return <CheckCircle2 className="w-4 h-4 text-stone-600" />;
+    if (level === 'amber') return <AlertTriangle className="w-4 h-4 text-stone-500" />;
+    return <XCircle className="w-4 h-4 text-stone-500" />;
   };
 
   return (
@@ -829,8 +824,8 @@ function ComplianceTab({ data, config }) {
             onClick={() => setActiveSubTab(tab.id)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
               activeSubTab === tab.id
-                ? 'bg-white shadow-sm text-primary'
-                : 'text-text-muted hover:text-primary'
+                ? 'bg-white shadow-sm text-stone-950'
+                : 'text-stone-500 hover:text-stone-950'
             }`}
           >
             {tab.label}
@@ -872,30 +867,27 @@ function ComplianceTab({ data, config }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Consent Coverage */}
             <div className="bg-white rounded-xl border border-stone-200 p-6">
-              <h3 className="font-medium text-primary mb-4 flex items-center gap-2">
+              <h3 className="font-medium text-stone-950 mb-4 flex items-center gap-2">
                 <Users className="w-5 h-5" />
                 Consent Coverage
               </h3>
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-text-muted">Analytics Consent Rate</span>
+                    <span className="text-stone-500">Analytics Consent Rate</span>
                     <span className="font-bold text-lg">{asNumber(consentMetrics.consent_rate_percent)}%</span>
                   </div>
                   <div className="w-full bg-stone-200 rounded-full h-4 overflow-hidden">
                     <div 
-                      className={`h-4 rounded-full transition-all ${
-                        asNumber(consentMetrics.consent_rate_percent) >= 70 ? 'bg-green-500' :
-                        asNumber(consentMetrics.consent_rate_percent) >= 40 ? 'bg-amber-500' : 'bg-red-500'
-                      }`}
+                      className={`h-4 rounded-full transition-all bg-stone-600`}
                       style={{ width: `${asNumber(consentMetrics.consent_rate_percent)}%` }}
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-green-50 p-4 rounded-lg text-center">
-                    <p className="text-3xl font-bold text-green-600">{asNumber(consentMetrics.users_with_consent)}</p>
-                    <p className="text-xs text-green-700 font-medium">Consented Users</p>
+                  <div className="bg-stone-50 p-4 rounded-lg text-center">
+                    <p className="text-3xl font-bold text-stone-950">{asNumber(consentMetrics.users_with_consent)}</p>
+                    <p className="text-xs text-stone-600 font-medium">Consented Users</p>
                   </div>
                   <div className="bg-stone-100 p-4 rounded-lg text-center">
                     <p className="text-3xl font-bold text-stone-600">{asNumber(consentMetrics.users_without_consent)}</p>
@@ -905,10 +897,10 @@ function ComplianceTab({ data, config }) {
                 {/* Consent Versions */}
                 {Object.keys(asObject(consentMetrics.consent_versions)).length > 0 && (
                   <div className="pt-3 border-t border-stone-200">
-                    <p className="text-xs text-text-muted mb-2">Consent by Version:</p>
+                    <p className="text-xs text-stone-500 mb-2">Consent by Version:</p>
                     <div className="flex gap-2">
                       {Object.entries(asObject(consentMetrics.consent_versions)).map(([version, count]) => (
-                        <span key={version} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
+                        <span key={version} className="px-2 py-1 bg-stone-100 text-stone-700 text-xs rounded">
                           v{version}: {count} users
                         </span>
                       ))}
@@ -920,25 +912,25 @@ function ComplianceTab({ data, config }) {
 
             {/* Sensitive Data Coverage */}
             <div className="bg-white rounded-xl border border-stone-200 p-6">
-              <h3 className="font-medium text-primary mb-4 flex items-center gap-2">
+              <h3 className="font-medium text-stone-950 mb-4 flex items-center gap-2">
                 <Lock className="w-5 h-5" />
                 Sensitive Data Tracking
               </h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
-                  <span className="text-amber-800 text-sm">Fear/Health Signals</span>
-                  <span className="font-bold text-amber-900">{asNumber(sensitiveCoverage.users_with_fear_signals)}</span>
+                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-lg">
+                  <span className="text-stone-700 text-sm">Fear/Health Signals</span>
+                  <span className="font-bold text-stone-900">{asNumber(sensitiveCoverage.users_with_fear_signals)}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
-                  <span className="text-red-800 text-sm">Allergy Signals</span>
-                  <span className="font-bold text-red-900">{asNumber(sensitiveCoverage.users_with_allergy_signals)}</span>
+                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-lg">
+                  <span className="text-stone-700 text-sm">Allergy Signals</span>
+                  <span className="font-bold text-stone-900">{asNumber(sensitiveCoverage.users_with_allergy_signals)}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                  <span className="text-purple-800 text-sm">Health Goal Signals</span>
-                  <span className="font-bold text-purple-900">{asNumber(sensitiveCoverage.users_with_health_signals)}</span>
+                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-lg">
+                  <span className="text-stone-700 text-sm">Health Goal Signals</span>
+                  <span className="font-bold text-stone-900">{asNumber(sensitiveCoverage.users_with_health_signals)}</span>
                 </div>
               </div>
-              <p className="text-xs text-text-muted mt-4 flex items-center gap-1">
+              <p className="text-xs text-stone-500 mt-4 flex items-center gap-1">
                 <Lock className="w-3 h-3" />
                 All sensitive data displayed only in aggregates of {asNumber(anonymityCompliance.threshold, 15)}+ users
               </p>
@@ -948,14 +940,12 @@ function ComplianceTab({ data, config }) {
           {/* Anonymity & Retention Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Anonymity Compliance */}
-            <div className={`rounded-xl border-2 p-6 ${
-              anonymityCompliance.fully_compliant ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
-            }`}>
+            <div className="rounded-xl border-2 p-6 bg-stone-50 border-stone-200">
               <h3 className="font-medium mb-3 flex items-center gap-2">
                 {anonymityCompliance.fully_compliant ? (
-                  <ShieldCheck className="w-5 h-5 text-green-600" />
+                  <ShieldCheck className="w-5 h-5 text-stone-600" />
                 ) : (
-                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  <AlertTriangle className="w-5 h-5 text-stone-500" />
                 )}
                 Anonymity Status
               </h3>
@@ -966,7 +956,7 @@ function ComplianceTab({ data, config }) {
                 Threshold: {asNumber(anonymityCompliance.threshold, 15)} users
               </p>
               {asNumber(anonymityCompliance.countries_below_threshold) > 0 && (
-                <p className="text-sm mt-2 text-amber-700">
+                <p className="text-sm mt-2 text-stone-600">
                   {asNumber(anonymityCompliance.countries_below_threshold)} countries below threshold
                 </p>
               )}
@@ -974,21 +964,21 @@ function ComplianceTab({ data, config }) {
 
             {/* Data Retention */}
             <div className="bg-white rounded-xl border border-stone-200 p-6">
-              <h3 className="font-medium text-primary mb-3">Data Retention</h3>
-              <p className="text-2xl font-bold text-primary mb-2">
+              <h3 className="font-medium text-stone-950 mb-3">Data Retention</h3>
+              <p className="text-2xl font-bold text-stone-950 mb-2">
                 {asNumber(dataRetention.retention_days)} days
               </p>
-              <p className="text-sm text-text-muted">{dataRetention.policy || 'N/A'}</p>
+              <p className="text-sm text-stone-500">{dataRetention.policy || 'N/A'}</p>
             </div>
 
             {/* Export Status */}
             <div className="bg-white rounded-xl border border-stone-200 p-6">
-              <h3 className="font-medium text-primary mb-3">Data Exports</h3>
+              <h3 className="font-medium text-stone-950 mb-3">Data Exports</h3>
               <div className="flex items-center gap-3 mb-2">
-                <div className={`w-4 h-4 rounded-full ${data.exports_enabled ? 'bg-green-500' : 'bg-red-500'}`} />
+                <div className={`w-4 h-4 rounded-full ${data.exports_enabled ? 'bg-stone-600' : 'bg-stone-400'}`} />
                 <span className="text-lg font-bold">{data.exports_enabled ? 'Enabled' : 'Disabled'}</span>
               </div>
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-stone-500">
                 {data.exports_enabled 
                   ? 'Warning: Exports are enabled' 
                   : 'Exports disabled by design for GDPR compliance'}
@@ -1003,14 +993,14 @@ function ComplianceTab({ data, config }) {
         <div className="space-y-6">
           {loadingAudit ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
             </div>
           ) : auditLog ? (
             <>
               {/* Consent Trend Chart */}
               {asArray(auditLog?.consent_trend).length > 0 && (
                 <div className="bg-white rounded-xl border border-stone-200 p-6">
-                  <h3 className="font-medium text-primary mb-4">Consent Trend (Last 14 Days)</h3>
+                  <h3 className="font-medium text-stone-950 mb-4">Consent Trend (Last 14 Days)</h3>
                   <ResponsiveContainer width="100%" height={200}>
                     <AreaChart data={asArray(auditLog?.consent_trend)}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#E6DFD6" />
@@ -1025,16 +1015,16 @@ function ComplianceTab({ data, config }) {
 
               {/* Recent Consents */}
               <div className="bg-white rounded-xl border border-stone-200 p-6">
-                <h3 className="font-medium text-primary mb-4">Recent Consent Grants (Anonymized)</h3>
+                <h3 className="font-medium text-stone-950 mb-4">Recent Consent Grants (Anonymized)</h3>
                 {asArray(auditLog?.recent_consents).length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-stone-200">
-                          <th className="text-left py-2 text-text-muted font-medium">User (Masked)</th>
-                          <th className="text-left py-2 text-text-muted font-medium">Country</th>
-                          <th className="text-left py-2 text-text-muted font-medium">Version</th>
-                          <th className="text-left py-2 text-text-muted font-medium">Date</th>
+                          <th className="text-left py-2 text-stone-500 font-medium">User (Masked)</th>
+                          <th className="text-left py-2 text-stone-500 font-medium">Country</th>
+                          <th className="text-left py-2 text-stone-500 font-medium">Version</th>
+                          <th className="text-left py-2 text-stone-500 font-medium">Date</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1043,11 +1033,11 @@ function ComplianceTab({ data, config }) {
                             <td className="py-2 font-mono text-xs">{consent.masked_email}</td>
                             <td className="py-2">{consent.country || '-'}</td>
                             <td className="py-2">
-                              <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded">
+                              <span className="px-2 py-0.5 bg-stone-100 text-stone-700 text-xs rounded">
                                 v{consent.consent_version || '1.0'}
                               </span>
                             </td>
-                            <td className="py-2 text-text-muted">
+                            <td className="py-2 text-stone-500">
                               {consent.consent_date ? new Date(consent.consent_date).toLocaleDateString() : '-'}
                             </td>
                           </tr>
@@ -1056,12 +1046,12 @@ function ComplianceTab({ data, config }) {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-text-muted text-center py-4">No recent consents</p>
+                  <p className="text-stone-500 text-center py-4">No recent consents</p>
                 )}
               </div>
             </>
           ) : (
-            <p className="text-center text-text-muted py-8">Failed to load audit data</p>
+            <p className="text-center text-stone-500 py-8">Failed to load audit data</p>
           )}
         </div>
       )}
@@ -1071,38 +1061,38 @@ function ComplianceTab({ data, config }) {
         <div className="space-y-6">
           {loadingAudit ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
             </div>
           ) : gdprSummary ? (
             <>
               {/* Compliance Status Banner */}
-              <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+              <div className="bg-stone-50 border-2 border-stone-200 rounded-xl p-6">
                 <div className="flex items-center gap-4">
-                  <ShieldCheck className="w-12 h-12 text-green-600" />
+                  <ShieldCheck className="w-12 h-12 text-stone-600" />
                   <div>
-                    <h2 className="text-2xl font-bold text-green-800">{gdprSummary?.compliance_status || 'COMPLIANT'}</h2>
-                    <p className="text-green-700">Data Controller: {gdprSummary?.data_controller || 'Hispaloshop'}</p>
+                    <h2 className="text-2xl font-bold text-stone-700">{gdprSummary?.compliance_status || 'COMPLIANT'}</h2>
+                    <p className="text-stone-600">Data Controller: {gdprSummary?.data_controller || 'Hispaloshop'}</p>
                   </div>
                 </div>
               </div>
 
               {/* Data Categories */}
               <div className="bg-white rounded-xl border border-stone-200 p-6">
-                <h3 className="font-medium text-primary mb-4">Data Categories & Legal Basis</h3>
+                <h3 className="font-medium text-stone-950 mb-4">Data Categories & Legal Basis</h3>
                 <div className="space-y-4">
                   {Object.entries(asObject(gdprSummary?.data_categories)).map(([key, category]) => (
                     <div key={key} className="p-4 bg-stone-50 rounded-lg">
-                      <h4 className="font-medium text-primary capitalize mb-2">{key} Data</h4>
-                      <p className="text-sm text-text-muted mb-2">{category.description}</p>
+                      <h4 className="font-medium text-stone-950 capitalize mb-2">{key} Data</h4>
+                      <p className="text-sm text-stone-500 mb-2">{category.description}</p>
                       <div className="flex flex-wrap gap-2 text-xs">
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                        <span className="px-2 py-1 bg-stone-100 text-stone-700 rounded">
                           Legal Basis: {category.legal_basis}
                         </span>
-                        <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded">
+                        <span className="px-2 py-1 bg-stone-100 text-stone-700 rounded">
                           Retention: {category.retention}
                         </span>
                         {category.anonymity_threshold && (
-                          <span className="px-2 py-1 bg-red-100 text-red-700 rounded">
+                          <span className="px-2 py-1 bg-stone-100 text-stone-700 rounded">
                             Threshold: {category.anonymity_threshold} users
                           </span>
                         )}
@@ -1114,11 +1104,11 @@ function ComplianceTab({ data, config }) {
 
               {/* Technical Measures */}
               <div className="bg-white rounded-xl border border-stone-200 p-6">
-                <h3 className="font-medium text-primary mb-4">Technical & Organizational Measures</h3>
+                <h3 className="font-medium text-stone-950 mb-4">Technical & Organizational Measures</h3>
                 <ul className="space-y-2">
                   {asArray(gdprSummary?.technical_measures).map((measure, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      <div className="w-2 h-2 bg-stone-600 rounded-full" />
                       {measure}
                     </li>
                   ))}
@@ -1126,12 +1116,12 @@ function ComplianceTab({ data, config }) {
               </div>
 
               {/* Generated timestamp */}
-              <p className="text-xs text-text-muted text-right">
+              <p className="text-xs text-stone-500 text-right">
                 Generated: {gdprSummary?.generated_at ? new Date(gdprSummary.generated_at).toLocaleString() : '-'}
               </p>
             </>
           ) : (
-            <p className="text-center text-text-muted py-8">Failed to load GDPR summary</p>
+            <p className="text-center text-stone-500 py-8">Failed to load GDPR summary</p>
           )}
         </div>
       )}

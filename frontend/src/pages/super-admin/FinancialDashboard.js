@@ -6,7 +6,6 @@ import {
   Loader2, Globe, Receipt, Clock, CheckCircle,
   ChevronDown, ChevronUp, RefreshCw, Filter
 } from 'lucide-react';
-import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -28,10 +27,10 @@ const fixed2 = (value) => safeNumber(value).toFixed(2);
 
 function StatCard({ icon: Icon, label, value, sub, color = 'blue', testId }) {
   const palette = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200',
-    green: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    amber: 'bg-amber-50 text-amber-600 border-amber-200',
-    red: 'bg-red-50 text-red-600 border-red-200',
+    blue: 'bg-stone-50 text-stone-600 border-stone-200',
+    green: 'bg-stone-50 text-stone-600 border-stone-200',
+    amber: 'bg-stone-50 text-stone-600 border-stone-200',
+    red: 'bg-stone-50 text-stone-600 border-stone-200',
     slate: 'bg-stone-50 text-stone-600 border-stone-200',
   };
   const cls = palette[color] || palette.blue;
@@ -41,24 +40,24 @@ function StatCard({ icon: Icon, label, value, sub, color = 'blue', testId }) {
         <div className={`p-1.5 rounded-lg ${cls.split(' ').slice(0, 2).join(' ')}`}>
           <Icon className="w-4 h-4" />
         </div>
-        <span className="text-xs text-text-muted uppercase tracking-wider">{label}</span>
+        <span className="text-xs text-stone-500 uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-xl font-bold text-text-primary">{value}</p>
-      {sub && <p className="text-[11px] text-text-muted mt-0.5">{sub}</p>}
+      <p className="text-xl font-bold text-stone-950">{value}</p>
+      {sub && <p className="text-[11px] text-stone-500 mt-0.5">{sub}</p>}
     </div>
   );
 }
 
 function EventBadge({ type }) {
   const config = {
-    order_paid: 'bg-green-100 text-green-700',
-    seller_transfer: 'bg-blue-100 text-blue-700',
-    influencer_scheduled: 'bg-amber-100 text-amber-700',
-    influencer_paid: 'bg-purple-100 text-purple-700',
-    refund: 'bg-red-100 text-red-700',
+    order_paid: 'bg-stone-100 text-stone-700',
+    seller_transfer: 'bg-stone-100 text-stone-700',
+    influencer_scheduled: 'bg-stone-100 text-stone-700',
+    influencer_paid: 'bg-stone-100 text-stone-700',
+    refund: 'bg-stone-100 text-stone-700',
   };
   return (
-    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${config[type] || 'bg-gray-100 text-gray-600'}`}>
+    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${config[type] || 'bg-stone-100 text-stone-700'}`}>
       {EVENT_LABELS[type] || type}
     </span>
   );
@@ -132,7 +131,7 @@ export default function FinancialDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-text-muted" />
+        <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
       </div>
     );
   }
@@ -185,67 +184,64 @@ export default function FinancialDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl md:text-3xl font-bold text-text-primary" data-testid="financial-title">
+          <h1 className="font-bold text-stone-950" data-testid="financial-title">
             Contabilidad
           </h1>
-          <p className="text-sm text-text-muted mt-0.5">Ledger financiero, impuestos y consolidacion USD</p>
+          <p className="text-sm text-stone-500 mt-0.5">Ledger financiero, impuestos y consolidacion USD</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={fetchData} data-testid="refresh-btn">
+          <button onClick={fetchData} data-testid="refresh-btn" className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors">
             <RefreshCw className="w-4 h-4" />
-          </Button>
+          </button>
           <input
             type="date"
             value={dateFrom}
             onChange={e => setDateFrom(e.target.value)}
-            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-stone-400"
+            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-stone-950 focus:outline-none focus:ring-1 focus:ring-stone-400"
             title="Desde"
           />
           <input
             type="date"
             value={dateTo}
             onChange={e => setDateTo(e.target.value)}
-            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-stone-400"
+            className="border border-stone-200 rounded-lg px-2 py-1.5 text-xs text-stone-950 focus:outline-none focus:ring-1 focus:ring-stone-400"
             title="Hasta"
           />
-          <Button
-            variant="outline"
-            size="sm"
+          <button
             onClick={handleDownloadExcel}
             disabled={downloading}
             data-testid="download-excel-btn"
-            className="bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50 inline-flex items-center"
           >
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             <span className="ml-1.5">Descargar Excel</span>
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Pending payouts alert */}
       {duePayouts.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3" data-testid="due-payouts-alert">
+        <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3" data-testid="due-payouts-alert">
           <div className="flex items-center gap-2 flex-1">
-            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-stone-500 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-amber-900">
+              <p className="text-sm font-medium text-stone-950">
                 {duePayouts.length} payout{duePayouts.length > 1 ? 's' : ''} de influencer pendiente{duePayouts.length > 1 ? 's' : ''} de ejecutar
               </p>
-              <p className="text-xs text-amber-700">
+              <p className="text-xs text-stone-600">
                 Total: {duePayouts.reduce((s, p) => s + safeNumber(p.amount), 0).toFixed(2)}€
               </p>
             </div>
           </div>
-          <Button
-            size="sm"
+          <button
             onClick={handleProcessPayouts}
             disabled={processing}
-            className="bg-amber-600 hover:bg-amber-700 text-white self-start"
+            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors self-start inline-flex items-center"
             data-testid="process-payouts-btn"
           >
             {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
             <span className="ml-1.5">Ejecutar payouts</span>
-          </Button>
+          </button>
         </div>
       )}
 
@@ -269,8 +265,8 @@ export default function FinancialDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Monthly Revenue by Region */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-stone-200 p-5">
-          <h2 className="text-sm font-medium text-text-primary mb-4 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-text-muted" />
+          <h2 className="text-sm font-medium text-stone-950 mb-4 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-stone-500" />
             Ingresos mensuales por region (USD)
           </h2>
           {barData.length > 0 ? (
@@ -292,9 +288,9 @@ export default function FinancialDashboard() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-52 flex items-center justify-center text-text-muted text-sm">Sin datos</div>
+            <div className="h-52 flex items-center justify-center text-stone-500 text-sm">Sin datos</div>
           )}
-          <div className="flex items-center gap-4 mt-3 justify-center text-xs text-text-muted">
+          <div className="flex items-center gap-4 mt-3 justify-center text-xs text-stone-500">
             {Object.entries(REGION_COLORS).map(([k, c]) => (
               <span key={k} className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: c }} /> {k}
@@ -305,8 +301,8 @@ export default function FinancialDashboard() {
 
         {/* Pie chart: Revenue by Region */}
         <div className="bg-white rounded-xl border border-stone-200 p-5">
-          <h2 className="text-sm font-medium text-text-primary mb-4 flex items-center gap-2">
-            <Globe className="w-4 h-4 text-text-muted" />
+          <h2 className="text-sm font-medium text-stone-950 mb-4 flex items-center gap-2">
+            <Globe className="w-4 h-4 text-stone-500" />
             Distribucion por region
           </h2>
           {pieData.length > 0 ? (
@@ -323,7 +319,7 @@ export default function FinancialDashboard() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-52 flex items-center justify-center text-text-muted text-sm">Sin datos</div>
+            <div className="h-52 flex items-center justify-center text-stone-500 text-sm">Sin datos</div>
           )}
         </div>
       </div>
@@ -331,12 +327,12 @@ export default function FinancialDashboard() {
       {/* Ledger Table */}
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden" data-testid="ledger-table">
         <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
-          <h2 className="text-sm font-medium text-text-primary flex items-center gap-2">
-            <Receipt className="w-4 h-4 text-text-muted" />
+          <h2 className="text-sm font-medium text-stone-950 flex items-center gap-2">
+            <Receipt className="w-4 h-4 text-stone-500" />
             Ledger financiero
           </h2>
           <div className="flex items-center gap-2">
-            <Filter className="w-3.5 h-3.5 text-text-muted" />
+            <Filter className="w-3.5 h-3.5 text-stone-500" />
             <select
               value={filter}
               onChange={e => setFilter(e.target.value)}
@@ -354,14 +350,14 @@ export default function FinancialDashboard() {
         </div>
         <div className="max-h-[500px] overflow-y-auto">
           {filteredEntries.length === 0 ? (
-            <div className="py-12 text-center text-text-muted text-sm">
+            <div className="py-12 text-center text-stone-500 text-sm">
               <Receipt className="w-10 h-10 mx-auto mb-2 opacity-30" />
               Sin entradas en el ledger
             </div>
           ) : (
             <table className="w-full text-xs">
               <thead className="bg-stone-50/80 sticky top-0">
-                <tr className="text-text-muted">
+                <tr className="text-stone-500">
                   <th className="text-left px-4 py-2 font-medium">Fecha</th>
                   <th className="text-left px-3 py-2 font-medium">Evento</th>
                   <th className="text-left px-3 py-2 font-medium">Order</th>
@@ -380,44 +376,44 @@ export default function FinancialDashboard() {
                       onClick={() => setExpandedRow(expandedRow === idx ? null : idx)}
                       data-testid={`ledger-row-${idx}`}
                     >
-                      <td className="px-4 py-2.5 text-text-secondary whitespace-nowrap">
+                      <td className="px-4 py-2.5 text-stone-600 whitespace-nowrap">
                         {(e.created_at || '').slice(0, 10)}
                       </td>
                       <td className="px-3 py-2.5"><EventBadge type={e.event_type} /></td>
-                      <td className="px-3 py-2.5 text-text-secondary font-mono">
+                      <td className="px-3 py-2.5 text-stone-600 font-mono">
                         {(e.order_id || '').slice(-8)}
                       </td>
-                      <td className={`px-3 py-2.5 text-right font-medium ${safeNumber(e.product_subtotal) < 0 ? 'text-red-600' : 'text-text-primary'}`}>
+                      <td className={`px-3 py-2.5 text-right font-medium text-stone-950`}>
                         {fixed2(e.product_subtotal)} {e.currency}
                       </td>
-                      <td className="px-3 py-2.5 text-right text-text-muted">
+                      <td className="px-3 py-2.5 text-right text-stone-500">
                         {safeNumber(e.product_tax_amount) > 0 ? `${fixed2(e.product_tax_amount)}` : '-'}
                       </td>
-                      <td className="px-3 py-2.5 text-right font-medium text-text-secondary">
+                      <td className="px-3 py-2.5 text-right font-medium text-stone-600">
                         ${fixed2(e.usd_equivalent)}
                       </td>
-                      <td className="px-3 py-2.5 text-text-muted">{e.buyer_country || '-'}</td>
+                      <td className="px-3 py-2.5 text-stone-500">{e.buyer_country || '-'}</td>
                       <td className="px-2 py-2.5">
-                        {expandedRow === idx ? <ChevronUp className="w-3.5 h-3.5 text-text-muted" /> : <ChevronDown className="w-3.5 h-3.5 text-text-muted" />}
+                        {expandedRow === idx ? <ChevronUp className="w-3.5 h-3.5 text-stone-500" /> : <ChevronDown className="w-3.5 h-3.5 text-stone-500" />}
                       </td>
                     </tr>
                     {expandedRow === idx && (
                       <tr className="bg-stone-50/50">
                         <td colSpan={8} className="px-4 py-3">
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                            <div><span className="text-text-muted">Productor:</span> <span className="text-text-secondary">{e.seller_id || '-'}</span></div>
-                            <div><span className="text-text-muted">Neto productor:</span> <span className="text-text-secondary">{fixed2(e.seller_net)} {e.currency}</span></div>
-                            <div><span className="text-text-muted">Platform Fee:</span> <span className="text-text-secondary">{fixed2(e.platform_fee)} {e.currency}</span></div>
-                            <div><span className="text-text-muted">Platform Net:</span> <span className="text-text-secondary">{fixed2(e.platform_net)} {e.currency}</span></div>
-                            <div><span className="text-text-muted">Tax Type:</span> <span className="text-text-secondary">{e.product_tax_type}</span></div>
-                            <div><span className="text-text-muted">VAT Rate:</span> <span className="text-text-secondary">{(safeNumber(e.vat_rate_applied) * 100).toFixed(1)}%</span></div>
-                            <div><span className="text-text-muted">Reverse Charge:</span> <span className="text-text-secondary">{e.reverse_charge_applied ? 'Si' : 'No'}</span></div>
-                            <div><span className="text-text-muted">Transfer ID:</span> <span className="text-text-secondary font-mono">{e.transfer_id || '-'}</span></div>
+                            <div><span className="text-stone-500">Productor:</span> <span className="text-stone-600">{e.seller_id || '-'}</span></div>
+                            <div><span className="text-stone-500">Neto productor:</span> <span className="text-stone-600">{fixed2(e.seller_net)} {e.currency}</span></div>
+                            <div><span className="text-stone-500">Platform Fee:</span> <span className="text-stone-600">{fixed2(e.platform_fee)} {e.currency}</span></div>
+                            <div><span className="text-stone-500">Platform Net:</span> <span className="text-stone-600">{fixed2(e.platform_net)} {e.currency}</span></div>
+                            <div><span className="text-stone-500">Tax Type:</span> <span className="text-stone-600">{e.product_tax_type}</span></div>
+                            <div><span className="text-stone-500">VAT Rate:</span> <span className="text-stone-600">{(safeNumber(e.vat_rate_applied) * 100).toFixed(1)}%</span></div>
+                            <div><span className="text-stone-500">Reverse Charge:</span> <span className="text-stone-600">{e.reverse_charge_applied ? 'Si' : 'No'}</span></div>
+                            <div><span className="text-stone-500">Transfer ID:</span> <span className="text-stone-600 font-mono">{e.transfer_id || '-'}</span></div>
                             {e.influencer_id && (
-                              <div><span className="text-text-muted">Influencer:</span> <span className="text-text-secondary">{e.influencer_id}</span></div>
+                              <div><span className="text-stone-500">Influencer:</span> <span className="text-stone-600">{e.influencer_id}</span></div>
                             )}
                             {safeNumber(e.influencer_amount) > 0 && (
-                              <div><span className="text-text-muted">Influencer Amount:</span> <span className="text-text-secondary">{fixed2(e.influencer_amount)} {e.currency}</span></div>
+                              <div><span className="text-stone-500">Influencer Amount:</span> <span className="text-stone-600">{fixed2(e.influencer_amount)} {e.currency}</span></div>
                             )}
                           </div>
                         </td>
@@ -435,15 +431,15 @@ export default function FinancialDashboard() {
       {pendingPayouts.length > 0 && (
         <div className="bg-white rounded-xl border border-stone-200 overflow-hidden" data-testid="scheduled-payouts-table">
           <div className="px-4 py-3 border-b border-stone-100">
-            <h2 className="text-sm font-medium text-text-primary flex items-center gap-2">
-              <Clock className="w-4 h-4 text-text-muted" />
+            <h2 className="text-sm font-medium text-stone-950 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-stone-500" />
               Payouts programados ({pendingPayouts.length})
             </h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead className="bg-stone-50/80">
-                <tr className="text-text-muted">
+                <tr className="text-stone-500">
                   <th className="text-left px-4 py-2 font-medium">Influencer</th>
                   <th className="text-left px-3 py-2 font-medium">Order</th>
                   <th className="text-right px-3 py-2 font-medium">Importe</th>
@@ -456,12 +452,12 @@ export default function FinancialDashboard() {
                   const isDue = new Date(p.due_date) <= new Date();
                   return (
                     <tr key={p.payout_id} className="border-t border-stone-100">
-                      <td className="px-4 py-2.5 text-text-secondary">{p.influencer_id}</td>
-                      <td className="px-3 py-2.5 font-mono text-text-muted">{(p.order_id || '').slice(-8)}</td>
-                      <td className="px-3 py-2.5 text-right font-medium text-text-primary">{fixed2(p.amount)} {p.currency}</td>
-                      <td className="px-3 py-2.5 text-text-secondary">{(p.due_date || '').slice(0, 10)}</td>
+                      <td className="px-4 py-2.5 text-stone-600">{p.influencer_id}</td>
+                      <td className="px-3 py-2.5 font-mono text-stone-500">{(p.order_id || '').slice(-8)}</td>
+                      <td className="px-3 py-2.5 text-right font-medium text-stone-950">{fixed2(p.amount)} {p.currency}</td>
+                      <td className="px-3 py-2.5 text-stone-600">{(p.due_date || '').slice(0, 10)}</td>
                       <td className="px-3 py-2.5">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${isDue ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                        <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium bg-stone-100 text-stone-700">
                           {isDue ? 'Vencido' : 'Pendiente'}
                         </span>
                       </td>

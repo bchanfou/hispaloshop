@@ -6,9 +6,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { FileCheck, Search, Shield, X } from 'lucide-react';
-import { Button } from '../components/ui/button';
 import PremiumSelect from '../components/ui/PremiumSelect';
-import { Input } from '../components/ui/input';
 import { API } from '../utils/api';
 import { asLowerText } from '../utils/safe';
 
@@ -125,11 +123,12 @@ export default function CertificatesListPage() {
           <div className="mt-6 grid gap-3 sm:grid-cols-[minmax(0,1fr)_260px_auto]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <Input
+              <input
+                type="text"
                 placeholder="Buscar producto, productor o certificado"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                className="h-11 rounded-full border-stone-200 bg-stone-50 pl-11 text-sm placeholder:text-stone-400"
+                className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 text-sm placeholder:text-stone-400 outline-none focus:border-stone-950"
                 data-testid="cert-search-input"
                 aria-label="Buscar certificados"
               />
@@ -144,19 +143,18 @@ export default function CertificatesListPage() {
             />
 
             {hasFilters ? (
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                className="rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedCert('');
                 }}
                 aria-label="Limpiar filtros de certificados"
+                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
               >
                 <X className="h-4 w-4" />
                 Limpiar
-              </Button>
+              </button>
             ) : null}
           </div>
         </div>

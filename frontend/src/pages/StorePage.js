@@ -27,7 +27,6 @@ import Header from '../components/Header';
 import PostViewer from '../components/PostViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import PremiumSelect from '../components/ui/PremiumSelect';
-import { Button } from '../components/ui/button';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
@@ -121,7 +120,7 @@ function PostTile({ post, onOpen }) {
             className="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="flex h-full w-full items-end bg-stone-900 p-4">
+          <div className="flex h-full w-full items-end bg-stone-950 p-4">
             <p className="line-clamp-4 text-sm leading-relaxed text-white/80">{post.caption || 'Publicación sin imagen'}</p>
           </div>
         )}
@@ -263,10 +262,11 @@ export default function StorePage() {
             <p className="mb-6 text-sm leading-relaxed text-stone-500">
               {t('store.notFoundDesc', 'La tienda que buscas no existe o ya no está disponible.')}
             </p>
-            <Link to="/stores">
-              <Button className="rounded-full bg-stone-950 text-white hover:bg-stone-800">
-                {t('store.viewAll', 'Ver todas las tiendas')}
-              </Button>
+            <Link
+              to="/stores"
+              className="inline-flex items-center rounded-full bg-stone-950 px-5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
+            >
+              {t('store.viewAll', 'Ver todas las tiendas')}
             </Link>
           </div>
         </div>
@@ -323,14 +323,13 @@ export default function StorePage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button
+                  <button
                     type="button"
                     onClick={handleToggleFollow}
                     disabled={followLoading}
-                    variant={isFollowing ? 'outline' : 'default'}
-                    className={`rounded-full ${
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-colors ${
                       isFollowing
-                        ? 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
+                        ? 'border border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
                         : 'bg-stone-950 text-white hover:bg-stone-800'
                     }`}
                     aria-label={isFollowing ? 'Dejar de seguir tienda' : 'Seguir tienda'}
@@ -341,13 +340,14 @@ export default function StorePage() {
                       : isFollowing
                         ? t('store.following', 'Siguiendo')
                         : t('store.followStore', 'Seguir tienda')}
-                  </Button>
+                  </button>
                   {store.contact_email ? (
-                    <a href={`mailto:${store.contact_email}`}>
-                      <Button type="button" variant="outline" className="rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50">
-                        <Mail className="h-4 w-4" />
-                        Contactar
-                      </Button>
+                    <a
+                      href={`mailto:${store.contact_email}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-[13px] font-semibold text-stone-700 transition-colors hover:bg-stone-50"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Contactar
                     </a>
                   ) : null}
                 </div>
@@ -495,26 +495,22 @@ export default function StorePage() {
                               </p>
                               <p className="mt-1 text-sm text-stone-500">Documento validado para este producto.</p>
                               {certificateProductId ? (
-                                <Link to={`/certificate/${certificateProductId}`} className="mt-3 inline-flex">
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="rounded-full border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
-                                    aria-label={`Ver certificado digital de ${certificate.product_name || 'producto'}`}
-                                  >
-                                    Ver certificado digital
-                                  </Button>
+                                <Link
+                                  to={`/certificate/${certificateProductId}`}
+                                  className="mt-3 inline-flex items-center rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                                  aria-label={`Ver certificado digital de ${certificate.product_name || 'producto'}`}
+                                >
+                                  Ver certificado digital
                                 </Link>
                               ) : (
-                                <Button
+                                <button
                                   type="button"
-                                  variant="outline"
-                                  className="mt-3 rounded-full border-stone-200 bg-white text-stone-700"
+                                  className="mt-3 cursor-not-allowed rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] font-medium text-stone-400"
                                   disabled
                                   aria-label={`Certificado no disponible para ${certificate.product_name || 'producto'}`}
                                 >
                                   Ver certificado digital
-                                </Button>
+                                </button>
                               )}
                             </div>
                           </div>
@@ -539,7 +535,7 @@ export default function StorePage() {
                 <div className="flex items-start gap-3 text-stone-600">
                   <Users className="mt-0.5 h-4 w-4 shrink-0 text-stone-700" />
                   <div>
-                    <p className="font-medium text-stone-900">{store.follower_count || 0} seguidores</p>
+                    <p className="font-medium text-stone-950">{store.follower_count || 0} seguidores</p>
                     <p className="text-stone-500">Comunidad que sigue esta tienda.</p>
                   </div>
                 </div>
@@ -547,7 +543,7 @@ export default function StorePage() {
                   <div className="flex items-start gap-3 text-stone-600">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-stone-700" />
                     <div>
-                      <p className="font-medium text-stone-900">Ubicación</p>
+                      <p className="font-medium text-stone-950">Ubicación</p>
                       <p className="text-stone-500">{store.full_address}</p>
                     </div>
                   </div>
@@ -556,7 +552,7 @@ export default function StorePage() {
                   <div className="flex items-start gap-3 text-stone-600">
                     <Truck className="mt-0.5 h-4 w-4 shrink-0 text-stone-700" />
                     <div>
-                      <p className="font-medium text-stone-900">Entrega</p>
+                      <p className="font-medium text-stone-950">Entrega</p>
                       <p className="text-stone-500">{store.delivery_time}</p>
                     </div>
                   </div>

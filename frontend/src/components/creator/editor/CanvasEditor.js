@@ -330,13 +330,13 @@ function CanvasEditor({ editor, aspectRatio, activeTool, contentType = 'post', r
         ) : null}
         {snapGuides.safeTop ? (
           <div
-            className="pointer-events-none absolute left-0 right-0 h-px bg-amber-300/80"
+            className="pointer-events-none absolute left-0 right-0 h-px bg-stone-300/80"
             style={{ top: `${containerSize.height * 0.12}px` }}
           />
         ) : null}
         {snapGuides.safeBottom ? (
           <div
-            className="pointer-events-none absolute left-0 right-0 h-px bg-amber-300/80"
+            className="pointer-events-none absolute left-0 right-0 h-px bg-stone-300/80"
             style={{ top: `${containerSize.height * 0.82}px` }}
           />
         ) : null}

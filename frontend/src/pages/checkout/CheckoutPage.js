@@ -27,7 +27,7 @@ function AddressCard({ address, selected, onSelect, onDelete, onSetDefault }) {
   return (
     <label
       className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-        selected ? 'border-accent bg-accent/5' : 'border-stone-200 hover:border-gray-300'
+        selected ? 'border-stone-950 bg-stone-50' : 'border-stone-200 hover:border-stone-300'
       }`}
     >
       <input
@@ -35,13 +35,13 @@ function AddressCard({ address, selected, onSelect, onDelete, onSetDefault }) {
         name="address"
         checked={selected}
         onChange={onSelect}
-        className="w-5 h-5 mt-0.5 text-accent focus:ring-accent"
+        className="w-5 h-5 mt-0.5 accent-stone-950"
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           <span className="font-semibold text-stone-950 text-sm">{address.name}</span>
           {address.is_default && (
-            <span className="text-xs bg-accent text-white px-2 py-0.5 rounded-full">Predeterminada</span>
+            <span className="text-xs bg-stone-950 text-white px-2 py-0.5 rounded-full">Predeterminada</span>
           )}
         </div>
         <p className="text-sm text-stone-950">{address.full_name}</p>
@@ -54,7 +54,7 @@ function AddressCard({ address, selected, onSelect, onDelete, onSetDefault }) {
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); onSetDefault(); }}
-            className="text-xs text-accent font-medium hover:underline"
+            className="text-xs text-stone-500 font-medium hover:underline"
           >
             Predeterminar
           </button>
@@ -62,7 +62,7 @@ function AddressCard({ address, selected, onSelect, onDelete, onSetDefault }) {
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); onDelete(); }}
-          className="text-xs text-state-error font-medium flex items-center gap-1 hover:underline"
+          className="text-xs text-stone-700 font-medium flex items-center gap-1 hover:underline"
         >
           <Trash2 className="w-3 h-3" />
           Eliminar
@@ -90,47 +90,47 @@ function AddressForm({ onSave, onCancel, saving }) {
           <input
             {...register('name')}
             placeholder="Nombre de esta dirección (ej. Casa)"
-            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950 text-sm"
           />
-          {errors.name && <p className="text-xs text-state-error mt-1">{errors.name.message}</p>}
+          {errors.name && <p className="text-xs text-stone-700 mt-1">{errors.name.message}</p>}
         </div>
         <div className="col-span-2">
           <input
             {...register('full_name')}
             placeholder="Nombre completo del destinatario"
-            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950 text-sm"
           />
-          {errors.full_name && <p className="text-xs text-state-error mt-1">{errors.full_name.message}</p>}
+          {errors.full_name && <p className="text-xs text-stone-700 mt-1">{errors.full_name.message}</p>}
         </div>
         <div className="col-span-2">
           <input
             {...register('street')}
             placeholder="Calle y número"
-            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950 text-sm"
           />
-          {errors.street && <p className="text-xs text-state-error mt-1">{errors.street.message}</p>}
+          {errors.street && <p className="text-xs text-stone-700 mt-1">{errors.street.message}</p>}
         </div>
         <div>
           <input
             {...register('postal_code')}
             placeholder="Código postal"
             maxLength={5}
-            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950 text-sm"
           />
-          {errors.postal_code && <p className="text-xs text-state-error mt-1">{errors.postal_code.message}</p>}
+          {errors.postal_code && <p className="text-xs text-stone-700 mt-1">{errors.postal_code.message}</p>}
         </div>
         <div>
           <input
             {...register('city')}
             placeholder="Ciudad"
-            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950 text-sm"
           />
-          {errors.city && <p className="text-xs text-state-error mt-1">{errors.city.message}</p>}
+          {errors.city && <p className="text-xs text-stone-700 mt-1">{errors.city.message}</p>}
         </div>
         <div>
           <select
             {...register('country')}
-            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm bg-white"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950 text-sm bg-white"
           >
             <option value="ES">España</option>
             <option value="PT">Portugal</option>
@@ -145,7 +145,7 @@ function AddressForm({ onSave, onCancel, saving }) {
             {...register('phone')}
             type="tel"
             placeholder="Teléfono (opcional)"
-            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+            className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950 text-sm"
           />
         </div>
       </div>
@@ -153,7 +153,7 @@ function AddressForm({ onSave, onCancel, saving }) {
         <button
           type="submit"
           disabled={saving}
-          className="flex-1 py-3 bg-accent text-white rounded-xl font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+          className="flex-1 py-3 bg-stone-950 text-white rounded-xl font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
           Guardar dirección
@@ -161,7 +161,7 @@ function AddressForm({ onSave, onCancel, saving }) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-3 border border-stone-200 rounded-xl text-sm text-stone-500 hover:bg-gray-50"
+          className="px-4 py-3 border border-stone-200 rounded-xl text-sm text-stone-500 hover:bg-stone-50"
         >
           Cancelar
         </button>
@@ -287,7 +287,7 @@ const CheckoutPage = () => {
   // ── Empty cart ───────────────────────────────────────────────────────────
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-background-subtle flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-4">
         <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
           <ShoppingBag className="w-10 h-10 text-stone-500" />
         </div>
@@ -295,7 +295,7 @@ const CheckoutPage = () => {
         <p className="text-stone-500 mb-6">Añade productos para continuar</p>
         <button
           onClick={() => navigate('/discover')}
-          className="px-6 py-3 bg-accent text-white rounded-full font-medium"
+          className="px-6 py-3 bg-stone-950 text-white rounded-full font-medium"
         >
           Explorar productos
         </button>
@@ -306,20 +306,20 @@ const CheckoutPage = () => {
   const selectedAddress = addresses.find(a => a.address_id === selectedAddressId);
 
   return (
-    <div className="min-h-screen bg-background-subtle pb-24">
+    <div className="min-h-screen bg-stone-50 pb-24">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-white shadow-sm">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-stone-100 rounded-full transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-stone-950" />
             </button>
             <h1 className="text-lg font-bold text-stone-950">Finalizar compra</h1>
           </div>
-          <div className="flex items-center gap-1 text-sm text-state-success">
+          <div className="flex items-center gap-1 text-sm text-stone-700">
             <Lock className="w-4 h-4" />
             <span>Pago seguro</span>
           </div>
@@ -335,7 +335,7 @@ const CheckoutPage = () => {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="bg-state-error/10 border border-state-error/30 text-state-error rounded-xl p-3 text-sm"
+              className="bg-stone-50 border border-stone-200 text-stone-700 rounded-xl p-3 text-sm"
             >
               {error}
             </motion.div>
@@ -345,13 +345,13 @@ const CheckoutPage = () => {
         {/* 1. Shipping Address */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
           <h2 className="text-lg font-bold text-stone-950 mb-4 flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-accent" />
+            <MapPin className="w-5 h-5 text-stone-500" />
             Dirección de envío
           </h2>
 
           {loadingAddresses ? (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="w-6 h-6 animate-spin text-accent" />
+              <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
             </div>
           ) : (
             <div className="space-y-2">
@@ -369,7 +369,7 @@ const CheckoutPage = () => {
               {!showAddressForm && (
                 <button
                   onClick={() => setShowAddressForm(true)}
-                  className="flex items-center gap-2 mt-2 text-sm text-accent font-medium"
+                  className="flex w-full items-center justify-center gap-2 mt-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-sm font-medium text-stone-500 transition-colors hover:border-stone-400 hover:text-stone-950"
                 >
                   <Plus className="w-4 h-4" />
                   Añadir nueva dirección
@@ -399,14 +399,14 @@ const CheckoutPage = () => {
         {/* 2. Shipping info */}
         <section className="bg-white rounded-2xl p-4 shadow-sm">
           <h2 className="text-lg font-bold text-stone-950 mb-3 flex items-center gap-2">
-            <Truck className="w-5 h-5 text-accent" />
+            <Truck className="w-5 h-5 text-stone-500" />
             Envío
           </h2>
           <p className="text-sm text-stone-500">
             El coste de envío se calcula según el productor y se mostrará en el siguiente paso.
           </p>
           {selectedAddress && (
-            <div className="mt-3 flex items-center gap-2 text-sm text-state-success">
+            <div className="mt-3 flex items-center gap-2 text-sm text-stone-700">
               <Check className="w-4 h-4 shrink-0" />
               <span>Entregar en: {selectedAddress.street}, {selectedAddress.postal_code} {selectedAddress.city}</span>
             </div>
@@ -424,7 +424,7 @@ const CheckoutPage = () => {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-12 h-12 rounded-lg object-cover bg-gray-100 shrink-0"
+                    className="w-12 h-12 rounded-lg object-cover bg-stone-100 shrink-0"
                   />
                 )}
                 <div className="flex-1 min-w-0">
@@ -442,7 +442,7 @@ const CheckoutPage = () => {
           <div className="border-t pt-4">
             <button
               onClick={() => setShowDiscountInput(v => !v)}
-              className="flex items-center gap-2 text-sm text-accent font-medium mb-2"
+              className="flex items-center gap-2 text-sm text-stone-500 font-medium mb-2"
             >
               <Tag className="w-4 h-4" />
               Código de descuento
@@ -462,7 +462,7 @@ const CheckoutPage = () => {
                     value={discountCode}
                     onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
                     placeholder="Introduce tu código"
-                    className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent text-sm mb-3"
+                    className="w-full p-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-950 text-sm mb-3"
                   />
                 </motion.div>
               )}
@@ -477,7 +477,7 @@ const CheckoutPage = () => {
             </div>
             <div className="flex justify-between text-sm text-stone-500">
               <span>Envío</span>
-              <span className="text-state-info text-xs">Se calcula en siguiente paso</span>
+              <span className="text-stone-500 text-xs">Se calcula en siguiente paso</span>
             </div>
             <div className="flex justify-between text-xl font-bold text-stone-950 pt-2 border-t">
               <span>Total estimado</span>
@@ -490,7 +490,7 @@ const CheckoutPage = () => {
           <button
             onClick={handlePayment}
             disabled={isProcessing || !selectedAddressId || showAddressForm}
-            className="w-full mt-5 py-4 bg-accent text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50 transition-colors"
+            className="w-full mt-5 py-4 bg-stone-950 text-white rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 disabled:opacity-50 transition-colors"
           >
             {isProcessing ? (
               <>
@@ -512,9 +512,9 @@ const CheckoutPage = () => {
 
           <div className="flex items-center justify-center gap-4 mt-2">
             {['VISA', 'MC', 'AMEX'].map(b => (
-              <span key={b} className="text-xs font-bold text-stone-500 bg-gray-100 px-2 py-0.5 rounded">{b}</span>
+              <span key={b} className="text-xs font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded">{b}</span>
             ))}
-            <span className="text-xs font-bold text-stone-500 bg-[#00A4E0]/10 text-[#00A4E0] px-2 py-0.5 rounded">Bizum</span>
+            <span className="text-xs font-bold text-stone-500 bg-stone-100 px-2 py-0.5 rounded">Bizum</span>
           </div>
         </section>
 

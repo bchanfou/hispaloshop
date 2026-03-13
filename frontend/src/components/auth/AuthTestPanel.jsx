@@ -92,7 +92,7 @@ export default function AuthTestPanel() {
       <h3 className="font-bold text-sm mb-2">🔧 Auth Test Panel (Dev Only)</h3>
       
       {user && (
-        <div className="mb-3 p-2 bg-green-50 rounded text-xs">
+        <div className="mb-3 p-2 bg-stone-50 rounded text-xs">
           <strong>Sesión activa:</strong><br />
           {user.email} ({user.role})
         </div>
@@ -102,7 +102,7 @@ export default function AuthTestPanel() {
         <button
           onClick={runAllTests}
           disabled={testing}
-          className="w-full px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          className="w-full px-3 py-2 bg-stone-950 text-white text-xs rounded-lg hover:bg-stone-800 disabled:opacity-50"
         >
           {testing ? 'Probando...' : 'Probar todas las cuentas'}
         </button>
@@ -122,7 +122,7 @@ export default function AuthTestPanel() {
             <div
               key={idx}
               className={`text-xs p-1.5 rounded ${
-                result.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                result.success ? 'bg-stone-50 text-stone-700' : 'bg-stone-100 text-stone-600'
               }`}
             >
               {result.success ? '✅' : '❌'} {result.account}

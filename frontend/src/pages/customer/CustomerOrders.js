@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/api/client';
-import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 import { ShoppingBag, Package, ArrowLeft, XCircle, Truck, Check, Clock, MapPin, ExternalLink, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -9,12 +8,12 @@ import { asNumber } from '../../utils/safe';
 
 
 const statusColors = {
-  pending: 'bg-amber-100 text-amber-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  preparing: 'bg-indigo-100 text-indigo-800',
-  shipped: 'bg-purple-100 text-purple-800',
-  delivered: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800'
+  pending: 'bg-stone-100 text-stone-700',
+  confirmed: 'bg-stone-100 text-stone-700',
+  preparing: 'bg-stone-100 text-stone-700',
+  shipped: 'bg-stone-100 text-stone-700',
+  delivered: 'bg-stone-100 text-stone-700',
+  cancelled: 'bg-stone-100 text-stone-700'
 };
 
 const statusIcons = {
@@ -52,7 +51,7 @@ export default function CustomerOrders() {
 
   const cancelOrder = async (orderId) => {
     if (!window.confirm(t('orders.cancelConfirm', 'Are you sure you want to cancel this order?'))) return;
-    
+
     try {
       await apiClient.put(`/customer/orders/${orderId}/cancel`, {});
       toast.success(t('orders.cancelled', 'Order cancelled'));
@@ -75,12 +74,12 @@ export default function CustomerOrders() {
     const canCancel = ['pending', 'confirmed'].includes(selectedOrder.status);
     const currentStep = getStatusStep(selectedOrder.status);
     const StatusIcon = statusIcons[selectedOrder.status] || Clock;
-    
+
     return (
       <div>
         <button
           onClick={() => setSelectedOrder(null)}
-          className="flex items-center gap-2 text-stone-500 hover:text-stone-950 mb-6 font-body"
+          className="flex items-center gap-2 text-stone-500 hover:text-stone-950 mb-6"
           data-testid="back-button"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -90,10 +89,10 @@ export default function CustomerOrders() {
         <div className="bg-white rounded-xl border border-stone-300 p-6">
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h2 className="font-heading text-2xl font-semibold text-stone-950">
+              <h2 className="text-2xl font-semibold text-stone-950">
                 {t('orders.orderNumber', 'Order')} #{selectedOrder.order_id.slice(0, 8)}
               </h2>
-              <p className="text-stone-500 font-body">
+              <p className="text-stone-500">
                 {t('orders.placedOn', 'Placed on')} {new Date(selectedOrder.created_at).toLocaleDateString()}
               </p>
             </div>
@@ -105,15 +104,13 @@ export default function CustomerOrders() {
                 </span>
               </div>
               {canCancel && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-red-300 text-red-600 hover:bg-red-50"
+                <button
+                  className="flex items-center px-3 py-1.5 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-sm"
                   onClick={() => cancelOrder(selectedOrder.order_id)}
                   data-testid="cancel-order-btn"
                 >
                   <XCircle className="w-4 h-4 mr-1" /> {t('orders.cancel', 'Cancel')}
-                </Button>
+                </button>
               )}
             </div>
           </div>
@@ -125,29 +122,29 @@ export default function CustomerOrders() {
               <div className="flex items-center justify-between relative">
                 {/* Progress Line */}
                 <div className="absolute top-4 left-0 right-0 h-1 bg-stone-200 rounded">
-                  <div 
-                    className="h-full bg-green-500 rounded transition-all duration-500"
+                  <div
+                    className="h-full bg-stone-400 rounded transition-all duration-500"
                     style={{ width: `${(currentStep / (STATUS_FLOW.length - 1)) * 100}%` }}
                   />
                 </div>
-                
+
                 {/* Status Steps */}
                 {STATUS_FLOW.map((status, index) => {
                   const StepIcon = statusIcons[status];
                   const isCompleted = index <= currentStep;
                   const isCurrent = index === currentStep;
-                  
+
                   return (
                     <div key={status} className="flex flex-col items-center relative z-10">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        isCompleted 
-                          ? 'bg-green-500 text-white' 
+                        isCompleted
+                          ? 'bg-stone-950 text-white'
                           : 'bg-stone-200 text-stone-500'
-                      } ${isCurrent ? 'ring-4 ring-green-200' : ''}`}>
+                      } ${isCurrent ? 'ring-4 ring-stone-200' : ''}`}>
                         <StepIcon className="w-4 h-4" />
                       </div>
                       <span className={`mt-2 text-xs font-medium ${
-                        isCompleted ? 'text-green-600' : 'text-stone-500'
+                        isCompleted ? 'text-stone-600' : 'text-stone-500'
                       }`}>
                         {t(`orders.status.${status}`, status)}
                       </span>
@@ -160,17 +157,17 @@ export default function CustomerOrders() {
 
           {/* Tracking Info */}
           {selectedOrder.tracking_number && (
-            <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
-              <h3 className="font-medium text-purple-900 mb-2 flex items-center gap-2">
+            <div className="mb-6 p-4 bg-stone-50 rounded-lg border border-stone-200">
+              <h3 className="font-medium text-stone-950 mb-2 flex items-center gap-2">
                 <Truck className="w-4 h-4" /> {t('orders.trackingInfo', 'Tracking Information')}
               </h3>
-              <p className="text-purple-800 font-mono text-lg">{selectedOrder.tracking_number}</p>
+              <p className="text-stone-700 font-mono text-lg">{selectedOrder.tracking_number}</p>
               {selectedOrder.tracking_url && (
-                <a 
-                  href={selectedOrder.tracking_url} 
-                  target="_blank" 
+                <a
+                  href={selectedOrder.tracking_url}
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-2 text-purple-600 hover:text-purple-800 font-medium"
+                  className="inline-flex items-center gap-1 mt-2 text-stone-600 hover:text-stone-950 font-medium"
                 >
                   {t('orders.trackShipment', 'Track your shipment')} <ExternalLink className="w-4 h-4" />
                 </a>
@@ -183,7 +180,7 @@ export default function CustomerOrders() {
             <h3 className="font-medium text-stone-950 mb-2 flex items-center gap-2">
               <MapPin className="w-4 h-4" /> {t('orders.shippingAddress', 'Shipping Address')}
             </h3>
-            <p className="text-text-secondary font-body">
+            <p className="text-stone-600">
               {selectedOrder.shipping_address?.full_name || selectedOrder.shipping_address?.name}<br />
               {selectedOrder.shipping_address?.street}<br />
               {selectedOrder.shipping_address?.city}, {selectedOrder.shipping_address?.postal_code}<br />
@@ -227,7 +224,7 @@ export default function CustomerOrders() {
               <div className="space-y-3">
                 {selectedOrder.status_history.slice().reverse().map((entry, idx) => (
                   <div key={idx} className="flex items-start gap-3 text-sm">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${((statusColors[entry.status] || '').split(' ')[0]) || 'bg-gray-300'}`} />
+                    <div className="w-2 h-2 rounded-full mt-2 bg-stone-300" />
                     <div>
                       <p className="font-medium text-stone-950 capitalize">
                         {t(`orders.status.${entry.status}`, entry.status)}
@@ -235,7 +232,7 @@ export default function CustomerOrders() {
                       <p className="text-stone-500">
                         {new Date(entry.timestamp).toLocaleString()}
                       </p>
-                      {entry.notes && <p className="text-text-secondary mt-1">{entry.notes}</p>}
+                      {entry.notes && <p className="text-stone-600 mt-1">{entry.notes}</p>}
                     </div>
                   </div>
                 ))}
@@ -250,10 +247,10 @@ export default function CustomerOrders() {
   // List View
   return (
     <div>
-      <h1 className="font-heading text-3xl font-semibold text-stone-950 mb-2">
+      <h1 className="text-3xl font-semibold text-stone-950 mb-2">
         {t('orders.title', 'My Orders')}
       </h1>
-      <p className="text-stone-500 font-body mb-6">{t('orders.description', 'View and track your orders.')}</p>
+      <p className="text-stone-500 mb-6">{t('orders.description', 'View and track your orders.')}</p>
 
       <div className="bg-white rounded-xl border border-stone-300 overflow-hidden">
         {loading ? (
@@ -282,7 +279,7 @@ export default function CustomerOrders() {
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${statusColor}`}>
                     <StatusIcon className="w-5 h-5" />
                   </div>
-                  
+
                   {/* Order info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -291,7 +288,7 @@ export default function CustomerOrders() {
                       <span className="text-xs text-stone-500">{order.line_items?.length || 0} items</span>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`text-xs font-medium capitalize ${statusColor.includes('green') ? 'text-green-600' : statusColor.includes('blue') ? 'text-blue-600' : statusColor.includes('purple') ? 'text-purple-600' : statusColor.includes('red') ? 'text-red-600' : 'text-amber-600'}`}>
+                      <span className="text-xs font-medium capitalize text-stone-600">
                         {t(`orders.status.${order.status}`, order.status)}
                       </span>
                       <span className="text-[10px] text-stone-500">
@@ -299,7 +296,7 @@ export default function CustomerOrders() {
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Reorder button for completed orders */}
                   {['delivered', 'completed'].includes(order.status) && (
                     <button
@@ -310,13 +307,13 @@ export default function CustomerOrders() {
                           toast.success('Productos agregados al carrito');
                         } catch { toast.error('Error al reordenar'); }
                       }}
-                      className="shrink-0 bg-accent text-white text-xs font-medium px-3 py-1.5 rounded-full hover:bg-accent/90 transition-colors"
+                      className="shrink-0 bg-stone-950 text-white text-xs font-medium px-3 py-1.5 rounded-full hover:bg-stone-800 transition-colors"
                       data-testid={`reorder-${order.order_id}`}
                     >
                       Repetir
                     </button>
                   )}
-                  
+
                   {/* Arrow */}
                   <ChevronRight className="w-4 h-4 text-stone-500 shrink-0" />
                 </button>

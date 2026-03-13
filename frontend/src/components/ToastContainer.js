@@ -8,10 +8,10 @@ const icons = {
 };
 
 const styles = {
-  success: 'bg-green-600 text-white border-green-700',
-  error: 'bg-red-600 text-white border-red-700',
-  warning: 'bg-amber-500 text-white border-amber-600',
-  info: 'bg-blue-600 text-white border-blue-700',
+  success: 'bg-stone-700 text-white border-stone-800',
+  error: 'bg-stone-900 text-white border-stone-950',
+  warning: 'bg-stone-600 text-white border-stone-700',
+  info: 'bg-stone-500 text-white border-stone-600',
 };
 
 export function ToastContainer({ toasts, onRemove }) {

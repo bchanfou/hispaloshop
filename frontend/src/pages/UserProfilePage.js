@@ -16,7 +16,6 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -118,15 +117,16 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
             className="h-24 w-full resize-none rounded-2xl border border-stone-200 p-3 text-sm focus:border-stone-400 focus:outline-none"
             data-testid="post-caption-input"
           />
-          <Button
+          <button
+            type="button"
             onClick={handleSubmit}
             disabled={!file || creatingPost}
-            className="h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-stone-950 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
             data-testid="submit-post-btn"
           >
-            {creatingPost ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
+            {creatingPost ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
             {t('social.publish')}
-          </Button>
+          </button>
         </div>
       </div>
     </div>
@@ -613,10 +613,14 @@ export default function UserProfilePage() {
                   }
                   action={
                     isOwnProfile ? (
-                      <Button className="mt-5 rounded-full bg-stone-950 text-white hover:bg-stone-800" onClick={() => setShowCreatePost(true)}>
+                      <button
+                        type="button"
+                        className="mt-5 inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+                        onClick={() => setShowCreatePost(true)}
+                      >
                         <Camera className="h-4 w-4" />
                         {t('social.newPost')}
-                      </Button>
+                      </button>
                     ) : null
                   }
                 />
@@ -669,11 +673,12 @@ export default function UserProfilePage() {
                   description={isOwnProfile ? 'Publica tu primera receta para que aparezca aquí y en la sección principal.' : 'Este perfil todavía no ha compartido recetas.'}
                   action={
                     isOwnProfile ? (
-                      <Link to="/recipes/create">
-                        <Button className="mt-5 rounded-full bg-stone-950 text-white hover:bg-stone-800">
-                          <BookOpen className="h-4 w-4" />
-                          {t('recipes.createRecipe', 'Crear receta')}
-                        </Button>
+                      <Link
+                        to="/recipes/create"
+                        className="mt-5 inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        {t('recipes.createRecipe', 'Crear receta')}
                       </Link>
                     ) : null
                   }

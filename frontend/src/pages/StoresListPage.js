@@ -3,8 +3,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import PremiumSelect from '../components/ui/PremiumSelect';
 import { ArrowUpRight, Grid3X3, Map, MapPin, Search, Sparkles, Store, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -87,7 +85,7 @@ function StoreCard({ store, isActive, onHover, onLeave, onFocusMap, t }) {
     <Link
       to={storeSlug ? `/store/${storeSlug}` : '/stores'}
       className={`group block overflow-hidden rounded-2xl border bg-white transition-all duration-150 ease-out hover:-translate-y-[1px] hover:shadow-md ${
-        isActive ? 'border-stone-950 shadow-sm' : 'border-stone-100 hover:border-stone-300'
+        isActive ? 'border-stone-950 shadow-sm' : 'border-stone-100 hover:border-stone-400'
       }`}
       onMouseEnter={() => {
         onHover();
@@ -128,13 +126,13 @@ function StoreCard({ store, isActive, onHover, onLeave, onFocusMap, t }) {
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate text-lg font-semibold text-stone-900">{store.name}</h3>
+            <h3 className="truncate text-lg font-semibold text-stone-950">{store.name}</h3>
             <p className="mt-1 flex items-center gap-1.5 text-sm text-stone-500">
               <MapPin className="h-3.5 w-3.5" />
               <span className="truncate">{location}</span>
             </p>
           </div>
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition-colors group-hover:border-stone-300 group-hover:text-stone-900">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition-colors group-hover:border-stone-400 group-hover:text-stone-950">
             <ArrowUpRight className="h-4 w-4" />
           </span>
         </div>
@@ -145,11 +143,11 @@ function StoreCard({ store, isActive, onHover, onLeave, onFocusMap, t }) {
 
         <div className="mt-4 grid grid-cols-2 gap-2">
           <div className="rounded-2xl bg-stone-50 px-3 py-2">
-            <p className="text-sm font-semibold text-stone-900">{store.product_count || 0}</p>
+            <p className="text-sm font-semibold text-stone-950">{store.product_count || 0}</p>
             <p className="text-xs text-stone-500">{t('store.products', 'Productos')}</p>
           </div>
           <div className="rounded-2xl bg-stone-50 px-3 py-2">
-            <p className="text-sm font-semibold text-stone-900">{store.follower_count || 0}</p>
+            <p className="text-sm font-semibold text-stone-950">{store.follower_count || 0}</p>
             <p className="text-xs text-stone-500">{t('store.followers', 'Seguidores')}</p>
           </div>
         </div>
@@ -344,9 +342,13 @@ export default function StoresListPage() {
         Ajusta los filtros o explora otra región para descubrir productores cercanos.
       </p>
       {hasActiveFilters ? (
-        <Button type="button" variant="outline" className="mt-5 rounded-full" onClick={clearFilters}>
+        <button
+          type="button"
+          className="mt-5 rounded-full border border-stone-200 bg-white px-5 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
+          onClick={clearFilters}
+        >
           Limpiar filtros
-        </Button>
+        </button>
       ) : null}
     </div>
   );
@@ -400,11 +402,12 @@ export default function StoresListPage() {
           <div className="mt-8 hidden gap-3 lg:grid lg:grid-cols-[minmax(0,1.4fr)_220px_220px_auto]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <Input
+              <input
+                type="text"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder={t('stores.searchPlaceholder', 'Buscar tienda o ubicación')}
-                className="h-11 rounded-full border-stone-200 bg-stone-50 pl-11 text-sm placeholder:text-stone-400 focus-visible:ring-stone-950/15"
+                className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 text-sm placeholder:text-stone-400 outline-none focus:border-stone-950"
                 aria-label="Buscar tiendas"
                 data-testid="stores-search-input"
               />
@@ -426,10 +429,14 @@ export default function StoresListPage() {
             />
             <div className="flex items-center justify-end gap-2">
               {hasActiveFilters ? (
-                <Button type="button" variant="outline" className="rounded-full" onClick={clearFilters}>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                  onClick={clearFilters}
+                >
                   <X className="h-4 w-4" />
                   Limpiar
-                </Button>
+                </button>
               ) : null}
             </div>
           </div>
@@ -441,19 +448,19 @@ export default function StoresListPage() {
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <Input
+              <input
+                type="text"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder={t('stores.searchPlaceholder', 'Buscar tienda o ubicación')}
-                className="h-11 rounded-full border-stone-200 bg-stone-50 pl-11 text-sm placeholder:text-stone-400"
+                className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 text-sm placeholder:text-stone-400 outline-none focus:border-stone-950"
                 aria-label="Buscar tiendas"
                 data-testid="stores-search-input-mobile"
               />
             </div>
-            <Button
+            <button
               type="button"
-              variant="outline"
-              className={`relative rounded-full ${showFilters ? 'border-stone-950 bg-stone-100 text-stone-950' : ''}`}
+              className={`relative inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors ${showFilters ? 'border-stone-950 bg-stone-100 text-stone-950' : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'}`}
               onClick={() => setShowFilters((current) => !current)}
               aria-label="Abrir filtros de tiendas"
             >
@@ -463,7 +470,7 @@ export default function StoresListPage() {
                   {activeFilterCount}
                 </span>
               ) : null}
-            </Button>
+            </button>
           </div>
 
           {showFilters ? (
@@ -484,9 +491,13 @@ export default function StoresListPage() {
                 ariaLabel="Filtrar por región"
               />
               {hasActiveFilters ? (
-                <Button type="button" variant="outline" className="w-full rounded-full" onClick={clearFilters}>
+                <button
+                  type="button"
+                  className="w-full rounded-full border border-stone-200 bg-white py-2.5 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                  onClick={clearFilters}
+                >
                   Limpiar filtros
-                </Button>
+                </button>
               ) : null}
             </div>
           ) : null}
@@ -584,10 +595,11 @@ export default function StoresListPage() {
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-stone-500">
             Crea un perfil de tienda con una presencia más editorial: catálogo, certificaciones y narrativa propia.
           </p>
-          <Link to="/productor/registro" className="mt-5 inline-flex">
-            <Button className="rounded-full bg-stone-950 text-white hover:bg-stone-800">
-              Crear mi tienda
-            </Button>
+          <Link
+            to="/productor/registro"
+            className="mt-5 inline-flex items-center rounded-full bg-stone-950 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800"
+          >
+            Crear mi tienda
           </Link>
         </div>
       </section>

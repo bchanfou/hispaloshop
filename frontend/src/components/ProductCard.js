@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Star, Truck } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from './ui/button';
 import ProductImage from './ui/ProductImage.tsx';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -15,103 +14,85 @@ const formatNumber = (value) => {
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
+// ── Botón + con feedback ✓, sin presión visual de compra ─────────────────────
+function AddButton({ onAdd, isDisabled, testId }) {
+  const [confirmed, setConfirmed] = useState(false);
+
+  const handleClick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirmed || isDisabled) return;
+    await onAdd(e);
+    setConfirmed(true);
+    setTimeout(() => setConfirmed(false), 1200);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={isDisabled}
+      data-testid={testId}
+      aria-label="Añadir al carrito"
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all duration-200 active:scale-95 ${
+        confirmed
+          ? 'bg-stone-200 text-stone-700'
+          : isDisabled
+          ? 'cursor-not-allowed bg-stone-100 text-stone-300'
+          : 'bg-stone-950 text-white hover:bg-stone-800'
+      }`}
+    >
+      {confirmed ? (
+        <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+        </svg>
+      ) : (
+        <Plus className="h-4 w-4" strokeWidth={2.5} />
+      )}
+    </button>
+  );
+}
+
 export default function ProductCard({ product, variant = 'default' }) {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice, t } = useLocale();
   const productId = getProductId(product);
 
-  const basePrice = product.display_price || product.price || 0;
-  const baseCurrency = product.display_currency || product.currency || 'EUR';
-  const displayPrice = convertAndFormatPrice(basePrice, baseCurrency);
-  const shippingCost = Number(product.shipping_cost || 0);
+  const basePrice     = product.display_price || product.price || 0;
+  const baseCurrency  = product.display_currency || product.currency || 'EUR';
+  const displayPrice  = convertAndFormatPrice(basePrice, baseCurrency);
+  const shippingCost  = Number(product.shipping_cost || 0);
   const isFreeShipping = shippingCost === 0;
-  const trackStock = product.track_stock !== false;
-  const stock = product.market_stock ?? product.stock ?? 100;
+  const trackStock    = product.track_stock !== false;
+  const stock         = product.market_stock ?? product.stock ?? 100;
   const lowStockThreshold = product.low_stock_threshold ?? 5;
-  const isOutOfStock = trackStock && stock <= 0;
-  const isLowStock = trackStock && stock > 0 && stock <= lowStockThreshold;
+  const isOutOfStock  = trackStock && stock <= 0;
+  const isLowStock    = trackStock && stock > 0 && stock <= lowStockThreshold;
   const isUnavailableInCountry = product.available_in_country === false;
-  const hasRating = product.average_rating !== undefined && product.average_rating !== null;
-  const primaryImage = product.images?.[0] || product.image_url || null;
-
-  const handleAuthRequired = (message) => {
-    toast.error(message, {
-      action: {
-        label: t('auth.login', 'Entrar'),
-        onClick: () => {
-          window.location.href = '/login';
-        },
-      },
-    });
-  };
+  const hasRating     = product.average_rating !== undefined && product.average_rating !== null;
+  const primaryImage  = product.images?.[0] || product.image_url || null;
+  const isBlocked     = isOutOfStock || isUnavailableInCountry;
 
   const handleAddToCart = async (event) => {
     event.preventDefault();
     event.stopPropagation();
 
     if (!user) {
-      handleAuthRequired(t('errors.loginRequired', 'Inicia sesión para añadir productos'));
+      toast.error(t('errors.loginRequired', 'Inicia sesión para añadir productos'), {
+        action: { label: t('auth.login', 'Entrar'), onClick: () => { window.location.href = '/login'; } },
+      });
       return;
     }
+    if (isUnavailableInCountry) { toast.error(t('products.notAvailableRegion', 'No disponible en tu zona')); return; }
+    if (isOutOfStock)           { toast.error(t('products.outOfStock', 'Agotado'));                          return; }
+    if (!productId)             { toast.error(t('errors.generic', 'No hemos podido completar la acción'));   return; }
 
-    if (isUnavailableInCountry) {
-      toast.error(t('products.notAvailableRegion', 'No disponible en tu zona'));
-      return;
-    }
-
-    if (isOutOfStock) {
-      toast.error(t('products.outOfStock', 'Agotado'));
-      return;
-    }
-
-    if (!productId) {
-      toast.error(t('errors.generic', 'No hemos podido completar la acción'));
-      return;
-    }
-
-    toast.loading(t('cart.adding', 'Añadiendo...'), { id: `add-to-cart-${productId}` });
     const success = await addToCart(productId, 1);
-
-    if (success) {
-      toast.success(t('success.added', 'Añadido al carrito'), { id: `add-to-cart-${productId}` });
-      return;
-    }
-
-    toast.error(t('errors.generic', 'No hemos podido completar la acción'), { id: `add-to-cart-${productId}` });
+    if (!success) toast.error(t('errors.generic', 'No hemos podido completar la acción'));
   };
 
-  const handleBuyNow = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (!user) {
-      handleAuthRequired(t('errors.loginRequired', 'Inicia sesión para comprar'));
-      return;
-    }
-
-    if (isOutOfStock) {
-      toast.error(t('products.outOfStock', 'Agotado'));
-      return;
-    }
-
-    if (!productId) {
-      toast.error(t('errors.generic', 'No hemos podido completar la acción'));
-      return;
-    }
-
-    toast.loading(t('cart.processing', 'Procesando...'), { id: `buy-now-${productId}` });
-    const success = await addToCart(productId, 1);
-
-    if (success) {
-      toast.dismiss(`buy-now-${productId}`);
-      window.location.href = '/cart';
-      return;
-    }
-
-    toast.error(t('errors.generic', 'No hemos podido completar la acción'), { id: `buy-now-${productId}` });
-  };
-
+  // ── Variante compacta (grid pequeño) ─────────────────────────────────────────
   if (variant === 'compact') {
     return (
       <Link
@@ -119,7 +100,7 @@ export default function ProductCard({ product, variant = 'default' }) {
         className="group relative overflow-hidden rounded-2xl border border-stone-100 bg-white p-3 shadow-sm transition-all duration-150 ease-out hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-sm"
         data-testid={`product-card-${productId}`}
       >
-        <div className={`relative aspect-square overflow-hidden rounded-xl bg-stone-100 ${isOutOfStock || isUnavailableInCountry ? 'opacity-60' : ''}`}>
+        <div className={`relative aspect-square overflow-hidden rounded-xl bg-stone-100 ${isBlocked ? 'opacity-60' : ''}`}>
           <ProductImage
             src={primaryImage}
             productName={product.name}
@@ -128,7 +109,7 @@ export default function ProductCard({ product, variant = 'default' }) {
             sizes="(max-width: 640px) 50vw, 20vw"
           />
 
-          {isFreeShipping && !isOutOfStock && !isUnavailableInCountry ? (
+          {isFreeShipping && !isBlocked ? (
             <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-semibold text-stone-950 shadow-sm">
               {t('products.freeShippingShort', 'Gratis')}
             </span>
@@ -147,16 +128,10 @@ export default function ProductCard({ product, variant = 'default' }) {
             </div>
           ) : null}
 
-          {!isOutOfStock && !isUnavailableInCountry ? (
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-stone-950 text-white shadow-sm transition-all active:scale-[0.99] md:opacity-0 md:group-hover:opacity-100"
-              data-testid={`quick-add-${productId}`}
-              aria-label={t('products.addToCart', 'Añadir al carrito')}
-            >
-              <Plus className="h-4 w-4" />
-            </button>
+          {!isBlocked ? (
+            <div className="absolute right-2 top-2 md:opacity-0 md:group-hover:opacity-100 md:transition-opacity">
+              <AddButton onAdd={handleAddToCart} isDisabled={false} testId={`quick-add-${productId}`} />
+            </div>
           ) : null}
 
           <div className="absolute bottom-2 right-2 rounded-full bg-white/95 px-2.5 py-1 text-sm font-semibold text-stone-950 shadow-sm backdrop-blur">
@@ -171,13 +146,15 @@ export default function ProductCard({ product, variant = 'default' }) {
     );
   }
 
+  // ── Variante default (grid principal) ────────────────────────────────────────
   return (
     <Link
       to={`/products/${productId}`}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-stone-100 bg-white p-4 shadow-sm transition-all duration-150 ease-out hover:-translate-y-[1px] hover:border-stone-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-950/15"
       data-testid={`product-card-${productId}`}
     >
-      <div className={`relative aspect-square overflow-hidden rounded-xl bg-stone-100 ${isOutOfStock || isUnavailableInCountry ? 'opacity-60' : ''}`}>
+      {/* Imagen */}
+      <div className={`relative aspect-square overflow-hidden rounded-xl bg-stone-100 ${isBlocked ? 'opacity-60' : ''}`}>
         <ProductImage
           src={primaryImage}
           productName={product.name}
@@ -213,32 +190,35 @@ export default function ProductCard({ product, variant = 'default' }) {
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col pt-4">
-        <h3 className="mb-2 line-clamp-2 text-sm font-medium leading-5 text-stone-900" data-testid="product-name">
+      {/* Info */}
+      <div className="flex flex-1 flex-col pt-3">
+        <h3 className="mb-1.5 line-clamp-2 text-[13px] font-medium leading-snug text-stone-900" data-testid="product-name">
           {product.name}
         </h3>
 
-        <div className="mb-3 flex items-center gap-1 text-xs text-stone-500" data-testid="trust-signals">
-          <Star className="h-3.5 w-3.5 fill-stone-500 stroke-stone-500" />
-          <span className="font-medium text-stone-700">
-            {hasRating ? Number(product.average_rating).toFixed(1) : '0.0'}
+        {/* Productor */}
+        {product.producer_name || product.store_name ? (
+          <p className="mb-1.5 truncate text-[12px] text-stone-500">
+            {product.producer_name || product.store_name}
+          </p>
+        ) : null}
+
+        {/* Rating */}
+        <div className="mb-auto flex items-center gap-1 text-[11px] text-stone-500" data-testid="trust-signals">
+          <Star className="h-3 w-3 fill-stone-400 stroke-stone-400" />
+          <span className="font-medium text-stone-600">
+            {hasRating ? Number(product.average_rating).toFixed(1) : '—'}
           </span>
           <span>({formatNumber(product.review_count || 0)})</span>
-          {(product.units_sold || product.total_sold) > 0 ? (
-            <>
-              <span className="text-stone-400">·</span>
-              <span>{formatNumber(product.units_sold || product.total_sold)} {t('products.sold', 'vendidos')}</span>
-            </>
-          ) : null}
         </div>
 
-        {product.certifications && product.certifications.length > 0 ? (
-          <div className="mb-3 flex flex-wrap gap-1.5" data-testid="product-certifications">
-            {product.certifications.slice(0, 3).map((cert, index) => (
+        {/* Certificaciones */}
+        {product.certifications?.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-1" data-testid="product-certifications">
+            {product.certifications.slice(0, 2).map((cert, i) => (
               <span
-                key={`${cert}-${index}`}
-                className="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-medium text-stone-600"
-                data-testid={`cert-badge-${cert}`}
+                key={`${cert}-${i}`}
+                className="rounded-full border border-stone-100 bg-stone-50 px-2 py-0.5 text-[10px] font-medium text-stone-500"
               >
                 {String(cert).toLowerCase()}
               </span>
@@ -246,45 +226,25 @@ export default function ProductCard({ product, variant = 'default' }) {
           </div>
         ) : null}
 
-        <div className="mt-auto">
-          <div className="mb-2 text-base font-semibold text-stone-950" data-testid="product-price">
-            {displayPrice}
-          </div>
-
-          {!isFreeShipping && shippingCost > 0 ? (
-            <div className="mb-3 flex items-center gap-1 text-[11px] text-stone-500">
-              <Truck className="h-3 w-3" />
-              <span>+{convertAndFormatPrice(shippingCost, baseCurrency)} {t('products.shipping', 'de envío')}</span>
+        {/* Precio + botón — zona de acción sin agresividad */}
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <div>
+            <div className="text-[16px] font-semibold leading-tight text-stone-950" data-testid="product-price">
+              {displayPrice}
             </div>
-          ) : null}
-
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className={`h-auto flex-1 rounded-full border border-stone-200 bg-white py-2.5 text-xs text-stone-700 transition-all duration-150 ease-out hover:bg-stone-50 active:scale-[0.99] ${
-                isOutOfStock ? 'cursor-not-allowed opacity-50' : ''
-              }`}
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              data-testid="add-to-cart-button"
-              aria-label={`${t('products.addShort', 'Añadir')} ${product.name}`}
-            >
-              {t('products.addShort', 'Añadir')}
-            </Button>
-            <Button
-              size="sm"
-              className={`h-auto flex-1 rounded-full bg-stone-950 py-2.5 text-xs text-white transition-all duration-150 ease-out hover:bg-stone-800 active:scale-[0.99] ${
-                isOutOfStock ? 'cursor-not-allowed opacity-50' : ''
-              }`}
-              onClick={handleBuyNow}
-              disabled={isOutOfStock}
-              data-testid="buy-now-button"
-              aria-label={`${t('products.buyNow', 'Comprar')} ${product.name}`}
-            >
-              {t('products.buyNow', 'Comprar')}
-            </Button>
+            {!isFreeShipping && shippingCost > 0 ? (
+              <div className="mt-0.5 flex items-center gap-1 text-[11px] text-stone-400">
+                <Truck className="h-2.5 w-2.5" />
+                <span>+{convertAndFormatPrice(shippingCost, baseCurrency)}</span>
+              </div>
+            ) : null}
           </div>
+
+          <AddButton
+            onAdd={handleAddToCart}
+            isDisabled={isBlocked}
+            testId={`add-to-cart-${productId}`}
+          />
         </div>
       </div>
     </Link>

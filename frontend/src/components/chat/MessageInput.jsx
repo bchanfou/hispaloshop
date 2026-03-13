@@ -21,7 +21,7 @@ export default function MessageInput({ onSend, onTyping }) {
         className="flex-1 border rounded-lg px-3 py-2"
         placeholder="Escribe un mensaje..."
       />
-      <button className="bg-emerald-600 text-white px-4 rounded-lg" type="submit">Enviar</button>
+      <button className="bg-stone-950 hover:bg-stone-800 text-white px-4 rounded-lg" type="submit">Enviar</button>
     </form>
   );
 }

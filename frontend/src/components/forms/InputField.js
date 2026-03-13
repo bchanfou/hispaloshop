@@ -36,15 +36,15 @@ const InputField = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-900 mb-1.5">
+        <label className="block text-sm font-medium text-stone-950 mb-1.5">
           {label}
-          {required && <span className="text-state-error ml-1">*</span>}
+          {required && <span className="text-stone-700 ml-1">*</span>}
         </label>
       )}
       
       <div className="relative">
         {Icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500">
             <Icon className="w-5 h-5" />
           </div>
         )}
@@ -64,7 +64,7 @@ const InputField = ({
           className={`w-full px-4 py-3 rounded-xl border-2 transition-all outline-none ${
             Icon ? 'pl-11' : ''
           } ${type === 'password' || rightElement ? 'pr-11' : ''} ${
-            disabled ? 'bg-gray-100 text-gray-500' : 'bg-white'
+            disabled ? 'bg-stone-100 text-stone-500' : 'bg-white'
           }`}
           style={{ borderColor: getBorderColor() }}
         />
@@ -74,7 +74,7 @@ const InputField = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-gray-900 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-950 transition-colors"
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
           </button>
@@ -82,14 +82,14 @@ const InputField = ({
 
         {/* Validation Icon */}
         {!error && valid && touched && type !== 'password' && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-state-success">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-700">
             <Check className="w-5 h-5" />
           </div>
         )}
 
         {/* Error Icon */}
         {error && touched && type !== 'password' && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-state-error">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-700">
             <X className="w-5 h-5" />
           </div>
         )}
@@ -97,7 +97,7 @@ const InputField = ({
         {/* Loading Spinner */}
         {loading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-stone-950 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -111,7 +111,7 @@ const InputField = ({
 
       {/* Hint or Error Message */}
       {(hint || (error && touched)) && (
-        <div className={`flex items-center gap-1 mt-1.5 text-xs ${error && touched ? 'text-state-error' : 'text-text-muted'}`}>
+        <div className={`flex items-center gap-1 mt-1.5 text-xs ${error && touched ? 'text-stone-700' : 'text-stone-500'}`}>
           {error && touched && <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />}
           <span>{error && touched ? error : hint}</span>
         </div>

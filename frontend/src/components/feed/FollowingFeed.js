@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle, Users } from 'lucide-react';
-import { Button } from '../ui/button';
 import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import FeedSkeleton from './FeedSkeleton';
@@ -13,27 +13,26 @@ function EmptyFollowing() {
   const navigate = useNavigate();
 
   return (
-    <div className="px-4 py-12">
-      <div className="mx-auto flex max-w-md flex-col items-center rounded-[28px] border border-stone-200 bg-white px-6 py-8 text-center">
-        <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-stone-100">
-          <Users className="h-9 w-9 text-stone-400" />
-        </div>
-        <h3 className="text-lg font-semibold text-stone-950">
-          {t('feed.following.empty.title', 'No sigues a nadie todavía')}
-        </h3>
-        <p className="mt-2 max-w-sm text-sm leading-6 text-stone-600">
-          {t(
-            'feed.following.empty.description',
-            'Sigue a productores, importadores e influencers para ver su contenido aquí.'
-          )}
-        </p>
-        <Button
-          onClick={() => navigate('/discover')}
-          className="mt-5 h-11 rounded-full bg-stone-950 px-6 text-white hover:bg-stone-800"
-        >
-          {t('feed.discoverUsers', 'Descubrir usuarios')}
-        </Button>
+    <div className="flex flex-col items-center px-6 py-16 text-center">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
+        <Users className="h-7 w-7 text-stone-400" />
       </div>
+      <p className="text-[15px] font-semibold text-stone-950">
+        {t('feed.following.empty.title', 'No sigues a nadie todavía')}
+      </p>
+      <p className="mt-1.5 max-w-[260px] text-[13px] leading-relaxed text-stone-400">
+        {t(
+          'feed.following.empty.description',
+          'Sigue a productores, importadores e influencers para ver su contenido aquí.'
+        )}
+      </p>
+      <button
+        type="button"
+        onClick={() => navigate('/discover')}
+        className="mt-5 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
+      >
+        {t('feed.discoverUsers', 'Descubrir usuarios')}
+      </button>
     </div>
   );
 }
@@ -105,22 +104,21 @@ function FollowingFeed() {
 
   if (error) {
     return (
-      <div className="px-4 py-12">
-        <div className="mx-auto flex max-w-md flex-col items-center rounded-[28px] border border-stone-200 bg-white px-6 py-8 text-center">
-          <AlertCircle className="mb-4 h-12 w-12 text-stone-400" />
-          <p className="text-base font-medium text-stone-950">
-            {t('feed.error', 'Error al cargar el feed')}
-          </p>
-          <p className="mt-2 text-sm text-stone-600">
-            {t('feed.errorDescription', 'No hemos podido cargar las publicaciones ahora mismo.')}
-          </p>
-          <Button
-            onClick={() => feedQuery.refetch()}
-            className="mt-5 h-11 rounded-full bg-stone-950 px-6 text-white hover:bg-stone-800"
-          >
-            {t('common.retry', 'Reintentar')}
-          </Button>
-        </div>
+      <div className="flex flex-col items-center px-6 py-16 text-center">
+        <AlertCircle className="mb-3 h-8 w-8 text-stone-300" />
+        <p className="text-[14px] font-medium text-stone-700">
+          {t('feed.error', 'Error al cargar el feed')}
+        </p>
+        <p className="mt-1 text-[13px] text-stone-400">
+          {t('feed.errorDescription', 'No hemos podido cargar las publicaciones ahora mismo.')}
+        </p>
+        <button
+          type="button"
+          onClick={() => feedQuery.refetch()}
+          className="mt-5 rounded-full bg-stone-950 px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 active:scale-95"
+        >
+          {t('common.retry', 'Reintentar')}
+        </button>
       </div>
     );
   }
@@ -130,7 +128,11 @@ function FollowingFeed() {
   }
 
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25 }}
+    >
       {isLoading && allPosts.length === 0 ? (
         <FeedSkeleton count={3} />
       ) : (
@@ -138,10 +140,18 @@ function FollowingFeed() {
           {allPosts.map((post, index) => {
             const isLast = index === allPosts.length - 1;
             const isReel = post.video_url || post.type === 'reel';
+            // Primeros 5 posts: stagger 50ms/item. El resto: sin delay (scroll infinito)
+            const animDelay = index < 5 ? index * 0.05 : 0;
 
             if (isReel) {
               return (
-                <div ref={isLast ? lastPostRef : null} key={post.id}>
+                <motion.div
+                  ref={isLast ? lastPostRef : null}
+                  key={post.id}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay }}
+                >
                   <ReelCard
                     reel={{
                       id: post.id,
@@ -163,13 +173,20 @@ function FollowingFeed() {
                     onLike={() => handleLike(post.id)}
                     onComment={() => handleComment(post.id)}
                     onShare={() => handleShare(post.id)}
+                    priority={index < 2}
                   />
-                </div>
+                </motion.div>
               );
             }
 
             return (
-              <div ref={isLast ? lastPostRef : null} key={post.id}>
+              <motion.div
+                ref={isLast ? lastPostRef : null}
+                key={post.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay }}
+              >
                 <PostCard
                   post={{
                     id: post.id,
@@ -178,6 +195,7 @@ function FollowingFeed() {
                       name: post.user_name,
                       avatar: post.user_profile_image,
                       verified: post.user_verified,
+                      has_story: post.user_has_story,
                     },
                     media: post.media || [{ url: post.image_url, ratio: '1:1' }],
                     caption: post.caption,
@@ -190,15 +208,16 @@ function FollowingFeed() {
                   onLike={() => handleLike(post.id)}
                   onComment={() => handleComment(post.id)}
                   onShare={() => handleShare(post.id)}
+                  priority={index < 2}
                 />
-              </div>
+              </motion.div>
             );
           })}
 
           {feedQuery.isFetchingNextPage ? <FeedSkeleton count={2} /> : null}
         </>
       )}
-    </div>
+    </motion.div>
   );
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-function AreaChart({ data, labels, height = 160, color = '#2D5A3D', fillColor = '#2D5A3D20' }) {
+function AreaChart({ data, labels, height = 160, color = '#1c1917', fillColor = '#1c191720' }) {
   const maxValue = Math.max(...data);
   const minValue = Math.min(...data);
   const range = maxValue - minValue || 1;
@@ -68,7 +68,7 @@ function AreaChart({ data, labels, height = 160, color = '#2D5A3D', fillColor = 
       {/* Labels */}
       <div className="flex justify-between mt-2 px-1">
         {labels.map((label, index) => (
-          <span key={index} className="text-xs text-text-muted">{label}</span>
+          <span key={index} className="text-xs text-stone-500">{label}</span>
         ))}
       </div>
     </div>

@@ -4,8 +4,8 @@ import { useInquiries, useReceivedRFQs } from '../../features/b2b/queries';
 import { useAuth } from '../../context/AuthContext';
 
 const STATUS_CONFIG = {
-  pending: { label: 'Pendiente', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  answered: { label: 'Respondida', color: 'bg-green-100 text-green-700', icon: CheckCircle },
+  pending: { label: 'Pendiente', color: 'bg-stone-100 text-stone-700', icon: Clock },
+  answered: { label: 'Respondida', color: 'bg-stone-950 text-white', icon: CheckCircle },
   closed: { label: 'Cerrada', color: 'bg-stone-100 text-stone-500', icon: XCircle },
 };
 

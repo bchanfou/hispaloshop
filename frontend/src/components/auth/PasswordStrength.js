@@ -14,7 +14,7 @@ const PasswordStrength = ({ password }) => {
   if (!password) return null;
 
   const strengthLabel = strength <= 2 ? 'Débil' : strength === 3 ? 'Media' : 'Fuerte';
-  const strengthTone = strength <= 2 ? 'text-red-600' : strength === 3 ? 'text-stone-700' : 'text-stone-950';
+  const strengthTone = strength <= 2 ? 'text-stone-600' : strength === 3 ? 'text-stone-700' : 'text-stone-950';
   const Indicator = strength <= 2 ? AlertTriangle : Shield;
 
   const requirements = [

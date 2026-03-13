@@ -53,10 +53,10 @@ export default function SuperAdminLayoutResponsive() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-text-muted">Cargando...</p>
+          <div className="w-10 h-10 border-2 border-stone-950 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-stone-500">Cargando...</p>
         </div>
       </div>
     );
@@ -65,15 +65,15 @@ export default function SuperAdminLayoutResponsive() {
   // Access denied
   if (!user || user.role !== 'super_admin') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-8 h-8 text-red-500" />
+          <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-8 h-8 text-stone-700" />
           </div>
-          <h1 className="font-heading text-xl font-semibold text-text-primary mb-2">
+          <h1 className="text-xl font-semibold text-stone-950 mb-2">
             {t('common.accessDenied', 'Acceso Denegado')}
           </h1>
-          <p className="text-text-muted mb-4">{t('superAdmin.onlySuperAdmin', 'Solo Super Admins pueden acceder')}</p>
+          <p className="text-stone-500 mb-4">{t('superAdmin.onlySuperAdmin', 'Solo Super Admins pueden acceder')}</p>
           <button
             onClick={() => navigate('/')}
             className="text-stone-950 hover:underline font-medium"
@@ -86,21 +86,21 @@ export default function SuperAdminLayoutResponsive() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <GlobalSearch />
       {/* ===== MOBILE HEADER ===== */}
       <header className="mobile-header md:hidden">
         <button 
           onClick={() => navigate('/')}
-          className="p-2 -ml-2 text-text-muted hover:text-text-primary transition-colors"
+          className="p-2 -ml-2 text-stone-500 hover:text-stone-950 transition-colors"
           data-testid="mobile-back-button"
         >
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
         
         <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-red-500" />
-          <h1 className="font-heading text-base font-semibold text-text-primary">
+          <Shield className="w-4 h-4 text-stone-700" />
+          <h1 className="text-base font-semibold text-stone-950">
             Super Admin
           </h1>
         </div>
@@ -111,11 +111,11 @@ export default function SuperAdminLayoutResponsive() {
       {/* ===== DESKTOP SIDEBAR ===== */}
       <aside className="hidden md:flex desktop-sidebar">
         {/* Header */}
-        <div className="p-5 border-b border-border-default">
+        <div className="p-5 border-b border-stone-200">
           <div className="flex items-center justify-between mb-4">
             <button 
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm"
+              className="flex items-center gap-2 text-stone-500 hover:text-stone-950 transition-colors text-sm"
               data-testid="desktop-back-button"
             >
               <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
@@ -124,14 +124,14 @@ export default function SuperAdminLayoutResponsive() {
             <LanguageSwitcher variant="minimal" />
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-              <Shield className="w-5 h-5 text-red-600" />
+            <div className="w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center">
+              <Shield className="w-5 h-5 text-stone-700" />
             </div>
             <div>
-              <h1 className="font-heading text-lg font-semibold text-text-primary tracking-editorial">
+              <h1 className="text-lg font-semibold text-stone-950 tracking-editorial">
                 {t('superAdmin.title', 'Super Admin')}
               </h1>
-              <p className="text-xs text-text-muted">{user.email}</p>
+              <p className="text-xs text-stone-500">{user.email}</p>
             </div>
           </div>
         </div>
@@ -144,10 +144,10 @@ export default function SuperAdminLayoutResponsive() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm ${
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
                   isActive
                     ? 'bg-stone-100 text-stone-950 font-medium border border-stone-200'
-                    : 'text-text-secondary hover:bg-stone-100'
+                    : 'text-stone-600 hover:bg-stone-100'
                 }`
               }
               data-testid={`desktop-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
@@ -159,10 +159,10 @@ export default function SuperAdminLayoutResponsive() {
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t border-border-default">
+        <div className="p-4 border-t border-stone-200">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-red-600 hover:bg-red-50 w-full transition-all"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-stone-700 hover:bg-stone-100 w-full transition-all"
             data-testid="desktop-logout-button"
           >
             <LogOut className="w-5 h-5" strokeWidth={1.5} />
@@ -230,15 +230,15 @@ export default function SuperAdminLayoutResponsive() {
               to={item.to}
               onClick={() => setMoreMenuOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-4 p-4 rounded-lg transition-colors ${
+                `flex items-center gap-4 p-4 rounded-xl transition-colors ${
                   isActive ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-100'
                 }`
               }
             >
-              <div className="w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
                 <item.icon className="w-5 h-5" strokeWidth={1.5} />
               </div>
-              <p className="font-medium text-text-primary">{item.label}</p>
+              <p className="font-medium text-stone-950">{item.label}</p>
             </NavLink>
           ))}
           
@@ -248,12 +248,12 @@ export default function SuperAdminLayoutResponsive() {
               setMoreMenuOpen(false);
               handleLogout();
             }}
-            className="flex items-center gap-4 p-4 rounded-lg hover:bg-red-50 w-full text-left"
+            className="flex items-center gap-4 p-4 rounded-xl hover:bg-stone-100 w-full text-left"
           >
-            <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
-              <LogOut className="w-5 h-5 text-red-600" strokeWidth={1.5} />
+            <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
+              <LogOut className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
             </div>
-            <p className="font-medium text-red-600">Cerrar sesión</p>
+            <p className="font-medium text-stone-700">Cerrar sesión</p>
           </button>
         </div>
       </BottomSheet>

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowRight,
   Baby,
   ChefHat,
   Compass,
@@ -27,8 +26,6 @@ import {
   WheatOff,
   Zap,
 } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
 import {
   Sheet,
   SheetContent,
@@ -90,19 +87,18 @@ const formatCount = (value) => new Intl.NumberFormat('es-ES').format(Number(valu
 function SectionHeader({ title, actionLabel, onAction }) {
   return (
     <div className="mb-4 flex items-center justify-between gap-4">
-      <div>
-        <h2 className="font-body text-lg font-semibold text-stone-950">{title}</h2>
-      </div>
+      <h2 className="text-[15px] font-semibold text-stone-950">{title}</h2>
       {actionLabel && onAction ? (
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
+          type="button"
           onClick={onAction}
-          className="h-9 rounded-full px-3 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-950"
+          className="flex items-center gap-1 text-[13px] font-medium text-stone-500 transition-colors hover:text-stone-950 active:opacity-60"
         >
           {actionLabel}
-          <ArrowRight className="h-4 w-4" />
-        </Button>
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
+        </button>
       ) : null}
     </div>
   );
@@ -191,35 +187,23 @@ export default function DiscoverPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 pb-28 md:pb-32">
-      <div className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/95 backdrop-blur-xl">
-        <div className="mx-auto max-w-5xl px-4 py-4">
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div className="max-w-xl">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                Explorar
-              </p>
-              <h1 className="font-body text-2xl font-semibold tracking-tight text-stone-950">
-                Productores honestos, productos claros
-              </h1>
-              <p className="mt-1 text-sm text-stone-600">
-                Encuentra alimentos reales, tiendas con identidad y recetas para usarlos bien.
-              </p>
-            </div>
-          </div>
+      <div className="sticky top-0 z-40 border-b border-stone-100 bg-white/95 backdrop-blur-xl">
+        <div className="mx-auto max-w-5xl px-4 pt-3 pb-2">
 
+          {/* Barra de búsqueda */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
+            <Search className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-stone-400" />
             <input
               type="text"
-              placeholder="¿Qué buscas hoy?"
+              placeholder="Productores, recetas, tiendas…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-              className="h-12 w-full rounded-full border border-stone-200 bg-stone-50 pl-12 pr-14 text-[15px] text-stone-950 placeholder:text-stone-500 focus:border-stone-950 focus:ring-2 focus:ring-stone-950/10"
+              className="h-11 w-full rounded-2xl border-0 bg-stone-100 pl-11 pr-12 text-[15px] text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-950/10"
             />
             <button
               onClick={() => setShowFilters(true)}
-              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 transition-colors hover:border-stone-900 hover:text-stone-950"
+              className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-xl text-stone-500 transition-colors hover:bg-stone-200 hover:text-stone-950"
               aria-label="Abrir filtros"
             >
               <SlidersHorizontal className="h-4 w-4" />
@@ -227,80 +211,59 @@ export default function DiscoverPage() {
           </div>
         </div>
 
-        <div className="border-t border-stone-100">
-          <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
-            {MAIN_SECTIONS.map((section) => {
-              const Icon = section.icon;
-              const isActive = activeTab === section.id;
-
-              return (
-                <button
-                  key={section.id}
-                  onClick={() => handleSectionClick(section.id)}
-                  className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'border-stone-950 bg-stone-950 text-white'
-                      : 'border-stone-200 bg-white text-stone-700 hover:border-stone-400 hover:text-stone-950'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {section.label}
-                </button>
-              );
-            })}
-          </div>
+        {/* Section pills */}
+        <div className="flex gap-2 overflow-x-auto px-4 pb-3 pt-1 scrollbar-hide">
+          {MAIN_SECTIONS.map((section) => {
+            const Icon = section.icon;
+            const isActive = activeTab === section.id;
+            return (
+              <button
+                key={section.id}
+                onClick={() => handleSectionClick(section.id)}
+                className={`flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-medium transition-colors ${
+                  isActive
+                    ? 'border-stone-950 bg-stone-950 text-white'
+                    : 'border-stone-200 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-950'
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {section.label}
+              </button>
+            );
+          })}
         </div>
+      </div>
 
-        <div className="border-t border-stone-100 bg-stone-50">
-          <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
+      <div className="mx-auto max-w-5xl px-4 py-5">
+
+        {/* ── Categorías — grid 4 columnas, siempre visible ── */}
+        <section className="mb-7">
+          <div className="grid grid-cols-4 gap-2.5">
             {CATEGORIES_MINI.map((category) => {
               const Icon = category.icon;
-
               return (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryClick(category.id)}
-                  className="flex shrink-0 items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-700 ring-1 ring-stone-200 transition-colors hover:bg-stone-100 hover:text-stone-950"
+                  className="flex flex-col items-center gap-1.5 rounded-2xl border border-stone-100 bg-white py-3 px-1 transition-colors active:bg-stone-50 hover:border-stone-200"
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  {category.label}
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100">
+                    <Icon className="h-[18px] w-[18px] text-stone-700" />
+                  </div>
+                  <span className="line-clamp-2 text-center text-[10px] font-medium leading-tight text-stone-600">
+                    {category.label}
+                  </span>
                 </button>
               );
             })}
           </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <Card className="mb-6 overflow-hidden rounded-[28px] border-stone-200 bg-white shadow-[0_10px_30px_rgba(15,15,15,0.06)]">
-          <CardContent className="p-5 sm:p-6">
-            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-              <div className="max-w-2xl">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                  Selección editorial
-                </p>
-                <h2 className="font-body text-xl font-semibold text-stone-950">
-                  Una selección clara para comprar mejor hoy
-                </h2>
-                <p className="mt-2 text-sm text-stone-600">
-                  Productos con buena trazabilidad, productores pequeños y categorías útiles para el día a día.
-                </p>
-              </div>
-              <Button
-                onClick={() => navigate('/products')}
-                className="h-11 rounded-full bg-stone-950 px-6 text-sm font-medium text-white hover:bg-stone-800"
-              >
-                Ver catálogo
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        </section>
 
         {trendingHashtags.length > 0 && (
           <section className="mb-8">
             <div className="mb-4 flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-stone-950" />
-              <h2 className="font-body text-lg font-semibold text-stone-950">Tendencias</h2>
+              <h2 className="text-lg font-semibold text-stone-950">Tendencias</h2>
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               {trendingHashtags.map((item, index) => (
@@ -382,15 +345,15 @@ export default function DiscoverPage() {
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <Card className="rounded-[24px] border-dashed border-stone-300 bg-white">
-                <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+              <div className="rounded-[24px] border border-dashed border-stone-300 bg-white">
+                <div className="flex flex-col items-center gap-3 p-8 text-center">
                   <Package className="h-10 w-10 text-stone-300" />
                   <div>
                     <p className="text-base font-medium text-stone-950">Todavía no hay productos visibles</p>
                     <p className="text-sm text-stone-600">Vuelve dentro de poco. En cuanto entren nuevos productos aparecerán aquí.</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {products.slice(0, 4).map((product) => (
@@ -445,15 +408,15 @@ export default function DiscoverPage() {
                 ))}
               </div>
             ) : stores.length === 0 ? (
-              <Card className="rounded-[24px] border-dashed border-stone-300 bg-white">
-                <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+              <div className="rounded-[24px] border border-dashed border-stone-300 bg-white">
+                <div className="flex flex-col items-center gap-3 p-8 text-center">
                   <Store className="h-10 w-10 text-stone-300" />
                   <div>
                     <p className="text-base font-medium text-stone-950">Todavía no hay tiendas destacadas</p>
                     <p className="text-sm text-stone-600">Cuando entren nuevos productores activos los verás aquí.</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : (
               <div className="grid gap-3 md:grid-cols-3">
                 {stores.slice(0, 3).map((store) => (
@@ -567,15 +530,15 @@ export default function DiscoverPage() {
                 ))}
               </div>
             ) : recipes.length === 0 ? (
-              <Card className="rounded-[24px] border-dashed border-stone-300 bg-white">
-                <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+              <div className="rounded-[24px] border border-dashed border-stone-300 bg-white">
+                <div className="flex flex-col items-center gap-3 p-8 text-center">
                   <Package className="h-10 w-10 text-stone-300" />
                   <div>
                     <p className="text-base font-medium text-stone-950">Todavía no hay recetas disponibles</p>
                     <p className="text-sm text-stone-600">Vuelve dentro de poco. Las recetas aparecerán aquí en cuanto estén listas.</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : (
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-3 md:overflow-visible">
                 {recipes.map((recipe) => (
@@ -607,7 +570,7 @@ export default function DiscoverPage() {
       <Sheet open={showFilters} onOpenChange={setShowFilters}>
         <SheetContent side="bottom" className="rounded-t-[28px] border-stone-200 bg-white px-0 pb-8">
           <SheetHeader className="px-6 text-left">
-            <SheetTitle className="font-body text-xl font-semibold text-stone-950">
+            <SheetTitle className="text-xl font-semibold text-stone-950">
               Ajusta tu exploración
             </SheetTitle>
             <SheetDescription className="text-sm text-stone-600">
@@ -646,12 +609,13 @@ export default function DiscoverPage() {
               </div>
             </div>
 
-            <Button
+            <button
+              type="button"
               disabled
-              className="h-12 w-full rounded-full bg-stone-200 text-stone-500 hover:bg-stone-200"
+              className="h-12 w-full cursor-not-allowed rounded-full bg-stone-100 text-[14px] font-medium text-stone-400"
             >
               Filtros próximamente
-            </Button>
+            </button>
           </div>
         </SheetContent>
       </Sheet>

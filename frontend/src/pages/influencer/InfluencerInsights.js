@@ -52,7 +52,7 @@ export default function InfluencerInsights() {
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="font-body text-xl font-semibold text-stone-950">Mis Insights</h1>
+              <h1 className="text-xl font-semibold text-stone-950">Mis Insights</h1>
               <p className="text-sm text-stone-500">Impacto comercial de tu contenido</p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export default function InfluencerInsights() {
 
         {/* Top products driven */}
         <div>
-          <h2 className="mb-4 font-body text-base font-semibold text-stone-950">
+          <h2 className="mb-4 text-base font-semibold text-stone-950">
             Productos más impulsados por tu contenido
           </h2>
 

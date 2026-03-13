@@ -5,7 +5,6 @@ import Header from '../Header';
 import Footer from '../Footer';
 import BackButton from '../BackButton';
 import SEO from '../SEO';
-import { Button } from '../ui/button';
 
 export default function CompanyInfoPageLayout({
   title,
@@ -25,7 +24,7 @@ export default function CompanyInfoPageLayout({
         <BackButton />
         <section className="mt-3 rounded-[28px] border border-stone-200 bg-white p-6 md:p-10 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">{eyebrow}</p>
-          <h1 className="mt-3 font-heading text-3xl md:text-4xl font-semibold text-primary">
+          <h1 className="mt-3 text-3xl md:text-4xl font-semibold text-stone-950">
             {title}
           </h1>
           <p className="mt-4 max-w-3xl text-sm md:text-base leading-7 text-stone-600">
@@ -35,17 +34,17 @@ export default function CompanyInfoPageLayout({
           <div className="mt-8 flex flex-wrap gap-3">
             {primaryCta ? (
               <Link to={primaryCta.to}>
-                <Button className="h-11 rounded-full bg-primary px-6 text-white hover:bg-primary-hover">
+                <button className="h-11 rounded-full bg-stone-950 hover:bg-stone-800 px-6 text-white transition-colors inline-flex items-center">
                   {primaryCta.label}
                   <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                </button>
               </Link>
             ) : null}
             {secondaryCta ? (
               <Link to={secondaryCta.to}>
-                <Button variant="outline" className="h-11 rounded-full px-6">
+                <button className="h-11 rounded-full border border-stone-200 text-stone-600 hover:bg-stone-50 px-6 transition-colors">
                   {secondaryCta.label}
-                </Button>
+                </button>
               </Link>
             ) : null}
           </div>
@@ -57,7 +56,7 @@ export default function CompanyInfoPageLayout({
               key={section.title}
               className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm"
             >
-              <h2 className="font-heading text-xl font-semibold text-primary">{section.title}</h2>
+              <h2 className="text-xl font-semibold text-stone-950">{section.title}</h2>
               <p className="mt-3 text-sm leading-7 text-stone-600">{section.body}</p>
             </article>
           ))}

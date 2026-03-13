@@ -88,44 +88,44 @@ export function PostCard({ post }) {
     <div className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
       {/* Header */}
       <div className="p-4 flex items-center gap-3">
-        <img 
-          src={post.author_avatar || '/default-avatar.png'} 
+        <img
+          src={post.author_avatar || '/default-avatar.png'}
           alt={post.author_name}
           className="w-10 h-10 rounded-full object-cover"
         />
         <div className="flex-1 min-w-0">
-          <Link 
+          <Link
             to={`/profile/${post.author_id}`}
             className="font-semibold hover:underline truncate block"
           >
             {post.author_name}
           </Link>
-          <p className="text-xs text-gray-500 capitalize">{post.author_type}</p>
+          <p className="text-xs text-stone-500 capitalize">{post.author_type}</p>
         </div>
         {post.score_reason && (
-          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+          <span className="text-xs bg-stone-100 text-stone-700 px-2 py-1 rounded-full">
             {post.score_reason}
           </span>
         )}
       </div>
 
       {/* Media */}
-      <div className="relative bg-gray-100">
+      <div className="relative bg-stone-100">
         {media?.type === 'video' ? (
-          <video 
-            src={media.url} 
+          <video
+            src={media.url}
             poster={media.thumbnail_url}
             className="w-full aspect-square object-cover"
             controls
           />
         ) : (
-          <img 
+          <img
             src={media?.url || '/placeholder-post.png'}
             alt="Post"
             className="w-full aspect-square object-cover"
           />
         )}
-        
+
         {/* Tags de productos */}
         {post.tagged_products?.map((tp, idx) => (
           tp.position && (
@@ -135,7 +135,7 @@ export function PostCard({ post }) {
               className="absolute w-8 h-8 bg-white/90 backdrop-blur rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition z-10"
               style={{ left: `${tp.position.x}%`, top: `${tp.position.y}%`, transform: 'translate(-50%, -50%)' }}
             >
-              <ShoppingBag className="w-4 h-4 text-purple-600" />
+              <ShoppingBag className="w-4 h-4 text-stone-700" />
             </button>
           )
         ))}
@@ -143,30 +143,30 @@ export function PostCard({ post }) {
 
       {/* Acciones */}
       <div className="p-4 flex items-center gap-4">
-        <button 
+        <button
           onClick={handleLike}
           disabled={likeMutation.isLoading}
-          className={`flex items-center gap-1 transition ${localLiked ? 'text-red-500' : 'text-gray-700 hover:text-red-500'}`}
+          className={`flex items-center gap-1 transition ${localLiked ? 'text-stone-950' : 'text-stone-700 hover:text-stone-950'}`}
         >
           <Heart className={`w-6 h-6 ${localLiked ? 'fill-current' : ''}`} />
           <span className="font-medium">{localLikesCount}</span>
         </button>
-        
-        <Link 
-          to={`/posts/${post.id || post._id}`} 
-          className="flex items-center gap-1 text-gray-700 hover:text-blue-500 transition"
+
+        <Link
+          to={`/posts/${post.id || post._id}`}
+          className="flex items-center gap-1 text-stone-700 hover:text-stone-950 transition"
         >
           <MessageCircle className="w-6 h-6" />
           <span className="font-medium">{post.comments_count || 0}</span>
         </Link>
-        
-        <button onClick={handleShare} className="flex items-center gap-1 text-gray-700 hover:text-green-500 transition" aria-label="Compartir publicacion">
+
+        <button onClick={handleShare} className="flex items-center gap-1 text-stone-700 hover:text-stone-950 transition" aria-label="Compartir publicacion">
           <Share2 className="w-6 h-6" />
         </button>
-        
-        <button 
+
+        <button
           onClick={() => saveMutation.mutate()}
-          className={`ml-auto transition ${localSaved ? 'text-yellow-500' : 'text-gray-700 hover:text-yellow-500'}`}
+          className={`ml-auto transition ${localSaved ? 'text-stone-950' : 'text-stone-700 hover:text-stone-950'}`}
         >
           <Bookmark className={`w-6 h-6 ${localSaved ? 'fill-current' : ''}`} />
         </button>
@@ -181,7 +181,7 @@ export function PostCard({ post }) {
           {post.content}
         </p>
         {post.hashtags?.length > 0 && (
-          <p className="text-sm text-purple-600 mt-2">
+          <p className="text-sm text-stone-500 mt-2">
             {post.hashtags.map(h => `#${h}`).join(' ')}
           </p>
         )}
@@ -190,52 +190,52 @@ export function PostCard({ post }) {
       {/* Productos taggeados */}
       {hasProducts && (
         <div className="px-4 pb-4">
-          <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">
+          <p className="text-xs font-semibold text-stone-500 mb-2 uppercase tracking-wide">
             Productos en este post
           </p>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {post.tagged_products.map((tp) => (
               <div key={tp.product_id} className="flex-shrink-0 w-36 relative">
-                <div 
+                <div
                   className="border rounded-lg overflow-hidden bg-white cursor-pointer hover:shadow-md transition"
                   onClick={() => setShowQuickBuy(showQuickBuy === tp.product_id ? null : tp.product_id)}
                 >
                   <div className="relative">
-                    <img 
-                      src={tp.product_image || '/placeholder-product.png'} 
+                    <img
+                      src={tp.product_image || '/placeholder-product.png'}
                       alt={tp.product_name}
                       className="w-full h-28 object-cover"
                     />
                     {tp.affiliate_code && (
-                      <span className="absolute top-1 right-1 bg-purple-600 text-white text-[10px] px-1.5 py-0.5 rounded">
+                      <span className="absolute top-1 right-1 bg-stone-950 text-white text-[10px] px-1.5 py-0.5 rounded">
                         Afiliado
                       </span>
                     )}
                   </div>
                   <div className="p-2">
                     <p className="text-xs font-medium truncate">{tp.product_name}</p>
-                    <p className="text-base font-bold text-purple-700">
+                    <p className="text-base font-bold text-stone-950">
                       €{(tp.product_price_cents / 100).toFixed(2)}
                     </p>
                   </div>
                 </div>
-                
+
                 {/* Quick Buy Popover */}
                 {showQuickBuy === tp.product_id && (
                   <div className="absolute z-50 bottom-full left-0 mb-2 w-40 bg-white rounded-lg shadow-xl border p-3">
                     <p className="text-xs font-medium mb-2 truncate">{tp.product_name}</p>
                     {tp.caption && (
-                      <p className="text-xs text-gray-500 mb-2 italic">"{tp.caption}"</p>
+                      <p className="text-xs text-stone-500 mb-2 italic">"{tp.caption}"</p>
                     )}
                     <button
                       onClick={() => handleQuickBuy(tp)}
-                      className="w-full bg-purple-600 text-white text-xs py-2 rounded-lg hover:bg-purple-700 transition"
+                      className="w-full bg-stone-950 text-white text-xs py-2 rounded-lg hover:bg-stone-800 transition"
                     >
                       Comprar Ahora
                     </button>
                     <button
                       onClick={() => setShowQuickBuy(null)}
-                      className="w-full mt-1 text-gray-500 text-xs py-1 hover:text-gray-700"
+                      className="w-full mt-1 text-stone-500 text-xs py-1 hover:text-stone-700"
                     >
                       Cerrar
                     </button>

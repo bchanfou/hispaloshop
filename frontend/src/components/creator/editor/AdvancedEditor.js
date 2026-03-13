@@ -308,7 +308,7 @@ function ComposeStage({
                   </>
                 ) : null}
               </div>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900">
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-2 text-xs font-medium text-stone-900">
                 <Circle className="h-2.5 w-2.5 fill-current" />
                 {isPublishing ? `Subiendo ${publishProgress}%` : 'Guardado'}
               </div>

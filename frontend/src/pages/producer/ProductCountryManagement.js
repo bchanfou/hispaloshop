@@ -5,7 +5,6 @@ import {
   Globe, Save, ArrowLeft, Loader2, Plus, Trash2,
   Package, Clock, CheckCircle, AlertTriangle, Warehouse
 } from 'lucide-react';
-import { Button } from '../../components/ui/button';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
 
@@ -32,14 +31,14 @@ function MarketRow({ market, onChange, onRemove }) {
   const isValid = market.active ? (market.stock > 0 && market.delivery_sla_hours <= 48 && market.price > 0) : true;
 
   return (
-    <div className={`bg-white rounded-xl border p-4 transition-all ${market.active ? (isValid ? 'border-emerald-200 bg-emerald-50/30' : 'border-red-200 bg-red-50/30') : 'border-stone-200'}`}
+    <div className={`bg-white rounded-xl border p-4 transition-all ${market.active ? (isValid ? 'border-stone-400 bg-stone-50' : 'border-stone-300 bg-stone-50') : 'border-stone-200'}`}
       data-testid={`market-${market.country_code}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
-          <span className="text-lg font-bold text-text-primary">{market.country_code}</span>
-          <span className="text-sm text-text-secondary">{country.name}</span>
-          {market.active && isValid && <CheckCircle className="w-4 h-4 text-emerald-500" />}
-          {market.active && !isValid && <AlertTriangle className="w-4 h-4 text-red-500" />}
+          <span className="text-lg font-bold text-stone-950">{market.country_code}</span>
+          <span className="text-sm text-stone-600">{country.name}</span>
+          {market.active && isValid && <CheckCircle className="w-4 h-4 text-stone-950" />}
+          {market.active && !isValid && <AlertTriangle className="w-4 h-4 text-stone-500" />}
         </div>
         <div className="flex items-center gap-2">
           <label className="flex items-center gap-2 cursor-pointer">
@@ -47,14 +46,14 @@ function MarketRow({ market, onChange, onRemove }) {
               type="checkbox"
               checked={market.active}
               onChange={(e) => onChange({ ...market, active: e.target.checked })}
-              className="w-4 h-4 accent-emerald-600"
+              className="w-4 h-4 accent-stone-950"
               data-testid={`toggle-${market.country_code}`}
             />
-            <span className="text-xs font-medium text-text-secondary">
+            <span className="text-xs font-medium text-stone-600">
               {market.active ? 'Activo' : 'Inactivo'}
             </span>
           </label>
-          <button onClick={onRemove} className="p-1 hover:bg-red-50 rounded text-red-400 hover:text-red-600" data-testid={`remove-${market.country_code}`}>
+          <button onClick={onRemove} className="p-1 hover:bg-stone-50 rounded text-stone-400 hover:text-stone-600" data-testid={`remove-${market.country_code}`}>
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -63,50 +62,50 @@ function MarketRow({ market, onChange, onRemove }) {
       {market.active && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
-            <label className="text-[11px] text-text-muted uppercase tracking-wider block mb-1">Precio ({country.currency})</label>
+            <label className="text-[11px] text-stone-500 uppercase tracking-wider block mb-1">Precio ({country.currency})</label>
             <input
               type="number"
               step="0.01"
               min="0"
               value={market.price || ''}
               onChange={(e) => onChange({ ...market, price: parseFloat(e.target.value) || 0 })}
-              className="w-full text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-emerald-500 focus:outline-none"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
               placeholder="0.00"
               data-testid={`price-${market.country_code}`}
             />
           </div>
           <div>
-            <label className="text-[11px] text-text-muted uppercase tracking-wider block mb-1">Stock</label>
+            <label className="text-[11px] text-stone-500 uppercase tracking-wider block mb-1">Stock</label>
             <input
               type="number"
               min="0"
               value={market.stock || ''}
               onChange={(e) => onChange({ ...market, stock: parseInt(e.target.value) || 0 })}
-              className="w-full text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-emerald-500 focus:outline-none"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
               placeholder="0"
               data-testid={`stock-${market.country_code}`}
             />
           </div>
           <div>
-            <label className="text-[11px] text-text-muted uppercase tracking-wider block mb-1">SLA entrega (h)</label>
+            <label className="text-[11px] text-stone-500 uppercase tracking-wider block mb-1">SLA entrega (h)</label>
             <input
               type="number"
               min="1"
               max="48"
               value={market.delivery_sla_hours || ''}
               onChange={(e) => onChange({ ...market, delivery_sla_hours: Math.min(48, parseInt(e.target.value) || 48) })}
-              className="w-full text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-emerald-500 focus:outline-none"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
               placeholder="48"
               data-testid={`sla-${market.country_code}`}
             />
           </div>
           <div>
-            <label className="text-[11px] text-text-muted uppercase tracking-wider block mb-1">Almacen</label>
+            <label className="text-[11px] text-stone-500 uppercase tracking-wider block mb-1">Almacen</label>
             <input
               type="text"
               value={market.warehouse_id || ''}
               onChange={(e) => onChange({ ...market, warehouse_id: e.target.value })}
-              className="w-full text-sm border border-stone-200 rounded-lg px-3 py-2 focus:border-emerald-500 focus:outline-none"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
               placeholder="wh_..."
             />
           </div>
@@ -114,7 +113,7 @@ function MarketRow({ market, onChange, onRemove }) {
       )}
 
       {market.active && !isValid && (
-        <div className="mt-2 text-xs text-red-600 flex items-center gap-1">
+        <div className="mt-2 text-xs text-stone-500 flex items-center gap-1">
           <AlertTriangle className="w-3 h-3" />
           {market.stock <= 0 && 'Stock debe ser > 0. '}
           {market.delivery_sla_hours > 48 && 'SLA max 48h. '}
@@ -194,31 +193,31 @@ export default function ProductCountryManagement() {
   const usedCodes = new Set(markets.map(m => m.country_code));
   const availableCodes = Object.keys(COUNTRIES).filter(c => !usedCodes.has(c));
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-text-muted" /></div>;
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-stone-500" /></div>;
 
   return (
     <div className="space-y-5" data-testid="market-management-page">
       {/* Header */}
       <div className="flex items-center gap-3 mb-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/producer/products')}>
+        <button onClick={() => navigate('/producer/products')} className="p-1 hover:bg-stone-100 rounded-lg text-stone-600">
           <ArrowLeft className="w-4 h-4" />
-        </Button>
+        </button>
         <div>
-          <h1 className="font-heading text-xl md:text-2xl font-bold text-text-primary" data-testid="markets-title">
+          <h1 className="text-xl md:text-2xl font-bold text-stone-950" data-testid="markets-title">
             Mercados Activos
           </h1>
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-stone-500">
             {product?.name} — {activeCount} mercado{activeCount !== 1 ? 's' : ''} activo{activeCount !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
 
       {/* Info banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800 flex items-start gap-3">
-        <Warehouse className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+      <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-700 flex items-start gap-3">
+        <Warehouse className="w-5 h-5 text-stone-500 shrink-0 mt-0.5" />
         <div>
           <p className="font-medium mb-1">Reglas de activación por mercado:</p>
-          <ul className="text-xs space-y-0.5 text-blue-700">
+          <ul className="text-xs space-y-0.5 text-stone-600">
             <li>{t('producer.stockRequired')}</li>
             <li>SLA de entrega maximo 48 horas</li>
             <li>{t('producer.priceRequired')}</li>
@@ -240,16 +239,16 @@ export default function ProductCountryManagement() {
               <option key={code} value={code}>{code} — {COUNTRIES[code].name}</option>
             ))}
           </select>
-          <Button size="sm" variant="outline" onClick={handleAddCountry} disabled={!addCountry} data-testid="add-country-btn">
-            <Plus className="w-4 h-4 mr-1" /> Agregar
-          </Button>
+          <button onClick={handleAddCountry} disabled={!addCountry} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50" data-testid="add-country-btn">
+            <Plus className="w-4 h-4 mr-1 inline" /> Agregar
+          </button>
         </div>
       )}
 
       {/* Markets list */}
       <div className="space-y-3" data-testid="markets-list">
         {markets.length === 0 ? (
-          <div className="text-center py-12 text-text-muted text-sm">
+          <div className="text-center py-12 text-stone-500 text-sm">
             <Globe className="w-10 h-10 mx-auto mb-2 opacity-30" />
             <p>{t('producer.noMarkets')}</p>
           </div>
@@ -268,11 +267,11 @@ export default function ProductCountryManagement() {
       {/* Save */}
       {markets.length > 0 && (
         <div className="flex justify-end gap-3 pt-2">
-          <Button variant="outline" onClick={() => navigate('/producer/products')}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving} className="bg-primary hover:bg-primary-hover text-white" data-testid="save-markets-btn">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
+          <button onClick={() => navigate('/producer/products')} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors">Cancelar</button>
+          <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors" data-testid="save-markets-btn">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5 inline" /> : <Save className="w-4 h-4 mr-1.5 inline" />}
             Guardar mercados
-          </Button>
+          </button>
         </div>
       )}
     </div>

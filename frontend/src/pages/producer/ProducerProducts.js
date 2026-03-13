@@ -1,6 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { Plus, Edit, ArrowLeft, Eye, CheckCircle, Clock, XCircle, Upload, X, Image as ImageIcon, Loader2, Package, AlertTriangle, Layers, Globe, Trash2, List, Apple, Award, ChevronDown } from 'lucide-react';
 import VariantPackManager from './VariantPackManager';
@@ -16,9 +14,9 @@ import { asNumber } from '../../utils/safe';
 
 
 const statusIcons = {
-  approved: <CheckCircle className="w-4 h-4 text-green-600" />,
-  pending: <Clock className="w-4 h-4 text-amber-600" />,
-  rejected: <XCircle className="w-4 h-4 text-red-600" />
+  approved: <CheckCircle className="w-4 h-4 text-stone-700" />,
+  pending: <Clock className="w-4 h-4 text-stone-700" />,
+  rejected: <XCircle className="w-4 h-4 text-stone-700" />
 };
 
 // Image Upload Component
@@ -102,7 +100,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-text-secondary mb-1">
+      <label className="block text-sm font-medium text-stone-600 mb-1">
         {t('producerProducts.imagesCount', { current: currentCount, max: maxImages })}
       </label>
       
@@ -124,7 +122,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
             <button
               type="button"
               onClick={() => removeImage(index)}
-              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-1 right-1 p-1 bg-stone-950 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
               title="Remove image"
             >
               <X className="w-3 h-3" />
@@ -138,7 +136,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="w-24 h-24 rounded-lg border-2 border-dashed border-stone-300 hover:border-primary hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-24 h-24 rounded-lg border-2 border-dashed border-stone-300 hover:border-stone-950 hover:bg-stone-50 transition-colors flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-950 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? (
               <Loader2 className="w-6 h-6 animate-spin" />
@@ -162,7 +160,7 @@ function ImageUploader({ images, setImages, maxImages = 3, t }) {
         className="hidden"
       />
 
-      <p className="text-xs text-text-muted">
+      <p className="text-xs text-stone-500">
         {t('producerProducts.imagesSupported')}
       </p>
     </div>
@@ -194,30 +192,29 @@ function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpda
   if (editing) {
     return (
       <div className="flex items-center gap-2">
-        <Input
+        <input
           type="number"
           min="0"
           value={stock}
           onChange={(e) => setStock(e.target.value)}
-          className="w-20 h-8 text-sm"
+          className="w-20 h-8 text-sm px-3 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
           data-testid={`stock-input-${productId}`}
         />
-        <Button 
-          size="sm" 
-          onClick={handleSave} 
+        <button
+          type="button"
+          onClick={handleSave}
           disabled={updateStockLoading}
-          className="h-8 px-2"
+          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors"
         >
           {updateStockLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('common.save')}
-        </Button>
-        <Button 
-          size="sm" 
-          variant="ghost" 
+        </button>
+        <button
+          type="button"
           onClick={() => { setEditing(false); setStock(currentStock); }}
-          className="h-8 px-2"
+          className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors"
         >
           <X className="w-4 h-4" />
-        </Button>
+        </button>
       </div>
     );
   }
@@ -226,10 +223,10 @@ function StockEditor({ productId, currentStock, isLowStock, isOutOfStock, onUpda
     <button
       onClick={() => setEditing(true)}
       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-        isOutOfStock 
-          ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' 
-          : isLowStock 
-          ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+        isOutOfStock
+          ? 'bg-stone-50 text-stone-700 border border-stone-200 hover:bg-stone-100'
+          : isLowStock
+          ? 'bg-stone-50 text-stone-700 border border-stone-200 hover:bg-stone-100'
           : 'bg-stone-50 text-stone-700 border border-stone-200 hover:bg-stone-100'
       }`}
       data-testid={`stock-badge-${productId}`}
@@ -587,7 +584,7 @@ export default function ProducerProducts() {
       <div className="pb-8">
         <button
           onClick={() => { setShowCreateForm(false); setEditingProduct(null); resetForm(); }}
-          className="flex items-center gap-2 text-text-secondary hover:text-primary mb-6"
+          className="flex items-center gap-2 text-stone-600 hover:text-stone-950 mb-6"
           data-testid="back-button"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -595,7 +592,7 @@ export default function ProducerProducts() {
         </button>
 
         <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 max-w-3xl">
-          <h2 className="font-heading text-2xl font-bold text-text-primary mb-6">
+          <h2 className="text-2xl font-bold text-stone-950 mb-6">
             {editingProduct ? t('producerProducts.editProduct') : t('producerProducts.createNewProduct')}
           </h2>
           
@@ -603,7 +600,7 @@ export default function ProducerProducts() {
             {/* === BASIC INFO SECTION (collapsible) === */}
             <div className="border border-stone-200 rounded-lg overflow-hidden">
               <button type="button" onClick={() => toggleSection('basic')} className="w-full bg-stone-50 px-4 py-3 border-b border-stone-200 flex items-center justify-between hover:bg-stone-100 transition-colors">
-                <h3 className="font-medium text-text-primary flex items-center gap-2">
+                <h3 className="font-medium text-stone-950 flex items-center gap-2">
                   <Package className="w-4 h-4" />
                   {t('producerProducts.basicInfo')}
                 </h3>
@@ -613,17 +610,18 @@ export default function ProducerProducts() {
               <div className="p-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1">{t('producerProducts.productName')} *</label>
-                    <Input
+                    <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.productName')} *</label>
+                    <input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder={t('producerProducts.productNamePlaceholder')}
                       required
+                      className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                       data-testid="product-name-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1">{t('producerProducts.category')} *</label>
+                    <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.category')} *</label>
                     <select
                       value={formData.category_id}
                       onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
@@ -640,7 +638,7 @@ export default function ProducerProducts() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1">{t('producerProducts.description')} *</label>
+                  <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.description')} *</label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -653,8 +651,8 @@ export default function ProducerProducts() {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1">{t('producerProducts.unitPrice')} *</label>
-                    <Input
+                    <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.unitPrice')} *</label>
+                    <input
                       type="number"
                       step="0.01"
                       min="0"
@@ -662,11 +660,12 @@ export default function ProducerProducts() {
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       placeholder="0.00"
                       required
+                      className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                       data-testid="product-price-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1">{t('producerProducts.countryOrigin')} *</label>
+                    <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.countryOrigin')} *</label>
                     <select
                       value={formData.country_origin}
                       onChange={(e) => setFormData({ ...formData, country_origin: e.target.value })}
@@ -681,20 +680,22 @@ export default function ProducerProducts() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1">{t('producerProducts.sku')}</label>
-                    <Input
+                    <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.sku')}</label>
+                    <input
                       value={formData.sku}
                       onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                       placeholder={t('producerProducts.skuPlaceholder')}
+                      className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                       data-testid="product-sku-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-1">{t('producerProducts.flavorVariant')}</label>
-                    <Input
+                    <label className="block text-sm font-medium text-stone-600 mb-1">{t('producerProducts.flavorVariant')}</label>
+                    <input
                       value={formData.flavor}
                       onChange={(e) => setFormData({ ...formData, flavor: e.target.value })}
                       placeholder={t('producerProducts.flavorPlaceholder')}
+                      className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                       data-testid="product-flavor-input"
                     />
                   </div>
@@ -708,29 +709,31 @@ export default function ProducerProducts() {
                   </h4>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-text-secondary mb-1">
+                      <label className="block text-xs text-stone-600 mb-1">
                         {t('producerProducts.shippingCost')}
                       </label>
-                      <Input
+                      <input
                         type="number"
                         step="0.01"
                         min="0"
                         value={formData.shipping_cost}
                         onChange={(e) => setFormData({ ...formData, shipping_cost: e.target.value })}
                         placeholder={t('producerProducts.shippingCostPlaceholder')}
+                        className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                         data-testid="product-shipping-cost-input"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-text-secondary mb-1">
+                      <label className="block text-xs text-stone-600 mb-1">
                         {t('producerProducts.freeShippingFrom')}
                       </label>
-                      <Input
+                      <input
                         type="number"
                         min="1"
                         value={formData.free_shipping_min_qty}
                         onChange={(e) => setFormData({ ...formData, free_shipping_min_qty: e.target.value })}
                         placeholder="3"
+                        className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                         data-testid="product-free-shipping-qty-input"
                       />
                     </div>
@@ -743,7 +746,7 @@ export default function ProducerProducts() {
             {/* === IMAGES SECTION (collapsible) === */}
             <div className="border border-stone-200 rounded-lg overflow-hidden">
               <button type="button" onClick={() => toggleSection('images')} className="w-full bg-stone-50 px-4 py-3 border-b border-stone-200 flex items-center justify-between hover:bg-stone-100 transition-colors">
-                <h3 className="font-medium text-text-primary flex items-center gap-2">
+                <h3 className="font-medium text-stone-950 flex items-center gap-2">
                   <ImageIcon className="w-4 h-4" />
                   {t('producerProducts.productImages')}
                   {formData.images.length > 0 && <span className="text-xs text-stone-400">({formData.images.length})</span>}
@@ -771,22 +774,22 @@ export default function ProducerProducts() {
             {/* === PACKS SECTION (collapsible) === */}
             <div className="border border-stone-200 rounded-lg overflow-hidden">
               <button type="button" onClick={() => toggleSection('packs')} className="w-full bg-stone-50 px-4 py-3 border-b border-stone-200 flex items-center justify-between hover:bg-stone-100 transition-colors">
-                <h3 className="font-medium text-text-primary flex items-center gap-2">
+                <h3 className="font-medium text-stone-950 flex items-center gap-2">
                   <Layers className="w-4 h-4" />
                   {t('producerProducts.packsOffers')}
-                  {formData.packs.length > 0 && <span className="text-xs text-emerald-600 font-semibold">({formData.packs.length})</span>}
+                  {formData.packs.length > 0 && <span className="text-xs text-stone-700 font-semibold">({formData.packs.length})</span>}
                 </h3>
                 <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${openSections.packs ? 'rotate-180' : ''}`} />
               </button>
               {openSections.packs && (
               <div className="p-4">
                 <div className="flex justify-end mb-3">
-                  <button type="button" onClick={addPack} className="text-sm text-primary hover:underline flex items-center gap-1" data-testid="add-pack-btn">
+                  <button type="button" onClick={addPack} className="text-sm text-stone-950 hover:underline flex items-center gap-1" data-testid="add-pack-btn">
                     <Plus className="w-4 h-4" /> {t('producerProducts.addPack')}
                   </button>
                 </div>
                 {formData.packs.length === 0 ? (
-                  <p className="text-sm text-text-secondary text-center py-3">
+                  <p className="text-sm text-stone-600 text-center py-3">
                     {t('producerProducts.noPacksConfigured')}
                   </p>
                 ) : (
@@ -797,20 +800,20 @@ export default function ProducerProducts() {
                         <div key={index} className="flex items-center gap-2 p-2.5 bg-stone-50 rounded-lg">
                           <div className="flex-1 grid grid-cols-3 gap-2">
                             <div>
-                              <label className="block text-xs text-text-secondary mb-0.5">{t('producerProducts.packQuantity')}</label>
-                              <Input type="number" min="2" value={pack.quantity} onChange={(e) => updatePack(index, 'quantity', e.target.value)} placeholder="6" data-testid={`pack-quantity-${index}`} />
+                              <label className="block text-xs text-stone-600 mb-0.5">{t('producerProducts.packQuantity')}</label>
+                              <input type="number" min="2" value={pack.quantity} onChange={(e) => updatePack(index, 'quantity', e.target.value)} placeholder="6" className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-quantity-${index}`} />
                             </div>
                             <div>
-                              <label className="block text-xs text-text-secondary mb-0.5">{t('producerProducts.packPrice')}</label>
-                              <Input type="number" step="0.01" min="0" value={pack.price} onChange={(e) => updatePack(index, 'price', e.target.value)} placeholder="50.00" data-testid={`pack-price-${index}`} />
+                              <label className="block text-xs text-stone-600 mb-0.5">{t('producerProducts.packPrice')}</label>
+                              <input type="number" step="0.01" min="0" value={pack.price} onChange={(e) => updatePack(index, 'price', e.target.value)} placeholder="50.00" className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-price-${index}`} />
                             </div>
                             <div>
-                              <label className="block text-xs text-text-secondary mb-0.5">{t('producerProducts.packLabel')}</label>
-                              <Input value={pack.label} onChange={(e) => updatePack(index, 'label', e.target.value)} placeholder={`Pack de ${pack.quantity || 'X'}`} data-testid={`pack-label-${index}`} />
+                              <label className="block text-xs text-stone-600 mb-0.5">{t('producerProducts.packLabel')}</label>
+                              <input value={pack.label} onChange={(e) => updatePack(index, 'label', e.target.value)} placeholder={`Pack de ${pack.quantity || 'X'}`} className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`pack-label-${index}`} />
                             </div>
                           </div>
-                          {discount && <div className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium">-{discount}%</div>}
-                          <button type="button" onClick={() => removePack(index)} className="p-1.5 text-red-500 hover:bg-red-50 rounded" data-testid={`remove-pack-${index}`}>
+                          {discount && <div className="bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-xs font-medium">-{discount}%</div>}
+                          <button type="button" onClick={() => removePack(index)} className="p-1.5 text-stone-700 hover:bg-stone-50 rounded" data-testid={`remove-pack-${index}`}>
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -825,7 +828,7 @@ export default function ProducerProducts() {
             {/* === INGREDIENTS SECTION (collapsible) === */}
             <div className="border border-stone-200 rounded-lg overflow-hidden">
               <button type="button" onClick={() => toggleSection('ingredients')} className="w-full bg-stone-50 px-4 py-3 border-b border-stone-200 flex items-center justify-between hover:bg-stone-100 transition-colors">
-                <h3 className="font-medium text-text-primary flex items-center gap-2">
+                <h3 className="font-medium text-stone-950 flex items-center gap-2">
                   <List className="w-4 h-4" />
                   {t('producerProducts.ingredients')}
                   {formData.ingredients.length > 0 && <span className="text-xs text-stone-400">({formData.ingredients.length})</span>}
@@ -835,17 +838,18 @@ export default function ProducerProducts() {
               {openSections.ingredients && (
               <div className="p-4">
                 <div className="flex justify-end mb-2">
-                  <button type="button" onClick={addIngredient} className="text-sm text-primary hover:underline flex items-center gap-1" data-testid="add-ingredient-btn">
+                  <button type="button" onClick={addIngredient} className="text-sm text-stone-950 hover:underline flex items-center gap-1" data-testid="add-ingredient-btn">
                     <Plus className="w-4 h-4" /> {t('producerProducts.addIngredient')}
                   </button>
                 </div>
                 {formData.ingredients.length === 0 ? (
                   <div>
-                    <p className="text-sm text-text-secondary mb-2">{t('producerProducts.ingredientsSeparated')}</p>
-                    <Input
+                    <p className="text-sm text-stone-600 mb-2">{t('producerProducts.ingredientsSeparated')}</p>
+                    <input
                       value={ingredientsStr}
                       onChange={(e) => setIngredientsStr(e.target.value)}
                       placeholder={t('producerProducts.ingredientsPlaceholder')}
+                      className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                       data-testid="ingredients-text-input"
                     />
                   </div>
@@ -853,9 +857,9 @@ export default function ProducerProducts() {
                   <div className="space-y-2">
                     {formData.ingredients.map((ingredient, index) => (
                       <div key={index} className="flex items-center gap-2">
-                        <Input value={ingredient.name} onChange={(e) => updateIngredient(index, 'name', e.target.value)} placeholder={t('producerProducts.ingredientName')} className="flex-1" data-testid={`ingredient-name-${index}`} />
-                        <Input value={ingredient.origin} onChange={(e) => updateIngredient(index, 'origin', e.target.value)} placeholder={t('producerProducts.ingredientOrigin')} className="w-28" data-testid={`ingredient-origin-${index}`} />
-                        <button type="button" onClick={() => removeIngredient(index)} className="p-1.5 text-red-500 hover:bg-red-50 rounded" data-testid={`remove-ingredient-${index}`}>
+                        <input value={ingredient.name} onChange={(e) => updateIngredient(index, 'name', e.target.value)} placeholder={t('producerProducts.ingredientName')} className="flex-1 px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`ingredient-name-${index}`} />
+                        <input value={ingredient.origin} onChange={(e) => updateIngredient(index, 'origin', e.target.value)} placeholder={t('producerProducts.ingredientOrigin')} className="w-28 px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid={`ingredient-origin-${index}`} />
+                        <button type="button" onClick={() => removeIngredient(index)} className="p-1.5 text-stone-700 hover:bg-stone-50 rounded" data-testid={`remove-ingredient-${index}`}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -869,7 +873,7 @@ export default function ProducerProducts() {
             {/* === NUTRITIONAL INFO SECTION (collapsible) === */}
             <div className="border border-stone-200 rounded-lg overflow-hidden">
               <button type="button" onClick={() => toggleSection('nutrition')} className="w-full bg-stone-50 px-4 py-3 border-b border-stone-200 flex items-center justify-between hover:bg-stone-100 transition-colors">
-                <h3 className="font-medium text-text-primary flex items-center gap-2">
+                <h3 className="font-medium text-stone-950 flex items-center gap-2">
                   <Apple className="w-4 h-4" />
                   {t('producerProducts.nutritionalInfo')}
                 </h3>
@@ -880,10 +884,10 @@ export default function ProducerProducts() {
                 <div className="grid grid-cols-3 md:grid-cols-3 gap-2">
                   {nutritionalFields.map((field) => (
                     <div key={field.key}>
-                      <label className="block text-xs text-text-secondary mb-0.5">
+                      <label className="block text-xs text-stone-600 mb-0.5">
                         {field.label} <span className="text-stone-400">({field.unit})</span>
                       </label>
-                      <Input
+                      <input
                         type="number"
                         step="0.1"
                         min="0"
@@ -893,6 +897,7 @@ export default function ProducerProducts() {
                           nutritional_info: { ...formData.nutritional_info, [field.key]: e.target.value }
                         })}
                         placeholder="0"
+                        className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                         data-testid={`nutrition-${field.key}`}
                       />
                     </div>
@@ -905,10 +910,10 @@ export default function ProducerProducts() {
             {/* === ALLERGENS SECTION (collapsible) === */}
             <div className="border border-stone-200 rounded-lg overflow-hidden">
               <button type="button" onClick={() => toggleSection('allergens')} className="w-full bg-stone-50 px-4 py-3 border-b border-stone-200 flex items-center justify-between hover:bg-stone-100 transition-colors">
-                <h3 className="font-medium text-text-primary flex items-center gap-2">
+                <h3 className="font-medium text-stone-950 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
                   {t('producerProducts.allergens')}
-                  {formData.allergens.length > 0 && <span className="text-xs text-red-600 font-semibold">({formData.allergens.length})</span>}
+                  {formData.allergens.length > 0 && <span className="text-xs text-stone-700 font-semibold">({formData.allergens.length})</span>}
                 </h3>
                 <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${openSections.allergens ? 'rotate-180' : ''}`} />
               </button>
@@ -929,9 +934,9 @@ export default function ProducerProducts() {
                           }
                         }}
                         className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${
-                          isSelected 
-                            ? 'bg-red-100 border-red-300 text-red-800' 
-                            : 'bg-white border-stone-200 text-text-secondary hover:border-stone-300'
+                          isSelected
+                            ? 'bg-stone-100 border-stone-200 text-stone-800'
+                            : 'bg-white border-stone-200 text-stone-600 hover:border-stone-300'
                         }`}
                         data-testid={`allergen-${allergen.key}`}
                       >
@@ -940,10 +945,11 @@ export default function ProducerProducts() {
                     );
                   })}
                 </div>
-                <Input
+                <input
                   value={allergensStr}
                   onChange={(e) => setAllergensStr(e.target.value)}
                   placeholder={t('producerProducts.otherAllergensPlaceholder')}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                   data-testid="allergens-text-input"
                 />
               </div>
@@ -953,10 +959,10 @@ export default function ProducerProducts() {
             {/* === CERTIFICATIONS SECTION (collapsible) === */}
             <div className="border border-stone-200 rounded-lg overflow-hidden">
               <button type="button" onClick={() => toggleSection('certifications')} className="w-full bg-stone-50 px-4 py-3 border-b border-stone-200 flex items-center justify-between hover:bg-stone-100 transition-colors">
-                <h3 className="font-medium text-text-primary flex items-center gap-2">
+                <h3 className="font-medium text-stone-950 flex items-center gap-2">
                   <Award className="w-4 h-4" />
                   {t('producerProducts.certifications')}
-                  {formData.certifications.length > 0 && <span className="text-xs text-emerald-600 font-semibold">({formData.certifications.length})</span>}
+                  {formData.certifications.length > 0 && <span className="text-xs text-stone-700 font-semibold">({formData.certifications.length})</span>}
                 </h3>
                 <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${openSections.certifications ? 'rotate-180' : ''}`} />
               </button>
@@ -977,9 +983,9 @@ export default function ProducerProducts() {
                           }
                         }}
                         className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${
-                          isSelected 
-                            ? 'bg-green-100 border-green-300 text-green-800' 
-                            : 'bg-white border-stone-200 text-text-secondary hover:border-stone-300'
+                          isSelected
+                            ? 'bg-stone-100 border-stone-200 text-stone-800'
+                            : 'bg-white border-stone-200 text-stone-600 hover:border-stone-300'
                         }`}
                         data-testid={`cert-${cert.key}`}
                       >
@@ -988,10 +994,11 @@ export default function ProducerProducts() {
                     );
                   })}
                 </div>
-                <Input
+                <input
                   value={certificationsStr}
                   onChange={(e) => setCertificationsStr(e.target.value)}
                   placeholder={t('producerProducts.otherCertificationsPlaceholder')}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                   data-testid="certifications-text-input"
                 />
               </div>
@@ -999,19 +1006,19 @@ export default function ProducerProducts() {
             </div>
 
             {/* === SUBMIT === */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs text-blue-800">
+            <div className="bg-stone-50 border border-stone-200 rounded-lg p-3">
+              <p className="text-xs text-stone-700">
                 <strong>{t('common.note')}:</strong> {t('producerProducts.approvalNote')}
               </p>
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={saveProductLoading} data-testid="submit-product-btn">
+              <button type="submit" disabled={saveProductLoading} data-testid="submit-product-btn" className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors">
                 {editingProduct ? t('producerProducts.updateProduct') : t('producerProducts.createProduct')}
-              </Button>
-              <Button type="button" variant="secondary" onClick={() => { setShowCreateForm(false); setEditingProduct(null); resetForm(); }}>
+              </button>
+              <button type="button" onClick={() => { setShowCreateForm(false); setEditingProduct(null); resetForm(); }} className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors">
                 {t('common.cancel')}
-              </Button>
+              </button>
             </div>
           </form>
         </div>
@@ -1024,26 +1031,26 @@ export default function ProducerProducts() {
     <div>
       <div className="flex items-center justify-between mb-6 gap-3">
         <div className="min-w-0">
-          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-text-primary mb-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-950 mb-1">
             {t('producerProducts.title')}
           </h1>
-          <p className="text-text-muted text-sm">{t('producerProducts.subtitle')}</p>
+          <p className="text-stone-500 text-sm">{t('producerProducts.subtitle')}</p>
         </div>
-        <Button onClick={() => setShowCreateForm(true)} className="shrink-0" data-testid="create-product">
+        <button type="button" onClick={() => setShowCreateForm(true)} className="shrink-0 flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors" data-testid="create-product">
           <Plus className="w-4 h-4 mr-1" /> <span className="hidden sm:inline">{t('producerProducts.createProduct')}</span><span className="sm:hidden">Crear</span>
-        </Button>
+        </button>
       </div>
 
       {/* Products */}
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-text-muted">{t('common.loading')}</div>
+          <div className="p-8 text-center text-stone-500">{t('common.loading')}</div>
         ) : products.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-text-muted mb-4">{t('producerProducts.noProductsYet')}</p>
-            <Button onClick={() => setShowCreateForm(true)}>
+            <p className="text-stone-500 mb-4">{t('producerProducts.noProductsYet')}</p>
+            <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors">
               <Plus className="w-4 h-4 mr-2" /> {t('producerProducts.createFirstProduct')}
-            </Button>
+            </button>
           </div>
         ) : (
           <>
@@ -1066,35 +1073,35 @@ export default function ProducerProducts() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-text-primary truncate">{product.name}</p>
-                        <p className="text-sm text-text-muted">{product.country_origin}</p>
+                        <p className="font-medium text-stone-950 truncate">{product.name}</p>
+                        <p className="text-sm text-stone-500">{product.country_origin}</p>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="font-semibold text-text-primary">${asNumber(product.price).toFixed(2)}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${product.approved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                          <span className="font-semibold text-stone-950">${asNumber(product.price).toFixed(2)}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${product.approved ? 'bg-stone-100 text-stone-700' : 'bg-stone-100 text-stone-700'}`}>
                             {product.approved ? t('producerProducts.table.approved') : t('producerProducts.table.pending')}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-text-muted">
-                      <span>Stock: <strong className={isOutOfStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-text-primary'}>{stock}</strong></span>
+                    <div className="flex items-center gap-2 text-sm text-stone-500">
+                      <span>Stock: <strong className={isOutOfStock ? 'text-stone-700' : isLowStock ? 'text-stone-700' : 'text-stone-950'}>{stock}</strong></span>
                       {variantCount > 0 && <span>· {variantCount} variantes</span>}
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                      <Button size="sm" onClick={() => window.open(`/products/${product.product_id}`, '_blank')} data-testid={`view-product-${product.product_id}`}>
+                      <button type="button" onClick={() => window.open(`/products/${product.product_id}`, '_blank')} data-testid={`view-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors">
                         <Eye className="w-3.5 h-3.5 mr-1" /> Ver
-                      </Button>
+                      </button>
                       {!product.approved && (
-                        <Button size="sm" onClick={() => startEdit(product)} data-testid={`edit-product-${product.product_id}`}>
+                        <button type="button" onClick={() => startEdit(product)} data-testid={`edit-product-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors">
                           <Edit className="w-3.5 h-3.5 mr-1" /> Editar
-                        </Button>
+                        </button>
                       )}
-                      <Button size="sm" variant="secondary" onClick={() => window.open(`/producer/products/${product.product_id}/countries`, '_self')}>
+                      <button type="button" onClick={() => window.open(`/producer/products/${product.product_id}/countries`, '_self')} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors">
                         <Globe className="w-3.5 h-3.5 mr-1" /> Países
-                      </Button>
-                      <Button size="sm" variant="secondary" onClick={() => setVariantManagerProduct(product)} data-testid={`manage-variants-mobile-${product.product_id}`}>
+                      </button>
+                      <button type="button" onClick={() => setVariantManagerProduct(product)} data-testid={`manage-variants-mobile-${product.product_id}`} className="flex items-center px-3 py-1.5 text-sm font-medium border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors">
                         <Layers className="w-3.5 h-3.5 mr-1" /> Variantes
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 );
@@ -1105,12 +1112,12 @@ export default function ProducerProducts() {
             <table className="w-full hidden md:table" data-testid="products-table">
               <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('producerProducts.table.product')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('producerProducts.table.price')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('producerProducts.table.stock')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('producerProducts.table.variants')}</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-text-secondary">{t('producerProducts.table.status')}</th>
-                  <th className="text-right px-6 py-4 text-sm font-medium text-text-secondary">{t('producerProducts.table.actions')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.product')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.price')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.stock')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.variants')}</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.status')}</th>
+                  <th className="text-right px-6 py-4 text-sm font-medium text-stone-600">{t('producerProducts.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200">
@@ -1133,13 +1140,13 @@ export default function ProducerProducts() {
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-text-primary">{product.name}</p>
-                          <p className="text-sm text-text-muted">{product.country_origin}</p>
+                          <p className="font-medium text-stone-950">{product.name}</p>
+                          <p className="text-sm text-stone-500">{product.country_origin}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-text-primary">${asNumber(product.price).toFixed(2)}</p>
+                      <p className="font-medium text-stone-950">${asNumber(product.price).toFixed(2)}</p>
                     </td>
                     <td className="px-6 py-4">
                       <StockEditor 
@@ -1156,7 +1163,7 @@ export default function ProducerProducts() {
                         onClick={() => setVariantManagerProduct(product)}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
                           variantCount > 0
-                            ? 'bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100'
+                            ? 'bg-stone-50 text-stone-700 border border-stone-200 hover:bg-stone-100'
                             : 'bg-stone-50 text-stone-600 border border-stone-200 hover:bg-stone-100'
                         }`}
                         data-testid={`manage-variants-${product.product_id}`}
@@ -1172,33 +1179,36 @@ export default function ProducerProducts() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {statusIcons[product.approved ? 'approved' : 'pending']}
-                        <span className={`text-sm font-medium ${product.approved ? 'text-green-600' : 'text-amber-600'}`}>
+                        <span className={`text-sm font-medium ${product.approved ? 'text-stone-700' : 'text-stone-700'}`}>
                           {product.approved ? t('producerProducts.table.approved') : t('producerProducts.table.pending')}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
+                        <button
+                          type="button"
                           onClick={() => window.open(`/producer/products/${product.product_id}/countries`, '_self')}
                           title={t('producer.manageCountries')}
+                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors"
                         >
                           <Globe className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => window.open(`/products/${product.product_id}`, '_blank')}
+                          className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors"
                         >
                           <Eye className="w-4 h-4" />
-                        </Button>
+                        </button>
                         {!product.approved && (
-                          <Button
-                            size="sm"
+                          <button
+                            type="button"
                             onClick={() => startEdit(product)}
+                            className="flex items-center px-3 py-1.5 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors"
                           >
                             <Edit className="w-4 h-4" />
-                          </Button>
+                          </button>
                         )}
                       </div>
                     </td>

@@ -15,10 +15,10 @@ export default function ImporterCertificatesPage() {
       <Header />
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="font-heading text-2xl font-semibold text-primary">
+          <h1 className="text-2xl font-semibold text-stone-950">
             Certificados de Producto
           </h1>
-          <p className="text-sm text-text-muted mt-1">
+          <p className="text-sm text-stone-500 mt-1">
             Genera el certificado digital con QR descargable para cada producto importado. El QR puede
             imprimirse en el embalaje físico para transparencia hacia el consumidor final.
           </p>

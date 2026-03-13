@@ -79,42 +79,42 @@ function InfluencerDashboard() {
       id: 'links',
       icon: LinkIcon,
       label: 'Mis enlaces',
-      color: 'var(--color-accent)',
+      color: '#1c1917',
       onClick: () => navigate('/influencer/links')
     },
     {
       id: 'opportunities',
       icon: TrendingUp,
       label: 'Oportunidades',
-      color: 'var(--color-warning)',
+      color: '#44403c',
       onClick: () => navigate('/influencer/opportunities')
     },
     {
       id: 'earnings',
       icon: Euro,
       label: 'Mis ganancias',
-      color: 'var(--color-info)',
+      color: '#78716c',
       onClick: () => navigate('/influencer/earnings')
     },
     {
       id: 'perks',
       icon: Gift,
       label: 'Beneficios',
-      color: 'var(--color-success)',
+      color: '#1c1917',
       onClick: () => navigate('/influencer/perks')
     }
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background-subtle flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-subtle p-4 pb-24">
+    <div className="min-h-screen bg-stone-50 p-4 pb-24">
       <DashboardHeader
         userName={firstToken(user?.name, 'Influencer')}
         subtitle={`Nivel: ${dashboardData.tier}`}
@@ -127,28 +127,28 @@ function InfluencerDashboard() {
           value={`EUR ${dashboardData.kpis.earnings.toFixed(0)}`}
           label="Ganancias"
           subtext="este mes"
-          accentColor="#2D5A3D"
+          accentColor="#1c1917"
         />
         <KPICard
           icon={MousePointerClick}
           value={dashboardData.kpis.clicks}
           label="Clicks"
           subtext="en tus enlaces"
-          accentColor="#E6A532"
+          accentColor="#44403c"
         />
         <KPICard
           icon={Users}
           value={dashboardData.kpis.conversions}
           label="Ventas"
           subtext="generadas"
-          accentColor="#3B82F6"
+          accentColor="#78716c"
         />
         <KPICard
           icon={Users}
           value={dashboardData.kpis.followers}
           label="Seguidores"
           subtext="en tu perfil"
-          accentColor="#16A34A"
+          accentColor="#1c1917"
         />
       </div>
 
@@ -157,7 +157,7 @@ function InfluencerDashboard() {
           <h3 className="font-semibold text-stone-950">Ganancias semanales</h3>
           <p className="text-xs text-stone-500">Evolución de tus comisiones</p>
         </div>
-        <AreaChart data={dashboardData.chart.data} labels={dashboardData.chart.labels} color="#2D5A3D" />
+        <AreaChart data={dashboardData.chart.data} labels={dashboardData.chart.labels} color="#1c1917" />
       </div>
 
       <div className="mb-6">
@@ -169,7 +169,7 @@ function InfluencerDashboard() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-stone-950">Ventas recientes</h3>
-            <button onClick={() => navigate('/influencer/earnings')} className="text-sm text-accent font-medium">
+            <button onClick={() => navigate('/influencer/earnings')} className="text-sm text-stone-500 font-medium">
               Ver todas
             </button>
           </div>

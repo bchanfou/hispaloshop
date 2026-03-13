@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { AlertCircle, Globe, Loader2, Package, ShoppingBag, TrendingUp, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
-import { Button } from '../../components/ui/button';
-
 function ImporterMetric({ icon: Icon, title, value, description, to }) {
   return (
     <Link to={to} className="rounded-2xl border border-stone-100 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
@@ -143,9 +141,7 @@ export default function ImporterDashboardPage() {
               </div>
             ) : null}
 
-            <Button asChild className="mt-5">
-              <Link to="/producer/products">Abrir gestión de productos</Link>
-            </Button>
+            <Link to="/producer/products" className="inline-flex items-center mt-5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm rounded-lg transition-colors">Abrir gestión de productos</Link>
           </div>
         </section>
       </div>

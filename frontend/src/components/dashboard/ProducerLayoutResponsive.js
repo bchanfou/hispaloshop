@@ -67,10 +67,10 @@ export default function ProducerLayout() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-ds-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-text-muted">Cargando...</p>
+          <div className="w-10 h-10 border-2 border-stone-950 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-stone-500">Cargando...</p>
         </div>
       </div>
     );
@@ -79,12 +79,12 @@ export default function ProducerLayout() {
   // Access denied
   if (!user || !['producer', 'importer'].includes(user.role)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="text-center">
-          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
+          <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-8 h-8 text-stone-700" />
           </div>
-          <p className="text-text-secondary mb-4">Acceso denegado. Se requiere cuenta de productor o importador.</p>
+          <p className="text-stone-600 mb-4">Acceso denegado. Se requiere cuenta de productor o importador.</p>
           <button 
             onClick={() => navigate('/login')} 
             className="text-stone-950 hover:underline font-medium"
@@ -100,19 +100,19 @@ export default function ProducerLayout() {
 
   return (
     <ProducerPlanProvider>
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* ===== MOBILE HEADER ===== */}
       <header className="mobile-header md:hidden">
         <button
           onClick={() => navigate('/')}
-          className="p-2 -ml-2 text-text-muted hover:text-text-primary transition-colors"
+          className="p-2 -ml-2 text-stone-500 hover:text-stone-950 transition-colors"
           aria-label="Volver al inicio"
           data-testid="mobile-back-button"
         >
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
         
-        <h1 className="font-heading text-base font-semibold text-text-primary">
+        <h1 className="text-base font-semibold text-stone-950">
           Panel Productor
         </h1>
         
@@ -122,11 +122,11 @@ export default function ProducerLayout() {
       {/* ===== DESKTOP SIDEBAR ===== */}
       <aside className="hidden md:flex desktop-sidebar">
         {/* Header */}
-        <div className="p-5 border-b border-border-default">
+        <div className="p-5 border-b border-stone-200">
           <div className="flex items-center justify-between mb-4">
             <button 
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm"
+              className="flex items-center gap-2 text-stone-500 hover:text-stone-950 transition-colors text-sm"
               data-testid="desktop-back-button"
             >
               <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
@@ -134,20 +134,20 @@ export default function ProducerLayout() {
             </button>
             <LanguageSwitcher variant="minimal" />
           </div>
-          <h1 className="font-heading text-lg font-semibold text-text-primary tracking-editorial">
+          <h1 className="text-lg font-semibold text-stone-950 tracking-editorial">
             {t('producer.myProducts')}
           </h1>
-          <p className="text-xs text-text-muted mt-1">{t('producer.manageStock')}</p>
+          <p className="text-xs text-stone-500 mt-1">{t('producer.manageStock')}</p>
         </div>
 
         {/* Pending Warning */}
         {isPending && (
-          <div className="mx-4 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="mx-4 mt-4 p-3 bg-stone-50 border border-stone-200 rounded-xl">
             <div className="flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" strokeWidth={1.5} />
+              <AlertTriangle className="w-4 h-4 text-stone-600 mt-0.5" strokeWidth={1.5} />
               <div>
-                <p className="text-sm font-medium text-amber-900">Pendiente de aprobación</p>
-                <p className="text-xs text-amber-700">Tu cuenta está en revisión.</p>
+                <p className="text-sm font-medium text-stone-950">Pendiente de aprobación</p>
+                <p className="text-xs text-stone-700">Tu cuenta está en revisión.</p>
               </div>
             </div>
           </div>
@@ -161,10 +161,10 @@ export default function ProducerLayout() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 text-sm ${
+                `flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
                   isActive
                     ? 'bg-stone-100 text-stone-950 font-medium'
-                    : 'text-text-secondary hover:bg-stone-100'
+                    : 'text-stone-600 hover:bg-stone-100'
                 }`
               }
               data-testid={`desktop-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
@@ -174,7 +174,7 @@ export default function ProducerLayout() {
                 <span>{item.label}</span>
               </div>
               {item.badge > 0 && (
-                <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                <span className="bg-stone-950 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
                   {item.badge}
                 </span>
               )}
@@ -183,19 +183,19 @@ export default function ProducerLayout() {
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-border-default">
+        <div className="p-4 border-t border-stone-200">
           <div className="flex items-center justify-between">
             <div className="min-w-0">
-              <p className="text-sm font-medium text-text-primary truncate">
+              <p className="text-sm font-medium text-stone-950 truncate">
                 {user.company_name || user.name}
               </p>
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-stone-500">
                 {user.role === 'importer' ? 'Importador' : 'Productor'}
               </p>
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 text-text-muted hover:text-red-600 transition-colors"
+              className="p-2 text-stone-500 hover:text-stone-700 transition-colors"
               aria-label="Cerrar sesión"
               title="Cerrar sesión"
               data-testid="desktop-logout-button"
@@ -213,10 +213,10 @@ export default function ProducerLayout() {
           <div className="p-4 md:p-8">
             {/* Mobile pending warning */}
             {isPending && (
-              <div className="md:hidden mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="md:hidden mb-4 p-3 bg-stone-50 border border-stone-200 rounded-xl">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-600" strokeWidth={1.5} />
-                  <p className="text-sm text-amber-900">{t('common.accountPending')}</p>
+                  <AlertTriangle className="w-4 h-4 text-stone-600" strokeWidth={1.5} />
+                  <p className="text-sm text-stone-950">{t('common.accountPending')}</p>
                 </div>
               </div>
             )}
@@ -258,7 +258,7 @@ export default function ProducerLayout() {
                 <div className="relative">
                   <item.icon className="w-4 h-4" strokeWidth={1.5} />
                   {item.badge > 0 && (
-                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-stone-950 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
                       {item.badge > 9 ? '9+' : item.badge}
                     </span>
                   )}
@@ -283,16 +283,16 @@ export default function ProducerLayout() {
               to={item.to}
               onClick={() => setMoreMenuOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-4 p-4 rounded-lg transition-colors ${
+                `flex items-center gap-4 p-4 rounded-xl transition-colors ${
                   isActive ? 'bg-stone-100 text-stone-950' : 'hover:bg-stone-100'
                 }`
               }
             >
-              <div className="w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
                 <item.icon className="w-5 h-5" strokeWidth={1.5} />
               </div>
               <div>
-                <p className="font-medium text-text-primary">{item.label}</p>
+                <p className="font-medium text-stone-950">{item.label}</p>
               </div>
             </NavLink>
           ))}
@@ -303,13 +303,13 @@ export default function ProducerLayout() {
               setMoreMenuOpen(false);
               handleLogout();
             }}
-            className="flex items-center gap-4 p-4 rounded-lg hover:bg-red-50 w-full text-left"
+            className="flex items-center gap-4 p-4 rounded-xl hover:bg-stone-100 w-full text-left"
           >
-            <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
-              <LogOut className="w-5 h-5 text-red-600" strokeWidth={1.5} />
+            <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">
+              <LogOut className="w-5 h-5 text-stone-700" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="font-medium text-red-600">{t('common.logout')}</p>
+              <p className="font-medium text-stone-700">{t('common.logout')}</p>
             </div>
           </button>
         </div>

@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 const PLAN_ICONS = { PRO: Zap, ELITE: Crown };
 const PLAN_COLORS = {
-  PRO: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', btn: 'bg-accent hover:bg-accent/90' },
-  ELITE: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', btn: 'bg-amber-600 hover:bg-amber-700' },
+  PRO: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-700', btn: 'bg-stone-950 hover:bg-stone-800' },
+  ELITE: { bg: 'bg-stone-50', border: 'border-stone-200', text: 'text-stone-700', btn: 'bg-stone-950 hover:bg-stone-800' },
 };
 
 export default function LockedFeature({ requiredPlan, featureName, children }) {

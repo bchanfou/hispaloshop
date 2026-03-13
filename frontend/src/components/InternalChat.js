@@ -141,7 +141,29 @@ function MessageStatus({ message, isOwn }) {
   );
 }
 
+const REACTION_EMOJIS = ['❤️', '😂', '😮', '😢', '😡', '👍'];
+
 function MessageBubble({ message, isOwn }) {
+  const [reaction, setReaction]       = useState(null);
+  const [showPicker, setShowPicker]   = useState(false);
+  const pressTimerRef                 = useRef(null);
+
+  const handlePointerDown = () => {
+    pressTimerRef.current = setTimeout(() => {
+      setShowPicker(true);
+      if (window.navigator?.vibrate) window.navigator.vibrate(6);
+    }, 500);
+  };
+
+  const handlePointerUp = () => {
+    clearTimeout(pressTimerRef.current);
+  };
+
+  const handleReact = (emoji) => {
+    setReaction((prev) => (prev === emoji ? null : emoji));
+    setShowPicker(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -149,33 +171,99 @@ function MessageBubble({ message, isOwn }) {
       transition={{ duration: 0.18, ease: 'easeOut' }}
       className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
     >
-      <div className={`max-w-[72%] ${isOwn ? 'items-end' : 'items-start'}`}>
-        {message?.shared_item ? (
-          <div className="mb-1.5">
-            <SharedItemCard item={message.shared_item} compact />
-          </div>
-        ) : null}
-        {message?.image_url ? (
-          <div className={`mb-1.5 overflow-hidden rounded-[18px] ${isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
-            <img
-              src={message.image_url}
-              alt="Imagen compartida en el chat"
-              loading="lazy"
-              className="max-w-[260px] object-cover"
-            />
-          </div>
-        ) : null}
-        {message?.content ? (
-          <div
-            className={`px-3.5 py-2.5 text-[15px] leading-[1.4] ${
-              isOwn
-                ? 'rounded-[20px] rounded-br-[4px] bg-stone-950 text-white'
-                : 'rounded-[20px] rounded-bl-[4px] bg-stone-100 text-stone-950'
-            }`}
-          >
-            {message.content}
-          </div>
-        ) : null}
+      <div className={`relative max-w-[72%] ${isOwn ? 'items-end' : 'items-start'}`}>
+        {/* Emoji picker — aparece al pulsar largo */}
+        <AnimatePresence>
+          {showPicker ? (
+            <>
+              {/* Backdrop invisible para descartar */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-40"
+                onPointerDown={() => setShowPicker(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.85, y: 6 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.85, y: 6 }}
+                transition={{ duration: 0.15, ease: [0, 0, 0.2, 1] }}
+                className={`absolute bottom-full z-50 mb-2 flex items-center gap-1 rounded-full border border-stone-100 bg-white px-2 py-1.5 shadow-[0_8px_28px_rgba(15,15,15,0.15)] ${
+                  isOwn ? 'right-0' : 'left-0'
+                }`}
+              >
+                {REACTION_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleReact(emoji)}
+                    className={`flex h-9 w-9 items-center justify-center rounded-full text-[20px] transition-transform hover:scale-125 active:scale-110 ${
+                      reaction === emoji ? 'bg-stone-100' : ''
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </motion.div>
+            </>
+          ) : null}
+        </AnimatePresence>
+
+        <div
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+          className="select-none"
+        >
+          {message?.shared_item ? (
+            <div className="mb-1.5">
+              <SharedItemCard item={message.shared_item} compact />
+            </div>
+          ) : null}
+          {message?.image_url ? (
+            <div className={`mb-1.5 overflow-hidden rounded-[18px] ${isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'}`}>
+              <img
+                src={message.image_url}
+                alt="Imagen compartida en el chat"
+                loading="lazy"
+                className="max-w-[260px] object-cover"
+              />
+            </div>
+          ) : null}
+          {message?.content ? (
+            <div
+              className={`px-3.5 py-2.5 text-[15px] leading-[1.4] ${
+                isOwn
+                  ? 'rounded-[20px] rounded-br-[4px] bg-stone-950 text-white'
+                  : 'rounded-[20px] rounded-bl-[4px] bg-stone-100 text-stone-950'
+              }`}
+            >
+              {message.content}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Reaction pill */}
+        <AnimatePresence>
+          {reaction ? (
+            <motion.button
+              key={reaction}
+              type="button"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              onClick={() => setReaction(null)}
+              className={`mt-1 flex w-fit items-center gap-1 rounded-full border border-stone-100 bg-white px-2 py-0.5 text-[14px] shadow-sm ${
+                isOwn ? 'ml-auto' : ''
+              }`}
+            >
+              {reaction}
+            </motion.button>
+          ) : null}
+        </AnimatePresence>
+
         <MessageStatus message={message} isOwn={isOwn} />
       </div>
     </motion.div>

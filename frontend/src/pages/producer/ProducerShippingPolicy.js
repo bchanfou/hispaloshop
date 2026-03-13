@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
 import apiClient from '../../services/api/client';
 
 function toEuros(cents) {
@@ -70,24 +68,24 @@ export default function ProducerShippingPolicy() {
   };
 
   if (loading) {
-    return <div className="py-10 text-center text-text-muted">Cargando...</div>;
+    return <div className="py-10 text-center text-stone-500">Cargando...</div>;
   }
 
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-text-primary">Política de Envío</h1>
-        <p className="text-sm text-text-muted mt-1">Configura costes de envío por pedido para tus productos.</p>
+        <h1 className="text-2xl font-bold text-stone-950">Política de Envío</h1>
+        <p className="text-sm text-stone-500 mt-1">Configura costes de envío por pedido para tus productos.</p>
       </div>
 
       <div className="bg-white rounded-xl border border-stone-200 p-5 space-y-5">
         <label className="flex items-center justify-between gap-4">
-          <span className="text-sm font-medium text-text-primary">Habilitar gastos de envío</span>
+          <span className="text-sm font-medium text-stone-950">Habilitar gastos de envío</span>
           <input
             type="checkbox"
             checked={policy.enabled}
             onChange={(e) => setPolicy((prev) => ({ ...prev, enabled: e.target.checked }))}
-            className="h-4 w-4"
+            className="h-4 w-4 accent-stone-950"
           />
         </label>
 
@@ -95,28 +93,30 @@ export default function ProducerShippingPolicy() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Coste base (€)</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-950 mb-1">Coste base (€)</label>
+                <input
                   type="number"
                   step="0.01"
                   value={toEuros(policy.base_cost_cents)}
                   onChange={(e) => setPolicy((prev) => ({ ...prev, base_cost_cents: toCents(e.target.value) }))}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1">Coste por ítem (€)</label>
-                <Input
+                <label className="block text-sm font-medium text-stone-950 mb-1">Coste por ítem (€)</label>
+                <input
                   type="number"
                   step="0.01"
                   value={toEuros(policy.per_item_cents)}
                   onChange={(e) => setPolicy((prev) => ({ ...prev, per_item_cents: toCents(e.target.value) }))}
+                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-1">Umbral de envío gratis (€)</label>
-              <Input
+              <label className="block text-sm font-medium text-stone-950 mb-1">Umbral de envío gratis (€)</label>
+              <input
                 type="number"
                 step="0.01"
                 placeholder="Vacío = sin envío gratis"
@@ -127,21 +127,21 @@ export default function ProducerShippingPolicy() {
                     free_threshold_cents: e.target.value ? toCents(e.target.value) : null,
                   }))
                 }
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
               />
             </div>
 
-            <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 text-sm text-blue-900">
+            <div className="rounded-lg bg-stone-50 border border-stone-200 p-3 text-sm text-stone-700">
               Ejemplo 3 ítems: €{toEuros(preview)} de envío.
             </div>
           </>
         )}
 
-        <Button onClick={savePolicy} disabled={saving} className="w-full md:w-auto">
-          <Save className="w-4 h-4 mr-2" />
+        <button onClick={savePolicy} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors w-full md:w-auto">
+          <Save className="w-4 h-4 mr-2 inline" />
           {saving ? 'Guardando...' : 'Guardar'}
-        </Button>
+        </button>
       </div>
     </div>
   );
 }
-

@@ -10,7 +10,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from './ui/dropdown-menu';
-import { Button } from './ui/button';
 
 /**
  * Simple language switcher component that can be added to any page.
@@ -34,15 +33,13 @@ export default function LanguageSwitcher({ variant = 'default', className = '' }
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className={`h-8 gap-1 text-xs font-medium ${className}`}
+          <button
+            className={`inline-flex h-8 items-center gap-1 text-xs font-medium rounded hover:bg-stone-100 px-2 ${className}`}
             data-testid="language-switcher"
           >
             <Languages className="w-3.5 h-3.5" />
             <span className="uppercase">{language}</span>
-          </Button>
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 bg-white border border-stone-200 shadow-lg z-[100]">
           {Object.entries(languages).map(([code, data]) => (
@@ -54,7 +51,7 @@ export default function LanguageSwitcher({ variant = 'default', className = '' }
             >
               <span className="flex-1">{data.native}</span>
               <span className="text-xs text-stone-500 ml-2">{data.name}</span>
-              {language === code && <Check className="w-4 h-4 text-primary ml-2" />}
+              {language === code && <Check className="w-4 h-4 text-stone-950 ml-2" />}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -66,15 +63,13 @@ export default function LanguageSwitcher({ variant = 'default', className = '' }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className={`h-9 gap-2 ${className}`}
+        <button
+          className={`inline-flex h-9 items-center gap-2 rounded border border-stone-200 px-3 text-sm hover:bg-stone-50 ${className}`}
           data-testid="language-switcher"
         >
           <Languages className="w-4 h-4" />
           <span>{currentLang.native}</span>
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 bg-white border border-stone-200 shadow-lg z-[100]">
         <DropdownMenuLabel className="text-xs text-stone-500">
@@ -91,7 +86,7 @@ export default function LanguageSwitcher({ variant = 'default', className = '' }
             >
               <span className="flex-1 font-medium">{data.native}</span>
               <span className="text-xs text-stone-500">{data.name}</span>
-              {language === code && <Check className="w-4 h-4 text-primary ml-2" />}
+              {language === code && <Check className="w-4 h-4 text-stone-950 ml-2" />}
             </DropdownMenuItem>
           ))}
         </div>

@@ -38,7 +38,7 @@ export default function Footer() {
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
                 Hispaloshop
               </p>
-              <h2 className="font-body text-2xl font-semibold text-white">
+              <h2 className="text-2xl font-semibold text-white">
                 {t('footer.heroTitle', 'Descubrir, hablar y comprar dentro del mismo flujo.')}
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-stone-300">
@@ -65,7 +65,7 @@ export default function Footer() {
                 <img src="/logo.png" alt="Hispaloshop" className="h-7 w-7 object-contain invert" loading="lazy" />
               </div>
               <div>
-                <h3 className="font-body text-lg font-semibold text-white">Hispaloshop</h3>
+                <h3 className="text-lg font-semibold text-white">Hispaloshop</h3>
                 <p className="text-xs text-stone-400">
                   {t('footer.smallTagline', 'Alimentación honesta · comercio social claro')}
                 </p>
@@ -199,7 +199,7 @@ export default function Footer() {
         <Dialog open={showLanguageDialog} onOpenChange={setShowLanguageDialog}>
           <DialogContent className="max-h-[80vh] max-w-sm border-white/10 bg-stone-950">
             <DialogHeader>
-              <DialogTitle className="font-body text-lg font-semibold text-white">
+              <DialogTitle className="text-lg font-semibold text-white">
                 {t('locale.selectLanguage', 'Seleccionar idioma')}
               </DialogTitle>
             </DialogHeader>

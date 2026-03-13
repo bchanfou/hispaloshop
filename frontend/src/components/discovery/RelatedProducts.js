@@ -49,7 +49,7 @@ export default function RelatedProducts({ productId, title = 'Productos relacion
   return (
     <section className="mt-10">
       <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="font-body text-base font-semibold text-stone-950">{title}</h2>
+        <h2 className="text-base font-semibold text-stone-950">{title}</h2>
         <button
           onClick={() => navigate('/products')}
           className="flex items-center gap-1 text-sm font-medium text-stone-500 hover:text-stone-950"

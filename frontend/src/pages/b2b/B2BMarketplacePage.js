@@ -27,7 +27,7 @@ function ProductCard({ product }) {
           <p className="text-xs text-stone-500 mt-1">MOQ: {product.moq} uds</p>
         )}
         {lowestPrice && (
-          <p className="text-accent font-bold text-sm mt-2">
+          <p className="text-stone-950 font-bold text-sm mt-2">
             desde {(lowestPrice.unit_price_cents / 100).toFixed(2)} EUR/ud
           </p>
         )}
@@ -46,8 +46,8 @@ function ProducerCard({ producer, onContact, onChat }) {
         {producer.profile_image ? (
           <img src={producer.profile_image} alt={producer.full_name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-            <span className="text-accent font-bold text-lg">{(producer.full_name || producer.company_name || 'P')[0]}</span>
+          <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center flex-shrink-0">
+            <span className="text-stone-950 font-bold text-lg">{(producer.full_name || producer.company_name || 'P')[0]}</span>
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -71,13 +71,13 @@ function ProducerCard({ producer, onContact, onChat }) {
       <div className="mt-3 flex gap-2">
         <button
           onClick={() => onContact(producer.user_id || producer.id)}
-          className="flex-1 py-2 bg-accent text-white rounded-xl text-sm font-medium flex items-center justify-center gap-1"
+          className="flex-1 py-2 bg-stone-950 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-1"
         >
           Cotizar <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onChat(producer.user_id || producer.id)}
-          className="flex-1 py-2 border border-accent text-accent rounded-xl text-sm font-medium flex items-center justify-center gap-1"
+          className="flex-1 py-2 border border-stone-200 text-stone-600 rounded-xl text-sm font-medium flex items-center justify-center gap-1"
         >
           Chat <MessageSquare className="w-4 h-4" />
         </button>
@@ -132,7 +132,7 @@ export default function B2BMarketplacePage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={activeTab === 'catalog' ? 'Buscar productos...' : 'Buscar productores...'}
-              className="w-full pl-9 pr-4 py-2.5 bg-stone-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
+              className="w-full pl-9 pr-4 py-2.5 bg-stone-100 rounded-xl text-sm focus:outline-none focus:border-stone-950"
             />
           </div>
         )}
@@ -146,7 +146,7 @@ export default function B2BMarketplacePage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-accent text-accent'
+                    ? 'border-stone-950 text-stone-950'
                     : 'border-transparent text-stone-500'
                 }`}
               >
@@ -219,9 +219,9 @@ export default function B2BMarketplacePage() {
 
         {activeTab === 'rfq' && (
           <div className="space-y-4">
-            <div className="bg-accent/5 border border-accent/20 rounded-2xl p-4">
+            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4">
               <div className="flex items-start gap-3">
-                <Tag className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                <Tag className="w-5 h-5 text-stone-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-stone-800 text-sm">Cómo funciona</p>
                   <p className="text-xs text-stone-600 mt-1">

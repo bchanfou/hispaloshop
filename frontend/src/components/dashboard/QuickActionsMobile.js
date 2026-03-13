@@ -6,7 +6,7 @@ export default function QuickActionsMobile({ actions, title, className = '' }) {
   return (
     <div className={`space-y-3 ${className}`} data-testid="quick-actions-mobile">
       {title && (
-        <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider px-1">
+        <h3 className="text-sm font-semibold text-stone-950 uppercase tracking-wider px-1">
           {title}
         </h3>
       )}
@@ -35,21 +35,21 @@ export default function QuickActionsMobile({ actions, title, className = '' }) {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-text-primary text-sm">
+                <div className="font-medium text-stone-950 text-sm">
                   {action.label}
                 </div>
                 {action.description && (
-                  <div className="text-xs text-text-muted truncate">
+                  <div className="text-xs text-stone-500 truncate">
                     {action.description}
                   </div>
                 )}
               </div>
               {action.badge && (
-                <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                <span className="px-2 py-0.5 bg-stone-100 text-stone-700 text-xs font-medium rounded-full">
                   {action.badge}
                 </span>
               )}
-              <ChevronRight className="w-5 h-5 text-text-muted flex-shrink-0" />
+              <ChevronRight className="w-5 h-5 text-stone-500 flex-shrink-0" />
             </ActionWrapper>
           );
         })}

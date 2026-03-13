@@ -7,8 +7,6 @@ import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { getCategoryLabel, productMatchesCategory } from '../config/categories';
 import { useLocale } from '../context/LocaleContext';
 import { useCatalog } from '../features/products/queries/useProductQueries';
@@ -225,7 +223,7 @@ export default function ProductsPage() {
               <div className="flex w-full items-center gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                  <Input
+                  <input
                     type="text"
                     placeholder={t('products.searchPlaceholder', 'Buscar productos')}
                     value={filters.search}
@@ -234,7 +232,7 @@ export default function ProductsPage() {
                       setFilters((prev) => ({ ...prev, search: nextValue }));
                       updateSearchParams({ search: nextValue });
                     }}
-                    className="h-11 rounded-full border-stone-200 bg-stone-50 pl-9 placeholder:text-stone-400 focus:border-stone-950"
+                    className="h-11 rounded-full border border-stone-200 bg-stone-50 pl-9 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 w-full"
                     aria-label={t('products.searchPlaceholder', 'Buscar productos')}
                   />
                 </div>
@@ -259,15 +257,15 @@ export default function ProductsPage() {
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="flex h-11 items-center gap-2 rounded-full border-stone-200 bg-white lg:hidden"
+                <button
+                  type="button"
+                  className="flex h-11 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50 lg:hidden"
                   onClick={() => setShowMobileFilters(true)}
                   aria-label={t('products.filters', 'Filtros')}
                 >
                   <SlidersHorizontal className="h-4 w-4" />
                   <span className="hidden sm:inline">{t('products.filters', 'Filtros')}</span>
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -287,21 +285,21 @@ export default function ProductsPage() {
 
             <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 transition-all duration-150 ease-out hover:bg-stone-50">
               <span className="text-xs text-stone-400">{currencySymbol}</span>
-              <Input
+              <input
                 type="number"
                 placeholder="Mín"
                 value={filters.minPrice}
                 onChange={(event) => setFilters((prev) => ({ ...prev, minPrice: event.target.value }))}
-                className="h-7 w-16 border-0 bg-transparent p-0 text-xs focus:ring-0"
+                className="h-7 w-16 border-0 bg-transparent p-0 text-xs focus:outline-none"
                 aria-label="Precio mínimo"
               />
               <span className="text-xs text-stone-300">-</span>
-              <Input
+              <input
                 type="number"
                 placeholder="Máx"
                 value={filters.maxPrice}
                 onChange={(event) => setFilters((prev) => ({ ...prev, maxPrice: event.target.value }))}
-                className="h-7 w-16 border-0 bg-transparent p-0 text-xs focus:ring-0"
+                className="h-7 w-16 border-0 bg-transparent p-0 text-xs focus:outline-none"
                 aria-label="Precio máximo"
               />
             </div>
@@ -419,9 +417,13 @@ export default function ProductsPage() {
               {t('products.tryDifferentFilters', 'Prueba con otros filtros o busca otra categoría.')}
             </p>
             {hasActiveFilters ? (
-              <Button variant="outline" onClick={clearFilters} className="rounded-full border-stone-200 bg-white hover:bg-stone-50">
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="rounded-full border border-stone-200 bg-white px-5 py-2.5 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
+              >
                 {t('products.clearFilters', 'Limpiar')}
-              </Button>
+              </button>
             ) : null}
           </div>
         ) : (
@@ -434,14 +436,14 @@ export default function ProductsPage() {
 
             {catalogQuery.hasNextPage ? (
               <div className="mt-8 flex justify-center">
-                <Button
+                <button
                   type="button"
                   onClick={() => catalogQuery.fetchNextPage()}
                   disabled={catalogQuery.isFetchingNextPage}
-                  className="rounded-full bg-stone-950 text-white hover:bg-stone-800"
+                  className="rounded-full bg-stone-950 px-6 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
                 >
                   {catalogQuery.isFetchingNextPage ? t('common.loading', 'Cargando...') : t('products.loadMore', 'Cargar más')}
-                </Button>
+                </button>
               </div>
             ) : null}
           </>
@@ -505,20 +507,24 @@ export default function ProductsPage() {
 
             <div className="flex gap-3 border-t border-stone-100 px-5 py-4">
               {hasActiveFilters ? (
-                <Button
-                  variant="outline"
-                  className="h-11 flex-1 rounded-full border-stone-200"
+                <button
+                  type="button"
+                  className="h-11 flex-1 rounded-full border border-stone-200 text-[13px] font-semibold text-stone-700 transition-colors hover:bg-stone-50"
                   onClick={() => {
                     clearFilters();
                     setShowMobileFilters(false);
                   }}
                 >
                   {t('products.clearFilters', 'Limpiar')}
-                </Button>
+                </button>
               ) : null}
-              <Button className="h-11 flex-1 rounded-full bg-stone-950 text-white hover:bg-stone-800" onClick={() => setShowMobileFilters(false)}>
+              <button
+                type="button"
+                className="h-11 flex-1 rounded-full bg-stone-950 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+                onClick={() => setShowMobileFilters(false)}
+              >
                 {t('products.applyFilters', 'Aplicar')} ({products.length})
-              </Button>
+              </button>
             </div>
           </div>
         </div>

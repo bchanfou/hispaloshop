@@ -25,7 +25,7 @@ const quoteSchema = z.object({
 // ─── Field error helper ──────────────────────────────────────────────────────
 function FieldError({ message }) {
   if (!message) return null;
-  return <p className="text-xs text-state-error mt-1">{message}</p>;
+  return <p className="text-xs text-stone-600 mt-1">{message}</p>;
 }
 
 // ─── Main component ──────────────────────────────────────────────────────────
@@ -85,27 +85,27 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-5 rounded-2xl border border-stone-200 bg-white p-5"
     >
-      <h3 className="font-semibold text-text-primary text-base">Nueva solicitud de cotización (RFQ)</h3>
+      <h3 className="font-semibold text-stone-950 text-base">Nueva solicitud de cotización (RFQ)</h3>
 
       {/* Producer + Country */}
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
-            ID del Productor <span className="text-state-error">*</span>
+          <label className="block text-sm font-medium text-stone-600 mb-1">
+            ID del Productor <span className="text-stone-600">*</span>
           </label>
           <input
             {...register('producer_id')}
             placeholder="prod_abc123"
-            className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-accent ${
-              errors.producer_id ? 'border-state-error' : 'border-stone-200'
+            className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+              errors.producer_id ? 'border-stone-400' : 'border-stone-200'
             }`}
           />
           <FieldError message={errors.producer_id?.message} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">
-            País de destino <span className="text-state-error">*</span>
+          <label className="block text-sm font-medium text-stone-600 mb-1">
+            País de destino <span className="text-stone-600">*</span>
           </label>
           <Controller
             control={control}
@@ -113,8 +113,8 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
             render={({ field }) => (
               <select
                 {...field}
-                className={`w-full px-3 py-2 rounded-lg border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent ${
-                  errors.target_country ? 'border-state-error' : 'border-stone-200'
+                className={`w-full px-3 py-2 rounded-lg border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+                  errors.target_country ? 'border-stone-400' : 'border-stone-200'
                 }`}
               >
                 <option value="ES">🇪🇸 España</option>
@@ -139,15 +139,15 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
 
       {/* Message */}
       <div>
-        <label className="block text-sm font-medium text-text-secondary mb-1">
-          Descripción del pedido <span className="text-state-error">*</span>
+        <label className="block text-sm font-medium text-stone-600 mb-1">
+          Descripción del pedido <span className="text-stone-600">*</span>
         </label>
         <textarea
           {...register('message')}
           rows={4}
           placeholder="Describe volumen, formatos, certificaciones o requisitos logísticos."
-          className={`w-full px-3 py-2 rounded-lg border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-accent ${
-            errors.message ? 'border-state-error' : 'border-stone-200'
+          className={`w-full px-3 py-2 rounded-lg border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+            errors.message ? 'border-stone-400' : 'border-stone-200'
           }`}
         />
         <FieldError message={errors.message?.message} />
@@ -155,8 +155,8 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
 
       {/* Product rows */}
       <div>
-        <label className="block text-sm font-medium text-text-secondary mb-2">
-          Productos <span className="text-state-error">*</span>
+        <label className="block text-sm font-medium text-stone-600 mb-2">
+          Productos <span className="text-stone-600">*</span>
         </label>
         <div className="space-y-2">
           {fields.map((field, idx) => (
@@ -165,8 +165,8 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
                 <input
                   {...register(`rows.${idx}.product_id`)}
                   placeholder="ID del producto"
-                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-accent ${
-                    errors.rows?.[idx]?.product_id ? 'border-state-error' : 'border-stone-200'
+                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+                    errors.rows?.[idx]?.product_id ? 'border-stone-400' : 'border-stone-200'
                   }`}
                 />
                 <FieldError message={errors.rows?.[idx]?.product_id?.message} />
@@ -177,8 +177,8 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
                   type="number"
                   min="1"
                   placeholder="Cant."
-                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-accent ${
-                    errors.rows?.[idx]?.qty_requested ? 'border-state-error' : 'border-stone-200'
+                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+                    errors.rows?.[idx]?.qty_requested ? 'border-stone-400' : 'border-stone-200'
                   }`}
                 />
                 <FieldError message={errors.rows?.[idx]?.qty_requested?.message} />
@@ -187,7 +187,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
                 <button
                   type="button"
                   onClick={() => remove(idx)}
-                  className="mt-1 p-2 text-state-error hover:bg-red-50 rounded-lg transition-colors"
+                  className="mt-1 p-2 text-stone-600 hover:bg-stone-50 rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -201,7 +201,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
         <button
           type="button"
           onClick={() => append({ product_id: '', qty_requested: 100 })}
-          className="mt-2 flex items-center gap-1.5 text-sm text-accent font-medium hover:underline"
+          className="mt-2 flex items-center gap-1.5 text-sm text-stone-950 font-medium hover:underline"
         >
           <Plus className="w-4 h-4" />
           Añadir producto
@@ -213,7 +213,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
         <button
           type="submit"
           disabled={isSubmitting || createInquiry.isPending}
-          className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-xl text-sm font-medium hover:bg-accent/90 disabled:opacity-60 transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 bg-stone-950 text-white rounded-xl text-sm font-medium hover:bg-stone-800 disabled:opacity-60 transition-colors"
         >
           {isSubmitting || createInquiry.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />

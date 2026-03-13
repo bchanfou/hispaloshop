@@ -24,7 +24,7 @@ const CartButton = ({ className = '', onClick }) => {
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
             transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-            className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 bg-state-error text-white text-xs font-bold rounded-full flex items-center justify-center"
+            className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 bg-stone-950 text-white text-xs font-bold rounded-full flex items-center justify-center"
           >
             {totalItems > 9 ? '9+' : totalItems}
           </motion.span>

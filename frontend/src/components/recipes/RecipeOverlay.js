@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Clock, Loader2, ShoppingCart, User, Users, X } from 'lucide-react';
-import { Button } from '../ui/button';
 import ProductDetailOverlay from '../store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from './RecipeShoppingListOverlay';
 import ContextualProductSuggestions from '../intelligence/ContextualProductSuggestions';
@@ -184,14 +183,14 @@ export default function RecipeOverlay({
                       <p className="mt-4 text-sm leading-relaxed text-stone-700">{recipeDetail.description}</p>
                     ) : null}
 
-                    <Button
+                    <button
                       type="button"
                       onClick={() => setShowShoppingList(true)}
-                      className="mt-5 h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800"
+                      className="mt-5 h-11 w-full rounded-full bg-stone-950 text-white hover:bg-stone-800 flex items-center justify-center gap-2"
                     >
                       <ShoppingCart className="h-4 w-4" />
                       Comprar ingredientes
-                    </Button>
+                    </button>
                   </div>
                 </div>
 

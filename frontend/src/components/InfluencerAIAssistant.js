@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import apiClient from '../services/api/client';
-import { Button } from './ui/button';
 import {
   Send, X,
   Video, FileText, Instagram, Megaphone, PenTool,
@@ -181,14 +180,13 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
             className="flex-1 px-4 py-2 border border-stone-200 bg-stone-50 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-stone-300 placeholder:text-stone-400"
             disabled={loading}
           />
-          <Button
+          <button
             onClick={() => sendMessage()}
             disabled={loading || !input.trim()}
-            size="icon"
-            className="rounded-full bg-stone-950 hover:bg-stone-800 disabled:bg-stone-300 w-10 h-10"
+            className="rounded-full bg-stone-950 hover:bg-stone-800 disabled:bg-stone-300 w-10 h-10 flex items-center justify-center shrink-0"
           >
             <Send className="w-4 h-4 text-white" />
-          </Button>
+          </button>
         </div>
       </div>
     </div>

@@ -15,19 +15,6 @@ import {
 import { toast } from 'sonner';
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
 import apiClient from '../../services/api/client';
 
 const STEPS = [
@@ -152,8 +139,8 @@ function isValidUrl(value) {
 function FieldLabel({ children, optional = false }) {
   return (
     <div className="mb-2 flex items-center justify-between gap-3">
-      <span className="text-sm font-semibold text-slate-900">{children}</span>
-      {optional && <span className="text-xs uppercase tracking-[0.24em] text-slate-400">Opcional</span>}
+      <span className="text-sm font-semibold text-stone-950">{children}</span>
+      {optional && <span className="text-xs uppercase tracking-[0.24em] text-stone-400">Opcional</span>}
     </div>
   );
 }
@@ -163,7 +150,7 @@ function FieldError({ children }) {
     return null;
   }
 
-  return <p className="mt-2 text-sm text-rose-600">{children}</p>;
+  return <p className="mt-2 text-sm text-stone-700">{children}</p>;
 }
 
 export default function ApplicationModal({ open, onOpenChange }) {
@@ -332,24 +319,24 @@ export default function ApplicationModal({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="left-0 top-0 h-screen w-screen max-w-none translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-none border-0 bg-transparent p-0 shadow-none [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:border [&>button]:border-white/15 [&>button]:bg-white/10 [&>button]:p-2 [&>button]:text-white [&>button]:opacity-100 [&>button]:backdrop-blur">
+      <DialogContent className="left-0 top-0 h-screen w-screen max-w-none translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-none border-0 bg-transparent p-0 shadow-none [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:border [&>button]:border-stone-200 [&>button]:bg-stone-100 [&>button]:p-2 [&>button]:text-stone-700 [&>button]:opacity-100">
         <DialogTitle className="sr-only">Aplicación influencer Hispaloshop</DialogTitle>
         <DialogDescription className="sr-only">
           Formulario de tres pasos para aplicar al programa de influencers de Hispaloshop.
         </DialogDescription>
         <div className="grid h-full bg-white lg:grid-cols-[0.9fr_1.1fr]">
-          <aside className="hidden overflow-hidden bg-[linear-gradient(165deg,#0f0518_0%,#1e1b4b_48%,#111827_100%)] p-10 text-slate-100 lg:flex lg:flex-col">
-            <div className="flex items-center gap-3 text-sm uppercase tracking-[0.28em] text-fuchsia-200/80">
+          <aside className="hidden overflow-hidden bg-stone-950 p-10 text-stone-100 lg:flex lg:flex-col">
+            <div className="flex items-center gap-3 text-sm uppercase tracking-[0.28em] text-stone-400">
               <Sparkles className="h-4 w-4" aria-hidden="true" />
-              Estudio nocturno para creadores
+              Programa de influencers Hispaloshop
             </div>
 
             <div className="mt-10 max-w-md">
-              <p className="text-sm uppercase tracking-[0.28em] text-fuchsia-300/70">Aplicación real</p>
-              <h2 className="mt-4 text-4xl font-black leading-tight text-slate-50">
+              <p className="text-sm uppercase tracking-[0.28em] text-stone-400">Aplicación real</p>
+              <h2 className="mt-4 text-4xl font-black leading-tight text-white">
                 No es un formulario corporativo. Es tu puerta de salida.
               </h2>
-              <p className="mt-5 text-base leading-7 text-slate-300">
+              <p className="mt-5 text-base leading-7 text-stone-300">
                 Tres pasos. Sin pago. Sin humo. Si eliges Hércules, entramos en activación rápida. Si apuntas a
                 Atenea o Zeus, hacemos revisión humana en 24-48h.
               </p>
@@ -357,17 +344,17 @@ export default function ApplicationModal({ open, onOpenChange }) {
 
             <div className="mt-10 space-y-4">
               <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 backdrop-blur">
-                <p className="text-sm font-semibold text-slate-50">Lo que miramos</p>
-                <ul className="mt-3 space-y-3 text-sm leading-6 text-slate-300">
+                <p className="text-sm font-semibold text-white">Lo que miramos</p>
+                <ul className="mt-3 space-y-3 text-sm leading-6 text-stone-300">
                   <li>Engagement real, no seguidores inflados.</li>
                   <li>Si tu voz encaja con comida, wellness, lifestyle o sostenibilidad.</li>
                   <li>Si quieres recomendar cosas que de verdad podrías usar.</li>
                 </ul>
               </div>
 
-              <div className="rounded-[28px] border border-fuchsia-400/30 bg-fuchsia-500/10 p-5">
-                <p className="text-sm font-semibold text-fuchsia-100">Tracking que importa</p>
-                <p className="mt-3 text-sm leading-6 text-fuchsia-50/80">
+              <div className="rounded-[28px] border border-stone-600 bg-stone-800 p-5">
+                <p className="text-sm font-semibold text-white">Tracking que importa</p>
+                <p className="mt-3 text-sm leading-6 text-stone-300">
                   Cada compra que conectes se queda atribuida durante 18 meses. No necesitas vivir esclavizado al
                   próximo reel.
                 </p>
@@ -376,27 +363,27 @@ export default function ApplicationModal({ open, onOpenChange }) {
 
             <div className="mt-auto rounded-[30px] border border-white/10 bg-white/5 p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-fuchsia-500/20 text-fuchsia-200">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-700 text-stone-300">
                   <Instagram className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-50">@bchanfuah</p>
-                  <p className="text-sm text-slate-300">Si quieres comprobar que soy real, ahí me tienes.</p>
+                  <p className="text-sm font-semibold text-white">@bchanfuah</p>
+                  <p className="text-sm text-stone-300">Si quieres comprobar que soy real, ahí me tienes.</p>
                 </div>
               </div>
             </div>
           </aside>
 
-          <section className="relative flex min-h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(217,70,239,0.12),transparent_30%),linear-gradient(180deg,#ffffff_0%,#faf5ff_48%,#ffffff_100%)]">
-            <div className="border-b border-slate-200/80 px-5 py-4 sm:px-8">
+          <section className="relative flex min-h-screen flex-col overflow-hidden bg-white">
+            <div className="border-b border-stone-200 px-5 py-4 sm:px-8">
               <div className="mx-auto w-full max-w-3xl">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.32em] text-fuchsia-500">Aplicacion influencer</p>
-                    <p className="mt-2 text-sm text-slate-500">Identidad - Audiencia - Confirmacion</p>
+                    <p className="text-xs uppercase tracking-[0.32em] text-stone-950">Aplicacion influencer</p>
+                    <p className="mt-2 text-sm text-stone-500">Identidad - Audiencia - Confirmacion</p>
                   </div>
                   {referredBy && (
-                    <div className="rounded-full border border-fuchsia-200 bg-fuchsia-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-700">
+                    <div className="rounded-full border border-stone-200 bg-stone-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-stone-700">
                       Referido por {referredBy}
                     </div>
                   )}
@@ -404,10 +391,12 @@ export default function ApplicationModal({ open, onOpenChange }) {
 
                 {!submitted && (
                   <>
-                    <Progress value={progressValue} className="mt-6 h-2 bg-fuchsia-100 [&>div]:bg-[linear-gradient(90deg,#d946ef,#fb7185)]" />
-                    <div className="mt-4 grid grid-cols-3 gap-3 text-xs uppercase tracking-[0.24em] text-slate-400">
+                    <div className="mt-6 h-2 w-full overflow-hidden rounded-full bg-stone-100">
+                      <div className="h-full rounded-full bg-stone-950 transition-all" style={{ width: `${progressValue}%` }} />
+                    </div>
+                    <div className="mt-4 grid grid-cols-3 gap-3 text-xs uppercase tracking-[0.24em] text-stone-400">
                       {STEPS.map((item) => (
-                        <div key={item.id} className={cn(step >= item.id && 'text-fuchsia-600')}>
+                        <div key={item.id} className={step >= item.id ? 'text-stone-950' : undefined}>
                           {item.label}
                         </div>
                       ))}
@@ -420,7 +409,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
             <div className="flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
               <div className="mx-auto w-full max-w-3xl">
                 {submitted ? (
-                  <div className="overflow-hidden rounded-[34px] border border-fuchsia-200 bg-[linear-gradient(150deg,#581c87_0%,#7e22ce_42%,#ec4899_100%)] p-8 text-white shadow-[0_30px_80px_rgba(88,28,135,0.28)] sm:p-10">
+                  <div className="overflow-hidden rounded-[34px] border border-stone-200 bg-stone-950 p-8 text-white shadow-[0_30px_80px_rgba(28,28,28,0.28)] sm:p-10">
                     <div className="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-white/80">
                       Bienvenido a la resistencia
                     </div>
@@ -438,7 +427,7 @@ export default function ApplicationModal({ open, onOpenChange }) {
                         href="https://instagram.com/bchanfuah"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-purple-900 transition-transform hover:scale-[1.02]"
+                        className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-stone-950 transition-transform hover:scale-[1.02]"
                       >
                         <Instagram className="h-4 w-4" aria-hidden="true" />
                         Seguir a @bchanfuah
@@ -475,14 +464,14 @@ export default function ApplicationModal({ open, onOpenChange }) {
                         animate="center"
                         exit="exit"
                         transition={{ duration: 0.24, ease: 'easeOut' }}
-                        className="rounded-[34px] border border-slate-200 bg-white/90 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8"
+                        className="rounded-[34px] border border-stone-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] sm:p-8"
                       >
                         {step === 1 && (
                           <div>
                             <div className="max-w-2xl">
-                              <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-500">Paso 1</p>
-                              <h3 className="mt-3 text-3xl font-black text-slate-950">Quien eres?</h3>
-                              <p className="mt-3 text-base leading-7 text-slate-600">
+                              <p className="text-xs uppercase tracking-[0.3em] text-stone-500">Paso 1</p>
+                              <h3 className="mt-3 text-3xl font-black text-stone-950">Quien eres?</h3>
+                              <p className="mt-3 text-base leading-7 text-stone-600">
                                 Tu tarjeta de presentacion, sin trajes ni palabras huecas.
                               </p>
                             </div>
@@ -490,23 +479,23 @@ export default function ApplicationModal({ open, onOpenChange }) {
                             <div className="mt-8 grid gap-5 md:grid-cols-2">
                               <label className="block">
                                 <FieldLabel>Nombre artistico / Como te conocen</FieldLabel>
-                                <Input
+                                <input
                                   value={form.artistName}
                                   onChange={(event) => updateField('artistName', event.target.value)}
                                   placeholder="Ej: Lara Come Bonito"
-                                  className="h-12 rounded-2xl border-slate-200 px-4 text-base focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
+                                  className="h-12 w-full rounded-2xl border border-stone-200 px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
                                 />
                                 <FieldError>{errors.artistName}</FieldError>
                               </label>
 
                               <label className="block">
                                 <FieldLabel>Email profesional</FieldLabel>
-                                <Input
+                                <input
                                   type="email"
                                   value={form.email}
                                   onChange={(event) => updateField('email', event.target.value)}
                                   placeholder="hola@tuestudio.com"
-                                  className="h-12 rounded-2xl border-slate-200 px-4 text-base focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
+                                  className="h-12 w-full rounded-2xl border border-stone-200 px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
                                 />
                                 <FieldError>{errors.email}</FieldError>
                               </label>
@@ -514,12 +503,12 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               <label className="block">
                                 <FieldLabel>Tu Instagram principal</FieldLabel>
                                 <div className="relative">
-                                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">@</span>
-                                  <Input
+                                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-stone-400">@</span>
+                                  <input
                                     value={form.instagram.replace(/^@/, '')}
                                     onChange={(event) => updateField('instagram', event.target.value)}
                                     placeholder="tuusuario"
-                                    className="h-12 rounded-2xl border-slate-200 px-10 text-base focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
+                                    className="h-12 w-full rounded-2xl border border-stone-200 px-10 text-base text-stone-950 focus:outline-none focus:border-stone-950"
                                   />
                                 </div>
                                 <FieldError>{errors.instagram}</FieldError>
@@ -527,22 +516,22 @@ export default function ApplicationModal({ open, onOpenChange }) {
 
                               <label className="block">
                                 <FieldLabel>Teléfono</FieldLabel>
-                                <Input
+                                <input
                                   value={form.phone}
                                   onChange={(event) => updateField('phone', event.target.value)}
                                   placeholder="+34 600 000 000"
-                                  className="h-12 rounded-2xl border-slate-200 px-4 text-base focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
+                                  className="h-12 w-full rounded-2xl border border-stone-200 px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
                                 />
                                 <FieldError>{errors.phone}</FieldError>
                               </label>
 
                               <label className="block">
                                 <FieldLabel>Ciudad donde resides</FieldLabel>
-                                <Input
+                                <input
                                   value={form.residenceCity}
                                   onChange={(event) => updateField('residenceCity', event.target.value)}
                                   placeholder="Reus, Seúl, Ciudad de México..."
-                                  className="h-12 rounded-2xl border-slate-200 px-4 text-base focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
+                                  className="h-12 w-full rounded-2xl border border-stone-200 px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
                                 />
                                 <FieldError>{errors.residenceCity}</FieldError>
                               </label>
@@ -550,35 +539,31 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
                                 <label className="block">
                                   <FieldLabel>País</FieldLabel>
-                                  <Select value={form.residenceCountry} onValueChange={(value) => updateField('residenceCountry', value)}>
-                                    <SelectTrigger className="h-12 rounded-2xl border-slate-200 px-4 text-base focus:ring-fuchsia-500">
-                                      <SelectValue placeholder="Selecciona país" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {COUNTRY_OPTIONS.map((country) => (
-                                        <SelectItem key={country} value={country}>
-                                          {country}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <select
+                                    value={form.residenceCountry}
+                                    onChange={(e) => updateField('residenceCountry', e.target.value)}
+                                    className="h-12 w-full rounded-2xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
+                                  >
+                                    <option value="">Selecciona país</option>
+                                    {COUNTRY_OPTIONS.map((country) => (
+                                      <option key={country} value={country}>{country}</option>
+                                    ))}
+                                  </select>
                                   <FieldError>{errors.residenceCountry}</FieldError>
                                 </label>
 
                                 <label className="block">
                                   <FieldLabel optional>Edad</FieldLabel>
-                                  <Select value={form.ageRange} onValueChange={(value) => updateField('ageRange', value)}>
-                                    <SelectTrigger className="h-12 rounded-2xl border-slate-200 px-4 text-base focus:ring-fuchsia-500">
-                                      <SelectValue placeholder="Rango" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {AGE_OPTIONS.map((age) => (
-                                        <SelectItem key={age} value={age}>
-                                          {age}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <select
+                                    value={form.ageRange}
+                                    onChange={(e) => updateField('ageRange', e.target.value)}
+                                    className="h-12 w-full rounded-2xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
+                                  >
+                                    <option value="">Rango</option>
+                                    {AGE_OPTIONS.map((age) => (
+                                      <option key={age} value={age}>{age}</option>
+                                    ))}
+                                  </select>
                                 </label>
                               </div>
                             </div>
@@ -588,9 +573,9 @@ export default function ApplicationModal({ open, onOpenChange }) {
                         {step === 2 && (
                           <div>
                             <div className="max-w-2xl">
-                              <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-500">Paso 2</p>
-                              <h3 className="mt-3 text-3xl font-black text-slate-950">Tu tribu</h3>
-                              <p className="mt-3 text-base leading-7 text-slate-600">
+                              <p className="text-xs uppercase tracking-[0.3em] text-stone-500">Paso 2</p>
+                              <h3 className="mt-3 text-3xl font-black text-stone-950">Tu tribu</h3>
+                              <p className="mt-3 text-base leading-7 text-stone-600">
                                 Queremos saber qué tipo de comunidad has construido y por qué te seguirían hasta algo
                                 más honesto.
                               </p>
@@ -607,12 +592,11 @@ export default function ApplicationModal({ open, onOpenChange }) {
                                         key={niche}
                                         type="button"
                                         onClick={() => toggleNiche(niche)}
-                                        className={cn(
-                                          'rounded-full border px-4 py-2 text-sm font-medium transition-all',
+                                        className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                                           selected
-                                            ? 'border-fuchsia-500 bg-fuchsia-50 text-fuchsia-700 shadow-[0_0_0_4px_rgba(217,70,239,0.08)]'
-                                            : 'border-slate-200 bg-white text-slate-600 hover:border-fuchsia-200 hover:text-slate-900'
-                                        )}
+                                            ? 'border-stone-950 bg-stone-100 text-stone-950'
+                                            : 'border-stone-200 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-950'
+                                        }`}
                                       >
                                         {niche}
                                       </button>
@@ -632,14 +616,13 @@ export default function ApplicationModal({ open, onOpenChange }) {
                                         key={range}
                                         type="button"
                                         onClick={() => updateField('followerRange', range)}
-                                        className={cn(
-                                          'rounded-[22px] border px-4 py-4 text-left transition-all',
+                                        className={`rounded-[22px] border px-4 py-4 text-left transition-all ${
                                           selected
-                                            ? 'border-fuchsia-500 bg-fuchsia-50 shadow-[0_0_0_4px_rgba(217,70,239,0.08)]'
-                                            : 'border-slate-200 bg-white hover:border-fuchsia-200'
-                                        )}
+                                            ? 'border-stone-950 bg-stone-100'
+                                            : 'border-stone-200 bg-white hover:border-stone-400'
+                                        }`}
                                       >
-                                        <p className="font-semibold text-slate-900">{range}</p>
+                                        <p className="font-semibold text-stone-900">{range}</p>
                                       </button>
                                     );
                                   })}
@@ -650,29 +633,27 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               <div className="grid gap-5 md:grid-cols-2">
                                 <label className="block">
                                   <FieldLabel>País principal de tu audiencia</FieldLabel>
-                                  <Select value={form.audienceCountry} onValueChange={(value) => updateField('audienceCountry', value)}>
-                                    <SelectTrigger className="h-12 rounded-2xl border-slate-200 px-4 text-base focus:ring-fuchsia-500">
-                                      <SelectValue placeholder="Selecciona país" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {COUNTRY_OPTIONS.map((country) => (
-                                        <SelectItem key={country} value={country}>
-                                          {country}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <select
+                                    value={form.audienceCountry}
+                                    onChange={(e) => updateField('audienceCountry', e.target.value)}
+                                    className="h-12 w-full rounded-2xl border border-stone-200 bg-white px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
+                                  >
+                                    <option value="">Selecciona país</option>
+                                    {COUNTRY_OPTIONS.map((country) => (
+                                      <option key={country} value={country}>{country}</option>
+                                    ))}
+                                  </select>
                                   <FieldError>{errors.audienceCountry}</FieldError>
                                 </label>
 
                                 <label className="block">
                                   <FieldLabel optional>Link a tu mejor contenido</FieldLabel>
-                                  <Input
+                                  <input
                                     type="url"
                                     value={form.bestContentUrl}
                                     onChange={(event) => updateField('bestContentUrl', event.target.value)}
                                     placeholder="https://instagram.com/reel/..."
-                                    className="h-12 rounded-2xl border-slate-200 px-4 text-base focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
+                                    className="h-12 w-full rounded-2xl border border-stone-200 px-4 text-base text-stone-950 focus:outline-none focus:border-stone-950"
                                   />
                                   <FieldError>{errors.bestContentUrl}</FieldError>
                                 </label>
@@ -680,16 +661,16 @@ export default function ApplicationModal({ open, onOpenChange }) {
 
                               <label className="block">
                                 <FieldLabel>¿Por qué quieres unirte?</FieldLabel>
-                                <Textarea
+                                <textarea
                                   value={form.motivation}
                                   onChange={(event) => updateField('motivation', event.target.value)}
                                   rows={6}
                                   placeholder="Cuéntanos la verdad: qué tipo de estabilidad buscas, por qué te quemaste de ciertas marcas y cómo tratarías a tu comunidad."
-                                  className="min-h-[180px] rounded-[24px] border-slate-200 px-4 py-4 text-base leading-7 focus-visible:border-fuchsia-500 focus-visible:ring-fuchsia-500"
+                                  className="w-full min-h-[180px] rounded-[24px] border border-stone-200 px-4 py-4 text-base leading-7 text-stone-950 focus:outline-none focus:border-stone-950 resize-none"
                                 />
                                 <div className="mt-2 flex items-center justify-between gap-4">
                                   <FieldError>{errors.motivation}</FieldError>
-                                  <p className="text-sm text-slate-400">{form.motivation.trim().length} / 140 mínimo</p>
+                                  <p className="text-sm text-stone-400">{form.motivation.trim().length} / 140 mínimo</p>
                                 </div>
                               </label>
                             </div>
@@ -699,9 +680,9 @@ export default function ApplicationModal({ open, onOpenChange }) {
                         {step === 3 && (
                           <div>
                             <div className="max-w-2xl">
-                              <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-500">Paso 3</p>
-                              <h3 className="mt-3 text-3xl font-black text-slate-950">Elige tu camino</h3>
-                              <p className="mt-3 text-base leading-7 text-slate-600">
+                              <p className="text-xs uppercase tracking-[0.3em] text-stone-500">Paso 3</p>
+                              <h3 className="mt-3 text-3xl font-black text-stone-950">Elige tu camino</h3>
+                              <p className="mt-3 text-base leading-7 text-stone-600">
                                 La comisión es transparente: Hércules 3%, Atenea 5%, Zeus 7%, con tracking de 18 meses.
                               </p>
                             </div>
@@ -715,28 +696,24 @@ export default function ApplicationModal({ open, onOpenChange }) {
                                     key={tier.key}
                                     type="button"
                                     onClick={() => updateField('desiredTier', tier.key)}
-                                    className={cn(
-                                      'w-full rounded-[28px] border p-5 text-left transition-all',
+                                    className={`w-full rounded-[28px] border p-5 text-left transition-all ${
                                       selected
-                                        ? 'border-fuchsia-500 bg-fuchsia-50 shadow-[0_22px_45px_rgba(217,70,239,0.16)]'
-                                        : 'border-slate-200 bg-white hover:border-fuchsia-200 hover:shadow-[0_18px_40px_rgba(15,23,42,0.06)]'
-                                    )}
+                                        ? 'border-stone-950 bg-stone-100'
+                                        : 'border-stone-200 bg-white hover:border-stone-400'
+                                    }`}
                                   >
                                     <div className="flex items-start gap-4">
                                       <div
-                                        className={cn(
-                                          'mt-0.5 flex h-12 w-12 items-center justify-center rounded-2xl',
-                                          selected ? 'bg-fuchsia-500 text-white' : 'bg-slate-100 text-slate-600'
-                                        )}
+                                        className={`mt-0.5 flex h-12 w-12 items-center justify-center rounded-2xl ${selected ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-600'}`}
                                         aria-label={tier.subtitle}
                                         role="img"
                                       >
                                         <Icon className="h-5 w-5" aria-hidden="true" />
                                       </div>
                                       <div>
-                                        <p className="text-lg font-semibold text-slate-950">{tier.title}</p>
-                                        <p className="mt-1 text-sm font-medium text-fuchsia-700">{tier.subtitle}</p>
-                                        <p className="mt-2 text-sm leading-6 text-slate-600">{tier.helper}</p>
+                                        <p className="text-lg font-semibold text-stone-950">{tier.title}</p>
+                                        <p className="mt-1 text-sm font-medium text-stone-700">{tier.subtitle}</p>
+                                        <p className="mt-2 text-sm leading-6 text-stone-600">{tier.helper}</p>
                                       </div>
                                     </div>
                                   </button>
@@ -745,50 +722,54 @@ export default function ApplicationModal({ open, onOpenChange }) {
                               <FieldError>{errors.desiredTier}</FieldError>
                             </div>
 
-                            <div className="mt-8 space-y-4 rounded-[30px] border border-slate-200 bg-slate-50 p-5">
+                            <div className="mt-8 space-y-4 rounded-[30px] border border-stone-200 bg-stone-50 p-5">
                               <label className="flex items-start gap-3 rounded-2xl px-1 py-1">
-                                <Checkbox
+                                <input
+                                  type="checkbox"
                                   checked={form.agreementCommission}
-                                  onCheckedChange={(checked) => updateField('agreementCommission', Boolean(checked))}
-                                  className="mt-1 h-5 w-5 rounded-md border-fuchsia-300 data-[state=checked]:border-fuchsia-500 data-[state=checked]:bg-fuchsia-500"
+                                  onChange={(e) => updateField('agreementCommission', e.target.checked)}
+                                  className="mt-1 h-5 w-5 rounded accent-stone-950 cursor-pointer"
                                 />
-                                <span className="text-sm leading-6 text-slate-700">
+                                <span className="text-sm leading-6 text-stone-700">
                                   Entiendo que la comisión se paga sobre el valor postenvío e impuestos.
                                 </span>
                               </label>
                               <FieldError>{errors.agreementCommission}</FieldError>
 
                               <label className="flex items-start gap-3 rounded-2xl px-1 py-1">
-                                <Checkbox
+                                <input
+                                  type="checkbox"
                                   checked={form.agreementTracking}
-                                  onCheckedChange={(checked) => updateField('agreementTracking', Boolean(checked))}
-                                  className="mt-1 h-5 w-5 rounded-md border-fuchsia-300 data-[state=checked]:border-fuchsia-500 data-[state=checked]:bg-fuchsia-500"
+                                  onChange={(e) => updateField('agreementTracking', e.target.checked)}
+                                  className="mt-1 h-5 w-5 rounded accent-stone-950 cursor-pointer"
                                 />
-                                <span className="text-sm leading-6 text-slate-700">
+                                <span className="text-sm leading-6 text-stone-700">
                                   Entiendo que el tracking de 18 meses es desde la primera compra del usuario.
                                 </span>
                               </label>
                               <FieldError>{errors.agreementTracking}</FieldError>
 
                               <label className="flex items-start gap-3 rounded-2xl px-1 py-1">
-                                <Checkbox
+                                <input
+                                  type="checkbox"
                                   checked={form.agreementEthical}
-                                  onCheckedChange={(checked) => updateField('agreementEthical', Boolean(checked))}
-                                  className="mt-1 h-5 w-5 rounded-md border-fuchsia-300 data-[state=checked]:border-fuchsia-500 data-[state=checked]:bg-fuchsia-500"
+                                  onChange={(e) => updateField('agreementEthical', e.target.checked)}
+                                  className="mt-1 h-5 w-5 rounded accent-stone-950 cursor-pointer"
                                 />
-                                <span className="text-sm leading-6 text-slate-700">
+                                <span className="text-sm leading-6 text-stone-700">
                                   Acepto promover solo productos que realmente probaría o probaré.
                                 </span>
                               </label>
                               <FieldError>{errors.agreementEthical}</FieldError>
 
                               <label className="flex items-start gap-3 rounded-2xl px-1 py-1">
-                                <Checkbox
+                                <input
+                                  type="checkbox"
                                   checked={form.agreementTerms}
-                                  onCheckedChange={(checked) => updateField('agreementTerms', Boolean(checked))}
-                                  className="mt-1 h-5 w-5 rounded-md border-fuchsia-300 data-[state=checked]:border-fuchsia-500 data-[state=checked]:bg-fuchsia-500"
+                                  onChange={(e) => updateField('agreementTerms', e.target.checked)}
+                                  className="mt-1 h-5 w-5 rounded accent-stone-950 cursor-pointer"
                                 />
-                                <span className="text-sm leading-6 text-slate-700">
+                                <span className="text-sm leading-6 text-stone-700">
                                   He leído y acepto los términos del programa de influencers.
                                 </span>
                               </label>
@@ -800,42 +781,41 @@ export default function ApplicationModal({ open, onOpenChange }) {
                     </AnimatePresence>
 
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-3 text-sm text-slate-500">
+                      <div className="flex items-center gap-3 text-sm text-stone-500">
                         <UserRound className="h-4 w-4" aria-hidden="true" />
                         {step === 3 ? 'Solicitud gratuita. Ningún paso de pago.' : 'No tardarás más de 3 minutos.'}
                       </div>
 
                       <div className="flex flex-col-reverse gap-3 sm:flex-row">
                         {step > 1 && (
-                          <Button
+                          <button
                             type="button"
-                            variant="outline"
                             onClick={goToPreviousStep}
-                            className="h-12 rounded-full border-slate-300 px-6 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                            className="h-12 rounded-full border border-stone-200 px-6 text-sm font-semibold text-stone-700 hover:bg-stone-50 transition-colors"
                           >
-                            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                            <ArrowLeft className="h-4 w-4 inline mr-2" aria-hidden="true" />
                             Atrás
-                          </Button>
+                          </button>
                         )}
 
                         {step < 3 ? (
-                          <Button
+                          <button
                             type="button"
                             onClick={goToNextStep}
-                            className="h-12 rounded-full bg-[linear-gradient(90deg,#d946ef,#fb7185)] px-6 text-sm font-semibold text-white hover:opacity-95"
+                            className="h-12 rounded-full bg-stone-950 px-6 text-sm font-semibold text-white hover:bg-stone-800 transition-colors"
                           >
                             Siguiente
-                            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                          </Button>
+                            <ArrowRight className="h-4 w-4 inline ml-2" aria-hidden="true" />
+                          </button>
                         ) : (
-                          <Button
+                          <button
                             type="submit"
                             disabled={submitting}
-                            className="h-12 rounded-full bg-[linear-gradient(90deg,#d946ef,#fb7185)] px-6 text-sm font-semibold text-white hover:opacity-95"
+                            className="h-12 rounded-full bg-stone-950 px-6 text-sm font-semibold text-white hover:bg-stone-800 disabled:opacity-50 transition-colors"
                           >
                             {submitting ? 'Enviando...' : finalButtonLabel}
-                            {!submitting && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
-                          </Button>
+                            {!submitting && <ArrowRight className="h-4 w-4 inline ml-2" aria-hidden="true" />}
+                          </button>
                         )}
                       </div>
                     </div>

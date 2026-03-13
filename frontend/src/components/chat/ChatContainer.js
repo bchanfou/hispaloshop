@@ -14,8 +14,8 @@ import { firstToken } from '../../utils/safe';
 function StatusDot({ active }) {
   return (
     <span className="relative flex h-2.5 w-2.5">
-      {active ? <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /> : null}
-      <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ring-4 ring-white/70 ${active ? 'bg-emerald-400' : 'bg-stone-500'}`} />
+      {active ? <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-stone-500 opacity-75" /> : null}
+      <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ring-4 ring-white/70 ${active ? 'bg-stone-500' : 'bg-stone-500'}`} />
     </span>
   );
 }
@@ -49,7 +49,7 @@ function WelcomeScreen({ user, roleConfig, suggestions, onSuggestionClick }) {
         className="mb-7"
       >
         <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.22em] text-stone-400">{roleName}</p>
-        <h2 className="font-heading mb-3 text-[34px] font-semibold leading-[0.98] tracking-[-0.03em] text-stone-950 sm:text-[38px]">
+        <h2 className="mb-3 text-[34px] font-semibold leading-[0.98] tracking-[-0.03em] text-stone-950 sm:text-[38px]">
           {greeting}
           {firstName ? `, ${firstName}` : ''}.
         </h2>
@@ -211,7 +211,7 @@ function ChatContainer() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className={`font-heading font-semibold tracking-[-0.02em] text-stone-950 ${isKeyboardOpen ? 'text-[16px]' : 'text-[18px]'}`}>Hispal AI</h1>
+                  <h1 className={`font-semibold tracking-[-0.02em] text-stone-950 ${isKeyboardOpen ? 'text-[16px]' : 'text-[18px]'}`}>Hispal AI</h1>
                   <StatusDot active={!isLoading} />
                 </div>
                 {!isKeyboardOpen ? <p className="text-[11px] uppercase tracking-[0.16em] text-stone-400">{roleConfig.name}</p> : null}

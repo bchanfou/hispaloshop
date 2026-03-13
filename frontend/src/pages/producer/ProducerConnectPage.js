@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from '../../components/ui/button';
 import apiClient from '../../services/api/client';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -53,7 +52,7 @@ export default function ProducerConnectPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="w-5 h-5 animate-spin text-text-muted" />
+        <Loader2 className="w-5 h-5 animate-spin text-stone-500" />
       </div>
     );
   }
@@ -62,27 +61,27 @@ export default function ProducerConnectPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-6">
-      <h1 className="text-2xl font-bold text-text-primary mb-2">Stripe Connect</h1>
-      <p className="text-sm text-text-muted mb-6">Configura tu cuenta para recibir transferencias automaticas.</p>
+      <h1 className="text-2xl font-bold text-stone-950 mb-2">Stripe Connect</h1>
+      <p className="text-sm text-stone-500 mb-6">Configura tu cuenta para recibir transferencias automaticas.</p>
 
-      <div className={`rounded-xl border p-5 ${isReady ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+      <div className={`rounded-xl border p-5 bg-stone-50 border-stone-200`}>
         <div className="flex items-start gap-3">
           {isReady ? (
-            <CheckCircle2 className="w-5 h-5 text-green-700 mt-0.5" />
+            <CheckCircle2 className="w-5 h-5 text-stone-700 mt-0.5" />
           ) : (
-            <AlertCircle className="w-5 h-5 text-amber-700 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-stone-500 mt-0.5" />
           )}
           <div className="flex-1">
-            <p className="font-medium text-text-primary">
+            <p className="font-medium text-stone-950">
               {isReady ? 'Cuenta activa' : 'Onboarding pendiente'}
             </p>
-            <p className="text-sm text-text-muted mt-1">
+            <p className="text-sm text-stone-500 mt-1">
               {isReady
                 ? 'Tu cuenta esta lista para recibir pagos.'
                 : 'Completa los datos en Stripe para activar cobros y payouts.'}
             </p>
             {!isReady && status?.requirements_due?.length > 0 && (
-              <p className="text-xs text-amber-800 mt-2">
+              <p className="text-xs text-stone-600 mt-2">
                 Requisitos pendientes: {status.requirements_due.length}
               </p>
             )}
@@ -92,9 +91,14 @@ export default function ProducerConnectPage() {
 
       {!isReady && (
         <div className="mt-4">
-          <Button onClick={handleStart} disabled={submitting}>
+          <button
+            type="button"
+            onClick={handleStart}
+            disabled={submitting}
+            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+          >
             {submitting ? 'Procesando...' : status?.has_account ? 'Completar onboarding' : 'Crear cuenta y conectar'}
-          </Button>
+          </button>
         </div>
       )}
     </div>

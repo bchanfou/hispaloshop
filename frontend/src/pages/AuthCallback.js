@@ -79,17 +79,17 @@ export default function AuthCallback() {
   }, [location, navigate, checkAuth]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center" data-testid="auth-callback-page">
+    <div className="min-h-screen bg-white flex items-center justify-center" data-testid="auth-callback-page">
       <div className="text-center">
         {error ? (
           <div>
-            <p className="text-red-600 mb-2" data-testid="auth-error">{error}</p>
-            <p className="text-text-muted">Redirecting to login...</p>
+            <p className="text-stone-700 mb-2" data-testid="auth-error">{error}</p>
+            <p className="text-stone-500">Redirecting to login...</p>
           </div>
         ) : (
           <div>
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" data-testid="auth-loading"></div>
-            <p className="text-text-muted">Completing sign in...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stone-950 mx-auto mb-4" data-testid="auth-loading"></div>
+            <p className="text-stone-500">Completing sign in...</p>
           </div>
         )}
       </div>

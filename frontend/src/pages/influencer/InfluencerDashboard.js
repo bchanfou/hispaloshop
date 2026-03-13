@@ -1,9 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
-import { Button } from '../../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Input } from '../../components/ui/input';
 import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
@@ -34,7 +31,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
       toast.error(`El mínimo de retiro es €${MINIMUM_WITHDRAWAL}. Tienes €${availableToWithdraw.toFixed(2)} disponibles.`);
       return;
     }
-    
+
     try {
       const res = await requestWithdrawal();
       toast.success(res?.message || 'Retiro solicitado');
@@ -48,64 +45,63 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
   const canWithdraw = stripeConnected && availableToWithdraw >= MINIMUM_WITHDRAWAL;
 
   return (
-    <Card className="border-2 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50">
-      <CardHeader>
-        <CardTitle className="font-display text-lg flex items-center gap-2">
-          <Wallet className="w-5 h-5 text-green-600" />
+    <div className="bg-white rounded-xl border border-stone-200">
+      <div className="px-6 pt-6 pb-4">
+        <h3 className="text-lg font-semibold text-stone-950 flex items-center gap-2">
+          <Wallet className="w-5 h-5 text-stone-700" />
           Retirar Comisiones
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </h3>
+      </div>
+      <div className="px-6 pb-6">
         <div className="space-y-4">
           {/* Available to withdraw */}
-          <div className="text-center p-4 bg-white rounded-lg border border-green-200">
-            <p className="text-sm text-text-muted mb-1">Disponible para retirar</p>
-            <p className="text-3xl font-bold text-green-600">€{availableToWithdraw.toFixed(2)}</p>
-            <p className="text-xs text-text-muted mt-1">Mínimo: €{MINIMUM_WITHDRAWAL}</p>
+          <div className="text-center p-4 bg-white rounded-lg border border-stone-200">
+            <p className="text-sm text-stone-500 mb-1">Disponible para retirar</p>
+            <p className="text-3xl font-bold text-stone-950">€{availableToWithdraw.toFixed(2)}</p>
+            <p className="text-xs text-stone-500 mt-1">Mínimo: €{MINIMUM_WITHDRAWAL}</p>
           </div>
 
           {/* Withdraw button */}
           {!stripeConnected ? (
-            <div className="text-center p-3 bg-amber-50 rounded-lg border border-amber-200">
-              <p className="text-sm text-amber-800">
+            <div className="text-center p-3 bg-stone-50 rounded-lg border border-stone-200">
+              <p className="text-sm text-stone-700">
                 Conecta tu cuenta de Stripe para poder retirar tus comisiones
               </p>
             </div>
           ) : availableToWithdraw < MINIMUM_WITHDRAWAL ? (
             <div className="text-center p-3 bg-stone-50 rounded-lg border border-stone-200">
-              <p className="text-sm text-text-muted">
+              <p className="text-sm text-stone-500">
                 Necesitas €{(MINIMUM_WITHDRAWAL - availableToWithdraw).toFixed(2)} más para alcanzar el mínimo de retiro
               </p>
             </div>
           ) : (
-            <Button 
+            <button
               onClick={handleWithdraw}
               disabled={withdrawing || !canWithdraw}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              className="w-full px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               {withdrawing ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Procesando...
                 </>
               ) : (
                 <>
-                  <ArrowUpRight className="w-4 h-4 mr-2" />
+                  <ArrowUpRight className="w-4 h-4" />
                   Retirar €{availableToWithdraw.toFixed(2)}
                 </>
               )}
-            </Button>
+            </button>
           )}
 
           {/* Toggle history */}
           {withdrawals.length > 0 && (
-            <Button
-              variant="ghost"
+            <button
               onClick={() => setShowHistory(!showHistory)}
-              className="w-full text-sm text-text-muted"
+              className="w-full text-sm text-stone-500 py-2 hover:text-stone-950 transition-colors"
             >
               {showHistory ? 'Ocultar historial' : `Ver historial (${withdrawals.length} retiros)`}
-            </Button>
+            </button>
           )}
 
           {/* Withdrawal history */}
@@ -114,10 +110,10 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
               {withdrawals.slice(0, 5).map((wd) => (
                 <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 bg-white rounded border">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="w-4 h-4 text-stone-700" />
                     <span className="text-sm font-medium">€{wd.amount.toFixed(2)}</span>
                   </div>
-                  <span className="text-xs text-text-muted">
+                  <span className="text-xs text-stone-500">
                     {new Date(wd.created_at).toLocaleDateString('es-ES')}
                   </span>
                 </div>
@@ -125,8 +121,8 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -159,29 +155,29 @@ function EmailVerificationBanner({ user, onVerified }) {
   };
 
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
+    <div className="bg-stone-50 border border-stone-200 rounded-lg p-6 mb-6">
       <div className="flex items-start gap-4">
-        <Mail className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
+        <Mail className="w-6 h-6 text-stone-700 flex-shrink-0 mt-1" />
         <div className="flex-1">
-          <h3 className="font-semibold text-amber-900 mb-2">Verifica tu email</h3>
-          <p className="text-amber-800 text-sm mb-4">
-            Hemos enviado un código de 6 dígitos a <strong>{user?.email}</strong>. 
+          <h3 className="font-semibold text-stone-950 mb-2">Verifica tu email</h3>
+          <p className="text-stone-700 text-sm mb-4">
+            Hemos enviado un código de 6 dígitos a <strong>{user?.email}</strong>.
             Introdúcelo aquí para activar tu cuenta.
           </p>
           <div className="flex items-center gap-3">
-            <Input
+            <input
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
-              className="w-32 text-center text-xl tracking-widest font-mono"
+              className="w-32 px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950 text-center text-xl tracking-widest font-mono"
               maxLength={6}
             />
-            <Button onClick={handleVerify} disabled={verifying || code.length !== 6}>
+            <button onClick={handleVerify} disabled={verifying || code.length !== 6} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors">
               {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
-            </Button>
-            <Button variant="ghost" onClick={handleResend} disabled={resending}>
+            </button>
+            <button onClick={handleResend} disabled={resending} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors">
               {resending ? 'Enviando...' : 'Reenviar código'}
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -209,34 +205,34 @@ function CreateCodeCard({ onCodeCreated }) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-display text-lg flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-500" />
+    <div className="bg-white rounded-xl border border-stone-200">
+      <div className="px-6 pt-6 pb-4">
+        <h3 className="text-lg font-semibold text-stone-950 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-stone-700" />
           Crea tu código de descuento
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-text-muted mb-4">
+        </h3>
+      </div>
+      <div className="px-6 pb-6">
+        <p className="text-sm text-stone-500 mb-4">
           Elige un código personalizado que tus seguidores usarán para obtener el 10% de descuento.
         </p>
         <div className="flex items-center gap-3">
-          <Input
+          <input
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20))}
             placeholder="Ej: MARIA10"
-            className="flex-1 uppercase text-lg font-mono"
+            className="flex-1 px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950 uppercase text-lg font-mono"
             maxLength={20}
           />
-          <Button onClick={handleCreate} disabled={creatingCode || code.length < 3}>
+          <button onClick={handleCreate} disabled={creatingCode || code.length < 3} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors">
             {creatingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear código'}
-          </Button>
+          </button>
         </div>
-        <p className="text-xs text-text-muted mt-2">
+        <p className="text-xs text-stone-500 mt-2">
           Solo letras y números, entre 3-20 caracteres
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -312,7 +308,7 @@ export default function InfluencerDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
       </div>
     );
   }
@@ -320,14 +316,14 @@ export default function InfluencerDashboard() {
   if (!dashboard) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-xl font-display font-medium mb-4">{t('influencer.notInfluencer')}</h2>
-            <p className="text-text-muted font-body">
+        <div className="bg-white rounded-xl border border-stone-200 max-w-md">
+          <div className="p-8 text-center">
+            <h2 className="text-xl font-medium text-stone-950 mb-4">{t('influencer.notInfluencer')}</h2>
+            <p className="text-stone-500">
               {t('influencer.notInfluencerDesc')}
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -336,7 +332,7 @@ export default function InfluencerDashboard() {
   const influencerExample = ((18 * tierPercent) / 100).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-stone-50">
       <div className="max-w-6xl mx-auto px-4 py-4 md:py-8">
         {/* Header - Mobile: Simple, Desktop: Full */}
         <div className="mb-6 md:mb-8">
@@ -375,20 +371,20 @@ export default function InfluencerDashboard() {
         {dashboard.status !== 'active' && dashboard.status !== 'pending' && (
           <div className="mb-4 rounded-2xl border border-stone-200 bg-stone-50 p-3 md:mb-6 md:p-4">
             <p className="text-sm text-stone-700">
-              {t('influencer.accountStatus')} <strong>{dashboard.status}</strong>. 
+              {t('influencer.accountStatus')} <strong>{dashboard.status}</strong>.
               {dashboard.status === 'suspended' && ` ${t('influencer.accountSuspended')}`}
             </p>
           </div>
         )}
 
-        <Card className="mb-6 border-stone-100">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg font-semibold text-stone-950">
+        <div className="bg-white rounded-xl border border-stone-200 mb-6">
+          <div className="px-6 pt-6 pb-4">
+            <h3 className="text-lg font-semibold text-stone-950 flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-stone-700" />
               Productos que mejor funcionan en tu contenido
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+            </h3>
+          </div>
+          <div className="px-6 pb-6 space-y-3">
             {productPerformance.length > 0 ? productPerformance.map((item) => (
               <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3">
                 <div className="min-w-0">
@@ -402,8 +398,8 @@ export default function InfluencerDashboard() {
                 </div>
               </div>
             )) : <p className="text-sm text-stone-500">Publica contenido con productos vinculados para empezar a ver rendimiento.</p>}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Create Code Card - Only show if active and no code yet (neither pending nor approved) */}
         {dashboard.status === 'active' && !dashboard.discount_code && (
@@ -440,20 +436,19 @@ export default function InfluencerDashboard() {
               {dashboard.discount_code}
             </p>
             <div className="flex justify-center gap-3 mb-4">
-              <Button
+              <button
                 onClick={() => { navigator.clipboard.writeText(dashboard.discount_code); toast.success('Código copiado'); }}
-                className="rounded-full bg-stone-950 px-6 text-white hover:bg-stone-800"
+                className="rounded-full bg-stone-950 px-6 py-2 text-white hover:bg-stone-800 flex items-center gap-2 transition-colors"
                 data-testid="copy-code-btn"
               >
-                <Copy className="w-4 h-4 mr-2" /> Copiar
-              </Button>
-              <Button
-                variant="outline"
+                <Copy className="w-4 h-4" /> Copiar
+              </button>
+              <button
                 onClick={() => { if (navigator.share) navigator.share({ title: 'Mi código Hispaloshop', text: `Usa mi código ${dashboard.discount_code} para descuento en hispaloshop.com` }); else { navigator.clipboard.writeText(`Usa mi código ${dashboard.discount_code} en hispaloshop.com`); toast.success('Link copiado'); }}}
-                className="rounded-full px-6"
+                className="rounded-full px-6 py-2 border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
               >
                 Compartir
-              </Button>
+              </button>
             </div>
             <p className="text-xs text-stone-500">Tu comunidad ahorra {dashboard.discount_value || 10}% con este código</p>
           </div>
@@ -469,25 +464,24 @@ export default function InfluencerDashboard() {
             <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{asNumber(dashboard.available_balance).toFixed(0)}</p>
             <p className="mt-2 text-xs text-stone-500">Disponible</p>
             {(dashboard.available_balance || 0) >= 50 && (
-              <Button
-                size="sm"
+              <button
                 onClick={scrollToWithdrawals}
-                className="mt-3 rounded-full bg-stone-950 px-4 text-xs text-white hover:bg-stone-800"
+                className="mt-3 rounded-full bg-stone-950 px-4 py-1 text-xs text-white hover:bg-stone-800 transition-colors"
               >
                 Retirar
-              </Button>
+              </button>
             )}
           </div>
         </div>
 
         {/* Stats Grid - Mobile: 2x2, Desktop: 4 columns */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-          <Card className="dashboard-card">
-            <CardContent className="p-4 md:p-6">
+          <div className="bg-white rounded-xl border border-stone-200 dashboard-card">
+            <div className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
                   <p className="text-xs text-stone-500 md:text-sm">{t('influencer.totalSales')}</p>
-                  <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
+                  <p className="text-xl md:text-2xl font-medium text-stone-950">
                     €{dashboard.total_sales_generated.toFixed(0)}
                   </p>
                 </div>
@@ -495,15 +489,15 @@ export default function InfluencerDashboard() {
                   <ShoppingBag className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="dashboard-card">
-            <CardContent className="p-4 md:p-6">
+          <div className="bg-white rounded-xl border border-stone-200 dashboard-card">
+            <div className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
                   <p className="text-xs text-stone-500 md:text-sm">{t('influencer.totalEarned')}</p>
-                  <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
+                  <p className="text-xl md:text-2xl font-medium text-stone-950">
                     €{dashboard.total_commission_earned.toFixed(0)}
                   </p>
                 </div>
@@ -511,11 +505,11 @@ export default function InfluencerDashboard() {
                   <TrendingUp className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="dashboard-card">
-            <CardContent className="p-4 md:p-6">
+          <div className="bg-white rounded-xl border border-stone-200 dashboard-card">
+            <div className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
                   <p className="text-xs text-stone-500 md:text-sm">{t('influencer.availableBalance')}</p>
@@ -527,15 +521,15 @@ export default function InfluencerDashboard() {
                   <DollarSign className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="dashboard-card">
-            <CardContent className="p-4 md:p-6">
+          <div className="bg-white rounded-xl border border-stone-200 dashboard-card">
+            <div className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
                   <p className="text-xs text-stone-500 md:text-sm">{t('influencer.commissionRate')}</p>
-                  <p className="text-xl md:text-2xl font-heading font-medium text-text-primary">
+                  <p className="text-xl md:text-2xl font-medium text-stone-950">
                     {`${tierPercent}%`}
                   </p>
                 </div>
@@ -543,124 +537,124 @@ export default function InfluencerDashboard() {
                   <CreditCard className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Discount Code Card */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="font-display text-lg">{t('influencer.discountCode')}</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="bg-white rounded-xl border border-stone-200 lg:col-span-1">
+            <div className="px-6 pt-6 pb-4">
+              <h3 className="text-lg font-semibold text-stone-950">{t('influencer.discountCode')}</h3>
+            </div>
+            <div className="px-6 pb-6">
               {dashboard.discount_code ? (
                 <>
                   <div className="bg-stone-50 border border-dashed border-stone-300 rounded-lg p-4 text-center mb-4">
-                    <p className="text-3xl font-display font-bold tracking-wider text-primary">
+                    <p className="text-3xl font-bold tracking-wider text-stone-950">
                       {dashboard.discount_code}
                     </p>
                   </div>
-                  <Button 
+                  <button
                     onClick={copyDiscountCode}
-                    className="w-full bg-primary hover:bg-primary-hover"
+                    className="w-full px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
                     {copied ? (
                       <>
-                        <Check className="h-4 w-4 mr-2" />
+                        <Check className="h-4 w-4" />
                         {t('common.copied')}
                       </>
                     ) : (
                       <>
-                        <Copy className="h-4 w-4 mr-2" />
+                        <Copy className="h-4 w-4" />
                         {t('influencer.copyCode')}
                       </>
                     )}
-                  </Button>
-                  <p className="text-sm text-text-muted text-center mt-3 font-body">
+                  </button>
+                  <p className="text-sm text-stone-500 text-center mt-3">
                     {t('influencer.shareCode')}
                   </p>
                 </>
               ) : dashboard.status === 'active' ? (
                 <div className="text-center py-4">
-                  <p className="text-text-muted text-sm">
+                  <p className="text-stone-500 text-sm">
                     {t('influencer.useFormAbove')}
                   </p>
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                  <p className="text-text-muted text-sm">
+                  <AlertCircle className="w-8 h-8 text-stone-500 mx-auto mb-2" />
+                  <p className="text-stone-500 text-sm">
                     {t('influencer.canCreateWhenApproved')}
                   </p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Stripe Connect Card */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="font-display text-lg">{t('influencer.paymentSetup')}</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="bg-white rounded-xl border border-stone-200 lg:col-span-1">
+            <div className="px-6 pt-6 pb-4">
+              <h3 className="text-lg font-semibold text-stone-950">{t('influencer.paymentSetup')}</h3>
+            </div>
+            <div className="px-6 pb-6">
               {stripeStatus?.connected && stripeStatus?.onboarding_complete ? (
                 <div className="text-center">
-                  <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Check className="h-8 w-8 text-green-600" />
+                  <div className="h-16 w-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Check className="h-8 w-8 text-stone-700" />
                   </div>
-                  <p className="font-body font-medium text-green-700">{t('influencer.stripeConnected')}</p>
-                  <p className="text-sm text-text-muted mt-2">
+                  <p className="font-medium text-stone-700">{t('influencer.stripeConnected')}</p>
+                  <p className="text-sm text-stone-500 mt-2">
                     {t('influencer.shareCode')}
                   </p>
-                  <div className="mt-4 text-sm text-text-muted flex items-center gap-2">
+                  <div className="mt-4 text-sm text-stone-500 flex items-center gap-2">
                     <span>{t('influencer.payoutsEnabled')}:</span>
                     {stripeStatus.payouts_enabled ? (
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <CheckCircle2 className="w-4 h-4 text-stone-700" />
                     ) : (
-                      <AlertCircle className="w-4 h-4 text-red-500" />
+                      <AlertCircle className="w-4 h-4 text-stone-500" />
                     )}
                   </div>
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-text-muted font-body mb-4">
+                  <p className="text-stone-500 mb-4">
                     {t('influencer.connectStripe')}
                   </p>
-                  <Button 
+                  <button
                     onClick={connectStripe}
                     disabled={connectingStripe}
-                    className="w-full bg-[#635BFF] hover:bg-[#5851DB]"
+                    className="w-full px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
                     {connectingStripe ? (
                       t('common.loading')
                     ) : (
                       <>
-                        <ExternalLink className="h-4 w-4 mr-2" />
+                        <ExternalLink className="h-4 w-4" />
                         {t('influencer.connectStripe')}
                       </>
                     )}
-                  </Button>
+                  </button>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Commission Summary */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="font-display text-lg">{t('influencer.commissionSummary')}</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="bg-white rounded-xl border border-stone-200 lg:col-span-1">
+            <div className="px-6 pt-6 pb-4">
+              <h3 className="text-lg font-semibold text-stone-950">{t('influencer.commissionSummary')}</h3>
+            </div>
+            <div className="px-6 pb-6">
               <div className="space-y-4">
                 {/* How commission works explanation */}
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-4">
-                  <p className="text-xs font-medium text-purple-800 mb-2">Info · {t('influencer.howCommissionWorks')}</p>
-                  <p className="text-xs text-purple-700">
+                <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 mb-4">
+                  <p className="text-xs font-medium text-stone-700 mb-2">Info · {t('influencer.howCommissionWorks')}</p>
+                  <p className="text-xs text-stone-600">
                     {t('influencer.commissionExplanation', { percent: dashboard.commission_value })}
                   </p>
-                  <div className="mt-2 text-xs text-purple-600 bg-purple-100 rounded p-2">
+                  <div className="mt-2 text-xs text-stone-600 bg-stone-100 rounded p-2">
                     <p className="font-medium">{t('influencer.example')}:</p>
                     <p>- {t('influencer.sale')}: €100</p>
                     <p>- {t('influencer.sellerReceives')}: €82</p>
@@ -668,85 +662,85 @@ export default function InfluencerDashboard() {
                     <p>- <strong>{t('influencer.yourCommission')}: &euro;{influencerExample}</strong> ({tierPercent}% de &euro;18)</p>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between items-center py-2 border-b border-stone-200">
-                  <span className="text-text-muted font-body">{t('influencer.pendingOrders')}</span>
+                  <span className="text-stone-500">{t('influencer.pendingOrders')}</span>
                   <span className="font-medium">{dashboard.pending_commissions} {t('orders.orders', 'pedidos')}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-stone-200">
-                  <span className="text-text-muted font-body">{t('influencer.paidOrders')}</span>
+                  <span className="text-stone-500">{t('influencer.paidOrders')}</span>
                   <span className="font-medium">{dashboard.paid_commissions} {t('orders.orders', 'pedidos')}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-text-muted font-body">{t('influencer.available')}</span>
-                  <span className="font-medium text-green-600">
+                  <span className="text-stone-500">{t('influencer.available')}</span>
+                  <span className="font-medium text-stone-950">
                     €{dashboard.available_balance.toFixed(2)}
                   </span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Payment Schedule Card */}
         {dashboard.payment_schedule && (
-          <Card className="mt-6 border-2 border-green-200 bg-green-50/50">
-            <CardHeader>
-              <CardTitle className="font-display text-lg flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-green-600" />
+          <div className="bg-white rounded-xl border border-stone-200 mt-6">
+            <div className="px-6 pt-6 pb-4">
+              <h3 className="text-lg font-semibold text-stone-950 flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-stone-700" />
                 {t('influencer.paymentSchedule')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h3>
+            </div>
+            <div className="px-6 pb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Available to withdraw */}
-                <div className="text-center p-4 bg-white rounded-lg border border-green-200">
-                  <p className="text-sm text-text-muted mb-1">{t('influencer.availableToWithdraw')}</p>
-                  <p className="text-2xl font-bold text-green-600">€{dashboard.payment_schedule.available_to_withdraw.toFixed(2)}</p>
-                  <p className="text-xs text-green-700 mt-1">{t('influencer.alreadyPassed15Days')}</p>
+                <div className="text-center p-4 bg-white rounded-lg border border-stone-200">
+                  <p className="text-sm text-stone-500 mb-1">{t('influencer.availableToWithdraw')}</p>
+                  <p className="text-2xl font-bold text-stone-950">€{dashboard.payment_schedule.available_to_withdraw.toFixed(2)}</p>
+                  <p className="text-xs text-stone-600 mt-1">{t('influencer.alreadyPassed15Days')}</p>
                 </div>
-                
+
                 {/* Available soon */}
-                <div className="text-center p-4 bg-white rounded-lg border border-amber-200">
-                  <p className="text-sm text-text-muted mb-1">{t('influencer.availableSoon')}</p>
-                  <p className="text-2xl font-bold text-amber-600">€{dashboard.payment_schedule.available_soon.toFixed(2)}</p>
-                  <p className="text-xs text-amber-700 mt-1">{t('influencer.inNext7Days')}</p>
+                <div className="text-center p-4 bg-white rounded-lg border border-stone-200">
+                  <p className="text-sm text-stone-500 mb-1">{t('influencer.availableSoon')}</p>
+                  <p className="text-2xl font-bold text-stone-700">€{dashboard.payment_schedule.available_soon.toFixed(2)}</p>
+                  <p className="text-xs text-stone-600 mt-1">{t('influencer.inNext7Days')}</p>
                 </div>
-                
+
                 {/* Next payment date */}
-                <div className="text-center p-4 bg-white rounded-lg border border-blue-200">
-                  <p className="text-sm text-text-muted mb-1">{t('influencer.nextPaymentDate')}</p>
+                <div className="text-center p-4 bg-white rounded-lg border border-stone-200">
+                  <p className="text-sm text-stone-500 mb-1">{t('influencer.nextPaymentDate')}</p>
                   {dashboard.payment_schedule.next_payment_date ? (
                     <>
-                      <p className="text-xl font-bold text-blue-600">
+                      <p className="text-xl font-bold text-stone-700">
                         {new Date(dashboard.payment_schedule.next_payment_date).toLocaleDateString('es-ES', {
                           day: 'numeric',
                           month: 'short'
                         })}
                       </p>
-                      <p className="text-xs text-blue-700 mt-1">
+                      <p className="text-xs text-stone-600 mt-1">
                         {t('influencer.daysLeft', { days: Math.ceil((new Date(dashboard.payment_schedule.next_payment_date) - new Date()) / (1000 * 60 * 60 * 24)) })}
                       </p>
                     </>
                   ) : (
-                    <p className="text-lg text-text-muted">{t('influencer.noPendingPayments')}</p>
+                    <p className="text-lg text-stone-500">{t('influencer.noPendingPayments')}</p>
                   )}
                 </div>
               </div>
-              
+
               <div className="mt-4 p-3 bg-white rounded-lg border border-stone-200">
-                <p className="text-sm text-text-muted">
+                <p className="text-sm text-stone-500">
                   <strong>Info · {t('influencer.paymentPolicy')}:</strong> {t('influencer.paymentPolicyDesc')}
                 </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Withdrawal Card - Only show for active influencers with Stripe */}
         {dashboard.status === 'active' && dashboard.payment_schedule && (
           <div id="withdrawal-card-section" className="mt-6">
-            <WithdrawalCard 
+            <WithdrawalCard
               availableToWithdraw={dashboard.payment_schedule.available_to_withdraw}
               stripeConnected={stripeStatus?.connected && stripeStatus?.onboarding_complete}
               onWithdrawSuccess={refetchDashboard}
@@ -755,22 +749,22 @@ export default function InfluencerDashboard() {
         )}
 
         {/* Recent Commissions */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="font-display text-lg">{t('influencer.recentCommissions')}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-white rounded-xl border border-stone-200 mt-6">
+          <div className="px-6 pt-6 pb-4">
+            <h3 className="text-lg font-semibold text-stone-950">{t('influencer.recentCommissions')}</h3>
+          </div>
+          <div className="px-6 pb-6">
             {dashboard.recent_commissions?.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-stone-200">
-                      <th className="text-left py-3 px-4 font-body font-medium text-text-muted">{t('orders.orderNumber')}</th>
-                      <th className="text-left py-3 px-4 font-body font-medium text-text-muted">{t('orders.orderTotal')}</th>
-                      <th className="text-left py-3 px-4 font-body font-medium text-text-muted">{t('influencer.commissionRate')}</th>
-                      <th className="text-left py-3 px-4 font-body font-medium text-text-muted">{t('common.status')}</th>
-                      <th className="text-left py-3 px-4 font-body font-medium text-text-muted">{t('influencer.paymentAvailable')}</th>
-                      <th className="text-left py-3 px-4 font-body font-medium text-text-muted">{t('common.date')}</th>
+                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('orders.orderNumber')}</th>
+                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('orders.orderTotal')}</th>
+                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('influencer.commissionRate')}</th>
+                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('common.status')}</th>
+                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('influencer.paymentAvailable')}</th>
+                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('common.date')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -779,47 +773,41 @@ export default function InfluencerDashboard() {
                       const now = new Date();
                       const isAvailable = paymentDate && paymentDate <= now;
                       const daysLeft = paymentDate ? Math.ceil((paymentDate - now) / (1000 * 60 * 60 * 24)) : null;
-                      
+
                       return (
                         <tr key={comm.commission_id} className="border-b border-stone-100">
                           <td className="py-3 px-4 font-mono text-sm">{comm.order_id}</td>
                           <td className="py-3 px-4">€{comm.order_total.toFixed(2)}</td>
-                          <td className="py-3 px-4 font-medium text-green-600">
+                          <td className="py-3 px-4 font-medium text-stone-700">
                             €{comm.commission_amount.toFixed(2)}
                           </td>
                           <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              comm.commission_status === 'paid' 
-                                ? 'bg-green-100 text-green-700'
-                                : comm.commission_status === 'pending'
-                                ? 'bg-amber-100 text-amber-700'
-                                : 'bg-red-100 text-red-700'
-                            }`}>
-                              {comm.commission_status === 'paid' ? t('orders.status.paid') : 
-                               comm.commission_status === 'pending' ? t('orders.status.pending') : 
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
+                              {comm.commission_status === 'paid' ? t('orders.status.paid') :
+                               comm.commission_status === 'pending' ? t('orders.status.pending') :
                                comm.commission_status === 'reversed' ? t('orders.status.reversed', 'Revertido') : comm.commission_status}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-sm">
                             {comm.commission_status === 'paid' ? (
-                              <span className="text-green-600 flex items-center gap-1">
+                              <span className="text-stone-700 flex items-center gap-1">
                                 <CheckCircle2 className="w-4 h-4" />
                                 {t('influencer.collected')}
                               </span>
                             ) : isAvailable ? (
-                              <span className="text-green-600 font-medium flex items-center gap-1">
+                              <span className="text-stone-700 font-medium flex items-center gap-1">
                                 <CheckCircle2 className="w-4 h-4" />
                                 {t('influencer.available')}
                               </span>
                             ) : paymentDate ? (
-                              <span className="text-amber-600">
+                              <span className="text-stone-600">
                                 {daysLeft > 0 ? t('influencer.daysLeft', { days: daysLeft }) : t('influencer.today')}
                               </span>
                             ) : (
-                              <span className="text-text-muted">-</span>
+                              <span className="text-stone-500">-</span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-sm text-text-muted">
+                          <td className="py-3 px-4 text-sm text-stone-500">
                             {new Date(comm.created_at).toLocaleDateString()}
                           </td>
                         </tr>
@@ -830,13 +818,13 @@ export default function InfluencerDashboard() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-text-muted font-body">
+                <p className="text-stone-500">
                   {t('influencer.noCommissions')}
                 </p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Analytics Section */}
         {dashboard.status === 'active' && dashboard.discount_code && dashboard.discount_code_active && (
@@ -847,16 +835,16 @@ export default function InfluencerDashboard() {
 
         {/* Back to Home Link */}
         <div className="mt-8 text-center">
-          <Link to="/" className="text-text-muted hover:text-primary text-sm inline-flex items-center gap-2">
+          <Link to="/" className="text-stone-500 hover:text-stone-950 text-sm inline-flex items-center gap-2">
             <Home className="w-4 h-4" />
             Volver a la tienda
           </Link>
         </div>
       </div>
-      
+
       {/* AI Assistant */}
       <InfluencerAIAssistant influencerData={dashboard} />
-      
+
       {/* Internal Chat */}
       <InternalChat userType="influencer" />
     </div>

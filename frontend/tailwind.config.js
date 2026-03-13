@@ -13,8 +13,9 @@ module.exports = {
     },
     extend: {
       fontFamily: {
+        sans:    ['Inter', 'sans-serif'],
         heading: ['Playfair Display', 'serif'],
-        body: ['Inter', 'sans-serif'],
+        body:    ['Inter', 'sans-serif'],
       },
       colors: {
         // ─── HISPALOSHOP DESIGN SYSTEM ─────────────────────────────────

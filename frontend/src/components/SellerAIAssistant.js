@@ -1,6 +1,5 @@
 ﻿import React, { useState, useRef, useEffect } from 'react';
 import apiClient from '../services/api/client';
-import { Button } from './ui/button';
 import {
   Send, X, TrendingUp, Package,
   DollarSign, Target, Lightbulb, ChevronDown, ChevronUp
@@ -198,14 +197,14 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
             disabled={loading}
             data-testid="seller-ai-input"
           />
-          <Button
+          <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || loading}
-            className="w-10 h-10 rounded-full bg-stone-950 hover:bg-stone-800 disabled:bg-stone-300 p-0 shrink-0"
+            className="w-10 h-10 rounded-full bg-stone-950 hover:bg-stone-800 disabled:bg-stone-300 p-0 shrink-0 flex items-center justify-center"
             data-testid="seller-ai-send"
           >
             <Send className="w-4 h-4 text-white" />
-          </Button>
+          </button>
         </div>
       </div>
     </div>

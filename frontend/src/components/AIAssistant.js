@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
-import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { firstToken } from '../utils/safe';
 import apiClient from '../services/api/client';
@@ -115,21 +114,20 @@ function ChatProductCard({ product, onAddToCart, isAdding, convertAndFormatPrice
           </div>
         </Link>
         <div className="p-2">
-          <h4 className="font-heading text-xs font-medium text-primary line-clamp-1 mb-1">
+          <h4 className="text-xs font-medium text-stone-950 line-clamp-1 mb-1">
             {product.name}
           </h4>
-          <p className="font-heading text-sm font-semibold text-primary mb-2">
+          <p className="text-sm font-semibold text-stone-950 mb-2">
             {convertAndFormatPrice(product.price, product.currency || 'EUR')}
           </p>
-          <Button
+          <button
             onClick={() => onAddToCart(product)}
             disabled={isAdding}
-            size="sm"
-            className="w-full bg-primary text-white text-xs py-1 rounded-full font-body"
+            className="w-full px-3 py-1 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-xs rounded-full transition-colors"
             data-testid={`add-to-cart-${product.product_id}`}
           >
             {t('products.addToCart')}
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -147,8 +145,8 @@ function ChatProductCard({ product, onAddToCart, isAdding, convertAndFormatPrice
             alt={product.name}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-slate-950/5 transition-colors flex items-center justify-center">
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 px-3 py-1 rounded-full text-xs font-body font-medium text-primary border border-stone-300">
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-stone-950/5 transition-colors flex items-center justify-center">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/95 px-3 py-1 rounded-full text-xs font-medium text-stone-950 border border-stone-300">
               View Details
             </span>
           </div>
@@ -156,14 +154,14 @@ function ChatProductCard({ product, onAddToCart, isAdding, convertAndFormatPrice
       </Link>
       <div className="p-3">
         <Link to={`/products/${product.product_id}`}>
-          <h4 className="font-heading text-sm font-medium text-primary line-clamp-2 mb-1 hover:text-text-secondary transition-colors cursor-pointer tracking-[0.02em]">
+          <h4 className="text-sm font-medium text-stone-950 line-clamp-2 mb-1 hover:text-stone-600 transition-colors cursor-pointer tracking-[0.02em]">
             {product.name}
           </h4>
         </Link>
-        <p className="text-text-muted font-body text-xs mb-2">
+        <p className="text-stone-500 text-xs mb-2">
           {product.country_origin}
         </p>
-        <p className="font-heading text-base font-semibold text-primary mb-3">
+        <p className="text-base font-semibold text-stone-950 mb-3">
           {convertAndFormatPrice(product.price, product.currency || 'EUR')}
         </p>
         {product.certifications?.length > 0 && (
@@ -171,23 +169,21 @@ function ChatProductCard({ product, onAddToCart, isAdding, convertAndFormatPrice
             {product.certifications.slice(0, 2).map((cert, idx) => (
               <span 
                 key={idx}
-                className="text-xs font-body bg-white text-text-secondary px-2 py-0.5 rounded border border-stone-200"
+                className="text-xs bg-white text-stone-600 px-2 py-0.5 rounded border border-stone-200"
               >
                 {cert}
               </span>
             ))}
           </div>
         )}
-        <Button
+        <button
           onClick={() => onAddToCart(product)}
           disabled={isAdding}
-          size="sm"
-          variant="outline"
-          className="w-full bg-transparent border border-stone-300 text-primary hover:border-primary hover:bg-primary hover:text-white rounded-full text-xs py-2 font-body font-medium transition-all"
+          className="w-full bg-transparent border border-stone-300 text-stone-950 hover:border-stone-950 hover:bg-stone-950 hover:text-white rounded-full text-xs py-2 font-medium transition-all"
           data-testid={`add-to-cart-${product.product_id}`}
         >
           {t('products.addToCart')}
-        </Button>
+        </button>
       </div>
     </div>
   );
@@ -682,10 +678,10 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
             <div className="border-b border-stone-200 bg-stone-50">
               {/* Products Header */}
               <div className="p-3 border-b border-stone-100 bg-white flex items-center justify-between">
-                <h4 className="font-heading text-sm font-medium text-primary tracking-[0.02em]">
+                <h4 className="text-sm font-medium text-stone-950 tracking-[0.02em]">
                   Recomendados
                 </h4>
-                <span className="font-body text-xs text-stone-500 bg-stone-100 px-2 py-1 rounded-full">
+                <span className="text-xs text-stone-500 bg-stone-100 px-2 py-1 rounded-full">
                   {recommendedProducts.length} productos
                 </span>
               </div>
@@ -717,7 +713,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
               <div className="flex items-center space-x-2.5">
                 <HispaloLogo size={isMobile ? 26 : 30} />
                 <div>
-                  <h3 className="font-heading text-sm font-semibold text-primary" data-testid="chat-title">
+                  <h3 className="text-sm font-semibold text-stone-950" data-testid="chat-title">
                     Hispalo AI
                   </h3>
                 </div>
@@ -756,22 +752,22 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                   <div className="mx-auto w-12 h-12 mb-4">
                     <HispaloLogo size={48} />
                   </div>
-                  <h4 className="font-heading text-base font-medium text-primary mb-2">
+                  <h4 className="text-base font-medium text-stone-950 mb-2">
                     {user ? `Hola${user.name ? `, ${user.name.split(' ')[0]}` : ''}` : 'Bienvenido'}
                   </h4>
-                  <p className="font-body text-sm text-stone-500 mb-6 leading-relaxed px-4">
+                  <p className="text-sm text-stone-500 mb-6 leading-relaxed px-4">
                     {user ? getPersonalizedWelcome() : 'Inicia sesión para una experiencia personalizada.'}
                   </p>
                   
                   {/* Suggestion Chips */}
                   <div className="space-y-3">
-                    <p className="font-body text-xs text-text-muted uppercase tracking-wider">Búsquedas rápidas</p>
+                    <p className="text-xs text-stone-500 uppercase tracking-wider">Búsquedas rápidas</p>
                     <div className="flex flex-wrap gap-2 justify-center px-2">
                       {SUGGESTION_CHIPS.slice(0, 3).map((chip) => (
                         <button
                           key={chip.label}
                           onClick={() => handleChipClick(chip.query)}
-                          className="font-body text-xs bg-white text-text-secondary px-4 py-2 rounded-full border border-stone-300 hover:border-primary hover:text-primary transition-colors"
+                          className="text-xs bg-white text-stone-600 px-4 py-2 rounded-full border border-stone-300 hover:border-stone-950 hover:text-stone-950 transition-colors"
                         >
                           {chip.label}
                         </button>
@@ -782,7 +778,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                         <button
                           key={chip.label}
                           onClick={() => handleChipClick(chip.query)}
-                          className="font-body text-xs bg-white text-text-secondary px-4 py-2 rounded-full border border-stone-300 hover:border-primary hover:text-primary transition-colors"
+                          className="text-xs bg-white text-stone-600 px-4 py-2 rounded-full border border-stone-300 hover:border-stone-950 hover:text-stone-950 transition-colors"
                         >
                           {chip.label}
                         </button>
@@ -810,7 +806,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                         : 'bg-white text-stone-900 border border-stone-100 shadow-sm rounded-bl-md'
                     }`}
                   >
-                    <p className="font-body text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                   </div>
                 </div>
               ))}
@@ -844,20 +840,20 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                   placeholder={t('ai.placeholder')}
-                  className="flex-1 bg-stone-50 border border-stone-300 rounded-full px-3 md:px-4 py-2 md:py-2.5 font-body text-sm text-primary placeholder:text-text-muted focus:outline-none focus:border-primary transition-colors"
+                  className="flex-1 bg-stone-50 border border-stone-300 rounded-full px-3 md:px-4 py-2 md:py-2.5 text-sm text-stone-950 placeholder:text-stone-500 focus:outline-none focus:border-stone-950 transition-colors"
                   disabled={loading || isChunking}
                   data-testid="chat-input"
                 />
                 <button
                   onClick={sendMessage}
                   disabled={loading || isChunking || !inputMessage.trim()}
-                  className="bg-primary hover:bg-primary-hover disabled:bg-stone-300 text-white rounded-full p-2 md:p-2.5 transition-colors"
+                  className="bg-stone-950 hover:bg-stone-800 disabled:bg-stone-300 text-white rounded-full p-2 md:p-2.5 transition-colors"
                   data-testid="send-message-button"
                 >
                   <ArrowRight className="w-5 h-5 stroke-[1.5]" />
                 </button>
               </div>
-              <p className="font-body text-xs text-text-muted text-center mt-2 hidden md:block">
+              <p className="text-xs text-stone-500 text-center mt-2 hidden md:block">
                 Recomendaciones basadas en certificados de producto.
               </p>
             </div>
@@ -865,14 +861,14 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
 
           {/* Product Recommendations Panel - Hidden on mobile, shown on desktop */}
           {recommendedProducts.length > 0 && !isMobile && (
-            <div className="border-l border-stone-300 bg-background-subtle flex flex-col" style={{ width: '380px' }}>
+            <div className="border-l border-stone-300 bg-stone-50 flex flex-col" style={{ width: '380px' }}>
               {/* Products Header */}
               <div className="p-4 border-b border-stone-200 bg-white">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-heading text-base font-medium text-primary tracking-[0.02em]">
+                  <h4 className="text-base font-medium text-stone-950 tracking-[0.02em]">
                     Recomendados
                   </h4>
-                  <span className="font-body text-xs text-text-muted bg-stone-50 px-2 py-1 rounded border border-stone-200">
+                  <span className="text-xs text-stone-500 bg-stone-50 px-2 py-1 rounded border border-stone-200">
                     {recommendedProducts.length} productos
                   </span>
                 </div>
