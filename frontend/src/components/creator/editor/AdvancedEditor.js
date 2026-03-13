@@ -23,6 +23,8 @@ import {
   Upload,
   X,
   Circle,
+  Users,
+  Settings2,
 } from 'lucide-react';
 import useImageEditor from '../hooks/useImageEditor';
 import FilterPanel from './FilterPanel';
@@ -370,28 +372,35 @@ function StoryComposeStage({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black text-white">
-      <div className="flex items-center justify-between px-4 py-4">
+      <div
+        className="flex items-center justify-between px-4 py-3"
+        style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}
+      >
         <button
           type="button"
           onClick={onBack}
           disabled={isPublishing}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-40"
-          aria-label="Volver a la story"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-white active:bg-white/10 disabled:opacity-40"
+          aria-label="Volver"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <div className="rounded-full bg-white/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white/75">
-          Story
-        </div>
+        <span className="text-[16px] font-semibold">Tu historia</span>
         <button
           type="button"
           onClick={onPublish}
           disabled={isPublishing}
-          className="min-h-11 rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 disabled:opacity-50"
+          className="rounded-full bg-white px-4 py-2 text-[14px] font-semibold text-stone-950 active:bg-stone-100 disabled:opacity-50"
         >
-          {isPublishing ? 'Subiendo...' : 'Publicar'}
+          {isPublishing ? 'Subiendo…' : 'Compartir'}
         </button>
       </div>
+
+      {isPublishing && (
+        <div className="h-[2px] bg-white/10">
+          <div className="h-full bg-white transition-all duration-300" style={{ width: `${publishProgress}%` }} />
+        </div>
+      )}
 
       <div className="flex flex-1 items-center justify-center overflow-hidden px-4">
         <div className="w-full max-w-[430px]">
@@ -401,33 +410,32 @@ function StoryComposeStage({
 
       <div className="border-t border-white/10 bg-black/70 p-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-[430px] flex-col gap-3">
-          <div className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-medium text-emerald-100">
-            <Circle className="h-2.5 w-2.5 fill-current" />
-            {isPublishing ? `Subiendo ${publishProgress}%` : 'Guardado'}
-          </div>
           <textarea
             value={caption}
             onChange={(event) => setCaption(event.target.value)}
-            placeholder="Texto"
-            className="h-24 w-full resize-none rounded-3xl border border-white/10 bg-white/10 px-4 py-3 text-base leading-6 text-white outline-none transition-colors placeholder:text-white/45 focus:border-white/30"
+            placeholder="Escribe algo…"
+            className="h-20 w-full resize-none rounded-2xl bg-white/10 px-4 py-3 text-[15px] leading-6 text-white outline-none placeholder:text-white/35 focus:bg-white/15"
             maxLength={180}
           />
-          <input
-            type="text"
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
-            placeholder="Ubicacion"
-            className="h-12 w-full rounded-3xl border border-white/10 bg-white/10 px-4 text-base text-white outline-none transition-colors placeholder:text-white/45 focus:border-white/30"
-          />
-          {canCancelPublish ? (
+          <div className="flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3 focus-within:bg-white/15">
+            <MapPin className="h-4 w-4 shrink-0 text-white/50" />
+            <input
+              type="text"
+              value={location}
+              onChange={(event) => setLocation(event.target.value)}
+              placeholder="Añadir ubicación"
+              className="flex-1 bg-transparent text-[15px] text-white outline-none placeholder:text-white/35"
+            />
+          </div>
+          {canCancelPublish && (
             <button
               type="button"
               onClick={onCancelPublish}
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2 text-sm font-medium text-white/85 transition-colors hover:bg-white/10"
+              className="rounded-xl border border-white/15 py-3 text-[14px] text-white/70 active:bg-white/5"
             >
               Cancelar subida
             </button>
-          ) : null}
+          )}
         </div>
       </div>
     </div>
@@ -533,6 +541,21 @@ function StoryEditStage({
   );
 }
 
+function ToggleSwitch({ enabled, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${enabled ? 'bg-stone-950' : 'bg-stone-300'}`}
+      aria-pressed={enabled}
+    >
+      <div
+        className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${enabled ? 'left-6' : 'left-1'}`}
+      />
+    </button>
+  );
+}
+
 function PostComposeStage({
   aspectRatio,
   editor,
@@ -548,85 +571,168 @@ function PostComposeStage({
   onPublish,
   onCancelPublish,
 }) {
+  const [audience, setAudience] = useState('public');
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [allowReshare, setAllowReshare] = useState(true);
+  const [hideLikes, setHideLikes] = useState(false);
+  const [disableComments, setDisableComments] = useState(false);
+
+  const firstSrc = editor.images[0]?.src;
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-stone-50 text-stone-950">
-      <div className="flex items-center justify-between border-b border-stone-200 bg-white px-4 py-4">
+    <div className="fixed inset-0 z-50 flex flex-col bg-white text-stone-950">
+      {/* Header */}
+      <div
+        className="flex items-center justify-between border-b border-stone-100 bg-white px-4 py-3"
+        style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}
+      >
         <button
           type="button"
           onClick={onBack}
           disabled={isPublishing}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors hover:bg-stone-200 disabled:opacity-40"
-          aria-label="Volver al post"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-stone-950 active:bg-stone-100 disabled:opacity-40"
+          aria-label="Volver"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium uppercase tracking-[0.22em] text-stone-600">
-          Post
-        </div>
+        <span className="text-[16px] font-semibold">Nueva publicación</span>
         <button
           type="button"
           onClick={onPublish}
           disabled={isPublishing}
-          className="min-h-11 rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
+          className="rounded-full bg-stone-950 px-4 py-2 text-[14px] font-semibold text-white active:bg-stone-800 disabled:opacity-50"
         >
-          {isPublishing ? 'Subiendo...' : 'Publicar'}
+          {isPublishing ? 'Subiendo…' : 'Compartir'}
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="flex items-center justify-center overflow-hidden p-4">
-          <div className="w-full max-w-[560px]">
-            <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType="post" readOnly={true} />
+      {/* Upload progress bar */}
+      {isPublishing && (
+        <div className="h-[2px] bg-stone-100">
+          <div
+            className="h-full bg-stone-950 transition-all duration-300"
+            style={{ width: `${publishProgress}%` }}
+          />
+        </div>
+      )}
+
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto">
+
+        {/* Caption + thumbnail */}
+        <div className="flex gap-3 border-b border-stone-100 px-4 py-4">
+          {firstSrc && (
+            <div className="h-[84px] w-[67px] shrink-0 overflow-hidden rounded-[10px] bg-stone-100">
+              <img src={firstSrc} alt="" draggable={false} className="h-full w-full object-cover" />
+            </div>
+          )}
+          <div className="flex flex-1 flex-col">
+            <textarea
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Escribe un pie de foto…"
+              rows={3}
+              maxLength={2200}
+              className="flex-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
+            />
+            <span className="mt-1 text-right text-[11px] text-stone-400">{caption.length}/2200</span>
           </div>
         </div>
 
-        <div className="border-t border-stone-200 bg-white p-4 md:border-l md:border-t-0">
-          <div className="space-y-4">
-            <div className="rounded-3xl border border-stone-200 bg-stone-50 p-5">
-              <div className="flex flex-wrap gap-2">
-                <div className="rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-700 ring-1 ring-stone-200">
-                  Slides {editor.images.length}
-                </div>
-                <div className="rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-700 ring-1 ring-stone-200">
-                  Productos {taggedProductsCount}
-                </div>
-                <div className="rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-700 ring-1 ring-stone-200">
-                  {editor.compositionSettings?.templateId || 'free'}
-                </div>
-              </div>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900">
-                <Circle className="h-2.5 w-2.5 fill-current" />
-                {isPublishing ? `Subiendo ${publishProgress}%` : 'Guardado'}
-              </div>
-            </div>
+        {/* Settings rows */}
+        {/* Location */}
+        <div className="flex items-center gap-3 border-b border-stone-100 px-4 py-4">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-stone-100">
+            <MapPin className="h-4 w-4 text-stone-600" />
+          </div>
+          <div className="flex-1">
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Añadir ubicación"
+              className="w-full bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
+            />
+          </div>
+          {location && <ChevronRight className="h-4 w-4 shrink-0 text-stone-400" />}
+        </div>
 
-            <div className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
-              <textarea
-                value={caption}
-                onChange={(event) => setCaption(event.target.value)}
-                placeholder="Escribe algo"
-                className="h-32 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-base leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
-                maxLength={2200}
-              />
-              <input
-                type="text"
-                value={location}
-                onChange={(event) => setLocation(event.target.value)}
-                placeholder="Ubicacion"
-                className="mt-4 h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-base text-stone-950 outline-none transition-colors focus:border-stone-950"
-              />
-              {canCancelPublish ? (
-                <button
-                  type="button"
-                  onClick={onCancelPublish}
-                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
-                >
-                  Cancelar subida
-                </button>
-              ) : null}
-            </div>
+        {/* Tag people */}
+        <div className="flex items-center gap-3 border-b border-stone-100 px-4 py-4">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-stone-100">
+            <Users className="h-4 w-4 text-stone-600" />
+          </div>
+          <span className="flex-1 text-[15px] text-stone-950">Etiquetar personas</span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-stone-400" />
+        </div>
+
+        {/* Audience */}
+        <div className="flex items-center gap-3 border-b border-stone-100 px-4 py-4">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-stone-100">
+            <Users className="h-4 w-4 text-stone-600" />
+          </div>
+          <span className="flex-1 text-[15px] text-stone-950">Audiencia</span>
+          <div className="flex gap-1.5">
+            {[['public', 'Público'], ['followers', 'Seguidores']].map(([val, label]) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setAudience(val)}
+                className={`rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                  audience === val ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-600'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Advanced settings toggle */}
+        <button
+          type="button"
+          onClick={() => setAdvancedOpen((o) => !o)}
+          className="flex w-full items-center gap-3 border-b border-stone-100 px-4 py-4 active:bg-stone-50"
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-stone-100">
+            <Settings2 className="h-4 w-4 text-stone-600" />
+          </div>
+          <span className="flex-1 text-left text-[15px] text-stone-950">Configuración avanzada</span>
+          <ChevronRight
+            className={`h-4 w-4 shrink-0 text-stone-400 transition-transform ${advancedOpen ? 'rotate-90' : ''}`}
+          />
+        </button>
+
+        {advancedOpen && (
+          <div className="border-b border-stone-100 bg-stone-50">
+            {[
+              { label: 'Permitir que otros compartan', val: allowReshare, set: setAllowReshare },
+              { label: 'Ocultar recuento de likes',    val: hideLikes,    set: setHideLikes    },
+              { label: 'Desactivar comentarios',       val: disableComments, set: setDisableComments },
+            ].map(({ label, val, set }) => (
+              <div
+                key={label}
+                className="flex items-center gap-3 border-b border-stone-100 py-3.5 pl-[52px] pr-4 last:border-b-0"
+              >
+                <span className="flex-1 text-[14px] text-stone-700">{label}</span>
+                <ToggleSwitch enabled={val} onClick={() => set((v) => !v)} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Cancel publish */}
+        {canCancelPublish && (
+          <div className="px-4 py-4">
+            <button
+              type="button"
+              onClick={onCancelPublish}
+              className="w-full rounded-xl border border-stone-200 py-3 text-[14px] text-stone-700 active:bg-stone-50"
+            >
+              Cancelar subida
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -811,91 +917,181 @@ function ReelComposeStage({
   onPublish,
   onCancelPublish,
 }) {
+  const [audience, setAudience] = useState('public');
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [allowReshare, setAllowReshare] = useState(true);
+  const [hideLikes, setHideLikes] = useState(false);
+  const [disableComments, setDisableComments] = useState(false);
+
+  const firstSrc = editor.images[0]?.src;
+  const { trimStart, trimEnd, playbackRate } = editor.reelSettings;
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-stone-950 text-white">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-4">
+      {/* Header */}
+      <div
+        className="flex items-center justify-between border-b border-white/10 px-4 py-3"
+        style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}
+      >
         <button
           type="button"
           onClick={onBack}
           disabled={isPublishing}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/15 disabled:opacity-40"
-          aria-label="Volver al reel"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-white active:bg-white/10 disabled:opacity-40"
+          aria-label="Volver"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <div className="rounded-full bg-white/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.22em] text-white/70">
-          Reel
-        </div>
+        <span className="text-[16px] font-semibold">Nuevo reel</span>
         <button
           type="button"
           onClick={onPublish}
           disabled={isPublishing}
-          className="min-h-11 rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 disabled:opacity-50"
+          className="rounded-full bg-white px-4 py-2 text-[14px] font-semibold text-stone-950 active:bg-stone-100 disabled:opacity-50"
         >
-          {isPublishing ? 'Subiendo...' : 'Publicar'}
+          {isPublishing ? 'Subiendo…' : 'Compartir'}
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_400px]">
-        <div className="flex items-center justify-center overflow-hidden p-4">
-          <div className="w-full max-w-[430px]">
-            <CanvasEditor editor={editor} aspectRatio={aspectRatio} contentType="reel" readOnly={true} />
+      {/* Upload progress bar */}
+      {isPublishing && (
+        <div className="h-[2px] bg-white/10">
+          <div
+            className="h-full bg-white transition-all duration-300"
+            style={{ width: `${publishProgress}%` }}
+          />
+        </div>
+      )}
+
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto">
+
+        {/* Caption + thumbnail */}
+        <div className="flex gap-3 border-b border-white/10 px-4 py-4">
+          {firstSrc && (
+            <div className="h-[84px] w-[47px] shrink-0 overflow-hidden rounded-[10px] bg-white/10">
+              <img src={firstSrc} alt="" draggable={false} className="h-full w-full object-cover" />
+            </div>
+          )}
+          <div className="flex flex-1 flex-col">
+            <textarea
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Escribe algo sobre este reel…"
+              rows={3}
+              maxLength={2200}
+              className="flex-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-white outline-none placeholder:text-white/35"
+            />
+            <span className="mt-1 text-right text-[11px] text-white/35">{caption.length}/2200</span>
           </div>
         </div>
 
-        <div className="border-t border-white/10 bg-black/20 p-4 md:border-l md:border-t-0">
-          <div className="space-y-4">
-            <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
-              <div className="flex flex-wrap gap-2">
-                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
-                  {editor.reelSettings.trimStart.toFixed(1)}s - {editor.reelSettings.trimEnd.toFixed(1)}s
-                </div>
-                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
-                  {editor.reelSettings.playbackRate}x
-                </div>
-                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
-                  {editor.reelSettings.isMuted ? 'Sin audio' : 'Audio'}
-                </div>
-                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
-                  Texto {editor.textElements.length}
-                </div>
-                <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-700">
-                  Productos {taggedProductsCount}
-                </div>
-              </div>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-900">
-                <Circle className="h-2.5 w-2.5 fill-current" />
-                {isPublishing ? `Subiendo ${publishProgress}%` : 'Guardado'}
-              </div>
+        {/* Reel metadata chips */}
+        <div className="flex gap-2 border-b border-white/10 px-4 py-3">
+          {[
+            `${trimStart.toFixed(1)}s – ${trimEnd.toFixed(1)}s`,
+            `${playbackRate}x`,
+            editor.reelSettings.isMuted ? 'Sin audio' : 'Audio',
+          ].map((chip) => (
+            <div key={chip} className="rounded-full bg-white/10 px-3 py-1.5 text-[12px] text-white/70">
+              {chip}
             </div>
+          ))}
+        </div>
 
-            <div className="rounded-3xl bg-white p-5 text-stone-950 shadow-xl">
-              <textarea
-                value={caption}
-                onChange={(event) => setCaption(event.target.value)}
-                placeholder="Escribe algo"
-                className="h-28 w-full resize-none rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-base leading-6 text-stone-950 outline-none transition-colors focus:border-stone-950"
-                maxLength={2200}
-              />
-              <input
-                type="text"
-                value={location}
-                onChange={(event) => setLocation(event.target.value)}
-                placeholder="Ubicacion"
-                className="mt-4 h-12 w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 text-base text-stone-950 outline-none transition-colors focus:border-stone-950"
-              />
-              {canCancelPublish ? (
-                <button
-                  type="button"
-                  onClick={onCancelPublish}
-                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
-                >
-                  Cancelar subida
-                </button>
-              ) : null}
-            </div>
+        {/* Location */}
+        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10">
+            <MapPin className="h-4 w-4 text-white/70" />
+          </div>
+          <div className="flex-1">
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Añadir ubicación"
+              className="w-full bg-transparent text-[15px] text-white outline-none placeholder:text-white/35"
+            />
+          </div>
+          {location && <ChevronRight className="h-4 w-4 shrink-0 text-white/35" />}
+        </div>
+
+        {/* Tag people */}
+        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10">
+            <Users className="h-4 w-4 text-white/70" />
+          </div>
+          <span className="flex-1 text-[15px] text-white">Etiquetar personas</span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-white/35" />
+        </div>
+
+        {/* Audience */}
+        <div className="flex items-center gap-3 border-b border-white/10 px-4 py-4">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10">
+            <Users className="h-4 w-4 text-white/70" />
+          </div>
+          <span className="flex-1 text-[15px] text-white">Audiencia</span>
+          <div className="flex gap-1.5">
+            {[['public', 'Público'], ['followers', 'Seguidores']].map(([val, label]) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setAudience(val)}
+                className={`rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                  audience === val ? 'bg-white text-stone-950' : 'bg-white/10 text-white/70'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
+
+        {/* Advanced settings */}
+        <button
+          type="button"
+          onClick={() => setAdvancedOpen((o) => !o)}
+          className="flex w-full items-center gap-3 border-b border-white/10 px-4 py-4 active:bg-white/5"
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10">
+            <Settings2 className="h-4 w-4 text-white/70" />
+          </div>
+          <span className="flex-1 text-left text-[15px] text-white">Configuración avanzada</span>
+          <ChevronRight
+            className={`h-4 w-4 shrink-0 text-white/35 transition-transform ${advancedOpen ? 'rotate-90' : ''}`}
+          />
+        </button>
+
+        {advancedOpen && (
+          <div className="border-b border-white/10 bg-white/5">
+            {[
+              { label: 'Permitir que otros compartan', val: allowReshare,      set: setAllowReshare      },
+              { label: 'Ocultar recuento de likes',    val: hideLikes,         set: setHideLikes         },
+              { label: 'Desactivar comentarios',       val: disableComments,   set: setDisableComments   },
+            ].map(({ label, val, set }) => (
+              <div
+                key={label}
+                className="flex items-center gap-3 border-b border-white/10 py-3.5 pl-[52px] pr-4 last:border-b-0"
+              >
+                <span className="flex-1 text-[14px] text-white/70">{label}</span>
+                <ToggleSwitch enabled={val} onClick={() => set((v) => !v)} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Cancel publish */}
+        {canCancelPublish && (
+          <div className="px-4 py-4">
+            <button
+              type="button"
+              onClick={onCancelPublish}
+              className="w-full rounded-xl border border-white/15 py-3 text-[14px] text-white/70 active:bg-white/5"
+            >
+              Cancelar subida
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1230,6 +1426,7 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
       case 'filter':
         return (
           <FilterPanel
+            firstImageSrc={editor.images[editor.currentImageIndex]?.src}
             settings={editor.filterSettings}
             appliedFilter={editor.appliedFilter}
             filterIntensity={editor.filterIntensity}
@@ -1237,59 +1434,22 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
             onFilterSelect={editor.applyPredefinedFilter}
             onFilterIntensityChange={editor.setFilterIntensity}
             onReset={editor.resetFilters}
+            defaultTab="filtros"
           />
         );
       case 'adjust':
         return (
-          <EditorSection
-            title="Ajustes"
-            description="Luz y color."
-          >
-            <div className="space-y-4 rounded-2xl border border-stone-100 bg-stone-50 p-4">
-              <RangeField
-                label="Brillo"
-                value={editor.filterSettings.brightness}
-                min={-100}
-                max={100}
-                onChange={(event) => editor.updateFilterSetting('brightness', parseInt(event.target.value, 10))}
-              />
-              <RangeField
-                label="Contraste"
-                value={editor.filterSettings.contrast}
-                min={-100}
-                max={100}
-                onChange={(event) => editor.updateFilterSetting('contrast', parseInt(event.target.value, 10))}
-              />
-              <RangeField
-                          label="Saturación"
-                value={editor.filterSettings.saturate}
-                min={0}
-                max={200}
-                onChange={(event) => editor.updateFilterSetting('saturate', parseInt(event.target.value, 10))}
-              />
-              <RangeField
-                label="Temperatura"
-                value={editor.filterSettings.warmth}
-                min={-100}
-                max={100}
-                onChange={(event) => editor.updateFilterSetting('warmth', parseInt(event.target.value, 10))}
-              />
-              <RangeField
-                label="Exposicion"
-                value={editor.filterSettings.exposure}
-                min={-100}
-                max={100}
-                onChange={(event) => editor.updateFilterSetting('exposure', parseInt(event.target.value, 10))}
-              />
-              <RangeField
-                label="Nitidez"
-                value={editor.filterSettings.sharpness}
-                min={0}
-                max={100}
-                onChange={(event) => editor.updateFilterSetting('sharpness', parseInt(event.target.value, 10))}
-              />
-            </div>
-          </EditorSection>
+          <FilterPanel
+            firstImageSrc={editor.images[editor.currentImageIndex]?.src}
+            settings={editor.filterSettings}
+            appliedFilter={editor.appliedFilter}
+            filterIntensity={editor.filterIntensity}
+            onSettingChange={editor.updateFilterSetting}
+            onFilterSelect={editor.applyPredefinedFilter}
+            onFilterIntensityChange={editor.setFilterIntensity}
+            onReset={editor.resetFilters}
+            defaultTab="ajuste"
+          />
         );
       case 'crop':
         return (

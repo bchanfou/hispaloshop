@@ -18,7 +18,8 @@ function estimateTextSize(text) {
 
 function estimateStickerSize(sticker) {
   if (sticker.type === 'product') return { width: 180 * (sticker.scale || 1), height: 84 * (sticker.scale || 1) };
-  if (sticker.type === 'new') return { width: 110 * (sticker.scale || 1), height: 42 * (sticker.scale || 1) };
+  if (sticker.type === 'new')     return { width: 110 * (sticker.scale || 1), height: 42 * (sticker.scale || 1) };
+  if (sticker.type === 'emoji')   return { width:  64 * (sticker.scale || 1), height: 64 * (sticker.scale || 1) };
   return { width: 140 * (sticker.scale || 1), height: 42 * (sticker.scale || 1) };
 }
 
@@ -437,6 +438,14 @@ function StickerElement({ sticker, onPointerDown, readOnly }) {
 }
 
 function UtilitySticker({ sticker }) {
+  if (sticker.type === 'emoji') {
+    return (
+      <div className="flex items-center justify-center" style={{ fontSize: 48, lineHeight: 1 }}>
+        {sticker.content}
+      </div>
+    );
+  }
+
   if (sticker.type === 'new') {
     return (
       <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white px-4 py-2 text-sm font-semibold text-stone-950 shadow-lg">

@@ -29,43 +29,43 @@ export const ASPECT_RATIO_DIMENSIONS = {
 export const PREDEFINED_FILTERS = [
   {
     id: 'natural',
-    name: 'Natural',
-    settings: { brightness: 0, contrast: 0, saturate: 100, warmth: 0, sharpness: 0, exposure: 0 }
+    name: 'Normal',
+    settings: { brightness: 0, contrast: 0, saturate: 100, warmth: 0, sharpness: 0, exposure: 0, fade: 0, highlights: 0, shadows: 0, vignette: 0, tint: 0 }
   },
   {
     id: 'warm',
     name: 'Cálido',
-    settings: { brightness: 5, contrast: 10, saturate: 110, warmth: 25, sharpness: 10, exposure: 5 }
+    settings: { brightness: 5, contrast: 10, saturate: 110, warmth: 25, sharpness: 10, exposure: 5, fade: 0, highlights: 0, shadows: 0, vignette: 0, tint: 0 }
   },
   {
     id: 'fresh',
-    name: 'Fresco',
-    settings: { brightness: 10, contrast: 5, saturate: 120, warmth: -15, sharpness: 15, exposure: 10 }
+    name: 'Frío',
+    settings: { brightness: 10, contrast: 5, saturate: 120, warmth: -15, sharpness: 15, exposure: 10, fade: 0, highlights: 0, shadows: 0, vignette: 0, tint: -10 }
   },
   {
     id: 'artisan',
-    name: 'Artesanal',
-    settings: { brightness: -5, contrast: 20, saturate: 90, warmth: 15, sharpness: 20, exposure: 0 }
+    name: 'Artisan',
+    settings: { brightness: -5, contrast: 20, saturate: 90, warmth: 15, sharpness: 20, exposure: 0, fade: 0, highlights: 0, shadows: -10, vignette: 20, tint: 0 }
   },
   {
     id: 'soft',
-    name: 'Suave',
-    settings: { brightness: 15, contrast: -10, saturate: 80, warmth: 10, sharpness: 0, exposure: 10 }
+    name: 'Fade',
+    settings: { brightness: 15, contrast: -10, saturate: 80, warmth: 10, sharpness: 0, exposure: 10, fade: 30, highlights: 10, shadows: 0, vignette: 0, tint: 0 }
   },
   {
     id: 'vivid',
-    name: 'Vívido',
-    settings: { brightness: 5, contrast: 15, saturate: 140, warmth: 5, sharpness: 25, exposure: 5 }
+    name: 'Clarendon',
+    settings: { brightness: 5, contrast: 15, saturate: 140, warmth: 5, sharpness: 25, exposure: 5, fade: 0, highlights: 15, shadows: -15, vignette: 10, tint: 0 }
   },
   {
     id: 'night',
-    name: 'Nocturno',
-    settings: { brightness: -10, contrast: 25, saturate: 70, warmth: -20, sharpness: 15, exposure: -10 }
+    name: 'Noche',
+    settings: { brightness: -10, contrast: 25, saturate: 70, warmth: -20, sharpness: 15, exposure: -10, fade: 0, highlights: 0, shadows: -20, vignette: 30, tint: 0 }
   },
   {
     id: 'classic',
-    name: 'Clásico',
-    settings: { brightness: 0, contrast: 30, saturate: 0, warmth: 0, sharpness: 20, exposure: 0 }
+    name: 'B&N',
+    settings: { brightness: 0, contrast: 30, saturate: 0, warmth: 0, sharpness: 20, exposure: 0, fade: 0, highlights: 0, shadows: 0, vignette: 10, tint: 0 }
   },
 ];
 

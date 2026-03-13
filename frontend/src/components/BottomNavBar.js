@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Compass, Film, Plus, User, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -7,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { API } from '../utils/api';
 import InternalChat from './InternalChat';
-import ContentTypeSelector from './creator/ContentTypeSelector';
+import CreatorEntry from './creator/CreatorEntry';
 import AdvancedEditor from './creator/editor/AdvancedEditor';
 import { publishSocialContent } from './creator/publishContent';
 import MessageToast from './notifications/MessageToast';
@@ -53,12 +54,11 @@ export default function BottomNavBar() {
   const [activePanel, setActivePanel] = useState(null);
   const [initialChatUserId, setInitialChatUserId] = useState(null);
   const [messageToast, setMessageToast] = useState(null);
-  const [showContentTypeSelector, setShowContentTypeSelector] = useState(false);
-  const [selectedContentType, setSelectedContentType] = useState(null);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [showAdvancedEditor, setShowAdvancedEditor] = useState(false);
+  const [showCreatorEntry,      setShowCreatorEntry]      = useState(false);
+  const [selectedContentType,   setSelectedContentType]   = useState(null);
+  const [selectedFiles,         setSelectedFiles]         = useState([]);
+  const [showAdvancedEditor,    setShowAdvancedEditor]    = useState(false);
   const [profileAvatarError, setProfileAvatarError] = useState(false);
-  const galleryRef = useRef(null);
   const toastTimeoutRef = useRef(null);
   const activePanelRef = useRef(null);
   const conversationsRef = useRef(conversations);
@@ -110,7 +110,7 @@ export default function BottomNavBar() {
     // Lanzado desde HomeHeader (botón ✏) y FeedContainer (historias)
     const handleOpenCreator = () => {
       if (!user) { navigate('/login'); return; }
-      setShowContentTypeSelector(true);
+      setShowCreatorEntry(true);
     };
 
     window.addEventListener('open-chat-with-user', handleOpenChat);
@@ -184,70 +184,23 @@ export default function BottomNavBar() {
     setInitialChatUserId(null);
   };
 
-  const handleGallerySelect = (event) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
-
-    const invalidFiles = files.filter((file) => !file.type.startsWith('image/') && !file.type.startsWith('video/'));
-    if (invalidFiles.length > 0) {
-      toast.error('Solo se permiten imagenes o videos');
-      return;
-    }
-
-    setSelectedFiles(files);
-    setShowContentTypeSelector(true);
-    if (galleryRef.current) galleryRef.current.value = '';
-  };
-
-  const getFilesForContentType = (contentTypeId, files) => {
-    if (contentTypeId === 'reel') {
-      const firstVideo = files.find((file) => file.type.startsWith('video/'));
-      return firstVideo ? [firstVideo] : [];
-    }
-
-    const imageFiles = files.filter((file) => file.type.startsWith('image/'));
-    if (contentTypeId === 'story') {
-      return imageFiles.slice(0, 1);
-    }
-    return imageFiles.slice(0, 10);
-  };
-
   const handlePostButton = () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    if (activePanel === 'post') {
-      closePanel();
-      return;
-    }
-
-    setShowContentTypeSelector(true);
+    if (!user) { navigate('/login'); return; }
+    if (activePanel === 'post') { closePanel(); return; }
+    setShowCreatorEntry(true);
   };
 
-  const handleContentTypeSelect = (contentType) => {
-    const normalizedFiles = getFilesForContentType(contentType.id, selectedFiles);
-
-    if (selectedFiles.length > 0 && normalizedFiles.length === 0) {
-      toast.error(
-        contentType.id === 'reel'
-          ? 'Elige un video'
-          : contentType.id === 'story'
-            ? 'Elige una imagen'
-            : 'Elige al menos una imagen'
-      );
-      return;
-    }
-
-    setSelectedContentType(contentType.id);
-    setSelectedFiles(normalizedFiles);
-    setShowContentTypeSelector(false);
+  // Called by CreatorEntry when user taps "Siguiente"
+  const handleCreatorProceed = ({ contentType, files }) => {
+    setSelectedContentType(contentType);
+    setSelectedFiles(files);
+    setShowCreatorEntry(false);
     setShowAdvancedEditor(true);
   };
 
   const handleEditorClose = () => {
     setShowAdvancedEditor(false);
+    setShowCreatorEntry(false);
     setSelectedContentType(null);
     setSelectedFiles([]);
     closePanel();
@@ -294,21 +247,23 @@ export default function BottomNavBar() {
   const isProfile    = profileUserId
     ? location.pathname === `/user/${profileUserId}`
     : location.pathname === '/profile';
-  const isCreating   = showAdvancedEditor || showContentTypeSelector;
+  const isCreating   = showAdvancedEditor || showCreatorEntry;
 
   return (
     <>
       <MessageToast notification={messageToast} onClose={dismissMessageToast} onOpen={openMessageToast} />
 
-      <ContentTypeSelector
-        isOpen={showContentTypeSelector}
-        onClose={() => {
-          setShowContentTypeSelector(false);
-          setSelectedContentType(null);
-          setSelectedFiles([]);
-        }}
-        onSelect={handleContentTypeSelect}
-      />
+      <AnimatePresence>
+        {showCreatorEntry && (
+          <CreatorEntry
+            onClose={() => {
+              setShowCreatorEntry(false);
+              setSelectedFiles([]);
+            }}
+            onProceed={handleCreatorProceed}
+          />
+        )}
+      </AnimatePresence>
 
       {showAdvancedEditor && selectedContentType ? (
         <AdvancedEditor
@@ -326,16 +281,6 @@ export default function BottomNavBar() {
           </div>
         </div>
       ) : null}
-
-      <input
-        ref={galleryRef}
-        type="file"
-        accept="image/*,video/*"
-        multiple
-        className="hidden"
-        onChange={handleGallerySelect}
-        data-testid="gallery-file-input"
-      />
 
       {/* ── Instagram-style flat bottom nav ── */}
       <nav

@@ -12,6 +12,11 @@ const DEFAULT_FILTER_SETTINGS = {
   warmth: 0,
   sharpness: 0,
   exposure: 0,
+  fade: 0,
+  highlights: 0,
+  shadows: 0,
+  vignette: 0,
+  tint: 0,
 };
 
 const MAX_HISTORY_STEPS = 10;
@@ -46,6 +51,11 @@ function mixFilterSettings(targetSettings, intensity) {
     warmth: Math.round(targetSettings.warmth * ratio),
     sharpness: Math.round(targetSettings.sharpness * ratio),
     exposure: Math.round(targetSettings.exposure * ratio),
+    fade: Math.round((targetSettings.fade ?? 0) * ratio),
+    highlights: Math.round((targetSettings.highlights ?? 0) * ratio),
+    shadows: Math.round((targetSettings.shadows ?? 0) * ratio),
+    vignette: Math.round((targetSettings.vignette ?? 0) * ratio),
+    tint: Math.round((targetSettings.tint ?? 0) * ratio),
   };
 }
 
@@ -425,13 +435,15 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
   // Generar CSS filter string
   const getFilterString = useCallback(() => {
     const baseSettings = appliedFilter ? mixFilterSettings(filterSettings, filterIntensity) : filterSettings;
-    const { brightness, contrast, saturate, warmth, sharpness, exposure } = baseSettings;
+    const { brightness, contrast, saturate, warmth, sharpness, exposure, fade = 0, tint = 0 } = baseSettings;
+    const fadeBrightness = fade * 0.2;
+    const fadeContrast = fade * 0.4;
     const filters = [
-      `brightness(${100 + brightness + exposure}%)`,
-      `contrast(${100 + contrast}%)`,
-      `saturate(${saturate}%)`,
+      `brightness(${100 + brightness + exposure + fadeBrightness}%)`,
+      `contrast(${100 + contrast - fadeContrast}%)`,
+      `saturate(${Math.max(0, saturate - fade * 0.2)}%)`,
       `sepia(${Math.max(0, warmth / 2)}%)`,
-      `hue-rotate(${warmth > 0 ? -10 : 0}deg)`,
+      `hue-rotate(${(warmth > 0 ? -10 : 0) + tint}deg)`,
     ];
     return filters.join(' ');
   }, [appliedFilter, filterIntensity, filterSettings]);

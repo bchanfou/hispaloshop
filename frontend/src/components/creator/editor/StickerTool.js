@@ -1,168 +1,161 @@
 import React, { useMemo, useState } from 'react';
-import { MapPin, Tag, Sparkles, Trash2 } from 'lucide-react';
+import { MapPin, Sparkles, Tag, Trash2 } from 'lucide-react';
 
 const UTILITY_STICKERS = [
-  {
-    id: 'price',
-    label: 'Precio',
-    description: 'Anade un precio simple y sobrio.',
-    icon: Tag,
-    requiresInput: true,
-    placeholder: '12,90',
-  },
-  {
-    id: 'location',
-    label: 'Ubicacion',
-    description: 'Situa el contenido con una etiqueta discreta.',
-    icon: MapPin,
-    requiresInput: true,
-    placeholder: 'Reus, Espana',
-  },
-  {
-    id: 'new',
-    label: 'Novedad',
-    description: 'Marca algo nuevo sin anadir ruido.',
-    icon: Sparkles,
-    requiresInput: false,
-  },
+  { id: 'price',    label: 'Precio',    icon: Tag,      requiresInput: true,  placeholder: '12,90'      },
+  { id: 'location', label: 'Ubicación', icon: MapPin,   requiresInput: true,  placeholder: 'Reus, Spain'},
+  { id: 'new',      label: 'Novedad',   icon: Sparkles, requiresInput: false },
+];
+
+const EMOJI_GROUPS = [
+  { label: 'Emociones', emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','😍','🥰','😘','🥺','🔥','✨','💫','⭐'] },
+  { label: 'Celebrar',  emojis: ['🎉','🎊','🥳','🎈','🎁','🏆','🥂','🍾','👑','💎','💍','🌟'] },
+  { label: 'Naturaleza',emojis: ['🌹','🌸','🌺','🌻','🌿','🍃','🌙','☀️','🌊','🌈','❄️','🦋'] },
+  { label: 'Comida',    emojis: ['☕','🍵','🍷','🍓','🍉','🍑','🍋','🫐','🌮','🍕','🍜','🧁'] },
 ];
 
 function StickerTool({ stickers, onAdd, onRemove }) {
-  const [selectedType, setSelectedType] = useState('price');
-  const [content, setContent] = useState('');
+  const [tab, setTab]             = useState('emoji');
+  const [selectedType, setType]   = useState('price');
+  const [content, setContent]     = useState('');
 
   const nonProductStickers = useMemo(
-    () => stickers.filter((item) => item.type !== 'product'),
+    () => stickers.filter((s) => s.type !== 'product'),
     [stickers],
   );
 
-  const selectedSticker = UTILITY_STICKERS.find((item) => item.id === selectedType);
+  const selectedSticker = UTILITY_STICKERS.find((s) => s.id === selectedType);
 
-  const handleAdd = () => {
+  const handleAddUtility = () => {
     if (!selectedSticker) return;
     if (selectedSticker.requiresInput && !content.trim()) return;
-
-    onAdd(selectedSticker.id, {
-      x: 72,
-      y: 84,
-      content: selectedSticker.requiresInput ? content.trim() : undefined,
-    });
+    onAdd(selectedSticker.id, { x: 72, y: 84, content: selectedSticker.requiresInput ? content.trim() : undefined });
     setContent('');
   };
 
+  const handleAddEmoji = (emoji) => {
+    onAdd('emoji', { x: 80, y: 100, content: emoji });
+  };
+
   return (
-    <div className="space-y-5 p-4">
-      <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
-        <h3 className="text-sm font-semibold text-stone-950">Sellos utiles</h3>
-        <p className="mt-1 text-xs leading-5 text-stone-500">
-          Solo se muestran overlays que aportan contexto real.
-        </p>
+    <div>
+      {/* Tab bar */}
+      <div className="flex border-b border-stone-100">
+        {[['emoji', 'Emoji'], ['sello', 'Sellos']].map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={`flex-1 py-3 text-[13px] font-semibold transition-colors ${
+              tab === id
+                ? 'border-b-2 border-stone-950 text-stone-950'
+                : 'text-stone-400'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-        <div className="mt-4 space-y-2">
-          {UTILITY_STICKERS.map((sticker) => {
-            const Icon = sticker.icon;
-            const isActive = selectedType === sticker.id;
+      {/* ── Emoji grid ─────────────────────────────────────────────────── */}
+      {tab === 'emoji' && (
+        <div className="space-y-3 px-4 py-3">
+          {EMOJI_GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400">
+                {group.label}
+              </p>
+              <div className="grid grid-cols-8 gap-1">
+                {group.emojis.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleAddEmoji(emoji)}
+                    className="flex aspect-square items-center justify-center rounded-xl text-[22px] active:bg-stone-100"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-            return (
+      {/* ── Utility stickers ───────────────────────────────────────────── */}
+      {tab === 'sello' && (
+        <div className="space-y-3 px-4 py-3">
+          {/* Type selector */}
+          <div className="flex gap-2">
+            {UTILITY_STICKERS.map(({ id, label, icon: Icon }) => (
               <button
-                key={sticker.id}
+                key={id}
                 type="button"
-                onClick={() => setSelectedType(sticker.id)}
-                className={`flex w-full items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${
-                  isActive ? 'border-stone-950 bg-white' : 'border-stone-100 bg-white hover:border-stone-200'
+                onClick={() => setType(id)}
+                className={`flex flex-1 flex-col items-center gap-1.5 rounded-xl py-3 text-[12px] font-medium transition-colors ${
+                  selectedType === id
+                    ? 'bg-stone-950 text-white'
+                    : 'bg-stone-100 text-stone-600 active:bg-stone-200'
                 }`}
               >
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                  isActive ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-700'
-                }`}>
-                  <Icon className="h-[18px] w-[18px]" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-stone-950">{sticker.label}</p>
-                  <p className="mt-1 text-xs leading-5 text-stone-500">{sticker.description}</p>
-                </div>
+                <Icon className="h-4 w-4" />
+                {label}
               </button>
-            );
-          })}
-        </div>
+            ))}
+          </div>
 
-        {selectedSticker?.requiresInput ? (
-          <div className="mt-4 rounded-2xl border border-stone-100 bg-white p-3">
-            <label className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">
-              Contenido
-            </label>
+          {/* Input */}
+          {selectedSticker?.requiresInput && (
             <input
               type="text"
               value={content}
-              onChange={(event) => setContent(event.target.value)}
+              onChange={(e) => setContent(e.target.value)}
               placeholder={selectedSticker.placeholder}
-              className="mt-2 h-12 w-full rounded-2xl bg-stone-50 px-4 text-sm text-stone-950 outline-none ring-1 ring-transparent transition-colors placeholder:text-stone-400 focus:ring-stone-950"
+              className="h-11 w-full rounded-xl bg-stone-100 px-4 text-[14px] text-stone-950 outline-none placeholder:text-stone-400 focus:ring-2 focus:ring-stone-950"
             />
-          </div>
-        ) : null}
+          )}
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={selectedSticker?.requiresInput && !content.trim()}
-          className="mt-4 w-full rounded-full bg-stone-950 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          Anadir sello
-        </button>
-      </div>
+          {/* Add button */}
+          <button
+            type="button"
+            onClick={handleAddUtility}
+            disabled={selectedSticker?.requiresInput && !content.trim()}
+            className="w-full rounded-xl bg-stone-950 py-2.5 text-[14px] font-semibold text-white active:bg-stone-800 disabled:opacity-40"
+          >
+            Añadir sello
+          </button>
 
-      <div className="rounded-2xl border border-stone-100 bg-white p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h4 className="text-sm font-semibold text-stone-950">Sellos activos</h4>
-            <p className="mt-1 text-xs leading-5 text-stone-500">
-              Tambien puedes arrastrarlos en el lienzo.
-            </p>
-          </div>
-          <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
-            {nonProductStickers.length}
-          </span>
-        </div>
-
-        <div className="mt-4 space-y-2">
-          {nonProductStickers.length === 0 ? (
-            <div className="rounded-2xl bg-stone-50 px-4 py-5 text-sm text-stone-500">
-              No hay sellos activos todavia.
-            </div>
-          ) : (
-            nonProductStickers.map((sticker) => {
-              const typeInfo = UTILITY_STICKERS.find((item) => item.id === sticker.type);
-              const Icon = typeInfo?.icon || Tag;
-
-              return (
-                <div key={sticker.id} className="flex items-center justify-between gap-3 rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-stone-950 shadow-sm ring-1 ring-stone-200">
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-stone-950">
-                        {typeInfo?.label || 'Sello'}
-                      </p>
-                      <p className="truncate text-xs text-stone-500">
-                        {sticker.content || 'Sin texto adicional'}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onRemove(sticker.id)}
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-stone-500 ring-1 ring-stone-200 transition-colors hover:text-stone-950"
-                    aria-label="Eliminar sello"
+          {/* Active stickers */}
+          {nonProductStickers.length > 0 && (
+            <div className="space-y-1 pt-1">
+              <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400">Activos</p>
+              {nonProductStickers.map((s) => {
+                const info = UTILITY_STICKERS.find((u) => u.id === s.type);
+                const Icon = info?.icon ?? Tag;
+                return (
+                  <div
+                    key={s.id}
+                    className="flex items-center gap-2 rounded-xl bg-stone-50 px-3 py-2"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              );
-            })
+                    <Icon className="h-4 w-4 shrink-0 text-stone-500" />
+                    <span className="flex-1 truncate text-[13px] text-stone-700">
+                      {s.content || info?.label || 'Sello'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onRemove(s.id)}
+                      className="rounded-full p-1 text-stone-400 active:bg-stone-200"
+                      aria-label="Eliminar"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 }
