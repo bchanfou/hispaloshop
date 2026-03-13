@@ -78,6 +78,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleRejectProduct = async (productId) => {
+    try {
+      await axios.put(`${API}/admin/products/${productId}/approve?approved=false`, {}, { withCredentials: true });
+      toast.success('Producto rechazado');
+      fetchDashboardData();
+    } catch (error) {
+      toast.error('Error al rechazar producto');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -183,7 +193,7 @@ export default function AdminDashboard() {
                         >
                           Aprobar
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600 border-red-300 hover:bg-red-50">
+                        <Button size="sm" variant="outline" className="text-red-600 border-red-300 hover:bg-red-50" onClick={() => handleRejectProduct(product.product_id)}>
                           Rechazar
                         </Button>
                       </div>

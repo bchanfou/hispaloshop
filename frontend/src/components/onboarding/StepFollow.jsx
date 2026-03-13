@@ -137,6 +137,11 @@ export default function StepFollow({ data, onUpdate, onNext, onBack }) {
                 </div>
               </div>
               <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  toggleFollow(producer.id);
+                }}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   isFollowing
                     ? 'bg-accent text-white'

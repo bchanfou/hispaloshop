@@ -60,6 +60,27 @@ export function PostCard({ post }) {
     }
   };
 
+  const handleShare = async () => {
+    const postId = post.id || post._id;
+    const shareUrl = `${window.location.origin}/posts/${postId}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: post.author_name || 'Publicacion',
+          text: post.content?.slice(0, 120) || 'Mira esta publicacion en Hispaloshop',
+          url: shareUrl,
+        });
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Enlace copiado');
+    } catch {
+      toast.error('No se pudo compartir esta publicacion');
+    }
+  };
+
   const media = post.media?.[0];
   const hasProducts = post.tagged_products?.length > 0;
 
@@ -139,7 +160,7 @@ export function PostCard({ post }) {
           <span className="font-medium">{post.comments_count || 0}</span>
         </Link>
         
-        <button className="flex items-center gap-1 text-gray-700 hover:text-green-500 transition">
+        <button onClick={handleShare} className="flex items-center gap-1 text-gray-700 hover:text-green-500 transition" aria-label="Compartir publicacion">
           <Share2 className="w-6 h-6" />
         </button>
         

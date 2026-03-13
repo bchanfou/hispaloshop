@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Music2, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 function ReelOverlay({ reel }) {
   const navigate = useNavigate();
@@ -48,7 +49,14 @@ function ReelOverlay({ reel }) {
           ✕
         </button>
         <span className="text-white font-medium text-sm">Reels</span>
-        <button className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-colors">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toast.info('Opciones del reel proximamente');
+          }}
+          className="w-10 h-10 flex items-center justify-center text-white hover:bg-white/10 rounded-full transition-colors"
+          aria-label="Opciones del reel"
+        >
           ⋯
         </button>
       </div>

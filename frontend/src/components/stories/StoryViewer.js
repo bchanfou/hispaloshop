@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Send, MoreHorizontal } from 'lucide-react';
 import axios from 'axios';
 import { API } from '../../utils/api';
+import { toast } from 'sonner';
 
 const StoryProgress = ({ slides, currentSlide, progress, isPaused }) => (
   <div className="flex gap-1 px-2 pt-2">
@@ -113,6 +114,33 @@ const StoryViewer = () => {
         setCurrentSlideIndex(prev.stories.length - 1);
         setProgress(0);
       }
+    }
+  };
+
+  const handleLikeStory = async () => {
+    if (!currentSlide?.story_id) return;
+    try {
+      await axios.post(`${API}/stories/${currentSlide.story_id}/reaction`, { reaction: 'like' }, { withCredentials: true });
+      toast.success('Te gusta esta historia');
+    } catch {
+      toast.error('No se pudo registrar tu reaccion');
+    }
+  };
+
+  const handleSendReply = async () => {
+    const message = replyText.trim();
+    if (!currentSlide?.story_id || !message) return;
+
+    try {
+      await axios.post(
+        `${API}/stories/${currentSlide.story_id}/reaction`,
+        { reaction: 'reply', message },
+        { withCredentials: true },
+      );
+      setReplyText('');
+      toast.success('Respuesta enviada');
+    } catch {
+      toast.error('No se pudo enviar la respuesta');
     }
   };
 
@@ -228,10 +256,11 @@ const StoryViewer = () => {
             aria-label="Responder historia"
             className="flex-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:bg-white/20"
           />
-          <button aria-label="Dar me gusta a la historia" className="p-2 text-white">
+          <button onClick={handleLikeStory} aria-label="Dar me gusta a la historia" className="p-2 text-white">
             <Heart className="w-5 h-5" />
           </button>
           <button
+            onClick={handleSendReply}
             aria-label="Enviar respuesta"
             className="flex items-center justify-center w-9 h-9 rounded-full bg-white text-black"
           >

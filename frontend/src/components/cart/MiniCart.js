@@ -216,13 +216,13 @@ const MiniCart = ({ isOpen, onClose }) => {
 
                 {/* Express pay options */}
                 <div className="flex gap-2">
-                  <button aria-label="Pagar con Apple Pay" className="flex-1 py-2 bg-black text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+                  <button onClick={handleCheckout} aria-label="Pagar con Apple Pay" className="flex-1 py-2 bg-black text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2">
                     <span aria-hidden="true">🍎</span> Pay
                   </button>
-                  <button aria-label="Pagar con Google Pay" className="flex-1 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
+                  <button onClick={handleCheckout} aria-label="Pagar con Google Pay" className="flex-1 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
                     <span aria-hidden="true" className="text-blue-500">G</span> Pay
                   </button>
-                  <button aria-label="Pagar con Bizum" className="flex-1 py-2 bg-[#00A4E0] text-white rounded-lg text-sm font-medium">
+                  <button onClick={handleCheckout} aria-label="Pagar con Bizum" className="flex-1 py-2 bg-[#00A4E0] text-white rounded-lg text-sm font-medium">
                     Bizum
                   </button>
                 </div>

@@ -1,7 +1,10 @@
 import React from 'react';
 import { Bell, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function DashboardHeader({ userName, subtitle, notificationCount = 0 }) {
+  const navigate = useNavigate();
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Buenos días';
@@ -21,6 +24,7 @@ function DashboardHeader({ userName, subtitle, notificationCount = 0 }) {
       <div className="flex items-center gap-2">
         <button
           type="button"
+          onClick={() => navigate('/notifications')}
           className="relative flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 transition-all duration-200 hover:shadow-sm"
           aria-label="Notificaciones"
         >
@@ -29,6 +33,7 @@ function DashboardHeader({ userName, subtitle, notificationCount = 0 }) {
         </button>
         <button
           type="button"
+          onClick={() => navigate('/settings/locale')}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 transition-all duration-200 hover:shadow-sm"
           aria-label="Configuración"
         >
