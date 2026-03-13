@@ -1,5 +1,5 @@
 ﻿import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../services/api/client';
 import { Button } from './ui/button';
 import {
   Send, X, TrendingUp, Package,
@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { API } from '../utils/api';
 
 // HA Avatar
 function HAAvatar({ size = 36 }) {
@@ -82,15 +81,11 @@ export default function SellerAIAssistant({ producerData, isEmbedded = false, on
     setShowPrompts(false);
 
     try {
-      const response = await axios.post(
-        `${API}/ai/seller-assistant`,
-        { message: text, producer_context: producerData },
-        { withCredentials: true }
-      );
-      setMessages(prev => [...prev, { role: 'assistant', content: response.data.response }]);
+      const data = await apiClient.post('/ai/seller-assistant', { message: text, producer_context: producerData });
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (error) {
       console.error('Error:', error);
-      toast.error(error.response?.data?.detail || t('sellerAI.error', 'Error al procesar tu consulta.'));
+      toast.error(error.message || t('sellerAI.error', 'Error al procesar tu consulta.'));
       setMessages(prev => [...prev, { role: 'assistant', content: t('sellerAI.errorRetry', 'Lo siento, hubo un error. Â¿Puedes intentarlo de nuevo?') }]);
     } finally {
       setLoading(false);

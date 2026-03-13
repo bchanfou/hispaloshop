@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { 
-  Store, MapPin, Package, Users, Heart, ExternalLink, 
+import {
+  Store, MapPin, Package, Users, Heart, ExternalLink,
   Loader2, Bell, BellOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 function FollowedStoreCard({ store, onUnfollow }) {
     const storeSlug = store.slug || store.store_slug || null;
@@ -20,7 +19,7 @@ function FollowedStoreCard({ store, onUnfollow }) {
   const handleUnfollow = async () => {
     setUnfollowing(true);
     try {
-      await axios.post(`${API}/store/${store.store_id}/follow`, {}, { withCredentials: true });
+      await apiClient.post(`/store/${store.store_id}/follow`, {});
       toast.success(t('followedStores.unfollowed', 'Has dejado de seguir esta tienda'));
       onUnfollow(store.store_id);
     } catch (error) {
@@ -134,8 +133,8 @@ export default function CustomerFollowedStores() {
 
   const fetchFollowedStores = async () => {
     try {
-      const response = await axios.get(`${API}/customer/followed-stores`, { withCredentials: true });
-      setStores(response.data || []);
+      const data = await apiClient.get('/customer/followed-stores');
+      setStores(data || []);
     } catch (error) {
       console.error('Error fetching followed stores:', error);
       toast.error(t('common.error'));

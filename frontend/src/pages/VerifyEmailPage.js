@@ -1,13 +1,12 @@
 import BackButton from '../components/BackButton';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 
 
 
@@ -32,21 +31,18 @@ export default function VerifyEmailPage() {
 
   const verifyEmail = async () => {
     try {
-      const response = await axios.post(`${API}/auth/verify-email?${verificationParam}=${encodeURIComponent(verificationValue)}`);
+      const data = await apiClient.post(`/auth/verify-email?${verificationParam}=${encodeURIComponent(verificationValue)}`);
       setStatus('success');
-      setMessage(response.data.message || 'Email verified successfully!');
+      setMessage(data.message || 'Email verified successfully!');
       toast.success('Email verified! You can now login.');
-      
+
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/login');
       }, 3000);
     } catch (error) {
       setStatus('error');
-      setMessage(
-        error.response?.data?.detail || 
-        'Verification failed. The link may have expired.'
-      );
+      setMessage(error.message || 'Verification failed. The link may have expired.');
       toast.error('Verification failed');
     }
   };

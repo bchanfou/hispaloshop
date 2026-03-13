@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { toast } from 'sonner';
 import {
   Globe, Save, ArrowLeft, Loader2, Plus, Trash2,
@@ -8,7 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { useTranslation } from 'react-i18next';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 const COUNTRIES = {
   ES: { name: 'España', currency: 'EUR' },
@@ -140,12 +139,12 @@ export default function ProductCountryManagement() {
 
   const fetchData = async () => {
     try {
-      const [marketsRes, productsRes] = await Promise.all([
-        axios.get(`${API}/producer/products/${productId}/markets`, { withCredentials: true }),
-        axios.get(`${API}/producer/products`, { withCredentials: true }),
+      const [marketsData, productsData] = await Promise.all([
+        apiClient.get(`/producer/products/${productId}/markets`),
+        apiClient.get('/producer/products'),
       ]);
-      setMarkets(marketsRes.data || []);
-      setProduct((productsRes.data || []).find((p) => normalizeEntityId(p.product_id || p.id) === normalizeEntityId(productId)) || null);
+      setMarkets(marketsData || []);
+      setProduct((productsData || []).find((p) => normalizeEntityId(p.product_id || p.id) === normalizeEntityId(productId)) || null);
     } catch (err) {
       toast.error('Error cargando mercados');
     } finally {
@@ -179,14 +178,13 @@ export default function ProductCountryManagement() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.put(
-        `${API}/producer/products/${productId}/markets`,
-        { markets },
-        { withCredentials: true }
+      await apiClient.put(
+        `/producer/products/${productId}/markets`,
+        { markets }
       );
       toast.success('Mercados actualizados');
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error al guardar');
+      toast.error(err.message || 'Error al guardar');
     } finally {
       setSaving(false);
     }

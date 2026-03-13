@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 import { ShoppingBag, Package, ArrowLeft, XCircle, Truck, Check, Clock, MapPin, ExternalLink, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { API } from '../../utils/api';
 import { asNumber } from '../../utils/safe';
 
 
@@ -41,8 +40,8 @@ export default function CustomerOrders() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`${API}/customer/orders`, { withCredentials: true });
-      setOrders(response.data);
+      const data = await apiClient.get('/customer/orders');
+      setOrders(data);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error(t('orders.loadError', 'Failed to load orders'));
@@ -55,14 +54,14 @@ export default function CustomerOrders() {
     if (!window.confirm(t('orders.cancelConfirm', 'Are you sure you want to cancel this order?'))) return;
     
     try {
-      await axios.put(`${API}/customer/orders/${orderId}/cancel`, {}, { withCredentials: true });
+      await apiClient.put(`/customer/orders/${orderId}/cancel`, {});
       toast.success(t('orders.cancelled', 'Order cancelled'));
       fetchOrders();
       if (selectedOrder?.order_id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: 'cancelled' });
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('orders.cancelError', 'Cannot cancel this order'));
+      toast.error(error.message || t('orders.cancelError', 'Cannot cancel this order'));
     }
   };
 
@@ -307,7 +306,7 @@ export default function CustomerOrders() {
                       onClick={async (e) => {
                         e.stopPropagation();
                         try {
-                          await axios.post(`${API}/customer/orders/${order.order_id}/reorder`, {}, { withCredentials: true });
+                          await apiClient.post(`/customer/orders/${order.order_id}/reorder`, {});
                           toast.success('Productos agregados al carrito');
                         } catch { toast.error('Error al reordenar'); }
                       }}

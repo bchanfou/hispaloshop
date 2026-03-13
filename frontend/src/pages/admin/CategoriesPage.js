@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import {
   Plus, Edit2, Trash2, Search, FolderOpen, Check, X, Loader2, Tag
 } from 'lucide-react';
@@ -65,8 +64,8 @@ export default function CategoriesPage() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/categories`, { withCredentials: true });
-      setCategories(res.data || []);
+      const data = await apiClient.get('/categories');
+      setCategories(data || []);
     } catch {
       toast.error('Error al cargar las categorías');
     } finally {
@@ -77,12 +76,12 @@ export default function CategoriesPage() {
   const handleCreate = async (data) => {
     setSaving(true);
     try {
-      await axios.post(`${API}/categories`, data, { withCredentials: true });
+      await apiClient.post('/categories', data);
       toast.success('Categoría creada');
       setShowCreateForm(false);
       fetchCategories();
     } catch (e) {
-      toast.error(e.response?.data?.detail || 'Error al crear la categoría');
+      toast.error(e.message || 'Error al crear la categoría');
     } finally {
       setSaving(false);
     }
@@ -91,12 +90,12 @@ export default function CategoriesPage() {
   const handleUpdate = async (categoryId, data) => {
     setSaving(true);
     try {
-      await axios.put(`${API}/categories/${categoryId}`, data, { withCredentials: true });
+      await apiClient.put(`/categories/${categoryId}`, data);
       toast.success('Categoría actualizada');
       setEditingId(null);
       fetchCategories();
     } catch (e) {
-      toast.error(e.response?.data?.detail || 'Error al actualizar la categoría');
+      toast.error(e.message || 'Error al actualizar la categoría');
     } finally {
       setSaving(false);
     }
@@ -105,7 +104,7 @@ export default function CategoriesPage() {
   const handleDelete = async (categoryId, name) => {
     if (!window.confirm(`¿Eliminar la categoría "${name}"? Los productos asociados quedarán sin categoría.`)) return;
     try {
-      await axios.delete(`${API}/categories/${categoryId}`, { withCredentials: true });
+      await apiClient.delete(`/categories/${categoryId}`);
       toast.success('Categoría eliminada');
       fetchCategories();
     } catch {

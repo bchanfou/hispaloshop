@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import axios from 'axios';
-import { API } from '@/utils/api';
+import apiClient from '@/services/api/client';
 import { useAuth } from '@/context/AuthContext';
 
 const ChatContext = createContext(null);
@@ -20,8 +19,7 @@ export function ChatProvider({ children }) {
   const loadConversations = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
-      const res = await axios.get(`${API}/chat/conversations`, { withCredentials: true });
-      const convs = res.data || [];
+      const convs = await apiClient.get(`/chat/conversations`) || [];
       setConversations(convs);
       setUnreadTotal(convs.reduce((sum, conv) => sum + (conv.unread_count || 0), 0));
     } catch (e) {
@@ -33,11 +31,8 @@ export function ChatProvider({ children }) {
   const loadMessages = useCallback(async (conversationId) => {
     if (!conversationId || !isAuthenticated) return;
     try {
-      const res = await axios.get(
-        `${API}/chat/conversations/${conversationId}/messages`,
-        { withCredentials: true }
-      );
-      setMessages(res.data || []);
+      const msgs = await apiClient.get(`/chat/conversations/${conversationId}/messages`);
+      setMessages(msgs || []);
       setCurrentConversation(conversationId);
       
       // Join conversation via WebSocket
@@ -94,13 +89,9 @@ export function ChatProvider({ children }) {
   const createConversation = useCallback(async (otherUserId) => {
     if (!isAuthenticated) return null;
     try {
-      const res = await axios.post(
-        `${API}/chat/conversations`,
-        { other_user_id: otherUserId },
-        { withCredentials: true }
-      );
+      const data = await apiClient.post(`/chat/conversations`, { other_user_id: otherUserId });
       await loadConversations();
-      return res.data;
+      return data;
     } catch (e) {
       console.warn('[Chat] Failed to create conversation:', e.message);
       return null;

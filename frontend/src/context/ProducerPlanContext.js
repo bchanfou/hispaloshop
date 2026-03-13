@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 import { useAuth } from './AuthContext';
 
 const ProducerPlanContext = createContext();
@@ -22,8 +21,8 @@ export function ProducerPlanProvider({ children }) {
 
   const fetchPlan = async () => {
     try {
-      const res = await axios.get(`${API}/sellers/me/plan`, { withCredentials: true });
-      setPlanData(res.data);
+      const data = await apiClient.get(`/sellers/me/plan`);
+      setPlanData(data);
     } catch {
       setPlanData({ plan: 'FREE', commission_rate: 0.20, plan_status: 'active' });
     } finally {

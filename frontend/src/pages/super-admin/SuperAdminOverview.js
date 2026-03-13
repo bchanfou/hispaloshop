@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Link } from 'react-router-dom';
 import { Activity, AlertTriangle, BarChart3, FileCheck, Loader2, Shield, Users } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 
 function MetricCard({ icon: Icon, title, value, description, to }) {
   return (
@@ -31,8 +30,8 @@ export default function SuperAdminOverview() {
   const fetchData = async () => {
     try {
       setError(false);
-      const response = await axios.get(`${API}/superadmin/overview`, { withCredentials: true });
-      setData(response.data || null);
+      const data = await apiClient.get('/superadmin/overview');
+      setData(data || null);
     } catch {
       setData(null);
       setError(true);

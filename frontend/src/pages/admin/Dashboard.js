@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { Button } from '../../components/ui/button';
@@ -34,14 +33,14 @@ export default function AdminDashboard() {
       setLoading(true);
       // Fetch stats from various endpoints
       const [usersRes, productsRes, ordersRes] = await Promise.allSettled([
-        axios.get(`${API}/admin/users`, { withCredentials: true }),
-        axios.get(`${API}/admin/products`, { withCredentials: true }),
-        axios.get(`${API}/admin/orders`, { withCredentials: true }),
+        apiClient.get('/admin/users'),
+        apiClient.get('/admin/products'),
+        apiClient.get('/admin/orders'),
       ]);
 
-      const users = usersRes.status === 'fulfilled' ? usersRes.value.data : [];
-      const products = productsRes.status === 'fulfilled' ? productsRes.value.data : [];
-      const orders = ordersRes.status === 'fulfilled' ? ordersRes.value.data : [];
+      const users = usersRes.status === 'fulfilled' ? usersRes.value : [];
+      const products = productsRes.status === 'fulfilled' ? productsRes.value : [];
+      const orders = ordersRes.status === 'fulfilled' ? ordersRes.value : [];
 
       // Calculate stats
       const today = new Date().toISOString().split('T')[0];
@@ -71,7 +70,7 @@ export default function AdminDashboard() {
 
   const handleApproveProduct = async (productId) => {
     try {
-      await axios.put(`${API}/admin/products/${productId}/approve`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/products/${productId}/approve`, {});
       toast.success('Producto aprobado');
       fetchDashboardData();
     } catch (error) {
@@ -81,7 +80,7 @@ export default function AdminDashboard() {
 
   const handleRejectProduct = async (productId) => {
     try {
-      await axios.put(`${API}/admin/products/${productId}/approve?approved=false`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/products/${productId}/approve?approved=false`, {});
       toast.success('Producto rechazado');
       fetchDashboardData();
     } catch (error) {

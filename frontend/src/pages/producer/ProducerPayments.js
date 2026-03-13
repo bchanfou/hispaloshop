@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { 
-  DollarSign, TrendingUp, CreditCard, ArrowUpRight, 
-  ArrowDownRight, Clock, CheckCircle, ExternalLink, 
+import {
+  DollarSign, TrendingUp, CreditCard, ArrowUpRight,
+  ArrowDownRight, Clock, CheckCircle, ExternalLink,
   Loader2, ShoppingBag, AlertCircle, ChevronDown, ChevronUp,
   Wallet, BarChart3, Receipt
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // ── Status badge component ──
@@ -153,8 +152,8 @@ export default function ProducerPayments() {
 
   const fetchPayments = async () => {
     try {
-      const response = await axios.get(`${API}/producer/payments`, { withCredentials: true });
-      setData(response.data);
+      const data = await apiClient.get('/producer/payments');
+      setData(data);
     } catch (error) {
       console.error('Error fetching payments:', error);
       toast.error('Error al cargar datos de pagos');
@@ -166,9 +165,9 @@ export default function ProducerPayments() {
   const handleOpenStripeDashboard = async () => {
     setOpeningDashboard(true);
     try {
-      const response = await axios.post(`${API}/producer/stripe/create-login-link`, {}, { withCredentials: true });
-      if (response.data.url) {
-        window.open(response.data.url, '_blank');
+      const response = await apiClient.post('/producer/stripe/create-login-link', {});
+      if (response.url) {
+        window.open(response.url, '_blank');
       }
     } catch (error) {
       toast.error('Error al abrir el dashboard de Stripe');
@@ -279,11 +278,11 @@ export default function ProducerPayments() {
           <Button
             onClick={async () => {
               try {
-                const res = await axios.post(`${API}/producer/stripe/create-account`, {}, { withCredentials: true });
-                if (res.data.url) window.location.href = res.data.url;
+                const res = await apiClient.post('/producer/stripe/create-account', {});
+                if (res.url) window.location.href = res.url;
                 else toast.success('Cuenta de Stripe ya creada');
               } catch (e) {
-                toast.error(e.response?.data?.detail || 'Error');
+                toast.error(e.message || 'Error');
               }
             }}
             className="bg-amber-600 hover:bg-amber-700 text-white self-start"

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../services/api/client';
 import { Button } from './ui/button';
 import {
   Send, X,
@@ -7,7 +7,6 @@ import {
   ChevronDown, ChevronUp
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
 
 // ── HA Avatar ────────────────────────────────────────────────────
 function HAAvatar({ size = 36 }) {
@@ -76,15 +75,11 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
     setShowPrompts(false);
 
     try {
-      const response = await axios.post(
-        `${API}/ai/influencer-assistant`,
-        { message: text, influencer_context: influencerData },
-        { withCredentials: true }
-      );
-      setMessages(prev => [...prev, { role: 'assistant', content: response.data.response }]);
+      const data = await apiClient.post('/ai/influencer-assistant', { message: text, influencer_context: influencerData });
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (error) {
       console.error('Error:', error);
-      const errorMessage = error.response?.data?.detail || 'Error al procesar tu consulta. Intenta de nuevo.';
+      const errorMessage = error.message || 'Error al procesar tu consulta. Intenta de nuevo.';
       toast.error(errorMessage);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Lo siento, hubo un error. ¿Puedes intentarlo de nuevo?' }]);
     } finally {

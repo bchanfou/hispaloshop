@@ -1,11 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../services/api/client';
 import { useAuth } from './AuthContext';
-import { getApiUrl } from '../utils/api';
 
 const CartContext = createContext();
-
-const API = getApiUrl();
 
 export function CartProvider({ children }) {
   const { user } = useAuth();
@@ -25,9 +22,7 @@ export function CartProvider({ children }) {
   const fetchCart = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/cart`, { withCredentials: true });
-      // Cart API returns {items: [], discount: null}
-      const data = response.data;
+      const data = await apiClient.get('/cart');
       setCartItems(data.items || []);
       setAppliedDiscount(data.discount || null);
     } catch (error) {
@@ -40,47 +35,36 @@ export function CartProvider({ children }) {
   };
 
   const addToCart = async (productId, quantity, variantId = null, packId = null) => {
-    console.log('[CartContext] Adding to cart:', { productId, quantity, variantId, packId });
-    
     try {
       const payload = { product_id: productId, quantity };
       if (variantId) payload.variant_id = variantId;
       if (packId) payload.pack_id = packId;
-      
-      const response = await axios.post(
-        `${API}/cart/add`,
-        payload,
-        { withCredentials: true }
-      );
-      console.log('[CartContext] Add to cart response:', response.data);
-      
+
+      await apiClient.post('/cart/add', payload);
       await fetchCart();
       return true;
     } catch (error) {
       console.error('[CartContext] Error adding to cart:', error);
-      console.error('[CartContext] Error response:', error.response?.data);
-      
-      // If 401 (unauthorized), redirect to login
+
       if (error.response?.status === 401) {
-        // Store the intended action to resume after login
         sessionStorage.setItem('pendingCartAction', JSON.stringify({ productId, quantity, variantId, packId }));
         window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
         return 'redirect';
       }
-      
+
       return false;
     }
   };
 
   const removeFromCart = async (productId, variantId = null, packId = null) => {
     try {
-      let url = `${API}/cart/${productId}`;
+      let path = `/cart/${productId}`;
       const params = new URLSearchParams();
       if (variantId) params.append('variant_id', variantId);
       if (packId) params.append('pack_id', packId);
-      if (params.toString()) url += `?${params.toString()}`;
-      
-      await axios.delete(url, { withCredentials: true });
+      if (params.toString()) path += `?${params.toString()}`;
+
+      await apiClient.delete(path);
       await fetchCart();
     } catch (error) {
       console.error('Error removing from cart:', error);
@@ -89,27 +73,23 @@ export function CartProvider({ children }) {
 
   const applyDiscount = async (code) => {
     try {
-      const response = await axios.post(
-        `${API}/cart/apply-discount?code=${encodeURIComponent(code)}`,
-        {},
-        { withCredentials: true }
-      );
+      const data = await apiClient.post(`/cart/apply-discount?code=${encodeURIComponent(code)}`, {});
       await fetchCart();
-      return { success: true, data: response.data };
+      return { success: true, data };
     } catch (error) {
       console.error('Error applying discount:', error);
-      return { success: false, error: error.response?.data?.detail || 'Failed to apply discount' };
+      return { success: false, error: error.message || 'Failed to apply discount' };
     }
   };
 
   const removeDiscount = async () => {
     try {
-      await axios.delete(`${API}/cart/remove-discount`, { withCredentials: true });
+      await apiClient.delete('/cart/remove-discount');
       await fetchCart();
       return { success: true };
     } catch (error) {
       console.error('Error removing discount:', error);
-      return { success: false, error: error.response?.data?.detail || 'Failed to remove discount' };
+      return { success: false, error: error.message || 'Failed to remove discount' };
     }
   };
 

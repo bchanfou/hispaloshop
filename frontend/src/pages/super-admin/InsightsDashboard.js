@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { 
   BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -11,7 +10,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 // Color palette
 const COLORS = {
@@ -63,23 +62,23 @@ export default function InsightsDashboard() {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [globalRes, aiRes, trendsRes, complianceRes, configRes] = await Promise.all([
-        axios.get(`${API}/insights/global-overview`, { withCredentials: true }),
-        axios.get(`${API}/insights/ai-performance`, { withCredentials: true }),
-        axios.get(`${API}/insights/trends`, { withCredentials: true }),
-        axios.get(`${API}/insights/compliance`, { withCredentials: true }),
-        axios.get(`${API}/insights/config`, { withCredentials: true })
+      const [globalData, aiData, trendsData, complianceData, configData] = await Promise.all([
+        apiClient.get(`/insights/global-overview`),
+        apiClient.get(`/insights/ai-performance`),
+        apiClient.get(`/insights/trends`),
+        apiClient.get(`/insights/compliance`),
+        apiClient.get(`/insights/config`)
       ]);
-      
-      setGlobalData(globalRes.data);
-      setAiPerformance(aiRes.data);
-      setTrends(trendsRes.data);
-      setCompliance(complianceRes.data);
-      setConfig(configRes.data);
+
+      setGlobalData(globalData);
+      setAiPerformance(aiData);
+      setTrends(trendsData);
+      setCompliance(complianceData);
+      setConfig(configData);
       setConfigForm({
-        anonymity_threshold: configRes.data.anonymity_threshold || 15,
-        enable_fear_tracking: configRes.data.enable_fear_tracking ?? true,
-        enable_health_inference: configRes.data.enable_health_inference ?? true
+        anonymity_threshold: configData.anonymity_threshold || 15,
+        enable_fear_tracking: configData.enable_fear_tracking ?? true,
+        enable_health_inference: configData.enable_health_inference ?? true
       });
     } catch (error) {
       console.error('Error fetching insights:', error);
@@ -98,8 +97,8 @@ export default function InsightsDashboard() {
 
   const fetchCountryData = async (countryCode) => {
     try {
-      const response = await axios.get(`${API}/insights/country/${countryCode}`, { withCredentials: true });
-      setCountryData(response.data);
+      const data = await apiClient.get(`/insights/country/${countryCode}`);
+      setCountryData(data);
       setSelectedCountry(countryCode);
     } catch (error) {
       console.error('Error fetching country data:', error);
@@ -109,7 +108,7 @@ export default function InsightsDashboard() {
 
   const saveConfig = async () => {
     try {
-      await axios.put(`${API}/insights/config`, configForm, { withCredentials: true });
+      await apiClient.put(`/insights/config`, configForm);
       toast.success(t('superAdmin.insights.configSaved'));
       setShowConfigModal(false);
       fetchAllData();
@@ -770,12 +769,12 @@ function ComplianceTab({ data, config }) {
     if (auditLog) return;
     setLoadingAudit(true);
     try {
-      const [auditRes, gdprRes] = await Promise.all([
-        axios.get(`${API}/insights/audit-log`, { withCredentials: true }),
-        axios.get(`${API}/insights/gdpr-summary`, { withCredentials: true })
+      const [auditData, gdprData] = await Promise.all([
+        apiClient.get(`/insights/audit-log`),
+        apiClient.get(`/insights/gdpr-summary`)
       ]);
-      setAuditLog(auditRes.data);
-      setGdprSummary(gdprRes.data);
+      setAuditLog(auditData);
+      setGdprSummary(gdprData);
     } catch (error) {
       console.error('Error fetching audit data:', error);
     } finally {

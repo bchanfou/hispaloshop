@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../services/api/client';
 import { Camera, ChevronRight, Loader2, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-import { API } from '../utils/api';
 import { asNumber, firstToken } from '../utils/safe';
 
 const STORY_DURATION = 5000;
@@ -156,7 +155,7 @@ function StoryViewer({ group, onClose }) {
     if (!current) return undefined;
 
     setProgress(0);
-    axios.post(`${API}/stories/${current.story_id}/view`, {}, { withCredentials: true }).catch(() => {});
+    apiClient.post(`/stories/${current.story_id}/view`, {}).catch(() => {});
 
     const startedAt = Date.now();
     timerRef.current = setInterval(() => {
@@ -174,7 +173,7 @@ function StoryViewer({ group, onClose }) {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}/stories/${current.story_id}`, { withCredentials: true });
+      await apiClient.delete(`/stories/${current.story_id}`);
       toast.success(t('stories.deleted', 'Historia eliminada'));
       onClose();
     } catch {
@@ -356,10 +355,9 @@ function StoryUploadModal({ onClose, onPublished }) {
     }
 
     searchTimerRef.current = setTimeout(() => {
-      axios
-        .get(`${API}/products?search=${encodeURIComponent(value)}&limit=5`)
-        .then((response) => {
-          const data = response.data;
+      apiClient
+        .get(`/products?search=${encodeURIComponent(value)}&limit=5`)
+        .then((data) => {
           setProductResults(Array.isArray(data) ? data.slice(0, 5) : (data?.products || []).slice(0, 5));
         })
         .catch(() => setProductResults([]));
@@ -377,14 +375,11 @@ function StoryUploadModal({ onClose, onPublished }) {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('caption', buildCaption({ caption, overlays, taggedProduct }));
-      await axios.post(`${API}/stories`, formData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await apiClient.post('/stories', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success(t('stories.published', 'Historia publicada'));
       onPublished();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('common.error', 'Ha ocurrido un error'));
+      toast.error(error.message || t('common.error', 'Ha ocurrido un error'));
     } finally {
       setUploading(false);
     }
@@ -610,9 +605,9 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
   const [showUpload, setShowUpload] = useState(false);
 
   const fetchStories = useCallback(() => {
-    axios
-      .get(`${API}/stories`, { withCredentials: true })
-      .then((response) => setStoryGroups(response.data || []))
+    apiClient
+      .get('/stories')
+      .then((data) => setStoryGroups(data || []))
       .catch(() => {});
   }, []);
 

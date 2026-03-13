@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import { 
-  TrendingUp, ShoppingCart, Clock, AlertCircle, 
+import {
+  TrendingUp, ShoppingCart, Clock, AlertCircle,
   CheckCircle, ChevronRight, RefreshCw, Zap
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 const STATUS_CONFIG = {
   overdue: { color: 'bg-red-50 border-red-200', text: 'text-red-700', icon: AlertCircle, label: 'Vencido' },
@@ -116,9 +115,9 @@ export default function HispaloPredictions() {
 
   const fetchPredictions = async () => {
     try {
-      const res = await axios.get(`${API}/customer/predictions`, { withCredentials: true });
-      setPredictions(res.data.predictions || []);
-      setSummary(res.data.summary || {});
+      const data = await apiClient.get('/customer/predictions');
+      setPredictions(data.predictions || []);
+      setSummary(data.summary || {});
     } catch (err) {
       console.error('Error fetching predictions:', err);
     } finally {
@@ -129,10 +128,10 @@ export default function HispaloPredictions() {
   const handleReorder = async (productId) => {
     setReordering(productId);
     try {
-      await axios.post(`${API}/cart/add`, {
+      await apiClient.post('/cart/add', {
         product_id: productId,
         quantity: 1,
-      }, { withCredentials: true });
+      });
     } catch (err) {
       console.error('Reorder error:', err);
     } finally {

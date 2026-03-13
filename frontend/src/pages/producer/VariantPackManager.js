@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { Plus, Trash2, X, Package, Edit2, Save, ChevronDown, ChevronRight } from 'lucide-react';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 
 
@@ -33,20 +32,19 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
     
     setSaving(true);
     try {
-      const response = await axios.post(
-        `${API}/producer/products/${product.product_id}/variants`,
-        { name: newVariantName.trim(), sku: newVariantSku.trim() || null },
-        { withCredentials: true }
+      const response = await apiClient.post(
+        `/producer/products/${product.product_id}/variants`,
+        { name: newVariantName.trim(), sku: newVariantSku.trim() || null }
       );
-      setVariants([...variants, response.data]);
+      setVariants([...variants, response]);
       setNewVariantName('');
       setNewVariantSku('');
       setShowAddVariant(false);
-      setExpandedVariant(response.data.variant_id);
+      setExpandedVariant(response.variant_id);
       toast.success('Variant created');
       onUpdate?.();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create variant');
+      toast.error(error.message || 'Failed to create variant');
     } finally {
       setSaving(false);
     }
@@ -56,9 +54,8 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
     if (!window.confirm('Delete this variant and all its packs?')) return;
     
     try {
-      await axios.delete(
-        `${API}/producer/products/${product.product_id}/variants/${variantId}`,
-        { withCredentials: true }
+      await apiClient.delete(
+        `/producer/products/${product.product_id}/variants/${variantId}`
       );
       setVariants(variants.filter(v => v.variant_id !== variantId));
       if (expandedVariant === variantId) {
@@ -67,7 +64,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
       toast.success('Variant deleted');
       onUpdate?.();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to delete variant');
+      toast.error(error.message || 'Failed to delete variant');
     }
   };
 
@@ -79,22 +76,21 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
     
     setSaving(true);
     try {
-      const response = await axios.post(
-        `${API}/producer/products/${product.product_id}/packs`,
+      const response = await apiClient.post(
+        `/producer/products/${product.product_id}/packs`,
         {
           variant_id: variantId,
           label: newPack.label.trim(),
           units: parseInt(newPack.units) || 1,
           price: parseFloat(newPack.price),
           stock: parseInt(newPack.stock)
-        },
-        { withCredentials: true }
+        }
       );
-      
+
       // Update local state
       setVariants(variants.map(v => {
         if (v.variant_id === variantId) {
-          return { ...v, packs: [...(v.packs || []), response.data] };
+          return { ...v, packs: [...(v.packs || []), response] };
         }
         return v;
       }));
@@ -104,7 +100,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
       toast.success('Pack created');
       onUpdate?.();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create pack');
+      toast.error(error.message || 'Failed to create pack');
     } finally {
       setSaving(false);
     }
@@ -112,10 +108,9 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
 
   const handleUpdatePack = async (packId, updates) => {
     try {
-      await axios.put(
-        `${API}/producer/products/${product.product_id}/packs/${packId}`,
-        updates,
-        { withCredentials: true }
+      await apiClient.put(
+        `/producer/products/${product.product_id}/packs/${packId}`,
+        updates
       );
       
       // Update local state
@@ -129,7 +124,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
       toast.success('Pack updated');
       onUpdate?.();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update pack');
+      toast.error(error.message || 'Failed to update pack');
     }
   };
 
@@ -137,9 +132,8 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
     if (!window.confirm('Delete this pack?')) return;
     
     try {
-      await axios.delete(
-        `${API}/producer/products/${product.product_id}/packs/${packId}`,
-        { withCredentials: true }
+      await apiClient.delete(
+        `/producer/products/${product.product_id}/packs/${packId}`
       );
       
       // Update local state
@@ -151,7 +145,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
       toast.success('Pack deleted');
       onUpdate?.();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to delete pack');
+      toast.error(error.message || 'Failed to delete pack');
     }
   };
 

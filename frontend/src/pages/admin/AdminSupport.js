@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import {
   AlertCircle,
   ChevronLeft,
@@ -11,7 +10,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -77,7 +76,7 @@ export default function AdminSupport() {
       const params = { page, limit: 20 };
       if (status) params.status = status;
       if (priority) params.priority = priority;
-      const { data } = await axios.get(`${API}/support/cases`, { params, withCredentials: true });
+      const data = await apiClient.get('/support/cases', { params });
       setCases(data.cases || []);
       setTotal(data.total || 0);
       setPages(data.pages || 1);

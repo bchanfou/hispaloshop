@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
 import { ChefHat, Clock3, Loader2, ShoppingCart, User, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import Header from '../components/Header';
@@ -10,8 +9,8 @@ import { Button } from '../components/ui/button';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
 import ContextualProductSuggestions from '../components/intelligence/ContextualProductSuggestions';
-import { API } from '../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../services/api/client';
 import { resolveUserImage } from '../features/user/queries';
 
 function normalizeStep(step) {
@@ -37,11 +36,11 @@ export default function RecipeDetailPage() {
     let active = true;
     setLoading(true);
 
-    axios
-      .get(`${API}/recipes/${recipeId}`)
-      .then((response) => {
+    apiClient
+      .get(`/recipes/${recipeId}`)
+      .then((data) => {
         if (active) {
-          setRecipe(response.data || null);
+          setRecipe(data || null);
         }
       })
       .catch(() => {

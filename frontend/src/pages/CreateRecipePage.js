@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { ChefHat, ImagePlus, Loader2, Package, Plus, Search, UploadCloud, X } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -11,7 +10,7 @@ import { Label } from '../components/ui/label';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 import { resolveUserImage } from '../features/user/queries';
 
 function fileToDataUrl(file) {
@@ -67,10 +66,8 @@ export default function CreateRecipePage() {
     const timeoutId = window.setTimeout(async () => {
       setSuggestionLoading(true);
       try {
-        const response = await axios.get(`${API}/recipes/ingredient-suggestions`, {
-          params: { q: manualIngredientInput.trim(), limit: 3 },
-        });
-        setIngredientSuggestions(response.data?.items || []);
+        const data = await apiClient.get(`/recipes/ingredient-suggestions?q=${encodeURIComponent(manualIngredientInput.trim())}&limit=3`);
+        setIngredientSuggestions(data?.items || []);
       } catch {
         setIngredientSuggestions([]);
       } finally {
@@ -156,8 +153,8 @@ export default function CreateRecipePage() {
 
     setProductLoading(true);
     try {
-      const response = await axios.get(`${API}/products?search=${encodeURIComponent(value)}&limit=8`);
-      const results = response.data?.products || response.data || [];
+      const data = await apiClient.get(`/products?search=${encodeURIComponent(value)}&limit=8`);
+      const results = data?.products || data || [];
       setProductResults(Array.isArray(results) ? results : []);
     } catch {
       setProductResults([]);
@@ -266,11 +263,11 @@ export default function CreateRecipePage() {
         steps: cleanedSteps,
       };
 
-      const response = await axios.post(`${API}/recipes`, payload, { withCredentials: true });
+      const data = await apiClient.post('/recipes', payload);
       toast.success(t('recipes.published', 'Receta publicada'));
-      navigate(`/recipes/${response.data.recipe_id}`);
+      navigate(`/recipes/${data.recipe_id}`);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'No hemos podido publicar la receta');
+      toast.error(error.message || 'No hemos podido publicar la receta');
     } finally {
       setSubmitting(false);
     }

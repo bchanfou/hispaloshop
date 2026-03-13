@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Loader2, ShoppingBag } from 'lucide-react';
 import ProductDetailOverlay from '../store/ProductDetailOverlay';
-import { API } from '../../utils/api';
 import { resolveUserImage } from '../../features/user/queries';
 
 export default function ContextualProductSuggestions({ contentType, contentId, title = 'Productos relacionados' }) {
@@ -13,13 +12,13 @@ export default function ContextualProductSuggestions({ contentType, contentId, t
   useEffect(() => {
     let active = true;
     setLoading(true);
-    axios
-      .get(`${API}/intelligence/contextual-products`, {
+    apiClient
+      .get(`/intelligence/contextual-products`, {
         params: { content_type: contentType, content_id: contentId, limit: 5 },
       })
-      .then((response) => {
+      .then((data) => {
         if (active) {
-          setProducts(response.data?.items || []);
+          setProducts(data?.items || []);
         }
       })
       .catch(() => {

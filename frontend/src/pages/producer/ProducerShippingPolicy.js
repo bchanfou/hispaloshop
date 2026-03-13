@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
 import { Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import apiClient from '../../services/api/client';
 
 function toEuros(cents) {
   return (Number(cents || 0) / 100).toFixed(2);
@@ -36,15 +35,15 @@ export default function ProducerShippingPolicy() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await axios.get(`${API}/producer/shipping/policy`, { withCredentials: true });
+        const res = await apiClient.get('/producer/shipping/policy');
         setPolicy({
-          enabled: !!res.data.enabled,
-          base_cost_cents: res.data.base_cost_cents || 0,
-          free_threshold_cents: res.data.free_threshold_cents ?? null,
-          per_item_cents: res.data.per_item_cents || 0,
+          enabled: !!res.enabled,
+          base_cost_cents: res.base_cost_cents || 0,
+          free_threshold_cents: res.free_threshold_cents ?? null,
+          per_item_cents: res.per_item_cents || 0,
         });
       } catch (error) {
-        toast.error(error.response?.data?.detail || 'No se pudo cargar la política de envío');
+        toast.error(error.message || 'No se pudo cargar la política de envío');
       } finally {
         setLoading(false);
       }
@@ -61,10 +60,10 @@ export default function ProducerShippingPolicy() {
         free_threshold_cents: policy.free_threshold_cents === null ? null : Math.max(0, policy.free_threshold_cents),
         per_item_cents: Math.max(0, policy.per_item_cents || 0),
       };
-      await axios.put(`${API}/producer/shipping/policy`, payload, { withCredentials: true });
+      await apiClient.put('/producer/shipping/policy', payload);
       toast.success('Política de envío guardada');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'No se pudo guardar');
+      toast.error(error.message || 'No se pudo guardar');
     } finally {
       setSaving(false);
     }

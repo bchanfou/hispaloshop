@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -10,7 +10,6 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 
-import { API } from '../../utils/api'; // Centralized API URL
 import { asLowerText } from '../../utils/safe';
 
 export default function ContentManagement() {
@@ -40,11 +39,10 @@ export default function ContentManagement() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      let url = `${API}/super-admin/products`;
+      let url = '/super-admin/products';
       if (statusFilter !== 'all') url += `?status=${statusFilter}`;
-      
-      const response = await axios.get(url, { withCredentials: true });
-      const payload = response.data;
+
+      const payload = await apiClient.get(url);
       setProducts(Array.isArray(payload) ? payload : (Array.isArray(payload?.products) ? payload.products : []));
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -57,11 +55,10 @@ export default function ContentManagement() {
   const fetchCertificates = async () => {
     try {
       setLoading(true);
-      let url = `${API}/super-admin/certificates`;
+      let url = '/super-admin/certificates';
       if (statusFilter !== 'all') url += `?status=${statusFilter}`;
-      
-      const response = await axios.get(url, { withCredentials: true });
-      const payload = response.data;
+
+      const payload = await apiClient.get(url);
       setCertificates(Array.isArray(payload) ? payload : (Array.isArray(payload?.certificates) ? payload.certificates : []));
     } catch (error) {
       console.error('Error fetching certificates:', error);
@@ -73,8 +70,8 @@ export default function ContentManagement() {
 
   const fetchProductStats = async () => {
     try {
-      const response = await axios.get(`${API}/super-admin/products/stats`, { withCredentials: true });
-      setProductStats(response.data);
+      const data = await apiClient.get('/super-admin/products/stats');
+      setProductStats(data);
     } catch (error) {
       console.error('Error fetching product stats:', error);
     }
@@ -82,8 +79,8 @@ export default function ContentManagement() {
 
   const fetchCertStats = async () => {
     try {
-      const response = await axios.get(`${API}/super-admin/certificates/stats`, { withCredentials: true });
-      setCertStats(response.data);
+      const data = await apiClient.get('/super-admin/certificates/stats');
+      setCertStats(data);
     } catch (error) {
       console.error('Error fetching certificate stats:', error);
     }
@@ -92,7 +89,7 @@ export default function ContentManagement() {
   const deleteProduct = async (productId) => {
     setActionLoading(productId);
     try {
-      await axios.delete(`${API}/super-admin/products/${productId}`, { withCredentials: true });
+      await apiClient.delete(`/super-admin/products/${productId}`);
       toast.success(t('contentManagement.messages.productDeleted'), { duration: 2000 });
       // Small delay to ensure UI updates properly on mobile
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -101,7 +98,7 @@ export default function ContentManagement() {
       await fetchProducts();
       fetchProductStats();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
+      toast.error(error.message || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
       setActionLoading(null);
     }
   };
@@ -109,7 +106,7 @@ export default function ContentManagement() {
   const deleteCertificate = async (certificateId) => {
     setActionLoading(certificateId);
     try {
-      await axios.delete(`${API}/super-admin/certificates/${certificateId}`, { withCredentials: true });
+      await apiClient.delete(`/super-admin/certificates/${certificateId}`);
       toast.success(t('contentManagement.messages.certificateDeleted'), { duration: 2000 });
       // Small delay to ensure UI updates properly on mobile
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -118,7 +115,7 @@ export default function ContentManagement() {
       await fetchCertificates();
       fetchCertStats();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
+      toast.error(error.message || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
       setActionLoading(null);
     }
   };

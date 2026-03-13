@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { Building2, Warehouse, Save, User, Phone, Mail, MapPin, Shield, AlertTriangle, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 
 
@@ -58,8 +57,7 @@ export default function ProducerProfile() {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get(`${API}/producer/profile`, { withCredentials: true });
-      const data = response.data;
+      const data = await apiClient.get('/producer/profile');
       
       setProfile({
         company_name: data.company_name || '',
@@ -86,13 +84,13 @@ export default function ProducerProfile() {
   const saveAddresses = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/producer/addresses`, {
+      await apiClient.put('/producer/addresses', {
         office_address: officeAddress.street ? officeAddress : null,
         warehouse_address: warehouseAddress.street ? warehouseAddress : null
-      }, { withCredentials: true });
+      });
       toast.success(t('success.saved', 'Addresses saved successfully'));
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to save'));
+      toast.error(error.message || t('errors.generic', 'Failed to save'));
     } finally {
       setSaving(false);
     }
@@ -106,15 +104,14 @@ export default function ProducerProfile() {
     
     setDeleting(true);
     try {
-      await axios.delete(`${API}/account/delete`, {
-        data: { password: deletePassword, confirmation: deleteConfirmation },
-        withCredentials: true
+      await apiClient.delete('/account/delete', {
+        data: { password: deletePassword, confirmation: deleteConfirmation }
       });
       toast.success(t('profile.accountDeleted', 'Account deleted successfully'));
       logout();
       navigate('/');
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to delete account'));
+      toast.error(error.message || t('errors.generic', 'Failed to delete account'));
     } finally {
       setDeleting(false);
     }

@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { AlertCircle, Globe, Loader2, Package, ShoppingBag, TrendingUp, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { Button } from '../../components/ui/button';
 
 function ImporterMetric({ icon: Icon, title, value, description, to }) {
@@ -34,8 +33,8 @@ export default function ImporterDashboardPage() {
 
     const load = async () => {
       try {
-        const response = await axios.get(`${API}/importer/stats`, { withCredentials: true });
-        if (active) setStats(response.data || {});
+        const data = await apiClient.get(`/importer/stats`);
+        if (active) setStats(data || {});
       } catch {
         if (active) {
           setStats({

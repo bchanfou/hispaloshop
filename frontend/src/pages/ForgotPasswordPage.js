@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../services/api/client';
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();
@@ -27,8 +26,8 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API}/auth/forgot-password`, { email });
-      if (response.data?.email_delivery_available === false) {
+      const data = await apiClient.post('/auth/forgot-password', { email });
+      if (data?.email_delivery_available === false) {
         toast.error('El servicio de email no esta configurado. No podremos enviar enlaces de recuperacion todavia.');
         return;
       }

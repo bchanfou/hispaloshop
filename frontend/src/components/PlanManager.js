@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Zap, Crown, Star, ArrowRight, Loader2, Calendar, Shield, AlertTriangle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 
 export default function PlanManager() {
   const [plan, setPlan] = useState(null);
@@ -14,8 +13,8 @@ export default function PlanManager() {
 
   const fetchPlan = async () => {
     try {
-      const res = await axios.get(`${API}/sellers/me/plan`, { withCredentials: true });
-      setPlan(res.data);
+      const data = await apiClient.get(`/sellers/me/plan`);
+      setPlan(data);
     } catch (err) {
       toast.error('Error cargando plan');
     } finally {
@@ -27,15 +26,15 @@ export default function PlanManager() {
     setChanging(true);
     try {
       if (!plan?.stripe_subscription_id && newPlan !== 'FREE') {
-        const res = await axios.post(`${API}/sellers/me/plan/subscribe`, { plan: newPlan }, { withCredentials: true });
-        if (res.data.checkout_url) { window.location.href = res.data.checkout_url; return; }
+        const data = await apiClient.post(`/sellers/me/plan/subscribe`, { plan: newPlan });
+        if (data.checkout_url) { window.location.href = data.checkout_url; return; }
       } else {
-        await axios.post(`${API}/sellers/me/plan/change`, { plan: newPlan }, { withCredentials: true });
+        await apiClient.post(`/sellers/me/plan/change`, { plan: newPlan });
         toast.success(`Plan cambiado a ${newPlan}`);
         fetchPlan();
       }
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error al cambiar plan');
+      toast.error(err.message || 'Error al cambiar plan');
     } finally {
       setChanging(false);
     }

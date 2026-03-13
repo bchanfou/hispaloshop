@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import API_BASE_URL from '../../config/api';
-import axios from 'axios';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-
-const API = API_BASE_URL;
+import apiClient from '../../services/api/client';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -16,8 +13,8 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`${API}/orders`, { withCredentials: true });
-      setOrders(response.data);
+      const data = await apiClient.get('/orders');
+      setOrders(data);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {

@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { useAuth } from './AuthContext';
 import { translations, defaultLanguage, supportedLanguages } from '../locales';
 import { convertPrice, formatCurrency, getExchangeRate } from '../utils/currency';
-import { getApiUrl } from '../utils/api';
+import apiClient from '../services/api/client';
 import i18n from '../locales/i18n';
 
 const LocaleContext = createContext();
@@ -84,19 +83,10 @@ export function LocaleProvider({ children }) {
 
   const fetchLocaleConfig = async () => {
     try {
-      console.log('[LocaleContext] Fetching locale config from:', `${getApiUrl()}/config/locale`);
-      const response = await axios.get(`${getApiUrl()}/config/locale`);
-      const config = response.data;
+      const config = await apiClient.get('/config/locale');
       const configCountries = config?.countries && typeof config.countries === 'object' ? config.countries : {};
       const configLanguages = config?.languages && typeof config.languages === 'object' ? config.languages : {};
       const configCurrencies = config?.currencies && typeof config.currencies === 'object' ? config.currencies : {};
-      
-      console.log('[LocaleContext] Config received:', {
-        languagesCount: Object.keys(config.languages || {}).length,
-        countriesCount: Object.keys(config.countries || {}).length,
-        currenciesCount: Object.keys(config.currencies || {}).length,
-        languages: Object.keys(config.languages || {}),
-      });
       
       setCountries({ ...FALLBACK_COUNTRIES, ...configCountries });
       setLanguages({ ...FALLBACK_LANGUAGES, ...configLanguages });
@@ -127,8 +117,7 @@ export function LocaleProvider({ children }) {
       
       console.log('[LocaleContext] State updated - languages, countries, currencies loaded');
     } catch (error) {
-      console.error('[LocaleContext] ERROR fetching locale config:', error);
-      console.error('[LocaleContext] Error details:', error.response?.data || error.message);
+      console.error('[LocaleContext] ERROR fetching locale config:', error.message);
 
       // Fallback locale config so selectors always work even if backend config endpoint fails.
       setCountries(FALLBACK_COUNTRIES);
@@ -146,8 +135,7 @@ export function LocaleProvider({ children }) {
 
   const fetchUserLocale = async () => {
     try {
-      const response = await axios.get(`${getApiUrl()}/user/locale`, { withCredentials: true });
-      const userLocale = response.data;
+      const userLocale = await apiClient.get('/user/locale');
       
       if (userLocale.country) setCountry(userLocale.country);
       if (userLocale.language) {
@@ -163,9 +151,8 @@ export function LocaleProvider({ children }) {
   const fetchExchangeRates = async () => {
     try {
       setRatesLoading(true);
-      const response = await axios.get(`${getApiUrl()}/exchange-rates`);
-      setExchangeRates(response.data);
-      console.log('[LocaleContext] Exchange rates loaded:', response.data);
+      const data = await apiClient.get('/exchange-rates');
+      setExchangeRates(data);
     } catch (error) {
       console.error('[LocaleContext] Error fetching exchange rates:', error);
       // Set fallback rates so UI doesn't break
@@ -229,14 +216,9 @@ export function LocaleProvider({ children }) {
     // Save to backend if user is logged in (cart validation is handled by LocaleSelector)
     if (user) {
       try {
-        // Save to backend
-        await axios.put(
-          `${getApiUrl()}/user/locale`,
-          { country: newCountry, currency: countryCurrency },
-          { withCredentials: true }
-        );
+        await apiClient.put('/user/locale', { country: newCountry, currency: countryCurrency });
       } catch (error) {
-        console.error('Error updating country:', error);
+        console.error('Error updating country:', error.message);
         // Don't rollback - localStorage already has the new value
       }
     }
@@ -245,7 +227,6 @@ export function LocaleProvider({ children }) {
   };
 
   const updateLanguage = async (newLanguage) => {
-    console.log('[LocaleContext] Updating language to:', newLanguage);
     
     // Update state first
     setLanguage(newLanguage);
@@ -254,7 +235,6 @@ export function LocaleProvider({ children }) {
     // Update i18n language synchronously
     try {
       await i18n.changeLanguage(newLanguage);
-      console.log('[LocaleContext] i18n language changed to:', i18n.language);
     } catch (err) {
       console.error('[LocaleContext] Error changing i18n language:', err);
     }
@@ -266,13 +246,9 @@ export function LocaleProvider({ children }) {
     // Save to backend if user is logged in
     if (user) {
       try {
-        await axios.put(
-          `${getApiUrl()}/user/locale`,
-          { language: newLanguage },
-          { withCredentials: true }
-        );
+        await apiClient.put('/user/locale', { language: newLanguage });
       } catch (error) {
-        console.error('Error updating language:', error);
+        console.error('Error updating language:', error.message);
       }
     }
   };
@@ -286,13 +262,9 @@ export function LocaleProvider({ children }) {
     // Save to backend if user is logged in
     if (user) {
       try {
-        await axios.put(
-          `${getApiUrl()}/user/locale`,
-          { currency: newCurrency },
-          { withCredentials: true }
-        );
+        await apiClient.put('/user/locale', { currency: newCurrency });
       } catch (error) {
-        console.error('Error updating currency:', error);
+        console.error('Error updating currency:', error.message);
       }
     }
   };

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 
 const ASPECT_RATIO_DIMENSIONS = {
   '1:1': { width: 1080, height: 1080 },
@@ -64,13 +64,12 @@ async function createEditedImageFile(imageData) {
   return new File([blob], 'edited-image.jpg', { type: 'image/jpeg' });
 }
 
-export async function publishSocialContent({ apiBase, publishData, onProgress, signal }) {
+export async function publishSocialContent({ publishData, onProgress, signal }) {
   const fd = new FormData();
   const normalizedTags = normalizeTaggedProducts(publishData.taggedProducts, publishData.aspectRatio);
   const primaryProductId = normalizedTags[0]?.product_id;
   const sourceFiles = Array.isArray(publishData.sourceFiles) ? publishData.sourceFiles.filter(Boolean) : [];
   const requestConfig = {
-    withCredentials: true,
     headers: { 'Content-Type': 'multipart/form-data' },
     signal,
     onUploadProgress: (event) => {
@@ -104,7 +103,7 @@ export async function publishSocialContent({ apiBase, publishData, onProgress, s
       fd.append('tagged_products_json', JSON.stringify(normalizedTags));
     }
 
-    await axios.post(`${apiBase}/reels`, fd, requestConfig);
+    await apiClient.post(`/reels`, fd, requestConfig);
     return;
   }
 
@@ -114,7 +113,7 @@ export async function publishSocialContent({ apiBase, publishData, onProgress, s
 
   if (publishData.contentType === 'story') {
     fd.append('file', file);
-    await axios.post(`${apiBase}/stories`, fd, requestConfig);
+    await apiClient.post(`/stories`, fd, requestConfig);
     return;
   }
 
@@ -132,5 +131,5 @@ export async function publishSocialContent({ apiBase, publishData, onProgress, s
     fd.append('file', sourceFiles[0] || file);
   }
 
-  await axios.post(`${apiBase}/posts`, fd, requestConfig);
+  await apiClient.post(`/posts`, fd, requestConfig);
 }

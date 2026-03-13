@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import axios from 'axios';
 import { ArrowLeft, Loader2, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -55,16 +54,14 @@ function CaseDetail({ caseData, onBack, onMessageSent }) {
     if (!reply.trim()) return;
     setSending(true);
     try {
-      const { data: msg } = await axios.post(
-        `${API}/support/my-cases/${caseData.case_id}/messages`,
+      const msg = await apiClient.post(
+        `/support/my-cases/${caseData.case_id}/messages`,
         { content: reply.trim() },
-        { withCredentials: true },
       );
       onMessageSent(caseData.case_id, msg);
       setReply('');
     } catch (err) {
-      const detail = err?.response?.data?.detail;
-      toast.error(detail || 'No se pudo enviar el mensaje');
+      toast.error(err.message || 'No se pudo enviar el mensaje');
     } finally {
       setSending(false);
     }
@@ -175,7 +172,7 @@ export default function CustomerSupport() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${API}/support/my-cases`, { withCredentials: true });
+      const data = await apiClient.get('/support/my-cases');
       setCases(Array.isArray(data) ? data : []);
     } catch {
       toast.error('No se pudo cargar tu historial de soporte');
@@ -189,10 +186,7 @@ export default function CustomerSupport() {
 
   const handleOpenCase = async (caseItem) => {
     try {
-      const { data } = await axios.get(
-        `${API}/support/my-cases/${caseItem.case_id}`,
-        { withCredentials: true },
-      );
+      const data = await apiClient.get(`/support/my-cases/${caseItem.case_id}`);
       setSelectedCase(data);
     } catch {
       toast.error('No se pudo abrir el caso');

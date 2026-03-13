@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   AlertTriangle,
   Check,
@@ -15,7 +14,7 @@ import {
   UserX,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -118,7 +117,7 @@ function QueueTab() {
     try {
       const params = { page, limit: 20, status: 'pending' };
       if (contentType) params.content_type = contentType;
-      const { data } = await axios.get(`${API}/moderation/queue`, { params, withCredentials: true });
+      const data = await apiClient.get('/moderation/queue', { params });
       setItems(data.items || []);
       setTotal(data.total || 0);
       setPages(data.pages || 1);
@@ -135,10 +134,9 @@ function QueueTab() {
   const handleAction = async (item_id, action) => {
     setActing(item_id + action);
     try {
-      await axios.post(
-        `${API}/moderation/queue/${item_id}/action`,
-        { action },
-        { withCredentials: true },
+      await apiClient.post(
+        `/moderation/queue/${item_id}/action`,
+        { action }
       );
       toast.success(action === 'approve' ? 'Contenido aprobado' : 'Acción aplicada');
       setItems((prev) => prev.filter((i) => i.item_id !== item_id));
@@ -292,7 +290,7 @@ function ReportsTab() {
       const params = { page, limit: 20, status: 'pending' };
       if (reason) params.reason = reason;
       if (contentType) params.content_type = contentType;
-      const { data } = await axios.get(`${API}/moderation/reports`, { params, withCredentials: true });
+      const data = await apiClient.get('/moderation/reports', { params });
       setReports(data.reports || []);
       setTotal(data.total || 0);
       setPages(data.pages || 1);
@@ -456,7 +454,7 @@ export default function AdminTrustSafety() {
   const loadStats = useCallback(async () => {
     setStatsLoading(true);
     try {
-      const { data } = await axios.get(`${API}/moderation/stats`, { withCredentials: true });
+      const data = await apiClient.get('/moderation/stats');
       setStats(data);
     } catch {
       setStats({});

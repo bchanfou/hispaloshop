@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
@@ -9,7 +8,7 @@ import { CheckCircle, ArrowRight, Star, Loader2, Zap, Crown } from 'lucide-react
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 
 export default function PricingPage() {
   const navigate = useNavigate();
@@ -29,11 +28,11 @@ export default function PricingPage() {
   const fetchPlans = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/sellers/plans`);
-      setPlans(res.data.plans || []);
+      const plansData = await apiClient.get('/sellers/plans');
+      setPlans(plansData.plans || []);
       if (isSeller) {
-        const planRes = await axios.get(`${API}/sellers/me/plan`, { withCredentials: true });
-        setCurrentPlan(planRes.data);
+        const planData = await apiClient.get('/sellers/me/plan');
+        setCurrentPlan(planData);
       } else {
         setCurrentPlan(null);
       }
@@ -74,8 +73,8 @@ export default function PricingPage() {
     try {
       if (planKey === 'FREE') {
         if (currentPlan?.plan && currentPlan.plan !== 'FREE') {
-          const res = await axios.post(`${API}/sellers/me/plan/change`, { plan: 'FREE' }, { withCredentials: true });
-          toast.success(res.data?.message || 'Plan cambiado a FREE.');
+          const data = await apiClient.post('/sellers/me/plan/change', { plan: 'FREE' });
+          toast.success(data?.message || 'Plan cambiado a FREE.');
           await fetchPlans();
         } else {
           navigate('/producer');
@@ -84,20 +83,20 @@ export default function PricingPage() {
       }
 
       if (currentPlan?.stripe_subscription_id && currentPlan?.plan && currentPlan.plan !== 'FREE') {
-        const res = await axios.post(`${API}/sellers/me/plan/change`, { plan: planKey }, { withCredentials: true });
-        toast.success(res.data?.message || `Plan actualizado a ${planKey}.`);
+        const data = await apiClient.post('/sellers/me/plan/change', { plan: planKey });
+        toast.success(data?.message || `Plan actualizado a ${planKey}.`);
         await fetchPlans();
         return;
       }
 
-      const res = await axios.post(`${API}/sellers/me/plan/subscribe`, { plan: planKey }, { withCredentials: true });
-      if (res.data.checkout_url) {
-        window.location.href = res.data.checkout_url;
+      const data = await apiClient.post('/sellers/me/plan/subscribe', { plan: planKey });
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
       } else {
         toast.error('No se pudo iniciar el pago. Intentalo otra vez.');
       }
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error');
+      toast.error(err.message || 'Error');
     } finally {
       setSubscribing(null);
     }

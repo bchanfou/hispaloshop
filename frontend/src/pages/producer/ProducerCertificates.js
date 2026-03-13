@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
-import { 
-  FileCheck, Plus, ArrowLeft, ArrowRight, CheckCircle, Clock, XCircle, 
-  Upload, FileText, Info, Check, Save, Send, AlertCircle 
+import {
+  FileCheck, Plus, ArrowLeft, ArrowRight, CheckCircle, Clock, XCircle,
+  Upload, FileText, Info, Check, Save, Send, AlertCircle
 } from 'lucide-react';
-import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../../services/api/client';
 
 // Certificate types available
 const CERTIFICATE_TYPES = [
@@ -115,12 +114,12 @@ export default function ProducerCertificates() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [certsRes, productsRes] = await Promise.all([
-        axios.get(`${API}/producer/certificates`, { withCredentials: true }),
-        axios.get(`${API}/producer/products`, { withCredentials: true })
+      const [certsData, productsData] = await Promise.all([
+        apiClient.get('/producer/certificates'),
+        apiClient.get('/producer/products')
       ]);
-      setCertificates(certsRes.data);
-      setProducts(productsRes.data);
+      setCertificates(certsData);
+      setProducts(productsData);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -154,14 +153,13 @@ export default function ProducerCertificates() {
       const uploadFormData = new FormData();
       uploadFormData.append('file', file);
 
-      const response = await axios.post(`${API}/upload`, uploadFormData, {
-        withCredentials: true,
+      const response = await apiClient.post('/upload', uploadFormData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       setFormData(prev => ({
         ...prev,
-        document_url: response.data.url,
+        document_url: response.url,
         document_name: file.name
       }));
       toast.success(t('certificates.uploadSuccess', 'Documento subido correctamente'));
@@ -189,7 +187,7 @@ export default function ProducerCertificates() {
         }
       };
       
-      await axios.post(`${API}/certificates`, certData, { withCredentials: true });
+      await apiClient.post('/certificates', certData);
       
       if (asDraft) {
         toast.success(t('certificates.draftSaved', 'Borrador guardado'));
@@ -200,7 +198,7 @@ export default function ProducerCertificates() {
       resetForm();
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('certificates.createError', 'Error al crear certificado'));
+      toast.error(error.message || t('certificates.createError', 'Error al crear certificado'));
     }
   };
 

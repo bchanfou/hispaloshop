@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -13,7 +13,6 @@ import InternalChat from '../../components/InternalChat';
 import InfluencerAnalytics from '../../components/InfluencerAnalytics';
 import TierProgress from '../../components/TierProgress';
 import { useTranslation } from 'react-i18next';
-import { API } from '../../utils/api';
 import {
   useInfluencerDiscountCodes,
   useInfluencerEmailVerification,
@@ -258,11 +257,11 @@ export default function InfluencerDashboard() {
 
   useEffect(() => {
     let active = true;
-    axios
-      .get(`${API}/intelligence/influencer-performance`, { withCredentials: true })
-      .then((response) => {
+    apiClient
+      .get('/intelligence/influencer-performance')
+      .then((data) => {
         if (active) {
-          setProductPerformance(response.data?.items || []);
+          setProductPerformance(data?.items || []);
         }
       })
       .catch(() => {

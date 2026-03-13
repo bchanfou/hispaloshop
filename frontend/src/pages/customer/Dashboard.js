@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { Bookmark, ChefHat, Heart, Loader2, MessageCircle, Package, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
-import { API } from '../../utils/api';
 import { Button } from '../../components/ui/button';
+import apiClient from '../../services/api/client';
 
 function SummaryCard({ icon: Icon, title, value, description, to }) {
   return (
@@ -36,13 +35,13 @@ export default function CustomerDashboard() {
     const load = async () => {
       try {
         const [ordersRes, wishlistRes] = await Promise.allSettled([
-          axios.get(`${API}/orders`, { withCredentials: true }),
-          axios.get(`${API}/wishlist`, { withCredentials: true }),
+          apiClient.get('/orders'),
+          apiClient.get('/wishlist'),
         ]);
 
         if (!active) return;
-        setOrders(ordersRes.status === 'fulfilled' ? ordersRes.value.data || [] : []);
-        setWishlist(wishlistRes.status === 'fulfilled' ? wishlistRes.value.data?.items || wishlistRes.value.data || [] : []);
+        setOrders(ordersRes.status === 'fulfilled' ? ordersRes.value || [] : []);
+        setWishlist(wishlistRes.status === 'fulfilled' ? wishlistRes.value?.items || wishlistRes.value || [] : []);
       } catch {
         if (active) {
           toast.error('No se pudo cargar el panel');

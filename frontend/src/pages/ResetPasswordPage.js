@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { CheckCircle, AlertCircle, Eye, EyeOff, ArrowLeft, Lock } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../services/api/client';
 
 export default function ResetPasswordPage() {
   const { t } = useTranslation();
@@ -46,19 +45,19 @@ export default function ResetPasswordPage() {
     setError('');
 
     try {
-      await axios.post(`${API}/auth/reset-password`, {
+      await apiClient.post('/auth/reset-password', {
         token,
         new_password: password
       });
       setSuccess(true);
       toast.success(t('resetPassword.success', '¡Contraseña restablecida correctamente!'));
-      
+
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/login');
       }, 3000);
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || t('resetPassword.error', 'Error al restablecer la contraseña');
+      const errorMsg = error.message || t('resetPassword.error', 'Error al restablecer la contraseña');
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { API } from '../../utils/api';
 import { Button } from '../../components/ui/button';
+import apiClient from '../../services/api/client';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -12,14 +11,14 @@ export default function ProducerConnectPage() {
 
   const loadStatus = async () => {
     try {
-      const res = await axios.get(`${API}/producer/stripe/status`, { withCredentials: true });
+      const res = await apiClient.get('/producer/stripe/status');
       setStatus({
-        has_account: Boolean(res.data?.stripe_account_id),
-        account_id: res.data?.stripe_account_id || null,
-        status: res.data?.status || 'not_connected',
-        payouts_enabled: Boolean(res.data?.payouts_enabled),
-        charges_enabled: Boolean(res.data?.charges_enabled),
-        onboarding_completed: Boolean(res.data?.connected),
+        has_account: Boolean(res?.stripe_account_id),
+        account_id: res?.stripe_account_id || null,
+        status: res?.status || 'not_connected',
+        payouts_enabled: Boolean(res?.payouts_enabled),
+        charges_enabled: Boolean(res?.charges_enabled),
+        onboarding_completed: Boolean(res?.connected),
         requirements_due: [],
       });
     } catch (error) {
@@ -37,15 +36,15 @@ export default function ProducerConnectPage() {
     setSubmitting(true);
     try {
       let onboardingUrl = null;
-      const res = await axios.post(`${API}/producer/stripe/create-account`, {}, { withCredentials: true });
-      onboardingUrl = res.data?.url || null;
+      const res = await apiClient.post('/producer/stripe/create-account', {});
+      onboardingUrl = res?.url || null;
       if (onboardingUrl) {
         window.location.href = onboardingUrl;
       } else {
         await loadStatus();
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'No se pudo iniciar el onboarding');
+      toast.error(error.message || 'No se pudo iniciar el onboarding');
     } finally {
       setSubmitting(false);
     }

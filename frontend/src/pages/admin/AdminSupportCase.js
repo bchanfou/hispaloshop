@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {
   ArrowLeft,
   Check,
@@ -10,7 +9,7 @@ import {
   User,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -76,7 +75,7 @@ export default function AdminSupportCase() {
 
   const load = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/support/cases/${caseId}`, { withCredentials: true });
+      const data = await apiClient.get(`/support/cases/${caseId}`);
       setCaseData(data);
     } catch {
       toast.error('No se pudo cargar el caso');
@@ -94,10 +93,9 @@ export default function AdminSupportCase() {
   const handleStatusChange = async (newStatus) => {
     setUpdatingStatus(true);
     try {
-      await axios.patch(
-        `${API}/support/cases/${caseId}/status`,
-        { status: newStatus },
-        { withCredentials: true },
+      await apiClient.patch(
+        `/support/cases/${caseId}/status`,
+        { status: newStatus }
       );
       setCaseData((prev) => ({ ...prev, status: newStatus }));
       toast.success('Estado actualizado');
@@ -110,10 +108,9 @@ export default function AdminSupportCase() {
 
   const handlePriorityChange = async (newPriority) => {
     try {
-      await axios.patch(
-        `${API}/support/cases/${caseId}/status`,
-        { status: caseData.status, priority: newPriority },
-        { withCredentials: true },
+      await apiClient.patch(
+        `/support/cases/${caseId}/status`,
+        { status: caseData.status, priority: newPriority }
       );
       setCaseData((prev) => ({ ...prev, priority: newPriority }));
       toast.success('Prioridad actualizada');
@@ -127,10 +124,9 @@ export default function AdminSupportCase() {
     if (!reply.trim()) return;
     setSending(true);
     try {
-      const { data: msg } = await axios.post(
-        `${API}/support/cases/${caseId}/messages`,
-        { content: reply.trim() },
-        { withCredentials: true },
+      const msg = await apiClient.post(
+        `/support/cases/${caseId}/messages`,
+        { content: reply.trim() }
       );
       setCaseData((prev) => ({
         ...prev,
@@ -147,10 +143,9 @@ export default function AdminSupportCase() {
   const handleAction = async (action) => {
     setActionLoading(true);
     try {
-      const { data } = await axios.post(
-        `${API}/support/cases/${caseId}/action`,
-        { action },
-        { withCredentials: true },
+      const data = await apiClient.post(
+        `/support/cases/${caseId}/action`,
+        { action }
       );
       setCaseData((prev) => ({ ...prev, status: data.new_status }));
       toast.success('Acción aplicada');

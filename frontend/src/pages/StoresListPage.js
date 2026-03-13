@@ -1,7 +1,6 @@
 import BackButton from '../components/BackButton';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
@@ -9,7 +8,7 @@ import { Input } from '../components/ui/input';
 import PremiumSelect from '../components/ui/PremiumSelect';
 import { ArrowUpRight, Grid3X3, Map, MapPin, Search, Sparkles, Store, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 import { asLowerText } from '../utils/safe';
 
 const FALLBACK_REGIONS = {
@@ -194,9 +193,8 @@ export default function StoresListPage() {
 
   const fetchRegions = async () => {
     try {
-      const response = await axios.get(`${API}/config/regions`);
-      const data = response.data || {};
-      setRegions(Object.keys(data).length ? data : FALLBACK_REGIONS);
+      const data = await apiClient.get('/config/regions');
+      setRegions(Object.keys(data || {}).length ? data : FALLBACK_REGIONS);
     } catch (error) {
       console.error('Error fetching regions:', error);
       setRegions(FALLBACK_REGIONS);
@@ -209,9 +207,9 @@ export default function StoresListPage() {
       const params = new URLSearchParams();
       if (selectedCountry) params.append('country', selectedCountry);
       if (selectedRegion) params.append('region', selectedRegion);
-      const url = `${API}/stores${params.toString() ? `?${params.toString()}` : ''}`;
-      const response = await axios.get(url);
-      setStores(Array.isArray(response.data) ? response.data : []);
+      const url = `/stores${params.toString() ? `?${params.toString()}` : ''}`;
+      const data = await apiClient.get(url);
+      setStores(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching stores:', error);
       setStores([]);

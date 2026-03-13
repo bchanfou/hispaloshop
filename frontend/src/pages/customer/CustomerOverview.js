@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { 
-  ShoppingBag, Search, Package, Heart, Truck, Check, 
+import {
+  ShoppingBag, Search, Package, Heart, Truck, Check,
   Clock, ChevronRight, Star, Store, Compass, Zap, ArrowRight,
   TrendingUp, Flame
 } from 'lucide-react';
-import { API } from '../../utils/api';
 import { asNumber, firstToken } from '../../utils/safe';
 
 const statusIcons = { paid: Check, confirmed: Check, preparing: Package, shipped: Truck, delivered: Check, pending: Clock };
@@ -33,21 +32,19 @@ export default function CustomerOverview() {
 
   useEffect(() => {
     Promise.all([
-      axios.get(`${API}/customer/orders`, { withCredentials: true }).then(r => {
-        const data = r.data;
+      apiClient.get('/customer/orders').then(data => {
         setOrders((Array.isArray(data) ? data : data?.orders || []).slice(0, 3));
       }).catch(() => setOrders([])),
-      axios.get(`${API}/customer/followed-stores`, { withCredentials: true }).then(r => {
-        const data = r.data;
+      apiClient.get('/customer/followed-stores').then(data => {
         setFollowedStores(Array.isArray(data) ? data : data?.stores || []);
       }).catch(() => setFollowedStores([])),
-      axios.get(`${API}/products?limit=8&sort=newest`, { withCredentials: true }).then(r => {
-        const ps = r.data?.products || r.data || [];
+      apiClient.get('/products?limit=8&sort=newest').then(data => {
+        const ps = data?.products || data || [];
         setRecommended(ps.slice(0, 4));
         setTrending(ps.slice(4, 8));
       }).catch(() => {}),
-      axios.get(`${API}/customer/predictions`, { withCredentials: true }).then(r => {
-        const actionable = (r.data?.predictions || []).filter(p => ['overdue', 'due', 'soon'].includes(p.status));
+      apiClient.get('/customer/predictions').then(data => {
+        const actionable = (data?.predictions || []).filter(p => ['overdue', 'due', 'soon'].includes(p.status));
         setPredictions(actionable.slice(0, 3));
       }).catch(() => {}),
     ]).finally(() => setLoading(false));

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import {
   Plus, Trash2, Edit, Search, Tag, Percent, DollarSign, Truck,
   Check, X, Calendar, Users, ShoppingBag, Clock, Sparkles
@@ -38,12 +37,12 @@ export default function AdminDiscountCodes() {
 
   const fetchAll = async () => {
     try {
-      const [codesRes, pendingRes] = await Promise.all([
-        axios.get(`${API}/admin/discount-codes`, { withCredentials: true }),
-        axios.get(`${API}/admin/influencer-codes/pending`, { withCredentials: true }),
+      const [codesData, pendingData] = await Promise.all([
+        apiClient.get('/admin/discount-codes'),
+        apiClient.get('/admin/influencer-codes/pending'),
       ]);
-      setDiscountCodes(codesRes.data);
-      setPendingInfluencerCodes(pendingRes.data);
+      setDiscountCodes(codesData);
+      setPendingInfluencerCodes(pendingData);
     } catch (error) {
       console.error('Error fetching discount codes:', error);
       toast.error('Error al cargar los códigos de descuento');
@@ -56,11 +55,11 @@ export default function AdminDiscountCodes() {
 
   const handleApproveInfluencerCode = async (codeId, codeName) => {
     try {
-      await axios.put(`${API}/admin/influencer-codes/${codeId}/approve`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/influencer-codes/${codeId}/approve`, {});
       toast.success(`Código ${codeName} aprobado y activado`);
       fetchAll();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al aprobar el código');
+      toast.error(error.message || 'Error al aprobar el código');
     }
   };
 
@@ -68,11 +67,11 @@ export default function AdminDiscountCodes() {
     const reason = window.prompt(`Motivo del rechazo del código ${codeName} (opcional):`);
     if (reason === null) return; // Cancelled
     try {
-      await axios.put(`${API}/admin/influencer-codes/${codeId}/reject?reason=${encodeURIComponent(reason || '')}`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/influencer-codes/${codeId}/reject?reason=${encodeURIComponent(reason || '')}`, {});
       toast.success(`Código ${codeName} rechazado`);
       fetchAll();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al rechazar el código');
+      toast.error(error.message || 'Error al rechazar el código');
     }
   };
 
@@ -93,16 +92,16 @@ export default function AdminDiscountCodes() {
 
     try {
       if (editingCode) {
-        await axios.put(`${API}/admin/discount-codes/${editingCode.code_id}`, payload, { withCredentials: true });
+        await apiClient.put(`/admin/discount-codes/${editingCode.code_id}`, payload);
         toast.success('Discount code updated');
       } else {
-        await axios.post(`${API}/admin/discount-codes`, payload, { withCredentials: true });
+        await apiClient.post('/admin/discount-codes', payload);
         toast.success('Discount code created');
       }
       resetForm();
       fetchDiscountCodes();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to save discount code');
+      toast.error(error.message || 'Failed to save discount code');
     }
   };
 
@@ -110,7 +109,7 @@ export default function AdminDiscountCodes() {
     if (!window.confirm('Are you sure you want to delete this discount code?')) return;
     
     try {
-      await axios.delete(`${API}/admin/discount-codes/${codeId}`, { withCredentials: true });
+      await apiClient.delete(`/admin/discount-codes/${codeId}`);
       toast.success('Discount code deleted');
       fetchDiscountCodes();
     } catch (error) {
@@ -120,7 +119,7 @@ export default function AdminDiscountCodes() {
 
   const handleToggleActive = async (code) => {
     try {
-      await axios.put(`${API}/admin/discount-codes/${code.code_id}/toggle`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/discount-codes/${code.code_id}/toggle`, {});
       toast.success(`Discount code ${code.active ? 'deactivated' : 'activated'}`);
       fetchDiscountCodes();
     } catch (error) {

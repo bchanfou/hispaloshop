@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart3, MousePointerClick, RefreshCw, ShoppingCart, TrendingUp } from 'lucide-react';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 const PERIODS = [
   { label: '7 días', value: 7 },
@@ -31,9 +30,9 @@ export default function InfluencerInsights() {
 
   const load = (d) => {
     setLoading(true);
-    axios
-      .get(`${API}/discovery/influencer-insights?days=${d}`, { withCredentials: true })
-      .then((res) => setData(res.data))
+    apiClient
+      .get(`/discovery/influencer-insights?days=${d}`)
+      .then((data) => setData(data))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
   };

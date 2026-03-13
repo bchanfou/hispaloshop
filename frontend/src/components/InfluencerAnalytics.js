@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { 
@@ -8,7 +7,7 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 
-import { API } from '../utils/api';
+import apiClient from '../services/api/client';
 
 function StatCard({ icon: Icon, title, value, subtitle, color = "text-primary" }) {
   return (
@@ -41,8 +40,8 @@ export default function InfluencerAnalytics() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/influencer/analytics?days=${period}`, { withCredentials: true });
-      setAnalytics(res.data);
+      const data = await apiClient.get(`/influencer/analytics?days=${period}`);
+      setAnalytics(data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
     } finally {

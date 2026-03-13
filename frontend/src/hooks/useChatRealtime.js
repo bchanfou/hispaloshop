@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import axios from 'axios';
+import apiClient from '@/services/api/client';
 import { useChatContext } from '@/context/chat/ChatProvider';
-import { API } from '@/utils/api';
 
 export function useChatRealtime() {
   const { ws, reload, connected } = useChatContext();
@@ -12,7 +11,7 @@ export function useChatRealtime() {
       ws.send(JSON.stringify({ type: 'message', conversation_id: conversationId, content, ...extra }));
       return Promise.resolve();
     }
-    return axios.post(`${API}/chat/conversations/${conversationId}/messages`, { content, ...extra }, { withCredentials: true }).then(() => reload());
+    return apiClient.post(`/chat/conversations/${conversationId}/messages`, { content, ...extra }).then(() => reload());
   }, [connected, ws, reload]);
 
   const setTyping = useCallback((conversationId, isTyping) => {

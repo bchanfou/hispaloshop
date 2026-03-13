@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
 import { Save, RotateCcw, Check } from 'lucide-react';
-import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../../services/api/client';
 
 function getDietOptions(t) {
   return [
@@ -135,8 +134,8 @@ export default function CustomerAIPreferences() {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get(`${API}/ai/profile`, { withCredentials: true });
-      setProfile(response.data);
+      const data = await apiClient.get('/ai/profile');
+      setProfile(data);
     } catch (error) {
       console.error('Error fetching AI profile:', error);
       toast.error(t('aiPrefs.loadError', 'Error al cargar preferencias'));
@@ -148,13 +147,13 @@ export default function CustomerAIPreferences() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/ai/profile`, {
+      await apiClient.put('/ai/profile', {
         tone: profile.tone,
         diet: profile.diet,
         allergies: profile.allergies,
         goals: profile.goals,
         budget: profile.budget,
-      }, { withCredentials: true });
+      });
       toast.success(t('aiPrefs.saved', 'Preferencias guardadas'));
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -170,8 +169,8 @@ export default function CustomerAIPreferences() {
     }
     setSaving(true);
     try {
-      const response = await axios.post(`${API}/ai/profile/reset`, {}, { withCredentials: true });
-      setProfile(response.data.profile);
+      const data = await apiClient.post('/ai/profile/reset', {});
+      setProfile(data.profile);
       toast.success(t('aiPrefs.resetDone', 'Preferencias reiniciadas'));
     } catch (error) {
       console.error('Error resetting profile:', error);

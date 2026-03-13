@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check, Package, Home, ShoppingBag, Loader2, Star } from 'lucide-react';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 const CheckoutSuccess = () => {
   const navigate = useNavigate();
@@ -24,8 +23,7 @@ const CheckoutSuccess = () => {
     // Fetch our orders and match by payment_session_id
     const fetchOrder = async () => {
       try {
-        const res = await axios.get(`${API}/customer/orders`, { withCredentials: true });
-        const orders = res.data || [];
+        const orders = await apiClient.get('/customer/orders') || [];
         const matched = orders.find(o => o.payment_session_id === sessionId);
         if (matched) setOrder(matched);
       } catch {

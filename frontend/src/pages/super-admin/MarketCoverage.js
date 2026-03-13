@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import {
   Globe, Package, Users, Clock, AlertTriangle,
@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const COUNTRY_NAMES = {
@@ -25,8 +24,8 @@ export default function MarketCoverage() {
   const fetchData = async () => {
     try {
       setError(false);
-      const res = await axios.get(`${API}/admin/market-coverage`, { withCredentials: true });
-      setData(res.data);
+      const data = await apiClient.get('/admin/market-coverage');
+      setData(data);
     } catch {
       setData(null);
       setError(true);

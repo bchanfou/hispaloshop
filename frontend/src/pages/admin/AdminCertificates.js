@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../../services/api/client';
 import { asLowerText } from '../../utils/safe';
 import { 
   Search, CheckCircle, XCircle, Eye, ArrowLeft, History, Trash2, AlertTriangle,
@@ -58,8 +57,8 @@ export default function AdminCertificates() {
 
   const fetchCertificates = useCallback(async () => {
     try {
-      const response = await axios.get(`${API}/admin/certificates`, { withCredentials: true });
-      setCertificates(response.data);
+      const data = await apiClient.get('/admin/certificates');
+      setCertificates(data);
     } catch (error) {
       console.error('Error fetching certificates:', error);
       toast.error(t('errors.loadCertificates', 'Error al cargar certificados'));
@@ -74,8 +73,8 @@ export default function AdminCertificates() {
 
   const fetchHistory = async (certificateId) => {
     try {
-      const response = await axios.get(`${API}/admin/certificates/${certificateId}/history`, { withCredentials: true });
-      setCertHistory(response.data);
+      const data = await apiClient.get(`/admin/certificates/${certificateId}/history`);
+      setCertHistory(data);
     } catch (error) {
       console.error('Error fetching history:', error);
     }
@@ -84,7 +83,7 @@ export default function AdminCertificates() {
   const approveCertificate = async (certificateId) => {
     setActionLoading(true);
     try {
-      await axios.put(`${API}/admin/certificates/${certificateId}/approve?approved=true`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/certificates/${certificateId}/approve?approved=true`, {});
       toast.success(t('certificates.approved', 'Certificado aprobado'));
       fetchCertificates();
       if (selectedCert?.certificate_id === certificateId) {
@@ -106,10 +105,9 @@ export default function AdminCertificates() {
 
     setActionLoading(true);
     try {
-      await axios.put(
-        `${API}/admin/certificates/${actionCert.certificate_id}/reject`, 
-        { reason: rejectReason },
-        { withCredentials: true }
+      await apiClient.put(
+        `/admin/certificates/${actionCert.certificate_id}/reject`,
+        { reason: rejectReason }
       );
       toast.success(t('certificates.rejected', 'Certificado rechazado'));
       setShowRejectModal(false);
@@ -130,7 +128,7 @@ export default function AdminCertificates() {
   const deleteCertificate = async () => {
     setActionLoading(true);
     try {
-      await axios.delete(`${API}/admin/certificates/${actionCert.certificate_id}`, { withCredentials: true });
+      await apiClient.delete(`/admin/certificates/${actionCert.certificate_id}`);
       toast.success(t('certificates.deleted', 'Certificado eliminado'));
       setShowDeleteModal(false);
       setActionCert(null);

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { toast } from 'sonner';
-import { API, resolveApiAssetUrl } from '../../utils/api';
+import { resolveApiAssetUrl } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { 
   Store, Image, Upload, X, Loader2, Save, Eye, MapPin, 
   Phone, Mail, Globe, Clock, Instagram, Facebook, Trash2
@@ -37,13 +37,13 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await axios.post(
-        `${API}/producer/store-profile/upload-image?image_type=${type}`,
+      const response = await apiClient.post(
+        `/producer/store-profile/upload-image?image_type=${type}`,
         formData,
-        { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+        { headers: { 'Content-Type': 'multipart/form-data' } }
       );
-      
-      const imageUrl = resolveApiAssetUrl(response.data.url);
+
+      const imageUrl = resolveApiAssetUrl(response.url);
       onChange(imageUrl);
       toast.success('Imagen subida');
     } catch (error) {
@@ -111,13 +111,13 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await axios.post(
-        `${API}/producer/store-profile/upload-image?image_type=gallery`,
+      const response = await apiClient.post(
+        `/producer/store-profile/upload-image?image_type=gallery`,
         formData,
-        { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+        { headers: { 'Content-Type': 'multipart/form-data' } }
       );
-      
-      const imageUrl = resolveApiAssetUrl(response.data.url);
+
+      const imageUrl = resolveApiAssetUrl(response.url);
       onChange([...images, imageUrl]);
       toast.success('Imagen añadida a la galería');
     } catch (error) {
@@ -212,8 +212,8 @@ export default function ProducerStoreProfile() {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get(`${API}/producer/store-profile`, { withCredentials: true });
-      setProfile(response.data);
+      const data = await apiClient.get('/producer/store-profile');
+      setProfile(data);
     } catch (error) {
       console.error('Error fetching store profile:', error);
     } finally {
@@ -224,7 +224,7 @@ export default function ProducerStoreProfile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/producer/store-profile`, profile, { withCredentials: true });
+      await apiClient.put('/producer/store-profile', profile);
       toast.success('Perfil de tienda actualizado');
     } catch (error) {
       toast.error('Error al guardar');

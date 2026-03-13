@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Send, MoreHorizontal } from 'lucide-react';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
 const StoryProgress = ({ slides, currentSlide, progress, isPaused }) => (
@@ -37,11 +36,11 @@ const StoryViewer = () => {
 
   useEffect(() => {
     let cancelled = false;
-    axios
-      .get(`${API}/stories`, { withCredentials: true })
-      .then((res) => {
+    apiClient
+      .get(`/stories`)
+      .then((data) => {
         if (!cancelled) {
-          const groups = Array.isArray(res.data) ? res.data : [];
+          const groups = Array.isArray(data) ? data : [];
           setStoryGroups(groups.filter((g) => g.stories && g.stories.length > 0));
         }
       })
@@ -60,8 +59,8 @@ const StoryViewer = () => {
   // Mark viewed
   useEffect(() => {
     if (!currentSlide?.story_id) return;
-    axios
-      .post(`${API}/stories/${currentSlide.story_id}/view`, {}, { withCredentials: true })
+    apiClient
+      .post(`/stories/${currentSlide.story_id}/view`, {})
       .catch(() => {});
   }, [currentSlide]);
 
@@ -120,7 +119,7 @@ const StoryViewer = () => {
   const handleLikeStory = async () => {
     if (!currentSlide?.story_id) return;
     try {
-      await axios.post(`${API}/stories/${currentSlide.story_id}/reaction`, { reaction: 'like' }, { withCredentials: true });
+      await apiClient.post(`/stories/${currentSlide.story_id}/reaction`, { reaction: 'like' });
       toast.success('Te gusta esta historia');
     } catch {
       toast.error('No se pudo registrar tu reaccion');
@@ -132,10 +131,9 @@ const StoryViewer = () => {
     if (!currentSlide?.story_id || !message) return;
 
     try {
-      await axios.post(
-        `${API}/stories/${currentSlide.story_id}/reaction`,
+      await apiClient.post(
+        `/stories/${currentSlide.story_id}/reaction`,
         { reaction: 'reply', message },
-        { withCredentials: true },
       );
       setReplyText('');
       toast.success('Respuesta enviada');

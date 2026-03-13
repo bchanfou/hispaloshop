@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { useTranslation } from 'react-i18next';
 import {
   DollarSign, TrendingUp, Download, AlertTriangle,
@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const REGION_COLORS = { US: '#3b82f6', EU: '#10b981', KR: '#f59e0b', Other: '#6b7280' };
@@ -79,12 +78,11 @@ export default function FinancialDashboard() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [ledgerRes, payoutsRes] = await Promise.all([
-        axios.get(`${API}/admin/financial-ledger?limit=500`, { withCredentials: true }),
-        axios.get(`${API}/payments/scheduled-payouts`, { withCredentials: true }),
+      const [ledgerData, payoutsPayload] = await Promise.all([
+        apiClient.get('/admin/financial-ledger?limit=500'),
+        apiClient.get('/payments/scheduled-payouts'),
       ]);
-      setLedger(ledgerRes.data || null);
-      const payoutsPayload = payoutsRes.data;
+      setLedger(ledgerData || null);
       setPayouts(Array.isArray(payoutsPayload) ? payoutsPayload : (Array.isArray(payoutsPayload?.payouts) ? payoutsPayload.payouts : []));
     } catch (err) {
       toast.error('Error cargando datos financieros');
@@ -98,7 +96,7 @@ export default function FinancialDashboard() {
   const handleProcessPayouts = async () => {
     setProcessing(true);
     try {
-      await axios.post(`${API}/payments/process-influencer-payouts`, {}, { withCredentials: true });
+      await apiClient.post('/payments/process-influencer-payouts', {});
       toast.success(t('admin.pendingPayouts') + ' - OK');
       fetchData();
     } catch (err) {
@@ -114,11 +112,8 @@ export default function FinancialDashboard() {
       const params = new URLSearchParams();
       if (dateFrom) params.set('date_from', dateFrom);
       if (dateTo) params.set('date_to', dateTo);
-      const response = await axios.get(`${API}/admin/export/financial-report?${params.toString()}`, {
-        withCredentials: true,
-        responseType: 'blob',
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const blob = await apiClient.get(`/admin/export/financial-report?${params.toString()}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement('a');
       link.href = url;
       const suffix = dateFrom && dateTo ? `_${dateFrom}_al_${dateTo}` : `_${new Date().toISOString().slice(0, 10)}`;

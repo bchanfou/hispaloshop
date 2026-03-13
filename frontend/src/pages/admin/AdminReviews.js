@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import { 
   Search, Star, Eye, EyeOff, Trash2, User, Package
 } from 'lucide-react';
@@ -22,8 +21,8 @@ export default function AdminReviews() {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get(`${API}/admin/reviews`, { withCredentials: true });
-      setReviews(response.data);
+      const data = await apiClient.get('/admin/reviews');
+      setReviews(data);
     } catch (error) {
       console.error('Error fetching reviews:', error);
       toast.error('Failed to load reviews');
@@ -34,11 +33,11 @@ export default function AdminReviews() {
 
   const handleToggleVisibility = async (review) => {
     try {
-      const endpoint = review.visible 
-        ? `${API}/admin/reviews/${review.review_id}/hide`
-        : `${API}/admin/reviews/${review.review_id}/show`;
-      
-      await axios.put(endpoint, {}, { withCredentials: true });
+      const endpoint = review.visible
+        ? `/admin/reviews/${review.review_id}/hide`
+        : `/admin/reviews/${review.review_id}/show`;
+
+      await apiClient.put(endpoint, {});
       toast.success(review.visible ? 'Review hidden' : 'Review visible');
       fetchReviews();
     } catch (error) {
@@ -52,7 +51,7 @@ export default function AdminReviews() {
     }
     
     try {
-      await axios.delete(`${API}/admin/reviews/${reviewId}`, { withCredentials: true });
+      await apiClient.delete(`/admin/reviews/${reviewId}`);
       toast.success('Review deleted');
       fetchReviews();
     } catch (error) {

@@ -7,8 +7,7 @@ import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { Plus, DollarSign, Ban, Play, Trash2, Eye, Send, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { asNumber } from '../../utils/safe';
 
 
@@ -37,8 +36,8 @@ export default function AdminInfluencers() {
 
   const fetchInfluencers = async () => {
     try {
-      const res = await axios.get(`${API}/admin/influencers`, { withCredentials: true });
-      setInfluencers(res.data);
+      const data = await apiClient.get('/admin/influencers');
+      setInfluencers(data);
     } catch (err) {
       toast.error('Error loading influencers');
     } finally {
@@ -48,8 +47,8 @@ export default function AdminInfluencers() {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get(`${API}/admin/influencer-stats`, { withCredentials: true });
-      setStats(res.data);
+      const data = await apiClient.get('/admin/influencer-stats');
+      setStats(data);
     } catch (err) {
       console.error('Error fetching stats:', err);
     }
@@ -57,8 +56,8 @@ export default function AdminInfluencers() {
 
   const createInfluencer = async () => {
     try {
-      const res = await axios.post(`${API}/admin/influencers`, newInfluencer, { withCredentials: true });
-      toast.success(`Influencer created! Code: ${res.data.discount_code}`);
+      const data = await apiClient.post('/admin/influencers', newInfluencer);
+      toast.success(`Influencer created! Code: ${data.discount_code}`);
       setShowCreateDialog(false);
       setNewInfluencer({
         full_name: '',
@@ -71,17 +70,13 @@ export default function AdminInfluencers() {
       fetchInfluencers();
       fetchStats();
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error creating influencer');
+      toast.error(err.message || 'Error creating influencer');
     }
   };
 
   const updateStatus = async (influencerId, status) => {
     try {
-      await axios.put(
-        `${API}/admin/influencers/${influencerId}/status?status=${status}`,
-        {},
-        { withCredentials: true }
-      );
+      await apiClient.put(`/admin/influencers/${influencerId}/status?status=${status}`, {});
       toast.success(`Influencer ${status === 'active' ? 'activated' : 'suspended'}`);
       fetchInfluencers();
     } catch (err) {
@@ -91,23 +86,19 @@ export default function AdminInfluencers() {
 
   const processPayout = async (influencerId) => {
     try {
-      const res = await axios.post(
-        `${API}/admin/influencers/${influencerId}/payout`,
-        {},
-        { withCredentials: true }
-      );
-      toast.success(res.data.message);
+      const data = await apiClient.post(`/admin/influencers/${influencerId}/payout`, {});
+      toast.success(data.message);
       fetchInfluencers();
       fetchStats();
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error processing payout');
+      toast.error(err.message || 'Error processing payout');
     }
   };
 
   const fetchInfluencerDetails = async (influencerId) => {
     try {
-      const res = await axios.get(`${API}/admin/influencers/${influencerId}`, { withCredentials: true });
-      setSelectedInfluencer(res.data);
+      const data = await apiClient.get(`/admin/influencers/${influencerId}`);
+      setSelectedInfluencer(data);
     } catch (err) {
       toast.error('Error loading influencer details');
     }
@@ -121,16 +112,12 @@ export default function AdminInfluencers() {
   const saveEdit = async () => {
     if (!editInfluencer) return;
     try {
-      await axios.put(
-        `${API}/admin/influencers/${editInfluencer.influencer_id}?tier=${editForm.tier}&followers_count=${editForm.followers_count}`,
-        {},
-        { withCredentials: true }
-      );
+      await apiClient.put(`/admin/influencers/${editInfluencer.influencer_id}?tier=${editForm.tier}&followers_count=${editForm.followers_count}`, {});
       toast.success('Influencer actualizado');
       setEditInfluencer(null);
       fetchInfluencers();
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error al actualizar');
+      toast.error(err.message || 'Error al actualizar');
     }
   };
 

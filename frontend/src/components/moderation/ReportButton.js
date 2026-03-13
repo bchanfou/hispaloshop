@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { Flag, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 const REASONS = [
   { key: 'spam',       label: 'Spam o contenido repetitivo' },
@@ -32,18 +31,16 @@ export default function ReportButton({ contentType, contentId, contentOwnerId })
     if (!reason) return;
     setSending(true);
     try {
-      await axios.post(
-        `${API}/moderation/report`,
+      await apiClient.post(
+        `/moderation/report`,
         { content_type: contentType, content_id: contentId, content_owner_id: contentOwnerId, reason, description },
-        { withCredentials: true },
       );
       toast.success('Reporte enviado. Lo revisaremos en breve.');
       setOpen(false);
       setReason('');
       setDescription('');
     } catch (err) {
-      const detail = err?.response?.data?.detail;
-      toast.error(detail || 'No se pudo enviar el reporte');
+      toast.error(err.message || 'No se pudo enviar el reporte');
     } finally {
       setSending(false);
     }

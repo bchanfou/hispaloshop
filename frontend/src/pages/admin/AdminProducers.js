@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import { 
   Search, CheckCircle, XCircle, Pause, Eye, Edit, ArrowLeft,
   Building, Phone, Mail, MapPin 
@@ -44,8 +43,8 @@ export default function AdminProducers() {
 
   const fetchProducers = async () => {
     try {
-      const response = await axios.get(`${API}/admin/producers`, { withCredentials: true });
-      setProducers(response.data);
+      const data = await apiClient.get('/admin/producers');
+      setProducers(data);
     } catch (error) {
       console.error('Error fetching producers:', error);
       toast.error(t('adminProducers.messages.loadError'));
@@ -56,7 +55,7 @@ export default function AdminProducers() {
 
   const updateStatus = async (producerId, status) => {
     try {
-      await axios.put(`${API}/admin/producers/${producerId}/status?status=${status}`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/producers/${producerId}/status?status=${status}`, {});
       toast.success(t('adminProducers.messages.statusUpdated', { status }));
       fetchProducers();
       if (selectedProducer?.user_id === producerId) {
@@ -69,7 +68,7 @@ export default function AdminProducers() {
 
   const saveEdits = async () => {
     try {
-      await axios.put(`${API}/admin/producers/${selectedProducer.user_id}`, editData, { withCredentials: true });
+      await apiClient.put(`/admin/producers/${selectedProducer.user_id}`, editData);
       toast.success(t('success.updated'));
       setEditMode(false);
       fetchProducers();

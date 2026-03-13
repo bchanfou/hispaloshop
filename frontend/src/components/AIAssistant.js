@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Send, ArrowRight, Trash2, RotateCcw } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
 import { firstToken } from '../utils/safe';
+import apiClient from '../services/api/client';
 
 
 
@@ -304,8 +303,8 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
 
   const fetchAiProfile = async () => {
     try {
-      const response = await axios.get(`${API}/ai/profile`, { withCredentials: true });
-      setAiProfile(response.data);
+      const data = await apiClient.get(`/ai/profile`);
+      setAiProfile(data);
     } catch (error) {
       console.error('Error fetching AI profile:', error);
     }
@@ -420,7 +419,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
 
   const markFirstVisitCompleted = async () => {
     try {
-      await axios.post(`${API}/ai/profile/mark-first-visit`, {}, { withCredentials: true });
+      await apiClient.post(`/ai/profile/mark-first-visit`, {});
     } catch (error) {
       console.error('Error marking first visit:', error);
     }
@@ -499,8 +498,8 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${API}/chat/message`,
+      const data = await apiClient.post(
+        `/chat/message`,
         {
           message: content,
           session_id: sessionId,
@@ -508,17 +507,13 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
           session_memory: sessionMemory,
           // Send user's preferred language for AI responses
           language: currentLang
-        },
-        { 
-          withCredentials: true,
-          headers: { 'Content-Type': 'application/json' }
         }
       );
 
-      setSessionId(response.data.session_id);
-      
-      const newProducts = response.data.recommended_products || [];
-      
+      setSessionId(data.session_id);
+
+      const newProducts = data.recommended_products || [];
+
       // UPDATE SESSION MEMORY: Track all products recommended in this conversation
       // Each product gets a position index (1-based) for "first", "last", etc. commands
       if (newProducts.length > 0) {
@@ -531,15 +526,15 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
         }));
         setSessionMemory(prev => [...prev, ...newMemoryItems]);
       }
-      
+
       // If a cart action was executed, refresh the cart
-      if (response.data.cart_action?.success) {
+      if (data.cart_action?.success) {
         fetchCart();
-        toast.success(response.data.cart_action.message);
+        toast.success(data.cart_action.message);
       }
-      
+
       // Clean response - remove ALL markdown formatting
-      const cleanResponse = stripMarkdown(response.data.response);
+      const cleanResponse = stripMarkdown(data.response);
       
       // Split into chunks for natural conversation feel
       const chunks = chunkMessage(cleanResponse);
@@ -588,8 +583,8 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
       setMessages(prev => [
         ...prev,
         { 
-          role: 'assistant', 
-          content: error.response?.data?.detail || 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.',
+          role: 'assistant',
+          content: error.message || 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.',
           products: []
         }
       ]);

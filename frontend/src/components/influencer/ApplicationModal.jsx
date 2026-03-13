@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -29,7 +28,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { API } from '@/utils/api';
+import apiClient from '../../services/api/client';
 
 const STEPS = [
   { id: 1, label: 'Identidad', title: 'Quién eres' },
@@ -312,14 +311,12 @@ export default function ApplicationModal({ open, onOpenChange }) {
     setSubmitting(true);
 
     try {
-      await axios.post(`${API}/influencers/apply`, payload, {
-        withCredentials: true,
-      });
+      await apiClient.post(`/influencers/apply`, payload);
 
       setSubmittedTier(form.desiredTier);
       setSubmitted(true);
     } catch (error) {
-      const detail = error?.response?.data?.detail;
+      const detail = error?.message;
 
       if (detail === 'Application already pending' || detail === 'Already registered or has pending application') {
         toast.error('Ya existe una solicitud o cuenta con este email.');

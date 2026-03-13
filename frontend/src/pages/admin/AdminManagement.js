@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import { 
   Shield, UserPlus, Trash2, Ban, CheckCircle, 
   AlertCircle, X, Eye, EyeOff, Mail, User 
@@ -61,8 +60,7 @@ export default function AdminManagement() {
   const fetchAdmins = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/super-admin/admins`, { withCredentials: true });
-      const payload = response.data;
+      const payload = await apiClient.get('/super-admin/admins');
       setAdmins(Array.isArray(payload) ? payload : (Array.isArray(payload?.admins) ? payload.admins : []));
     } catch (error) {
       console.error('Error fetching admins:', error);
@@ -89,14 +87,14 @@ export default function AdminManagement() {
 
     try {
       setSubmitting(true);
-      await axios.post(`${API}/super-admin/admins`, newAdmin, { withCredentials: true });
+      await apiClient.post('/super-admin/admins', newAdmin);
       toast.success(t('success.added'));
       setShowCreateModal(false);
       setNewAdmin({ email: '', name: '', password: '', role: 'admin', assigned_country: '' });
       fetchAdmins();
     } catch (error) {
       console.error('Error creating admin:', error);
-      setFormError(error.response?.data?.detail || t('errors.generic'));
+      setFormError(error.message || t('errors.generic'));
     } finally {
       setSubmitting(false);
     }
@@ -104,28 +102,24 @@ export default function AdminManagement() {
 
   const handleStatusChange = async (userId, newStatus) => {
     try {
-      await axios.put(
-        `${API}/super-admin/admins/${userId}/status`, 
-        { status: newStatus },
-        { withCredentials: true }
-      );
+      await apiClient.put(`/super-admin/admins/${userId}/status`, { status: newStatus });
       toast.success(t('success.updated'));
       fetchAdmins();
     } catch (error) {
       console.error('Error updating admin status:', error);
-      toast.error(error.response?.data?.detail || t('errors.generic'));
+      toast.error(error.message || t('errors.generic'));
     }
   };
 
   const handleDeleteAdmin = async (userId) => {
     try {
-      await axios.delete(`${API}/super-admin/admins/${userId}`, { withCredentials: true });
+      await apiClient.delete(`/super-admin/admins/${userId}`);
       toast.success(t('success.deleted'));
       setShowDeleteConfirm(null);
       fetchAdmins();
     } catch (error) {
       console.error('Error deleting admin:', error);
-      toast.error(error.response?.data?.detail || t('errors.generic'));
+      toast.error(error.message || t('errors.generic'));
     }
   };
 

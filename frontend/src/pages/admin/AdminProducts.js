@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
-import { API } from '../../utils/api';
 import {
   Search, CheckCircle, XCircle, Trash2, Edit, ArrowLeft, Plus,
   Package, DollarSign, ClipboardList
@@ -43,8 +42,8 @@ export default function AdminProducts() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API}/admin/products`, { withCredentials: true });
-      setProducts(response.data);
+      const data = await apiClient.get('/admin/products');
+      setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error(t('errors.generic'));
@@ -55,8 +54,8 @@ export default function AdminProducts() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${API}/categories`);
-      setCategories(response.data);
+      const data = await apiClient.get('/categories');
+      setCategories(data);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -83,7 +82,7 @@ export default function AdminProducts() {
 
   const approveProduct = async (productId, approved) => {
     try {
-      await axios.put(`${API}/admin/products/${productId}/approve?approved=${approved}`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/products/${productId}/approve?approved=${approved}`, {});
       toast.success(approved ? t('adminProducts.messages.productApproved') : t('adminProducts.messages.productRejected'));
       setChecklistProduct(null);
       fetchProducts();
@@ -95,7 +94,7 @@ export default function AdminProducts() {
   const deleteProduct = async (productId) => {
     if (!window.confirm(t('adminProducts.messages.confirmDelete'))) return;
     try {
-      await axios.delete(`${API}/products/${productId}`, { withCredentials: true });
+      await apiClient.delete(`/products/${productId}`);
       toast.success(t('adminProducts.messages.productDeleted'));
       fetchProducts();
     } catch (error) {
@@ -105,7 +104,7 @@ export default function AdminProducts() {
 
   const updatePrice = async (productId, price) => {
     try {
-      await axios.put(`${API}/admin/products/${productId}/price?price=${price}`, {}, { withCredentials: true });
+      await apiClient.put(`/admin/products/${productId}/price?price=${price}`, {});
       toast.success(t('adminProducts.messages.priceUpdated'));
       fetchProducts();
       setEditingProduct(null);
@@ -129,7 +128,7 @@ export default function AdminProducts() {
       delete data.allergensStr;
       delete data.certificationsStr;
       
-      await axios.post(`${API}/products`, data, { withCredentials: true });
+      await apiClient.post('/products', data);
       toast.success(t('adminProducts.messages.productCreated'));
       setShowCreateForm(false);
       setFormData({

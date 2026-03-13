@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { FileCheck, Loader2, Package, ShieldAlert, ShoppingBag, Users } from 'lucide-react';
-import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
 
 function AdminCard({ icon: Icon, title, value, description, to }) {
@@ -32,8 +31,8 @@ export default function AdminOverview() {
 
     const load = async () => {
       try {
-        const response = await axios.get(`${API}/admin/stats`, { withCredentials: true });
-        if (active) setStats(response.data || {});
+        const data = await apiClient.get('/admin/stats');
+        if (active) setStats(data || {});
       } catch {
         if (active) setStats({});
       } finally {

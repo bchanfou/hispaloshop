@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -12,7 +12,6 @@ import {
   Eye, EyeOff
 } from 'lucide-react';
 
-import { API } from '../../utils/api'; // Centralized API URL
 import { asLowerText } from '../../utils/safe';
 
 // Country code to name mapping
@@ -92,12 +91,11 @@ export default function UserManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      let url = `${API}/super-admin/users?role=${selectedRole}`;
+      let url = `/super-admin/users?role=${selectedRole}`;
       if (selectedCountry !== 'all') url += `&country=${selectedCountry}`;
       if (selectedStatus !== 'all') url += `&status=${selectedStatus}`;
-      
-      const response = await axios.get(url, { withCredentials: true });
-      const payload = response.data;
+
+      const payload = await apiClient.get(url);
       setUsers(Array.isArray(payload) ? payload : (Array.isArray(payload?.users) ? payload.users : []));
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -109,8 +107,7 @@ export default function UserManagement() {
 
   const fetchCountries = async () => {
     try {
-      const response = await axios.get(`${API}/super-admin/users/countries`, { withCredentials: true });
-      const payload = response.data;
+      const payload = await apiClient.get('/super-admin/users/countries');
       setCountries(Array.isArray(payload) ? payload : (Array.isArray(payload?.countries) ? payload.countries : []));
     } catch (error) {
       console.error('Error fetching countries:', error);
@@ -120,8 +117,8 @@ export default function UserManagement() {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API}/super-admin/users/stats`, { withCredentials: true });
-      setStats(response.data);
+      const data = await apiClient.get('/super-admin/users/stats');
+      setStats(data);
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
@@ -131,14 +128,7 @@ export default function UserManagement() {
     setActionLoading(userId);
     try {
       const action = newStatus === 'suspended' ? 'suspend' : 'reactivate';
-      await axios.put(
-        `${API}/super-admin/users/${userId}/status`,
-        null,
-        {
-          withCredentials: true,
-          params: { action },
-        }
-      );
+      await apiClient.put(`/super-admin/users/${userId}/status?action=${action}`, null);
       toast.success(newStatus === 'suspended' 
         ? t('userManagement.messages.suspended') 
         : t('userManagement.messages.reactivated')
@@ -146,7 +136,7 @@ export default function UserManagement() {
       fetchUsers();
       fetchStats();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('userManagement.errors.updateFailed'));
+      toast.error(error.message || t('userManagement.errors.updateFailed'));
     } finally {
       setActionLoading(null);
     }
@@ -155,13 +145,13 @@ export default function UserManagement() {
   const deleteUser = async (userId) => {
     setActionLoading(userId);
     try {
-      await axios.delete(`${API}/super-admin/users/${userId}`, { withCredentials: true });
+      await apiClient.delete(`/super-admin/users/${userId}`);
       toast.success(t('userManagement.messages.deleted'));
       setConfirmDelete(null);
       fetchUsers();
       fetchStats();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('userManagement.errors.deleteFailed'));
+      toast.error(error.message || t('userManagement.errors.deleteFailed'));
     } finally {
       setActionLoading(null);
     }
@@ -179,18 +169,14 @@ export default function UserManagement() {
       if (newEmail) data.email = newEmail;
       if (newPassword) data.password = newPassword;
       
-      await axios.put(
-        `${API}/super-admin/users/${userId}/credentials`,
-        data,
-        { withCredentials: true }
-      );
+      await apiClient.put(`/super-admin/users/${userId}/credentials`, data);
       toast.success(t('userManagement.messages.credentialsUpdated'));
       setEditCredentials(null);
       setNewEmail('');
       setNewPassword('');
       fetchUsers();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('userManagement.errors.credentialsFailed'));
+      toast.error(error.message || t('userManagement.errors.credentialsFailed'));
     } finally {
       setActionLoading(null);
     }

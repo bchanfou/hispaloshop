@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Loader2, Minus, Plus, ShoppingCart, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-import { API } from '../../utils/api';
 import { resolveUserImage } from '../../features/user/queries';
 
 export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 1, onClose }) {
@@ -23,12 +22,12 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    axios
-      .get(`${API}/recipes/${recipeId}/shopping-list-preview`, { params: { servings } })
-      .then((response) => {
+    apiClient
+      .get(`/recipes/${recipeId}/shopping-list-preview`, { params: { servings } })
+      .then((data) => {
         if (!active) return;
-        const items = response.data?.items || [];
-        setPreview({ ...response.data, items });
+        const items = data?.items || [];
+        setPreview({ ...data, items });
         setQuantities(Object.fromEntries(items.map((item) => [item.product_id, item.quantity || 1])));
       })
       .catch(() => {
@@ -54,11 +53,11 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
         ...item,
         quantity: quantities[item.product_id] || item.quantity || 1,
       }));
-      const response = await axios.post(`${API}/recipes/${recipeId}/shopping-list`, { items, servings }, { withCredentials: true });
-      toast.success(`${response.data.added} ingredientes añadidos al carrito`);
+      const data = await apiClient.post(`/recipes/${recipeId}/shopping-list`, { items, servings });
+      toast.success(`${data.added} ingredientes añadidos al carrito`);
       onClose?.();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Inicia sesión para continuar');
+      toast.error(error.message || 'Inicia sesión para continuar');
     } finally {
       setSubmitting(false);
     }

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart3, ChefHat, MousePointerClick, RefreshCw, ShoppingBag, ShoppingCart, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 const PERIODS = [
   { label: '7 días', value: 7 },
@@ -34,9 +33,9 @@ export default function ProducerInsights() {
 
   const load = (d) => {
     setLoading(true);
-    axios
-      .get(`${API}/discovery/producer-insights?days=${d}`, { withCredentials: true })
-      .then((res) => setData(res.data))
+    apiClient
+      .get(`/discovery/producer-insights?days=${d}`)
+      .then((data) => setData(data))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
   };

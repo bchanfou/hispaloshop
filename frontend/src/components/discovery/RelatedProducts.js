@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import axios from 'axios';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
@@ -38,9 +37,9 @@ export default function RelatedProducts({ productId, title = 'Productos relacion
   useEffect(() => {
     if (!productId) return;
     setLoading(true);
-    axios
-      .get(`${API}/discovery/related-products/${productId}?limit=6`, { withCredentials: true })
-      .then((res) => setProducts(res.data?.products || []))
+    apiClient
+      .get(`/discovery/related-products/${productId}?limit=6`)
+      .then((data) => setProducts(data?.products || []))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
   }, [productId]);

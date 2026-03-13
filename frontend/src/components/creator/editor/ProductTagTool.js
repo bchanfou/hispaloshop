@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, Package, Plus, Search, ShoppingBag, Trash2, X } from 'lucide-react';
-import { API } from '../../../utils/api';
+import apiClient from '../../../services/api/client';
 
 function ProductTagTool({ tags, onAdd, onRemove }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,11 +16,11 @@ function ProductTagTool({ tags, onAdd, onRemove }) {
     const timeoutId = window.setTimeout(async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${API}/products/intelligence-search`, {
+        const data = await apiClient.get(`/products/intelligence-search`, {
           params: { q: searchQuery, limit: 8 },
           signal: controller.signal,
         });
-        setResults(response.data?.items || []);
+        setResults(data?.items || []);
       } catch {
         setResults([]);
       } finally {

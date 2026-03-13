@@ -1,5 +1,4 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
-import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -21,7 +20,7 @@ import { Checkbox } from '../ui/checkbox';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
 import { redirectAfterAuth } from '../../lib/navigation';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 const STORAGE_KEY = 'hispaloshop_importer_onboarding_v2';
 const PLAN_META = {
@@ -226,8 +225,8 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
 
         let key = stripeKey;
         if (!key) {
-          const response = await axios.get(`${API}/sellers/plans`);
-          key = response.data?.stripe_publishable_key || '';
+          const data = await apiClient.get(`/sellers/plans`);
+          key = data?.stripe_publishable_key || '';
           if (!key) {
             throw new Error('Stripe no está configurado todavía.');
           }
@@ -403,31 +402,29 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       throw new Error(paymentMethodResult.error.message || 'No se pudo validar la tarjeta.');
     }
 
-    const subscribeResponse = await axios.post(
-      `${API}/sellers/me/plan/subscribe-inline`,
+    const subscribeData = await apiClient.post(
+      `/sellers/me/plan/subscribe-inline`,
       {
         plan: selectedPlan.toUpperCase(),
         payment_method_id: paymentMethodResult.paymentMethod.id,
         billing_name: formData.fullName.trim(),
         billing_email: formData.email.trim().toLowerCase(),
         billing_phone: combinedPhone,
-      },
-      { withCredentials: true }
+      }
     );
 
-    if (subscribeResponse.data?.requires_action && subscribeResponse.data?.client_secret) {
-      const confirmation = await stripe.confirmCardPayment(subscribeResponse.data.client_secret);
+    if (subscribeData?.requires_action && subscribeData?.client_secret) {
+      const confirmation = await stripe.confirmCardPayment(subscribeData.client_secret);
       if (confirmation.error) {
         throw new Error(confirmation.error.message || 'No pudimos confirmar el pago con tu banco.');
       }
 
-      await axios.post(
-        `${API}/sellers/me/plan/subscribe-inline/confirm`,
+      await apiClient.post(
+        `/sellers/me/plan/subscribe-inline/confirm`,
         {
-          subscription_id: subscribeResponse.data.subscription_id,
+          subscription_id: subscribeData.subscription_id,
           plan: selectedPlan.toUpperCase(),
-        },
-        { withCredentials: true }
+        }
       );
     }
   };
@@ -453,8 +450,7 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
       setErrors({});
       setTouched({});
     } catch (error) {
-      const detail = error?.response?.data?.detail;
-      const message = typeof detail === 'string' ? detail : error.message || 'No pudimos completar el alta.';
+      const message = error.message || 'No pudimos completar el alta.';
       if (user?.role === 'importer' || message.toLowerCase().includes('email already registered')) {
         setPaymentNotice('Tu cuenta ya está creada. Solo falta activar el plan o terminar la suscripción.');
       }

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../services/api/client';
 import { TrendingUp, Users, DollarSign, RefreshCw, Loader2, Award, Sparkles, Crown } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { API } from '../utils/api';
 
 function ProgressBar({ current, target, label, color = '#2D5A27' }) {
   const pct = target > 0 ? Math.min(100, (current / target) * 100) : 0;
@@ -28,10 +27,10 @@ export default function TierProgress() {
 
   const fetchTier = async () => {
     try {
-      const res = await axios.get(`${API}/influencers/me/tier`, { withCredentials: true });
-      setData(res.data);
+      const data = await apiClient.get('/influencers/me/tier');
+      setData(data);
     } catch (err) {
-      if (err.response?.status !== 404) toast.error('Error cargando tier');
+      if (err.status !== 404) toast.error('Error cargando tier');
     } finally {
       setLoading(false);
     }

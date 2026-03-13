@@ -6,10 +6,9 @@
  * - SuperAdmin: ve todas las conversaciones de escalación activas
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 import { Send, ShieldAlert, Lock, RefreshCw, User, ChevronLeft } from 'lucide-react';
 
 const WS_URL = typeof window !== 'undefined'
@@ -33,7 +32,7 @@ export default function EscalationChat() {
   // ── load escalations ──────────────────────────────────────
   const fetchEscalations = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API}/internal-chat/escalations`, { withCredentials: true });
+      const data = await apiClient.get('/internal-chat/escalations');
       setEscalations(data);
       // Admins auto-select their single conversation if it exists
       if (!isSuperAdmin && data.length > 0) {
@@ -53,9 +52,8 @@ export default function EscalationChat() {
     if (!activeConvId) return;
     const load = async () => {
       try {
-        const { data } = await axios.get(
-          `${API}/internal-chat/conversations/${activeConvId}/messages?limit=100`,
-          { withCredentials: true }
+        const data = await apiClient.get(
+          `/internal-chat/conversations/${activeConvId}/messages?limit=100`
         );
         setMessages(data);
         setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
@@ -95,17 +93,16 @@ export default function EscalationChat() {
       return;
     }
     try {
-      const { data } = await axios.post(
-        `${API}/internal-chat/escalate`,
-        { message: initialMessage },
-        { withCredentials: true }
+      const data = await apiClient.post(
+        '/internal-chat/escalate',
+        { message: initialMessage }
       );
       setInitialMessage('');
       setActiveConvId(data.conversation_id);
       fetchEscalations();
       toast.success('Canal de escalación abierto. Un superadmin recibirá tu mensaje.');
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error al abrir escalación');
+      toast.error(err.message || 'Error al abrir escalación');
     }
   };
 
@@ -116,15 +113,14 @@ export default function EscalationChat() {
     const content = text.trim();
     setText('');
     try {
-      const { data: msg } = await axios.post(
-        `${API}/internal-chat/messages`,
-        { conversation_id: activeConvId, content },
-        { withCredentials: true }
+      const msg = await apiClient.post(
+        '/internal-chat/messages',
+        { conversation_id: activeConvId, content }
       );
       setMessages(prev => [...prev, msg]);
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Error al enviar');
+      toast.error(err.message || 'Error al enviar');
       setText(content);
     } finally {
       setSending(false);

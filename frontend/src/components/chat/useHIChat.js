@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
-import { API } from '../../utils/api';
 
 // ── Time-based greeting ────────────────────────────────────────────
 export function getTimeGreeting() {
@@ -165,23 +164,22 @@ export function useHIChat() {
           .slice(-18)
           .map((m) => ({ role: m.role, content: m.content }));
 
-        const response = await axios.post(
-          `${API}/ai/chat`,
+        const data = await apiClient.post(
+          `/ai/chat`,
           { messages: [...history, { role: 'user', content }], assistant_role: activeRole },
-          { withCredentials: true },
         );
 
         const assistantMessage = {
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: response.data.content,
+          content: data.content,
           timestamp: Date.now(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
         return assistantMessage;
       } catch (error) {
-        const detail = error?.response?.data?.detail;
-        if (error?.response?.status === 403) {
+        const detail = error?.message;
+        if (error?.status === 403) {
           toast.error(detail || 'No tienes acceso a este modo. Actualiza tu plan.');
         } else {
           toast.error('El asistente no está disponible ahora. Inténtalo de nuevo.');

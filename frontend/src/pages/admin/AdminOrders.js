@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../services/api/client';
 import { Input } from '../../components/ui/input';
 import { Search, ShoppingBag, DollarSign, TrendingUp } from 'lucide-react';
-import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { asLowerText, asNumber } from '../../utils/safe';
 
@@ -22,12 +21,12 @@ export default function AdminOrders() {
 
   const fetchData = async () => {
     try {
-      const [ordersRes, paymentsRes] = await Promise.all([
-        axios.get(`${API}/admin/orders`, { withCredentials: true }),
-        axios.get(`${API}/admin/payments`, { withCredentials: true })
+      const [ordersData, paymentsData] = await Promise.all([
+        apiClient.get('/admin/orders'),
+        apiClient.get('/admin/payments'),
       ]);
-      setOrders(ordersRes.data);
-      setPayments(paymentsRes.data);
+      setOrders(ordersData);
+      setPayments(paymentsData);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {

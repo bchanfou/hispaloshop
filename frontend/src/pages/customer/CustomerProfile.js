@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -8,7 +7,7 @@ import { toast } from 'sonner';
 import { User, Lock, Leaf, MapPin, Plus, Trash2, Star, Edit2, X, AlertTriangle, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ConsentSettings, ConsentSummary, ConsentFullDisclosure } from '../../components/ConsentLayers';
-import { API } from '../../utils/api';
+import apiClient from '../../services/api/client';
 
 
 
@@ -90,21 +89,21 @@ export default function CustomerProfile() {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get(`${API}/customer/profile`, { withCredentials: true });
+      const data = await apiClient.get('/customer/profile');
       setProfileData({
-        name: response.data.name || '',
-        country: response.data.country || '',
-        username: response.data.username || ''
+        name: data.name || '',
+        country: data.country || '',
+        username: data.username || ''
       });
-      if (response.data.preferences) {
+      if (data.preferences) {
         setPreferences({
-          diet_preferences: response.data.preferences.diet_preferences || [],
-          allergens: response.data.preferences.allergens || [],
-          goals: response.data.preferences.goals || ''
+          diet_preferences: data.preferences.diet_preferences || [],
+          allergens: data.preferences.allergens || [],
+          goals: data.preferences.goals || ''
         });
       }
       // Check consent status
-      setHasConsent(response.data.consent?.analytics_consent || false);
+      setHasConsent(data.consent?.analytics_consent || false);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -114,8 +113,8 @@ export default function CustomerProfile() {
 
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get(`${API}/customer/addresses`, { withCredentials: true });
-      setAddresses(response.data.addresses || []);
+      const data = await apiClient.get('/customer/addresses');
+      setAddresses(data.addresses || []);
     } catch (error) {
       console.error('Error fetching addresses:', error);
     }
@@ -144,15 +143,15 @@ export default function CustomerProfile() {
     
     setSaving(true);
     try {
-      await axios.post(`${API}/customer/addresses`, {
+      await apiClient.post('/customer/addresses', {
         ...addressForm,
         name: addressForm.name || t('checkout.newAddress', 'New Address')
-      }, { withCredentials: true });
+      });
       toast.success(t('success.saved', 'Address saved'));
       fetchAddresses();
       resetAddressForm();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to save'));
+      toast.error(error.message || t('errors.generic', 'Failed to save'));
     } finally {
       setSaving(false);
     }
@@ -181,15 +180,15 @@ export default function CustomerProfile() {
     
     setSaving(true);
     try {
-      await axios.put(`${API}/customer/addresses/${editingAddressId}`, {
+      await apiClient.put(`/customer/addresses/${editingAddressId}`, {
         ...addressForm,
         name: addressForm.name || t('checkout.newAddress', 'Address')
-      }, { withCredentials: true });
+      });
       toast.success(t('success.updated', 'Address updated'));
       fetchAddresses();
       resetAddressForm();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to update'));
+      toast.error(error.message || t('errors.generic', 'Failed to update'));
     } finally {
       setSaving(false);
     }
@@ -199,21 +198,21 @@ export default function CustomerProfile() {
     if (!window.confirm(t('common.confirmDelete', 'Are you sure you want to delete this address?'))) return;
     
     try {
-      await axios.delete(`${API}/customer/addresses/${addressId}`, { withCredentials: true });
+      await apiClient.delete(`/customer/addresses/${addressId}`);
       toast.success(t('success.deleted', 'Address deleted'));
       fetchAddresses();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to delete'));
+      toast.error(error.message || t('errors.generic', 'Failed to delete'));
     }
   };
 
   const handleSetDefault = async (addressId) => {
     try {
-      await axios.put(`${API}/customer/addresses/${addressId}/default`, {}, { withCredentials: true });
+      await apiClient.put(`/customer/addresses/${addressId}/default`, {});
       toast.success(t('profile.defaultAddressSet', 'Default address updated'));
       fetchAddresses();
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to set default'));
+      toast.error(error.message || t('errors.generic', 'Failed to set default'));
     }
   };
 
@@ -226,15 +225,14 @@ export default function CustomerProfile() {
     
     setDeleting(true);
     try {
-      await axios.delete(`${API}/account/delete`, {
-        data: { password: deletePassword, confirmation: deleteConfirmation },
-        withCredentials: true
+      await apiClient.delete('/account/delete', {
+        data: { password: deletePassword, confirmation: deleteConfirmation }
       });
       toast.success(t('profile.accountDeleted', 'Account deleted successfully'));
       logout();
       navigate('/');
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to delete account'));
+      toast.error(error.message || t('errors.generic', 'Failed to delete account'));
     } finally {
       setDeleting(false);
     }
@@ -243,11 +241,11 @@ export default function CustomerProfile() {
   const handleWithdrawConsent = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/account/withdraw-consent`, {}, { withCredentials: true });
+      await apiClient.put('/account/withdraw-consent', {});
       toast.success(t('profile.consentWithdrawn', 'Consent withdrawn successfully'));
       setHasConsent(false);
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to withdraw consent'));
+      toast.error(error.message || t('errors.generic', 'Failed to withdraw consent'));
     } finally {
       setSaving(false);
     }
@@ -256,11 +254,11 @@ export default function CustomerProfile() {
   const handleReactivateConsent = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/account/reactivate-consent`, {}, { withCredentials: true });
+      await apiClient.put('/account/reactivate-consent', {});
       toast.success(t('profile.consentReactivated', 'Personalization enabled'));
       setHasConsent(true);
     } catch (error) {
-      toast.error(error.response?.data?.detail || t('errors.generic', 'Failed to enable personalization'));
+      toast.error(error.message || t('errors.generic', 'Failed to enable personalization'));
     } finally {
       setSaving(false);
     }
@@ -269,7 +267,7 @@ export default function CustomerProfile() {
   const saveProfile = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/customer/profile`, profileData, { withCredentials: true });
+      await apiClient.put('/customer/profile', profileData);
       toast.success('Profile updated');
       checkAuth(); // Refresh user data
     } catch (error) {
@@ -292,15 +290,14 @@ export default function CustomerProfile() {
     
     setSaving(true);
     try {
-      await axios.put(
-        `${API}/customer/password?current_password=${encodeURIComponent(passwordData.current_password)}&new_password=${encodeURIComponent(passwordData.new_password)}`,
-        {},
-        { withCredentials: true }
+      await apiClient.put(
+        `/customer/password?current_password=${encodeURIComponent(passwordData.current_password)}&new_password=${encodeURIComponent(passwordData.new_password)}`,
+        {}
       );
       toast.success('Password changed');
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to change password');
+      toast.error(error.message || 'Failed to change password');
     } finally {
       setSaving(false);
     }
@@ -309,7 +306,7 @@ export default function CustomerProfile() {
   const savePreferences = async () => {
     setSaving(true);
     try {
-      await axios.post(`${API}/preferences`, preferences, { withCredentials: true });
+      await apiClient.post('/preferences', preferences);
       toast.success('Dietary preferences saved');
     } catch (error) {
       toast.error('Failed to save preferences');

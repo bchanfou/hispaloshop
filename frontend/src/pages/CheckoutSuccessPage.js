@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Button } from '../components/ui/button';
 import { CheckCircle, ArrowLeft, AlertCircle, ShoppingBag, Home } from 'lucide-react';
 import BackButton from '../components/BackButton';
-import { API } from '../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../services/api/client';
 
 
 
@@ -33,10 +32,8 @@ export default function CheckoutSuccessPage() {
       }
       attempt++;
       try {
-        const response = await axios.get(`${API}/payments/checkout-status/${sessionId}`, {
-          withCredentials: true,
-        });
-        if (response.data.payment_status === 'paid' || response.data.status === 'paid') {
+        const data = await apiClient.get(`/payments/checkout-status/${sessionId}`);
+        if (data.payment_status === 'paid' || data.status === 'paid') {
           if (!cancelled) setStatus('success');
         } else if (!cancelled) {
           setTimeout(poll, INTERVAL_MS);

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Search, X, Users, Package, ShoppingBag, Loader2 } from 'lucide-react';
-import { API } from '../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../services/api/client';
 
 const typeIcons = { user: Users, product: Package, order: ShoppingBag };
 const typeColors = { user: 'text-blue-500', product: 'text-emerald-500', order: 'text-purple-500' };
@@ -37,8 +36,8 @@ export default function GlobalSearch() {
     if (q.length < 2) { setResults([]); return; }
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/superadmin/search?q=${encodeURIComponent(q)}`, { withCredentials: true });
-      setResults(res.data.results || []);
+      const data = await apiClient.get(`/superadmin/search?q=${encodeURIComponent(q)}`);
+      setResults(data.results || []);
       setSelected(0);
     } catch { setResults([]); }
     finally { setLoading(false); }

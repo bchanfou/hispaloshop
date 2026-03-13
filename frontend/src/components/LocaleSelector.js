@@ -22,8 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from './ui/dialog';
-import axios from 'axios';
-import { getApiUrl } from '../utils/api';
+import apiClient from '../services/api/client';
 
 const MOBILE_BREAKPOINT = 768;
 
@@ -93,15 +92,11 @@ export default function LocaleSelector({ compact = false }) {
 
     if (user) {
       try {
-        const response = await axios.post(
-          `${getApiUrl()}/cart/validate-country`,
-          { country: newCountry },
-          { withCredentials: true }
-        );
+        const data = await apiClient.post('/cart/validate-country', { country: newCountry });
 
-        if (response.data.unavailable_count > 0) {
+        if (data.unavailable_count > 0) {
           setPendingCountry(newCountry);
-          setUnavailableItems(response.data.unavailable_items);
+          setUnavailableItems(data.unavailable_items);
           setShowCountryWarning(true);
           setShowCountryDialog(false);
           setDesktopMenu(null);
@@ -122,11 +117,7 @@ export default function LocaleSelector({ compact = false }) {
 
   const confirmCountryChange = async (newCountry) => {
     try {
-      await axios.post(
-        `${getApiUrl()}/cart/apply-country-change`,
-        { country: newCountry },
-        { withCredentials: true }
-      );
+      await apiClient.post('/cart/apply-country-change', { country: newCountry });
 
       await updateCountry(newCountry);
       await fetchCart();

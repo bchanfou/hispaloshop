@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { Heart, Trash2, ShoppingBag } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { sanitizeImageUrl } from '../../utils/helpers';
 
@@ -14,15 +13,15 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${API}/wishlist`, { withCredentials: true })
-      .then(r => setItems(r.data || []))
+    apiClient.get('/wishlist')
+      .then(data => setItems(data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
   const remove = async (productId) => {
     try {
-      await axios.delete(`${API}/wishlist/${productId}`, { withCredentials: true });
+      await apiClient.delete(`/wishlist/${productId}`);
       setItems(prev => prev.filter(i => i.product_id !== productId));
       toast.success(t('wishlist.removed', 'Eliminado'));
     } catch { toast.error('Error'); }
