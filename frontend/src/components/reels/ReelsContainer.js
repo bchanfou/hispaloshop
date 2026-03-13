@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Camera } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import ReelPlayer from './ReelPlayer';
 
@@ -42,18 +43,89 @@ function normalizeReel(item) {
   };
 }
 
+// ── Tabs "Para ti / Amigos" — fixed overlay encima de todos los reels ──────
+function ReelsTopBar({ activeTab, onTabChange, onBack }) {
+  const tabs = [
+    { id: 'parati',  label: 'Para ti' },
+    { id: 'amigos',  label: 'Amigos' },
+  ];
+
+  return (
+    <div
+      className="pointer-events-none fixed inset-x-0 top-0 z-50"
+      aria-hidden="false"
+    >
+      {/* Gradient fondo para que los controles sean legibles */}
+      <div className="h-24 bg-gradient-to-b from-black/55 to-transparent" />
+
+      {/* Controles: camera | tabs | dots */}
+      <div
+        className="pointer-events-auto absolute inset-x-0 top-0 flex items-center justify-between px-4"
+        style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 14px)' }}
+      >
+        {/* Cámara — crear reel */}
+        <button
+          type="button"
+          onClick={onBack}
+          aria-label="Volver"
+          className="flex h-10 w-10 items-center justify-center active:opacity-70"
+        >
+          <Camera className="h-[26px] w-[26px] text-white drop-shadow" strokeWidth={1.8} />
+        </button>
+
+        {/* Tabs centrados */}
+        <div className="flex items-end gap-5">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onTabChange(tab.id)}
+                className={`relative pb-1 text-[15px] font-semibold drop-shadow transition-all active:opacity-70 ${
+                  isActive ? 'text-white' : 'text-white/50'
+                }`}
+              >
+                {tab.label}
+                {/* underline activo */}
+                {isActive ? (
+                  <span className="absolute bottom-0 left-1/2 h-[2px] w-4/5 -translate-x-1/2 rounded-full bg-white" />
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ⋯ Opciones */}
+        <button
+          type="button"
+          aria-label="Opciones"
+          className="flex h-10 w-10 items-center justify-center active:opacity-70"
+        >
+          <svg className="h-6 w-6 fill-white drop-shadow" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="5"  r="1.8" />
+            <circle cx="12" cy="12" r="1.8" />
+            <circle cx="12" cy="19" r="1.8" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ReelsContainer() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const initialId = searchParams.get('id');
 
-  const [reels, setReels] = useState([]);
+  const [activeTab, setActiveTab]     = useState('parati');
+  const [reels, setReels]             = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]         = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState(null);
-  const skipRef = useRef(0);
+  const [hasMore, setHasMore]         = useState(true);
+  const [error, setError]             = useState(null);
+  const skipRef      = useRef(0);
   const containerRef = useRef(null);
 
   const fetchReels = useCallback(async (skip = 0) => {
@@ -76,7 +148,7 @@ function ReelsContainer() {
           const idx = items.findIndex(r => r.id === initialId);
           if (idx >= 0) setCurrentIndex(idx);
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) setError('No se pudieron cargar los reels');
       } finally {
         if (!cancelled) setLoading(false);
@@ -87,9 +159,7 @@ function ReelsContainer() {
   }, [fetchReels, initialId]);
 
   const scrollToReel = (index) => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({ top: index * window.innerHeight, behavior: 'smooth' });
-    }
+    containerRef.current?.scrollTo({ top: index * window.innerHeight, behavior: 'smooth' });
   };
 
   const handleScroll = useCallback(() => {
@@ -111,11 +181,8 @@ function ReelsContainer() {
       skipRef.current += items.length;
       setReels(prev => [...prev, ...items]);
       setHasMore(more);
-    } catch (_) {
-      // silently fail
-    } finally {
-      setLoadingMore(false);
-    }
+    } catch { /* silently fail */ }
+    finally { setLoadingMore(false); }
   }, [loadingMore, hasMore, fetchReels]);
 
   const goToNext = useCallback(() => {
@@ -140,9 +207,9 @@ function ReelsContainer() {
   // Keyboard navigation
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'ArrowDown') goToNext();
-      else if (e.key === 'ArrowUp') goToPrev();
-      else if (e.key === 'Escape') navigate(-1);
+      if (e.key === 'ArrowDown')  goToNext();
+      else if (e.key === 'ArrowUp')   goToPrev();
+      else if (e.key === 'Escape')    navigate(-1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -156,64 +223,68 @@ function ReelsContainer() {
 
   if (loading) {
     return (
-      <div className="h-screen w-full bg-black flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+      <div className="flex h-screen w-full items-center justify-center bg-black">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
       </div>
     );
   }
 
   if (error || reels.length === 0) {
     return (
-      <div className="h-screen w-full bg-black flex flex-col items-center justify-center text-white p-8 text-center">
-        <p className="text-lg font-semibold mb-2">
-          {error || 'Aún no hay reels disponibles'}
-        </p>
-        <p className="text-sm text-white/60 mb-6">
-          Vuelve más tarde o sé el primero en publicar un reel.
-        </p>
-        <button onClick={() => navigate(-1)} className="px-6 py-2 bg-white/10 rounded-full text-sm">
-          Volver
-        </button>
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-black p-8 text-center text-white">
+        <p className="mb-2 text-lg font-semibold">{error || 'Aún no hay reels disponibles'}</p>
+        <p className="mb-6 text-sm text-white/60">Vuelve más tarde o sé el primero en publicar un reel.</p>
+        <button onClick={() => navigate(-1)} className="rounded-full bg-white/10 px-6 py-2 text-sm">Volver</button>
       </div>
     );
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-black"
-      onScroll={handleScroll}
-      style={{ scrollBehavior: 'smooth' }}
-    >
-      {reels.map((reel, index) => (
-        <ReelPlayer
-          key={reel.id}
-          reel={reel}
-          isActive={index === currentIndex}
-          onNext={goToNext}
-          onPrev={goToPrev}
-        />
-      ))}
+    <>
+      {/* ── Top bar global (Para ti / Amigos) ── */}
+      <ReelsTopBar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onBack={() => navigate(-1)}
+      />
 
-      {loadingMore && (
-        <div className="h-screen flex items-center justify-center bg-black">
-          <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-        </div>
-      )}
+      {/* ── Scroll container ── */}
+      <div
+        ref={containerRef}
+        className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-black"
+        onScroll={handleScroll}
+        style={{ scrollBehavior: 'smooth' }}
+      >
+        {reels.map((reel, index) => (
+          <ReelPlayer
+            key={reel.id}
+            reel={reel}
+            isActive={index === currentIndex}
+            onNext={goToNext}
+            onPrev={goToPrev}
+          />
+        ))}
 
-      {!loadingMore && !hasMore && reels.length > 0 && (
-        <div className="h-screen flex flex-col items-center justify-center bg-black text-white p-8 text-center">
-          <p className="text-lg font-semibold mb-2">¡Has visto todo!</p>
-          <p className="text-sm text-white/70 mb-4">Vuelve más tarde para ver más contenido</p>
-          <button
-            onClick={() => { setCurrentIndex(0); scrollToReel(0); }}
-            className="px-6 py-2 bg-accent rounded-full text-sm font-medium"
-          >
-            Volver al inicio
-          </button>
-        </div>
-      )}
-    </div>
+        {loadingMore ? (
+          <div className="flex h-screen items-center justify-center bg-black">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          </div>
+        ) : null}
+
+        {!loadingMore && !hasMore && reels.length > 0 ? (
+          <div className="flex h-screen flex-col items-center justify-center bg-black p-8 text-center text-white">
+            <p className="mb-2 text-lg font-semibold">¡Has visto todo!</p>
+            <p className="mb-4 text-sm text-white/70">Vuelve más tarde para ver más contenido</p>
+            <button
+              onClick={() => { setCurrentIndex(0); scrollToReel(0); }}
+              className="rounded-full bg-white/10 px-6 py-2 text-sm font-medium"
+            >
+              Volver al inicio
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </>
   );
 }
 

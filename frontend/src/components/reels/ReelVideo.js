@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { Loader2, Volume2, VolumeX } from 'lucide-react';
 
+/**
+ * ReelVideo — renderiza el <video> del reel.
+ * El indicador de mute se gestiona en ReelPlayer (botón dedicado).
+ * La progress bar también vive en ReelPlayer para evitar re-renders de reelVideo.
+ */
 function ReelVideo({
   src,
   poster,
@@ -17,70 +21,50 @@ function ReelVideo({
 }) {
   const videoRef = useRef(null);
 
-  // Forward ref
+  // Forward ref — expone el elemento video via window.reelVideoRef callback
   useEffect(() => {
     if (videoRef.current && window.reelVideoRef) {
       window.reelVideoRef(videoRef.current);
     }
   }, []);
 
-  // Control playback based on active state
+  // Controla reproducción basado en isActive
   useEffect(() => {
     if (!videoRef.current) return;
-
     if (isActive) {
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Auto-play prevented
-        });
-      }
+      const p = videoRef.current.play();
+      if (p !== undefined) p.catch(() => {});
     } else {
       videoRef.current.pause();
     }
   }, [isActive]);
 
-  // Update mute state
+  // Sincroniza estado mute imperativamente
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = isMuted;
-    }
+    if (videoRef.current) videoRef.current.muted = isMuted;
   }, [isMuted]);
 
   return (
-    <div className="relative w-full h-full">
-      <video
-        ref={videoRef}
-        src={src}
-        poster={poster}
-        className="w-full h-full object-cover"
-        loop
-        playsInline
-        muted={isMuted}
-        disablePictureInPicture
-        disableRemotePlayback
-        webkit-playsinline="true"
-        onTimeUpdate={onTimeUpdate}
-        onProgress={onProgress}
-        onLoadedData={onLoadedData}
-        onError={onError}
-        onPlay={onPlay}
-        onPause={onPause}
-        onWaiting={onWaiting}
-        onCanPlay={onCanPlay}
-      />
-      
-      {/* Mute indicator overlay */}
-      <div className="absolute top-20 right-4 z-20">
-        <div className={`p-2 rounded-full ${isMuted ? 'bg-black/40' : 'bg-transparent'}`}>
-          {isMuted ? (
-            <VolumeX className="w-5 h-5 text-white" />
-          ) : (
-            <Volume2 className="w-5 h-5 text-white" />
-          )}
-        </div>
-      </div>
-    </div>
+    <video
+      ref={videoRef}
+      src={src}
+      poster={poster}
+      className="h-full w-full object-cover"
+      loop
+      playsInline
+      muted={isMuted}
+      disablePictureInPicture
+      disableRemotePlayback
+      webkit-playsinline="true"
+      onTimeUpdate={onTimeUpdate}
+      onProgress={onProgress}
+      onLoadedData={onLoadedData}
+      onError={onError}
+      onPlay={onPlay}
+      onPause={onPause}
+      onWaiting={onWaiting}
+      onCanPlay={onCanPlay}
+    />
   );
 }
 

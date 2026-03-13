@@ -52,6 +52,7 @@ const LocaleSettingsPage = lazy(() => import('./pages/LocaleSettingsPage'));
 const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const ReelsPage = lazy(() => import('./components/reels/ReelsContainer'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ImporterLandingPage = lazy(() => import('./pages/importer/Landing'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
@@ -513,7 +514,7 @@ function AppRouter() {
                 )}
               />
 
-              <Route path="/reels" element={<Navigate to="/discover?tab=feeds" replace />} />
+              <Route path="/reels" element={<ReelsPage />} />
               <Route path="/feed" element={<Navigate to="/discover?tab=feeds" replace />} />
               <Route path="/chat" element={<ChatContainer />} />
               <Route path="/profile/:userId" element={<UserProfilePage />} />

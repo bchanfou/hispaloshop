@@ -1,162 +1,143 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share2, Bookmark, ShoppingBag, Plus, Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Heart, MessageCircle, Send, Bookmark, ShoppingBag } from 'lucide-react';
 
-function CountDisplay({ count }) {
-  if (count >= 1000000) return <span>{(count / 1000000).toFixed(1)}M</span>;
-  if (count >= 1000) return <span>{(count / 1000).toFixed(1)}k</span>;
-  return <span>{count}</span>;
+/**
+ * Formatea números grandes: 1.2k, 4.5M
+ */
+function Count({ n }) {
+  if (!n && n !== 0) return null;
+  let label;
+  if (n >= 1_000_000) label = `${(n / 1_000_000).toFixed(1)}M`;
+  else if (n >= 1_000) label = `${(n / 1_000).toFixed(1)}k`;
+  else label = String(n);
+
+  return (
+    <span className="text-[11px] font-semibold tabular-nums leading-none text-white drop-shadow">
+      {label}
+    </span>
+  );
 }
 
-function ReelSidebar({ 
+/**
+ * Botón de acción del sidebar.
+ * icon     — ReactElement (el icono ya renderizado)
+ * count    — número opcional bajo el icono
+ * onClick  — handler
+ * active   — estado activo (cambia apariencia)
+ */
+function SidebarAction({ icon, count, onClick, active = false }) {
+  return (
+    <motion.button
+      type="button"
+      whileTap={{ scale: 0.82 }}
+      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+      className="flex flex-col items-center gap-[5px]"
+    >
+      <div
+        className={`flex h-11 w-11 items-center justify-center rounded-full transition-colors ${
+          active ? 'bg-white/15' : 'active:bg-white/10'
+        }`}
+      >
+        {icon}
+      </div>
+      {count !== undefined ? <Count n={count} /> : null}
+    </motion.button>
+  );
+}
+
+function ReelSidebar({
   reel,
   isLiked,
   likesCount,
   isSaved,
-  isFollowing,
   onLike,
   onSave,
-  onFollow,
   onOpenComments,
-  onOpenProduct,
   onShare,
+  onOpenProduct,
 }) {
-  const navigate = useNavigate();
   const hasProduct = !!reel.productTag;
 
-  const handleProfileClick = () => {
-    navigate(`/user/${reel.user.id}`);
-  };
-
-  const buttonVariants = {
-    tap: { scale: 0.85 },
-    hover: { scale: 1.05 },
-  };
-
   return (
-    <div className="absolute right-2 bottom-24 flex flex-col items-center gap-4 z-20">
-      {/* Avatar con botón follow */}
-      <div className="relative mb-2">
-        <motion.button
-          variants={buttonVariants}
-          whileTap="tap"
-          whileHover="hover"
-          onClick={handleProfileClick}
-          className="relative"
-        >
-          <img
-            src={reel.user.avatar}
-            alt={reel.user.username}
-            className="w-12 h-12 rounded-full border-2 border-white object-cover"
-          />
-          {reel.user.verified && (
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-              <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-              </svg>
-            </div>
-          )}
-        </motion.button>
-        
-        {/* Botón follow */}
-        <motion.button
-          initial={false}
-          animate={isFollowing ? { scale: [1, 1.2, 1] } : {}}
-          onClick={onFollow}
-          className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full flex items-center justify-center ${
-            isFollowing 
-              ? 'bg-transparent border border-white' 
-              : 'bg-[#FF3040]'
-          }`}
-        >
-          {isFollowing ? (
-            <Check className="w-3 h-3 text-white" />
-          ) : (
-            <Plus className="w-3 h-3 text-white" />
-          )}
-        </motion.button>
-      </div>
+    <div
+      className="absolute right-2 z-20 flex flex-col items-center gap-3"
+      style={{ bottom: 'max(calc(env(safe-area-inset-bottom, 0px) + 90px), 102px)' }}
+    >
 
-      {/* Like */}
-      <motion.button
-        variants={buttonVariants}
-        whileTap="tap"
-        whileHover="hover"
+      {/* ── Like ── */}
+      <SidebarAction
+        active={isLiked}
         onClick={onLike}
-        className="flex flex-col items-center gap-0.5"
-      >
-        <div className={`p-2 rounded-full ${isLiked ? 'bg-white/10' : ''}`}>
-          <Heart 
-            className={`w-7 h-7 ${isLiked ? 'text-[#FF3040] fill-[#FF3040]' : 'text-white'}`}
-            strokeWidth={isLiked ? 0 : 2}
+        count={likesCount}
+        icon={
+          <Heart
+            className={`h-7 w-7 drop-shadow ${
+              isLiked ? 'fill-white text-white' : 'text-white'
+            }`}
+            strokeWidth={isLiked ? 0 : 1.8}
           />
-        </div>
-        <span className="text-white text-xs font-medium drop-shadow-lg">
-          <CountDisplay count={likesCount} />
-        </span>
-      </motion.button>
+        }
+      />
 
-      {/* Comments */}
-      <motion.button
-        variants={buttonVariants}
-        whileTap="tap"
-        whileHover="hover"
+      {/* ── Comentarios ── */}
+      <SidebarAction
         onClick={onOpenComments}
-        className="flex flex-col items-center gap-0.5"
-      >
-        <div className="p-2">
-          <MessageCircle className="w-7 h-7 text-white" />
-        </div>
-        <span className="text-white text-xs font-medium drop-shadow-lg">
-          <CountDisplay count={reel.stats.comments} />
-        </span>
-      </motion.button>
+        count={reel.stats.comments}
+        icon={
+          <MessageCircle className="h-7 w-7 text-white drop-shadow" strokeWidth={1.8} />
+        }
+      />
 
-      {/* Share */}
-      <motion.button
-        variants={buttonVariants}
-        whileTap="tap"
-        whileHover="hover"
+      {/* ── Compartir ── */}
+      <SidebarAction
         onClick={onShare}
-        className="flex flex-col items-center gap-0.5"
-      >
-        <div className="p-2">
-          <Share2 className="w-7 h-7 text-white" />
-        </div>
-        <span className="text-white text-xs font-medium drop-shadow-lg">
-          <CountDisplay count={reel.stats.shares} />
-        </span>
-      </motion.button>
+        count={reel.stats.shares > 0 ? reel.stats.shares : undefined}
+        icon={
+          <Send className="h-[26px] w-[26px] -rotate-[10deg] text-white drop-shadow" strokeWidth={1.8} />
+        }
+      />
 
-      {/* Product (solo si hay producto) */}
-      {hasProduct && (
-        <motion.button
-          variants={buttonVariants}
-          whileTap="tap"
-          whileHover="hover"
-          onClick={onOpenProduct}
-          className="flex flex-col items-center gap-0.5"
-        >
-          <div className="w-12 h-12 rounded-full bg-state-amber flex items-center justify-center shadow-lg">
-            <ShoppingBag className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-white text-[10px] font-medium drop-shadow-lg">Producto</span>
-        </motion.button>
-      )}
-
-      {/* Save */}
-      <motion.button
-        variants={buttonVariants}
-        whileTap="tap"
-        whileHover="hover"
+      {/* ── Guardar (bookmark) ── */}
+      <SidebarAction
+        active={isSaved}
         onClick={onSave}
-        className="flex flex-col items-center gap-0.5 mt-2"
-      >
-        <div className="p-2">
-          <Bookmark className={`w-7 h-7 text-white ${isSaved ? 'fill-white' : ''}`} />
-        </div>
-      </motion.button>
+        icon={
+          <Bookmark
+            className={`h-7 w-7 drop-shadow ${isSaved ? 'fill-white text-white' : 'text-white'}`}
+            strokeWidth={isSaved ? 0 : 1.8}
+          />
+        }
+      />
+
+      {/* ── Producto etiquetado (thumbnail cuadrado) ── */}
+      {hasProduct ? (
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.88 }}
+          onClick={(e) => { e.stopPropagation(); onOpenProduct?.(); }}
+          className="mt-1 flex flex-col items-center gap-1"
+        >
+          {/* Thumbnail del producto — 48px con esquinas redondeadas + ring blanco */}
+          <div className="h-12 w-12 overflow-hidden rounded-[10px] bg-white/20 ring-[2px] ring-white shadow-lg">
+            {reel.productTag.image ? (
+              <img
+                src={reel.productTag.image}
+                alt={reel.productTag.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <ShoppingBag className="h-6 w-6 text-white/70" strokeWidth={1.5} />
+              </div>
+            )}
+          </div>
+          <span className="text-[10px] font-medium leading-none text-white/80 drop-shadow">
+            Ver
+          </span>
+        </motion.button>
+      ) : null}
+
     </div>
   );
 }

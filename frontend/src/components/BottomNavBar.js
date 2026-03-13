@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X } from 'lucide-react';
+import { Home, Compass, Film, Plus, User, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +21,7 @@ const HIDDEN_ON_PATHS = [
   '/influencer/aplicar', '/influencers/aplicar',
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
   '/chat',
+  '/reels',   // full-screen inmersivo — nav oculta
 ];
 
 const HIDDEN_ON_PREFIXES = [
@@ -288,6 +289,7 @@ export default function BottomNavBar() {
 
   const isHome       = location.pathname === '/';
   const isExplore    = location.pathname.startsWith('/discover') || location.pathname.startsWith('/products');
+  const isReels      = location.pathname.startsWith('/reels');
   const isChatActive = activePanel === 'chat';
   const isProfile    = profileUserId
     ? location.pathname === `/user/${profileUserId}`
@@ -397,29 +399,22 @@ export default function BottomNavBar() {
             </div>
           </button>
 
-          {/* 4 — Chat / Mensajes */}
-          <button
-            type="button"
-            onClick={() => (user ? togglePanel('chat') : navigate('/login'))}
-            aria-label={t('bottomNav.chat', 'Mensajes')}
-            data-testid="bottom-nav-chat"
-            className="relative flex items-center justify-center active:opacity-60"
+          {/* 4 — Reels */}
+          <Link
+            to="/reels"
+            aria-label={t('bottomNav.reels', 'Reels')}
+            data-testid="bottom-nav-reels"
+            className="flex items-center justify-center active:opacity-60"
           >
-            {isChatActive ? (
-              /* Filled message — active */
+            {isReels ? (
+              /* Filled clapperboard — active */
               <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
               </svg>
             ) : (
-              <MessageCircle className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
+              <Film className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
             )}
-            {/* Unread badge */}
-            {unreadCount > 0 && !isChatActive ? (
-              <span className="absolute right-[10px] top-[7px] flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-stone-950 px-[3px] text-[8px] font-bold leading-none text-white">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            ) : null}
-          </button>
+          </Link>
 
           {/* 5 — Perfil */}
           <Link

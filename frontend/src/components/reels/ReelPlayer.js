@@ -24,6 +24,7 @@ function ReelPlayer({ reel, isActive, onNext, onPrev }) {
     isMuted,
     isLoading,
     showControls,
+    progress,
     isLiked,
     likesCount,
     isSaved,
@@ -160,6 +161,14 @@ function ReelPlayer({ reel, isActive, onNext, onPrev }) {
         onCanPlay={handleCanPlay}
       />
 
+      {/* Progress bar — línea 2px B&W en el fondo del vídeo */}
+      <div className="absolute bottom-0 left-0 right-0 z-[5] h-[2px] bg-white/15">
+        <div
+          className="h-full bg-white/55 transition-[width] duration-150 ease-linear"
+          style={{ width: `${progress ?? 0}%` }}
+        />
+      </div>
+
       {/* Loading overlay */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-30">
@@ -171,7 +180,11 @@ function ReelPlayer({ reel, isActive, onNext, onPrev }) {
       <LikeAnimation show={showLikeAnim} x={likePosition.x} y={likePosition.y} />
 
       {/* Overlay */}
-      <ReelOverlay reel={reel} />
+      <ReelOverlay
+        reel={reel}
+        isFollowing={isFollowing}
+        toggleFollow={toggleFollow}
+      />
 
       {/* Sidebar */}
       <ReelSidebar
@@ -179,10 +192,8 @@ function ReelPlayer({ reel, isActive, onNext, onPrev }) {
         isLiked={isLiked}
         likesCount={likesCount}
         isSaved={isSaved}
-        isFollowing={isFollowing}
         onLike={toggleLike}
         onSave={toggleSave}
-        onFollow={toggleFollow}
         onOpenComments={() => setShowComments(true)}
         onOpenProduct={() => setShowProduct(true)}
         onShare={handleShare}
@@ -206,7 +217,7 @@ function ReelPlayer({ reel, isActive, onNext, onPrev }) {
             e.stopPropagation();
             toggleMute();
           }}
-          className="absolute top-20 right-4 z-30 w-10 h-10 rounded-full bg-black/40 flex items-center justify-center"
+          className="absolute top-28 right-3 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-black/40"
         >
           {isMuted ? (
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

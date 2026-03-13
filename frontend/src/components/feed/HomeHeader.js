@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronDown, Heart, MessageCircle, PenSquare } from 'lucide-react';
+import { ChevronDown, Heart, Send, PenSquare } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useInternalChatData } from '../../features/chat/hooks/useInternalChatData';
 
 /**
  * HomeHeader — Instagram-style
@@ -15,6 +16,12 @@ export default function HomeHeader({ activeTab, onTabChange }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Conteo de mensajes no leídos para el badge DM
+  const { conversations } = useInternalChatData();
+  const unreadDMs = user
+    ? conversations.filter((c) => (c.unread_count ?? 0) > 0).length
+    : 0;
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -131,15 +138,24 @@ export default function HomeHeader({ activeTab, onTabChange }) {
             <Heart className="h-[22px] w-[22px]" strokeWidth={1.8} />
           </button>
 
-          {/* Mensajes */}
+          {/* DM / Mensajes — abre panel embebido vía toggle-chat event */}
           <button
             type="button"
-            onClick={() => navigate(user ? '/chat' : '/login')}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-stone-800 transition-colors hover:bg-stone-100 active:bg-stone-200"
-            aria-label="Mensajes"
+            onClick={() => {
+              if (!user) { navigate('/login'); return; }
+              window.dispatchEvent(new CustomEvent('toggle-chat'));
+            }}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-800 transition-colors hover:bg-stone-100 active:bg-stone-200"
+            aria-label="Mensajes directos"
             data-testid="home-chat-btn"
           >
-            <MessageCircle className="h-[22px] w-[22px]" strokeWidth={1.8} />
+            <Send className="h-[21px] w-[21px]" strokeWidth={1.8} />
+            {/* Badge de no leídos */}
+            {unreadDMs > 0 ? (
+              <span className="absolute right-[9px] top-[8px] flex h-[13px] min-w-[13px] items-center justify-center rounded-full bg-stone-950 px-[2.5px] text-[7.5px] font-bold leading-none text-white">
+                {unreadDMs > 9 ? '9+' : unreadDMs}
+              </span>
+            ) : null}
           </button>
 
           {/* Crear (solo visible en mobile cuando el + de BottomNav no está visible) */}
