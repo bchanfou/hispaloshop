@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { API } from '../../utils/api'; // Centralized API URL
+import { asLowerText } from '../../utils/safe';
 
 export default function ContentManagement() {
   const { t } = useTranslation();
@@ -122,15 +123,16 @@ export default function ContentManagement() {
     }
   };
 
+  const searchNeedle = asLowerText(searchTerm);
   const filteredProducts = products.filter(p =>
-    p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.producer_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    asLowerText(p.name).includes(searchNeedle) ||
+    asLowerText(p.producer_name).includes(searchNeedle)
   );
 
   const filteredCertificates = certificates.filter(c =>
-    c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.producer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.issuer?.toLowerCase().includes(searchTerm.toLowerCase())
+    asLowerText(c.name).includes(searchNeedle) ||
+    asLowerText(c.producer_name).includes(searchNeedle) ||
+    asLowerText(c.issuer).includes(searchNeedle)
   );
 
   return (

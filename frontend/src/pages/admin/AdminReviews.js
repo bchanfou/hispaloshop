@@ -7,6 +7,7 @@ import { API } from '../../utils/api';
 import { 
   Search, Star, Eye, EyeOff, Trash2, User, Package
 } from 'lucide-react';
+import { asLowerText } from '../../utils/safe';
 
 
 
@@ -67,10 +68,11 @@ export default function AdminReviews() {
     });
   };
 
+  const searchNeedle = asLowerText(searchTerm);
   const filteredReviews = reviews.filter(review =>
-    review.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    review.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    review.comment?.toLowerCase().includes(searchTerm.toLowerCase())
+    asLowerText(review.user_name).includes(searchNeedle) ||
+    asLowerText(review.product_name).includes(searchNeedle) ||
+    asLowerText(review.comment).includes(searchNeedle)
   );
 
   if (loading) {

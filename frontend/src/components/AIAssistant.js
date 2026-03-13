@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { API } from '../utils/api';
+import { firstToken } from '../utils/safe';
 
 
 
@@ -314,7 +315,7 @@ export default function AIAssistant({ forceOpen = false, onForceClose = null }) 
     if (hasShownGreeting) return;
     setHasShownGreeting(true);
     
-    const userName = user?.name?.split(' ')[0] || '';
+    const userName = firstToken(user?.name, '');
     
     setMessages([{
       role: 'assistant',

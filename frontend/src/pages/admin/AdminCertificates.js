@@ -5,6 +5,7 @@ import { Input } from '../../components/ui/input';
 import { toast } from 'sonner';
 import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { asLowerText } from '../../utils/safe';
 import { 
   Search, CheckCircle, XCircle, Eye, ArrowLeft, History, Trash2, AlertTriangle,
   Clock, FileText, ExternalLink
@@ -151,10 +152,11 @@ export default function AdminCertificates() {
   };
 
   const filteredCertificates = certificates.filter(c => {
+    const searchNeedle = asLowerText(searchTerm);
     const matchesSearch = 
-      c.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.certificate_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.producer_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      asLowerText(c.product_name).includes(searchNeedle) ||
+      asLowerText(c.certificate_id).includes(searchNeedle) ||
+      asLowerText(c.producer_name).includes(searchNeedle);
     
     const status = getStatus(c);
     const matchesFilter = 

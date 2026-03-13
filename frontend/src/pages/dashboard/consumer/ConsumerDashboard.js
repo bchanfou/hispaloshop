@@ -18,6 +18,7 @@ import {
   MapPin,
   Loader2
 } from 'lucide-react';
+import { asNumber, firstToken } from '../../../utils/safe';
 
 function generateMonthlyData(orders) {
   const months = ['Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb'];
@@ -85,7 +86,7 @@ function ConsumerDashboard() {
             ? 'Entregado'
             : `Pedido ${order.status}`,
       description: order.items?.map((i) => i.product_name).join(' + ') || 'Productos',
-      amount: `EUR ${order.total_amount?.toFixed(2) || '0.00'}`,
+      amount: `EUR ${asNumber(order.total_amount).toFixed(2)}`,
       status: order.status,
       actionLabel: order.status === 'delivered' ? 'Reordenar' : 'Ver',
       onAction: () => navigate(`/dashboard/orders/${order.id}`)
@@ -149,7 +150,7 @@ function ConsumerDashboard() {
   return (
     <div className="min-h-screen bg-background-subtle p-4 pb-24">
       <DashboardHeader
-        userName={user?.name?.split(' ')[0] || 'Usuario'}
+        userName={firstToken(user?.name, 'Usuario')}
         subtitle="Aqui esta tu resumen de hoy"
         notificationCount={0}
       />

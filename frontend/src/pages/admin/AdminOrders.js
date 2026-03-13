@@ -4,6 +4,7 @@ import { Input } from '../../components/ui/input';
 import { Search, ShoppingBag, DollarSign, TrendingUp } from 'lucide-react';
 import { API } from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { asLowerText, asNumber, asText } from '../../utils/safe';
 
 
 
@@ -34,10 +35,11 @@ export default function AdminOrders() {
     }
   };
 
+  const searchNeedle = asLowerText(searchTerm);
   const filteredOrders = orders.filter(o => 
-    o.order_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    o.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    o.user_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    asLowerText(o.order_id).includes(searchNeedle) ||
+    asLowerText(o.user_email).includes(searchNeedle) ||
+    asLowerText(o.user_name).includes(searchNeedle)
   );
 
   const statusColors = {

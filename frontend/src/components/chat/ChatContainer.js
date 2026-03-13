@@ -9,6 +9,7 @@ import SuggestionChips from './SuggestionChips';
 import ChatInput from './ChatInput';
 import RoleSelector from './RoleSelector';
 import { TypingIndicator } from './TypingIndicator';
+import { firstToken } from '../../utils/safe';
 
 function StatusDot({ active }) {
   return (
@@ -21,7 +22,7 @@ function StatusDot({ active }) {
 
 function WelcomeScreen({ user, roleConfig, suggestions, onSuggestionClick }) {
   const greeting = getTimeGreeting();
-  const firstName = user?.name?.split(' ')[0] || null;
+  const firstName = firstToken(user?.name, '') || null;
   const roleName = roleConfig?.name || 'Hispal AI';
 
   return (

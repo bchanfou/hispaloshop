@@ -9,6 +9,7 @@ import {
   Package, DollarSign, ClipboardList
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { asLowerText } from '../../utils/safe';
 
 
 
@@ -149,9 +150,10 @@ export default function AdminProducts() {
   };
 
   const filteredProducts = products.filter(p => {
+    const searchNeedle = asLowerText(searchTerm);
     const matchesSearch = 
-      p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.producer_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      asLowerText(p.name).includes(searchNeedle) ||
+      asLowerText(p.producer_name).includes(searchNeedle);
     
     const matchesFilter = 
       filter === 'all' || 

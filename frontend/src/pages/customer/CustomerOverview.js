@@ -9,6 +9,7 @@ import {
   TrendingUp, Flame
 } from 'lucide-react';
 import { API } from '../../utils/api';
+import { asNumber, firstToken } from '../../utils/safe';
 
 const statusIcons = { paid: Check, confirmed: Check, preparing: Package, shipped: Truck, delivered: Check, pending: Clock };
 const statusColors = { paid: 'bg-green-100 text-green-600', confirmed: 'bg-blue-100 text-blue-600', preparing: 'bg-amber-100 text-amber-600', shipped: 'bg-purple-100 text-purple-600', delivered: 'bg-green-100 text-green-600', pending: 'bg-stone-100 text-stone-500' };
@@ -62,7 +63,7 @@ export default function CustomerOverview() {
       {/* Greeting */}
       <div>
         <h1 className="font-heading text-xl md:text-2xl font-bold text-text-primary">
-          {t('customerDashboard.greeting')}, {user?.name?.split(' ')[0] || 'usuario'}
+          {t('customerDashboard.greeting')}, {firstToken(user?.name, 'usuario')}
         </h1>
         <p className="text-sm text-text-muted mt-0.5">{t('customerDashboard.welcomeBack', 'Bienvenido de vuelta')}</p>
       </div>
@@ -82,7 +83,7 @@ export default function CustomerOverview() {
                  latestOrder.status === 'paid' ? t('customerDashboard.orderConfirmed') :
                  t('customerDashboard.orderPending')}
               </p>
-              <p className="text-xs text-text-muted">{latestOrder.line_items?.length || 0} items · {latestOrder.total_amount?.toFixed(2)}€</p>
+              <p className="text-xs text-text-muted">{latestOrder.line_items?.length || 0} items · {asNumber(latestOrder.total_amount).toFixed(2)}€</p>
             </div>
             <ChevronRight className="w-4 h-4 text-text-muted" />
           </div>

@@ -10,6 +10,7 @@ import {
   Building, Phone, Mail, MapPin 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { asLowerText } from '../../utils/safe';
 
 
 
@@ -79,10 +80,11 @@ export default function AdminProducers() {
   };
 
   const filteredProducers = producers.filter(p => {
+    const searchNeedle = asLowerText(searchTerm);
     const matchesSearch = 
-      p.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      asLowerText(p.company_name).includes(searchNeedle) ||
+      asLowerText(p.email).includes(searchNeedle) ||
+      asLowerText(p.name).includes(searchNeedle);
     
     const status = p.status || (p.approved ? 'approved' : 'pending');
     const matchesFilter = filter === 'all' || status === filter;

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../utils/api';
+import { firstToken } from '../utils/safe';
 
 const STORY_DURATION = 5000;
 const STICKERS = ['🍕', '🥑', '🍓', '🔥', '❤️', '⭐', '🎉', '🛒', '🌿', '😋'];
@@ -669,7 +670,7 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
               </div>
             </div>
             <span className="max-w-16 truncate text-[10px] font-medium text-stone-600">
-              {group.is_own ? t('stories.yourStory', 'Tu historia') : group.user_name?.split(' ')[0]}
+              {group.is_own ? t('stories.yourStory', 'Tu historia') : firstToken(group.user_name, '')}
             </span>
           </button>
         ))}

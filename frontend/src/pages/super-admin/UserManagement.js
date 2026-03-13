@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 import { API } from '../../utils/api'; // Centralized API URL
+import { asLowerText } from '../../utils/safe';
 
 // Country code to name mapping
 const COUNTRY_NAMES = {
@@ -201,10 +202,11 @@ export default function UserManagement() {
     setNewPassword('');
   };
 
+  const searchNeedle = asLowerText(searchTerm);
   const filteredUsers = users.filter(u =>
-    u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.company_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    asLowerText(u.name).includes(searchNeedle) ||
+    asLowerText(u.email).includes(searchNeedle) ||
+    asLowerText(u.company_name).includes(searchNeedle)
   );
 
   const getRoleIcon = (role) => {

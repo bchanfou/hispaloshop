@@ -17,6 +17,7 @@ import {
   Gift,
   Loader2
 } from 'lucide-react';
+import { asNumber, firstToken } from '../../../utils/safe';
 
 function InfluencerDashboard() {
   const navigate = useNavigate();
@@ -47,9 +48,9 @@ function InfluencerDashboard() {
       recentConversions: commissions.slice(0, 3).map((commission) => ({
         id: commission.id,
         title: `Venta · ${commission.product_name || 'Producto'}`,
-        subtitle: `Comision: EUR ${commission.amount?.toFixed(2) || '0.00'}`,
+        subtitle: `Comision: EUR ${asNumber(commission.amount).toFixed(2)}`,
         description: commission.status === 'pending' ? 'Pendiente' : 'Confirmada',
-        amount: `EUR ${commission.amount?.toFixed(2) || '0.00'}`,
+        amount: `EUR ${asNumber(commission.amount).toFixed(2)}`,
         status: commission.status,
         actionLabel: 'Ver',
         onAction: () => {}
@@ -115,7 +116,7 @@ function InfluencerDashboard() {
   return (
     <div className="min-h-screen bg-background-subtle p-4 pb-24">
       <DashboardHeader
-        userName={user?.name?.split(' ')[0] || 'Influencer'}
+        userName={firstToken(user?.name, 'Influencer')}
         subtitle={`Nivel: ${dashboardData.tier}`}
         notificationCount={0}
       />
