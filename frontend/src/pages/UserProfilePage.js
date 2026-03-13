@@ -132,11 +132,14 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
 
 function ProfileHighlight({ label }) {
   return (
-    <div className="flex shrink-0 flex-col items-center gap-2">
-      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-stone-300 p-1">
-        <div className="h-full w-full rounded-full bg-stone-100" />
+    <div className="flex shrink-0 flex-col items-center gap-1.5">
+      {/* Outer black ring → white gap → inner content */}
+      <div className="h-[66px] w-[66px] rounded-full bg-stone-950 p-[1.5px]">
+        <div className="h-full w-full rounded-full bg-white p-[3px]">
+          <div className="h-full w-full rounded-full bg-stone-100" />
+        </div>
       </div>
-      <span className="text-xs text-stone-600">{label}</span>
+      <span className="text-[11px] font-medium text-stone-700">{label}</span>
     </div>
   );
 }
@@ -153,7 +156,7 @@ function ContentTile({ item, type, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="group relative aspect-square overflow-hidden bg-stone-100 text-left transition-opacity duration-150 active:opacity-80"
+      className="group relative aspect-square overflow-hidden rounded-[3px] bg-stone-100 text-left transition-opacity duration-150 active:opacity-75"
     >
       {imageUrl ? (
         <img
@@ -168,7 +171,7 @@ function ContentTile({ item, type, onClick }) {
         </div>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent p-3 text-white">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent p-3 text-white">
         <p className="line-clamp-2 text-sm font-medium">{item.title || item.name || item.caption || ''}</p>
       </div>
     </button>
@@ -177,8 +180,8 @@ function ContentTile({ item, type, onClick }) {
 
 function EmptyState({ icon: Icon, title, description, action }) {
   return (
-    <div className="mx-4 mt-2 rounded-[24px] border border-dashed border-stone-200 bg-white px-6 py-16 text-center">
-      <Icon className="mx-auto h-12 w-12 text-stone-300" />
+    <div className="mx-4 mt-2 rounded-3xl border border-stone-100 bg-white px-6 py-16 text-center">
+      <Icon className="mx-auto h-12 w-12 text-stone-200" />
       <h3 className="mt-4 text-lg font-semibold text-stone-950">{title}</h3>
       <p className="mt-2 text-sm text-stone-500">{description}</p>
       {action}
@@ -296,7 +299,7 @@ export default function UserProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-white">
         <ProfilePageHeader username={headerUsername} isOwnProfile={isOwnProfile} onShare={handleShare} />
         <div className="flex h-[60vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-stone-500" />
@@ -319,7 +322,7 @@ export default function UserProfilePage() {
 
             {/* Avatar */}
             <div className="relative shrink-0">
-              <div className="h-[86px] w-[86px] overflow-hidden rounded-full border-2 border-stone-200 bg-stone-100">
+              <div className={`h-[86px] w-[86px] overflow-hidden rounded-full bg-stone-100 ${isOwnProfile ? 'ring-[2px] ring-stone-950 ring-offset-[3px] ring-offset-white' : 'ring-[1px] ring-stone-200 ring-offset-0'}`}>
                 {profile?.profile_image ? (
                   <img
                     src={resolveUserImage(profile.profile_image)}
@@ -342,7 +345,7 @@ export default function UserProfilePage() {
                 <>
                   <button
                     onClick={() => avatarInputRef.current?.click()}
-                    className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-stone-950 text-white shadow-md"
+                    className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-900 shadow-sm"
                     data-testid="change-avatar-btn"
                     aria-label="Cambiar foto de perfil"
                   >
@@ -356,19 +359,19 @@ export default function UserProfilePage() {
             {/* Stats */}
             <div className="flex flex-1 items-center justify-around">
               <button
-                className="flex flex-col items-center gap-0.5 transition-opacity active:opacity-70"
+                className="flex flex-col items-center gap-1 transition-opacity active:opacity-70"
                 onClick={() => setActiveTab('posts')}
               >
-                <span className="text-[17px] font-semibold leading-tight text-stone-950">{postCount}</span>
-                <span className="text-[12px] text-stone-500">publicaciones</span>
+                <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{postCount}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">publicaciones</span>
               </button>
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="text-[17px] font-semibold leading-tight text-stone-950">{followersCount}</span>
-                <span className="text-[12px] text-stone-500">seguidores</span>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{followersCount}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">seguidores</span>
               </div>
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="text-[17px] font-semibold leading-tight text-stone-950">{followingCount}</span>
-                <span className="text-[12px] text-stone-500">seguidos</span>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{followingCount}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">seguidos</span>
               </div>
             </div>
           </div>
@@ -376,9 +379,9 @@ export default function UserProfilePage() {
           {/* Fila 2: Nombre + rol + bio */}
           <div className="mt-3 space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[14px] font-semibold leading-tight text-stone-950">{realName}</p>
+              <p className="text-[14px] font-bold tracking-tight leading-tight text-stone-950">{realName}</p>
               {profile?.role && profile.role !== 'customer' && profile.role !== 'consumer' ? (
-                <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600">
+                <span className="rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-stone-500">
                   {profile.role === 'producer'
                     ? 'Productor'
                     : profile.role === 'importer'
@@ -390,22 +393,22 @@ export default function UserProfilePage() {
               ) : null}
             </div>
             {profile?.bio ? (
-              <p className="whitespace-pre-line text-[13px] leading-[1.45] text-stone-700">{profile.bio}</p>
+              <p className="whitespace-pre-line text-[13px] leading-relaxed text-stone-600">{profile.bio}</p>
             ) : null}
           </div>
 
           {/* Fila 3: Botones de acción */}
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3.5 flex gap-2">
             {isOwnProfile ? (
               <>
                 <Link to={dashboardUrl} className="flex-1">
-                  <button className="h-9 w-full rounded-xl bg-stone-100 text-[13px] font-semibold text-stone-950 transition-colors hover:bg-stone-200 active:bg-stone-200">
+                  <button className="h-[34px] w-full rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100">
                     Editar perfil
                   </button>
                 </Link>
                 <button
                   onClick={handleShare}
-                  className="flex-1 h-9 rounded-xl bg-stone-100 text-[13px] font-semibold text-stone-950 transition-colors hover:bg-stone-200 active:bg-stone-200"
+                  className="flex-1 h-[34px] rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100"
                 >
                   Compartir perfil
                 </button>
@@ -414,9 +417,9 @@ export default function UserProfilePage() {
               <>
                 <button
                   onClick={handleFollow}
-                  className={`flex-1 h-9 rounded-xl text-[13px] font-semibold transition-colors ${
+                  className={`flex-1 h-[34px] rounded-full text-[13px] font-semibold transition-colors ${
                     isFollowing
-                      ? 'bg-stone-100 text-stone-950 hover:bg-stone-200 active:bg-stone-200'
+                      ? 'border border-stone-200 bg-white text-stone-950 hover:bg-stone-50 active:bg-stone-100'
                       : 'bg-stone-950 text-white hover:bg-stone-800 active:bg-stone-700'
                   }`}
                   data-testid="follow-btn"
@@ -427,16 +430,16 @@ export default function UserProfilePage() {
                   onClick={() =>
                     window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId } }))
                   }
-                  className="flex-1 h-9 rounded-xl bg-stone-100 text-[13px] font-semibold text-stone-950 transition-colors hover:bg-stone-200 active:bg-stone-200"
+                  className="flex-1 h-[34px] rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100"
                 >
                   {t('social.message', 'Mensaje')}
                 </button>
                 <button
                   onClick={handleShare}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-700 transition-colors hover:bg-stone-200 active:bg-stone-200"
+                  className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50 active:bg-stone-100"
                   aria-label="Compartir perfil"
                 >
-                  <Share2 className="h-4 w-4" />
+                  <Share2 className="h-[15px] w-[15px]" strokeWidth={1.8} />
                 </button>
               </>
             )}
@@ -471,10 +474,10 @@ export default function UserProfilePage() {
                     type="button"
                     onClick={() => setActiveTab(tab.key)}
                     aria-label={tab.label}
-                    className={`flex flex-1 items-center justify-center border-b-[1.5px] py-3 transition-colors ${
+                    className={`flex flex-1 items-center justify-center border-b-2 py-3.5 transition-colors ${
                       activeTab === tab.key
                         ? 'border-stone-950 text-stone-950'
-                        : 'border-transparent text-stone-400 hover:text-stone-700'
+                        : 'border-transparent text-stone-300 hover:text-stone-600'
                     }`}
                   >
                     <Icon className="h-[22px] w-[22px]" strokeWidth={activeTab === tab.key ? 2 : 1.5} />

@@ -25,33 +25,34 @@ import { resolveUserImage } from '../../features/user/queries';
 
 // ── Links de navegación por rol ──────────────────────────────────────────────
 // iconBg / iconColor definen el color del icono según su función semántica
+// B&W tonal: Dashboard → negro primario · resto → gris claro
 const ROLE_LINKS = {
   producer: [
-    { label: 'Mi Dashboard',   icon: LayoutDashboard, to: '/producer/overview',      iconBg: 'bg-stone-950',   iconColor: 'text-white' },
-    { label: 'Mis Productos',  icon: Package,         to: '/producer/products',      iconBg: 'bg-orange-100',  iconColor: 'text-orange-600' },
-    { label: 'Pedidos',        icon: ShoppingCart,    to: '/producer/orders',        iconBg: 'bg-blue-100',    iconColor: 'text-blue-600' },
-    { label: 'Análisis',       icon: BarChart3,       to: '/producer/insights',      iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
-    { label: 'Pagos',          icon: CreditCard,      to: '/producer/payments',      iconBg: 'bg-amber-100',   iconColor: 'text-amber-600' },
-    { label: 'Mi Tienda',      icon: Store,           to: '/producer/store-profile', iconBg: 'bg-violet-100',  iconColor: 'text-violet-600' },
+    { label: 'Mi Dashboard',   icon: LayoutDashboard, to: '/producer/overview',      iconBg: 'bg-stone-950', iconColor: 'text-white' },
+    { label: 'Mis Productos',  icon: Package,         to: '/producer/products',      iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Pedidos',        icon: ShoppingCart,    to: '/producer/orders',        iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Análisis',       icon: BarChart3,       to: '/producer/insights',      iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Pagos',          icon: CreditCard,      to: '/producer/payments',      iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Mi Tienda',      icon: Store,           to: '/producer/store-profile', iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
   ],
   importer: [
-    { label: 'Mi Dashboard',   icon: LayoutDashboard, to: '/importer/dashboard', iconBg: 'bg-stone-950',   iconColor: 'text-white' },
-    { label: 'Catálogo',       icon: Package,         to: '/importer/catalog',   iconBg: 'bg-orange-100',  iconColor: 'text-orange-600' },
-    { label: 'Presupuestos',   icon: ShoppingCart,    to: '/importer/quotes',    iconBg: 'bg-blue-100',    iconColor: 'text-blue-600' },
-    { label: 'Análisis',       icon: BarChart3,       to: '/importer/dashboard', iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
+    { label: 'Mi Dashboard',   icon: LayoutDashboard, to: '/importer/dashboard', iconBg: 'bg-stone-950', iconColor: 'text-white' },
+    { label: 'Catálogo',       icon: Package,         to: '/importer/catalog',   iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Presupuestos',   icon: ShoppingCart,    to: '/importer/quotes',    iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Análisis',       icon: BarChart3,       to: '/importer/dashboard', iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
   ],
   influencer: [
-    { label: 'Mi Dashboard',   icon: LayoutDashboard, to: '/influencer/dashboard', iconBg: 'bg-stone-950',   iconColor: 'text-white' },
-    { label: 'Estadísticas',   icon: TrendingUp,      to: '/influencer/insights',  iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
-    { label: 'Comisiones',     icon: CreditCard,      to: '/influencer/dashboard', iconBg: 'bg-amber-100',   iconColor: 'text-amber-600' },
+    { label: 'Mi Dashboard',   icon: LayoutDashboard, to: '/influencer/dashboard', iconBg: 'bg-stone-950', iconColor: 'text-white' },
+    { label: 'Estadísticas',   icon: TrendingUp,      to: '/influencer/insights',  iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Comisiones',     icon: CreditCard,      to: '/influencer/dashboard', iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
   ],
   customer: [
-    { label: 'Mis Pedidos',    icon: ShoppingCart, to: '/customer/orders',   iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
-    { label: 'Lista de Deseos',icon: Heart,        to: '/customer/wishlist', iconBg: 'bg-rose-100', iconColor: 'text-rose-500' },
+    { label: 'Mis Pedidos',    icon: ShoppingCart, to: '/customer/orders',   iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Lista de Deseos',icon: Heart,        to: '/customer/wishlist', iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
   ],
   consumer: [
-    { label: 'Mis Pedidos',    icon: ShoppingCart, to: '/customer/orders',   iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
-    { label: 'Lista de Deseos',icon: Heart,        to: '/customer/wishlist', iconBg: 'bg-rose-100', iconColor: 'text-rose-500' },
+    { label: 'Mis Pedidos',    icon: ShoppingCart, to: '/customer/orders',   iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
+    { label: 'Lista de Deseos',icon: Heart,        to: '/customer/wishlist', iconBg: 'bg-stone-100', iconColor: 'text-stone-700' },
   ],
 };
 
@@ -64,13 +65,13 @@ const ROLE_LABEL = {
   admin:     'Admin',
 };
 
-// Colores del badge de rol en el user card
+// Colores del badge de rol en el user card — B&W tonal
 const ROLE_BADGE = {
-  producer:   { bg: 'bg-emerald-100', text: 'text-emerald-700' },
-  importer:   { bg: 'bg-blue-100',    text: 'text-blue-700' },
-  influencer: { bg: 'bg-violet-100',  text: 'text-violet-700' },
-  customer:   { bg: 'bg-stone-100',   text: 'text-stone-600' },
-  consumer:   { bg: 'bg-stone-100',   text: 'text-stone-600' },
+  producer:   { bg: 'bg-stone-100', text: 'text-stone-700' },
+  importer:   { bg: 'bg-stone-100', text: 'text-stone-700' },
+  influencer: { bg: 'bg-stone-100', text: 'text-stone-700' },
+  customer:   { bg: 'bg-stone-100', text: 'text-stone-600' },
+  consumer:   { bg: 'bg-stone-100', text: 'text-stone-600' },
 };
 
 // Ruta principal del dashboard por rol (para el botón CTA)
@@ -252,8 +253,8 @@ function HamburgerPanel({ isOpen, onClose, onShare }) {
                 onClick={() => handleNavLink('/notifications')}
                 className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-950 active:bg-stone-100"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100">
-                  <Bell className="h-4 w-4 text-amber-600" strokeWidth={1.8} />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-stone-100">
+                  <Bell className="h-4 w-4 text-stone-700" strokeWidth={1.8} />
                 </div>
                 <span className="flex-1">Notificaciones</span>
                 <ChevronRight className="h-3.5 w-3.5 text-stone-300" strokeWidth={2} />
@@ -264,8 +265,8 @@ function HamburgerPanel({ isOpen, onClose, onShare }) {
                   onClick={() => { onShare(); onClose(); }}
                   className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-950 active:bg-stone-100"
                 >
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sky-100">
-                    <Share2 className="h-4 w-4 text-sky-600" strokeWidth={1.8} />
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-stone-100">
+                    <Share2 className="h-4 w-4 text-stone-700" strokeWidth={1.8} />
                   </div>
                   <span className="flex-1">Compartir perfil</span>
                   <ChevronRight className="h-3.5 w-3.5 text-stone-300" strokeWidth={2} />
