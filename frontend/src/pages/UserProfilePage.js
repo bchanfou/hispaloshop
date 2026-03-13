@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import ProfilePageHeader from '../components/profile/ProfilePageHeader';
 import ProfessionalBanner from '../components/profile/ProfessionalBanner';
 import {
   BookOpen,
   Camera,
+  Globe,
   Grid3X3,
   Loader2,
   Package,
@@ -31,6 +33,7 @@ import {
   useUserProfile,
   useUserRecipes,
 } from '../features/user/hooks';
+import { useUpdateProfile } from '../hooks/api';
 import { resolveUserImage } from '../features/user/queries';
 
 function CreatePostModal({ onClose, onCreate, creatingPost }) {
@@ -189,6 +192,114 @@ function EmptyState({ icon: Icon, title, description, action }) {
   );
 }
 
+function EditProfileModal({ profile, userId, onClose }) {
+  const queryClient = useQueryClient();
+  const { mutate, isPending } = useUpdateProfile();
+  const [draft, setDraft] = useState({
+    name:     profile?.name     || '',
+    username: profile?.username || '',
+    bio:      profile?.bio      || '',
+    website:  profile?.website  || '',
+  });
+
+  const set = (key) => (e) => setDraft((d) => ({ ...d, [key]: e.target.value }));
+
+  const handleSave = () => {
+    mutate(draft, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['userProfile', userId] });
+        toast.success('Perfil actualizado');
+        onClose();
+      },
+      onError: () => toast.error('No se pudo guardar. Inténtalo de nuevo.'),
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+
+      {/* Modal */}
+      <div className="relative w-full max-w-md overflow-hidden rounded-[24px] bg-white shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-stone-100 px-4 py-3.5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[14px] text-stone-500 active:opacity-50"
+          >
+            Cancelar
+          </button>
+          <span className="text-[15px] font-semibold text-stone-950">Editar perfil</span>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isPending}
+            className="flex items-center gap-1 text-[14px] font-semibold text-stone-950 disabled:opacity-50 active:opacity-50"
+          >
+            {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            Guardar
+          </button>
+        </div>
+
+        {/* Fields */}
+        <div className="divide-y divide-stone-100">
+          {/* Nombre */}
+          <div className="px-4 py-3.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Nombre</p>
+            <input
+              type="text"
+              value={draft.name}
+              onChange={set('name')}
+              placeholder="Tu nombre"
+              className="mt-1 w-full bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
+            />
+          </div>
+          {/* Usuario */}
+          <div className="px-4 py-3.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Usuario</p>
+            <div className="mt-1 flex items-center gap-1">
+              <span className="text-[15px] text-stone-400">@</span>
+              <input
+                type="text"
+                value={draft.username}
+                onChange={set('username')}
+                placeholder="nombre_de_usuario"
+                className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
+              />
+            </div>
+          </div>
+          {/* Bio */}
+          <div className="px-4 py-3.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Bio</p>
+            <textarea
+              value={draft.bio}
+              onChange={set('bio')}
+              placeholder="Cuéntanos algo sobre ti…"
+              rows={3}
+              maxLength={150}
+              className="mt-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
+            />
+            <p className="mt-1 text-right text-[11px] text-stone-400">{draft.bio.length}/150</p>
+          </div>
+          {/* Enlace web */}
+          <div className="flex items-center gap-2 px-4 py-3.5">
+            <Globe className="h-4 w-4 shrink-0 text-stone-400" />
+            <input
+              type="url"
+              value={draft.website}
+              onChange={set('website')}
+              placeholder="Enlace web"
+              className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function UserProfilePage() {
   const { userId } = useParams();
   const { user: currentUser } = useAuth();
@@ -199,6 +310,7 @@ export default function UserProfilePage() {
   const { uploadingAvatar, uploadAvatar } = useUserAvatar(userId);
   const [activeTab, setActiveTab] = useState('posts');
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedRecipeIndex, setSelectedRecipeIndex] = useState(null);
@@ -401,11 +513,12 @@ export default function UserProfilePage() {
           <div className="mt-3.5 flex gap-2">
             {isOwnProfile ? (
               <>
-                <Link to={dashboardUrl} className="flex-1">
-                  <button className="h-[34px] w-full rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100">
-                    Editar perfil
-                  </button>
-                </Link>
+                <button
+                  onClick={() => setShowEditProfile(true)}
+                  className="flex-1 h-[34px] rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100"
+                >
+                  Editar perfil
+                </button>
                 <button
                   onClick={handleShare}
                   className="flex-1 h-[34px] rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100"
@@ -458,7 +571,7 @@ export default function UserProfilePage() {
         {/* ── Banner profesional ── */}
         {isOwnProfile && isProfessional ? (
           <div className="-mx-4 bg-white px-4 py-3 border-t border-stone-100">
-            <ProfessionalBanner role={profile.role} viewCount={profileViewCount} />
+            <ProfessionalBanner role={profile.role} viewCount={profileViewCount} followersCount={followersCount} />
           </div>
         ) : null}
 
@@ -622,6 +735,14 @@ export default function UserProfilePage() {
             }
           />
         </OverlayErrorBoundary>
+      ) : null}
+
+      {showEditProfile ? (
+        <EditProfileModal
+          profile={profile}
+          userId={userId}
+          onClose={() => setShowEditProfile(false)}
+        />
       ) : null}
     </div>
   );
