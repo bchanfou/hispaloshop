@@ -145,11 +145,21 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         # Calcular duración
         duration = time.time() - start_time
         
-        # Log en desarrollo
         import os
+        import logging
+        logger = logging.getLogger("hispaloshop")
+
+        # Log all requests in development
         if os.getenv("ENV") == "development" or os.getenv("DEBUG") == "true":
             print(f"[{request.method}] {request.url.path} - {response.status_code} ({duration:.3f}s)")
-        
+
+        # Log slow requests (>2s) in all environments
+        if duration > 2.0:
+            logger.warning(
+                "Slow request: %s %s took %.2fs (status %d)",
+                request.method, request.url.path, duration, response.status_code,
+            )
+
         return response
 
 

@@ -159,7 +159,45 @@ async def _create_indexes():
     await db.reviews.create_index("user_id")
     await db.reviews.create_index([("product_id", 1), ("created_at", -1)])
     print("  ✓ reviews indexes")
-    
+
+    # Communities
+    await db.communities.create_index("slug", unique=True)
+    await db.communities.create_index("category")
+    await db.communities.create_index([("member_count", -1)])
+    await db.community_members.create_index(
+        [("community_id", 1), ("user_id", 1)], unique=True
+    )
+    await db.community_posts.create_index(
+        [("community_id", 1), ("created_at", -1)]
+    )
+    await db.community_post_likes.create_index(
+        [("post_id", 1), ("user_id", 1)], unique=True
+    )
+    print("  ✓ communities indexes")
+
+    # B2B
+    await db.b2b_requests.create_index([("producer_id", 1), ("status", 1)])
+    await db.b2b_requests.create_index("importer_id")
+    print("  ✓ b2b indexes")
+
+    # Affiliate commissions
+    await db.influencer_commissions.create_index(
+        [("influencer_id", 1), ("status", 1)]
+    )
+    await db.customer_influencer_attribution.create_index(
+        "consumer_id", unique=True, sparse=True
+    )
+    print("  ✓ affiliate indexes")
+
+    # Stock holds with TTL
+    try:
+        await db.stock_holds.create_index(
+            "expires_at", expireAfterSeconds=0
+        )
+        print("  ✓ stock_holds TTL index")
+    except Exception:
+        pass  # May already exist with different options
+
     print("✅ All indexes created successfully")
 
 

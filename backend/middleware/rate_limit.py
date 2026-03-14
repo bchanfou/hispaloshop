@@ -8,10 +8,15 @@ from core.redis_client import redis_manager
 class RateLimiter:
     def __init__(self) -> None:
         self.limits = {
-            "login": (5, 300),
-            "register": (3, 3600),
-            "checkout": (10, 60),
-            "api_general": (100, 60),
+            "login": (5, 300),           # 5 per 5 min
+            "register": (3, 3600),       # 3 per hour
+            "forgot_password": (3, 60),  # 3 per min
+            "checkout": (10, 60),        # 10 per min
+            "hispal_ai": (20, 3600),     # 20 per hour
+            "commercial_ai": (50, 3600), # 50 per hour
+            "payment_create": (10, 60),  # 10 per min
+            "upload": (30, 60),          # 30 per min
+            "api_general": (100, 60),    # 100 per min
         }
 
     async def check(self, request: Request, endpoint_type: str) -> None:

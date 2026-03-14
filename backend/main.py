@@ -151,9 +151,8 @@ app.add_middleware(CSRFMiddleware)
 # 3. Rate Limiting Middleware (100 req/min, burst 50 — páginas de perfil hacen 6+ requests simultáneas)
 app.add_middleware(RateLimitMiddleware, requests_per_minute=100, burst_size=50)
 
-# 4. Request Logging (solo en desarrollo)
-if settings.ENV == "development":
-    app.add_middleware(RequestLoggingMiddleware)
+# 4. Request Logging (all envs — logs slow requests >2s in production)
+app.add_middleware(RequestLoggingMiddleware)
 
 # ============================================
 # API Routes - Stack MongoDB (Funcional)

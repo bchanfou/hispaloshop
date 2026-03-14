@@ -1,5 +1,6 @@
 // craco.config.js
 const path = require("path");
+const webpack = require("webpack");
 require("dotenv").config();
 
 // Check if we're in development/preview mode (not production build)
@@ -64,6 +65,65 @@ const webpackConfig = {
       if (config.enableHealthCheck && healthPluginInstance) {
         webpackConfig.plugins.push(healthPluginInstance);
       }
+
+      // Ignore moment locales (if moment is pulled in transitively)
+      webpackConfig.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^\.\/locale$/,
+          contextRegExp: /moment$/,
+        })
+      );
+
+      // Production: aggressive code splitting
+      if (process.env.NODE_ENV === "production") {
+        webpackConfig.optimization = {
+          ...webpackConfig.optimization,
+          splitChunks: {
+            chunks: "all",
+            maxInitialRequests: 25,
+            minSize: 20000,
+            cacheGroups: {
+              react: {
+                test: /[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom)[\\/]/,
+                name: "vendor-react",
+                chunks: "all",
+                priority: 30,
+              },
+              framer: {
+                test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+                name: "vendor-framer",
+                chunks: "async",
+                priority: 20,
+              },
+              recharts: {
+                test: /[\\/]node_modules[\\/]recharts[\\/]/,
+                name: "vendor-recharts",
+                chunks: "async",
+                priority: 20,
+              },
+              stripe: {
+                test: /[\\/]node_modules[\\/]@stripe[\\/]/,
+                name: "vendor-stripe",
+                chunks: "async",
+                priority: 20,
+              },
+              tanstack: {
+                test: /[\\/]node_modules[\\/]@tanstack[\\/]/,
+                name: "vendor-tanstack",
+                chunks: "all",
+                priority: 20,
+              },
+              vendor: {
+                test: /[\\/]node_modules[\\/]/,
+                name: "vendor",
+                chunks: "all",
+                priority: 10,
+              },
+            },
+          },
+        };
+      }
+
       return webpackConfig;
     },
   },
