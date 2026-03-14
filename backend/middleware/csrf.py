@@ -3,6 +3,7 @@ CSRF Protection Middleware — Double-submit cookie pattern.
 The frontend reads the csrf_token cookie via JS and sends it
 back as X-CSRF-Token header on mutating requests.
 """
+import os
 import secrets
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -23,6 +24,10 @@ CSRF_EXEMPT_PREFIXES = (
 
 class CSRFMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # Disable CSRF when env var is set (JWT + CORS already protect against CSRF)
+        if os.getenv("CSRF_ENABLED", "true").lower() == "false":
+            return await call_next(request)
+
         path = request.url.path
 
         # Safe methods: just ensure the cookie exists
