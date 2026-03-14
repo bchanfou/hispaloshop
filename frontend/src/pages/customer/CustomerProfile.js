@@ -788,6 +788,52 @@ export default function CustomerProfile() {
             />
           </div>
 
+          {/* Affiliate Program */}
+          {user?.role !== 'influencer' && (
+            <div className="bg-white rounded-xl border border-stone-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <Star className="w-5 h-5 text-stone-700" />
+                <div>
+                  <h3 className="text-base font-semibold text-stone-950">Programa de afiliados</h3>
+                  <p className="text-xs text-stone-500">Recomienda productos y gana comisiones</p>
+                </div>
+              </div>
+              {user?.capabilities?.includes('affiliate') ? (
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    style={{ background: 'var(--hs-green-bg)', color: 'var(--hs-green)' }}>
+                    ✓ Activado
+                  </span>
+                  <a href="/influencer/dashboard" className="text-sm font-medium text-stone-950 hover:underline">
+                    Ver mis links y comisiones →
+                  </a>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-stone-500 mb-3 leading-relaxed">
+                    Genera un código de descuento personalizado.
+                    Tus seguidores obtienen 10% de descuento.
+                    Tú ganas entre 3% y 7% de cada venta.
+                  </p>
+                  <button
+                    className="px-4 py-2 bg-stone-950 text-white text-sm font-medium rounded-xl hover:bg-stone-800 transition-colors"
+                    onClick={async () => {
+                      try {
+                        await apiClient.post('/account/enable-affiliate');
+                        toast.success('¡Programa de afiliados activado!');
+                        checkAuth();
+                      } catch (err) {
+                        toast.error(err?.message || 'Error al activar el programa');
+                      }
+                    }}
+                  >
+                    Activar programa de afiliados
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
           {/* Danger Zone */}
           <div className="bg-stone-50 rounded-xl border-2 border-stone-200 p-6">
             <h3 className="font-medium text-stone-700 mb-4 flex items-center gap-2">

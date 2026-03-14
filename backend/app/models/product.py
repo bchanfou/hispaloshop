@@ -1,8 +1,17 @@
 """
 Product, category and certificate models.
 """
+import enum
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
+
+
+class VATType(str, enum.Enum):
+    basic = "basic"        # 4%  — basic foodstuffs (bread, milk, eggs, fruits, vegetables)
+    reduced = "reduced"    # 10% — processed foods (preserves, oil, cheese, cured meats) DEFAULT
+    standard = "standard"  # 21% — non-food or general
+
+VAT_RATES = {"basic": 0.04, "reduced": 0.10, "standard": 0.21}
 
 
 class Category(BaseModel):
@@ -53,6 +62,8 @@ class Product(BaseModel):
     stock: int = 0
     low_stock_threshold: int = 10
     track_stock: bool = True
+    vat_type: VATType = VATType.reduced
+    b2b_enabled: bool = False
 
 
 class Certificate(BaseModel):

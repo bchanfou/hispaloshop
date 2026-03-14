@@ -97,6 +97,49 @@ async def delete_account(input: AccountDeleteInput, user: User = Depends(get_cur
     return {"message": "Account deleted successfully"}
 
 
+@router.post("/enable-affiliate")
+async def enable_affiliate(user: User = Depends(get_current_user)):
+    """Enable affiliate capability for the user. Generates a unique discount code."""
+    if user.role == "influencer":
+        raise HTTPException(status_code=400, detail="Influencers already have affiliate access")
+
+    # Check if already enabled
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "capabilities": 1})
+    capabilities = user_doc.get("capabilities", []) if user_doc else []
+    if "affiliate" in capabilities:
+        return {"message": "Affiliate already enabled"}
+
+    # Generate unique discount code
+    import secrets
+    code = f"HS{user.user_id[:4].upper()}{secrets.token_hex(2).upper()}"
+
+    # Ensure code is unique
+    existing = await db.discount_codes.find_one({"code": code})
+    if existing:
+        code = f"HS{secrets.token_hex(3).upper()}"
+
+    # Add capability
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$addToSet": {"capabilities": "affiliate"}}
+    )
+
+    # Create the affiliate discount code
+    await db.discount_codes.insert_one({
+        "code_id": f"aff_{user.user_id}",
+        "code": code,
+        "type": "percentage",
+        "value": 10,
+        "active": True,
+        "owner_user_id": user.user_id,
+        "is_affiliate_code": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+    logger.info(f"[AFFILIATE] User {user.user_id} enabled affiliate program, code: {code}")
+    return {"message": "Affiliate program enabled", "code": code}
+
+
 @router.put("/withdraw-consent")
 async def withdraw_analytics_consent(user: User = Depends(get_current_user)):
     """

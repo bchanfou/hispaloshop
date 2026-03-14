@@ -20,6 +20,7 @@ import BottomNavBar from './components/BottomNavBar';
 import HispalAI from './components/ai/HispalAI';
 import ScrollToTop from './components/ScrollToTop';
 import AppErrorBoundary from './components/AppErrorBoundary';
+import AppLayout from './components/layout/AppLayout';
 import { SentryErrorBoundary } from './lib/sentry';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from './components/ui/sonner';
@@ -129,6 +130,9 @@ const SearchPage = lazy(() => import('./pages/SearchPage'));
 
 // Checkout
 
+// Role-based onboarding
+const RoleOnboardingPage = lazy(() => import('./pages/auth/RoleOnboardingPage'));
+
 // Landing pages
 const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
@@ -216,6 +220,7 @@ function AppRouter() {
     <>
       <PageTransitionLoader />
       <ScrollToTop />
+      <AppLayout>
       <Suspense fallback={<RouteLoader />}>
         <AnimatePresence mode="wait">
           <motion.div
@@ -292,7 +297,7 @@ function AppRouter() {
               <Route path="/influencer/login" element={<LoginPage />} />
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              <Route path="/register/new" element={<RoleSelector />} />
+              <Route path="/register/new" element={<Navigate to="/register" replace />} />
               <Route path="/register/consumer" element={<ConsumerRegister />} />
               <Route path="/register/influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/register/producer" element={<Navigate to="/productor/registro" replace />} />
@@ -308,6 +313,7 @@ function AppRouter() {
                   </ProtectedRoute>
                 )}
               />
+              <Route path="/onboarding/:role" element={<RoleOnboardingPage />} />
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -542,7 +548,8 @@ function AppRouter() {
           </motion.div>
         </AnimatePresence>
       </Suspense>
-      
+      </AppLayout>
+
       {/* Mini Cart Drawer */}
       <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>

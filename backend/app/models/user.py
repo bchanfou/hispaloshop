@@ -21,6 +21,10 @@ class User(BaseModel):
     company_name: Optional[str] = None
     phone: Optional[str] = None
     whatsapp: Optional[str] = None
+    # Admin country scope — admin can manage multiple countries
+    country_scope: List[str] = []
+    # Extra capabilities on top of the main role (e.g. "affiliate")
+    capabilities: List[str] = []
 
 
 class Address(BaseModel):

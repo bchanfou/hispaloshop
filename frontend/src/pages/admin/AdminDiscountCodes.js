@@ -177,7 +177,7 @@ export default function AdminDiscountCodes() {
 
   const formatValue = (code) => {
     if (code.type === 'percentage') return `${code.value}%`;
-    if (code.type === 'fixed') return `$${code.value.toFixed(2)}`;
+    if (code.type === 'fixed') return `${code.value.toFixed(2)} €`;
     return 'Free Shipping';
   };
 

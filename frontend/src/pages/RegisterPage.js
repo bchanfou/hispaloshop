@@ -1,372 +1,424 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { z } from 'zod';
-import { Shield, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { ConsentSummary, ConsentFullDisclosure } from '../components/ConsentLayers';
-import { useLocale } from '../context/LocaleContext';
 import { useAuth } from '../context/AuthContext';
-import { authApi, getAuthErrorMessage } from '../lib/authApi';
-import { redirectAfterAuth } from '../lib/navigation';
+import { getAuthErrorMessage } from '../lib/authApi';
 
-const baseSchema = z.object({
-  email: z.string().email('Email no válido'),
-  password: z.string().min(6, 'Mínimo 6 caracteres'),
-  name: z.string().min(1, 'El nombre es obligatorio'),
-  country: z.string().min(1, 'El país es obligatorio'),
-});
+const ROLES = [
+  {
+    id: 'customer',
+    emoji: '\uD83D\uDED2',
+    title: 'Comprador',
+    desc: 'Descubre y compra productos artesanales',
+    color: 'var(--hs-blue)',
+    colorBg: 'var(--hs-blue-bg)',
+  },
+  {
+    id: 'producer',
+    emoji: '\uD83E\uDED9',
+    title: 'Productor',
+    desc: 'Vende tus productos en España y exporta',
+    color: 'var(--hs-green)',
+    colorBg: 'var(--hs-green-bg)',
+  },
+  {
+    id: 'influencer',
+    emoji: '\u2B50',
+    title: 'Influencer',
+    desc: 'Comparte y gana comisiones reales',
+    color: 'var(--hs-orange)',
+    colorBg: 'var(--hs-orange-bg)',
+  },
+  {
+    id: 'importer',
+    emoji: '\uD83C\uDF0D',
+    title: 'Importador',
+    desc: 'Importa, distribuye y vende en tu país',
+    color: 'var(--hs-purple)',
+    colorBg: 'var(--hs-purple-bg)',
+  },
+];
 
-const customerSchema = baseSchema.extend({
-  analytics_consent: z.literal(true, {
-    errorMap: () => ({ message: 'Debes aceptar el tratamiento de datos para continuar.' }),
-  }),
-});
+const COUNTRY_OPTIONS = [
+  { code: 'ES', flag: '\uD83C\uDDEA\uD83C\uDDF8', name: 'España' },
+  { code: 'DE', flag: '\uD83C\uDDE9\uD83C\uDDEA', name: 'Alemania' },
+  { code: 'FR', flag: '\uD83C\uDDEB\uD83C\uDDF7', name: 'Francia' },
+  { code: 'IT', flag: '\uD83C\uDDEE\uD83C\uDDF9', name: 'Italia' },
+  { code: 'PT', flag: '\uD83C\uDDF5\uD83C\uDDF9', name: 'Portugal' },
+  { code: 'GB', flag: '\uD83C\uDDEC\uD83C\uDDE7', name: 'Reino Unido' },
+  { code: 'US', flag: '\uD83C\uDDFA\uD83C\uDDF8', name: 'Estados Unidos' },
+  { code: 'MX', flag: '\uD83C\uDDF2\uD83C\uDDFD', name: 'México' },
+  { code: 'CO', flag: '\uD83C\uDDE8\uD83C\uDDF4', name: 'Colombia' },
+  { code: 'AR', flag: '\uD83C\uDDE6\uD83C\uDDF7', name: 'Argentina' },
+  { code: 'JP', flag: '\uD83C\uDDEF\uD83C\uDDF5', name: 'Japón' },
+  { code: 'KR', flag: '\uD83C\uDDF0\uD83C\uDDF7', name: 'Corea del Sur' },
+  { code: 'CN', flag: '\uD83C\uDDE8\uD83C\uDDF3', name: 'China' },
+  { code: 'AE', flag: '\uD83C\uDDE6\uD83C\uDDEA', name: 'Emiratos Árabes Unidos' },
+];
 
-const producerSchema = baseSchema.extend({
-  company_name: z.string().min(1, 'El nombre de la empresa es obligatorio'),
-  phone: z.string().min(1, 'El teléfono es obligatorio'),
-  fiscal_address: z.string().min(5, 'La dirección fiscal es obligatoria'),
-  vat_cif: z.string().min(1, 'El CIF/NIF es obligatorio'),
-});
-
-const influencerSchema = baseSchema.extend({
-  followers: z.preprocess(
-    (value) => parseInt(String(value).replace(/[^0-9]/g, ''), 10),
-    z.number({ invalid_type_error: 'Número de seguidores requerido' }).min(1000, 'Necesitas al menos 1.000 seguidores')
-  ),
-});
-
-const getSchemaForRole = (role) => {
-  if (role === 'producer' || role === 'importer') return producerSchema;
-  if (role === 'influencer') return influencerSchema;
-  return customerSchema;
+const labelStyle = {
+  display: 'block', fontSize: 13, fontWeight: 600,
+  color: 'var(--hs-text-1)', marginBottom: 6,
 };
 
-const COUNTRY_OPTIONS = ['España', 'Portugal', 'Francia', 'Alemania', 'Italia', 'Reino Unido', 'Estados Unidos', 'México', 'Argentina', 'Colombia', 'Chile', 'Perú', 'Brasil', 'Japón', 'Corea del Sur', 'China', 'India', 'Australia'];
+function ErrorMsg({ children, style }) {
+  if (!children) return null;
+  return (
+    <p style={{ fontSize: 12, color: 'var(--hs-red)', marginTop: 4, ...style }}>
+      {children}
+    </p>
+  );
+}
 
-const FIELD_MESSAGES = {
-  email: 'Introduce un email válido.',
-  password: 'La contraseña debe tener al menos 6 caracteres.',
-  name: 'El nombre es obligatorio.',
-  username: 'Revisa el nombre de usuario.',
-  country: 'El país es obligatorio.',
-  company_name: 'El nombre de la empresa es obligatorio.',
-  phone: 'El teléfono es obligatorio.',
-  fiscal_address: 'La dirección fiscal es obligatoria.',
-  vat_cif: 'El CIF/NIF es obligatorio.',
-  followers: 'Necesitas al menos 1.000 seguidores.',
-  analytics_consent: 'Debes aceptar el tratamiento de datos para continuar.',
-};
-
-const backendMessageToField = (message = '') => {
-  const text = message.toLowerCase();
-
-  if (text.includes('email')) return 'email';
-  if (text.includes('password') || text.includes('contrasena') || text.includes('contraseña')) return 'password';
-  if (text.includes('username') || text.includes('usuario')) return 'username';
-  if (text.includes('country') || text.includes('pais') || text.includes('país')) return 'country';
-  if (text.includes('company')) return 'company_name';
-  if (text.includes('phone') || text.includes('telefono') || text.includes('teléfono')) return 'phone';
-  if (text.includes('fiscal')) return 'fiscal_address';
-  if (text.includes('vat') || text.includes('cif') || text.includes('nif')) return 'vat_cif';
-  if (text.includes('followers') || text.includes('seguidores')) return 'followers';
-  if (text.includes('consent') || text.includes('tratamiento de datos')) return 'analytics_consent';
-  if (text.includes('name')) return 'name';
-
-  return null;
-};
-
-const ROLE_COPY = {
-  customer: ['Cuenta personal', 'Crea tu cuenta', 'Empieza a guardar productos, seguir productores y comprar con más contexto desde el primer día.'],
-  influencer: ['Acceso influencer', 'Solicita tu acceso como influencer', 'Cuéntanos quién eres y revisamos tu perfil antes de activar tu espacio dentro de la plataforma.'],
-  importer: ['Acceso importador', 'Abre tu acceso como importador', 'Déjanos tus datos para que puedas validar productores y ordenar mejor tus oportunidades.'],
-  producer: ['Acceso productor', 'Registro de productor', 'Este acceso se gestiona desde la landing de productor para mantener el proceso comercial completo.'],
-};
-
-const inputClass = (hasError) =>
-  `mt-2 h-12 w-full rounded-2xl border bg-white px-3 text-base outline-none focus:border-stone-950 transition-colors md:h-11 md:text-sm ${hasError ? 'border-stone-400' : 'border-stone-200'}`;
-
-const renderField = ({ id, label, required, error, children }) => (
-  <div>
-    <label htmlFor={id} className="text-sm font-medium text-stone-800">
-      {label}{required ? ' *' : ''}
-    </label>
-    {children}
-    {error ? <p className="mt-1 text-xs text-stone-700 md:text-sm">{error}</p> : null}
-  </div>
-);
+function PasswordInput({ value, onChange, error }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div style={{ position: 'relative' }}>
+      <input
+        className="hs-input"
+        type={show ? 'text' : 'password'}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder="Mínimo 8 caracteres"
+        autoComplete="new-password"
+        style={{
+          paddingRight: 44,
+          ...(error ? { borderColor: 'var(--hs-red)' } : {}),
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        style={{
+          position: 'absolute', right: 12, top: '50%',
+          transform: 'translateY(-50%)',
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: 'var(--hs-text-3)', padding: 4,
+        }}
+        tabIndex={-1}
+        aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+      >
+        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
+  );
+}
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const { i18n, t } = useTranslation();
-  const { language } = useLocale();
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role');
-  const intendedRoute = searchParams.get('redirect');
-  const pathName = typeof window !== 'undefined' ? window.location.pathname : '';
-  const pathRole = pathName.includes('/vender') ? 'producer' : pathName.includes('/influencers') ? 'influencer' : pathName.includes('/importer') || pathName.includes('/importador') ? 'importer' : null;
-  const fixedRole = pathRole || roleParam || 'customer';
-  const currentLanguage = i18n.language || language || 'es';
-  const [badge, title, description] = ROLE_COPY[fixedRole] || ROLE_COPY.customer;
 
-  const [formData, setFormData] = useState({
-    email: '', password: '', name: '', username: '', role: fixedRole, country: '',
-    company_name: '', phone: '', whatsapp: '', contact_person: '', fiscal_address: '', vat_cif: '',
-    instagram: '', tiktok: '', youtube: '', twitter: '', followers: '', niche: '',
-    analytics_consent: false, consent_version: '1.0', language: currentLanguage,
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({
+    fullName: '', email: '', password: '', country: '', role: roleParam || '',
   });
-  const [loading, setLoading] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
-  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, role: fixedRole, language: currentLanguage }));
-  }, [fixedRole, currentLanguage]);
-
-  useEffect(() => {
-    if (fixedRole === 'producer') navigate('/productor/registro', { replace: true });
-  }, [fixedRole, navigate]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (formErrors[name]) setFormErrors((prev) => ({ ...prev, [name]: '' }));
+  const updateForm = (field, value) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
   };
 
-  const validateForm = () => {
-    const schema = getSchemaForRole(formData.role);
-    const result = schema.safeParse(formData);
-    if (result.success) {
-      setFormErrors({});
-      return true;
-    }
-    const nextErrors = {};
-    for (const issue of result.error.issues) {
-      const field = issue.path[0];
-      if (field && !nextErrors[field]) nextErrors[field] = issue.message;
-    }
-    setFormErrors(nextErrors);
-    return false;
+  const validateStep1 = () => {
+    const e = {};
+    if (!form.fullName.trim()) e.fullName = 'El nombre es obligatorio';
+    if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) e.email = 'Email no válido';
+    if (form.password.length < 8) e.password = 'Mínimo 8 caracteres';
+    else if (!/[0-9]/.test(form.password)) e.password = 'Debe incluir al menos un número';
+    if (!form.country) e.country = 'Selecciona tu país';
+    setErrors(e);
+    if (Object.keys(e).length === 0) setStep(2);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) {
-      if (formData.role === 'customer' && !formData.analytics_consent) {
-        toast.error('Debes aceptar el tratamiento de datos para continuar.');
-        document.querySelector('[data-testid="consent-section"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        toast.error('Revisa los campos obligatorios antes de continuar.');
-      }
+  const handleRegister = async () => {
+    if (!form.role) {
+      setErrors({ role: 'Elige cómo quieres usar Hispaloshop' });
       return;
     }
-
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const data = await register(formData);
+      const data = await register({
+        name: form.fullName,
+        email: form.email,
+        password: form.password,
+        country: form.country,
+        role: form.role,
+      });
+
       if (data?.user) {
-        if (data.user.role === 'customer' && !data.user.onboarding_completed) navigate('/onboarding', { replace: true });
-        else redirectAfterAuth(data.user, navigate, intendedRoute);
+        navigate(`/onboarding/${form.role}`, { replace: true });
+      } else {
+        toast.success('Cuenta creada. Revisa tu email para verificar.');
+        navigate(`/onboarding/${form.role}`, { replace: true });
       }
-      if (data?.email_delivery_available === false) toast.error(data?.message || 'La cuenta se creó, pero el servicio de email no está configurado.');
-      else if (data?.message) toast.success(data.message);
-      else if (formData.role === 'influencer') toast.success('Registro completado. Revisa tu email para verificar tu cuenta.');
-      else toast.success('Registro completado. Ya puedes empezar.');
-    } catch (error) {
-      const errorMessage = getAuthErrorMessage(error, 'Error de registro. Revisa tus datos e inténtalo de nuevo.');
-      const field = backendMessageToField(errorMessage);
-      if (field) {
-        setFormErrors((prev) => ({ ...prev, [field]: FIELD_MESSAGES[field] || errorMessage }));
+    } catch (err) {
+      const msg = getAuthErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.');
+      if (msg.toLowerCase().includes('email')) {
+        setErrors({ email: 'Este email ya está registrado' });
+        setStep(1);
+      } else {
+        toast.error(msg);
       }
-      toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const isProducer = formData.role === 'producer' || formData.role === 'importer';
-  const isInfluencer = formData.role === 'influencer';
+  const ProgressBar = () => (
+    <div style={{
+      height: 3, background: 'var(--hs-surface-2)',
+      borderRadius: 2, marginBottom: 32,
+    }}>
+      <div style={{
+        height: '100%', borderRadius: 2,
+        background: 'var(--hs-black)',
+        width: step === 1 ? '50%' : '100%',
+        transition: 'width 0.35s ease',
+      }} />
+    </div>
+  );
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50">
-      <div className="safe-area-top sticky top-0 z-40 border-b border-stone-200 bg-white/95 backdrop-blur-md md:hidden">
-        <div className="flex h-14 items-center px-4">
-          <button type="button" onClick={() => navigate('/register/new')} className="-ml-2 rounded-full p-2 text-stone-950 transition-colors hover:bg-stone-100" data-testid="mobile-back-btn">
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <h1 className="flex-1 truncate pr-8 text-center text-sm font-medium text-stone-950">{title}</h1>
+    <div style={{
+      minHeight: '100dvh',
+      background: 'var(--hs-bg)',
+      display: 'flex', alignItems: 'center',
+      justifyContent: 'center', padding: '24px 16px',
+    }}>
+      <div style={{
+        width: '100%', maxWidth: 440,
+        background: 'var(--hs-surface)',
+        borderRadius: 'var(--hs-r-xl)',
+        border: '0.5px solid var(--hs-border)',
+        padding: 'clamp(24px, 5vw, 40px)',
+        boxShadow: 'var(--hs-shadow-lg)',
+      }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <span style={{
+            fontSize: 26, fontWeight: 800,
+            letterSpacing: '-0.03em',
+            color: 'var(--hs-black)',
+          }}>
+            hispaloshop
+          </span>
         </div>
-      </div>
 
-      <div className="hidden md:block"><Header /></div>
+        <ProgressBar />
 
-      <main className="flex-1 px-4 py-4 md:py-12">
-        <div className="mx-auto max-w-2xl">
-          <div className="mb-5 text-center md:mb-8">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.32em] text-stone-500">{badge}</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl" data-testid="register-title">{title}</h1>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-stone-600 md:text-base">{description}</p>
-          </div>
+        {step === 1 ? (
+          <div>
+            <h1 style={{
+              fontSize: 24, fontWeight: 700,
+              letterSpacing: '-0.02em', marginBottom: 4,
+            }}>
+              Crear cuenta
+            </h1>
+            <p style={{
+              fontSize: 15, color: 'var(--hs-text-2)',
+              marginBottom: 28,
+            }}>
+              Ya somos más de 8.000 productores. Únete.
+            </p>
 
-          <section className="rounded-[28px] border border-stone-200 bg-white p-4 shadow-sm md:p-8" data-testid="register-form">
-            <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-              {renderField({ id: 'email', label: t('auth.email', 'Email'), required: true, error: formErrors.email, children: (
-                <input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className={inputClass(formErrors.email)} placeholder="tu@email.com" data-testid="email-input" />
-              )})}
-
-              {renderField({ id: 'password', label: t('auth.password', 'Contraseña'), required: true, error: formErrors.password, children: (
-                <input id="password" name="password" type="password" required value={formData.password} onChange={handleChange} className={inputClass(formErrors.password)} placeholder="Mínimo 6 caracteres" data-testid="password-input" />
-              )})}
-
-              {renderField({ id: 'name', label: isProducer ? 'Nombre de la empresa' : 'Nombre completo', required: true, error: formErrors.name, children: (
-                <input id="name" name="name" required value={formData.name} onChange={handleChange} className={inputClass(formErrors.name)} data-testid="name-input" />
-              )})}
-
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                  <label htmlFor="username" className="text-sm font-medium text-stone-800">Usuario</label>
-                <div className="relative mt-2">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-stone-400">@</span>
-                  <input id="username" name="username" value={formData.username} onChange={handleChange} className={`${inputClass(formErrors.username)} pl-7`} placeholder="tu_nombre_unico" data-testid="username-input" />
-                </div>
-                <p className="mt-1 text-xs text-stone-500">Opcional. Si no lo eliges, se generará automáticamente.</p>
+                <label style={labelStyle}>Nombre completo</label>
+                <input
+                  className="hs-input"
+                  value={form.fullName}
+                  onChange={e => updateForm('fullName', e.target.value)}
+                  placeholder="María García"
+                  autoComplete="name"
+                  style={errors.fullName ? { borderColor: 'var(--hs-red)' } : {}}
+                />
+                <ErrorMsg>{errors.fullName}</ErrorMsg>
               </div>
 
               <div>
-                <label htmlFor="country" className="text-sm font-medium text-stone-800">País *</label>
-                <select id="country" name="country" value={formData.country} onChange={handleChange} className={`${inputClass(formErrors.country)} w-full`} data-testid="country-input">
-                  <option value="">Selecciona tu país</option>
-                  {COUNTRY_OPTIONS.map((country) => <option key={country} value={country}>{country}</option>)}
-                </select>
-                {formErrors.country ? <p className="mt-1 text-xs text-stone-700 md:text-sm">{formErrors.country}</p> : null}
+                <label style={labelStyle}>Email</label>
+                <input
+                  className="hs-input"
+                  type="email"
+                  value={form.email}
+                  onChange={e => updateForm('email', e.target.value)}
+                  placeholder="tu@email.com"
+                  autoComplete="email"
+                  style={errors.email ? { borderColor: 'var(--hs-red)' } : {}}
+                />
+                <ErrorMsg>{errors.email}</ErrorMsg>
               </div>
 
-              {isProducer && (
-                <>
-                  {renderField({ id: 'company_name', label: 'Nombre de la empresa', required: true, error: formErrors.company_name, children: (
-                    <input id="company_name" name="company_name" value={formData.company_name} onChange={handleChange} className={inputClass(formErrors.company_name)} />
-                  )})}
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {renderField({ id: 'phone', label: 'Teléfono', required: true, error: formErrors.phone, children: (
-                      <input id="phone" name="phone" value={formData.phone} onChange={handleChange} className={inputClass(formErrors.phone)} placeholder="+34 600 000 000" />
-                    )})}
-                    {renderField({ id: 'whatsapp', label: 'WhatsApp', required: false, error: null, children: (
-                      <input id="whatsapp" name="whatsapp" value={formData.whatsapp} onChange={handleChange} className={inputClass(false)} placeholder="+34 600 000 000" />
-                    )})}
-                  </div>
-                  {renderField({ id: 'contact_person', label: 'Persona de contacto', required: false, error: null, children: (
-                    <input id="contact_person" name="contact_person" value={formData.contact_person} onChange={handleChange} className={inputClass(false)} />
-                  )})}
-                  {renderField({ id: 'fiscal_address', label: 'Dirección fiscal', required: true, error: formErrors.fiscal_address, children: (
-                    <input id="fiscal_address" name="fiscal_address" value={formData.fiscal_address} onChange={handleChange} className={inputClass(formErrors.fiscal_address)} placeholder="Calle, número, ciudad, CP" />
-                  )})}
-                  {renderField({ id: 'vat_cif', label: 'CIF/NIF', required: true, error: formErrors.vat_cif, children: (
-                    <input id="vat_cif" name="vat_cif" value={formData.vat_cif} onChange={handleChange} className={inputClass(formErrors.vat_cif)} placeholder="B12345678" />
-                  )})}
-                  <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4" data-testid="producer-notice">
-                    <p className="text-sm leading-6 text-stone-700"><strong className="text-stone-950">Nota:</strong> Las cuentas de productores requieren aprobación del administrador antes de empezar a vender.</p>
-                  </div>
-                </>
-              )}
+              <div>
+                <label style={labelStyle}>Contraseña</label>
+                <PasswordInput
+                  value={form.password}
+                  onChange={val => updateForm('password', val)}
+                  error={errors.password}
+                />
+                <p style={{
+                  fontSize: 11, color: 'var(--hs-text-3)', marginTop: 4,
+                }}>
+                  Mínimo 8 caracteres, 1 número y 1 carácter especial
+                </p>
+                <ErrorMsg>{errors.password}</ErrorMsg>
+              </div>
 
-              {isInfluencer && (
-                <>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {renderField({ id: 'instagram', label: 'Instagram', required: false, error: null, children: <input id="instagram" name="instagram" value={formData.instagram} onChange={handleChange} placeholder="@tu_instagram" className={inputClass(false)} /> })}
-                    {renderField({ id: 'tiktok', label: 'TikTok', required: false, error: null, children: <input id="tiktok" name="tiktok" value={formData.tiktok} onChange={handleChange} placeholder="@tu_tiktok" className={inputClass(false)} /> })}
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {renderField({ id: 'youtube', label: 'YouTube', required: false, error: null, children: <input id="youtube" name="youtube" value={formData.youtube} onChange={handleChange} placeholder="URL del canal" className={inputClass(false)} /> })}
-                    {renderField({ id: 'twitter', label: 'X / Twitter', required: false, error: null, children: <input id="twitter" name="twitter" value={formData.twitter} onChange={handleChange} placeholder="@tu_cuenta" className={inputClass(false)} /> })}
-                  </div>
-                  {renderField({ id: 'followers', label: 'Seguidores', required: true, error: formErrors.followers, children: <input id="followers" name="followers" value={formData.followers} onChange={handleChange} placeholder="Ej: 5.000" className={inputClass(formErrors.followers)} /> })}
-                  {renderField({ id: 'niche', label: 'Nicho', required: false, error: null, children: <input id="niche" name="niche" value={formData.niche} onChange={handleChange} placeholder="Recetas, estilo de vida, alimentación..." className={inputClass(false)} /> })}
-                  <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-                    <p className="text-sm leading-6 text-stone-700"><strong className="text-stone-950">Nota:</strong> Las cuentas de influencer requieren aprobación previa. Cuando se apruebe tu acceso podrás activar tu código y empezar a generar comisiones.</p>
-                    <ul className="mt-3 space-y-1 text-sm text-stone-600">
-                      <li>- <strong className="text-stone-950">3% - 7%</strong> de comisión por tier con atribución de 18 meses</li>
-                      <li>- <strong className="text-stone-950">10%</strong> de descuento para tu audiencia</li>
-                      <li>- Requisito mínimo: 1.000 seguidores</li>
-                    </ul>
-                  </div>
-                </>
-              )}
-
-              {formData.role === 'customer' && (
-                <div className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50" data-testid="consent-section">
-                  <div className="border-b border-stone-200 bg-white px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-stone-950" />
-                      <span className="text-sm font-medium text-stone-950 md:text-base">Consentimiento de tratamiento de datos</span>
-                      <span className="rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white md:text-xs">Obligatorio</span>
-                    </div>
-                  </div>
-                  <div className="border-b border-stone-200 p-4"><ConsentSummary /></div>
-                  <div className="px-4 py-3"><ConsentFullDisclosure isExpanded={showConsentModal} onToggle={() => setShowConsentModal((prev) => !prev)} /></div>
-                  <div className="border-t border-stone-200 bg-white px-4 py-4">
-                    <label htmlFor="analytics_consent" className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-3 transition-colors ${formData.analytics_consent ? 'border-stone-900 bg-stone-100' : 'border-stone-200 bg-stone-50 hover:border-stone-400'}`} data-testid="consent-label">
-                      <input type="checkbox" id="analytics_consent" checked={formData.analytics_consent} onChange={(e) => setFormData((prev) => ({ ...prev, analytics_consent: e.target.checked }))} className="mt-0.5 h-5 w-5 cursor-pointer rounded border-stone-400 accent-stone-950" data-testid="consent-checkbox" />
-                      <div className="min-w-0 flex-1">
-                        <span className="block text-sm font-medium text-stone-950 md:text-base">Acepto el tratamiento de datos para personalización y asistencia<span className="ml-1 text-stone-400">*</span></span>
-                        <span className="mt-1 block text-xs text-stone-500 md:text-sm">Es necesario para crear la cuenta y activar la experiencia personalizada.</span>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              <button type="submit" disabled={loading} className="h-12 w-full rounded-full bg-stone-950 text-base font-medium text-white transition-colors hover:bg-black disabled:opacity-50 md:h-11 md:text-sm" data-testid="register-submit-button">
-                {loading ? 'Creando cuenta...' : 'Crear cuenta'}
-              </button>
-            </form>
-
-            {formData.role === 'customer' && (
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-stone-200" /></div>
-                  <div className="relative flex justify-center text-xs md:text-sm"><span className="bg-white px-4 text-stone-500">o continuar con</span></div>
-                </div>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      const data = await authApi.getGoogleAuthUrl();
-                      if (data.auth_url) window.location.href = data.auth_url;
-                      else toast.error('Error al conectar con Google.');
-                    } catch (error) {
-                      toast.error(getAuthErrorMessage(error, 'Error al conectar con Google.'));
-                    }
-                  }}
-                  className="mt-4 flex h-12 w-full items-center justify-center gap-3 rounded-full border border-stone-200 bg-white text-base font-medium text-stone-950 transition-colors hover:bg-stone-50 md:h-11 md:text-sm"
-                  data-testid="google-register-button"
+              <div>
+                <label style={labelStyle}>País</label>
+                <select
+                  className="hs-input"
+                  value={form.country}
+                  onChange={e => updateForm('country', e.target.value)}
+                  style={errors.country ? { borderColor: 'var(--hs-red)' } : {}}
                 >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fill="#0A0A0A" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#0A0A0A" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#0A0A0A" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                    <path fill="#0A0A0A" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                  </svg>
-                  Registrarte con Google
-                </button>
+                  <option value="">Selecciona tu país</option>
+                  {COUNTRY_OPTIONS.map(c => (
+                    <option key={c.code} value={c.code}>
+                      {c.flag} {c.name}
+                    </option>
+                  ))}
+                </select>
+                <ErrorMsg>{errors.country}</ErrorMsg>
               </div>
-            )}
-
-            <div className="mt-6 border-t border-stone-200 pt-6 text-center text-sm text-stone-600">
-              ¿Ya tienes cuenta? <Link to="/login" className="font-medium text-stone-950 transition-colors hover:text-black" data-testid="login-link">Iniciar sesión</Link>
             </div>
-            <div className="mt-4 space-y-1 text-center text-xs text-stone-500">
-              {fixedRole !== 'producer' && <p>¿Vienes como productor? <Link to="/productor/registro" className="font-medium text-stone-950 transition-colors hover:text-black">Solicita acceso</Link></p>}
-              {fixedRole !== 'influencer' && <p>¿Prefieres aplicar como influencer? <Link to="/influencer/aplicar" className="font-medium text-stone-950 transition-colors hover:text-black">Ir al programa</Link></p>}
-              {fixedRole !== 'customer' && <p>¿Solo quieres comprar? <Link to="/register?role=customer" className="font-medium text-stone-950 transition-colors hover:text-black">Crear cuenta personal</Link></p>}
-            </div>
-          </section>
-        </div>
-      </main>
 
-      <div className="hidden md:block"><Footer /></div>
+            <button
+              className="hs-btn-primary"
+              onClick={validateStep1}
+              style={{ width: '100%', marginTop: 24, height: 48 }}
+            >
+              Continuar →
+            </button>
+
+            <p style={{
+              textAlign: 'center', marginTop: 20,
+              fontSize: 14, color: 'var(--hs-text-2)',
+            }}>
+              ¿Ya tienes cuenta?{' '}
+              <Link to="/login" style={{
+                color: 'var(--hs-black)', fontWeight: 600, textDecoration: 'none',
+              }}>
+                Iniciar sesión
+              </Link>
+            </p>
+          </div>
+        ) : (
+          <div>
+            <button
+              onClick={() => setStep(1)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--hs-text-2)', fontSize: 14,
+                display: 'flex', alignItems: 'center', gap: 6,
+                marginBottom: 20, padding: 0,
+              }}
+            >
+              ← Volver
+            </button>
+
+            <h2 style={{
+              fontSize: 22, fontWeight: 700,
+              letterSpacing: '-0.02em', marginBottom: 6,
+            }}>
+              ¿Cómo quieres usar Hispaloshop?
+            </h2>
+            <p style={{
+              fontSize: 14, color: 'var(--hs-text-2)', marginBottom: 24,
+            }}>
+              Puedes cambiar esto más adelante desde tu perfil.
+            </p>
+
+            <div style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
+            }}>
+              {ROLES.map(role => (
+                <motion.button
+                  key={role.id}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => updateForm('role', role.id)}
+                  style={{
+                    background: form.role === role.id
+                      ? role.colorBg : 'var(--hs-surface)',
+                    border: form.role === role.id
+                      ? `2px solid ${role.color}`
+                      : '1.5px solid var(--hs-border)',
+                    borderRadius: 'var(--hs-r-lg)',
+                    padding: '18px 14px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'var(--hs-transition)',
+                  }}
+                >
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>
+                    {role.emoji}
+                  </div>
+                  <p style={{
+                    fontSize: 15, fontWeight: 700,
+                    color: 'var(--hs-text-1)', margin: '0 0 4px',
+                  }}>
+                    {role.title}
+                  </p>
+                  <p style={{
+                    fontSize: 12, color: 'var(--hs-text-2)',
+                    margin: 0, lineHeight: 1.4,
+                  }}>
+                    {role.desc}
+                  </p>
+                  {form.role === role.id && (
+                    <div style={{
+                      marginTop: 8, fontSize: 11, fontWeight: 700,
+                      color: role.color,
+                    }}>
+                      ✓ Seleccionado
+                    </div>
+                  )}
+                </motion.button>
+              ))}
+            </div>
+            <ErrorMsg style={{ marginTop: 8 }}>{errors.role}</ErrorMsg>
+
+            <p style={{
+              fontSize: 12, color: 'var(--hs-text-3)',
+              textAlign: 'center', marginTop: 16, lineHeight: 1.5,
+            }}>
+              Todos los planes empiezan gratis. Actualiza cuando estés listo.
+            </p>
+
+            <button
+              className="hs-btn-primary"
+              onClick={handleRegister}
+              disabled={!form.role || isLoading}
+              style={{ width: '100%', marginTop: 16, height: 48 }}
+            >
+              {isLoading ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Creando cuenta...</>
+              ) : (
+                'Crear mi cuenta →'
+              )}
+            </button>
+
+            <p style={{
+              fontSize: 11, color: 'var(--hs-text-3)',
+              textAlign: 'center', marginTop: 14, lineHeight: 1.6,
+            }}>
+              Al crear una cuenta aceptas los{' '}
+              <Link to="/terms" style={{ color: 'var(--hs-text-2)' }}>
+                Términos de uso
+              </Link>{' '}
+              y la{' '}
+              <Link to="/privacy" style={{ color: 'var(--hs-text-2)' }}>
+                Política de privacidad
+              </Link>
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

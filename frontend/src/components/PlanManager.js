@@ -116,7 +116,7 @@ export default function PlanManager() {
               className="flex-1 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl h-10 text-sm transition-colors flex items-center justify-center"
               data-testid="upgrade-elite"
             >
-              {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Crown className="w-4 h-4 mr-1" /> Upgrade a ELITE (17%)</>}
+              {changing ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Crown className="w-4 h-4 mr-1" /> Upgrade a ELITE (15%)</>}
             </button>
           )}
         </div>

@@ -82,7 +82,7 @@ function MonthlyChart({ data }) {
             formatter={(val, name) => [`${val.toFixed(2)}€`, name]}
           />
           <Bar dataKey="Bruto" fill="#d4c5a9" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="Neto" fill="#2D5A27" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="Neto" fill="#1c1917" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

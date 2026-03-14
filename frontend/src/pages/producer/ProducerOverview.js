@@ -130,8 +130,8 @@ function StripeConnectSection() {
               )}
             </p>
             <p className="text-xs text-stone-500 mt-1">
-              {isConnected 
-                ? 'Recibirás el 82% de cada venta automáticamente.'
+              {isConnected
+                ? 'Recibirás tu porcentaje de cada venta automáticamente según tu plan.'
                 : 'Conecta Stripe para recibir pagos.'}
             </p>
             {!isConnected && pendingRequirements.length > 0 && (

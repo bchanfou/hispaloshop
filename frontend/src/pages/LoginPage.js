@@ -5,9 +5,17 @@ import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Lock, Mail } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Lock, Mail, Loader2 } from 'lucide-react';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
-import { redirectAfterAuth } from '../lib/navigation';
+
+const ROLE_DESTINATIONS = {
+  customer:    '/feed',
+  producer:    '/producer',
+  importer:    '/importer/dashboard',
+  influencer:  '/influencer/dashboard',
+  admin:       '/admin',
+  super_admin: '/super-admin',
+};
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -16,15 +24,34 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [loginMethod, setLoginMethod] = useState('email');
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState('');
 
   const intendedRoute = useMemo(() => {
-    const redirectParam = new URLSearchParams(location.search).get('redirect');
-    return redirectParam || location.state?.from?.pathname || null;
+    const params = new URLSearchParams(location.search);
+    return params.get('next') || params.get('redirect') || location.state?.from?.pathname || null;
   }, [location.search, location.state]);
+
+  const validate = () => {
+    const e = {};
+    if (!formData.email.trim()) {
+      e.email = 'El email es obligatorio';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()) && !formData.email.includes('@')) {
+      e.email = 'Email no válido';
+    }
+    if (!formData.password) {
+      e.password = 'La contraseña es obligatoria';
+    }
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
+    setLoginError('');
+    if (!validate()) return;
     setLoading(true);
 
     try {
@@ -34,16 +61,25 @@ export default function LoginPage() {
       });
 
       if (data?.user) {
+        toast.success(t('auth.loginSuccess', 'Has iniciado sesión correctamente.'));
+
+        if (intendedRoute) {
+          navigate(intendedRoute, { replace: true });
+          return;
+        }
+
         if (data.user.role === 'customer' && !data.user.onboarding_completed) {
           navigate('/onboarding', { replace: true });
-        } else {
-          redirectAfterAuth(data.user, navigate, intendedRoute);
+          return;
         }
-      }
 
-      toast.success(t('auth.loginSuccess', 'Has iniciado sesión correctamente.'));
+        const dest = ROLE_DESTINATIONS[data.user.role] || '/feed';
+        navigate(dest, { replace: true });
+      }
     } catch (error) {
-      toast.error(getAuthErrorMessage(error, t('auth.loginError', 'No hemos podido iniciar tu sesión.')));
+      const msg = getAuthErrorMessage(error, t('auth.loginError', 'No hemos podido iniciar tu sesión.'));
+      setLoginError('Email o contraseña incorrectos');
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -62,8 +98,14 @@ export default function LoginPage() {
     }
   };
 
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
+    if (loginError) setLoginError('');
+  };
+
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50">
+    <div className="flex min-h-screen flex-col" style={{ background: 'var(--hs-bg)' }}>
       <div className="safe-area-top sticky top-0 z-40 border-b border-stone-200 bg-white/95 backdrop-blur-md md:hidden">
         <div className="flex h-14 items-center px-4">
           <button
@@ -86,36 +128,48 @@ export default function LoginPage() {
       </div>
 
       <main className="flex flex-1 items-center justify-center px-4 py-6 md:py-12">
-        <div className="w-full max-w-md">
-          <div className="mb-5 px-1 text-center md:mb-8">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.32em] text-stone-500">
-              Acceso
-            </p>
-            <h1 className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">
-              Vuelve a tu cuenta
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-stone-600 md:text-base">
-              Entra para seguir comprando con contexto, guardar productores y retomar tus conversaciones.
-            </p>
-          </div>
-
+        <div className="w-full" style={{ maxWidth: 400 }}>
           <section
-            className="rounded-[28px] border border-stone-200 bg-white p-6 shadow-sm md:p-8"
+            className="bg-white p-6 md:p-8"
+            style={{
+              borderRadius: 'var(--hs-r-xl)',
+              border: '0.5px solid var(--hs-border)',
+              boxShadow: 'var(--hs-shadow-lg)',
+            }}
             data-testid="login-form"
           >
-            <div className="mb-6 flex items-center justify-center gap-3 md:mb-8">
-              <img src="/logo.png" alt="Hispaloshop" className="h-9 w-9 object-contain" />
-              <div className="text-left">
-                <p className="text-sm font-semibold text-stone-950">Hispaloshop</p>
-                <p className="text-xs text-stone-500">Comida real, trazabilidad y comunidad</p>
-              </div>
+            {/* Logo */}
+            <div className="mb-7 text-center">
+              <span style={{
+                fontSize: 28, fontWeight: 800,
+                letterSpacing: '-0.03em',
+                color: 'var(--hs-black)',
+              }}>
+                hispaloshop
+              </span>
             </div>
+
+            <h1 style={{
+              fontSize: 22, fontWeight: 700,
+              letterSpacing: '-0.02em',
+              color: 'var(--hs-text-1)',
+              marginBottom: 4,
+              textAlign: 'center',
+            }}>
+              Bienvenido
+            </h1>
+            <p style={{
+              fontSize: 15, color: 'var(--hs-text-2)',
+              textAlign: 'center', marginBottom: 24,
+            }}>
+              Inicia sesión para continuar
+            </p>
 
             <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-stone-100 p-1">
               <button
                 type="button"
                 onClick={() => setLoginMethod('email')}
-                className={`rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                   loginMethod === 'email'
                     ? 'bg-stone-950 text-white'
                     : 'text-stone-600 hover:bg-white hover:text-stone-950'
@@ -127,7 +181,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setLoginMethod('google')}
-                className={`rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                   loginMethod === 'google'
                     ? 'bg-stone-950 text-white'
                     : 'text-stone-600 hover:bg-white hover:text-stone-950'
@@ -140,66 +194,118 @@ export default function LoginPage() {
 
             {loginMethod === 'email' ? (
               <form onSubmit={handleEmailLogin} className="space-y-4">
+                {/* Email */}
                 <div>
-                  <label htmlFor="email" className="text-sm font-medium text-stone-800">
-                    {t('auth.emailOrUsername', 'Email o usuario')}
+                  <label htmlFor="email" style={{
+                    display: 'block', fontSize: 13, fontWeight: 600,
+                    color: 'var(--hs-text-1)', marginBottom: 6,
+                  }}>
+                    Email
                   </label>
-                  <div className="relative mt-2">
-                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-                    <input
-                      id="email"
-                      type="text"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full h-12 rounded-2xl border border-stone-200 bg-white pl-10 text-base outline-none focus:border-stone-950 transition-colors md:h-11 md:text-sm"
-                      placeholder="tu@email.com o tu_usuario"
-                      data-testid="email-input"
-                    />
-                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    className="hs-input"
+                    value={formData.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    placeholder="tu@email.com"
+                    autoComplete="email"
+                    data-testid="email-input"
+                    style={errors.email ? { borderColor: 'var(--hs-red)' } : {}}
+                  />
+                  {errors.email && (
+                    <p style={{ fontSize: 12, color: 'var(--hs-red)', marginTop: 4 }}>
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
 
+                {/* Password with toggle */}
                 <div>
-                  <label htmlFor="password" className="text-sm font-medium text-stone-800">
-                    {t('auth.password', 'Contraseña')}
+                  <label htmlFor="password" style={{
+                    display: 'block', fontSize: 13, fontWeight: 600,
+                    color: 'var(--hs-text-1)', marginBottom: 6,
+                  }}>
+                    Contraseña
                   </label>
-                  <div className="relative mt-2">
-                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                  <div style={{ position: 'relative' }}>
                     <input
                       id="password"
-                      type="password"
-                      required
+                      type={showPassword ? 'text' : 'password'}
+                      className="hs-input"
                       value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="w-full h-12 rounded-2xl border border-stone-200 bg-white pl-10 text-base outline-none focus:border-stone-950 transition-colors md:h-11 md:text-sm"
+                      onChange={(e) => handleChange('password', e.target.value)}
                       placeholder="Introduce tu contraseña"
+                      autoComplete="current-password"
                       data-testid="password-input"
+                      style={{
+                        paddingRight: 44,
+                        ...(errors.password ? { borderColor: 'var(--hs-red)' } : {}),
+                      }}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: 'absolute', right: 12, top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--hs-text-3)', padding: 4,
+                      }}
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
+                  {errors.password && (
+                    <p style={{ fontSize: 12, color: 'var(--hs-red)', marginTop: 4 }}>
+                      {errors.password}
+                    </p>
+                  )}
                   <div className="mt-2 text-right">
                     <Link
                       to="/forgot-password"
-                      className="text-sm text-stone-500 transition-colors hover:text-stone-950"
+                      className="text-sm transition-colors hover:text-stone-950"
+                      style={{ color: 'var(--hs-text-2)' }}
                     >
-                      {t('auth.forgotPassword', '¿Has olvidado tu contraseña?')}
+                      {t('auth.forgotPassword', '¿Olvidaste tu contraseña?')}
                     </Link>
                   </div>
                 </div>
 
+                {/* Login error */}
+                {loginError && (
+                  <p style={{
+                    fontSize: 13, color: 'var(--hs-red)',
+                    textAlign: 'center', padding: '8px 12px',
+                    background: 'var(--hs-red-bg)',
+                    borderRadius: 'var(--hs-r-md)',
+                  }}>
+                    {loginError}
+                  </p>
+                )}
+
                 <button
                   type="submit"
                   disabled={loading}
-                  className="h-12 w-full rounded-full bg-stone-950 text-base font-medium text-white transition-colors hover:bg-black disabled:opacity-50 md:h-11 md:text-sm"
+                  className="hs-btn-primary"
+                  style={{ width: '100%', height: 48 }}
                   data-testid="email-login-button"
                 >
-                  {loading ? t('common.loading', 'Cargando...') : t('auth.login', 'Iniciar sesión')}
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    t('auth.login', 'Iniciar sesión')
+                  )}
                 </button>
               </form>
             ) : (
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-stone-200 bg-white text-base font-medium text-stone-950 transition-colors hover:bg-stone-50 md:h-11 md:text-sm"
+                className="hs-btn-secondary"
+                style={{ width: '100%', height: 48 }}
                 data-testid="google-login-button"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
@@ -212,25 +318,16 @@ export default function LoginPage() {
               </button>
             )}
 
-            <div className="mt-6 space-y-3 border-t border-stone-200 pt-6 text-center">
-              <p className="text-sm text-stone-600">
-                {t('auth.noAccount', '¿Aún no tienes cuenta?')}{' '}
+            {/* Separator + register link */}
+            <div className="mt-6 border-t pt-6 text-center" style={{ borderColor: 'var(--hs-border)' }}>
+              <p style={{ fontSize: 14, color: 'var(--hs-text-2)' }}>
+                ¿Aún no tienes cuenta?{' '}
                 <Link
-                  to="/register/new"
-                  className="font-medium text-stone-950 transition-colors hover:text-black"
+                  to="/register"
+                  style={{ color: 'var(--hs-black)', fontWeight: 600, textDecoration: 'none' }}
                   data-testid="register-link"
                 >
-                  {t('auth.register', 'Crear cuenta')}
-                </Link>
-              </p>
-              <p className="text-sm text-stone-600">
-                ¿Eres productor?{' '}
-                <Link
-                  to="/productor"
-                  className="font-medium text-stone-950 transition-colors hover:text-black"
-                  data-testid="producer-signup-link"
-                >
-                  Solicita acceso aquí
+                  Crear cuenta →
                 </Link>
               </p>
             </div>

@@ -641,11 +641,11 @@ label {
   letter-spacing: 0.05em;
 }
 
-/* Status colors for health score */
-.health-score-excellent { background: linear-gradient(135deg, #2D5A27 0%, #1a3d17 100%); }
-.health-score-good { background: linear-gradient(135deg, #3d7a37 0%, #2D5A27 100%); }
-.health-score-fair { background: linear-gradient(135deg, #B8860B 0%, #8B6508 100%); }
-.health-score-poor { background: linear-gradient(135deg, #C41E3A 0%, #8B1528 100%); }
+/* Status colors for health score — stone palette */
+.health-score-excellent { background: linear-gradient(135deg, #1c1917 0%, #0c0a09 100%); }
+.health-score-good { background: linear-gradient(135deg, #292524 0%, #1c1917 100%); }
+.health-score-fair { background: linear-gradient(135deg, #57534e 0%, #44403c 100%); }
+.health-score-poor { background: linear-gradient(135deg, #78716c 0%, #57534e 100%); }
 
 /* ===== QUICK ACTIONS MOBILE ===== */
 .quick-action-item {

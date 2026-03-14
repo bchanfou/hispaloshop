@@ -13,6 +13,36 @@ from ..models.commerce import ReviewCreateInput
 router = APIRouter(tags=["Reviews"])
 
 
+async def recalculate_store_rating(producer_id: str):
+    """Recalculate store rating from all non-hidden reviews of the producer's products."""
+    producer_products = await db.products.find(
+        {"producer_id": producer_id},
+        {"product_id": 1, "_id": 0}
+    ).to_list(10000)
+    product_ids = [p["product_id"] for p in producer_products]
+    if not product_ids:
+        return
+
+    pipeline = [
+        {"$match": {"product_id": {"$in": product_ids}, "hidden": {"$ne": True}}},
+        {"$group": {"_id": None, "avg": {"$avg": "$rating"}, "count": {"$sum": 1}}}
+    ]
+    result = await db.reviews.aggregate(pipeline).to_list(1)
+    if result:
+        await db.stores.update_one(
+            {"producer_id": producer_id},
+            {"$set": {
+                "rating": round(result[0]["avg"], 1),
+                "review_count": result[0]["count"]
+            }}
+        )
+    else:
+        await db.stores.update_one(
+            {"producer_id": producer_id},
+            {"$set": {"rating": 0.0, "review_count": 0}}
+        )
+
+
 @router.get("/products/{product_id}/reviews")
 async def get_product_reviews(product_id: str, limit: int = 20):
     """Get reviews for a product."""
@@ -83,7 +113,15 @@ async def create_review(input: ReviewCreateInput, user: User = Depends(get_curre
     
     await db.reviews.insert_one(review)
     review.pop("_id", None)
-    
+
+    # Recalculate the store rating for the product's producer
+    product = await db.products.find_one(
+        {"product_id": input.product_id},
+        {"_id": 0, "producer_id": 1}
+    )
+    if product and product.get("producer_id"):
+        await recalculate_store_rating(product["producer_id"])
+
     return review
 
 

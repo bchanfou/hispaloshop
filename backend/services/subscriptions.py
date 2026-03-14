@@ -22,7 +22,7 @@ STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 SELLER_PLANS = {
     "FREE":  {"price_monthly": 0,   "currency": "eur", "commission_rate": 0.20, "label": "Free",  "stripe_price_id": None},
     "PRO":   {"price_monthly": 79,  "currency": "eur", "commission_rate": 0.18, "label": "Pro",   "stripe_price_id": None},
-    "ELITE": {"price_monthly": 149, "currency": "eur", "commission_rate": 0.17, "label": "Elite", "stripe_price_id": None},
+    "ELITE": {"price_monthly": 249, "currency": "eur", "commission_rate": 0.15, "label": "Elite", "stripe_price_id": None},
 }
 
 INFLUENCER_TIERS = {
@@ -39,7 +39,11 @@ INFLUENCER_TIERS = {
 
 ATTRIBUTION_LOCK_MONTHS = 18
 INFLUENCER_PAYOUT_DELAY_DAYS = 15
-INFLUENCER_MIN_PAYOUT_USD = 50
+INFLUENCER_MIN_PAYOUT_EUR = 20
+INFLUENCER_PAYOUT_CURRENCY = "eur"
+INFLUENCER_DISCOUNT_PCT = 10  # 10% first-purchase discount with influencer code
+B2B_INTERMEDIARY_COMMISSION_BPS = 300  # 3% on B2B international transactions
+PLATFORM_COMMISSION_DEFAULT_BPS = 2000  # 20% for FREE plan
 GRACE_PERIOD_DAYS = 3
 
 SUBSCRIPTION_TIER_ORDER = {"free": 0, "pro": 1, "elite": 2}
@@ -55,19 +59,9 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "price_yearly": 0,
         "commission_rate": None,
         "features": ["basic_feed", "standard_checkout"],
-        "limits": {"hi_ai_queries": 5},
+        "limits": {"hi_ai_queries": 20},
     },
-    {
-        "name": "consumer_pro",
-        "display_name": "Consumer PRO",
-        "tier": "pro",
-        "user_type": "consumer",
-        "price_monthly": 9.99,
-        "price_yearly": 95.90,
-        "commission_rate": None,
-        "features": ["hi_ai_unlimited", "priority_support", "free_shipping_25"],
-        "limits": {"hi_ai_queries": -1},
-    },
+    # consumer_pro REMOVED — consumers are always FREE
     {
         "name": "producer_free",
         "display_name": "Producer Free",
@@ -77,17 +71,17 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "price_yearly": 0,
         "commission_rate": 0.20,
         "features": ["basic_listing", "email_support"],
-        "limits": {"products": 10},
+        "limits": {"products": -1},
     },
     {
         "name": "producer_pro",
         "display_name": "Producer PRO",
         "tier": "pro",
         "user_type": "producer",
-        "price_monthly": 9.99,
-        "price_yearly": 95.90,
+        "price_monthly": 79,
+        "price_yearly": 852.12,
         "commission_rate": 0.18,
-        "features": ["advanced_analytics", "hi_ai_price_optimization", "pro_badge"],
+        "features": ["advanced_analytics", "hi_ai_price_optimization", "pro_badge", "influencer_matching"],
         "limits": {"products": -1},
     },
     {
@@ -95,10 +89,21 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "display_name": "Producer ELITE",
         "tier": "elite",
         "user_type": "producer",
-        "price_monthly": 29.99,
-        "price_yearly": 287.90,
-        "commission_rate": 0.17,
-        "features": ["advanced_analytics", "hi_ai_price_optimization", "api_access", "dedicated_manager"],
+        "price_monthly": 249,
+        "price_yearly": 2688.12,
+        "commission_rate": 0.15,
+        "features": ["advanced_analytics", "hi_ai_price_optimization", "commercial_ai_agent", "b2b_international", "dedicated_manager"],
+        "limits": {"products": -1},
+    },
+    {
+        "name": "importer_free",
+        "display_name": "Importer Free",
+        "tier": "free",
+        "user_type": "importer",
+        "price_monthly": 0,
+        "price_yearly": 0,
+        "commission_rate": 0.20,
+        "features": ["basic_listing", "email_support"],
         "limits": {"products": -1},
     },
     {
@@ -106,10 +111,10 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "display_name": "Importer PRO",
         "tier": "pro",
         "user_type": "importer",
-        "price_monthly": 9.99,
-        "price_yearly": 95.90,
+        "price_monthly": 79,
+        "price_yearly": 852.12,
         "commission_rate": 0.18,
-        "features": ["advanced_analytics", "priority_support", "hi_ai_price_optimization"],
+        "features": ["advanced_analytics", "priority_support", "hi_ai_price_optimization", "influencer_matching"],
         "limits": {"products": -1},
     },
     {
@@ -117,10 +122,10 @@ SUBSCRIPTION_PLAN_CATALOG = [
         "display_name": "Importer ELITE",
         "tier": "elite",
         "user_type": "importer",
-        "price_monthly": 29.99,
-        "price_yearly": 287.90,
-        "commission_rate": 0.17,
-        "features": ["advanced_analytics", "api_access", "dedicated_manager"],
+        "price_monthly": 249,
+        "price_yearly": 2688.12,
+        "commission_rate": 0.15,
+        "features": ["advanced_analytics", "commercial_ai_agent", "b2b_international", "dedicated_manager"],
         "limits": {"products": -1},
     },
 ]
