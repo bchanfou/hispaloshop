@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r export.*AdminProducts c:/hispaloshop/frontend/src/pages/admin/)",
+      "Bash(ls -1 /c/hispaloshop/backend/routes/*.py)",
+      "Bash(grep -E '\\\\.\\(js|jsx|ts|tsx\\)$')",
+      "Bash(grep -r export.*Context /c/hispaloshop/frontend/src/context --include=*.js --include=*.jsx)",
+      "Bash(pip show:*)",
+      "Bash(npm install:*)",
+      "Bash(npx craco:*)"
+    ]
+  }
+}

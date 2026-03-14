@@ -60,7 +60,9 @@ export function useUploadProducerImageMutation() {
         timeout: 30000,
       });
 
-      return resolveApiAssetUrl(data.url);
+      const rawUrl = data.url || data.path || data.image_url;
+      if (!rawUrl) throw new Error('Upload succeeded but server returned no URL');
+      return resolveApiAssetUrl(rawUrl);
     },
   });
 }

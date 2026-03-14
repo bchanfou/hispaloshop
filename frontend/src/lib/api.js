@@ -231,7 +231,7 @@ class HispaloAPI {
           return normalized(legacyData);
         }
       } catch (legacyError) {
-        console.warn('[feed] legacy /feed fallback failed', legacyError);
+        // silently handled
       }
 
       try {
@@ -240,10 +240,9 @@ class HispaloAPI {
         const modularData = await this.get(`/posts/feed?type=${type}&page=${page}&limit=${params.limit || 20}`);
         return normalized(modularData);
       } catch (modularError) {
-        console.warn('[feed] /posts/feed fallback failed', modularError);
+        // silently handled
       }
 
-      console.error('[feed] all feed fallbacks failed', primaryError);
       return {
         items: [],
         has_more: false,
@@ -350,13 +349,13 @@ class HispaloAPI {
       return this.ws;
     }
 
-    const token = getToken();
-    const wsUrl = `${WS_BASE_URL}?token=${token}`;
-    
-    this.ws = new WebSocket(wsUrl);
-    
+    this.ws = new WebSocket(WS_BASE_URL);
+
     this.ws.onopen = () => {
-      console.log('[WebSocket] Conectado');
+      const token = getToken();
+      if (token) {
+        this.ws.send(JSON.stringify({ type: 'auth', token }));
+      }
       this.reconnectAttempts = 0;
       this.emit('connected', {});
     };
@@ -366,18 +365,16 @@ class HispaloAPI {
         const { type, payload } = JSON.parse(event.data);
         this.emit(type, payload);
       } catch (error) {
-        console.error('[WebSocket] Error parsing message:', error);
+        // silently handled
       }
     };
 
     this.ws.onclose = () => {
-      console.log('[WebSocket] Desconectado');
       this.emit('disconnected', {});
       this.attemptReconnect();
     };
 
     this.ws.onerror = (error) => {
-      console.error('[WebSocket] Error:', error);
       this.emit('error', error);
     };
 
@@ -389,15 +386,12 @@ class HispaloAPI {
    */
   attemptReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('[WebSocket] Máximo de reconexiones alcanzado');
       return;
     }
 
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-    
-    console.log(`[WebSocket] Reconectando en ${delay}ms...`);
-    
+
     setTimeout(() => {
       this.connectWebSocket();
     }, delay);
@@ -409,8 +403,6 @@ class HispaloAPI {
   send(type, payload) {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ type, payload }));
-    } else {
-      console.warn('[WebSocket] No conectado');
     }
   }
 

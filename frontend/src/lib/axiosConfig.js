@@ -47,10 +47,6 @@ const onTokenRefreshed = () => {
 // Interceptor de requests
 apiClient.interceptors.request.use(
   (config) => {
-    // Log en desarrollo
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
-    }
     return config;
   },
   (error) => {
@@ -68,7 +64,6 @@ apiClient.interceptors.response.use(
 
     // Si no hay response, es error de red
     if (!error.response) {
-      console.error('[API] Network Error:', error.message);
       return Promise.reject(error);
     }
 
@@ -101,7 +96,6 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         }
       } catch (refreshError) {
-        console.error('[API] Refresh failed:', refreshError);
         // Redirigir a login
         window.location.href = '/login?expired=true';
         return Promise.reject(refreshError);

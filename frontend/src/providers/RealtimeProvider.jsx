@@ -81,12 +81,10 @@ export function RealtimeProvider({ children }) {
 
     const handleConnected = () => {
       setIsConnected(true);
-      console.log('[Realtime] WebSocket conectado');
     };
 
     const handleDisconnected = () => {
       setIsConnected(false);
-      console.log('[Realtime] WebSocket desconectado');
     };
 
     // Subscribirse a eventos

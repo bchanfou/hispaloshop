@@ -129,7 +129,10 @@ export default function BottomNavBar() {
     if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat?token=${token}`);
+    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat`);
+    socket.addEventListener('open', () => {
+      socket.send(JSON.stringify({ type: 'auth', token }));
+    });
 
     socket.onmessage = (event) => {
       try {
@@ -164,8 +167,8 @@ export default function BottomNavBar() {
           setMessageToast(null);
           toastTimeoutRef.current = null;
         }, 4000);
-      } catch (error) {
-        console.error('[BottomNavBar] Error procesando notificacion de chat', error);
+      } catch {
+        // silently handled
       }
     };
 

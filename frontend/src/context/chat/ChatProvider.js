@@ -23,7 +23,7 @@ export function ChatProvider({ children }) {
       setConversations(convs);
       setUnreadTotal(convs.reduce((sum, conv) => sum + (conv.unread_count || 0), 0));
     } catch (e) {
-      console.warn('[Chat] Failed to load conversations:', e.message);
+      // silently handled
     }
   }, [isAuthenticated]);
 
@@ -43,14 +43,13 @@ export function ChatProvider({ children }) {
         }));
       }
     } catch (e) {
-      console.warn('[Chat] Failed to load messages:', e.message);
+      // silently handled
     }
   }, [isAuthenticated]);
 
   // Send message via WebSocket
   const sendMessage = useCallback((conversationId, content) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      console.warn('[Chat] WebSocket not connected');
       return false;
     }
     
@@ -93,7 +92,6 @@ export function ChatProvider({ children }) {
       await loadConversations();
       return data;
     } catch (e) {
-      console.warn('[Chat] Failed to create conversation:', e.message);
       return null;
     }
   }, [isAuthenticated, loadConversations]);
@@ -112,14 +110,11 @@ export function ChatProvider({ children }) {
     const wsHost = window.location.host;
     const wsUrl = `${wsProtocol}//${wsHost}/ws/chat`;
     
-    console.log('[Chat] Connecting to WebSocket:', wsUrl);
-    
     try {
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('[Chat] WebSocket connected');
         setConnected(true);
         loadConversations();
         
@@ -134,14 +129,13 @@ export function ChatProvider({ children }) {
       };
 
       ws.onclose = (event) => {
-        console.log('[Chat] WebSocket closed:', event.code, event.reason);
         setConnected(false);
         // Reconnect after 3 seconds
         reconnectRef.current = setTimeout(connect, 3000);
       };
 
-      ws.onerror = (error) => {
-        console.error('[Chat] WebSocket error:', error);
+      ws.onerror = () => {
+        // silently handled
       };
 
       ws.onmessage = (event) => {
@@ -150,7 +144,6 @@ export function ChatProvider({ children }) {
           
           switch (payload.type) {
             case 'connected':
-              console.log('[Chat] Server confirmed connection');
               break;
               
             case 'pong':
@@ -204,18 +197,16 @@ export function ChatProvider({ children }) {
               break;
               
             case 'error':
-              console.error('[Chat] Server error:', payload.message);
               break;
-              
+
             default:
-              console.log('[Chat] Unknown message type:', payload.type);
+              break;
           }
         } catch (e) {
-          console.error('[Chat] Failed to parse message:', e);
+          // silently handled
         }
       };
     } catch (error) {
-      console.error('[Chat] Failed to create WebSocket:', error);
       reconnectRef.current = setTimeout(connect, 5000);
     }
   }, [isAuthenticated, user, currentConversation, loadConversations, markAsRead]);

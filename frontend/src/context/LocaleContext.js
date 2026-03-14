@@ -115,9 +115,7 @@ export function LocaleProvider({ children }) {
       }
       // If no saved language, the auto-detect from i18n.js or autoDetectLocale will handle it
       
-      console.log('[LocaleContext] State updated - languages, countries, currencies loaded');
     } catch (error) {
-      console.error('[LocaleContext] ERROR fetching locale config:', error.message);
 
       // Fallback locale config so selectors always work even if backend config endpoint fails.
       setCountries(FALLBACK_COUNTRIES);
@@ -144,7 +142,7 @@ export function LocaleProvider({ children }) {
       }
       if (userLocale.currency) setCurrency(userLocale.currency);
     } catch (error) {
-      console.error('Error fetching user locale:', error);
+      // silently handled
     }
   };
 
@@ -154,7 +152,6 @@ export function LocaleProvider({ children }) {
       const data = await apiClient.get('/exchange-rates');
       setExchangeRates(data);
     } catch (error) {
-      console.error('[LocaleContext] Error fetching exchange rates:', error);
       // Set fallback rates so UI doesn't break
       setExchangeRates({
         base: 'EUR',
@@ -187,7 +184,6 @@ export function LocaleProvider({ children }) {
       const shortLang = browserLang?.split?.('-')?.[0]?.toLowerCase?.();
       if (shortLang && supportedLangs.includes(shortLang)) {
         detectedLang = shortLang;
-        console.log('[LocaleContext] Detected device language:', detectedLang);
         break;
       }
     }
@@ -218,7 +214,6 @@ export function LocaleProvider({ children }) {
       try {
         await apiClient.put('/user/locale', { country: newCountry, currency: countryCurrency });
       } catch (error) {
-        console.error('Error updating country:', error.message);
         // Don't rollback - localStorage already has the new value
       }
     }
@@ -236,7 +231,7 @@ export function LocaleProvider({ children }) {
     try {
       await i18n.changeLanguage(newLanguage);
     } catch (err) {
-      console.error('[LocaleContext] Error changing i18n language:', err);
+      // silently handled
     }
     
     // Update document direction for RTL languages
@@ -248,7 +243,7 @@ export function LocaleProvider({ children }) {
       try {
         await apiClient.put('/user/locale', { language: newLanguage });
       } catch (error) {
-        console.error('Error updating language:', error.message);
+        // silently handled
       }
     }
   };
@@ -264,7 +259,7 @@ export function LocaleProvider({ children }) {
       try {
         await apiClient.put('/user/locale', { currency: newCurrency });
       } catch (error) {
-        console.error('Error updating currency:', error.message);
+        // silently handled
       }
     }
   };

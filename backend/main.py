@@ -197,6 +197,14 @@ app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])
 
+# Hispal AI — Consumer assistant (Claude Haiku)
+from routes.hispal_ai import router as hispal_ai_router
+app.include_router(hispal_ai_router, prefix="/api", tags=["hispal-ai"])
+
+# Commercial AI — ELITE producer agent (Claude Sonnet)
+from routes.commercial_ai import router as commercial_ai_router
+app.include_router(commercial_ai_router, prefix="/api", tags=["commercial-ai"])
+
 # Social Routes (Fase 3) — posts_router ya registrado como legacy_posts_router en /api arriba
 
 # B2B Routes (Fase 4)

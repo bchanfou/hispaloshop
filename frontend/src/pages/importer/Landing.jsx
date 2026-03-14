@@ -43,9 +43,9 @@ const solutionCards = [
 ];
 
 const planCards = [
-  { id: 'free', badge: 'Empieza hoy', name: 'FREE', price: '0 EUR/mes', audience: 'Para probar demanda y entender el mercado con poco riesgo.', cta: 'Comenzar', accent: 'border-stone-200', features: ['Tienda base', 'Hasta 50 SKUs', 'Acceso al catálogo B2B', 'Comisión del 20%'] },
-  { id: 'pro', badge: 'Recomendado', name: 'PRO', price: '79 EUR + IVA/mes', audience: 'Para importadores que ya quieren operar con más criterio.', cta: 'Elegir PRO', accent: 'border-stone-900', features: ['IA para contenido', 'Analítica ampliada', 'Matching con creadores', 'Comisión del 18%'] },
-  { id: 'elite', badge: 'Empresas', name: 'ELITE', price: '149 EUR + IVA/mes', audience: 'Para operaciones más complejas y trabajo multinacional.', cta: 'Contactar', accent: 'border-stone-900', features: ['Análisis de mercado', 'Predicción de demanda', 'Prioridad interna', 'Comisión del 17%'] },
+  { id: 'free', badge: 'Básico', name: 'FREE', price: '0 EUR/mes', audience: 'Acceso al catálogo de productores españoles y perfil verificado.', cta: 'Comenzar', accent: 'border-stone-200', features: ['Acceso al catálogo', 'Hasta 5 consultas/mes', 'Perfil de empresa verificado'] },
+  { id: 'pro', badge: 'Distribuidor', name: 'PRO', price: '99 EUR + IVA/mes', audience: 'Para importadores que necesitan operar sin límites.', cta: 'Elegir PRO', accent: 'border-stone-900', features: ['Catálogo sin límites', 'Chat directo con productores', 'Gestión de certificados', 'Analítica de precios', 'Soporte prioritario'] },
+  { id: 'elite', badge: 'Importador Global', name: 'ELITE', price: '199 EUR + IVA/mes', audience: 'Para operaciones internacionales con IA y gestor dedicado.', cta: 'Contactar', accent: 'border-stone-900', features: ['Todo lo del PRO', 'Hispal AI para Importadores', 'Matching automático con productores', 'Contratos B2B generados por IA', 'Gestor de cuenta dedicado'] },
 ];
 
 function normalizePlan(plan) {

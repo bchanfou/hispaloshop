@@ -1,0 +1,213 @@
+/* ===== HISPALOSHOP — APPLE DESIGN SYSTEM ===== */
+
+:root {
+  /* ── Core Colors ───────────────────────────────── */
+  --color-black:      #0A0A0A;
+  --color-white:      #FFFFFF;
+  --color-bg:         #F5F5F7;
+  --color-surface:    #FFFFFF;
+  --color-text-1:     #1D1D1F;
+  --color-text-2:     #6E6E73;
+  --color-text-3:     #AEAEB2;
+  --color-border:     rgba(0,0,0,0.08);
+  --color-border-med: rgba(0,0,0,0.12);
+
+  /* ── Functional Colors ─────────────────────────── */
+  --color-green:      #34C759;
+  --color-orange:     #FF9500;
+  --color-purple:     #5856D6;
+  --color-red:        #FF3B30;
+  --color-blue:       #007AFF;
+
+  /* ── Typography ────────────────────────────────── */
+  --font-apple: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+
+  /* ── Spacing (base 8px) ────────────────────────── */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
+  --space-12: 48px; --space-16: 64px;
+
+  /* ── Radius ────────────────────────────────────── */
+  --radius-apple-sm: 8px;
+  --radius-apple-md: 12px;
+  --radius-apple-lg: 18px;
+  --radius-apple-xl: 24px;
+  --radius-apple-full: 9999px;
+
+  /* ── Shadows ───────────────────────────────────── */
+  --shadow-apple-sm: 0 1px 8px rgba(0,0,0,0.06);
+  --shadow-apple-md: 0 2px 20px rgba(0,0,0,0.08);
+  --shadow-apple-lg: 0 8px 40px rgba(0,0,0,0.10);
+
+  /* ── Motion ────────────────────────────────────── */
+  --ease-apple: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-apple: all 0.3s var(--ease-apple);
+}
+
+/* ── Dark Mode ─────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:         #000000;
+    --color-surface:    #1C1C1E;
+    --color-text-1:     #F5F5F7;
+    --color-text-2:     #98989D;
+    --color-text-3:     #636366;
+    --color-border:     rgba(255,255,255,0.08);
+    --color-border-med: rgba(255,255,255,0.12);
+  }
+}
+
+/* ── Apple Button Primary ──────────────────────────── */
+.btn-apple {
+  background: var(--color-black);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-apple-full);
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: var(--font-apple);
+  cursor: pointer;
+  transition: var(--transition-apple);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-apple:hover  { transform: scale(1.02); box-shadow: var(--shadow-apple-md); }
+.btn-apple:active { transform: scale(0.98); }
+
+/* ── Apple Card ────────────────────────────────────── */
+.card-apple {
+  background: var(--color-surface);
+  border-radius: var(--radius-apple-lg);
+  box-shadow: var(--shadow-apple-md);
+  overflow: hidden;
+  transition: var(--transition-apple);
+}
+.card-apple:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-apple-lg);
+}
+
+/* ── Apple Pricing Card Variants ───────────────────── */
+.pricing-card-free {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.pricing-card-pro {
+  background: var(--color-surface);
+  border: 2px solid var(--color-black);
+}
+.pricing-card-elite {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+/* ── Apple Section Hero ────────────────────────────── */
+.hero-apple {
+  padding: 80px 24px;
+  text-align: center;
+}
+.hero-apple h1 {
+  font-family: var(--font-apple);
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--color-text-1);
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+.hero-apple p {
+  font-family: var(--font-apple);
+  font-size: 20px;
+  color: var(--color-text-2);
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 767px) {
+  .hero-apple {
+    padding: 48px 16px;
+  }
+  .hero-apple h1 {
+    font-size: 36px;
+  }
+  .hero-apple p {
+    font-size: 16px;
+  }
+}
+
+/* ── Apple Feature Grid ────────────────────────────── */
+.feature-grid-apple {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 0 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card-apple {
+  background: var(--color-surface);
+  border-radius: var(--radius-apple-lg);
+  box-shadow: var(--shadow-apple-md);
+  padding: 32px;
+  transition: var(--transition-apple);
+}
+.feature-card-apple:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-apple-lg);
+}
+.feature-card-apple h3 {
+  font-family: var(--font-apple);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  margin-top: 16px;
+}
+.feature-card-apple p {
+  font-family: var(--font-apple);
+  font-size: 14px;
+  color: var(--color-text-2);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+@media (max-width: 767px) {
+  .feature-grid-apple {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
+}
+
+/* ── Apple Footer CTA Bar ──────────────────────────── */
+.footer-cta-apple {
+  background: var(--color-black);
+  padding: 64px 24px;
+  text-align: center;
+}
+.footer-cta-apple h2 {
+  font-family: var(--font-apple);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-white);
+}
+.footer-cta-apple .btn-footer {
+  background: var(--color-white);
+  color: var(--color-black);
+  border: none;
+  border-radius: var(--radius-apple-full);
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-apple);
+  margin-top: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-cta-apple .btn-footer:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-apple-md);
+}

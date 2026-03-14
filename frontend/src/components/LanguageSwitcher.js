@@ -19,9 +19,6 @@ export default function LanguageSwitcher({ variant = 'default', className = '' }
   const { language, languages, updateLanguage } = useLocale();
   const { t, i18n } = useTranslation();
 
-  // DEBUG: Log what data we have
-  console.log('[LanguageSwitcher] Render - languages:', Object.keys(languages || {}), 'current:', language);
-
   const handleLanguageChange = (code) => {
     updateLanguage(code);
     i18n.changeLanguage(code);

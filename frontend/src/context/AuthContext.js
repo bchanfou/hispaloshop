@@ -64,7 +64,6 @@ export function AuthProvider({ children }) {
 
       return normalizedUser;
     } catch (err) {
-      console.log('[Auth] No active session');
       if (mountedRef.current) {
         setUser(null);
       }
@@ -144,7 +143,7 @@ export function AuthProvider({ children }) {
     try {
       await authApi.logout();
     } catch (logoutError) {
-      console.error('[Auth] Logout error:', logoutError);
+      // silently handled
     } finally {
       if (mountedRef.current) {
         setUser(null);

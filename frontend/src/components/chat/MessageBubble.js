@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, Check } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 const parseMarkdown = (text) => {
   let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
@@ -10,7 +11,7 @@ const parseMarkdown = (text) => {
   html = html.replace(/^[\s]*[-•]\s+(.+)$/gm, '<li class="ml-4">$1</li>');
   html = html.replace(/(<li[\s\S]*?<\/li>)/g, '<ul class="my-2 space-y-1 list-none">$1</ul>');
   html = html.replace(/\n/g, '<br />');
-  return html;
+  return DOMPurify.sanitize(html, { ALLOWED_TAGS: ['strong', 'em', 'br', 'ul', 'li'], ALLOWED_ATTR: ['class'] });
 };
 
 function HAAvatar() {

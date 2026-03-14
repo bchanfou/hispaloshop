@@ -16,9 +16,22 @@ module.exports = {
         sans:    ['Inter', 'sans-serif'],
         heading: ['Playfair Display', 'serif'],
         body:    ['Inter', 'sans-serif'],
+        apple:   ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Helvetica Neue', 'sans-serif'],
       },
       colors: {
-        // ─── HISPALOSHOP DESIGN SYSTEM ─────────────────────────────────
+        // ─── APPLE DESIGN SYSTEM ──────────────────────────────────────
+        'hs-black':  '#0A0A0A',
+        'hs-white':  '#FFFFFF',
+        'hs-bg':     '#F5F5F7',
+        'hs-text':   '#1D1D1F',
+        'hs-muted':  '#6E6E73',
+        'hs-green':  '#34C759',
+        'hs-orange': '#FF9500',
+        'hs-purple': '#5856D6',
+        'hs-blue':   '#007AFF',
+        'hs-red':    '#FF3B30',
+
+        // ─── HISPALOSHOP LEGACY ───────────────────────────────────────
         brand: {
           red:          '#C83A2A',
           'red-hover':  '#B23324',
@@ -131,17 +144,25 @@ module.exports = {
       },
 
       borderRadius: {
-        'pill':   '999px',
-        'avatar': '9999px',
-        '2xl':    '20px',
-        'xl':     '16px',
-        'lg':     '12px',
-        'md':     '8px',
-        'sm':     '6px',
-        'xs':     '4px',
+        'pill':      '999px',
+        'avatar':    '9999px',
+        'apple-sm':  '8px',
+        'apple-md':  '12px',
+        'apple-lg':  '18px',
+        'apple-xl':  '24px',
+        '2xl':       '20px',
+        'xl':        '16px',
+        'lg':        '12px',
+        'md':        '8px',
+        'sm':        '6px',
+        'xs':        '4px',
       },
 
       boxShadow: {
+        // Apple shadows
+        'apple-sm': '0 1px 8px rgba(0,0,0,0.06)',
+        'apple-md': '0 2px 20px rgba(0,0,0,0.08)',
+        'apple-lg': '0 8px 40px rgba(0,0,0,0.10)',
         // DS shadows
         'card':  '0 4px 12px rgba(0,0,0,0.08)',
         'hover': '0 8px 24px rgba(0,0,0,0.12)',

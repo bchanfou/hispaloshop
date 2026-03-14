@@ -13,7 +13,6 @@ const detectBrowserLanguage = () => {
   // Try navigator.language first (most specific)
   const navLang = navigator.language?.split?.('-')?.[0]?.toLowerCase?.();
   if (navLang && supportedLanguages.includes(navLang)) {
-    console.log('[i18n] Detected browser language:', navLang);
     return navLang;
   }
   
@@ -22,14 +21,12 @@ const detectBrowserLanguage = () => {
     for (const lang of navigator.languages) {
       const shortLang = lang.split('-')[0].toLowerCase();
       if (supportedLanguages.includes(shortLang)) {
-        console.log('[i18n] Detected from languages array:', shortLang);
         return shortLang;
       }
     }
   }
   
   // Fallback to English if device language is not supported
-  console.log('[i18n] Device language not supported, defaulting to English');
   return 'en';
 };
 
@@ -38,7 +35,6 @@ const getSavedLanguage = () => {
   // First check localStorage
   const saved = localStorage.getItem('hispaloshop_language');
   if (saved && supportedLanguages.includes(saved)) {
-    console.log('[i18n] Using saved language from localStorage:', saved);
     return saved;
   }
   

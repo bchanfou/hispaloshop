@@ -17,6 +17,7 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import BottomNavBar from './components/BottomNavBar';
+import HispalAI from './components/ai/HispalAI';
 import ScrollToTop from './components/ScrollToTop';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -105,6 +106,7 @@ const ProducerConnectPage = lazy(() => import('./pages/producer/ProducerConnectP
 const ProducerConnectSuccess = lazy(() => import('./pages/producer/ProducerConnectSuccess'));
 const ProducerConnectRefresh = lazy(() => import('./pages/producer/ProducerConnectRefresh'));
 const ProducerShippingPolicy = lazy(() => import('./pages/producer/ProducerShippingPolicy'));
+const CommercialAIPage = lazy(() => import('./pages/producer/CommercialAIPage'));
 
 const CustomerLayout = lazy(() => import('./components/dashboard/CustomerLayoutResponsive'));
 const CustomerOverview = lazy(() => import('./pages/customer/Dashboard'));
@@ -436,6 +438,7 @@ function AppRouter() {
                 <Route path="store" element={<ProducerStoreProfile />} />
                 <Route path="shipping" element={<ProducerShippingPolicy />} />
                 <Route path="insights" element={<ProducerInsights />} />
+                <Route path="commercial-ai" element={<CommercialAIPage />} />
                 <Route path="connect" element={<ProducerConnectPage />} />
                 <Route path="connect/success" element={<ProducerConnectSuccess />} />
                 <Route path="connect/refresh" element={<ProducerConnectRefresh />} />
@@ -555,6 +558,7 @@ function App() {
                     <RealtimeProvider>
                       <AppRouter />
                       <BottomNavBar />
+                      <HispalAI />
                       <Toaster position="top-center" />
                     </RealtimeProvider>
                   </ChatProvider>

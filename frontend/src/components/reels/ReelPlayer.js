@@ -125,7 +125,7 @@ function ReelPlayer({ reel, isActive, onNext, onPrev }) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        console.log('Share cancelled');
+        // silently handled
       }
     } else {
       // Copy to clipboard fallback
