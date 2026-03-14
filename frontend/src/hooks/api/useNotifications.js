@@ -22,7 +22,7 @@ const NOTIF_KEYS = {
 export function useUnreadNotifications() {
   return useQuery({
     queryKey: NOTIF_KEYS.unread,
-    queryFn: () => apiClient.get('/notifications/unread'),
+    queryFn: () => apiClient.get('/notifications/unread-count'),
     staleTime: 30 * 1000,
     refetchInterval: 60 * 1000, // Refetch cada minuto
   });
@@ -65,7 +65,7 @@ export function useMarkAllAsRead() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: () => apiClient.post('/notifications/read-all'),
+    mutationFn: () => apiClient.post('/notifications/mark-all-read'),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.unread });
