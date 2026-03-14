@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import Header from '../components/Header';
 import PostViewer from '../components/PostViewer';
 import { useAuth } from '../context/AuthContext';
-import { api } from '../lib/api';
+import apiClient from '../services/api/client';
 
 export default function PostDetailPage() {
   const { postId } = useParams();
@@ -21,7 +21,7 @@ export default function PostDetailPage() {
       try {
         setLoading(true);
         setError('');
-        const data = await api.getPost(postId);
+        const data = await apiClient.get(`/posts/${postId}`);
         if (isMounted) {
           setPost(data);
         }

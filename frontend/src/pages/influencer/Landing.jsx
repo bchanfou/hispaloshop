@@ -1,263 +1,121 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  Coffee,
-  Crown,
-  Gem,
-  HandHeart,
-  HeartPulse,
-  Instagram,
-  Radar,
-  ShieldAlert,
-  Sparkles,
-  Users2,
-} from 'lucide-react';
-import SEOHead from '../../components/landings/SEOHead';
-import FooterLanding from '../../components/landings/FooterLanding';
-import ApplicationModal from '../../components/influencer/ApplicationModal';
+import { InfoNav, Hero, FeatureGrid, FooterCTA } from '../../components/info/shared';
 
-const NAV_ITEMS = [
-  { label: 'El problema', href: '#problema' },
-  { label: 'La salida', href: '#salida' },
-  { label: 'Tiers', href: '#tiers' },
-  { label: 'Aplicar', href: '#aplicar' },
+const FEATURES = [
+  { icon: '💰', title: 'Comisiones reales', desc: 'Gana entre el 3% y el 7% de cada venta generada con tu enlace de afiliado. Liquidación mensual automática.' },
+  { icon: '🏪', title: 'Tu tienda de productos', desc: 'Crea tu selección personalizada de productos favoritos. Tus seguidores compran directamente desde tu perfil.' },
+  { icon: '📈', title: 'Analytics completo', desc: 'Ve exactamente qué contenido genera clics, qué convierte en venta y cuánto has ganado en tiempo real.' },
+  { icon: '🤝', title: 'Matching con marcas', desc: 'Los productores te encuentran directamente si tu audiencia coincide con su nicho. Sin agencias, sin comisiones.' },
+  { icon: '🔗', title: 'Links de afiliado', desc: 'Un link único por producto. Compártelo en bio, historias o reels. El tracking funciona automáticamente.' },
+  { icon: '🌱', title: 'Solo productos auténticos', desc: 'Hispaloshop es exclusivamente alimentos artesanales y saludables. Contenido que tu audiencia de salud agradece.' },
 ];
 
-const PAIN_POINTS = [
-  { icon: HeartPulse, title: 'Ingresos frágiles', body: 'Puedes tener una semana excelente y tres semanas de silencio.' },
-  { icon: Radar, title: 'El algoritmo manda', body: 'Cambia sin avisar y decide cuánto valen tus horas esta semana.' },
-  { icon: ShieldAlert, title: 'Colaboraciones vacías', body: 'Aceptar marcas que no te representan solo para pagar el alquiler termina pasando factura.' },
-  { icon: Coffee, title: 'No hay descanso', body: 'Si desapareces unos días, el ingreso también desaparece.' },
-];
-
-const TIERS = [
-  { key: 'hercules', title: 'HÉRCULES', rate: '3%', subtitle: 'El inicio', description: 'Para cuentas pequeñas con comunidad real y criterio.', bullets: ['Acceso al catálogo', 'Links personalizados', 'Panel base'], icon: Gem },
-  { key: 'atenea', title: 'ATENEA', rate: '5%', subtitle: 'El crecimiento', description: 'Para perfiles consolidados que ya saben recomendar bien.', bullets: ['Soporte prioritario', 'Lanzamientos antes que nadie', 'Analítica ampliada'], icon: Sparkles },
-  { key: 'zeus', title: 'ZEUS', rate: '7%', subtitle: 'La cima', description: 'Para creadores con comunidad muy activa y alcance sostenido.', bullets: ['Campañas directas', 'Retiros preferentes', 'Visibilidad extra'], icon: Crown },
-];
-
-const BENEFITS = [
-  { icon: Sparkles, title: 'Libertad para recomendar', body: 'No se trata de vender cualquier cosa. Se trata de poder defender lo que compartes.' },
-  { icon: HandHeart, title: 'Impacto real', body: 'Tus ventas pueden sostener a productores honestos y aportar contexto útil a tu audiencia.' },
-  { icon: Users2, title: 'Relación más sana', body: 'La monetización deja de depender solo del siguiente post y empieza a apoyarse en confianza repetida.' },
-];
-
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-  transition: { duration: 0.5 },
-};
-
-function scrollToId(id) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-export default function Landing() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isApplyOpen = location.pathname.endsWith('/aplicar');
-
-  const handleApplyState = (nextOpen) => {
-    navigate(nextOpen ? '/influencer/aplicar' : '/influencer');
-  };
-
+export default function InfluencerPage() {
   return (
-    <div className="bg-stone-50 text-stone-950">
-      <SEOHead
-        title="Programa de influencers Hispaloshop"
-        description="Programa para creadores que quieren monetizar con más dignidad, mejor contexto y relaciones más honestas con su audiencia."
-        keywords="programa de influencers, afiliación honesta, creadores de contenido, monetizar con productos reales"
+    <div style={{ fontFamily: 'var(--hs-font, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+      <InfoNav activePage="/influencer" />
+
+      <Hero
+        eyebrow="Para creadores de contenido"
+        headline="Monetiza tu pasión por la alimentación sana"
+        sub="Comparte productos que realmente usas y gana una comisión por cada venta. Sin contratos, sin mínimos."
+        cta="Unirme como influencer"
+        ctaHref="/registro?rol=influencer"
       />
 
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-stone-950/90 text-white backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:px-8">
-          <button type="button" onClick={() => navigate('/')} className="text-left text-sm font-semibold uppercase tracking-[0.28em] text-white">
-            Hispaloshop
-          </button>
+      <FeatureGrid features={FEATURES} />
 
-          <nav className="hidden items-center gap-6 lg:flex">
-            {NAV_ITEMS.map((item) => (
-              <button key={item.href} type="button" onClick={() => scrollToId(item.href.slice(1))} className="text-sm text-white/80 transition-colors hover:text-white" aria-label={`Ir a la sección ${item.label}`}>
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          <button type="button" onClick={() => handleApplyState(true)} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition-transform hover:scale-[1.02]">
-            Aplicar ahora
-            <ArrowRight className="h-4 w-4" />
-          </button>
+      {/* Como funciona — 3 pasos */}
+      <section style={{
+        background: '#FFFFFF',
+        padding: 'clamp(56px, 8vw, 96px) 24px',
+      }}>
+        <h2 style={{ fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 700,
+                      textAlign: 'center', color: '#1D1D1F',
+                      letterSpacing: '-0.02em', marginBottom: 56 }}>
+          Así de sencillo
+        </h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 0, maxWidth: 800, margin: '0 auto',
+          position: 'relative',
+        }}>
+          {[
+            { n: '01', title: 'Crea tu perfil', desc: 'Regístrate como influencer, conecta tus redes y elige los productos que encajan con tu estilo de vida.' },
+            { n: '02', title: 'Comparte con tu enlace', desc: 'Cada producto tiene tu link único. Publícalo donde quieras: bio, stories, reels o newsletters.' },
+            { n: '03', title: 'Cobra cada mes', desc: 'Cada venta generada suma a tu balance. Liquidamos automáticamente el día 1 de cada mes.' },
+          ].map((step, i) => (
+            <div key={step.n} style={{
+              padding: '0 32px 32px',
+              borderRight: i < 2 ? '0.5px solid rgba(0,0,0,0.08)' : 'none',
+              textAlign: 'center',
+            }}>
+              <p style={{ fontSize: 56, fontWeight: 800, color: '#F5F5F7',
+                           letterSpacing: '-0.04em', lineHeight: 1,
+                           marginBottom: 16 }}>
+                {step.n}
+              </p>
+              <p style={{ fontSize: 18, fontWeight: 600, color: '#1D1D1F',
+                           marginBottom: 10 }}>
+                {step.title}
+              </p>
+              <p style={{ fontSize: 14, color: '#6E6E73',
+                           lineHeight: 1.6, margin: 0 }}>
+                {step.desc}
+              </p>
+            </div>
+          ))}
         </div>
-      </header>
+      </section>
 
-      <main>
-        <section id="problema" className="bg-stone-950 text-white">
-          <div className="mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
-            <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
-              <motion.div {...fadeUp}>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/80">
-                  <Coffee className="h-4 w-4" />
-                  Lo vi de cerca
-                </div>
-                <h1 className="mt-8 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
-                  He visto a creadores con mucha audiencia aceptar colaboraciones que les daban vergüenza solo para llegar a fin de mes.
-                </h1>
-                <p className="mt-8 max-w-2xl text-lg leading-8 text-white/80 sm:text-[22px]">
-                  Esta parte de Hispaloshop nace para ofrecer una salida más limpia: productos que puedes recomendar con criterio, relaciones más estables y una monetización que no dependa solo del siguiente post.
-                </p>
-
-                <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-                  <button type="button" onClick={() => handleApplyState(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-white px-7 py-4 text-base font-semibold text-stone-950 transition-transform hover:scale-[1.02]">
-                    Aplicar ahora
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                  <button type="button" onClick={() => scrollToId('salida')} className="rounded-full border border-white/15 bg-white/5 px-7 py-4 text-base font-semibold text-white transition-colors hover:bg-white/10">
-                    Ver cómo funciona
-                  </button>
-                </div>
-
-                <p className="mt-6 text-sm uppercase tracking-[0.28em] text-white/70">
-                  No prometo humo. Propongo una relación más limpia con tu audiencia.
-                </p>
-              </motion.div>
-
-              <motion.aside {...fadeUp} transition={{ duration: 0.5, delay: 0.08 }} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.28em] text-white/70">Mi contexto</p>
-                <div className="mt-6 space-y-4 text-base leading-7 text-white/80">
-                  <p>En Corea del Sur vi muy de cerca lo que pasa con muchos creadores. Desde fuera parece libertad; por dentro muchas veces es dependencia, ansiedad y acuerdos que te vacían.</p>
-                  <p>Lo que saqué claro es que el problema no era el talento. Era el sistema: pagos frágiles, campañas poco alineadas y cero continuidad si desapareces una semana.</p>
-                  <p>Por eso aquí el mínimo no es la fama. Es la conexión real. Si sabes recomendar con criterio, puedes construir un ingreso más estable.</p>
-                </div>
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-black/80 p-5">
-                    <p className="text-sm uppercase tracking-[0.24em] text-white/70">18 meses</p>
-                    <p className="mt-3 text-sm leading-6 text-white/80">El seguidor que compra a través de ti puede seguir vinculado durante 18 meses.</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/80 p-5">
-                    <p className="text-sm uppercase tracking-[0.24em] text-white/70">Enfoque</p>
-                    <p className="mt-3 text-sm leading-6 text-white/80">Experiencia real, no discurso de agencia.</p>
-                  </div>
-                </div>
-              </motion.aside>
+      {/* Comisiones */}
+      <section style={{
+        background: 'var(--hs-bg, #F5F5F7)',
+        padding: 'clamp(48px, 7vw, 80px) 24px',
+        textAlign: 'center',
+      }}>
+        <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 700,
+                      color: '#1D1D1F', marginBottom: 12,
+                      letterSpacing: '-0.02em' }}>
+          Comisiones transparentes
+        </h2>
+        <p style={{ fontSize: 16, color: '#6E6E73', marginBottom: 40 }}>
+          Sin letra pequeña. Sin mínimos de ventas.
+        </p>
+        <div style={{
+          display: 'flex', justifyContent: 'center',
+          gap: 16, flexWrap: 'wrap',
+        }}>
+          {[
+            { range: 'Hércules', pct: '3%', label: 'de comisión' },
+            { range: 'Atenea', pct: '5%', label: 'de comisión' },
+            { range: 'Zeus', pct: '7%', label: 'de comisión' },
+          ].map(tier => (
+            <div key={tier.range} style={{
+              background: '#FFFFFF', borderRadius: 18,
+              border: '0.5px solid rgba(0,0,0,0.08)',
+              padding: '28px 32px', minWidth: 200,
+              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            }}>
+              <p style={{ fontSize: 13, color: '#AEAEB2',
+                           marginBottom: 8 }}>{tier.range}</p>
+              <p style={{ fontSize: 44, fontWeight: 800, color: '#34C759',
+                           letterSpacing: '-0.03em', margin: 0 }}>
+                {tier.pct}
+              </p>
+              <p style={{ fontSize: 13, color: '#6E6E73',
+                           margin: '4px 0 0' }}>{tier.label}</p>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {PAIN_POINTS.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <motion.article key={item.title} {...fadeUp} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="mt-5 text-xl font-semibold text-white">{item.title}</h3>
-                    <p className="mt-3 text-base leading-7 text-white/80">{item.body}</p>
-                  </motion.article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section id="salida" className="bg-stone-50 px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-              <div>
-                <p className="text-xs uppercase tracking-[0.32em] text-stone-500">La salida</p>
-                <h2 className="mt-5 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-stone-950 md:text-5xl">
-                  Quiero que puedas recomendar algo con orgullo y seguir cobrando cuando ese vínculo funcione de verdad.
-                </h2>
-              </div>
-              <div className="space-y-6 text-lg leading-8 text-stone-700">
-                <p>Hispaloshop no te pide inventarte un personaje. Te conecta con productores honestos y con productos que puedes explicar sin sentirte falso.</p>
-                <p>Cuando alguien compra a través de tu enlace, ganas entre el 3% y el 7%. Y si esa persona vuelve a comprar durante <strong>18 meses</strong>, sigues participando en esa relación.</p>
-                <p>Eso se parece mucho más a construir una carrera que a sobrevivir publicación por publicación.</p>
-              </div>
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-3 text-sm font-semibold uppercase tracking-[0.24em] text-stone-700">
-              <div className="rounded-full bg-white px-4 py-3 shadow-sm">Hércules 3%</div>
-              <div className="rounded-full bg-white px-4 py-3 shadow-sm">Atenea 5%</div>
-              <div className="rounded-full bg-white px-4 py-3 shadow-sm">Zeus 7%</div>
-              <div className="rounded-full bg-white px-4 py-3 shadow-sm">Tracking 18 meses</div>
-            </div>
-
-            <div id="tiers" className="mt-16 grid gap-6 lg:grid-cols-3">
-              {TIERS.map((tier) => {
-                const Icon = tier.icon;
-                return (
-                  <motion.article key={tier.key} {...fadeUp} className="rounded-2xl border border-stone-100 bg-white p-7 shadow-sm">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 text-stone-900">
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <div className="mt-6 flex items-end justify-between gap-4">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.28em] text-stone-500">{tier.subtitle}</p>
-                        <h3 className="mt-2 text-2xl font-semibold tracking-tight text-stone-950">{tier.title}</h3>
-                      </div>
-                      <p className="text-4xl font-semibold tracking-tight text-stone-950">{tier.rate}</p>
-                    </div>
-                    <p className="mt-5 text-base leading-7 text-stone-700">{tier.description}</p>
-                    <ul className="mt-6 space-y-3 text-sm leading-6 text-stone-600">
-                      {tier.bullets.map((bullet) => (
-                        <li key={bullet} className="flex items-start gap-3">
-                          <span className="mt-2 h-2 w-2 rounded-full bg-stone-900" />
-                          <span>{bullet}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.article>
-                );
-              })}
-            </div>
-
-            <div className="mt-16 grid gap-6 lg:grid-cols-3">
-              {BENEFITS.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <motion.article key={item.title} {...fadeUp} className="rounded-2xl border border-stone-100 bg-white p-7 shadow-sm">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-stone-100 text-stone-900">
-                      <Icon className="h-7 w-7" />
-                    </div>
-                    <h3 className="mt-6 text-2xl font-semibold tracking-tight text-stone-950">{item.title}</h3>
-                    <p className="mt-4 text-base leading-7 text-stone-700">{item.body}</p>
-                  </motion.article>
-                );
-              })}
-            </div>
-
-            <div id="aplicar" className="mt-16 rounded-2xl bg-stone-950 p-8 text-white shadow-md sm:p-10">
-              <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
-                <div>
-                  <h3 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
-                    Si tu audiencia confía en ti, quiero que esa confianza también te dé estabilidad.
-                  </h3>
-                  <p className="mt-4 max-w-3xl text-lg leading-8 text-white/80">
-                    Si llevas tiempo sintiendo que trabajas mucho para construir algo que nunca termina de ser tuyo, esta parte de Hispaloshop está hecha para eso.
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-4 sm:flex-row lg:flex-col">
-                  <button type="button" onClick={() => handleApplyState(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-white px-7 py-4 font-semibold text-stone-950 transition-transform hover:scale-[1.02]">
-                    Aplicar ahora
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                  <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 py-4 font-semibold text-white transition-colors hover:bg-white/15" aria-label="Seguir a Bil Chanfou en Instagram">
-                    <Instagram className="h-4 w-4" />
-                    Seguir a @bchanfuah
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <FooterLanding />
-
-      <ApplicationModal open={isApplyOpen} onOpenChange={handleApplyState} />
+      <FooterCTA
+        headline="Convierte tu contenido en ingresos reales"
+        cta="Unirme como influencer"
+        ctaHref="/registro?rol=influencer"
+      />
     </div>
   );
 }

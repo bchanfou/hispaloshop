@@ -4,7 +4,7 @@
  */
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api';
+import apiClient from '../../services/api/client';
 
 const NOTIF_KEYS = {
   unread: ['notifications', 'unread'],
@@ -22,7 +22,7 @@ const NOTIF_KEYS = {
 export function useUnreadNotifications() {
   return useQuery({
     queryKey: NOTIF_KEYS.unread,
-    queryFn: () => api.get('/notifications/unread'),
+    queryFn: () => apiClient.get('/notifications/unread'),
     staleTime: 30 * 1000,
     refetchInterval: 60 * 1000, // Refetch cada minuto
   });
@@ -35,7 +35,7 @@ export function useNotifications() {
   return useInfiniteQuery({
     queryKey: NOTIF_KEYS.all,
     queryFn: ({ pageParam }) => 
-      api.get('/notifications', { cursor: pageParam, limit: 20 }),
+      apiClient.get('/notifications', { params: { cursor: pageParam, limit: 20 } }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 30 * 1000,
   });
@@ -49,7 +49,7 @@ export function useMarkAsRead() {
   
   return useMutation({
     mutationFn: (notificationId) => 
-      api.post(`/notifications/${notificationId}/read`),
+      apiClient.post(`/notifications/${notificationId}/read`),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.unread });
@@ -65,7 +65,7 @@ export function useMarkAllAsRead() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: () => api.post('/notifications/read-all'),
+    mutationFn: () => apiClient.post('/notifications/read-all'),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.unread });
@@ -82,7 +82,7 @@ export function useDeleteNotification() {
   
   return useMutation({
     mutationFn: (notificationId) => 
-      api.delete(`/notifications/${notificationId}`),
+      apiClient.delete(`/notifications/${notificationId}`),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.all });
@@ -100,7 +100,7 @@ export function useDeleteNotification() {
 export function useNotificationPreferences() {
   return useQuery({
     queryKey: NOTIF_KEYS.preferences,
-    queryFn: () => api.get('/notifications/preferences'),
+    queryFn: () => apiClient.get('/notifications/preferences'),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -113,7 +113,7 @@ export function useUpdateNotificationPreferences() {
   
   return useMutation({
     mutationFn: (preferences) => 
-      api.put('/notifications/preferences', preferences),
+      apiClient.put('/notifications/preferences', preferences),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIF_KEYS.preferences });
@@ -131,7 +131,7 @@ export function useUpdateNotificationPreferences() {
 export function useRegisterPushToken() {
   return useMutation({
     mutationFn: (fcmToken) => 
-      api.post('/notifications/push/register', { token: fcmToken }),
+      apiClient.post('/notifications/push/register', { token: fcmToken }),
   });
 }
 
@@ -140,7 +140,7 @@ export function useRegisterPushToken() {
  */
 export function useUnregisterPushToken() {
   return useMutation({
-    mutationFn: () => api.post('/notifications/push/unregister'),
+    mutationFn: () => apiClient.post('/notifications/push/unregister'),
   });
 }
 
@@ -149,6 +149,6 @@ export function useUnregisterPushToken() {
  */
 export function useTestPushNotification() {
   return useMutation({
-    mutationFn: () => api.post('/notifications/push/test'),
+    mutationFn: () => apiClient.post('/notifications/push/test'),
   });
 }

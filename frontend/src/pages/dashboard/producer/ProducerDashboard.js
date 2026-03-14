@@ -110,28 +110,28 @@ function ProducerDashboard() {
       id: 'add',
       icon: Plus,
       label: 'Añadir producto',
-      color: '#1c1917',
+      color: 'var(--hs-text-1)',
       onClick: () => navigate('/producer/products')
     },
     {
       id: 'orders',
       icon: ShoppingCart,
       label: 'Gestionar pedidos',
-      color: '#44403c',
+      color: 'var(--hs-text-2)',
       onClick: () => navigate('/producer/orders')
     },
     {
       id: 'analytics',
       icon: BarChart3,
       label: 'Análisis',
-      color: '#78716c',
+      color: 'var(--hs-text-2)',
       onClick: () => navigate('/producer/payments')
     },
     {
       id: 'promo',
       icon: Tag,
       label: 'Promociones',
-      color: '#1c1917',
+      color: 'var(--hs-text-1)',
       onClick: () => navigate('/producer/store')
     }
   ];
@@ -174,7 +174,7 @@ function ProducerDashboard() {
           value={dashboardData.kpis.orders}
           label="Pedidos"
           subtext="este mes"
-          accentColor="#44403c"
+          accentColor="var(--hs-text-2)"
           onClick={() => navigate('/producer/orders')}
         />
         <KPICard
@@ -182,7 +182,7 @@ function ProducerDashboard() {
           value={dashboardData.kpis.rating}
           label="Valoracion"
           subtext="media"
-          accentColor="#1c1917"
+          accentColor="var(--hs-text-1)"
         />
       </div>
 

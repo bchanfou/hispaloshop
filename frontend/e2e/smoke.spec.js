@@ -1,0 +1,68 @@
+// @ts-check
+const { test, expect } = require('@playwright/test');
+
+test.describe('Smoke tests — críticos para el deploy', () => {
+
+  test('la app carga en menos de 5 segundos', async ({ page }) => {
+    const start = Date.now();
+    await page.goto('/');
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeLessThan(5_000);
+  });
+
+  test('no hay errores de consola críticos en la home', async ({ page }) => {
+    /** @type {string[]} */
+    const errors = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+    await page.goto('/');
+    await page.waitForTimeout(2_000);
+    const criticalErrors = errors.filter(e =>
+      !e.includes('favicon') &&
+      !e.includes('manifest') &&
+      !e.includes('fonts') &&
+      !e.includes('analytics') &&
+      !e.includes('Failed to load resource') &&
+      !e.includes('net::ERR')
+    );
+    expect(criticalErrors).toHaveLength(0);
+  });
+
+  test('el título de la página es correcto', async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveTitle(/Hispaloshop/i);
+  });
+
+  test('la API responde al health check', async ({ request }) => {
+    const apiUrl = process.env.PLAYWRIGHT_API_URL || 'http://localhost:8000';
+    const response = await request.get(`${apiUrl}/health`);
+    expect(response.ok()).toBeTruthy();
+  });
+
+  test('las páginas informativas cargan sin errores', async ({ page }) => {
+    for (const path of ['/productor', '/importador', '/influencer']) {
+      await page.goto(path);
+      await expect(page.locator('h1').first()).toBeVisible({ timeout: 5_000 });
+    }
+  });
+
+  test('el precio ELITE del productor es 249€', async ({ page }) => {
+    await page.goto('/productor');
+    await expect(page.locator('text=249')).toBeVisible({ timeout: 5_000 });
+  });
+
+  test('las imágenes no están rotas', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(2_000);
+    const brokenImages = await page.evaluate(() => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      return imgs
+        .filter(img => !img.complete || img.naturalWidth === 0)
+        .map(img => img.src)
+        .filter(src => src && !src.startsWith('data:') && !src.includes('placeholder'));
+    });
+    expect(brokenImages).toHaveLength(0);
+  });
+
+});

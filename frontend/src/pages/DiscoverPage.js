@@ -36,7 +36,6 @@ import {
 import { toast } from 'sonner';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
-import { api } from '../lib/api';
 import apiClient from '../services/api/client';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
 import PullIndicator from '../components/ui/PullIndicator';
@@ -124,21 +123,21 @@ export default function DiscoverPage() {
     const fetchTrendingAndRecipes = async () => {
       try {
         try {
-          const trending = await api.getTrendingHashtags();
+          const trending = await apiClient.get('/feed/trending-hashtags');
           setTrendingHashtags(trending?.hashtags?.slice(0, 5) || []);
         } catch {
           setTrendingHashtags([]);
         }
 
         try {
-          const recipesData = await api.request('/recipes?limit=3');
+          const recipesData = await apiClient.get('/recipes', { params: { limit: 3 } });
           setRecipes(recipesData?.recipes || []);
         } catch {
           setRecipes([]);
         }
 
         try {
-          const discoveredData = await api.request('/intelligence/discovered-products?limit=4');
+          const discoveredData = await apiClient.get('/intelligence/discovered-products', { params: { limit: 4 } });
           setDiscoveredProducts(discoveredData?.items || []);
         } catch {
           setDiscoveredProducts([]);
@@ -162,9 +161,9 @@ export default function DiscoverPage() {
     setLoadingRecipes(true);
     try {
       const [trending, recipesData, discoveredData, exploreData] = await Promise.allSettled([
-        api.getTrendingHashtags(),
-        api.request('/recipes?limit=3'),
-        api.request('/intelligence/discovered-products?limit=4'),
+        apiClient.get('/feed/trending-hashtags'),
+        apiClient.get('/recipes', { params: { limit: 3 } }),
+        apiClient.get('/intelligence/discovered-products', { params: { limit: 4 } }),
         apiClient.get('/discovery/explore'),
       ]);
       setTrendingHashtags(trending.status === 'fulfilled' ? trending.value?.hashtags?.slice(0, 5) || [] : []);

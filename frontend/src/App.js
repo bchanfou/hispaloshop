@@ -20,6 +20,7 @@ import BottomNavBar from './components/BottomNavBar';
 import HispalAI from './components/ai/HispalAI';
 import ScrollToTop from './components/ScrollToTop';
 import AppErrorBoundary from './components/AppErrorBoundary';
+import { SentryErrorBoundary } from './lib/sentry';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from './components/ui/sonner';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -31,10 +32,10 @@ import { usePushNotifications } from './hooks/usePushNotifications';
 
 // Nuevos providers P12
 import { QueryProvider } from './providers/QueryProvider';
-import { RealtimeProvider } from './providers/RealtimeProvider';
-
 // Cart components
 import MiniCart from './components/cart/MiniCart';
+import ConsentBanner from './components/ui/ConsentBanner';
+import { initAnalyticsOnConsent } from './utils/analytics';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
@@ -273,6 +274,7 @@ function AppRouter() {
               <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
               <Route path="/que-es" element={<QueEsPage />} />
+              <Route path="/que-es-hispaloshop" element={<QueEsPage />} />
               <Route path="/ser-influencer" element={<Navigate to="/influencer" replace />} />
               <Route path="/creator" element={<Navigate to="/influencer" replace />} />
               <Route path="/creator/*" element={<Navigate to="/influencer" replace />} />
@@ -548,6 +550,7 @@ function AppRouter() {
 
 function App() {
   return (
+    <SentryErrorBoundary fallback={<div />}>
     <HelmetProvider>
       <QueryProvider>
         <BrowserRouter>
@@ -556,13 +559,12 @@ function App() {
               <LocaleProvider>
                 <CartProvider>
                   <ChatProvider>
-                    <RealtimeProvider>
                       <a href="#main-content" className="skip-to-content">Ir al contenido principal</a>
                       <AppRouter />
                       <BottomNavBar />
                       <HispalAI />
+                      <ConsentBanner onConsent={(accepted) => { if (accepted) initAnalyticsOnConsent(); }} />
                       <Toaster position="top-center" />
-                    </RealtimeProvider>
                   </ChatProvider>
                 </CartProvider>
               </LocaleProvider>
@@ -571,6 +573,7 @@ function App() {
         </BrowserRouter>
       </QueryProvider>
     </HelmetProvider>
+    </SentryErrorBoundary>
   );
 }
 

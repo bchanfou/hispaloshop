@@ -4,7 +4,6 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api as realtimeApi } from '../../lib/api';
 import { getToken, removeToken, setToken, setUser } from '../../lib/auth';
 import apiClient from '../../services/api/client';
 
@@ -33,7 +32,6 @@ export function useLogin() {
       setToken(data.access_token, data.refresh_token);
       setUser(data.user);
       queryClient.setQueryData(AUTH_KEYS.me, data.user);
-      realtimeApi.connectWebSocket();
     },
   });
 }
@@ -47,7 +45,6 @@ export function useRegister() {
       setToken(data.tokens.access, data.tokens.refresh);
       setUser(data.user);
       queryClient.setQueryData(AUTH_KEYS.me, data.user);
-      realtimeApi.connectWebSocket();
     },
   });
 }
@@ -59,7 +56,6 @@ export function useLogout() {
     mutationFn: () => apiClient.post('/auth/logout', {}),
     onSuccess: () => {
       removeToken();
-      realtimeApi.disconnect();
       queryClient.clear();
       window.location.href = '/login';
     },
@@ -106,7 +102,6 @@ export function useOAuthLogin() {
       setToken(data.access_token, data.refresh_token);
       setUser(data.user);
       queryClient.setQueryData(AUTH_KEYS.me, data.user);
-      realtimeApi.connectWebSocket();
     },
   });
 }

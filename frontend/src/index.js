@@ -1,3 +1,14 @@
+// Silence debug/info logs in production (keep error & warn for monitoring)
+if (process.env.NODE_ENV === 'production') {
+  const noop = () => {};
+  console.log = noop;
+  console.debug = noop;
+  console.info = noop;
+}
+
+import { initSentry } from '@/lib/sentry';
+initSentry();
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 // Configure axios BEFORE any other imports that might use it

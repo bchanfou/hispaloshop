@@ -2,7 +2,7 @@
  * Auth API - Mejorado con manejo de cookies y refresh automático
  */
 
-import apiClient from './axiosConfig';
+import { httpClient as apiClient } from '../services/api/client';
 
 export const getAuthErrorMessage = (error, fallbackMessage = 'Ha ocurrido un error inesperado.') => {
   const detail = error?.response?.data?.detail;

@@ -4,7 +4,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api';
+import apiClient from '../../services/api/client';
 
 const INFLUENCER_KEYS = {
   dashboard: ['influencer', 'dashboard'],
@@ -20,7 +20,7 @@ const INFLUENCER_KEYS = {
 export function useInfluencerDashboard() {
   return useQuery({
     queryKey: INFLUENCER_KEYS.dashboard,
-    queryFn: () => api.get('/influencer/dashboard'),
+    queryFn: () => apiClient.get('/influencer/dashboard'),
     staleTime: 2 * 60 * 1000,
   });
 }
@@ -31,7 +31,7 @@ export function useInfluencerDashboard() {
 export function useInfluencerEarnings() {
   return useQuery({
     queryKey: INFLUENCER_KEYS.earnings,
-    queryFn: () => api.get('/influencer/earnings'),
+    queryFn: () => apiClient.get('/influencer/earnings'),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -42,7 +42,7 @@ export function useInfluencerEarnings() {
 export function useAffiliateLinks() {
   return useQuery({
     queryKey: INFLUENCER_KEYS.links,
-    queryFn: () => api.get('/influencer/links'),
+    queryFn: () => apiClient.get('/influencer/links'),
     staleTime: 1 * 60 * 1000,
   });
 }
@@ -55,7 +55,7 @@ export function useGenerateAffiliateLink() {
   
   return useMutation({
     mutationFn: ({ productId, customSlug }) => 
-      api.post('/influencer/links', { 
+      apiClient.post('/influencer/links', { 
         product_id: productId, 
         custom_slug: customSlug 
       }),
@@ -72,7 +72,7 @@ export function useGenerateAffiliateLink() {
 export function useContentPerformance() {
   return useQuery({
     queryKey: INFLUENCER_KEYS.performance,
-    queryFn: () => api.get('/influencer/content-performance'),
+    queryFn: () => apiClient.get('/influencer/content-performance'),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -83,7 +83,7 @@ export function useContentPerformance() {
 export function usePayoutHistory() {
   return useQuery({
     queryKey: INFLUENCER_KEYS.payouts,
-    queryFn: () => api.get('/influencer/payouts'),
+    queryFn: () => apiClient.get('/influencer/payouts'),
     staleTime: 10 * 60 * 1000,
   });
 }
@@ -96,7 +96,7 @@ export function useRequestPayout() {
   
   return useMutation({
     mutationFn: ({ amount, method }) => 
-      api.post('/influencer/payouts/request', { amount, method }),
+      apiClient.post('/influencer/payouts/request', { amount, method }),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INFLUENCER_KEYS.payouts });

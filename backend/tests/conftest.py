@@ -11,6 +11,12 @@ import pytest
 if not os.environ.get("REACT_APP_BACKEND_URL"):
     os.environ["REACT_APP_BACKEND_URL"] = "http://localhost:8000"
 
+# Minimal env vars so the FastAPI app can be imported in test mode
+os.environ.setdefault("JWT_SECRET", "test-secret-for-ci-hispaloshop-32chars!")
+os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017/hispaloshop_test")
+os.environ.setdefault("FRONTEND_URL", "http://localhost:3000")
+os.environ.setdefault("AUTH_BACKEND_URL", "http://localhost:8000")
+
 
 # Allow running tests from repo root (`python -m pytest backend/tests/...`)
 # while keeping imports like `from routers import ...` working.

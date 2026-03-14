@@ -1,11 +1,8 @@
 import React from 'react';
 import { SWRConfig } from 'swr';
-import { api } from '../lib/api';
+import apiClient from '../services/api/client';
 
-const fetcher = async (url) => {
-  const response = await api.request(url);
-  return response;
-};
+const fetcher = (url) => apiClient.get(url);
 
 export default function SWRProvider({ children }) {
   return (

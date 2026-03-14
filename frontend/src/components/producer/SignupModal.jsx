@@ -182,12 +182,12 @@ function getPasswordStrength(password) {
   if (/[^A-Za-z0-9]/.test(value)) score += 1;
 
   if (score <= 1) {
-    return { label: 'Baja', color: '#dc2626', width: '33%' };
+    return { label: 'Baja', color: 'var(--hs-red)', width: '33%' };
   }
   if (score === 2 || score === 3) {
-    return { label: 'Media', color: '#d97706', width: '66%' };
+    return { label: 'Media', color: 'var(--hs-orange)', width: '66%' };
   }
-  return { label: 'Alta', color: '#10b981', width: '100%' };
+  return { label: 'Alta', color: 'var(--hs-green)', width: '100%' };
 }
 
 function loadStripeJs() {
@@ -448,9 +448,9 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
           appearance: {
             theme: 'stripe',
             variables: {
-              colorPrimary: '#14532d',
-              colorText: '#1f2937',
-              colorDanger: '#dc2626',
+              colorPrimary: 'var(--hs-text-1)',
+              colorText: 'var(--hs-text-1)',
+              colorDanger: 'var(--hs-red)',
               borderRadius: '12px',
             },
           },
@@ -640,7 +640,14 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
     if (subscribeData?.requires_action && subscribeData?.client_secret) {
       const confirmation = await stripe.confirmCardPayment(subscribeData.client_secret);
       if (confirmation.error) {
-      throw new Error(confirmation.error.message || 'Tu banco no confirmó el pago todavía.');
+        if (confirmation.error.type === 'card_error' || confirmation.error.type === 'validation_error') {
+          throw new Error(confirmation.error.message || 'Tu banco rechazó la operación.');
+        }
+        throw new Error('Ha ocurrido un error con el pago. Por favor inténtalo de nuevo.');
+      }
+
+      if (confirmation.paymentIntent?.status === 'requires_payment_method') {
+        throw new Error('El método de pago fue rechazado. Por favor usa otra tarjeta.');
       }
 
       await apiClient.post(
@@ -1156,9 +1163,9 @@ export default function SignupModal({ open, onOpenChange, initialPlan = 'free' }
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-[#fdfcf8]">
+          <div className="flex-1 overflow-y-auto bg-hs-bg">
             <div className="mx-auto flex h-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:flex-row lg:gap-12 lg:px-10 lg:py-10">
-              <aside className="w-full rounded-[28px] bg-[#2c241b] p-6 text-[#faf9f6] shadow-[0_24px_70px_-36px_rgba(44,36,27,0.6)] lg:max-w-[360px]">
+              <aside className="w-full rounded-[28px] bg-hs-black p-6 text-white shadow-[0_24px_70px_-36px_rgba(44,36,27,0.6)] lg:max-w-[360px]">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-400">Lo que te llevas</p>
                 <h3 className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-white">
                   {successState ? 'Ya tienes la escalera construida.' : activePlan.name}

@@ -62,4 +62,10 @@ export const usePageTracking = (page) => {
   }, [page]);
 };
 
-export default { trackPageVisit, trackMarketingEvent, usePageTracking };
+export const initAnalyticsOnConsent = () => {
+  if (typeof window !== 'undefined' && typeof window.__posthogInit === 'function') {
+    window.__posthogInit();
+  }
+};
+
+export default { trackPageVisit, trackMarketingEvent, usePageTracking, initAnalyticsOnConsent };

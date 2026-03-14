@@ -549,24 +549,24 @@ export default function ProducerOverview() {
       label: t('producer.createNewProduct'),
       description: 'Añadir nuevo producto',
       to: '/producer/products',
-      bgColor: '#0c0a09',
-      iconColor: '#fafaf9'
+      bgColor: 'var(--hs-text-1)',
+      iconColor: 'var(--hs-surface-2)'
     },
     {
       icon: FileCheck,
       label: t('producer.manageCertificates'),
       description: 'Certificaciones de calidad',
       to: '/producer/certificates',
-      bgColor: '#f5f5f4',
-      iconColor: '#44403c'
+      bgColor: 'var(--hs-surface-2)',
+      iconColor: 'var(--hs-text-2)'
     },
     {
       icon: ShoppingBag,
       label: t('producer.viewOrders'),
       description: 'Gestionar pedidos',
       to: '/producer/orders',
-      bgColor: '#f5f5f4',
-      iconColor: '#44403c'
+      bgColor: 'var(--hs-surface-2)',
+      iconColor: 'var(--hs-text-2)'
     },
   ];
 

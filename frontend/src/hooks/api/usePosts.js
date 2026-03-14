@@ -4,7 +4,7 @@
  */
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api';
+import apiClient from '../../services/api/client';
 
 const POST_KEYS = {
   detail: (id) => ['post', id],
@@ -24,7 +24,7 @@ const POST_KEYS = {
 export function usePost(postId) {
   return useQuery({
     queryKey: POST_KEYS.detail(postId),
-    queryFn: () => api.get(`/posts/${postId}`),
+    queryFn: () => apiClient.get(`/posts/${postId}`),
     enabled: !!postId,
     staleTime: 2 * 60 * 1000,
   });
@@ -37,7 +37,7 @@ export function useCreatePost() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (postData) => api.post('/posts', postData),
+    mutationFn: (postData) => apiClient.post('/posts', postData),
     
     onSuccess: () => {
       // Invalidar feeds para mostrar nuevo post
@@ -54,7 +54,7 @@ export function useUpdatePost() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ postId, data }) => api.put(`/posts/${postId}`, data),
+    mutationFn: ({ postId, data }) => apiClient.put(`/posts/${postId}`, data),
     
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ 
@@ -72,7 +72,7 @@ export function useDeletePost() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (postId) => api.delete(`/posts/${postId}`),
+    mutationFn: (postId) => apiClient.delete(`/posts/${postId}`),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
@@ -92,9 +92,8 @@ export function usePostComments(postId) {
   return useInfiniteQuery({
     queryKey: POST_KEYS.comments(postId),
     queryFn: ({ pageParam }) => 
-      api.get(`/posts/${postId}/comments`, { 
-        cursor: pageParam, 
-        limit: 20 
+      apiClient.get(`/posts/${postId}/comments`, {
+        params: { cursor: pageParam, limit: 20 }
       }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     enabled: !!postId,
@@ -110,7 +109,7 @@ export function useAddComment() {
   
   return useMutation({
     mutationFn: ({ postId, content, parentId }) => 
-      api.post(`/posts/${postId}/comments`, { 
+      apiClient.post(`/posts/${postId}/comments`, { 
         content, 
         parent_id: parentId 
       }),
@@ -138,7 +137,7 @@ export function useReels() {
   return useInfiniteQuery({
     queryKey: POST_KEYS.reels,
     queryFn: ({ pageParam }) => 
-      api.get('/reels', { cursor: pageParam, limit: 10 }),
+      apiClient.get('/reels', { params: { cursor: pageParam, limit: 10 } }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     staleTime: 2 * 60 * 1000,
   });
@@ -150,7 +149,7 @@ export function useReels() {
 export function useReel(reelId) {
   return useQuery({
     queryKey: ['reel', reelId],
-    queryFn: () => api.get(`/reels/${reelId}`),
+    queryFn: () => apiClient.get(`/reels/${reelId}`),
     enabled: !!reelId,
   });
 }
@@ -162,7 +161,7 @@ export function useUploadReel() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (formData) => api.post('/reels', formData, {
+    mutationFn: (formData) => apiClient.post('/reels', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
     
@@ -177,7 +176,7 @@ export function useUploadReel() {
  */
 export function useViewReel() {
   return useMutation({
-    mutationFn: (reelId) => api.post(`/reels/${reelId}/view`),
+    mutationFn: (reelId) => apiClient.post(`/reels/${reelId}/view`),
   });
 }
 
@@ -191,7 +190,7 @@ export function useViewReel() {
 export function useStories() {
   return useQuery({
     queryKey: POST_KEYS.stories,
-    queryFn: () => api.get('/stories'),
+    queryFn: () => apiClient.get('/stories'),
     staleTime: 30 * 1000, // 30 seg
     refetchInterval: 60 * 1000, // Refetch cada minuto
   });
@@ -203,7 +202,7 @@ export function useStories() {
 export function useUserStories(userId) {
   return useQuery({
     queryKey: POST_KEYS.userStories(userId),
-    queryFn: () => api.get(`/stories/${userId}`),
+    queryFn: () => apiClient.get(`/stories/${userId}`),
     enabled: !!userId,
     staleTime: 30 * 1000,
   });
@@ -216,7 +215,7 @@ export function useCreateStory() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (formData) => api.post('/stories', formData, {
+    mutationFn: (formData) => apiClient.post('/stories', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
     
@@ -233,7 +232,7 @@ export function useDeleteStory() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (storyId) => api.delete(`/stories/${storyId}`),
+    mutationFn: (storyId) => apiClient.delete(`/stories/${storyId}`),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: POST_KEYS.stories });
@@ -247,7 +246,7 @@ export function useDeleteStory() {
 export function useStoryViews(storyId) {
   return useQuery({
     queryKey: ['story', storyId, 'views'],
-    queryFn: () => api.get(`/stories/${storyId}/views`),
+    queryFn: () => apiClient.get(`/stories/${storyId}/views`),
     enabled: !!storyId,
   });
 }
@@ -258,7 +257,7 @@ export function useStoryViews(storyId) {
 export function useReactToStory() {
   return useMutation({
     mutationFn: ({ storyId, reaction }) => 
-      api.post(`/stories/${storyId}/reaction`, { reaction }),
+      apiClient.post(`/stories/${storyId}/reaction`, { reaction }),
   });
 }
 
@@ -268,7 +267,7 @@ export function useReactToStory() {
 export function useStoriesArchive() {
   return useQuery({
     queryKey: ['stories', 'archive'],
-    queryFn: () => api.get('/stories/archive'),
+    queryFn: () => apiClient.get('/stories/archive'),
   });
 }
 
@@ -280,7 +279,7 @@ export function useCreateHighlight() {
   
   return useMutation({
     mutationFn: ({ title, storyIds }) => 
-      api.post('/stories/highlights', { title, story_ids: storyIds }),
+      apiClient.post('/stories/highlights', { title, story_ids: storyIds }),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stories', 'archive'] });

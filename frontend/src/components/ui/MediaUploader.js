@@ -190,12 +190,12 @@ export default function MediaUploader({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         style={{
-          border: `2px dashed ${dragging ? '#7c3aed' : error ? '#ef4444' : '#d1d5db'}`,
-          borderRadius: '12px',
+          border: `2px dashed ${dragging ? 'var(--hs-purple)' : error ? 'var(--hs-red)' : 'var(--hs-border-med)'}`,
+          borderRadius: 'var(--hs-r-md)',
           padding: '24px',
           textAlign: 'center',
           cursor: disabled ? 'not-allowed' : 'pointer',
-          background: dragging ? '#f5f3ff' : '#fafafa',
+          background: dragging ? 'var(--hs-purple-bg)' : 'var(--hs-surface-2)',
           transition: 'border-color 0.2s, background 0.2s',
           position: 'relative',
           minHeight: '120px',
@@ -242,33 +242,33 @@ export default function MediaUploader({
         {/* Upload progress */}
         {uploading && (
           <div style={{ width: '100%' }}>
-            <div style={{ height: '6px', background: '#e5e7eb', borderRadius: '3px', overflow: 'hidden', marginBottom: '8px' }}>
+            <div style={{ height: '6px', background: 'var(--hs-surface-3)', borderRadius: '3px', overflow: 'hidden', marginBottom: '8px' }}>
               <div
                 style={{
                   height: '100%',
                   width: `${progress}%`,
-                  background: '#7c3aed',
+                  background: 'var(--hs-black)',
                   borderRadius: '3px',
                   transition: 'width 0.2s',
                 }}
               />
             </div>
-            <p style={{ fontSize: '13px', color: 'var(--color-purple)', margin: 0 }}>Subiendo... {progress}%</p>
+            <p style={{ fontSize: '13px', color: 'var(--hs-text-2)', margin: 0 }}>Subiendo... {progress}%</p>
           </div>
         )}
 
         {/* Default icon + label when no preview */}
         {!(preview && previewSrc) && !uploading && (
           <>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={dragging ? '#7c3aed' : '#9ca3af'} strokeWidth="1.5">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={dragging ? 'var(--hs-purple)' : 'var(--hs-text-3)'} strokeWidth="1.5">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" strokeLinecap="round" strokeLinejoin="round"/>
               <polyline points="17 8 12 3 7 8" strokeLinecap="round" strokeLinejoin="round"/>
               <line x1="12" y1="3" x2="12" y2="15" strokeLinecap="round"/>
             </svg>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+            <p style={{ fontSize: '14px', color: 'var(--hs-text-2)', margin: 0 }}>
               {label || 'Arrastra un archivo o haz clic para seleccionar'}
             </p>
-            <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>
+            <p style={{ fontSize: '12px', color: 'var(--hs-text-3)', margin: 0 }}>
               Máximo {resolvedMaxMB}MB
             </p>
           </>
@@ -278,7 +278,7 @@ export default function MediaUploader({
         {progress === 100 && !uploading && previewSrc && (
           <div style={{
             position: 'absolute', top: '8px', right: '8px',
-            background: '#22c55e', borderRadius: '50%', width: '24px', height: '24px',
+            background: 'var(--hs-green)', borderRadius: '50%', width: '24px', height: '24px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
@@ -290,7 +290,7 @@ export default function MediaUploader({
 
       {/* Error message */}
       {error && (
-        <p style={{ fontSize: '13px', color: '#ef4444', marginTop: '6px', marginBottom: 0 }}>
+        <p style={{ fontSize: '13px', color: 'var(--hs-red)', marginTop: '6px', marginBottom: 0 }}>
           {error}
         </p>
       )}
@@ -301,7 +301,7 @@ export default function MediaUploader({
           onClick={(e) => { e.stopPropagation(); reset(); }}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: '12px', color: 'var(--color-purple)', marginTop: '4px', padding: 0,
+            fontSize: '12px', color: 'var(--hs-text-2)', marginTop: '4px', padding: 0,
           }}
         >
           Cambiar archivo

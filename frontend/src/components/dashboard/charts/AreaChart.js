@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-function AreaChart({ data, labels, height = 160, color = '#1c1917', fillColor = '#1c191720' }) {
+function AreaChart({ data, labels, height = 160, color = '#0A0A0A', fillColor = '#0A0A0A20' }) {
   const maxValue = Math.max(...data);
   const minValue = Math.min(...data);
   const range = maxValue - minValue || 1;

@@ -1,0 +1,55 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+
+  lint-frontend:
+    name: Lint · ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: cd frontend && npm ci
+      - run: cd frontend && npm run lint --if-present
+
+  security-check:
+    name: Security · npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: cd frontend && npm audit --audit-level=high || true
+
+  backend-tests:
+    name: Backend · pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx
+      - run: |
+          cd backend
+          python -m pytest tests/test_security.py tests/test_commercial_ai.py -v --tb=short
+        env:
+          JWT_SECRET: ci-test-secret-hispaloshop-32chars-ok!
+          MONGO_URL: mongodb://localhost:27017/hispaloshop_test
+          FRONTEND_URL: http://localhost:3000
+          AUTH_BACKEND_URL: http://localhost:8000
+          ENVIRONMENT: test

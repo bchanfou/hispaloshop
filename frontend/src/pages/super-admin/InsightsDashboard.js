@@ -14,8 +14,8 @@ import FocusTrap from 'focus-trap-react';
 
 // Color palette
 const COLORS = {
-  primary: '#1C1C1C',
-  secondary: '#7A7A7A',
+  primary: 'var(--hs-text-1)',
+  secondary: 'var(--hs-text-2)',
   accent: '#E53E3E',
   success: '#38A169',
   warning: '#D69E2E',

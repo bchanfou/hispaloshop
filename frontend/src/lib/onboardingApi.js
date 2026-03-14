@@ -1,4 +1,4 @@
-import apiClient from './axiosConfig';
+import { httpClient as apiClient } from '../services/api/client';
 
 export const onboardingApi = {
   async getStatus() {

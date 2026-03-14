@@ -1,262 +1,154 @@
-import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Compass, Globe, MessageCircle, Package, Search, Wheat } from 'lucide-react';
-import SEOHead from '../../components/landings/SEOHead';
-import LandingSectionNav from '../../components/landings/LandingSectionNav';
-import NavbarLanding from '../../components/landings/NavbarLanding';
-import FooterLanding from '../../components/landings/FooterLanding';
-import FeatureGrid from '../../components/landings/FeatureGrid';
-import FAQAccordion from '../../components/landings/FAQAccordion';
-import StepProcess from '../../components/landings/StepProcess';
+import React from 'react';
+import { InfoNav, Hero, FooterCTA, FadeUp } from '../../components/info/shared';
 
-const FOUNDER_AVATAR = '/images/bil-founder.jpg';
-
-const FEATURES = [
-  {
-    icon: Wheat,
-    title: 'Producto con origen',
-    description: 'Puedes ver quién está detrás de lo que compras, cómo trabaja y por qué ese producto merece atención.',
-  },
-  {
-    icon: MessageCircle,
-    title: 'Relación más directa',
-    description: 'La ficha no es el final. La conversación también forma parte de una compra mejor informada.',
-  },
-  {
-    icon: Globe,
-    title: 'Más contexto útil',
-    description: 'Productores, creadores e importadores conviven en el mismo flujo para que entiendas mejor lo que tienes delante.',
-  },
-];
-
-const STEPS = [
-  {
-    icon: Search,
-    title: 'Explora',
-    description: 'Entras por interés real y descubres comida, historias y personas con criterio.',
-  },
-  {
-    icon: MessageCircle,
-    title: 'Entiende',
-    description: 'Lees contexto, sigues perfiles relevantes y comparas mejor antes de decidir.',
-  },
-  {
-    icon: Package,
-    title: 'Compra',
-    description: 'La compra llega después, cuando ya sabes por qué ese producto encaja contigo.',
-  },
-];
-
-const FAQS = [
-  {
-    question: '¿Qué es Hispaloshop exactamente?',
-    answer: 'Es una plataforma de social commerce para alimentación. Puedes descubrir productos, seguir a productores y comprar con más contexto.',
-  },
-  {
-    question: '¿Por qué tiene una capa social?',
-    answer: 'Porque una buena compra no sale solo del precio. También sale de entender quién está detrás y si esa recomendación tiene sentido.',
-  },
-  {
-    question: '¿Solo sirve para consumidores?',
-    answer: 'No. También está pensada para productores, creadores e importadores, pero esta página explica la idea general del producto.',
-  },
-];
-
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-  transition: { duration: 0.55, ease: 'easeOut' },
-};
-
-const QueEsPage = () => {
-  const navigate = useNavigate();
-  const extraLinks = useMemo(() => [{ label: 'Historia', href: '#historia' }], []);
-  const [founderAvatarError, setFounderAvatarError] = useState(false);
-
+export default function QueEsPage() {
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-950">
-      <SEOHead
-        title="Qué es Hispaloshop"
-        description="Descubre por qué existe Hispaloshop y cómo conecta productores, creadores, importadores y consumidores en un mismo flujo."
-        keywords="Hispaloshop, social commerce, productores, creadores, importadores, comida real"
+    <div style={{ fontFamily: 'var(--hs-font, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+      <InfoNav activePage="/que-es-hispaloshop" />
+
+      <Hero
+        eyebrow="La plataforma de alimentación sana"
+        headline="Donde el producto artesano encuentra su comprador"
+        sub="Una sola plataforma para descubrir, compartir y comprar alimentos auténticos. Productores, influencers, importadores y consumidores, conectados."
+        cta="Explorar Hispaloshop"
+        ctaHref="/feed"
       />
 
-      <NavbarLanding extraLinks={extraLinks} />
-      <LandingSectionNav />
-
-      <section className="overflow-hidden bg-stone-50 pb-16 pt-10 sm:pb-20 sm:pt-12">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
-          <motion.div {...fadeUp}>
-            <span className="inline-flex rounded-full border border-stone-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-500">
-              Social commerce alimentario
-            </span>
-            <h1 className="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-stone-950 md:text-5xl">
-              Comida real, contexto suficiente y una forma más limpia de comprar.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-700">
-              Hispaloshop existe para acercarte a productores honestos, creadores que recomiendan con criterio e importadores que no quieren volver a trabajar a ciegas.
-            </p>
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-              <button
-                type="button"
-                onClick={() => navigate('/register/new')}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3.5 font-medium text-white transition-colors hover:bg-stone-800"
-              >
-                Crear cuenta
-                <ArrowRight className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/discover')}
-                className="rounded-full border border-stone-300 bg-white px-6 py-3.5 font-medium text-stone-950 transition-colors hover:bg-stone-100"
-              >
-                Explorar catálogo
-              </button>
-            </div>
-          </motion.div>
-
-          <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.08 }} className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <img
-                src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=900&auto=format&fit=crop"
-                alt="Botellas de aceite de oliva artesanal"
-                loading="lazy"
-                className="h-[220px] w-full rounded-2xl object-cover shadow-md sm:h-[280px]"
-              />
-              <div className="rounded-2xl border border-stone-100 bg-white p-5 shadow-sm">
-                <p className="text-sm font-semibold text-stone-950">Compra con contexto</p>
-                <p className="mt-2 text-sm leading-6 text-stone-700">Menos ruido, más señales reales sobre producto, origen y recomendación.</p>
+      {/* Que es — explicacion en 2 columnas */}
+      <section style={{
+        background: 'var(--hs-bg, #F5F5F7)',
+        padding: 'clamp(56px, 8vw, 96px) 24px',
+      }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <FadeUp>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+              gap: 32,
+            }}>
+              <div>
+                <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)',
+                              fontWeight: 700, color: '#1D1D1F',
+                              letterSpacing: '-0.02em', marginBottom: 16 }}>
+                  Instagram se encontró con Amazon. Nació Hispaloshop.
+                </h2>
+                <p style={{ fontSize: 16, color: '#6E6E73', lineHeight: 1.7 }}>
+                  Hispaloshop es una plataforma de social commerce especializada
+                  en alimentos saludables y artesanales. Los productores publican
+                  su historia, sus productos y su proceso. Los consumidores
+                  descubren, siguen y compran directamente.
+                </p>
+              </div>
+              <div>
+                <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)',
+                              fontWeight: 700, color: '#1D1D1F',
+                              letterSpacing: '-0.02em', marginBottom: 16 }}>
+                  Con una IA que conoce lo que comes.
+                </h2>
+                <p style={{ fontSize: 16, color: '#6E6E73', lineHeight: 1.7 }}>
+                  Hispal AI aprende tus preferencias, alergias y objetivos de
+                  salud. Te recomienda productos reales del catálogo, crea recetas
+                  y puede añadirlos al carrito por ti. El asistente más personal
+                  que ha tenido tu cocina.
+                </p>
               </div>
             </div>
-            <div className="space-y-4 pt-8">
-              <img
-                src="https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=900&auto=format&fit=crop"
-                alt="Queso artesanal en una mesa de producto"
-                loading="lazy"
-                className="h-[280px] w-full rounded-2xl object-cover shadow-md sm:h-[340px]"
-              />
-              <div className="rounded-2xl bg-stone-950 p-5 text-white shadow-md">
-                <p className="text-sm font-semibold text-white">Un solo flujo</p>
-                <p className="mt-2 text-sm leading-relaxed text-white/80">Descubrir, conversar y comprar sin saltar entre experiencias rotas.</p>
-              </div>
-            </div>
-          </motion.div>
+          </FadeUp>
         </div>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Nació de una frustración concreta: ver buen producto escondido dentro de un sistema que no explica nada.
+      {/* Los 4 roles */}
+      <section style={{
+        background: '#FFFFFF',
+        padding: 'clamp(56px, 8vw, 96px) 24px',
+      }}>
+        <FadeUp>
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
+                        textAlign: 'center', color: '#1D1D1F',
+                        letterSpacing: '-0.02em', marginBottom: 48 }}>
+            Una plataforma, cuatro roles
           </h2>
-          <div className="mt-10 grid gap-4 text-left md:grid-cols-2">
-            {[
-              'Etiquetas sin contexto suficiente.',
-              'Recomendaciones que no sabes si creer.',
-              'Productores invisibles para quien sí los valoraría.',
-              'Compras que no cuentan ninguna historia real.',
-            ].map((item) => (
-              <div key={item} className="rounded-[24px] border border-stone-200 bg-stone-50 p-5 text-stone-700">
-                {item}
+        </FadeUp>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 16, maxWidth: 900, margin: '0 auto',
+        }}>
+          {[
+            { icon: '🛒', role: 'Consumidor', desc: 'Descubre productos auténticos, sigue a tus productores favoritos y compra con la ayuda de Hispal AI.', href: '/registro' },
+            { icon: '🫙', role: 'Productor',  desc: 'Vende directamente, construye tu comunidad y exporta al mundo con el Agente Comercial IA.', href: '/productor' },
+            { icon: '⭐', role: 'Influencer', desc: 'Comparte lo que usas, gana comisiones reales y conecta con marcas que encajan con tu audiencia.', href: '/influencer' },
+            { icon: '🌍', role: 'Importador', desc: 'Accede al catálogo español verificado, gestiona certificados y automatiza las órdenes de compra.', href: '/importador' },
+          ].map((r, i) => (
+            <FadeUp key={r.role} delay={i * 0.08}>
+              <a href={r.href} style={{ textDecoration: 'none' }}>
+                <div style={{
+                  background: 'var(--hs-bg, #F5F5F7)',
+                  borderRadius: 18, padding: '28px 22px',
+                  border: '0.5px solid rgba(0,0,0,0.07)',
+                  cursor: 'pointer', height: '100%',
+                  transition: 'all 0.25s ease',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.09)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+                >
+                  <div style={{ fontSize: 38, marginBottom: 14 }}>{r.icon}</div>
+                  <p style={{ fontSize: 18, fontWeight: 700, color: '#1D1D1F',
+                               marginBottom: 10 }}>{r.role}</p>
+                  <p style={{ fontSize: 13, color: '#6E6E73',
+                               lineHeight: 1.6, margin: 0 }}>{r.desc}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0A',
+                               margin: '14px 0 0' }}>
+                    Saber más →
+                  </p>
+                </div>
+              </a>
+            </FadeUp>
+          ))}
+        </div>
+      </section>
+
+      {/* Por que Espana */}
+      <section style={{
+        background: '#0A0A0A',
+        padding: 'clamp(56px, 8vw, 96px) 24px',
+        textAlign: 'center',
+      }}>
+        <FadeUp>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em',
+                       textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
+                       marginBottom: 16 }}>
+            Por qué España
+          </p>
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
+                        color: '#FFFFFF', maxWidth: 620, margin: '0 auto 20px',
+                        letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            El 4º exportador agroalimentario de Europa
+          </h2>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.55)',
+                       maxWidth: 500, margin: '0 auto 40px', lineHeight: 1.6 }}>
+            España exporta más de 74.000 millones de euros en alimentos cada año.
+            Hispaloshop es el canal digital que conecta ese producto con el mundo.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center',
+                         gap: 'clamp(24px, 5vw, 64px)', flexWrap: 'wrap' }}>
+            {[['€74B', 'exportados en 2024'], ['30.000', 'empresas exportadoras'], ['190', 'países destino']].map(([n, l]) => (
+              <div key={l}>
+                <p style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800,
+                             color: '#FFFFFF', letterSpacing: '-0.03em', margin: 0 }}>{n}</p>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)',
+                             margin: '4px 0 0' }}>{l}</p>
               </div>
             ))}
           </div>
-          <p className="mt-8 text-xl font-semibold leading-9 text-stone-950">
-            Hispaloshop parte de una pregunta simple:
-            <br />
-            ¿Y si pudieras comprar sabiendo quién está al otro lado?
-          </p>
-        </div>
+        </FadeUp>
       </section>
 
-      <section id="historia" className="bg-stone-950 py-20 text-white">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-white/70">La historia detrás</p>
-            <h2 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Por qué existe Hispaloshop</h2>
-            <p className="mt-4 text-lg leading-8 text-white/80">No salió de un estudio de mercado. Salió de lo que vi y de lo que perdí.</p>
-          </div>
-          <div className="space-y-5 rounded-2xl border border-white/10 bg-white/5 p-6 text-base leading-relaxed text-white/80 shadow-md sm:p-8">
-            <p>Tenía 24 años y recorría España de fábrica en fábrica. Conocí a productores que hacían las cosas bien y que seguían siendo invisibles para casi todo el mundo.</p>
-            <p>
-              Intenté llevar esos productos fuera. Fracasé. Perdí 15.000 EUR y entendí algo que ya no se me olvidó:
-              <strong className="text-white"> el problema no era el producto, sino la falta de un canal directo entre quien hace la comida y quien la compra.</strong>
-            </p>
-            <p>Por eso hice Hispaloshop. Para que puedas comprar con más verdad, para que el productor honesto no desaparezca en un lineal y para que el creador no tenga que elegir entre dignidad e ingresos.</p>
-            <div className="flex items-center gap-3 pt-2">
-              <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white/10 ring-1 ring-white/10">
-                {!founderAvatarError ? (
-                  <img
-                    src={FOUNDER_AVATAR}
-                    alt="Bil Chanfou - fundador de Hispaloshop"
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                    onError={() => setFounderAvatarError(true)}
-                  />
-                ) : null}
-                {founderAvatarError ? (
-                  <div className="flex h-full w-full items-center justify-center bg-white text-xs font-bold text-stone-950">BC</div>
-                ) : null}
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white">Bil Chanfou · Fundador</p>
-                <a href="https://instagram.com/bchanfuah" target="_blank" rel="noopener noreferrer" className="text-xs text-white/70 transition-colors hover:text-white" aria-label="Seguir a Bil Chanfou en Instagram">
-                  @bchanfuah
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-stone-50 py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Cómo funciona</h2>
-          <StepProcess steps={STEPS} layout="horizontal" />
-        </div>
-      </section>
-
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Tres pilares del producto</h2>
-          <FeatureGrid features={FEATURES} columns={3} />
-        </div>
-      </section>
-
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-stone-100 bg-stone-50 p-8 shadow-sm sm:p-10">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-950 text-white">
-              <Compass className="h-6 w-6" />
-            </div>
-            <h2 className="mt-6 text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Empieza por mirar mejor lo que compras</h2>
-            <p className="mt-4 text-lg leading-8 text-stone-700">
-              Después ya decidirás si quieres seguir, comprar o construir tu perfil dentro de Hispaloshop.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <button type="button" onClick={() => navigate('/register/new')} className="rounded-full bg-stone-950 px-8 py-4 font-semibold text-white transition-colors hover:bg-stone-800">
-                Crear cuenta
-              </button>
-              <button type="button" onClick={() => navigate('/discover')} className="rounded-full border border-stone-300 bg-white px-8 py-4 font-semibold text-stone-950 transition-colors hover:bg-stone-100">
-                Explorar sin cuenta
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-stone-50 py-20">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-12 text-center text-2xl font-semibold tracking-tight text-stone-950 sm:text-3xl">Preguntas frecuentes</h2>
-          <FAQAccordion faqs={FAQS} />
-        </div>
-      </section>
-
-      <FooterLanding />
+      <FooterCTA
+        headline="El mejor alimento artesano está aquí"
+        cta="Empezar gratis"
+        ctaHref="/registro"
+      />
     </div>
   );
-};
-
-export default QueEsPage;
+}

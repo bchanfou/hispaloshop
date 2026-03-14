@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="theme-color" content="#1C1C1C" />
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.cloudinary.com; connect-src 'self' wss: https://api.anthropic.com https://api.stripe.com https://*.hispaloshop.com; frame-src https://js.stripe.com https://hooks.stripe.com;" />
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net https://*.i.posthog.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://*.cloudinary.com https://images.unsplash.com https://i.pravatar.cc https://lh3.googleusercontent.com https://via.placeholder.com; media-src 'self' blob: https://res.cloudinary.com; connect-src 'self' wss: https://api.anthropic.com https://api.stripe.com https://*.hispaloshop.com https://*.i.posthog.com https://us.i.posthog.com; frame-src https://js.stripe.com https://hooks.stripe.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
         <meta name="description" content="Hispaloshop — Global marketplace for certified food products. Buy from local producers, sell worldwide, or earn as an influencer." />
         <meta property="og:title" content="Hispaloshop — Buy, Sell & Earn" />
         <meta property="og:description" content="The marketplace that connects artisan food producers with conscious consumers worldwide. 18+ countries, secure payments, 24-48h delivery." />
@@ -290,14 +290,25 @@
                     }),
                     (e.__SV = 1));
             })(document, window.posthog || []);
-            posthog.init("phc_xAvL2Iq4tFmANRE7kzbKwaSqp1HJjN7x48s3vr0CMjs", {
-                api_host: "https://us.i.posthog.com",
-                person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well,
-                session_recording: {
-                    recordCrossOriginIframes: true,
-                    capturePerformance: false,
-                },
-            });
+            // Only init PostHog if user has accepted analytics consent
+            window.__posthogInit = function() {
+                if (!window.__posthogLoaded) {
+                    posthog.init("phc_xAvL2Iq4tFmANRE7kzbKwaSqp1HJjN7x48s3vr0CMjs", {
+                        api_host: "https://us.i.posthog.com",
+                        person_profiles: "identified_only",
+                        session_recording: {
+                            recordCrossOriginIframes: true,
+                            capturePerformance: false,
+                        },
+                    });
+                    window.__posthogLoaded = true;
+                }
+            };
+            try {
+                if (localStorage.getItem('hispaloshop_consent_v1') === 'accepted') {
+                    window.__posthogInit();
+                }
+            } catch(e) {}
         </script>
     </body>
 </html>

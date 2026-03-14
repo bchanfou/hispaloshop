@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { authApi } from '../lib/authApi';
+import { setUser as setSentryUser } from '../lib/sentry';
 
 const AuthContext = createContext(null);
 
@@ -97,6 +98,10 @@ export function AuthProvider({ children }) {
         setInitialized(true);
       }
 
+      if (normalizedUser) {
+        setSentryUser({ id: normalizedUser.user_id, username: normalizedUser.username, email: normalizedUser.email });
+      }
+
       return { ...data, user: normalizedUser };
     } catch (err) {
       if (mountedRef.current) {
@@ -150,6 +155,7 @@ export function AuthProvider({ children }) {
         setError(null);
         setInitialized(true);
       }
+      setSentryUser(null);
     }
   }, [setUser]);
 

@@ -15,6 +15,10 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 import logging
 
+# === SENTRY — inicializar antes que todo lo demas ===
+from middleware.sentry_init import init_sentry
+init_sentry()
+
 # === IMPORTAR NUEVO SISTEMA DE CONFIGURACION ===
 # La validacion de variables criticas ocurre aqui
 from core.config import settings
@@ -138,6 +142,10 @@ app.add_middleware(
 
 # 2. Security Headers Middleware
 app.add_middleware(SecurityHeadersMiddleware)
+
+# 2b. CSRF Protection (double-submit cookie)
+from middleware.csrf import CSRFMiddleware
+app.add_middleware(CSRFMiddleware)
 
 # 3. Rate Limiting Middleware (100 req/min, burst 50 — páginas de perfil hacen 6+ requests simultáneas)
 app.add_middleware(RateLimitMiddleware, requests_per_minute=100, burst_size=50)

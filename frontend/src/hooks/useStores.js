@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { api } from '../lib/api';
+import apiClient from '../services/api/client';
 
 function normalizeStoresResponse(data) {
   if (Array.isArray(data)) {
@@ -18,7 +18,7 @@ function normalizeStoresResponse(data) {
 export function useStores(params) {
   const { data, error, isLoading } = useSWR(
     ['/stores', params],
-    () => api.getStores(params),
+    () => apiClient.get('/stores', { params }),
     {
       revalidateOnFocus: false,
     }
@@ -37,7 +37,7 @@ export function useStores(params) {
 export function useStore(slug) {
   const { data, error, isLoading } = useSWR(
     slug ? `/store/${slug}` : null,
-    () => api.getStore(slug),
+    () => apiClient.get(`/store/${slug}`),
     {
       revalidateOnFocus: false,
     }

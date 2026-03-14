@@ -1,16 +1,24 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import apiClient from '@/services/api/client';
+import apiClient, { getWSUrl } from '@/services/api/client';
 import { useAuth } from '@/context/AuthContext';
+import { getToken } from '@/lib/auth';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const ChatContext = createContext(null);
 
 export function ChatProvider({ children }) {
   const { user, isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
   const wsRef = useRef(null);
+  const notifWsRef = useRef(null);
   const reconnectRef = useRef(null);
+  const notifReconnectRef = useRef(null);
   const [connected, setConnected] = useState(false);
+  const [notifConnected, setNotifConnected] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [unreadTotal, setUnreadTotal] = useState(0);
+  const [notifUnreadCount, setNotifUnreadCount] = useState(0);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [typingUsers, setTypingUsers] = useState({});
@@ -96,7 +104,88 @@ export function ChatProvider({ children }) {
     }
   }, [isAuthenticated, loadConversations]);
 
-  // WebSocket connection
+  // Clear notification unread count
+  const clearNotifUnreadCount = useCallback(() => {
+    setNotifUnreadCount(0);
+  }, []);
+
+  // Notification WebSocket connection (migrated from RealtimeProvider)
+  const connectNotifications = useCallback(() => {
+    if (!isAuthenticated) return;
+
+    if (notifWsRef.current) {
+      notifWsRef.current.close();
+    }
+
+    const wsUrl = getWSUrl('');
+    try {
+      const ws = new WebSocket(wsUrl);
+      notifWsRef.current = ws;
+
+      ws.onopen = () => {
+        setNotifConnected(true);
+        const token = getToken();
+        if (token) {
+          ws.send(JSON.stringify({ type: 'auth', token }));
+        }
+      };
+
+      ws.onclose = () => {
+        setNotifConnected(false);
+        notifReconnectRef.current = setTimeout(connectNotifications, 3000);
+      };
+
+      ws.onerror = () => {};
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          const { type, payload } = data.type ? data : { type: data.event, payload: data };
+
+          switch (type) {
+            case 'notification':
+              toast(payload.title, { description: payload.body, duration: 5000 });
+              if (!payload.read) setNotifUnreadCount(prev => prev + 1);
+              queryClient.invalidateQueries({ queryKey: ['notifications'] });
+              break;
+            case 'message':
+              queryClient.invalidateQueries({ queryKey: ['hi', 'conversations'] });
+              queryClient.invalidateQueries({ queryKey: ['hi', 'conversation'] });
+              break;
+            case 'order_update':
+              queryClient.invalidateQueries({ queryKey: ['order', payload.orderId] });
+              queryClient.invalidateQueries({ queryKey: ['orders'] });
+              toast.success(`Pedido #${payload.orderId}: ${payload.status}`);
+              break;
+            case 'new_follower':
+              queryClient.invalidateQueries({ queryKey: ['user'] });
+              toast.success(`${payload.followerName} ahora te sigue`);
+              break;
+            case 'story_view':
+              queryClient.invalidateQueries({ queryKey: ['story', payload.storyId, 'views'] });
+              break;
+            case 'price_drop':
+              toast(`${payload.productName} bajó de precio`, {
+                description: `Antes: €${payload.oldPrice} → Ahora: €${payload.newPrice}`,
+                action: {
+                  label: 'Ver',
+                  onClick: () => { window.location.href = `/products/${payload.productId}`; },
+                },
+              });
+              break;
+            default:
+              break;
+          }
+        } catch (e) {
+          // silently handled
+        }
+      };
+    } catch (error) {
+      notifReconnectRef.current = setTimeout(connectNotifications, 5000);
+    }
+  }, [isAuthenticated, queryClient]);
+
+  // Chat WebSocket connection
   const connect = useCallback(() => {
     if (!isAuthenticated || !user) return;
     
@@ -215,21 +304,25 @@ export function ChatProvider({ children }) {
   useEffect(() => {
     if (isAuthenticated) {
       connect();
+      connectNotifications();
     } else {
-      // Close connection when logged out
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
+      // Close connections when logged out
+      if (wsRef.current) wsRef.current.close();
+      if (notifWsRef.current) notifWsRef.current.close();
       setConnected(false);
+      setNotifConnected(false);
       setConversations([]);
       setUnreadTotal(0);
+      setNotifUnreadCount(0);
     }
-    
+
     return () => {
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
+      if (notifReconnectRef.current) clearTimeout(notifReconnectRef.current);
       if (wsRef.current) wsRef.current.close();
+      if (notifWsRef.current) notifWsRef.current.close();
     };
-  }, [isAuthenticated, connect]);
+  }, [isAuthenticated, connect, connectNotifications]);
 
   const value = useMemo(() => ({
     // Connection state
@@ -253,7 +346,12 @@ export function ChatProvider({ children }) {
     
     // Typing indicators
     typingUsers,
-    
+
+    // Notifications (migrated from RealtimeProvider)
+    notifConnected,
+    notifUnreadCount,
+    clearNotifUnreadCount,
+
     // WebSocket reference for advanced usage
     ws: wsRef.current
   }), [
@@ -268,7 +366,10 @@ export function ChatProvider({ children }) {
     sendTyping,
     markAsRead,
     createConversation,
-    typingUsers
+    typingUsers,
+    notifConnected,
+    notifUnreadCount,
+    clearNotifUnreadCount
   ]);
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

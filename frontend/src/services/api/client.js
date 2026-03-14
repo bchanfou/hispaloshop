@@ -61,6 +61,11 @@ async function refreshSession() {
   }
 }
 
+function getCsrfToken() {
+  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 httpClient.interceptors.request.use((config) => {
   const nextConfig = { ...config };
   nextConfig.headers = nextConfig.headers || {};
@@ -72,6 +77,15 @@ httpClient.interceptors.request.use((config) => {
 
   if (!nextConfig.headers['X-Request-ID']) {
     nextConfig.headers['X-Request-ID'] = generateRequestId();
+  }
+
+  // CSRF double-submit: send cookie value as header on mutating requests
+  const method = (nextConfig.method || '').toUpperCase();
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+      nextConfig.headers['X-CSRF-Token'] = csrfToken;
+    }
   }
 
   return nextConfig;
@@ -136,4 +150,13 @@ export const apiClient = {
 };
 
 export { httpClient };
+
+// Helper for WebSocket — centralizes the URL base:
+export const getWSUrl = (path) => {
+  const base = process.env.REACT_APP_WS_URL
+    || API_BASE_URL.replace(/^http/, 'ws')
+    || '';
+  return `${base}${path}`;
+};
+
 export default apiClient;

@@ -113,28 +113,28 @@ function ConsumerDashboard() {
       id: 'reorder',
       icon: RefreshCw,
       label: 'Reordenar favorito',
-      color: '#1c1917',
+      color: 'var(--hs-text-1)',
       onClick: () => navigate('/dashboard/orders')
     },
     {
       id: 'discover',
       icon: Gift,
       label: 'Descubrir novedades',
-      color: '#44403c',
+      color: 'var(--hs-text-2)',
       onClick: () => navigate('/discover')
     },
     {
       id: 'plan',
       icon: Calendar,
       label: 'Planificar semana',
-      color: '#78716c',
+      color: 'var(--hs-text-2)',
       onClick: () => navigate('/recipes')
     },
     {
       id: 'stores',
       icon: MapPin,
       label: 'Tiendas cerca',
-      color: '#1c1917',
+      color: 'var(--hs-text-1)',
       onClick: () => navigate('/stores')
     }
   ];

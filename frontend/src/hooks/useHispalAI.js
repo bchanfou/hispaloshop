@@ -4,6 +4,13 @@ import apiClient from '../services/api/client';
 const RATE_LIMIT_FREE = 20;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
+const SUGGESTIONS = [
+  '¿Qué productos ecológicos tenéis?',
+  'Busco algo sin gluten',
+  '¿Qué me recomiendas para desayunar?',
+  'Muéstrame productos veganos',
+];
+
 function getRateLimitState() {
   try {
     const raw = sessionStorage.getItem('hispal_ai_rate');
@@ -46,7 +53,6 @@ export default function useHispalAI() {
   const [messages, setMessages] = useState(() => getStoredMessages());
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [toolCalls, setToolCalls] = useState([]);
   const abortRef = useRef(null);
 
   const toggleOpen = useCallback(() => {
@@ -55,9 +61,21 @@ export default function useHispalAI() {
 
   const clearChat = useCallback(() => {
     setMessages([]);
-    setToolCalls([]);
     sessionStorage.removeItem('hispal_ai_messages');
     sessionStorage.removeItem('hispal_ai_rate');
+  }, []);
+
+  const addToCartFromChat = useCallback(async (productId, quantity = 1) => {
+    try {
+      await apiClient.post('/v1/hispal-ai/chat', {
+        messages: [
+          { role: 'user', content: `Añade el producto ${productId} al carrito (${quantity} ud.)` },
+        ],
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
 
   const sendMessage = useCallback(async (text) => {
@@ -70,6 +88,7 @@ export default function useHispalAI() {
         role: 'assistant',
         content: 'Has alcanzado el límite de mensajes por hora. Actualiza tu plan para más consultas.',
         timestamp: new Date().toISOString(),
+        toolCalls: [],
       };
       setMessages((prev) => {
         const next = [...prev, errorMsg];
@@ -83,6 +102,7 @@ export default function useHispalAI() {
       role: 'user',
       content: text,
       timestamp: new Date().toISOString(),
+      toolCalls: [],
     };
 
     setMessages((prev) => {
@@ -107,11 +127,8 @@ export default function useHispalAI() {
         role: 'assistant',
         content: data.response || 'Lo siento, no he podido procesar tu mensaje.',
         timestamp: new Date().toISOString(),
+        toolCalls: data.tool_calls || [],
       };
-
-      if (data.tool_calls?.length) {
-        setToolCalls(data.tool_calls);
-      }
 
       setMessages((prev) => {
         const next = [...prev, assistantMessage];
@@ -123,6 +140,7 @@ export default function useHispalAI() {
         role: 'assistant',
         content: 'Lo siento, ha ocurrido un error. Inténtalo de nuevo.',
         timestamp: new Date().toISOString(),
+        toolCalls: [],
       };
       setMessages((prev) => {
         const next = [...prev, errorMessage];
@@ -138,9 +156,10 @@ export default function useHispalAI() {
     messages,
     isLoading,
     isOpen,
-    toolCalls,
+    suggestions: SUGGESTIONS,
     sendMessage,
     toggleOpen,
     clearChat,
+    addToCartFromChat,
   };
 }

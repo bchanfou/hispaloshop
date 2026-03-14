@@ -4,8 +4,25 @@
  */
 
 import useSWR from 'swr';
-import { api } from '../lib/api';
+import apiClient from '../services/api/client';
 import { useLocale } from '../context/LocaleContext';
+
+function buildProductParams(filters) {
+  const params = {};
+  if (filters.country)       params.country        = filters.country;
+  if (filters.category)      params.category       = filters.category;
+  if (filters.search)        params.search         = filters.search;
+  if (filters.sort)          params.sort           = filters.sort;
+  if (filters.min_price != null) params.min_price  = filters.min_price;
+  if (filters.max_price != null) params.max_price  = filters.max_price;
+  if (filters.certifications) params.certifications = filters.certifications;
+  if (filters.seller_id)     params.seller_id      = filters.seller_id;
+  if (filters.featured_only) params.featured_only  = filters.featured_only;
+  if (filters.lang)          params.lang           = filters.lang;
+  if (filters.limit)         params.limit          = filters.limit;
+  if (filters.cursor)        params.cursor         = filters.cursor;
+  return params;
+}
 
 export function useProducts(filters = {}) {
   const { country, language } = useLocale();
@@ -21,9 +38,11 @@ export function useProducts(filters = {}) {
 
   const cacheKey = ['/products', JSON.stringify(mergedFilters)];
 
-  const { data, error, isLoading } = useSWR(cacheKey, () => api.getProducts(mergedFilters), {
-    revalidateOnFocus: false,
-  });
+  const { data, error, isLoading } = useSWR(
+    cacheKey,
+    () => apiClient.get('/products', { params: buildProductParams(mergedFilters) }),
+    { revalidateOnFocus: false },
+  );
 
   return {
     products: data?.items || data?.products || (Array.isArray(data) ? data : []),
@@ -40,9 +59,13 @@ export function useProducts(filters = {}) {
 export function useProduct(productIdOrSlug) {
   const { country, language } = useLocale();
 
+  const params = {};
+  if (country) params.country = country;
+  if (language) params.lang = language;
+
   const { data, error, isLoading } = useSWR(
     productIdOrSlug ? ['/products', productIdOrSlug, country, language] : null,
-    () => api.getProduct(productIdOrSlug, { country, lang: language }),
+    () => apiClient.get(`/products/${productIdOrSlug}`, { params }),
     { revalidateOnFocus: false },
   );
 

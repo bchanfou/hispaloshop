@@ -4,7 +4,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api';
+import apiClient from '../../services/api/client';
 
 const PRODUCER_KEYS = {
   dashboard: ['producer', 'dashboard'],
@@ -20,7 +20,7 @@ const PRODUCER_KEYS = {
 export function useProducerDashboard() {
   return useQuery({
     queryKey: PRODUCER_KEYS.dashboard,
-    queryFn: () => api.get('/producer/dashboard'),
+    queryFn: () => apiClient.get('/producer/dashboard'),
     staleTime: 2 * 60 * 1000,
     refetchInterval: 30000, // Refetch cada 30 seg para stats live
   });
@@ -32,7 +32,7 @@ export function useProducerDashboard() {
 export function useProducerProducts() {
   return useQuery({
     queryKey: PRODUCER_KEYS.products,
-    queryFn: () => api.get('/producer/products'),
+    queryFn: () => apiClient.get('/producer/products'),
     staleTime: 1 * 60 * 1000,
   });
 }
@@ -44,7 +44,7 @@ export function useCreateProduct() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (productData) => api.post('/producer/products', productData),
+    mutationFn: (productData) => apiClient.post('/producer/products', productData),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PRODUCER_KEYS.products });
@@ -60,7 +60,7 @@ export function useUpdateProduct() {
   
   return useMutation({
     mutationFn: ({ productId, data }) => 
-      api.put(`/producer/products/${productId}`, data),
+      apiClient.put(`/producer/products/${productId}`, data),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PRODUCER_KEYS.products });
@@ -75,7 +75,7 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (productId) => api.delete(`/producer/products/${productId}`),
+    mutationFn: (productId) => apiClient.delete(`/producer/products/${productId}`),
     
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PRODUCER_KEYS.products });
@@ -89,7 +89,7 @@ export function useDeleteProduct() {
 export function useProducerOrders() {
   return useQuery({
     queryKey: PRODUCER_KEYS.orders,
-    queryFn: () => api.get('/producer/orders'),
+    queryFn: () => apiClient.get('/producer/orders'),
     staleTime: 30 * 1000,
     refetchInterval: 30000,
   });
@@ -103,7 +103,7 @@ export function useUpdateOrderStatus() {
   
   return useMutation({
     mutationFn: ({ orderId, status, trackingNumber }) => 
-      api.put(`/producer/orders/${orderId}/status`, { 
+      apiClient.put(`/producer/orders/${orderId}/status`, { 
         status, 
         tracking_number: trackingNumber 
       }),
@@ -120,7 +120,7 @@ export function useUpdateOrderStatus() {
 export function useProducerAnalytics() {
   return useQuery({
     queryKey: PRODUCER_KEYS.analytics,
-    queryFn: () => api.get('/producer/analytics'),
+    queryFn: () => apiClient.get('/producer/analytics'),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -131,7 +131,7 @@ export function useProducerAnalytics() {
 export function useProducerHIInsights() {
   return useQuery({
     queryKey: PRODUCER_KEYS.hiInsights,
-    queryFn: () => api.get('/producer/hi-insights'),
+    queryFn: () => apiClient.get('/producer/hi-insights'),
     staleTime: 10 * 60 * 1000,
   });
 }

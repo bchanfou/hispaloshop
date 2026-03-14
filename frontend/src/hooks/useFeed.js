@@ -4,13 +4,22 @@
  */
 
 import useSWR from 'swr';
-import { api } from '../lib/api';
+import apiClient from '../services/api/client';
+
+function buildFeedParams(params = {}) {
+  const qp = new URLSearchParams();
+  if (params.cursor) qp.set('skip', params.cursor);
+  if (params.limit) qp.set('limit', params.limit);
+  if (params.source === 'following') qp.set('scope', 'following');
+  const qs = qp.toString();
+  return qs ? `?${qs}` : '';
+}
 
 // Hook para obtener feed social
 export function useFeed(params) {
   const { data, error, isLoading } = useSWR(
     ['feed', params],
-    () => api.getFeed(params),
+    () => apiClient.get(`/feed${buildFeedParams(params)}`),
     {
       revalidateOnFocus: false,
     }
@@ -29,7 +38,7 @@ export function useFeed(params) {
 export function useFollowingFeed(cursor) {
   const { data, error, isLoading } = useSWR(
     ['feed-following', cursor],
-    () => api.getFeed({ source: 'following', cursor }),
+    () => apiClient.get(`/feed${buildFeedParams({ source: 'following', cursor })}`),
     {
       revalidateOnFocus: false,
     }
@@ -48,7 +57,7 @@ export function useFollowingFeed(cursor) {
 export function useTrendingFeed() {
   const { data, error, isLoading } = useSWR(
     'feed-trending',
-    () => api.getTrendingFeed(),
+    () => apiClient.get('/feed/trending'),
     {
       revalidateOnFocus: false,
     }

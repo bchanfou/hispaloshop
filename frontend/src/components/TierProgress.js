@@ -3,7 +3,7 @@ import apiClient from '../services/api/client';
 import { TrendingUp, Users, DollarSign, RefreshCw, Loader2, Award, Sparkles, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 
-function ProgressBar({ current, target, label, color = '#1c1917' }) {
+function ProgressBar({ current, target, label, color = '#0A0A0A' }) {
   const pct = target > 0 ? Math.min(100, (current / target) * 100) : 0;
   return (
     <div data-testid={`progress-${label}`}>
@@ -39,9 +39,9 @@ export default function TierProgress() {
   if (!data) return null;
 
   const tierIcons = { hercules: Award, atenea: Sparkles, zeus: Crown };
-  const tierColors = { hercules: '#1c1917', atenea: '#1c1917', zeus: '#1c1917' };
+  const tierColors = { hercules: '#0A0A0A', atenea: '#0A0A0A', zeus: '#0A0A0A' };
   const Icon = tierIcons[data.current_tier] || Award;
-  const color = tierColors[data.current_tier] || '#1c1917';
+  const color = tierColors[data.current_tier] || '#0A0A0A';
   const tierLabels = { hercules: 'Hercules', atenea: 'Atenea', zeus: 'Zeus' };
   const nextTierLabel = tierLabels[data.progress?.next_tier] || data.progress?.next_tier;
   const gmvCurrentEuros = Math.round((data.progress?.gmv?.current || 0) / 100);

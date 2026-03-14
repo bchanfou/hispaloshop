@@ -1,261 +1,183 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  BrainCircuit,
-  CircleDollarSign,
-  HeartHandshake,
-  Leaf,
-  Plane,
-  Wheat,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import SEO from '../../components/SEO';
-import SignupModal, { PRODUCER_PLANS, normalizeProducerPlan } from '../../components/producer/SignupModal';
-import { useAuth } from '../../context/AuthContext';
-import { getDefaultRoute } from '../../lib/navigation';
+import React from 'react';
+import { InfoNav, Hero, FeatureGrid, PricingSection, FooterCTA } from '../../components/info/shared';
 
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.18 },
-  transition: { duration: 0.55 },
-};
-
-const painPoints = [
-  'Distribuidores que pagan tarde y aprietan margen desde el principio.',
-  'Ferias caras donde vendes menos de lo que gastas.',
-  'Stock parado mientras buscas a quien debería estar buscándote a ti.',
-  'Tu historia y tu origen quedan fuera de la decisión de compra.',
+const FEATURES = [
+  { icon: '🫙', title: 'Tu tienda en 5 minutos', desc: 'Sube tus productos, añade tu historia y empieza a vender sin comisión fija. Solo pagas cuando vendes.' },
+  { icon: '📲', title: 'Social commerce nativo', desc: 'Publica posts, reels y stories directamente desde el panel. Tus productos aparecen etiquetados en el contenido.' },
+  { icon: '🤖', title: 'Hispal AI trabaja por ti', desc: 'El asistente de IA recomienda tus productos a compradores con el perfil exacto. 24 horas al día, sin intervención.' },
+  { icon: '📊', title: 'Analítica de verdad', desc: 'Ve qué productos generan más ventas, qué contenido convierte y desde dónde te llegan los compradores.' },
+  { icon: '🌍', title: 'Exporta sin intermediarios', desc: 'Con el plan ELITE, el Agente Comercial IA conecta tu producto con importadores de más de 40 países.' },
+  { icon: '💳', title: 'Cobros automáticos', desc: 'Stripe gestiona los pagos, las comisiones y las liquidaciones. Tú recibes tu dinero sin papeleo.' },
 ];
 
-const valueCards = [
-  { icon: CircleDollarSign, title: 'Venta directa', body: 'Quiero que puedas vender con más margen y menos intermediarios innecesarios.' },
-  { icon: HeartHandshake, title: 'Tu historia delante', body: 'El producto no aparece solo como una ficha fría. Aparece con origen, contexto y comunidad.' },
-  { icon: Plane, title: 'Ruta B2B más clara', body: 'Si quieres abrir mercado fuera, la plataforma también te acerca a conversaciones más ordenadas.' },
-  { icon: BrainCircuit, title: 'Herramientas útiles', body: 'Contenido, traducción y mejor presentación sin obligarte a montar un equipo entero.' },
+const PLANS = [
+  {
+    name: 'Free',
+    tagline: 'Para empezar a vender',
+    price: 0,
+    accentColor: '#34C759',
+    features: [
+      'Hasta 30 productos',
+      'Tienda personalizada con historia',
+      'Visibilidad nacional en España',
+      'Comisión del 20% sobre ventas',
+      'Acceso a comunidad de productores',
+      'Hispal AI (consumidores)',
+    ],
+    cta: 'Crear mi tienda',
+    ctaHref: '/registro?plan=free',
+  },
+  {
+    name: 'PRO',
+    tagline: 'Para crecer en España',
+    price: 79,
+    accentColor: '#FF9500',
+    isPopular: true,
+    features: [
+      'Productos ilimitados',
+      'IA de marketing: copy y traducción a 5 idiomas',
+      'Precios dinámicos por zona geográfica',
+      'Matching con hasta 5 influencers',
+      'Analítica avanzada de ventas',
+      'Comisión reducida al 18%',
+      'Soporte prioritario por email',
+      'Asistente IA de ventas B2C',
+    ],
+    cta: 'Elegir PRO',
+    ctaHref: '/registro?plan=pro',
+  },
+  {
+    name: 'ELITE',
+    tagline: 'Para exportar al mundo',
+    price: 249,
+    accentColor: '#5856D6',
+    isDark: true,
+    features: [
+      'Todo lo del PRO',
+      'Agente Comercial IA internacional',
+      'Predicción de demanda por país',
+      'Análisis de mercados internacionales',
+      'Detección de riesgo de desabastecimiento',
+      'Matching con importadores globales',
+      'Contratos B2B generados por IA',
+      'Análisis de regulaciones y aranceles',
+      'Dossieres de exportación en PDF',
+      'Soporte telefónico directo',
+      'Prioridad absoluta de visibilidad',
+    ],
+    cta: 'Exportar con ELITE',
+    ctaHref: '/registro?plan=elite',
+  },
 ];
 
-function HeroStory({ expanded, onToggle }) {
+export default function ProductorPage() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/80 p-5 shadow-md backdrop-blur-sm sm:p-7">
-      <div className="border-l-4 border-white/30 pl-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">Verano de 2024</p>
-        <p className="mt-4 text-sm leading-7 text-white/80 sm:text-[15px]">
-          Recorrí España de fábrica en fábrica y vi algo muy concreto: productores honestos haciendo las cosas bien y muy poca estructura alrededor para ayudarles a llegar lejos.
-        </p>
-        <div className={`${expanded ? 'block' : 'hidden md:block'}`}>
-          <p className="mt-4 text-sm leading-7 text-white/80 sm:text-[15px]">
-            Luego me fui a Corea con muestras, reuniones y demasiadas puertas cerradas. Perdí dinero, tiempo y orgullo, pero entendí algo útil: el problema no era vuestro producto. Era el sistema alrededor.
-          </p>
-          <p className="mt-4 text-sm leading-7 text-white/80 sm:text-[15px]">
-            Esta página sale de ahí. No de una teoría. De haber visto cómo el buen producto se queda esperando mientras el mercado favorece a quien mejor negocia, no siempre a quien mejor hace las cosas.
-          </p>
-        </div>
-      </div>
+    <div style={{ fontFamily: 'var(--hs-font, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+      <InfoNav activePage="/productor" />
 
-      <button
-        type="button"
-        onClick={onToggle}
-        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white/80 md:hidden"
-      >
-        {expanded ? 'Cerrar historia' : 'Leer toda la historia'}
-        <ArrowRight className={`h-4 w-4 transition ${expanded ? 'rotate-90' : ''}`} />
-      </button>
-    </div>
-  );
-}
-
-export default function ProducerLanding() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const { user } = useAuth();
-  const [storyExpanded, setStoryExpanded] = useState(false);
-
-  const signupOpen = location.pathname === '/productor/registro';
-  const selectedPlan = normalizeProducerPlan(searchParams.get('plan'));
-  const currentRoute = useMemo(
-    () => getDefaultRoute(user, user?.onboarding_completed ?? user?.onboardingCompleted),
-    [user],
-  );
-
-  useEffect(() => {
-    if (!signupOpen || !user) return;
-    toast.error('Ya tienes una cuenta activa. Te llevo al flujo correcto para no duplicarte el acceso.');
-    navigate(currentRoute, { replace: true });
-  }, [currentRoute, navigate, signupOpen, user]);
-
-  const openSignup = (plan = 'free') => {
-    if (user) {
-      navigate(currentRoute);
-      return;
-    }
-    navigate(`/productor/registro?plan=${normalizeProducerPlan(plan)}`);
-  };
-
-  const closeSignup = () => {
-    navigate('/productor', { replace: true });
-  };
-
-  return (
-    <div className="min-h-screen bg-stone-50 text-stone-950">
-      <SEO
-        title="Vende tu producto artesanal al mundo | Hispaloshop para Productores"
-        description="Landing para productores que quieren vender con más contexto, mejor margen y una infraestructura más clara."
-        url="https://www.hispaloshop.com/productor"
-        structuredData={[
-          {
-            '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            name: 'Hispaloshop para Productores',
-            description: 'Landing para productores artesanales y cooperativas que quieren vender directo y abrir mercado con menos niebla.',
-            url: 'https://www.hispaloshop.com/productor',
-          },
-        ]}
+      <Hero
+        eyebrow="Para productores artesanos"
+        headline="Tu producto merece llegar lejos"
+        sub="Vende en España y exporta al mundo con una plataforma que trabaja contigo las 24 horas."
+        cta="Crear mi tienda gratis"
+        ctaHref="/registro?rol=productor"
       />
 
-      <Header />
+      <FeatureGrid features={FEATURES} />
 
-      <main>
-        <section className="relative isolate overflow-hidden bg-stone-950 text-white">
-          <div className="absolute inset-0 opacity-30" aria-hidden="true">
-            <div className="absolute left-[8%] top-[18%] h-40 w-40 rounded-full border border-white/10" />
-            <div className="absolute right-[10%] top-[22%] h-24 w-24 rounded-full border border-white/10" />
+      {/* Stats strip */}
+      <section style={{
+        background: '#0A0A0A', padding: '40px 24px',
+        display: 'flex', justifyContent: 'center', gap: 'clamp(32px, 6vw, 80px)',
+        flexWrap: 'wrap',
+      }}>
+        {[
+          { n: '+8.000', label: 'productores activos' },
+          { n: '42', label: 'países de exportación' },
+          { n: '0€', label: 'para empezar' },
+          { n: '24/7', label: 'Hispal AI trabajando' },
+        ].map(s => (
+          <div key={s.label} style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 700,
+                         color: '#FFFFFF', letterSpacing: '-0.02em', margin: 0 }}>
+              {s.n}
+            </p>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '4px 0 0' }}>
+              {s.label}
+            </p>
           </div>
+        ))}
+      </section>
 
-          <div className="relative mx-auto flex min-h-[calc(100svh-56px)] max-w-7xl flex-col justify-center px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-            <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-              <div className="max-w-3xl">
-                <motion.span {...fadeUp} className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-white/80">
-                  Lo he visto de cerca
-                </motion.span>
-                <motion.h1 {...fadeUp} transition={{ duration: 0.55, delay: 0.05 }} className="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
-                  Si has hecho un producto bueno de verdad, no deberías sentir que todo el sistema está diseñado para dejarte sin margen y sin voz.
-                </motion.h1>
-                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.1 }} className="mt-6 max-w-2xl text-base leading-8 text-white/80 sm:text-[22px]">
-                  He hablado con productores que trabajan mejor de lo que cobran. Obradores, cooperativas y pequeñas marcas que sostienen calidad real, pero llegan al mercado tarde, mal y negociando siempre desde abajo.
-                </motion.p>
-                <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.16 }} className="mt-7 flex flex-col gap-3 sm:flex-row">
-                  <button type="button" onClick={() => openSignup('free')} className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-4 text-sm font-semibold text-stone-950 transition hover:-translate-y-0.5">
-                    Crear mi tienda
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                  <button type="button" onClick={() => document.getElementById('planes-productor')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/18 px-7 py-4 text-sm font-semibold text-white transition hover:bg-white/10">
-                    Ver planes
-                  </button>
-                </motion.div>
-                <motion.p {...fadeUp} transition={{ duration: 0.55, delay: 0.2 }} className="mt-8 max-w-2xl text-base leading-8 text-white/80">
-                  Yo también he visto lo que pasa cuando el producto tiene alma pero el canal no acompaña. Por eso esta página no es un pitch deck: es la infraestructura que me habría gustado poner delante de esos productores desde el primer día.
-                </motion.p>
-              </div>
+      <PricingSection
+        title="Un plan para cada momento"
+        sub="Empieza gratis. Crece cuando estés listo."
+        plans={PLANS}
+      />
 
-              <motion.div {...fadeUp} transition={{ duration: 0.55, delay: 0.12 }} className="space-y-5">
-                <HeroStory expanded={storyExpanded} onToggle={() => setStoryExpanded((current) => !current)} />
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {painPoints.map((point) => (
-                    <article key={point} className="flex min-h-[120px] items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4">
-                      <div className="mt-1 rounded-full bg-white/10 p-2 text-white">
-                        <Leaf className="h-4 w-4" />
-                      </div>
-                      <p className="text-sm leading-7 text-white/80">{point}</p>
-                    </article>
-                  ))}
-                </div>
-              </motion.div>
+      {/* Seccion ELITE especial */}
+      <section style={{
+        background: 'linear-gradient(135deg, #1a0533 0%, #0d0d1a 50%, #001a33 100%)',
+        padding: 'clamp(56px, 8vw, 96px) 24px',
+        textAlign: 'center',
+      }}>
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em',
+                     textTransform: 'uppercase', color: '#9b99e8',
+                     marginBottom: 16 }}>
+          Plan ELITE · Agente Comercial IA
+        </p>
+        <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700,
+                      color: '#FFFFFF', maxWidth: 580, margin: '0 auto 20px',
+                      letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+          Un representante comercial que nunca duerme
+        </h2>
+        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)',
+                     maxWidth: 480, margin: '0 auto 48px', lineHeight: 1.6 }}>
+          El Agente Comercial IA analiza mercados internacionales,
+          detecta oportunidades y conecta tu producto con los
+          importadores adecuados — en cualquier país.
+        </p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 12, maxWidth: 800, margin: '0 auto 48px',
+        }}>
+          {[
+            { icon: '🌍', text: 'Análisis de 40+ mercados' },
+            { icon: '📈', text: 'Predicción de demanda por país' },
+            { icon: '🤝', text: 'Matching con importadores' },
+            { icon: '📋', text: 'Contratos B2B en PDF' },
+            { icon: '⚠️', text: 'Alertas de desabastecimiento' },
+            { icon: '📊', text: 'Análisis de regulaciones' },
+          ].map(item => (
+            <div key={item.text} style={{
+              background: 'rgba(255,255,255,0.06)',
+              border: '0.5px solid rgba(255,255,255,0.12)',
+              borderRadius: 14, padding: '16px 18px',
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <span style={{ fontSize: 22 }}>{item.icon}</span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)',
+                              fontWeight: 500 }}>
+                {item.text}
+              </span>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
+        <a href="/registro?plan=elite" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '15px 36px', borderRadius: 9999,
+          background: '#5856D6', color: '#FFFFFF',
+          fontSize: 16, fontWeight: 700, textDecoration: 'none',
+        }}>
+          Empezar con ELITE · 249€/mes →
+        </a>
+      </section>
 
-        <section className="bg-stone-50 py-16 sm:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} className="mx-auto max-w-4xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">La infraestructura</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-                No quiero que vuelvas a depender solo de ferias, distribuidores opacos o promesas que llegan demasiado tarde.
-              </h2>
-              <p className="mt-6 text-lg leading-8 text-stone-600">
-                Hispaloshop está pensado para que tu historia, tu origen y tu producto aparezcan antes que el descuento. Puedes vender directo, construir comunidad y abrir conversaciones B2B sin perderte dentro de un catálogo anónimo.
-              </p>
-              <p className="mt-4 text-lg leading-8 text-stone-600">
-                También quiero que tengas herramientas concretas: mejor presentación, ayuda con contenido, señales de demanda e importadores más fáciles de identificar cuando estés listo para salir fuera.
-              </p>
-            </motion.div>
-
-            <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              {valueCards.map((card, index) => {
-                const Icon = card.icon;
-                return (
-                  <motion.article key={card.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className="group rounded-2xl border border-stone-100 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-stone-900">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-950 text-white">
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <h3 className="mt-5 text-xl font-semibold text-stone-950">{card.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-stone-600">{card.body}</p>
-                  </motion.article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section id="planes-productor" className="bg-stone-100 py-16 sm:py-20">
-          <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8">
-            <motion.div {...fadeUp} className="mx-auto max-w-3xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">Planes y acción</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-                Entra con el nivel de riesgo que puedas asumir hoy.
-              </h2>
-              <p className="mt-5 text-lg leading-8 text-stone-600">
-                Prefiero que empieces con claridad. Tres planes, funciones concretas y comisiones visibles desde el principio.
-              </p>
-            </motion.div>
-
-            <div className="mt-12 grid gap-6 lg:grid-cols-3">
-              {Object.values(PRODUCER_PLANS).map((plan, index) => (
-                <motion.article key={plan.key} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.5, delay: index * 0.08 }} className={`flex h-full flex-col rounded-2xl border-t-4 p-7 shadow-sm transition duration-300 hover:-translate-y-1 ${plan.accentClass}`}>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${plan.key === 'pro' ? 'bg-stone-200 text-stone-900' : plan.key === 'elite' ? 'bg-stone-900 text-white' : 'bg-stone-200 text-stone-700'}`}>
-                      {plan.badge}
-                    </span>
-                    <span className="text-sm font-semibold text-stone-500">{plan.name}</span>
-                  </div>
-                  <p className="mt-6 text-4xl font-semibold tracking-tight text-stone-950">{plan.price}</p>
-                  <p className="mt-4 text-sm leading-7 text-stone-600">{plan.summary}</p>
-                  <ul className="mt-7 space-y-3 text-sm text-stone-600">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
-                        <Wheat className="mt-1 h-4 w-4 shrink-0 text-stone-900" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <button type="button" onClick={() => openSignup(plan.key)} className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-semibold transition ${plan.buttonClass}`}>
-                    {plan.key === 'free' ? 'Crear mi tienda' : plan.key === 'pro' ? 'Elegir PRO' : 'Exportar con ELITE'}
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </motion.article>
-              ))}
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <Footer />
-
-      <SignupModal
-        open={signupOpen && !user}
-        initialPlan={selectedPlan}
-        onOpenChange={(nextOpen) => {
-          if (!nextOpen) {
-            closeSignup();
-          } else {
-            openSignup(selectedPlan);
-          }
-        }}
+      <FooterCTA
+        headline="Tu producto artesano tiene mercado global"
+        cta="Crear mi tienda gratis"
+        ctaHref="/registro?rol=productor"
       />
     </div>
   );

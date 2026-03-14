@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-function BarChart({ data, labels, height = 160, color = '#1c1917' }) {
+function BarChart({ data, labels, height = 160, color = '#0A0A0A' }) {
   const maxValue = Math.max(...data);
   
   return (

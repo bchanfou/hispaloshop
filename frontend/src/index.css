@@ -12,132 +12,108 @@
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
 
-/* ===== ROOT VARIABLES — HISPALOSHOP DESIGN SYSTEM ===== */
+/* ===== ROOT VARIABLES — LEGACY COMPAT (maps to design-system.css) ===== */
 :root {
-  /* ── Brand ─────────────────────────────────────────── */
-  --color-brand-red:          #C83A2A;
-  --color-brand-red-hover:    #B23324;
-  --color-brand-olive:        #4F7A53;
-  --color-brand-olive-hover:  #3F6243;
-  --color-brand-terracotta:   #E07A5F;
+  /* ── Legacy aliases → new hs-* system ── */
+  --color-black:      var(--hs-black);
+  --color-white:      var(--hs-white);
+  --color-bg:         var(--hs-bg);
+  --color-surface:    var(--hs-surface);
+  --color-text-1:     var(--hs-text-1);
+  --color-text-2:     var(--hs-text-2);
+  --color-text-3:     var(--hs-text-3);
+  --color-border:     var(--hs-border);
+  --color-border-med: var(--hs-border-med);
+  --font-apple:       var(--hs-font);
 
-  /* ── Legacy accent (green) — kept for backward compat */
-  --color-accent:             #1c1c1c;
-  --ds-accent:                var(--color-accent);
-
-  /* ── Primary/Dark ───────────────────────────────────── */
-  --color-primary:            #1C1C1C;
+  /* ── Legacy accent/primary → hs-black ── */
+  --color-accent:             var(--hs-black);
+  --ds-accent:                var(--hs-black);
+  --color-primary:            var(--hs-black);
   --color-primary-hover:      #2A2A2A;
-  --color-dark-graphite:      #1C1C1E;
-  --color-dark-bg:            #0F0F10;
 
-  /* ── Backgrounds ────────────────────────────────────── */
-  --bg-primary:               #FFFFFF;
-  --bg-secondary:             #FAFAF9;
-  --bg-card:                  #FFFFFF;
-  --bg-subtle:                #F5F5F4;
+  /* ── Backgrounds ── */
+  --bg-primary:               var(--hs-surface);
+  --bg-secondary:             var(--hs-surface-2);
+  --bg-card:                  var(--hs-surface);
+  --bg-subtle:                var(--hs-surface-2);
 
-  /* ── Text ───────────────────────────────────────────── */
-  --text-primary:             #0C0A09;
-  --text-secondary:           #44403C;
-  --text-muted:               #78716C;
+  /* ── Text ── */
+  --text-primary:             var(--hs-text-1);
+  --text-secondary:           var(--hs-text-2);
+  --text-muted:               var(--hs-text-3);
 
-  /* ── Borders ────────────────────────────────────────── */
-  --border-default:           #E7E5E4;
-  --border-divider:           #F5F5F4;
-  --border-focus:             #0C0A09;
+  /* ── Borders ── */
+  --border-default:           var(--hs-border-med);
+  --border-divider:           var(--hs-border);
+  --border-focus:             var(--hs-black);
 
-  /* ── State ──────────────────────────────────────────── */
-  --color-success:            #2E9B5D;
-  --color-warning:            #F4A261;
-  --color-amber:              #E6A532;
-  --color-error:              #E63946;
-  --color-info:               #3A86FF;
-  --color-purple:             #7c3aed;
-  --color-blue:               #2563eb;
+  /* ── Functional colors → hs-* ── */
+  --color-success:            var(--hs-green);
+  --color-warning:            var(--hs-orange);
+  --color-error:              var(--hs-red);
+  --color-danger:             var(--hs-red);
+  --color-info:               var(--hs-blue);
+  --color-purple:             var(--hs-purple);
+  --color-blue:               var(--hs-blue);
+  --color-amber:              var(--hs-orange);
+  --color-muted:              var(--hs-text-2);
+  --color-secondary-text:     var(--hs-text-2);
 
-  /* ── Legacy state aliases ───────────────────────────── */
-  --color-muted:              #7A7A7A;
-  --color-secondary-text:     #4A4A4A;
+  /* ── Role-specific accents ── */
+  --color-superadmin:         var(--hs-purple);
+  --bg-superadmin:            var(--hs-purple-bg);
+  --color-seller:             var(--hs-green);
+  --color-influencer:         var(--hs-orange);
+  --color-customer:           var(--hs-blue);
 
-  /* ── Shadows ────────────────────────────────────────── */
-  --shadow-card:              0 1px 2px rgba(12,10,9,0.06);
-  --shadow-hover:             0 10px 30px rgba(12,10,9,0.08);
-  --shadow-modal:             0 24px 48px rgba(12,10,9,0.18);
-  --shadow-card-hover:        0 12px 24px rgba(12,10,9,0.08);
-  --shadow-floating:          0 20px 40px rgba(12,10,9,0.14);
+  /* ── Shadows → hs-* ── */
+  --shadow-card:              var(--hs-shadow-xs);
+  --shadow-hover:             var(--hs-shadow-md);
+  --shadow-modal:             var(--hs-shadow-xl);
+  --shadow-card-hover:        var(--hs-shadow-md);
+  --shadow-floating:          var(--hs-shadow-lg);
 
-  /* ── Spacing ────────────────────────────────────────── */
-  --spacing-unit: 8px;
-
-  /* ── Radius ─────────────────────────────────────────── */
+  /* ── Radius → hs-* ── */
   --radius-xs:   4px;
-  --radius-sm:   6px;
-  --radius-md:   12px;
-  --radius-lg:   16px;
-  --radius-xl:   20px;
-  --radius-pill: 999px;
+  --radius-sm:   var(--hs-r-sm);
+  --radius-md:   var(--hs-r-md);
+  --radius-lg:   var(--hs-r-lg);
+  --radius-xl:   var(--hs-r-xl);
+  --radius-pill:  var(--hs-r-full);
 
-  /* ── Touch targets ───────────────────────────────────── */
-  --touch-target-min: 48px;
-  --touch-target-lg: 56px;
-  
-  /* Safe areas for mobile */
-  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-area-top: env(safe-area-inset-top, 0px);
-  
-  /* Sidebar width */
-  --sidebar-width: 256px;
-  --sidebar-collapsed-width: 72px;
-  
-  /* Bottom nav height */
-  --bottom-nav-height: 64px;
-  
-  /* Role-specific accents */
-  --color-superadmin: #7c3aed;
-  --bg-superadmin: #faf5ff;
-  --color-seller: #2D5A27;
-  --color-influencer: #d97706;
-  --color-customer: #2563eb;
-  
-  /* Functional states */
-  --color-success: #16a34a;
-  --color-warning: #f59e0b;
-  --color-danger: #dc2626;
-  --color-info: #2563eb;
+  /* ── Layout ── */
+  --touch-target-min:          48px;
+  --touch-target-lg:           56px;
+  --safe-area-bottom:          var(--hs-safe-bottom);
+  --safe-area-top:             env(safe-area-inset-top, 0px);
+  --sidebar-width:             var(--hs-sidebar-w);
+  --sidebar-collapsed-width:   72px;
+  --bottom-nav-height:         var(--hs-bottomnav-h);
+  --spacing-unit:              8px;
 
-  /* ── Motion ─────────────────────────────────────────── */
-  /* Easing — Apple-grade curves */
-  --ease-spring:      cubic-bezier(0.34, 1.56, 0.64, 1);  /* overshoot/spring */
-  --ease-out:         cubic-bezier(0, 0, 0.2, 1);          /* decelerate */
-  --ease-in-out:      cubic-bezier(0.4, 0, 0.2, 1);        /* standard */
-  --ease-in:          cubic-bezier(0.4, 0, 1, 1);          /* accelerate */
-
-  /* Durations */
-  --duration-micro:    120ms;   /* hover states, toggles */
-  --duration-fast:     200ms;   /* small UI transitions */
-  --duration-standard: 300ms;   /* overlays, menus */
-  --duration-slow:     500ms;   /* page transitions */
+  /* ── Motion → hs-* ── */
+  --ease-spring:      var(--hs-ease-spring);
+  --ease-out:         var(--hs-ease-out);
+  --ease-in-out:      var(--hs-ease);
+  --ease-in:          var(--hs-ease-in);
+  --duration-micro:   var(--hs-duration-fast);
+  --duration-fast:    var(--hs-duration-fast);
+  --duration-standard: var(--hs-duration-base);
+  --duration-slow:    var(--hs-duration-slow);
 }
 
-/* Dark Mode */
+/* Dark Mode — legacy [data-theme] compat (prefers-color-scheme in design-system.css) */
 [data-theme="dark"] {
-  --bg-primary: #0f0f0f;
-  --bg-secondary: #1a1a1a;
-  --bg-card: #1e1e1e;
-  --text-primary: #f5f5f5;
-  --text-secondary: #a3a3a3;
-  --text-muted: #737373;
-  --border-light: #2a2a2a;
-  --border-default: #333333;
-  --ds-accent: #3d7a35;
+  --bg-primary: var(--hs-bg);
+  --bg-secondary: var(--hs-surface-2);
+  --bg-card: var(--hs-surface);
+  --text-primary: var(--hs-text-1);
+  --text-secondary: var(--hs-text-2);
+  --text-muted: var(--hs-text-3);
+  --border-default: var(--hs-border-med);
+  --ds-accent: var(--hs-black);
 }
-
-[data-theme="dark"] body { background-color: var(--bg-primary); color: var(--text-primary); }
-[data-theme="dark"] .bg-white, [data-theme="dark"] .bg-\[\#FAF7F2\] { background-color: var(--bg-card); }
-[data-theme="dark"] .border-stone-200, [data-theme="dark"] .border-stone-100 { border-color: var(--border-light); }
-[data-theme="dark"] .text-\[\#1C1C1C\] { color: var(--text-primary); }
-[data-theme="dark"] .text-\[\#7A7A7A\], [data-theme="dark"] .text-text-muted { color: var(--text-muted); }
 
 /* ===== BASE STYLES ===== */
 html, body, #root {
@@ -146,22 +122,22 @@ html, body, #root {
 }
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--hs-font);
   font-weight: 400;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
+  font-size: var(--hs-text-base);
+  line-height: 1.5;
+  color: var(--hs-text-1);
+  background-color: var(--hs-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* ===== TYPOGRAPHY ===== */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--hs-font);
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: var(--text-primary);
+  color: var(--hs-text-1);
   margin: 0;
 }
 
@@ -236,7 +212,7 @@ p {
   justify-content: center;
   gap: 8px;
   padding: 10px 24px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--hs-font);
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -258,7 +234,7 @@ p {
   justify-content: center;
   gap: 8px;
   padding: 10px 24px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--hs-font);
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
@@ -279,7 +255,7 @@ p {
   justify-content: center;
   gap: 8px;
   padding: 10px 24px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--hs-font);
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -311,7 +287,7 @@ p {
 
 /* ===== FORM ELEMENTS ===== */
 input, textarea, select {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--hs-font);
   font-size: 14px;
   color: var(--text-primary);
   background: var(--bg-card);
@@ -331,7 +307,7 @@ input::placeholder, textarea::placeholder {
 }
 
 label {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--hs-font);
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -341,7 +317,7 @@ label {
 
 /* ===== NAVIGATION ===== */
 .nav-link {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--hs-font);
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -578,7 +554,7 @@ label {
 .dashboard-card {
   background: var(--bg-card);
   border-radius: 1rem;
-  border: 1px solid #f5f5f4;
+  border: 1px solid var(--hs-border);
   box-shadow: var(--shadow-card);
   transition: transform var(--duration-micro) var(--ease-out),
               box-shadow var(--duration-micro) var(--ease-out),
@@ -632,7 +608,7 @@ label {
 
 /* ===== HEALTH SCORE HERO ===== */
 .health-score-hero {
-  background: linear-gradient(135deg, var(--ds-accent) 0%, #1a3d17 100%);
+  background: linear-gradient(135deg, var(--hs-black) 0%, #1D1D1F 100%);
   border-radius: var(--radius-xl);
   padding: 24px;
   color: white;
@@ -941,16 +917,16 @@ textarea:focus-visible {
   --normal-bg: var(--bg-card) !important;
   --normal-border: var(--border-default) !important;
   --normal-text: var(--text-primary) !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: var(--hs-font) !important;
 }
 
 /* ── Error states: non-blocking, retry-friendly ── */
 .error-banner {
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
-  border-radius: var(--radius-md);
+  background: var(--hs-red-bg);
+  border: 1px solid var(--hs-red);
+  border-radius: var(--hs-r-md);
   padding: 12px 16px;
-  color: #991B1B;
+  color: var(--hs-red);
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -960,16 +936,16 @@ textarea:focus-visible {
 .error-banner button {
   margin-left: auto;
   background: transparent;
-  border: 1px solid #FECACA;
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--hs-red);
+  border-radius: var(--hs-r-sm);
   padding: 4px 12px;
   font-size: 12px;
-  color: #991B1B;
+  color: var(--hs-red);
   cursor: pointer;
 }
 
 .error-banner button:hover {
-  background: #FEE2E2;
+  background: var(--hs-red-bg);
 }
 
 /* ── Skip-to-content link — accesibilidad ──────────────────────────────── */
@@ -979,9 +955,9 @@ textarea:focus-visible {
   left: 16px;
   z-index: 9999;
   padding: 12px 24px;
-  background: #0A0A0A;
-  color: #FFFFFF;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  background: var(--hs-black);
+  color: var(--hs-white);
+  font-family: var(--hs-font);
   font-size: 14px;
   font-weight: 500;
   border-radius: 9999px;

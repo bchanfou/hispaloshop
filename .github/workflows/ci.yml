@@ -1,0 +1,177 @@
+name: CI — Hispaloshop
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+
+  # ── Backend tests ──────────────────────────────────────
+  backend-tests:
+    name: Backend · pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx reportlab
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          python -m pytest tests/test_security.py tests/test_commercial_ai.py -v --tb=short --junitxml=test-results.xml
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-hispaloshop-32chars-ok!' }}
+          MONGO_URL: mongodb://localhost:27017/hispaloshop_test
+          FRONTEND_URL: http://localhost:3000
+          AUTH_BACKEND_URL: http://localhost:8000
+          ENVIRONMENT: test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: backend/test-results.xml
+
+  # ── Frontend build + lint ──────────────────────────────
+  frontend-build:
+    name: Frontend · build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Build frontend
+        run: cd frontend && npm run build
+        env:
+          REACT_APP_API_URL:    ${{ secrets.REACT_APP_API_URL || 'http://localhost:8000' }}
+          REACT_APP_SENTRY_DSN: ${{ secrets.SENTRY_DSN_FRONTEND }}
+          REACT_APP_ENV:        production
+          REACT_APP_VERSION:    ${{ github.sha }}
+          CI: false
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/build
+          retention-days: 1
+
+  # ── E2E Smoke tests ────────────────────────────────────
+  e2e-smoke:
+    name: E2E · smoke tests
+    runs-on: ubuntu-latest
+    needs: [frontend-build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies + Playwright
+        run: |
+          cd frontend
+          npm ci
+          npx playwright install chromium --with-deps
+
+      - name: Run smoke tests
+        run: cd frontend && npx playwright test e2e/smoke.spec.js --project=chromium
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ secrets.STAGING_URL || 'http://localhost:3000' }}
+          PLAYWRIGHT_API_URL:  ${{ secrets.STAGING_API_URL || 'http://localhost:8000' }}
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+          retention-days: 7
+
+  # ── Deploy a Vercel (frontend) ─────────────────────────
+  deploy-frontend:
+    name: Deploy · Vercel
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        if: ${{ secrets.VERCEL_TOKEN != '' }}
+        with:
+          vercel-token:   ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id:  ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: frontend
+          vercel-args: '--prod'
+
+  # ── Deploy a Railway (backend) ─────────────────────────
+  deploy-backend:
+    name: Deploy · Railway
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy backend to Railway
+        if: ${{ secrets.RAILWAY_TOKEN != '' }}
+        run: railway up --service backend
+        working-directory: backend
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  # ── Notificación de deploy ─────────────────────────────
+  notify-deploy:
+    name: Notify · Deploy completo
+    runs-on: ubuntu-latest
+    needs: [deploy-frontend, deploy-backend]
+    if: always()
+
+    steps:
+      - name: Deploy summary
+        run: |
+          echo "## Deploy Hispaloshop" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: ${{ needs.deploy-frontend.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: ${{ needs.deploy-backend.result }}" >> $GITHUB_STEP_SUMMARY

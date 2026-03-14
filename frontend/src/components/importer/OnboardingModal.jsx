@@ -41,7 +41,7 @@ const CONFETTI = Array.from({ length: 12 }, (_, index) => ({
   left: `${10 + index * 7}%`,
   delay: index * 0.12,
   duration: 2.6 + (index % 3) * 0.35,
-  color: ['#f59e0b', '#3b82f6', '#10b981', '#fb7185'][index % 4],
+  color: ['var(--hs-orange)', 'var(--hs-blue)', 'var(--hs-green)', 'var(--hs-red)'][index % 4],
 }));
 
 let stripeLoader;
@@ -240,9 +240,9 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           appearance: {
             theme: 'stripe',
             variables: {
-              colorPrimary: '#3b82f6',
-              colorText: '#0f172a',
-              colorDanger: '#ef4444',
+              colorPrimary: 'var(--hs-blue)',
+              colorText: 'var(--hs-text-1)',
+              colorDanger: 'var(--hs-red)',
               borderRadius: '12px',
             },
           },
@@ -413,7 +413,14 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
     if (subscribeData?.requires_action && subscribeData?.client_secret) {
       const confirmation = await stripe.confirmCardPayment(subscribeData.client_secret);
       if (confirmation.error) {
-        throw new Error(confirmation.error.message || 'No pudimos confirmar el pago con tu banco.');
+        if (confirmation.error.type === 'card_error' || confirmation.error.type === 'validation_error') {
+          throw new Error(confirmation.error.message || 'Tu banco rechazó la operación.');
+        }
+        throw new Error('Ha ocurrido un error con el pago. Por favor inténtalo de nuevo.');
+      }
+
+      if (confirmation.paymentIntent?.status === 'requires_payment_method') {
+        throw new Error('El método de pago fue rechazado. Por favor usa otra tarjeta.');
       }
 
       await apiClient.post(
