@@ -15,7 +15,7 @@ from core.auth import get_current_user, require_role
 from services.subscriptions import (
     get_seller_commission_rate, get_influencer_commission_rate,
     recalculate_influencer_tier, GRACE_PERIOD_DAYS,
-    INFLUENCER_PAYOUT_DELAY_DAYS, INFLUENCER_MIN_PAYOUT_USD,
+    INFLUENCER_PAYOUT_DELAY_DAYS, INFLUENCER_MIN_PAYOUT_EUR,
 )
 from services.auth_helpers import send_email
 from routes.predictions import calculate_predictions
@@ -92,9 +92,9 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
     skipped_count = 0
 
     for iid, data in by_influencer.items():
-        if data["total"] < INFLUENCER_MIN_PAYOUT_USD:
+        if data["total"] < INFLUENCER_MIN_PAYOUT_EUR:
             skipped_count += 1
-            logger.info(f"[PAYOUT] Skipped {iid}: ${data['total']:.2f} < ${INFLUENCER_MIN_PAYOUT_USD} minimum")
+            logger.info(f"[PAYOUT] Skipped {iid}: ${data['total']:.2f} < ${INFLUENCER_MIN_PAYOUT_EUR} minimum")
             continue
 
         # Get influencer's Stripe Connect account
@@ -119,7 +119,7 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
             continue
 
         total_valid = sum(p["amount"] for p in valid_payouts)
-        if total_valid < INFLUENCER_MIN_PAYOUT_USD:
+        if total_valid < INFLUENCER_MIN_PAYOUT_EUR:
             continue
 
         # Execute Stripe transfer
