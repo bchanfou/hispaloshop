@@ -7,43 +7,38 @@ import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 from .config import settings
 
-# MongoDB client con connection pooling para estabilidad
-client: AsyncIOMotorClient = None
-db = None
+# MongoDB client con connection pooling para producción.
+# Se inicializa eagerly para que `from core.database import db` funcione
+# en todos los entornos (los routes capturan la referencia al importar).
+client: AsyncIOMotorClient = AsyncIOMotorClient(
+    settings.MONGO_URL,
+    maxPoolSize=50,
+    minPoolSize=10,
+    maxIdleTimeMS=45000,
+    connectTimeoutMS=5000,
+    serverSelectionTimeoutMS=5000,
+    socketTimeoutMS=20000,
+    retryWrites=True,
+    retryReads=True,
+    tlsCAFile=certifi.where(),
+)
+db = client[settings.DB_NAME]
 
 
 async def connect_db():
-    """Inicializa conexión a MongoDB con parámetros de producción."""
-    global client, db
-    
-    client = AsyncIOMotorClient(
-        settings.MONGO_URL,
-        maxPoolSize=50,
-        minPoolSize=10,
-        maxIdleTimeMS=45000,
-        connectTimeoutMS=5000,
-        serverSelectionTimeoutMS=5000,
-        socketTimeoutMS=20000,
-        retryWrites=True,
-        retryReads=True,
-        tlsCAFile=certifi.where(),
-    )
-    db = client[settings.DB_NAME]
-    
-    # Verificar conexión
+    """Verifica conexión a MongoDB y crea índices en startup."""
+    # No reasignar client/db — los routes ya capturaron la referencia al importar.
     await client.admin.command('ping')
     print(f"✓ Connected to MongoDB: {settings.DB_NAME}")
-    
+
     # Crear índices críticos
     await _create_indexes()
 
 
 async def disconnect_db():
     """Cierra conexión a MongoDB gracefulmente."""
-    global client
-    if client:
-        client.close()
-        print("✓ Disconnected from MongoDB")
+    client.close()
+    print("✓ Disconnected from MongoDB")
 
 
 def get_db():
@@ -207,18 +202,3 @@ def get_database():
     return db
 
 
-# Para código que importa directamente 'db'
-# Inicialización lazy para desarrollo
-if settings.ENV == "development":
-    try:
-        # Intentar crear cliente síncrono para compatibilidad
-        client = AsyncIOMotorClient(
-            settings.MONGO_URL,
-            maxPoolSize=20,
-            minPoolSize=2,
-            serverSelectionTimeoutMS=5000,
-            tlsCAFile=certifi.where(),
-        )
-        db = client[settings.DB_NAME]
-    except Exception as e:
-        print(f"⚠️  Could not connect to MongoDB (lazy): {e}")
