@@ -1198,10 +1198,15 @@ export default function ProducerProducts() {
                       </button>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        {statusIcons[product.approved ? 'approved' : 'pending']}
-                        <span className={`text-sm font-medium ${product.approved ? 'text-stone-700' : 'text-stone-700'}`}>
-                          {product.approved ? t('producerProducts.table.approved') : t('producerProducts.table.pending')}
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          {statusIcons[product.approved ? 'approved' : 'pending']}
+                          <span className={`text-sm font-medium ${product.approved ? 'text-stone-700' : 'text-stone-700'}`}>
+                            {product.approved ? t('producerProducts.table.approved') : t('producerProducts.table.pending')}
+                          </span>
+                        </div>
+                        <span className={`text-[11px] flex items-center gap-1 ${product.certificate_id ? 'text-stone-700' : 'text-stone-400'}`}>
+                          {product.certificate_id ? <><Award className="w-3 h-3" /> {t('producerProducts.certified', 'Certificado')}</> : <><span>○</span> {t('producerProducts.noCertificate', 'Sin certificado')}</>}
                         </span>
                       </div>
                     </td>

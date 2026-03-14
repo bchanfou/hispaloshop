@@ -6,6 +6,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { FileCheck, Search, Shield, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import PremiumSelect from '../components/ui/PremiumSelect';
 import { API } from '../utils/api';
 import { asLowerText } from '../utils/safe';
@@ -57,8 +58,10 @@ function CertificateRow({ product }) {
 }
 
 export default function CertificatesListPage() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCert, setSelectedCert] = useState('');
+  const [visibleCount, setVisibleCount] = useState(12);
 
   const { data = [], isLoading } = useQuery({
     queryKey: ['certified-products'],
@@ -176,11 +179,24 @@ export default function CertificatesListPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-3" data-testid="certificates-list">
-              {filteredProducts.map((product) => (
-                <CertificateRow key={product.product_id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="space-y-3" data-testid="certificates-list">
+                {filteredProducts.slice(0, visibleCount).map((product) => (
+                  <CertificateRow key={product.product_id} product={product} />
+                ))}
+              </div>
+              {visibleCount < filteredProducts.length && (
+                <div className="mt-6 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => prev + 12)}
+                    className="rounded-full border border-stone-200 bg-white px-6 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                  >
+                    {t('certificates.loadMore', 'Cargar más')} ({filteredProducts.length - visibleCount} {t('certificates.remaining', 'restantes')})
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 

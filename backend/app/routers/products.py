@@ -10,6 +10,7 @@ from ..core.config import db, SUPPORTED_LANGUAGES, logger
 from ..core.security import get_current_user
 from ..models.user import User
 from ..models.product import ProductInput, CertificateInput
+from ..services.product_certificate import generate_product_certificate
 
 router = APIRouter(tags=["Products"])
 
@@ -147,6 +148,22 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
     }
     
     await db.products.insert_one(product)
+
+    # Auto-generate digital certificate if product has certifications
+    if input.certifications:
+        try:
+            cert = await generate_product_certificate(
+                product_id, product, {"user_id": user.user_id, "company_name": getattr(user, "company_name", None) or user.name, "email": user.email}
+            )
+            await db.products.update_one(
+                {"product_id": product_id},
+                {"$set": {"certificate_id": cert["certificate_id"], "certificate_url": cert["verify_url"]}}
+            )
+            product["certificate_id"] = cert["certificate_id"]
+            product["certificate_url"] = cert["verify_url"]
+        except Exception as e:
+            logger.warning(f"Certificate generation failed for {product_id}: {e}")
+
     product.pop("_id", None)
     return product
 
@@ -177,6 +194,21 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
     }
     
     await db.products.update_one({"product_id": product_id}, {"$set": update_data})
+
+    # Re-generate certificate if certifications changed
+    if input.certifications:
+        try:
+            merged = {**product, **update_data}
+            cert = await generate_product_certificate(
+                product_id, merged, {"user_id": user.user_id, "company_name": getattr(user, "company_name", None) or user.name, "email": getattr(user, "email", "")}
+            )
+            await db.products.update_one(
+                {"product_id": product_id},
+                {"$set": {"certificate_id": cert["certificate_id"], "certificate_url": cert["verify_url"]}}
+            )
+        except Exception as e:
+            logger.warning(f"Certificate re-generation failed for {product_id}: {e}")
+
     return {"message": "Product updated"}
 
 
@@ -239,3 +271,21 @@ async def create_certificate(
     await db.certificates.insert_one(certificate)
     certificate.pop("_id", None)
     return certificate
+
+
+@router.get("/certificates/{certificate_id}/verify")
+async def verify_certificate(certificate_id: str):
+    """Public endpoint to verify a product certificate's authenticity."""
+    cert = await db.product_certificates.find_one(
+        {"certificate_id": certificate_id}, {"_id": 0, "qr_code_b64": 0}
+    )
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    return {
+        "valid": True,
+        "certificate_id": certificate_id,
+        "product_name": cert.get("product_name"),
+        "certifications": cert.get("certifications"),
+        "issued_at": cert.get("issued_at"),
+        "status": cert.get("status"),
+    }

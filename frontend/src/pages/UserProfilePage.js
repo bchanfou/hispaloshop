@@ -5,11 +5,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import ProfilePageHeader from '../components/profile/ProfilePageHeader';
 import ProfessionalBanner from '../components/profile/ProfessionalBanner';
 import {
+  Bookmark,
   BookOpen,
   Camera,
+  ExternalLink,
   Globe,
   Grid3X3,
   Loader2,
+  MoreHorizontal,
   Package,
   PlaySquare,
   Share2,
@@ -358,6 +361,7 @@ export default function UserProfilePage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedRecipeIndex, setSelectedRecipeIndex] = useState(null);
   const [followsModal, setFollowsModal] = useState({ open: false, tab: 'followers' });
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const avatarInputRef = useRef(null);
 
   const currentUserId = currentUser?.user_id || currentUser?.id || null;
@@ -400,6 +404,7 @@ export default function UserProfilePage() {
     { key: 'reels', label: 'Reels', icon: PlaySquare },
     ...(isSeller ? [{ key: 'products', label: 'Productos', icon: Package }] : []),
     { key: 'recipes', label: 'Recetas', icon: BookOpen },
+    ...(isOwnProfile ? [{ key: 'saved', label: t('profile.tabs.saved', 'Guardados'), icon: Bookmark }] : []),
   ];
 
   const handleFollow = async () => {
@@ -457,8 +462,37 @@ export default function UserProfilePage() {
     return (
       <div className="min-h-screen bg-white">
         <ProfilePageHeader username={headerUsername} isOwnProfile={isOwnProfile} onShare={handleShare} />
-        <div className="flex h-[60vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-stone-500" />
+        <div className="px-4 pt-4">
+          {/* Skeleton: avatar + stats */}
+          <div className="flex items-center gap-5">
+            <div className="h-[86px] w-[86px] rounded-full bg-stone-100 animate-pulse" />
+            <div className="flex flex-1 items-center justify-around">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex flex-col items-center gap-1.5">
+                  <div className="h-5 w-10 rounded bg-stone-100 animate-pulse" />
+                  <div className="h-3 w-14 rounded bg-stone-100 animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Skeleton: name + bio */}
+          <div className="mt-4 space-y-2">
+            <div className="h-4 w-28 rounded bg-stone-100 animate-pulse" />
+            <div className="h-3 w-3/4 rounded bg-stone-100 animate-pulse" />
+            <div className="h-3 w-1/2 rounded bg-stone-100 animate-pulse" />
+          </div>
+          {/* Skeleton: buttons */}
+          <div className="mt-4 flex gap-2">
+            <div className="h-[34px] flex-1 rounded-full bg-stone-100 animate-pulse" />
+            <div className="h-[34px] flex-1 rounded-full bg-stone-100 animate-pulse" />
+            <div className="h-[34px] w-[34px] rounded-full bg-stone-100 animate-pulse" />
+          </div>
+          {/* Skeleton: grid 3x3 */}
+          <div className="mt-6 grid grid-cols-3 gap-0.5">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div key={i} className="aspect-square bg-stone-100 animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -478,26 +512,45 @@ export default function UserProfilePage() {
 
             {/* Avatar */}
             <div className="relative shrink-0">
-              <div className={`h-[86px] w-[86px] overflow-hidden rounded-full bg-stone-100 ${isOwnProfile ? 'ring-[2px] ring-stone-950 ring-offset-[3px] ring-offset-white' : 'ring-[1px] ring-stone-200 ring-offset-0'}`}>
-                {profile?.profile_image ? (
-                  <img
-                    src={resolveUserImage(profile.profile_image)}
-                    srcSet={getCloudinarySrcSet(resolveUserImage(profile.profile_image), [86, 172, 256])}
-                    sizes="86px"
-                    alt={`Avatar de ${realName}`}
-                    loading="eager"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-stone-300">
-                    <User className="h-10 w-10" />
+              <div
+                style={{
+                  padding: profile?.has_active_story ? 2 : 0,
+                  borderRadius: '50%',
+                  background: profile?.has_active_story
+                    ? 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)'
+                    : 'transparent',
+                  display: 'inline-block',
+                }}
+              >
+                <div
+                  style={{
+                    padding: profile?.has_active_story ? 2 : 0,
+                    borderRadius: '50%',
+                    background: '#fff',
+                  }}
+                >
+                  <div className={`h-[86px] w-[86px] overflow-hidden rounded-full bg-stone-100 ${!profile?.has_active_story ? (isOwnProfile ? 'ring-[2px] ring-stone-950 ring-offset-[3px] ring-offset-white' : 'ring-[1px] ring-stone-200 ring-offset-0') : ''}`}>
+                    {profile?.profile_image ? (
+                      <img
+                        src={resolveUserImage(profile.profile_image)}
+                        srcSet={getCloudinarySrcSet(resolveUserImage(profile.profile_image), [86, 172, 256])}
+                        sizes="86px"
+                        alt={`Avatar de ${realName}`}
+                        loading="eager"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-stone-300">
+                        <User className="h-10 w-10" />
+                      </div>
+                    )}
+                    {uploadingAvatar ? (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/35">
+                        <Loader2 className="h-5 w-5 animate-spin text-white" />
+                      </div>
+                    ) : null}
                   </div>
-                )}
-                {uploadingAvatar ? (
-                  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/35">
-                    <Loader2 className="h-5 w-5 animate-spin text-white" />
-                  </div>
-                ) : null}
+                </div>
               </div>
               {isOwnProfile ? (
                 <>
@@ -540,10 +593,18 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          {/* Fila 2: Nombre + rol + bio */}
+          {/* Fila 2: Nombre + rol + bio + link */}
           <div className="mt-3 space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[14px] font-bold tracking-tight leading-tight text-stone-950">{realName}</p>
+              <p className="text-[14px] font-bold tracking-tight leading-tight text-stone-950">
+                {realName}
+                {profile?.is_verified && (
+                  <svg width="16" height="16" viewBox="0 0 16 16" className="inline ml-1 align-middle">
+                    <circle cx="8" cy="8" r="8" fill="#007AFF"/>
+                    <path d="M5 8l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  </svg>
+                )}
+              </p>
               {profile?.role && profile.role !== 'customer' && profile.role !== 'consumer' ? (
                 <span className="rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-stone-500">
                   {profile.role === 'producer'
@@ -558,6 +619,17 @@ export default function UserProfilePage() {
             </div>
             {profile?.bio ? (
               <p className="whitespace-pre-line text-[13px] leading-relaxed text-stone-600">{profile.bio}</p>
+            ) : null}
+            {profile?.website ? (
+              <a
+                href={profile.website.startsWith('http') ? profile.website : `https://${profile.website}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[13px] font-semibold text-stone-950 hover:underline mt-0.5"
+              >
+                <ExternalLink className="h-3 w-3" />
+                {profile.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+              </a>
             ) : null}
           </div>
 
@@ -606,6 +678,41 @@ export default function UserProfilePage() {
                 >
                   <Share2 className="h-[15px] w-[15px]" strokeWidth={1.8} />
                 </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                    className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50 active:bg-stone-100"
+                    aria-label="Más opciones"
+                  >
+                    <MoreHorizontal className="h-[15px] w-[15px]" strokeWidth={1.8} />
+                  </button>
+                  {showOptionsMenu && (
+                    <div className="absolute right-0 top-[110%] z-50 min-w-[200px] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(window.location.href);
+                          toast.success(t('social.linkCopied', 'Enlace copiado'));
+                          setShowOptionsMenu(false);
+                        }}
+                        className="flex w-full items-center gap-2.5 border-b border-stone-100 px-4 py-3 text-left text-[14px] text-stone-950 hover:bg-stone-50"
+                      >
+                        <Share2 className="h-4 w-4" /> {t('profile.copyLink', 'Copiar enlace del perfil')}
+                      </button>
+                      <button
+                        onClick={() => setShowOptionsMenu(false)}
+                        className="flex w-full items-center gap-2.5 border-b border-stone-100 px-4 py-3 text-left text-[14px] text-red-500 hover:bg-stone-50"
+                      >
+                        <X className="h-4 w-4" /> {t('profile.block', 'Bloquear usuario')}
+                      </button>
+                      <button
+                        onClick={() => setShowOptionsMenu(false)}
+                        className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[14px] text-red-500 hover:bg-stone-50"
+                      >
+                        <X className="h-4 w-4" /> {t('profile.report', 'Reportar')}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
@@ -719,6 +826,14 @@ export default function UserProfilePage() {
                   )}
                 />
               )
+            ) : null}
+
+            {activeTab === 'saved' && isOwnProfile ? (
+              <EmptyState
+                icon={Bookmark}
+                title={t('profile.noSavedPosts', 'Sin guardados')}
+                description={t('profile.savePostsHint', 'Los posts que guardes aparecerán aquí. Solo tú puedes verlos.')}
+              />
             ) : null}
 
             {activeTab === 'recipes' ? (

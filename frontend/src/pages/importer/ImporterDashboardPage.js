@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AlertCircle, Globe, Loader2, Package, ShoppingBag, TrendingUp, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 function ImporterMetric({ icon: Icon, title, value, description, to }) {
@@ -21,6 +22,7 @@ function ImporterMetric({ icon: Icon, title, value, description, to }) {
 }
 
 export default function ImporterDashboardPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -69,8 +71,15 @@ export default function ImporterDashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+      <div className="ds-page">
+        <div className="ds-shell">
+          <div className="h-8 w-48 rounded-lg bg-stone-100 animate-pulse mb-6" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-[100px] rounded-2xl bg-stone-100 animate-pulse" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -79,8 +88,8 @@ export default function ImporterDashboardPage() {
     <div className="ds-page">
       <div className="ds-shell">
         <header>
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">Panel de importador</h1>
-          <p className="mt-2 text-sm text-stone-500">Proveedores, catálogo, pedidos y rendimiento en la misma estructura visual.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">{t('importer.dashboard', 'Panel de importador')}</h1>
+          <p className="mt-2 text-sm text-stone-500">{t('importer.dashboardDesc', 'Proveedores, catálogo, pedidos y rendimiento en la misma estructura visual.')}</p>
         </header>
 
         {warning ? (

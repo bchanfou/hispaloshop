@@ -7,7 +7,8 @@
       "Bash(grep -r export.*Context /c/hispaloshop/frontend/src/context --include=*.js --include=*.jsx)",
       "Bash(pip show:*)",
       "Bash(npm install:*)",
-      "Bash(npx craco:*)"
+      "Bash(npx craco:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

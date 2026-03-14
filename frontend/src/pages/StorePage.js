@@ -12,12 +12,14 @@ import {
   MapPin,
   MessageCircle,
   Phone,
+  Share2,
   Shield,
   ShoppingBag,
   SquareLibrary,
   Star,
   Store,
   Truck,
+  User,
   Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -350,6 +352,22 @@ export default function StorePage() {
                       Contactar
                     </a>
                   ) : null}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const url = window.location.href;
+                      if (navigator.share) {
+                        try { await navigator.share({ title: store.name, url }); } catch { /* cancelled */ }
+                      } else {
+                        await navigator.clipboard.writeText(url);
+                        toast.success(t('social.linkCopied', 'Enlace copiado'));
+                      }
+                    }}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50"
+                    aria-label={t('store.share', 'Compartir tienda')}
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
 
@@ -416,7 +434,11 @@ export default function StorePage() {
               <div className="flex flex-wrap gap-2">
                 <TabButton active={activeTab === 'posts'} onClick={() => setActiveTab('posts')} icon={SquareLibrary} label="Publicaciones" count={posts.length} />
                 <TabButton active={activeTab === 'products'} onClick={() => setActiveTab('products')} icon={ShoppingBag} label="Productos" count={productTotal} />
+                <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')} icon={Star} label={t('store.reviews', 'Reseñas')} count={reviewsTotal} />
                 <TabButton active={activeTab === 'certificates'} onClick={() => setActiveTab('certificates')} icon={Award} label="Certificados" count={certificates.length} />
+                {(store.story || store.founder_quote || store.long_description) ? (
+                  <TabButton active={activeTab === 'about'} onClick={() => setActiveTab('about')} icon={Store} label={t('store.about', 'Historia')} count="" />
+                ) : null}
               </div>
 
               <div className="mt-6">
@@ -474,6 +496,96 @@ export default function StorePage() {
                         description="La tienda todavía no ha publicado artículos visibles en el catálogo."
                       />
                     )}
+                  </div>
+                ) : null}
+
+                {activeTab === 'reviews' ? (
+                  reviewsQuery.isLoading ? (
+                    <div className="py-16 text-center">
+                      <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
+                      <p className="text-sm text-stone-500">{t('common.loading', 'Cargando...')}</p>
+                    </div>
+                  ) : reviews.length > 0 ? (
+                    <div className="space-y-4">
+                      {/* Rating summary */}
+                      <div className="flex items-center gap-3 rounded-2xl bg-stone-50 p-4">
+                        <Star className="h-6 w-6 fill-stone-950 stroke-stone-950" />
+                        <span className="text-2xl font-bold text-stone-950">{Number(avgRating || 0).toFixed(1)}</span>
+                        <span className="text-sm text-stone-500">· {reviewsTotal} {t('store.reviewsCount', 'reseñas')}</span>
+                      </div>
+                      {/* Review list */}
+                      <div className="divide-y divide-stone-100">
+                        {reviews.map((review, idx) => (
+                          <div key={review.review_id || idx} className="py-4 first:pt-0 last:pb-0">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 text-stone-500">
+                                <User className="h-4 w-4" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-stone-950 truncate">{review.user_name || review.username || t('store.anonymous', 'Anónimo')}</p>
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star key={i} className={`h-3 w-3 ${i < (review.rating || 0) ? 'fill-stone-950 stroke-stone-950' : 'fill-stone-200 stroke-stone-200'}`} />
+                                  ))}
+                                  {review.created_at ? (
+                                    <span className="ml-2 text-[11px] text-stone-400">
+                                      {new Date(review.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                            {review.comment || review.text ? (
+                              <p className="mt-2 text-sm leading-relaxed text-stone-600 pl-12">{review.comment || review.text}</p>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <EmptyPanel
+                      title={t('store.noReviews', 'Sin reseñas todavía')}
+                      description={t('store.noReviewsDesc', 'Las opiniones de los compradores aparecerán aquí.')}
+                    />
+                  )
+                ) : null}
+
+                {activeTab === 'about' ? (
+                  <div className="space-y-6">
+                    {store.long_description || store.story ? (
+                      <div>
+                        <h3 className="text-lg font-semibold text-stone-950 mb-3">{t('store.ourStory', 'Nuestra historia')}</h3>
+                        <p className="text-sm leading-relaxed text-stone-600 whitespace-pre-line">{store.long_description || store.story}</p>
+                      </div>
+                    ) : null}
+                    {store.founder_quote ? (
+                      <blockquote className="rounded-2xl bg-stone-50 px-5 py-4 text-sm leading-relaxed text-stone-700 italic">
+                        &ldquo;{store.founder_quote}&rdquo;
+                      </blockquote>
+                    ) : null}
+                    {store.process_photos?.length > 0 ? (
+                      <div>
+                        <h3 className="text-lg font-semibold text-stone-950 mb-3">{t('store.process', 'Nuestro proceso')}</h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          {store.process_photos.map((photo, i) => (
+                            <img key={i} src={photo} alt={`Proceso ${i + 1}`} loading="lazy" className="rounded-2xl w-full aspect-[4/3] object-cover" />
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                    {certificates.length > 0 ? (
+                      <div>
+                        <h3 className="text-lg font-semibold text-stone-950 mb-3">{t('store.ourCertifications', 'Nuestras certificaciones')}</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {certificates.map((cert, i) => (
+                            <span key={i} className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-sm text-stone-700">
+                              <Award className="h-3.5 w-3.5" />
+                              {cert.certificate_type || cert.product_name || 'Certificado'}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
 

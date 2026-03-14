@@ -167,6 +167,7 @@ export default function StoresListPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
+  const [visibleCount, setVisibleCount] = useState(12);
   const [regions, setRegions] = useState({});
   const [availableRegions, setAvailableRegions] = useState([]);
 
@@ -330,6 +331,7 @@ export default function StoresListPage() {
     setSelectedRegion('');
     setSearchQuery('');
     setSelectedStoreForMap(null);
+    setVisibleCount(12);
   };
 
   const emptyState = (
@@ -570,19 +572,32 @@ export default function StoresListPage() {
           ) : filteredStores.length === 0 ? (
             emptyState
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {filteredStores.map((store) => (
-                <StoreCard
-                  key={store.store_id || store.slug}
-                  store={store}
-                  isActive={false}
-                  onHover={() => undefined}
-                  onLeave={() => undefined}
-                  onFocusMap={() => setSelectedStoreForMap(store)}
-                  t={t}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {filteredStores.slice(0, visibleCount).map((store) => (
+                  <StoreCard
+                    key={store.store_id || store.slug}
+                    store={store}
+                    isActive={false}
+                    onHover={() => undefined}
+                    onLeave={() => undefined}
+                    onFocusMap={() => setSelectedStoreForMap(store)}
+                    t={t}
+                  />
+                ))}
+              </div>
+              {visibleCount < filteredStores.length && (
+                <div className="mt-8 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => prev + 12)}
+                    className="rounded-full border border-stone-200 bg-white px-6 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                  >
+                    {t('stores.loadMore', 'Cargar más tiendas')} ({filteredStores.length - visibleCount} {t('stores.remaining', 'restantes')})
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

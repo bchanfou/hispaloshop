@@ -9,9 +9,11 @@ import {
   Store, Percent, Star, Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { asNumber } from '../../utils/safe';
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     total_users: 0,
     total_products: 0,
@@ -91,8 +93,17 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-stone-50">
         <Header />
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-stone-950"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="h-9 w-56 rounded-lg bg-stone-100 animate-pulse mb-8" />
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-[88px] rounded-xl bg-stone-100 animate-pulse" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 h-[300px] rounded-xl bg-stone-100 animate-pulse" />
+            <div className="h-[300px] rounded-xl bg-stone-100 animate-pulse" />
+          </div>
         </div>
         <Footer />
       </div>
@@ -107,10 +118,10 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-stone-950" data-testid="admin-dashboard-title">
-            Panel de Administración
+            {t('admin.dashboard', 'Panel de Administración')}
           </h1>
           <p className="text-stone-500 mt-1">
-            Gestiona usuarios, productos y órdenes de la plataforma
+            {t('admin.dashboardDesc', 'Gestiona usuarios, productos y órdenes de la plataforma')}
           </p>
         </div>
 
@@ -135,7 +146,7 @@ export default function AdminDashboard() {
             <div className="text-sm text-stone-600">Pendientes</div>
           </div>
           <div className="bg-stone-100 border border-stone-200 rounded-xl p-4">
-            <div className="text-3xl font-bold text-stone-950">${stats.revenue_today.toFixed(0)}</div>
+            <div className="text-3xl font-bold text-stone-950">{stats.revenue_today.toFixed(0)} €</div>
             <div className="text-sm text-stone-600">Ingresos Hoy</div>
           </div>
         </div>
@@ -225,7 +236,7 @@ export default function AdminDashboard() {
                       <div>
                         <div className="font-medium text-stone-950">#{order.order_id?.slice(-6)}</div>
                         <div className="text-sm text-stone-600">
-                          {order.line_items?.length || 0} items • ${asNumber(order.total_amount).toFixed(2)}
+                          {order.line_items?.length || 0} items • {asNumber(order.total_amount).toFixed(2)} €
                         </div>
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${['completed'].includes(order.status) ? 'bg-stone-950 text-white' : ['pending', 'processing', 'shipped'].includes(order.status) ? 'bg-stone-200 text-stone-700' : 'border border-stone-200 text-stone-400 bg-white'}`}>

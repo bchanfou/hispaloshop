@@ -290,6 +290,17 @@ export default function ProductDetailPage() {
               </div>
             )}
 
+            {/* Certificate badge */}
+            {product.certificate_id && (
+              <a
+                href={`/certificate/${product.product_id || product.id}`}
+                className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1 text-[11px] font-semibold text-stone-700 hover:bg-stone-200 transition-colors mb-2"
+              >
+                <svg width="12" height="12" viewBox="0 0 16 16" className="text-stone-700"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M5 8l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+                {t('productDetail.certified', 'Certificado Hispaloshop verificado')}
+              </a>
+            )}
+
             {/* Product Title */}
             <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-stone-950 mb-2 md:mb-3 leading-tight" data-testid="product-title">
               {product.name}

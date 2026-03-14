@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, ChefHat, Heart, Loader2, MessageCircle, Package, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 
@@ -23,6 +24,7 @@ function SummaryCard({ icon: Icon, title, value, description, to }) {
 }
 
 export default function CustomerDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [wishlist, setWishlist] = useState([]);
@@ -43,7 +45,7 @@ export default function CustomerDashboard() {
         setWishlist(wishlistRes.status === 'fulfilled' ? wishlistRes.value?.items || wishlistRes.value || [] : []);
       } catch {
         if (active) {
-          toast.error('No se pudo cargar el panel');
+          toast.error(t('dashboard.loadError', 'No se pudo cargar el panel'));
         }
       } finally {
         if (active) setLoading(false);
@@ -69,8 +71,19 @@ export default function CustomerDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+      <div className="ds-page">
+        <div className="ds-shell">
+          <div className="h-8 w-40 rounded-lg bg-stone-100 animate-pulse mb-6" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-[100px] rounded-2xl bg-stone-100 animate-pulse" />
+            ))}
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="h-[280px] rounded-2xl bg-stone-100 animate-pulse" />
+            <div className="h-[280px] rounded-2xl bg-stone-100 animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -79,25 +92,25 @@ export default function CustomerDashboard() {
     <div className="ds-page">
       <div className="ds-shell">
         <header>
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">Mi panel</h1>
-          <p className="mt-2 text-sm text-stone-500">Pedidos, guardados y conversaciones en un solo lugar.</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">{t('dashboard.myPanel', 'Mi panel')}</h1>
+          <p className="mt-2 text-sm text-stone-500">{t('dashboard.panelDesc', 'Pedidos, guardados y conversaciones en un solo lugar.')}</p>
         </header>
 
         <section className="ds-section ds-grid-4">
-          <SummaryCard icon={ShoppingBag} title="Pedidos" value={stats.orders} description={`${stats.pendingOrders} en curso`} to="/dashboard/orders" />
-          <SummaryCard icon={Heart} title="Productos guardados" value={stats.savedProducts} description="Tu lista de favoritos" to="/dashboard/wishlist" />
-          <SummaryCard icon={ChefHat} title="Recetas guardadas" value={stats.savedRecipes} description="Colección personal" to="/recipes" />
-          <SummaryCard icon={MessageCircle} title="Mensajes" value={stats.messages} description="Próximamente en el panel" to="/chat" />
+          <SummaryCard icon={ShoppingBag} title={t('dashboard.orders', 'Pedidos')} value={stats.orders} description={`${stats.pendingOrders} ${t('dashboard.inProgress', 'en curso')}`} to="/dashboard/orders" />
+          <SummaryCard icon={Heart} title={t('dashboard.savedProducts', 'Productos guardados')} value={stats.savedProducts} description={t('dashboard.favorites', 'Tu lista de favoritos')} to="/dashboard/wishlist" />
+          <SummaryCard icon={ChefHat} title={t('dashboard.savedRecipes', 'Recetas guardadas')} value={stats.savedRecipes} description={t('dashboard.personalCollection', 'Colección personal')} to="/recipes" />
+          <SummaryCard icon={MessageCircle} title={t('dashboard.messages', 'Mensajes')} value={stats.messages} description={t('dashboard.comingSoon', 'Próximamente en el panel')} to="/chat" />
         </section>
 
         <section className="ds-section grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-semibold text-stone-950">Actividad reciente</h2>
-                <p className="mt-2 text-sm text-stone-500">Tus pedidos más recientes.</p>
+                <h2 className="text-2xl font-semibold text-stone-950">{t('dashboard.recentActivity', 'Actividad reciente')}</h2>
+                <p className="mt-2 text-sm text-stone-500">{t('dashboard.recentOrders', 'Tus pedidos más recientes.')}</p>
               </div>
-              <Link to="/dashboard/orders" className="text-sm font-medium text-stone-700">Ver todo</Link>
+              <Link to="/dashboard/orders" className="text-sm font-medium text-stone-700">{t('common.viewAll', 'Ver todo')}</Link>
             </div>
 
             {orders.length === 0 ? (
@@ -130,7 +143,7 @@ export default function CustomerDashboard() {
 
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm">
-              <h2 className="text-2xl font-semibold text-stone-950">Accesos rápidos</h2>
+              <h2 className="text-2xl font-semibold text-stone-950">{t('dashboard.quickAccess', 'Accesos rápidos')}</h2>
               <div className="mt-5 space-y-3">
                 <Link to="/products" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
                   <span>Seguir comprando</span>

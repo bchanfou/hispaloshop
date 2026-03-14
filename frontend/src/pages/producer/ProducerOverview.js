@@ -391,8 +391,8 @@ function FollowerGrowthChart() {
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorFollowers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2D5A27" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#2D5A27" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#57534e" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#57534e" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
@@ -414,7 +414,7 @@ function FollowerGrowthChart() {
               <Area 
                 type="monotone" 
                 dataKey="followers" 
-                stroke="#2D5A27" 
+                stroke="#57534e" 
                 fillOpacity={1} 
                 fill="url(#colorFollowers)" 
                 strokeWidth={2}
@@ -549,24 +549,24 @@ export default function ProducerOverview() {
       label: t('producer.createNewProduct'),
       description: 'Añadir nuevo producto',
       to: '/producer/products',
-      bgColor: 'var(--hs-text-1)',
-      iconColor: 'var(--hs-surface-2)'
+      bgColor: '#0c0a09',
+      iconColor: '#f5f5f4'
     },
     {
       icon: FileCheck,
       label: t('producer.manageCertificates'),
       description: 'Certificaciones de calidad',
       to: '/producer/certificates',
-      bgColor: 'var(--hs-surface-2)',
-      iconColor: 'var(--hs-text-2)'
+      bgColor: '#f5f5f4',
+      iconColor: '#44403c'
     },
     {
       icon: ShoppingBag,
       label: t('producer.viewOrders'),
       description: 'Gestionar pedidos',
       to: '/producer/orders',
-      bgColor: 'var(--hs-surface-2)',
-      iconColor: 'var(--hs-text-2)'
+      bgColor: '#f5f5f4',
+      iconColor: '#44403c'
     },
   ];
 

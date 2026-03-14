@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { AlertTriangle, Award, ChevronRight, FileCheck, MapPin, Shield, Package, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, Award, ChevronRight, Copy, FileCheck, MapPin, Share2, Shield, Package, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import BackButton from '../components/BackButton';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Footer from '../components/Footer';
@@ -41,6 +43,7 @@ function normalizeIngredientOrigins(value) {
 export default function CertificatePage() {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { product, certificate, storeInfo, isLoading } = useProductDetail(productId);
 
   const productImage = product?.images?.[0] || product?.image_url || null;
@@ -323,6 +326,49 @@ export default function CertificatePage() {
               <ChevronRight className="h-4 w-4" />
             </button>
           )}
+        </div>
+
+        {/* ── QR Verification + Share ── */}
+        <div className="mt-4 flex items-center gap-5 rounded-[28px] border border-stone-100 bg-white p-6 shadow-sm">
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}&bgcolor=ffffff&color=0c0a09`}
+            alt={t('certificate.qrCode', 'Código QR de verificación')}
+            width={100}
+            height={100}
+            className="shrink-0 rounded-xl"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-stone-950">{t('certificate.verify', 'Verificar autenticidad')}</p>
+            <p className="mt-1 text-xs text-stone-500">{t('certificate.scanQR', 'Escanea el QR o copia el enlace para verificar este certificado.')}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success(t('social.linkCopied', 'Enlace copiado'));
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+              >
+                <Copy className="h-3 w-3" />
+                {t('certificate.copyLink', 'Copiar enlace')}
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (navigator.share) {
+                    try { await navigator.share({ title: `${t('certificate.title', 'Certificado')} - ${product.name}`, url: window.location.href }); } catch { /* cancelled */ }
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success(t('social.linkCopied', 'Enlace copiado'));
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+              >
+                <Share2 className="h-3 w-3" />
+                {t('certificate.share', 'Compartir')}
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* ── Buy CTA bar ── */}
