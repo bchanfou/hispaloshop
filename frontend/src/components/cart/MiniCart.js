@@ -6,7 +6,7 @@ import { useCart } from '../../context/CartContext';
 
 const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { cartItems, removeFromCart, updateQuantity, loading } = useCart();
+  const { cartItems, addToCart, removeFromCart, loading } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -19,16 +19,23 @@ const MiniCart = ({ isOpen, onClose }) => {
     navigate('/cart');
   };
 
-  const handleUpdateQuantity = async (itemId, newQuantity) => {
+  const handleUpdateQuantity = async (productId, newQuantity) => {
     if (newQuantity <= 0) {
-      await removeFromCart(itemId);
+      await removeFromCart(productId);
       return;
     }
-    await updateQuantity(itemId, newQuantity);
+    const current = cartItems.find(i => i.product_id === productId);
+    if (!current) return;
+    if (newQuantity > current.quantity) {
+      await addToCart(productId, 1);
+    } else {
+      await removeFromCart(productId);
+      if (newQuantity > 0) await addToCart(productId, newQuantity);
+    }
   };
 
-  const handleRemove = async (itemId) => {
-    await removeFromCart(itemId);
+  const handleRemove = async (productId) => {
+    await removeFromCart(productId);
   };
 
   return (
@@ -56,7 +63,7 @@ const MiniCart = ({ isOpen, onClose }) => {
             aria-labelledby="minicart-title"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center justify-between p-4 border-b border-stone-200">
               <div>
                 <h2 id="minicart-title" className="text-lg font-bold text-stone-950">Tu cesta</h2>
                 <p className="text-sm text-stone-500">{totalItems} artículos</p>
@@ -98,7 +105,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 <div className="p-4 space-y-4">
                   {cartItems.map((item) => (
                     <motion.div
-                      key={item.id}
+                      key={item.product_id}
                       layout
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -108,7 +115,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                       <img
                         src={item.image || item.product?.image}
                         alt={item.name || item.product?.name}
-                        className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
+                        className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
@@ -121,7 +128,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                             </p>
                           </div>
                           <button
-                            onClick={() => handleRemove(item.id)}
+                            onClick={() => handleRemove(item.product_id)}
                             className="p-1 hover:bg-stone-200 rounded-full transition-colors"
                             aria-label={`Eliminar ${item.name || item.product?.name}`}
                           >
@@ -130,10 +137,10 @@ const MiniCart = ({ isOpen, onClose }) => {
                         </div>
                         
                         <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center bg-white rounded-lg">
+                          <div className="flex items-center bg-white rounded-xl">
                             <button
-                              onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                              className="p-1.5 hover:bg-stone-100 rounded-l-lg"
+                              onClick={() => handleUpdateQuantity(item.product_id, item.quantity - 1)}
+                              className="p-1.5 hover:bg-stone-100 rounded-l-xl"
                               aria-label={`Disminuir cantidad de ${item.name || item.product?.name}`}
                             >
                               <Minus className="w-4 h-4 text-stone-950" />
@@ -142,8 +149,8 @@ const MiniCart = ({ isOpen, onClose }) => {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                              className="p-1.5 hover:bg-stone-100 rounded-r-lg"
+                              onClick={() => handleUpdateQuantity(item.product_id, item.quantity + 1)}
+                              className="p-1.5 hover:bg-stone-100 rounded-r-xl"
                               aria-label={`Aumentar cantidad de ${item.name || item.product?.name}`}
                             >
                               <Plus className="w-4 h-4 text-stone-950" />
@@ -162,10 +169,10 @@ const MiniCart = ({ isOpen, onClose }) => {
 
             {/* Footer */}
             {!loading && cartItems.length > 0 && (
-              <div className="border-t p-4 space-y-4">
+              <div className="border-t border-stone-200 p-4 space-y-4">
                 {/* Shipping progress */}
                 {subtotal < 50 && (
-                  <div className="bg-stone-100 rounded-lg p-3 text-sm">
+                  <div className="bg-stone-100 rounded-xl p-3 text-sm">
                     <p className="text-stone-950">
                       Añade <span className="font-semibold text-stone-950">€{(50 - subtotal).toFixed(2)}</span> más para envío gratis
                     </p>
@@ -206,26 +213,13 @@ const MiniCart = ({ isOpen, onClose }) => {
                   Pagar ahora
                   <ArrowRight className="w-5 h-5" />
                 </button>
-                
+
                 <button
                   onClick={onClose}
                   className="w-full py-3 border-2 border-stone-200 text-stone-950 rounded-xl font-medium hover:border-stone-950 hover:text-stone-950 transition-colors"
                 >
                   Seguir comprando
                 </button>
-
-                {/* Express pay options */}
-                <div className="flex gap-2">
-                  <button onClick={handleCheckout} aria-label="Pagar con Apple Pay" className="flex-1 py-2 bg-black text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2">
-                    <span aria-hidden="true">🍎</span> Pay
-                  </button>
-                  <button onClick={handleCheckout} aria-label="Pagar con Google Pay" className="flex-1 py-2 bg-white border-2 border-stone-200 rounded-lg text-sm font-medium flex items-center justify-center gap-2">
-                    <span aria-hidden="true" className="text-stone-500">G</span> Pay
-                  </button>
-                  <button onClick={handleCheckout} aria-label="Pagar con Bizum" className="flex-1 py-2 bg-stone-950 text-white rounded-lg text-sm font-medium">
-                    Bizum
-                  </button>
-                </div>
               </div>
             )}
           </motion.div>

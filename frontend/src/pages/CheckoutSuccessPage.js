@@ -16,7 +16,7 @@ export default function CheckoutSuccessPage() {
   const [status, setStatus] = useState('checking');
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId) { setStatus('error'); return; }
 
     let cancelled = false;
     let attempt = 0;
@@ -54,7 +54,7 @@ export default function CheckoutSuccessPage() {
         <div className="flex items-center h-14 px-4">
           <Link
             to="/"
-            className="p-2 -ml-2 text-stone-800 hover:bg-stone-100 rounded-full transition-colors"
+            className="p-2 -ml-2 text-stone-950 hover:bg-stone-100 rounded-full transition-colors"
             data-testid="mobile-home-btn"
           >
             <Home className="w-5 h-5" />

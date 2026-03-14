@@ -312,13 +312,13 @@ export default function ProductDetailPage() {
 
             {/* Stock Status */}
             {isOutOfStock && (
-              <div className="flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-100 px-3 py-2 mb-3 md:px-4 md:mb-4">
+              <div className="flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-100 px-3 py-2 mb-3 md:px-4 md:mb-4">
                 <AlertTriangle className="w-4 h-4 text-stone-700 shrink-0" />
                 <span className="text-stone-700 text-xs md:text-sm font-medium">{t('productDetail.outOfStock')}</span>
               </div>
             )}
             {isLowStock && (
-              <div className="mb-3 flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-100 px-3 py-2 md:mb-4 md:px-4">
+              <div className="mb-3 flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-100 px-3 py-2 md:mb-4 md:px-4">
                 <AlertCircle className="h-4 w-4 text-stone-700" />
                 <span className="text-xs font-medium text-stone-700 md:text-sm">{t('productDetail.lowStockWarning', { count: stock })}</span>
               </div>
@@ -332,7 +332,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Shipping Info */}
-            <div className="mb-4 flex items-center gap-2 rounded-lg border border-stone-200 bg-white p-2.5 md:mb-6 md:p-3">
+            <div className="mb-4 flex items-center gap-2 rounded-xl border border-stone-200 bg-white p-2.5 md:mb-6 md:p-3">
               <Truck className={`w-4 h-4 md:w-5 md:h-5 ${isFreeShipping ? 'text-stone-950' : 'text-stone-500'}`} />
               {isFreeShipping ? (
                 <span className="text-sm font-medium text-stone-950">{t('products.freeShipping', 'Envío gratis')}</span>
@@ -361,7 +361,7 @@ export default function ProductDetailPage() {
             {/* Ingredients Section */}
             {currentIngredients && currentIngredients.length > 0 && (
               <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6" data-testid="ingredients-section">
-                <h3 className="font-medium text-stone-900 mb-3 flex items-center gap-2">
+                <h3 className="font-medium text-stone-950 mb-3 flex items-center gap-2">
                   <Leaf className="w-4 h-4 text-stone-700" />
                   {t('productDetail.ingredients', 'Ingredientes')}
                   {selectedVariant && (
@@ -393,7 +393,7 @@ export default function ProductDetailPage() {
             {/* Nutritional Information */}
             {currentNutritionalInfo && Object.keys(currentNutritionalInfo).length > 0 && (
               <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6" data-testid="nutritional-section">
-                <h3 className="font-medium text-stone-900 mb-3">
+                <h3 className="font-medium text-stone-950 mb-3">
                   {t('productDetail.nutritionalInfo', 'Información Nutricional')}
                   {selectedVariant && (
                     <span className="text-xs text-stone-500 font-normal ml-2">({selectedVariant.name})</span>
@@ -402,56 +402,56 @@ export default function ProductDetailPage() {
                 <p className="text-xs text-stone-500 mb-3">{t('productDetail.per100g', 'Por 100g')}</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {currentNutritionalInfo.calories !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.calories}</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.calories}</p>
                       <p className="text-xs text-stone-500">{t('certificate.calories', 'Calorías')}</p>
                     </div>
                   )}
                   {currentNutritionalInfo.protein !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.protein}g</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.protein}g</p>
                       <p className="text-xs text-stone-500">{t('certificate.protein', 'Proteínas')}</p>
                     </div>
                   )}
                   {currentNutritionalInfo.carbohydrates !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.carbohydrates}g</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.carbohydrates}g</p>
                       <p className="text-xs text-stone-500">{t('certificate.carbohydrates', 'Carbohidratos')}</p>
                     </div>
                   )}
                   {currentNutritionalInfo.sugars !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.sugars}g</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.sugars}g</p>
                       <p className="text-xs text-stone-500">{t('certificate.sugars', 'Azúcares')}</p>
                     </div>
                   )}
                   {currentNutritionalInfo.fat !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.fat}g</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.fat}g</p>
                       <p className="text-xs text-stone-500">{t('certificate.fat', 'Grasas')}</p>
                     </div>
                   )}
                   {currentNutritionalInfo.saturated_fat !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.saturated_fat}g</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.saturated_fat}g</p>
                       <p className="text-xs text-stone-500">{t('certificate.saturatedFat', 'Grasas Sat.')}</p>
                     </div>
                   )}
                   {currentNutritionalInfo.fiber !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.fiber}g</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.fiber}g</p>
                       <p className="text-xs text-stone-500">{t('certificate.fiber', 'Fibra')}</p>
                     </div>
                   )}
                   {currentNutritionalInfo.sodium !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.sodium}mg</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.sodium}mg</p>
                       <p className="text-xs text-stone-500">{t('certificate.sodium', 'Sodio')}</p>
                     </div>
                   )}
                   {currentNutritionalInfo.salt !== undefined && (
-                    <div className="bg-stone-50 rounded-lg p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-900">{currentNutritionalInfo.salt}g</p>
+                    <div className="bg-stone-50 rounded-xl p-2 text-center">
+                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.salt}g</p>
                       <p className="text-xs text-stone-500">{t('certificate.salt', 'Sal')}</p>
                     </div>
                   )}
@@ -462,7 +462,7 @@ export default function ProductDetailPage() {
             {/* Allergens */}
             {currentAllergens && currentAllergens.length > 0 && (
               <div className="mb-6 rounded-xl border border-stone-200 bg-stone-100 p-4" data-testid="allergens-section">
-                <h3 className="mb-2 flex items-center gap-2 font-medium text-stone-900">
+                <h3 className="mb-2 flex items-center gap-2 font-medium text-stone-950">
                   <AlertTriangle className="h-4 w-4 text-stone-700" />
                   {t('productDetail.allergens', 'Alérgenos')}
                 </h3>
@@ -481,20 +481,20 @@ export default function ProductDetailPage() {
 
             {/* Product Details */}
             <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6">
-              <h3 className="font-medium text-stone-900 mb-3">{t('productDetail.details', 'Detalles')}</h3>
+              <h3 className="font-medium text-stone-950 mb-3">{t('productDetail.details', 'Detalles')}</h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <span className="text-stone-500">{t('productDetail.origin', 'Origen')}</span>
-                  <p className="text-stone-900 font-medium">{product.country_origin}</p>
+                  <p className="text-stone-950 font-medium">{product.country_origin}</p>
                 </div>
                 <div>
                   <span className="text-stone-500">{t('productDetail.category', 'Categoría')}</span>
-                  <p className="text-stone-900 font-medium capitalize">{product.category_id?.replace('cat_', '').replace(/-/g, ' ')}</p>
+                  <p className="text-stone-950 font-medium capitalize">{product.category_id?.replace('cat_', '').replace(/-/g, ' ')}</p>
                 </div>
                 {product.sku && (
                   <div>
                     <span className="text-stone-500">SKU</span>
-                    <p className="text-stone-900 font-medium">{product.sku}</p>
+                    <p className="text-stone-950 font-medium">{product.sku}</p>
                   </div>
                 )}
               </div>
@@ -503,7 +503,7 @@ export default function ProductDetailPage() {
             {/* Variant Selector (for products with internal variants like flavors) */}
             {hasVariants && product.variants.length > 1 && (
               <div className="mb-6">
-                <h3 className="font-medium text-stone-900 mb-3">{t('productDetail.selectVariant', 'Seleccionar Variante')}</h3>
+                <h3 className="font-medium text-stone-950 mb-3">{t('productDetail.selectVariant', 'Seleccionar Variante')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((variant) => (
                     <button
@@ -526,7 +526,7 @@ export default function ProductDetailPage() {
             {/* Packs Selector - Show packs from selected variant or product level */}
             {((selectedVariant?.packs && selectedVariant.packs.length > 1) || (product.packs && product.packs.length > 0)) && (
               <div className="mb-6">
-                <h3 className="font-medium text-stone-900 mb-3">{t('productDetail.selectPack', 'Seleccionar Pack')}</h3>
+                <h3 className="font-medium text-stone-950 mb-3">{t('productDetail.selectPack', 'Seleccionar Pack')}</h3>
                 <div className="space-y-2">
                   {/* Use variant packs if available, otherwise product packs */}
                   {(selectedVariant?.packs || product.packs || []).map((pack, idx) => {
@@ -542,7 +542,7 @@ export default function ProductDetailPage() {
                             setSelectedPack(pack);
                           }
                         }}
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-all ${
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${
                           isSelected
                             ? 'border-stone-950 bg-stone-100 ring-2 ring-stone-950/10'
                             : 'bg-white border-stone-200 hover:border-stone-400'
@@ -586,18 +586,18 @@ export default function ProductDetailPage() {
                 {/* Quantity Selector */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-stone-700 mb-2">{t('productDetail.quantity', 'Cantidad')}</label>
-                  <div className="flex items-center border border-stone-200 rounded-lg w-fit">
+                  <div className="flex items-center border border-stone-200 rounded-xl w-fit">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-4 py-2 text-stone-600 hover:text-stone-900 transition-colors"
+                      className="px-4 py-2 text-stone-600 hover:text-stone-950 transition-colors"
                       disabled={isOutOfStock}
                     >
                       −
                     </button>
-                    <span className="px-4 py-2 font-medium text-stone-900 min-w-[50px] text-center">{quantity}</span>
+                    <span className="px-4 py-2 font-medium text-stone-950 min-w-[50px] text-center">{quantity}</span>
                     <button
                       onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-                      className="px-4 py-2 text-stone-600 hover:text-stone-900 transition-colors"
+                      className="px-4 py-2 text-stone-600 hover:text-stone-950 transition-colors"
                       disabled={isOutOfStock}
                     >
                       +
@@ -664,7 +664,7 @@ export default function ProductDetailPage() {
                   data-testid="producer-card"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium text-stone-900 flex items-center gap-2">
+                    <h3 className="font-medium text-stone-950 flex items-center gap-2">
                       <Store className="w-4 h-4" />
                       {t('productDetail.soldBy', 'Vendido por')}
                     </h3>
@@ -682,7 +682,7 @@ export default function ProductDetailPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-stone-900 truncate">{storeInfo.name}</h4>
+                        <h4 className="font-semibold text-stone-950 truncate">{storeInfo.name}</h4>
                         {storeInfo.location && (
                           <p className="text-xs text-stone-500 flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
@@ -694,24 +694,24 @@ export default function ProductDetailPage() {
 
                     {/* Store Stats - 3 columns */}
                     <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-                      <div className="bg-stone-50 rounded-lg p-2">
+                      <div className="bg-stone-50 rounded-xl p-2">
                         <div className="flex items-center justify-center gap-1">
                           <Star className="w-3.5 h-3.5 fill-stone-950 stroke-stone-950" />
-                          <span className="font-semibold text-stone-900 text-sm">{Number.isFinite(normalizedStoreRating) ? normalizedStoreRating.toFixed(1) : '0.0'}</span>
+                          <span className="font-semibold text-stone-950 text-sm">{Number.isFinite(normalizedStoreRating) ? normalizedStoreRating.toFixed(1) : '0.0'}</span>
                         </div>
                         <p className="text-[10px] text-stone-500 mt-0.5">{storeInfo.review_count || 0} reviews</p>
                       </div>
-                      <div className="bg-stone-50 rounded-lg p-2">
+                      <div className="bg-stone-50 rounded-xl p-2">
                         <div className="flex items-center justify-center gap-1">
                           <Package className="w-3.5 h-3.5 text-stone-500" />
-                          <span className="font-semibold text-stone-900 text-sm">{storeInfo.product_count || 0}</span>
+                          <span className="font-semibold text-stone-950 text-sm">{storeInfo.product_count || 0}</span>
                         </div>
                         <p className="text-[10px] text-stone-500 mt-0.5">{t('store.products', 'productos')}</p>
                       </div>
-                      <div className="bg-stone-50 rounded-lg p-2">
+                      <div className="bg-stone-50 rounded-xl p-2">
                         <div className="flex items-center justify-center gap-1">
                           <Users className="w-3.5 h-3.5 text-stone-500" />
-                          <span className="font-semibold text-stone-900 text-sm">{storeInfo.follower_count || 0}</span>
+                          <span className="font-semibold text-stone-950 text-sm">{storeInfo.follower_count || 0}</span>
                         </div>
                         <p className="text-[10px] text-stone-500 mt-0.5">{t('store.followers', 'seguidores')}</p>
                       </div>
@@ -730,10 +730,10 @@ export default function ProductDetailPage() {
                         handleFollowStore();
                       }}
                       disabled={followLoading}
-                      className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                      className={`w-full py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                         isFollowing
                           ? 'bg-stone-100 text-stone-700 border border-stone-200 hover:bg-stone-200'
-                          : 'bg-stone-900 text-white hover:bg-stone-800'
+                          : 'bg-stone-950 text-white hover:bg-stone-800'
                       }`}
                       data-testid="follow-store-button"
                     >
@@ -753,7 +753,7 @@ export default function ProductDetailPage() {
                   data-testid="producer-card"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium text-stone-900 flex items-center gap-2">
+                    <h3 className="font-medium text-stone-950 flex items-center gap-2">
                       <Store className="w-4 h-4" />
                       {t('productDetail.soldBy', 'Vendido por')}
                     </h3>
@@ -763,7 +763,7 @@ export default function ProductDetailPage() {
                       <User className="w-6 h-6 text-stone-400" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-stone-900">{product.producer_name || 'Hispaloshop'}</h4>
+                      <h4 className="font-semibold text-stone-950">{product.producer_name || 'Hispaloshop'}</h4>
                       <p className="text-xs text-stone-500">{t('productDetail.verifiedSeller', 'Productor verificado')}</p>
                     </div>
                   </div>
@@ -780,7 +780,7 @@ export default function ProductDetailPage() {
                   <div className="flex items-center gap-3">
                     <FileCheck className="w-5 h-5 text-stone-700" />
                     <div>
-                      <p className="font-medium text-stone-900">{t('productDetail.viewCertificate', 'Ver certificado')}</p>
+                      <p className="font-medium text-stone-950">{t('productDetail.viewCertificate', 'Ver certificado')}</p>
                       <p className="text-xs text-stone-500">{t('productDetail.verifiedProduct', 'Producto verificado')}</p>
                     </div>
                   </div>
@@ -811,7 +811,7 @@ export default function ProductDetailPage() {
           {/* Review Form */}
           {showReviewForm && (
             <div className="bg-white rounded-xl border border-stone-200 p-6 mb-6">
-              <h3 className="font-medium text-stone-900 mb-4">{t('productDetail.yourReview', 'Tu reseña')}</h3>
+              <h3 className="font-medium text-stone-950 mb-4">{t('productDetail.yourReview', 'Tu reseña')}</h3>
               <div className="mb-4">
                 <label className="block text-sm text-stone-600 mb-2">{t('productDetail.rating', 'Puntuación')}</label>
                 <div className="flex items-center gap-1">
@@ -835,7 +835,7 @@ export default function ProductDetailPage() {
                   onChange={(e) => setReviewComment(e.target.value)}
                   placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia con este producto...')}
                   rows={4}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
                 />
               </div>
               <div className="flex gap-2.5">
@@ -869,7 +869,7 @@ export default function ProductDetailPage() {
                         <User className="w-5 h-5 text-stone-400" />
                       </div>
                       <div>
-                        <p className="font-medium text-stone-900">{review.user_name || 'Cliente'}</p>
+                        <p className="font-medium text-stone-950">{review.user_name || 'Cliente'}</p>
                         {review.verified_purchase && (
                           <p className="flex items-center gap-1 text-xs text-stone-500">
                             <CheckCircle className="w-3 h-3" />
@@ -913,7 +913,7 @@ export default function ProductDetailPage() {
           </div>
           
           {/* Quantity Controls - Compact */}
-          <div className="flex items-center rounded-lg border border-stone-200">
+          <div className="flex items-center rounded-xl border border-stone-200">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
               className="px-3 py-2 text-stone-600"

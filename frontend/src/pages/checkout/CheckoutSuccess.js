@@ -110,7 +110,7 @@ const CheckoutSuccess = () => {
                 className="flex items-center justify-center gap-3 mt-3"
               >
                 {orderId && (
-                  <span className="text-sm text-stone-500">#{orderId.slice(-8).toUpperCase()}</span>
+                  <span className="text-sm text-stone-500">#{String(orderId).slice(-8).toUpperCase()}</span>
                 )}
                 {orderId && total != null && (
                   <span className="w-1 h-1 rounded-full bg-stone-300 shrink-0" />

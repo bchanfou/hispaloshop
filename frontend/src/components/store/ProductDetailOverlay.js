@@ -233,7 +233,7 @@ export default function ProductDetailOverlay({
                       type="button"
                       onClick={() => setImageIndex(i)}
                       className={`overflow-hidden rounded-xl border transition-all duration-150 ${
-                        i === imageIndex ? 'border-stone-950' : 'border-stone-100 hover:border-stone-300'
+                        i === imageIndex ? 'border-stone-950' : 'border-stone-100 hover:border-stone-200'
                       }`}
                       aria-label={`Ver imagen ${i + 1}`}
                     >

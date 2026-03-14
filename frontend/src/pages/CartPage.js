@@ -111,9 +111,6 @@ export default function CartPage() {
     try {
       const response = await resendVerification();
       toast.success(t('checkout.verificationSent') || 'Codigo enviado. Revisa tu email.');
-      if (response?.verification_token) {
-        toast.info(`MVP: ${response.verification_token.substring(0, 8)}...`);
-      }
     } catch (error) {
       toast.error(error?.message || t('checkout.failedResend'));
     }

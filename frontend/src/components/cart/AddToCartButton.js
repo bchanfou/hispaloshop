@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Check, Loader2, Plus, Minus, Zap } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
@@ -17,6 +18,8 @@ const AddToCartButton = ({
   const { addToCart, cartItems } = useCart();
   const [state, setState] = useState('idle'); // idle, loading, success
   const [quantity, setQuantity] = useState(1);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
   const productId = getProductId(product);
 
   // Check if product is already in cart
@@ -31,16 +34,16 @@ const AddToCartButton = ({
     try {
       await addToCart(productId, quantity);
       setState('success');
-      
       if (onAdd) onAdd(product);
-      
-      // Reset after animation
       setTimeout(() => {
-        setState('idle');
-        setQuantity(1);
+        if (mountedRef.current) {
+          setState('idle');
+          setQuantity(1);
+        }
       }, 2000);
     } catch (error) {
-      setState('idle');
+      if (mountedRef.current) setState('idle');
+      toast.error('Error al añadir el producto al carrito');
     }
   };
 
@@ -56,12 +59,12 @@ const AddToCartButton = ({
       text: inCartQuantity > 0 ? `${inCartQuantity} en cesta` : 'Añadir al carrito'
     },
     'small': {
-      button: 'p-2 bg-stone-950 text-white rounded-lg',
+      button: 'p-2 bg-stone-950 text-white rounded-xl',
       icon: 'w-4 h-4',
       text: ''
     },
     'quick': {
-      button: 'w-full py-2 bg-stone-950 text-white rounded-lg text-sm font-medium',
+      button: 'w-full py-2 bg-stone-950 text-white rounded-xl text-sm font-medium',
       icon: 'w-4 h-4',
       text: inCartQuantity > 0 ? `+${inCartQuantity}` : 'Añadir'
     },
@@ -92,10 +95,10 @@ const AddToCartButton = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       {showQuantity && (
-        <div className="flex items-center bg-stone-100 rounded-lg">
+        <div className="flex items-center bg-stone-100 rounded-xl">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="p-2 hover:bg-stone-200 rounded-l-lg transition-colors"
+            className="p-2 hover:bg-stone-200 rounded-l-xl transition-colors"
             disabled={state === 'loading'}
           >
             <Minus className="w-4 h-4 text-stone-950" />
@@ -103,7 +106,7 @@ const AddToCartButton = ({
           <span className="w-10 text-center font-medium text-stone-950">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="p-2 hover:bg-stone-200 rounded-r-lg transition-colors"
+            className="p-2 hover:bg-stone-200 rounded-r-xl transition-colors"
             disabled={state === 'loading'}
           >
             <Plus className="w-4 h-4 text-stone-950" />

@@ -9,7 +9,7 @@ import {
   ArrowLeft, Lock, MapPin, Truck, Check, Plus, Shield,
   ShoppingBag, Trash2, Star, Loader2, Tag, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { useCart } from '../../hooks/useCart';
+import { useCart } from '../../context/CartContext';
 
 // ─── Zod schema ────────────────────────────────────────────────────────────
 const addressSchema = z.object({
@@ -27,7 +27,7 @@ function AddressCard({ address, selected, onSelect, onDelete, onSetDefault }) {
   return (
     <label
       className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-        selected ? 'border-stone-950 bg-stone-50' : 'border-stone-200 hover:border-stone-300'
+        selected ? 'border-stone-950 bg-stone-50' : 'border-stone-200 hover:border-stone-400'
       }`}
     >
       <input
@@ -173,7 +173,8 @@ function AddressForm({ onSave, onCancel, saving }) {
 // ─── Main CheckoutPage ──────────────────────────────────────────────────────
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const { items, subtotal, clearCart } = useCart();
+  const { cartItems: items, getTotalPrice } = useCart();
+  const subtotal = getTotalPrice();
 
   const [addresses, setAddresses] = useState([]);
   const [defaultAddressId, setDefaultAddressId] = useState(null);
@@ -275,7 +276,6 @@ const CheckoutPage = () => {
       const data = await apiClient.post('/payments/create-checkout', payload);
       const url = data?.url;
       if (!url) throw new Error('No se recibió URL de pago');
-      clearCart();
       window.location.href = url;
     } catch (e) {
       const msg = e.message || 'Error al procesar el pago';
@@ -424,7 +424,7 @@ const CheckoutPage = () => {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-12 h-12 rounded-lg object-cover bg-stone-100 shrink-0"
+                    className="w-12 h-12 rounded-xl object-cover bg-stone-100 shrink-0"
                   />
                 )}
                 <div className="flex-1 min-w-0">
@@ -500,7 +500,7 @@ const CheckoutPage = () => {
             ) : (
               <>
                 <Shield className="w-5 h-5" />
-                Pagar €{subtotal.toFixed(2)}+
+                Pagar €{subtotal.toFixed(2)}
               </>
             )}
           </button>
