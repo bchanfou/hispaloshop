@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import FocusTrap from 'focus-trap-react';
 import { X, Plus, Minus, Trash2, ShoppingBag, Truck, ArrowRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
@@ -52,6 +53,7 @@ const MiniCart = ({ isOpen, onClose }) => {
           />
           
           {/* Drawer */}
+          <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -223,6 +225,7 @@ const MiniCart = ({ isOpen, onClose }) => {
               </div>
             )}
           </motion.div>
+          </FocusTrap>
         </>
       )}
     </AnimatePresence>

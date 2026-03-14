@@ -22,7 +22,12 @@ const OPPORTUNITIES = [
 ];
 
 function parseMarkdownSafe(text) {
-  let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
   html = html.replace(/\n/g, '<br/>');
   return DOMPurify.sanitize(html, { ALLOWED_TAGS: ['strong', 'em', 'br'] });

@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import FocusTrap from 'focus-trap-react';
 
 // Color palette
 const COLORS = {
@@ -199,6 +200,7 @@ export default function InsightsDashboard() {
 
       {/* Config Modal */}
       {showConfigModal && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <h2 className="text-xl font-bold text-stone-950 mb-4 flex items-center gap-2">
@@ -257,6 +259,7 @@ export default function InsightsDashboard() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import { Plus, DollarSign, Ban, Play, Trash2, Eye, Send, Pencil, X } from 'lucid
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { asNumber } from '../../utils/safe';
+import FocusTrap from 'focus-trap-react';
 
 
 export default function AdminInfluencers() {
@@ -248,6 +249,7 @@ export default function AdminInfluencers() {
 
       {/* Edit Tier Modal */}
       {!!editInfluencer && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
@@ -294,10 +296,12 @@ export default function AdminInfluencers() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
 
       {/* Influencer Details Modal */}
       {!!selectedInfluencer && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true">
           <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
@@ -360,9 +364,11 @@ export default function AdminInfluencers() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
       {/* Create Influencer Modal */}
       {showCreateDialog && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
@@ -442,6 +448,7 @@ export default function AdminInfluencers() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
     </div>
   );

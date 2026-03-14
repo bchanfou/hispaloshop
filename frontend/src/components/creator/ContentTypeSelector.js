@@ -1,4 +1,5 @@
 import React from 'react';
+import FocusTrap from 'focus-trap-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Film, Image as ImageIcon, Clock3, X, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +34,7 @@ function ContentTypeSelector({ isOpen, onClose, onSelect }) {
   return (
     <AnimatePresence>
       {isOpen ? (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -96,6 +98,7 @@ function ContentTypeSelector({ isOpen, onClose, onSelect }) {
             </div>
           </motion.div>
         </motion.div>
+        </FocusTrap>
       ) : null}
     </AnimatePresence>
   );

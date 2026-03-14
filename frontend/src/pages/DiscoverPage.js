@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -38,6 +38,8 @@ import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { api } from '../lib/api';
 import apiClient from '../services/api/client';
+import { usePullToRefresh } from '../hooks/usePullToRefresh';
+import PullIndicator from '../components/ui/PullIndicator';
 
 const MAIN_SECTIONS = [
   { id: 'todo', label: 'Todo', icon: Grid3X3 },
@@ -156,6 +158,26 @@ export default function DiscoverPage() {
     fetchTrendingAndRecipes();
   }, []);
 
+  const refreshExplore = useCallback(async () => {
+    setLoadingRecipes(true);
+    try {
+      const [trending, recipesData, discoveredData, exploreData] = await Promise.allSettled([
+        api.getTrendingHashtags(),
+        api.request('/recipes?limit=3'),
+        api.request('/intelligence/discovered-products?limit=4'),
+        apiClient.get('/discovery/explore'),
+      ]);
+      setTrendingHashtags(trending.status === 'fulfilled' ? trending.value?.hashtags?.slice(0, 5) || [] : []);
+      setRecipes(recipesData.status === 'fulfilled' ? recipesData.value?.recipes || [] : []);
+      setDiscoveredProducts(discoveredData.status === 'fulfilled' ? discoveredData.value?.items || [] : []);
+      setSuggestedCreators(exploreData.status === 'fulfilled' ? exploreData.value?.suggested_creators || [] : []);
+    } finally {
+      setLoadingRecipes(false);
+    }
+  }, []);
+
+  const { refreshing, progress, handlers } = usePullToRefresh(refreshExplore);
+
   const handleSearch = (query) => {
     if (query.trim()) {
       navigate(`/products?search=${encodeURIComponent(query.trim())}`);
@@ -186,7 +208,12 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-28 md:pb-32">
+    <div
+      className="min-h-screen bg-stone-50 pb-28 md:pb-32"
+      style={{ position: 'relative', overscrollBehavior: 'none' }}
+      {...handlers}
+    >
+      <PullIndicator progress={progress} isRefreshing={refreshing} />
       <div className="sticky top-0 z-40 border-b border-stone-100 bg-white/95 backdrop-blur-xl">
         <div className="mx-auto max-w-5xl px-4 pt-3 pb-2">
 

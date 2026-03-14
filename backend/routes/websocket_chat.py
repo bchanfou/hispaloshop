@@ -12,7 +12,7 @@ router = APIRouter(tags=["websocket"])
 @router.websocket("/ws/chat")
 async def websocket_chat_endpoint(
     websocket: WebSocket,
-    token: str = Query(..., description="JWT token de autenticación")
+    token: str = Query(None, description="JWT token (optional — prefer auth message)")
 ):
     """
     Endpoint WebSocket para chat en tiempo real

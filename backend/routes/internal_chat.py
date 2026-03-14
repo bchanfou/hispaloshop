@@ -13,7 +13,7 @@ from core.models import User, InternalMessageCreate
 from core.websocket import chat_manager
 from services.cloudinary_storage import upload_image as cloudinary_upload
 from routes.push_notifications import send_push_to_user
-from services.chat_crypto import encrypt_message, decrypt_message_dict
+from services.chat_crypto import encrypt_message, decrypt_message, decrypt_message_dict
 
 logger = logging.getLogger(__name__)
 
@@ -200,6 +200,22 @@ async def send_internal_message(
                 detail="Este usuario aun no ha respondido. No puedes enviar mas mensajes hasta recibir respuesta."
             )
     
+    # Build reply preview snapshot if replying to a message
+    reply_to_preview = None
+    if input.reply_to_id:
+        original = await db.internal_messages.find_one(
+            {"message_id": input.reply_to_id, "conversation_id": conversation_id}
+        )
+        if original:
+            plain_content = decrypt_message(original.get("content", "")) if original.get("content") else ""
+            reply_to_preview = {
+                "id": original["message_id"],
+                "content": plain_content[:100] if plain_content else "",
+                "sender_name": original.get("sender_name", ""),
+                "sender_id": original.get("sender_id", ""),
+                "media_url": original.get("image_url"),
+            }
+
     # Create message — encrypt content at rest
     message_id = f"msg_{uuid.uuid4().hex[:12]}"
     encrypted_content = encrypt_message(input.content) if input.content else input.content
@@ -212,6 +228,8 @@ async def send_internal_message(
         "content": encrypted_content,
         "image_url": input.image_url,
         "shared_item": input.shared_item,
+        "reply_to_id": input.reply_to_id,
+        "reply_to_preview": reply_to_preview,
         "status": "sent",
         "created_at": now
     }

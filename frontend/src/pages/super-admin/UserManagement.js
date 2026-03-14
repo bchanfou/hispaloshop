@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { asLowerText } from '../../utils/safe';
+import FocusTrap from 'focus-trap-react';
 
 // Country code to name mapping
 const COUNTRY_NAMES = {
@@ -509,6 +510,7 @@ export default function UserManagement() {
 
       {/* Delete Confirmation Modal */}
       {confirmDelete && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
@@ -555,10 +557,12 @@ export default function UserManagement() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
 
       {/* Edit Credentials Modal */}
       {editCredentials && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
@@ -647,6 +651,7 @@ export default function UserManagement() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
     </div>
   );

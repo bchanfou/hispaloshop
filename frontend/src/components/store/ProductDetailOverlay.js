@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import FocusTrap from 'focus-trap-react';
 import { AlertTriangle, Award, ChevronLeft, ChevronRight, Plus, Star, X } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductImage from '../ui/ProductImage.tsx';
@@ -161,6 +162,7 @@ export default function ProductDetailOverlay({
   };
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
       {/* Backdrop */}
       <button
@@ -349,5 +351,6 @@ export default function ProductDetailOverlay({
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 }

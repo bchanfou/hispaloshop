@@ -250,4 +250,16 @@ function ReelPlayer({ reel, isActive, onNext, onPrev }) {
   );
 }
 
-export default ReelPlayer;
+const areReelPropsEqual = (prev, next) => {
+  return (
+    prev.reel?.id === next.reel?.id &&
+    prev.reel?.stats?.likes === next.reel?.stats?.likes &&
+    prev.reel?.stats?.comments === next.reel?.stats?.comments &&
+    prev.reel?.is_liked === next.reel?.is_liked &&
+    prev.reel?.is_saved === next.reel?.is_saved &&
+    prev.isActive === next.isActive &&
+    prev.reel?.video_url === next.reel?.video_url
+  );
+};
+
+export default React.memo(ReelPlayer, areReelPropsEqual);

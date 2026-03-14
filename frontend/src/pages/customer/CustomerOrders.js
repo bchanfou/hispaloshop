@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import { ShoppingBag, Package, ArrowLeft, XCircle, Truck, Check, Clock, MapPin, ExternalLink, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { asNumber } from '../../utils/safe';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
+import PullIndicator from '../../components/ui/PullIndicator';
 
 
 
@@ -33,11 +35,7 @@ export default function CustomerOrders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const data = await apiClient.get('/customer/orders');
       setOrders(data);
@@ -47,7 +45,13 @@ export default function CustomerOrders() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  const { refreshing, progress, handlers } = usePullToRefresh(fetchOrders);
 
   const cancelOrder = async (orderId) => {
     if (!window.confirm(t('orders.cancelConfirm', 'Are you sure you want to cancel this order?'))) return;
@@ -246,7 +250,11 @@ export default function CustomerOrders() {
 
   // List View
   return (
-    <div>
+    <div
+      style={{ position: 'relative', overscrollBehavior: 'none' }}
+      {...handlers}
+    >
+      <PullIndicator progress={progress} isRefreshing={refreshing} />
       <h1 className="text-3xl font-semibold text-stone-950 mb-2">
         {t('orders.title', 'My Orders')}
       </h1>

@@ -53,7 +53,7 @@ function AddButton({ onAdd, isDisabled, testId }) {
   );
 }
 
-export default function ProductCard({ product, variant = 'default' }) {
+function ProductCard({ product, variant = 'default' }) {
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice, t } = useLocale();
@@ -250,3 +250,22 @@ export default function ProductCard({ product, variant = 'default' }) {
     </Link>
   );
 }
+
+const areProductPropsEqual = (prev, next) => {
+  const p = prev.product;
+  const n = next.product;
+  return (
+    (p?.product_id || p?.id) === (n?.product_id || n?.id) &&
+    p?.price === n?.price &&
+    p?.display_price === n?.display_price &&
+    p?.stock === n?.stock &&
+    p?.market_stock === n?.market_stock &&
+    p?.average_rating === n?.average_rating &&
+    p?.name === n?.name &&
+    p?.image_url === n?.image_url &&
+    p?.images?.[0] === n?.images?.[0] &&
+    prev.variant === next.variant
+  );
+};
+
+export default React.memo(ProductCard, areProductPropsEqual);

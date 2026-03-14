@@ -11,6 +11,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getCloudinarySrcSet } from '../../utils/cloudinary';
 
 // ── Heart animation posicionado en el punto de doble-tap ──────────────────────
 function LikeAnimation({ show, x, y }) {
@@ -301,6 +302,8 @@ function PostCard({ post, onLike, onComment, onShare, onSave, priority = false }
           {currentUrl ? (
             <img
               src={currentUrl}
+              srcSet={getCloudinarySrcSet(currentUrl, [400, 800, 1200])}
+              sizes="(max-width: 768px) 100vw, 600px"
               alt={imageAlt}
               loading={priority ? 'eager' : 'lazy'}
               fetchPriority={priority ? 'high' : 'auto'}
@@ -448,4 +451,17 @@ function PostCard({ post, onLike, onComment, onShare, onSave, priority = false }
   );
 }
 
-export default PostCard;
+const arePostPropsEqual = (prev, next) => {
+  return (
+    prev.post?.post_id === next.post?.post_id &&
+    prev.post?.likes_count === next.post?.likes_count &&
+    prev.post?.comments === next.post?.comments &&
+    prev.post?.is_bookmarked === next.post?.is_bookmarked &&
+    prev.post?.is_liked === next.post?.is_liked &&
+    prev.post?.caption === next.post?.caption &&
+    prev.post?.image_url === next.post?.image_url &&
+    prev.priority === next.priority
+  );
+};
+
+export default React.memo(PostCard, arePostPropsEqual);

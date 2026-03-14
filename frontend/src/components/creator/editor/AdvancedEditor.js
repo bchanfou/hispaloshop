@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -27,6 +27,8 @@ import {
   Settings2,
 } from 'lucide-react';
 import useImageEditor from '../hooks/useImageEditor';
+import { useAutocomplete } from '../../../hooks/useAutocomplete';
+import AutocompleteDropdown from '../../ui/AutocompleteDropdown';
 import FilterPanel from './FilterPanel';
 import CompositionToolPanel from './CompositionToolPanel';
 import ReelToolPanel from './ReelToolPanel';
@@ -370,6 +372,10 @@ function StoryComposeStage({
   onPublish,
   onCancelPublish,
 }) {
+  const storyCaptionRef = useRef(null);
+  const handleStoryCaptionSet = useCallback((val) => setCaption(val), [setCaption]);
+  const storyAc = useAutocomplete(caption, handleStoryCaptionSet, storyCaptionRef);
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black text-white">
       <div
@@ -410,13 +416,26 @@ function StoryComposeStage({
 
       <div className="border-t border-white/10 bg-black/70 p-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-[430px] flex-col gap-3">
-          <textarea
-            value={caption}
-            onChange={(event) => setCaption(event.target.value)}
-            placeholder="Escribe algo…"
-            className="h-20 w-full resize-none rounded-2xl bg-white/10 px-4 py-3 text-[15px] leading-6 text-white outline-none placeholder:text-white/35 focus:bg-white/15"
-            maxLength={180}
-          />
+          <div className="relative">
+            <AutocompleteDropdown
+              isOpen={storyAc.isOpen}
+              trigger={storyAc.trigger}
+              suggestions={storyAc.suggestions}
+              activeIndex={storyAc.activeIndex}
+              onSelect={storyAc.handleSelect}
+            />
+            <textarea
+              ref={storyCaptionRef}
+              value={caption}
+              onChange={storyAc.handleChange}
+              onKeyDown={storyAc.handleKeyDown}
+              onSelect={storyAc.handleSelect}
+              onMouseUp={storyAc.handleSelect}
+              placeholder="Escribe algo…"
+              className="h-20 w-full resize-none rounded-2xl bg-white/10 px-4 py-3 text-[15px] leading-6 text-white outline-none placeholder:text-white/35 focus:bg-white/15"
+              maxLength={180}
+            />
+          </div>
           <div className="flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3 focus-within:bg-white/15">
             <MapPin className="h-4 w-4 shrink-0 text-white/50" />
             <input
@@ -576,6 +595,9 @@ function PostComposeStage({
   const [allowReshare, setAllowReshare] = useState(true);
   const [hideLikes, setHideLikes] = useState(false);
   const [disableComments, setDisableComments] = useState(false);
+  const captionRef = useRef(null);
+  const handleCaptionSet = useCallback((v) => setCaption(v), [setCaption]);
+  const ac = useAutocomplete(caption, handleCaptionSet, captionRef);
 
   const firstSrc = editor.images[0]?.src;
 
@@ -626,11 +648,22 @@ function PostComposeStage({
               <img src={firstSrc} alt="" draggable={false} className="h-full w-full object-cover" />
             </div>
           )}
-          <div className="flex flex-1 flex-col">
+          <div className="relative flex flex-1 flex-col">
+            <AutocompleteDropdown
+              isOpen={ac.isOpen}
+              trigger={ac.trigger?.trigger ?? null}
+              suggestions={ac.suggestions}
+              activeIndex={ac.activeIndex}
+              onSelect={ac.selectSuggestion}
+            />
             <textarea
+              ref={captionRef}
               value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="Escribe un pie de foto…"
+              onChange={ac.handleChange}
+              onKeyDown={ac.handleKeyDown}
+              onSelect={ac.handleSelect}
+              onMouseUp={ac.handleSelect}
+              placeholder="Escribe un pie de foto… usa # y @"
               rows={3}
               maxLength={2200}
               className="flex-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
@@ -922,6 +955,9 @@ function ReelComposeStage({
   const [allowReshare, setAllowReshare] = useState(true);
   const [hideLikes, setHideLikes] = useState(false);
   const [disableComments, setDisableComments] = useState(false);
+  const reelCaptionRef = useRef(null);
+  const handleReelCaptionSet = useCallback((v) => setCaption(v), [setCaption]);
+  const reelAc = useAutocomplete(caption, handleReelCaptionSet, reelCaptionRef);
 
   const firstSrc = editor.images[0]?.src;
   const { trimStart, trimEnd, playbackRate } = editor.reelSettings;
@@ -973,11 +1009,22 @@ function ReelComposeStage({
               <img src={firstSrc} alt="" draggable={false} className="h-full w-full object-cover" />
             </div>
           )}
-          <div className="flex flex-1 flex-col">
+          <div className="relative flex flex-1 flex-col">
+            <AutocompleteDropdown
+              isOpen={reelAc.isOpen}
+              trigger={reelAc.trigger?.trigger ?? null}
+              suggestions={reelAc.suggestions}
+              activeIndex={reelAc.activeIndex}
+              onSelect={reelAc.selectSuggestion}
+            />
             <textarea
+              ref={reelCaptionRef}
               value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="Escribe algo sobre este reel…"
+              onChange={reelAc.handleChange}
+              onKeyDown={reelAc.handleKeyDown}
+              onSelect={reelAc.handleSelect}
+              onMouseUp={reelAc.handleSelect}
+              placeholder="Escribe algo sobre este reel… usa # y @"
               rows={3}
               maxLength={2200}
               className="flex-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-white outline-none placeholder:text-white/35"

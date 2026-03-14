@@ -217,6 +217,7 @@ function AppRouter() {
       <Suspense fallback={<RouteLoader />}>
         <AnimatePresence mode="wait">
           <motion.div
+            id="main-content"
             key={location.pathname}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -556,6 +557,7 @@ function App() {
                 <CartProvider>
                   <ChatProvider>
                     <RealtimeProvider>
+                      <a href="#main-content" className="skip-to-content">Ir al contenido principal</a>
                       <AppRouter />
                       <BottomNavBar />
                       <HispalAI />

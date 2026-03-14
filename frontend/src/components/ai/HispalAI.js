@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import FocusTrap from 'focus-trap-react';
 import { X, Send, Sparkles, Mic } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import useHispalAI from '../../hooks/useHispalAI';
@@ -15,7 +16,12 @@ const QUICK_SUGGESTIONS = [
 ];
 
 function parseMarkdownSafe(text) {
-  let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
   html = html.replace(/\n/g, '<br/>');
   return DOMPurify.sanitize(html, {
@@ -127,6 +133,7 @@ export default function HispalAI() {
             />
 
             {/* Panel */}
+            <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
             <motion.div
               initial={{ y: '100%', opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -277,6 +284,7 @@ export default function HispalAI() {
                 </div>
               </div>
             </motion.div>
+            </FocusTrap>
           </>
         )}
       </AnimatePresence>

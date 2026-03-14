@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import FocusTrap from 'focus-trap-react';
 import { Flag, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -69,6 +70,7 @@ export default function ReportButton({ contentType, contentId, contentOwnerId })
               onClick={() => setOpen(false)}
               className="fixed inset-0 z-50 bg-black/40"
             />
+            <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
             <motion.div
               key="sheet"
               initial={{ y: '100%' }}
@@ -135,6 +137,7 @@ export default function ReportButton({ contentType, contentId, contentOwnerId })
                 </button>
               </form>
             </motion.div>
+            </FocusTrap>
           </>
         )}
       </AnimatePresence>

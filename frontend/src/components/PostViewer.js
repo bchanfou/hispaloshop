@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import FocusTrap from 'focus-trap-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -154,6 +155,8 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
   };
 
   return (
+    <>
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-50 flex items-center justify-center" data-testid="post-viewer-modal">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/90" onClick={onClose} />
@@ -359,8 +362,10 @@ export default function PostViewer({ post, posts, profile, currentUser, onClose,
           )}
         </div>
       </div>
+    </div>
+    </FocusTrap>
 
       {selectedProduct ? <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} /> : null}
-    </div>
+    </>
   );
 }

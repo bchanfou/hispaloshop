@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import FocusTrap from 'focus-trap-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Star, ShoppingBag, MessageCircle, Store, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -42,6 +43,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
             className="fixed inset-0 z-50 bg-black/60"
           />
 
+          <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -165,6 +167,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
               </button>
             </div>
           </motion.div>
+          </FocusTrap>
         </>
       )}
     </AnimatePresence>

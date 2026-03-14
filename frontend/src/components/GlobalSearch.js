@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import FocusTrap from 'focus-trap-react';
 import { Search, X, Users, Package, ShoppingBag, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../services/api/client';
@@ -63,6 +64,7 @@ export default function GlobalSearch() {
   if (!open) return null;
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-[9999]" data-testid="global-search">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
       <div className="relative max-w-xl mx-auto mt-[15vh]">
@@ -119,5 +121,6 @@ export default function GlobalSearch() {
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 }

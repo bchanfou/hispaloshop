@@ -1,4 +1,5 @@
 ﻿import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -10,6 +11,7 @@ import {
   PenSquare,
   Phone,
   Search,
+  Reply,
   Send,
   UserPlus,
   UtensilsCrossed,
@@ -21,6 +23,7 @@ import apiClient from '../services/api/client';
 import { getToken } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
+import { useSwipeToReply } from '../hooks/useSwipeToReply';
 
 const MAX_VISIBLE_MESSAGES = 150;
 
@@ -143,10 +146,34 @@ function MessageStatus({ message, isOwn }) {
 
 const REACTION_EMOJIS = ['❤️', '😂', '😮', '😢', '😡', '👍'];
 
-function MessageBubble({ message, isOwn }) {
+function ReplyPreviewInline({ preview }) {
+  if (!preview) return null;
+  return (
+    <div className="mb-0.5 flex items-center gap-2 rounded-t-[14px] border-l-[3px] border-stone-950 bg-stone-50 px-3 py-2">
+      {preview.media_url ? (
+        <img
+          src={preview.media_url}
+          alt=""
+          className="h-9 w-9 shrink-0 rounded-md object-cover"
+          loading="lazy"
+        />
+      ) : null}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[12px] font-semibold text-stone-950">{preview.sender_name}</p>
+        <p className="truncate text-[12px] text-stone-500">
+          {preview.media_url && !preview.content ? '📷 Foto' : preview.content}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MessageBubble({ message, isOwn, onReply }) {
   const [reaction, setReaction]       = useState(null);
   const [showPicker, setShowPicker]   = useState(false);
+  const [showReplyBtn, setShowReplyBtn] = useState(false);
   const pressTimerRef                 = useRef(null);
+  const { elRef, handlers: swipeHandlers } = useSwipeToReply(() => onReply?.(message));
 
   const handlePointerDown = () => {
     pressTimerRef.current = setTimeout(() => {
@@ -164,19 +191,51 @@ function MessageBubble({ message, isOwn }) {
     setShowPicker(false);
   };
 
+  const hasReplyPreview = Boolean(message?.reply_to_preview);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: 'easeOut' }}
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+      className={`relative flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+      onMouseEnter={() => setShowReplyBtn(true)}
+      onMouseLeave={() => setShowReplyBtn(false)}
+      {...swipeHandlers}
     >
-      <div className={`relative max-w-[72%] ${isOwn ? 'items-end' : 'items-start'}`}>
+      {/* Reply icon visible during swipe */}
+      <div
+        className={`pointer-events-none absolute top-1/2 -translate-y-1/2 opacity-30 ${isOwn ? 'right-1' : 'left-1'}`}
+      >
+        <Reply className="h-[18px] w-[18px] text-stone-950" />
+      </div>
+
+      {/* Desktop hover reply button */}
+      <AnimatePresence>
+        {showReplyBtn && !showPicker ? (
+          <motion.button
+            type="button"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.12 }}
+            onClick={() => onReply?.(message)}
+            className={`absolute top-1/2 z-30 hidden -translate-y-1/2 items-center justify-center rounded-full border border-stone-100 bg-white shadow-sm transition-colors hover:bg-stone-50 md:flex ${
+              isOwn ? '-left-9' : '-right-9'
+            }`}
+            style={{ width: 28, height: 28 }}
+            aria-label="Responder"
+          >
+            <Reply className="h-[13px] w-[13px] text-stone-600" />
+          </motion.button>
+        ) : null}
+      </AnimatePresence>
+
+      <div ref={elRef} className={`relative max-w-[72%] ${isOwn ? 'items-end' : 'items-start'}`}>
         {/* Emoji picker — aparece al pulsar largo */}
         <AnimatePresence>
           {showPicker ? (
             <>
-              {/* Backdrop invisible para descartar */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -210,6 +269,9 @@ function MessageBubble({ message, isOwn }) {
           ) : null}
         </AnimatePresence>
 
+        {/* Reply preview — inline above the bubble */}
+        {hasReplyPreview ? <ReplyPreviewInline preview={message.reply_to_preview} /> : null}
+
         <div
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
@@ -235,8 +297,8 @@ function MessageBubble({ message, isOwn }) {
             <div
               className={`px-3.5 py-2.5 text-[15px] leading-[1.4] ${
                 isOwn
-                  ? 'rounded-[20px] rounded-br-[4px] bg-stone-950 text-white'
-                  : 'rounded-[20px] rounded-bl-[4px] bg-stone-100 text-stone-950'
+                  ? `${hasReplyPreview ? 'rounded-b-[20px] rounded-br-[4px]' : 'rounded-[20px] rounded-br-[4px]'} bg-stone-950 text-white`
+                  : `${hasReplyPreview ? 'rounded-b-[20px] rounded-bl-[4px]' : 'rounded-[20px] rounded-bl-[4px]'} bg-stone-100 text-stone-950`
               }`}
             >
               {message.content}
@@ -676,10 +738,12 @@ export default function InternalChat({
   const [shareInputValue, setShareInputValue] = useState('');
   const [sharePreview, setSharePreview] = useState(null);
   const [loadingSharePreview, setLoadingSharePreview] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null);
   const [isNavigatingConversation, startConversationTransition] = useTransition();
 
   const wsRef = useRef(null);
   const listEndRef = useRef(null);
+  const virtuosoRef = useRef(null);
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const typingClearRef = useRef(null);
@@ -963,10 +1027,11 @@ export default function InternalChat({
     if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat?token=${token}`);
+    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat`);
     wsRef.current = socket;
 
     socket.onopen = () => {
+      socket.send(JSON.stringify({ type: 'auth', token }));
       if (activeConversationRef.current) {
         socket.send(JSON.stringify({ type: 'join_conversation', conversation_id: activeConversationRef.current }));
       }
@@ -1041,8 +1106,13 @@ export default function InternalChat({
   }, [markIncomingMessagesAsRead, scheduleReloadConversations, user?.user_id]);
 
   useEffect(() => {
-    listEndRef.current?.scrollIntoView({ block: 'end' });
-  }, [messages, typingUserId]);
+    if (virtuosoRef.current && messages.length > 0) {
+      virtuosoRef.current.scrollToIndex({
+        index: visibleTimeline.length - 1,
+        behavior: 'smooth',
+      });
+    }
+  }, [messages.length, typingUserId]);
 
   useEffect(() => {
     return () => {
@@ -1096,6 +1166,20 @@ export default function InternalChat({
     setPendingSharedItem(null);
   }, []);
 
+  const handleReply = useCallback((message) => {
+    setReplyingTo({
+      id: message.message_id,
+      content: message.content || '',
+      sender_name: message.sender_name || '',
+      sender_id: message.sender_id || '',
+      media_url: message.image_url || null,
+    });
+  }, []);
+
+  const cancelReply = useCallback(() => {
+    setReplyingTo(null);
+  }, []);
+
   const openShareSheet = useCallback((type) => {
     setShareSheetType(type);
     setShareInputValue('');
@@ -1144,6 +1228,7 @@ export default function InternalChat({
     clearPendingImage();
     clearPendingSharedItem();
     setIsComposerActionsOpen(false);
+    setReplyingTo(null);
   }, [clearPendingImage, clearPendingSharedItem, selectedConversationId]);
 
   const handleSendMessage = useCallback(async () => {
@@ -1151,6 +1236,7 @@ export default function InternalChat({
     if (!selectedConversationId || (!trimmed && !pendingImage && !pendingSharedItem)) return;
 
     const optimisticId = `local-${Date.now()}`;
+    const currentReply = replyingTo;
     const optimisticMessage = {
       message_id: optimisticId,
       conversation_id: selectedConversationId,
@@ -1159,6 +1245,14 @@ export default function InternalChat({
       content: trimmed,
       image_url: pendingImage?.previewUrl || '',
       shared_item: pendingSharedItem || null,
+      reply_to_id: currentReply?.id || null,
+      reply_to_preview: currentReply ? {
+        id: currentReply.id,
+        content: currentReply.content,
+        sender_name: currentReply.sender_name,
+        sender_id: currentReply.sender_id,
+        media_url: currentReply.media_url,
+      } : null,
       status: 'sent',
       created_at: new Date().toISOString(),
     };
@@ -1169,6 +1263,7 @@ export default function InternalChat({
       return nextMessages;
     });
     setComposerValue('');
+    setReplyingTo(null);
     sendTyping(false);
     setIsComposerActionsOpen(false);
 
@@ -1190,6 +1285,7 @@ export default function InternalChat({
         ...(trimmed ? { content: trimmed } : {}),
         ...(imageUrl ? { image_url: imageUrl } : {}),
         ...(sharedItemToSend ? { shared_item: sharedItemToSend } : {}),
+        ...(currentReply?.id ? { reply_to_id: currentReply.id } : {}),
       });
       setMessages((current) => {
         const nextMessages = current.map((message) => (message.message_id === optimisticId ? { ...saved } : message));
@@ -1218,6 +1314,7 @@ export default function InternalChat({
     composerValue,
     pendingImage,
     pendingSharedItem,
+    replyingTo,
     scheduleReloadConversations,
     selectedConversationId,
     sendHttpMessage,
@@ -1484,31 +1581,45 @@ export default function InternalChat({
               </div>
             </div>
 
-            <div className="relative flex-1 overflow-y-auto bg-white px-4 py-4">
+            <div className="relative flex-1 bg-white">
               {loadingMessages ? (
                 <LoadingConversationSkeleton />
               ) : visibleMessages.length > 0 ? (
-                <div className="space-y-4">
-                  {visibleTimeline.map((item) =>
-                    item.type === 'separator' ? (
-                      <div key={item.id} className="flex justify-center py-1">
-                        <span className="text-[11px] font-medium text-stone-400">
-                          {item.label}
-                        </span>
-                      </div>
-                    ) : (
-                      <MessageBubble
-                        key={item.id}
-                        message={item.message}
-                        isOwn={item.message.sender_id === user?.user_id}
-                      />
-                    )
+                <Virtuoso
+                  ref={virtuosoRef}
+                  data={visibleTimeline}
+                  estimatedItemSize={60}
+                  itemContent={(index, item) => (
+                    <div style={{ padding: '2px 16px' }}>
+                      {item.type === 'separator' ? (
+                        <div className="flex justify-center py-1">
+                          <span className="text-[11px] font-medium text-stone-400">
+                            {item.label}
+                          </span>
+                        </div>
+                      ) : (
+                        <MessageBubble
+                          message={item.message}
+                          isOwn={item.message.sender_id === user?.user_id}
+                          onReply={handleReply}
+                        />
+                      )}
+                    </div>
                   )}
-                  <AnimatePresence>
-                    {typingUserId ? <TypingIndicator /> : null}
-                  </AnimatePresence>
-                  <div ref={listEndRef} />
-                </div>
+                  followOutput="smooth"
+                  initialTopMostItemIndex={visibleTimeline.length - 1}
+                  overscan={500}
+                  style={{ flex: 1, height: '100%' }}
+                  components={{
+                    Footer: () => typingUserId ? (
+                      <div style={{ padding: '2px 16px' }}>
+                        <AnimatePresence>
+                          <TypingIndicator />
+                        </AnimatePresence>
+                      </div>
+                    ) : null,
+                  }}
+                />
               ) : (
                 <EmptyState
                   title="Empieza la conversación"
@@ -1522,6 +1633,45 @@ export default function InternalChat({
               className="shrink-0 border-t border-stone-100 bg-white px-3 py-2"
               style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}
             >
+              {/* Reply preview */}
+              <AnimatePresence>
+                {replyingTo ? (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mb-2 flex items-center gap-2 rounded-[14px] border-l-[3px] border-stone-950 bg-stone-50 px-3 py-2">
+                      {replyingTo.media_url ? (
+                        <img
+                          src={replyingTo.media_url}
+                          alt=""
+                          className="h-9 w-9 shrink-0 rounded-md object-cover"
+                        />
+                      ) : null}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[12px] font-semibold text-stone-950">
+                          {replyingTo.sender_id === user?.user_id ? 'Tú' : replyingTo.sender_name}
+                        </p>
+                        <p className="truncate text-[12px] text-stone-500">
+                          {replyingTo.media_url && !replyingTo.content ? '📷 Foto' : replyingTo.content}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={cancelReply}
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-600 transition-colors active:bg-stone-300"
+                        aria-label="Cancelar respuesta"
+                      >
+                        <X className="h-3 w-3" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+
               {/* Actions grid — slides in above input row */}
               <AnimatePresence>
                 {isComposerActionsOpen ? (

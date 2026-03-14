@@ -1,4 +1,5 @@
 import React from 'react';
+import FocusTrap from 'focus-trap-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, ShoppingBag, TrendingUp, Wand2, Globe } from 'lucide-react';
 import { ROLE_CONFIG } from './useHIChat';
@@ -25,6 +26,7 @@ function RoleSelector({ activeRole, onSwitch, isOpen, onClose, availableRoles })
           className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]"
         />
 
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <motion.div
           key="sheet"
           initial={{ y: '100%' }}
@@ -90,6 +92,7 @@ function RoleSelector({ activeRole, onSwitch, isOpen, onClose, availableRoles })
             Cerrar
           </button>
         </motion.div>
+        </FocusTrap>
       </>
     </AnimatePresence>
   );

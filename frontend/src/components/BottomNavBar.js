@@ -15,6 +15,7 @@ import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
 import { useUnreadNotifications } from '../hooks/api/useNotifications';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
@@ -44,12 +45,16 @@ const HIDDEN_ON_PREFIXES = [
   '/vender',
 ];
 
+// Routes where the BottomNav should always stay visible (no scroll-hide)
+const ALWAYS_VISIBLE = ['/cart', '/checkout', '/checkout/success'];
+
 export default function BottomNavBar() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
+  const scrollDirection = useScrollDirection(10);
   const { conversations, reloadConversations } = useInternalChatData();
   const [activePanel, setActivePanel] = useState(null);
   const [initialChatUserId, setInitialChatUserId] = useState(null);
@@ -261,6 +266,9 @@ export default function BottomNavBar() {
     : location.pathname === '/profile';
   const isCreating   = showAdvancedEditor || showCreatorEntry;
 
+  const isAlwaysVisible = ALWAYS_VISIBLE.some((path) => location.pathname.startsWith(path));
+  const scrollHidden = !isAlwaysVisible && scrollDirection === 'down';
+
   return (
     <>
       <MessageToast notification={messageToast} onClose={dismissMessageToast} onOpen={openMessageToast} />
@@ -336,8 +344,14 @@ export default function BottomNavBar() {
       </AnimatePresence>
 
       {/* ── Instagram-style flat bottom nav ── */}
-      <nav
+      <motion.nav
+        animate={{
+          y: scrollHidden ? '100%' : 0,
+          opacity: scrollHidden ? 0 : 1,
+        }}
+        transition={{ type: 'tween', duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl"
+        style={{ pointerEvents: scrollHidden ? 'none' : 'auto' }}
         data-testid="bottom-nav-bar"
       >
         <div className="grid h-[50px] grid-cols-5 items-stretch px-1">
@@ -463,7 +477,7 @@ export default function BottomNavBar() {
 
         {/* Safe area para iPhones con home indicator */}
         <div className="h-[env(safe-area-inset-bottom,0px)]" />
-      </nav>
+      </motion.nav>
 
       {/* Spacer para que el contenido no quede tapado por la nav */}
       <div className="h-[calc(50px+env(safe-area-inset-bottom,0px))]" />

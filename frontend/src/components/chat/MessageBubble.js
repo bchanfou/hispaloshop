@@ -4,7 +4,15 @@ import { Copy, Check } from 'lucide-react';
 import DOMPurify from 'dompurify';
 
 const parseMarkdown = (text) => {
-  let html = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Escape HTML entities first to neutralize any user-injected HTML
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  // Apply markdown formatting on the escaped text
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
   html = html.replace(/_(.+?)_/g, '<em>$1</em>');
@@ -104,4 +112,16 @@ function MessageBubble({ message, isFirstInGroup }) {
   );
 }
 
-export default MessageBubble;
+const areMessagePropsEqual = (prev, next) => {
+  const pm = prev.message;
+  const nm = next.message;
+  return (
+    pm?.id === nm?.id &&
+    pm?.content === nm?.content &&
+    pm?.role === nm?.role &&
+    pm?.timestamp === nm?.timestamp &&
+    prev.isFirstInGroup === next.isFirstInGroup
+  );
+};
+
+export default React.memo(MessageBubble, areMessagePropsEqual);

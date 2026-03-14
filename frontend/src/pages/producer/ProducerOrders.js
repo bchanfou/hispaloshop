@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
 import { asNumber } from '../../utils/safe';
+import FocusTrap from 'focus-trap-react';
 
 const statusColors = {
   pending: 'bg-stone-100 text-stone-700',
@@ -90,6 +91,7 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
   };
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden"
@@ -203,6 +205,7 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
         </form>
       </div>
     </div>
+    </FocusTrap>
   );
 }
 

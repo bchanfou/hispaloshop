@@ -7,6 +7,7 @@ import {
   Search, CheckCircle, XCircle, Eye, ArrowLeft, History, Trash2, AlertTriangle,
   Clock, FileText, ExternalLink, X
 } from 'lucide-react';
+import FocusTrap from 'focus-trap-react';
 
 const STATUS_CONFIG = {
   approved: {
@@ -485,6 +486,7 @@ export default function AdminCertificates() {
 
       {/* Reject Modal */}
       {showRejectModal && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
@@ -531,10 +533,12 @@ export default function AdminCertificates() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
 
       {/* Delete Modal */}
       {showDeleteModal && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
@@ -577,6 +581,7 @@ export default function AdminCertificates() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
     </div>
   );

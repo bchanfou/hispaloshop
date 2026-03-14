@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Building2, Warehouse, Save, User, Phone, Mail, MapPin, Shield, AlertTriangle, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
+import FocusTrap from 'focus-trap-react';
 
 
 
@@ -447,6 +448,7 @@ export default function ProducerProfile() {
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -515,6 +517,7 @@ export default function ProducerProfile() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
     </div>
   );

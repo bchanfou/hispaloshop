@@ -770,6 +770,7 @@ class InternalMessageCreate(BaseModel):
     recipient_id: Optional[str] = None
     image_url: Optional[str] = None
     shared_item: Optional[Dict[str, Any]] = None
+    reply_to_id: Optional[str] = None
 
 
 class InternalMessageResponse(BaseModel):
@@ -781,6 +782,8 @@ class InternalMessageResponse(BaseModel):
     content: Optional[str] = None
     image_url: Optional[str] = None
     shared_item: Optional[Dict[str, Any]] = None
+    reply_to_id: Optional[str] = None
+    reply_to_preview: Optional[Dict[str, Any]] = None
     status: str
     created_at: str
 

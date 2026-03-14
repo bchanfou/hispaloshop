@@ -1,4 +1,5 @@
 import React from 'react';
+import FocusTrap from 'focus-trap-react';
 import { AlertCircle, X } from 'lucide-react';
 
 /**
@@ -34,6 +35,7 @@ export default class OverlayErrorBoundary extends React.Component {
     const { onClose } = this.props;
 
     return (
+      <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <button
           type="button"
@@ -66,6 +68,7 @@ export default class OverlayErrorBoundary extends React.Component {
           </button>
         </div>
       </div>
+      </FocusTrap>
     );
   }
 }

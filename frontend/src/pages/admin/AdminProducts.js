@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { asLowerText, asNumber } from '../../utils/safe';
+import FocusTrap from 'focus-trap-react';
 
 
 
@@ -455,6 +456,7 @@ export default function AdminProducts() {
 
     {/* Approval Checklist Modal */}
     {checklistProduct && (
+      <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
       <div
         className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
         role="dialog"
@@ -517,6 +519,7 @@ export default function AdminProducts() {
           )}
         </div>
       </div>
+      </FocusTrap>
     )}
     </>
   );

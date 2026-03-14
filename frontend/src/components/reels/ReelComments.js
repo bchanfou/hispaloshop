@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import FocusTrap from 'focus-trap-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -243,6 +244,7 @@ function ReelComments({ isOpen, onClose, reelId, commentsCount }) {
           />
 
           {/* ── Sheet ── */}
+          <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -345,6 +347,7 @@ function ReelComments({ isOpen, onClose, reelId, commentsCount }) {
               </div>
             </div>
           </motion.div>
+          </FocusTrap>
         </>
       ) : null}
     </AnimatePresence>

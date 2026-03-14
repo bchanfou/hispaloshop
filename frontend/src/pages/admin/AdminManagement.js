@@ -4,10 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
-import { 
-  Shield, UserPlus, Trash2, Ban, CheckCircle, 
-  AlertCircle, X, Eye, EyeOff, Mail, User 
+import {
+  Shield, UserPlus, Trash2, Ban, CheckCircle,
+  AlertCircle, X, Eye, EyeOff, Mail, User
 } from 'lucide-react';
+import FocusTrap from 'focus-trap-react';
 
 
 
@@ -313,6 +314,7 @@ export default function AdminManagement() {
 
       {/* Create Admin Modal */}
       {showCreateModal && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6" data-testid="create-admin-modal">
             <div className="flex items-center justify-between mb-6">
@@ -442,10 +444,12 @@ export default function AdminManagement() {
             </form>
           </div>
         </div>
+        </FocusTrap>
       )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6" data-testid="delete-confirm-modal">
             <div className="text-center">
@@ -479,6 +483,7 @@ export default function AdminManagement() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
     </div>
   );

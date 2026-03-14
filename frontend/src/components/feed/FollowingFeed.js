@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +8,8 @@ import PostCard from './PostCard';
 import ReelCard from './ReelCard';
 import FeedSkeleton from './FeedSkeleton';
 import { useFollowingFeed, useLikePost } from '@/features/feed/queries';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
+import PullIndicator from '@/components/ui/PullIndicator';
 
 function EmptyFollowing() {
   const { t } = useTranslation();
@@ -42,7 +45,6 @@ function FollowingFeed() {
   const navigate = useNavigate();
   const feedQuery = useFollowingFeed();
   const likeMutation = useLikePost();
-  const observerRef = useRef();
   const allPosts = useMemo(
     () => (feedQuery.data?.pages || []).flatMap((page) => page?.items || []),
     [feedQuery.data]
@@ -51,20 +53,8 @@ function FollowingFeed() {
   const isLoading = feedQuery.isLoading || feedQuery.isFetchingNextPage;
   const error = feedQuery.error;
 
-  const lastPostRef = useCallback(
-    (node) => {
-      if (isLoading) return;
-      if (observerRef.current) observerRef.current.disconnect();
-
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          feedQuery.fetchNextPage();
-        }
-      });
-
-      if (node) observerRef.current.observe(node);
-    },
-    [feedQuery.fetchNextPage, hasMore, isLoading]
+  const { refreshing, progress, handlers } = usePullToRefresh(
+    async () => { await feedQuery.refetch(); }
   );
 
   const handleLike = async (postId) => {
@@ -132,41 +122,78 @@ function FollowingFeed() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
+      style={{ position: 'relative', overscrollBehavior: 'none' }}
+      {...handlers}
     >
+      <PullIndicator progress={progress} isRefreshing={refreshing} />
       {isLoading && allPosts.length === 0 ? (
         <FeedSkeleton count={3} />
       ) : (
-        <>
-          {allPosts.map((post, index) => {
-            const isLast = index === allPosts.length - 1;
+        <Virtuoso
+          data={allPosts}
+          estimatedItemSize={520}
+          itemContent={(index, post) => {
             const isReel = post.video_url || post.type === 'reel';
-            // Primeros 5 posts: stagger 50ms/item. El resto: sin delay (scroll infinito)
             const animDelay = index < 5 ? index * 0.05 : 0;
 
             if (isReel) {
               return (
+                <div style={{ paddingBottom: 0 }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay }}
+                  >
+                    <ReelCard
+                      reel={{
+                        id: post.id,
+                        user: {
+                          id: post.user_id,
+                          name: post.user_name,
+                          avatar: post.user_profile_image,
+                        },
+                        videoUrl: post.video_url || post.media?.[0]?.url,
+                        thumbnail: post.thumbnail || post.image_url,
+                        caption: post.caption,
+                        likes: post.likes_count,
+                        liked: post.is_liked,
+                        comments: post.comments_count,
+                        shares: post.shares_count || 0,
+                        productTag: post.product_tag,
+                        timestamp: new Date(post.created_at).getTime(),
+                      }}
+                      onLike={() => handleLike(post.id)}
+                      onComment={() => handleComment(post.id)}
+                      onShare={() => handleShare(post.id)}
+                      priority={index < 2}
+                    />
+                  </motion.div>
+                </div>
+              );
+            }
+
+            return (
+              <div style={{ paddingBottom: 0 }}>
                 <motion.div
-                  ref={isLast ? lastPostRef : null}
-                  key={post.id}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay }}
                 >
-                  <ReelCard
-                    reel={{
+                  <PostCard
+                    post={{
                       id: post.id,
                       user: {
                         id: post.user_id,
                         name: post.user_name,
                         avatar: post.user_profile_image,
+                        verified: post.user_verified,
+                        has_story: post.user_has_story,
                       },
-                      videoUrl: post.video_url || post.media?.[0]?.url,
-                      thumbnail: post.thumbnail || post.image_url,
+                      media: post.media || [{ url: post.image_url, ratio: '1:1' }],
                       caption: post.caption,
                       likes: post.likes_count,
                       liked: post.is_liked,
                       comments: post.comments_count,
-                      shares: post.shares_count || 0,
                       productTag: post.product_tag,
                       timestamp: new Date(post.created_at).getTime(),
                     }}
@@ -176,46 +203,22 @@ function FollowingFeed() {
                     priority={index < 2}
                   />
                 </motion.div>
-              );
-            }
-
-            return (
-              <motion.div
-                ref={isLast ? lastPostRef : null}
-                key={post.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.22, ease: [0, 0, 0.2, 1], delay: animDelay }}
-              >
-                <PostCard
-                  post={{
-                    id: post.id,
-                    user: {
-                      id: post.user_id,
-                      name: post.user_name,
-                      avatar: post.user_profile_image,
-                      verified: post.user_verified,
-                      has_story: post.user_has_story,
-                    },
-                    media: post.media || [{ url: post.image_url, ratio: '1:1' }],
-                    caption: post.caption,
-                    likes: post.likes_count,
-                    liked: post.is_liked,
-                    comments: post.comments_count,
-                    productTag: post.product_tag,
-                    timestamp: new Date(post.created_at).getTime(),
-                  }}
-                  onLike={() => handleLike(post.id)}
-                  onComment={() => handleComment(post.id)}
-                  onShare={() => handleShare(post.id)}
-                  priority={index < 2}
-                />
-              </motion.div>
+              </div>
             );
-          })}
-
-          {feedQuery.isFetchingNextPage ? <FeedSkeleton count={2} /> : null}
-        </>
+          }}
+          endReached={() => {
+            if (hasMore && !feedQuery.isFetchingNextPage) {
+              feedQuery.fetchNextPage();
+            }
+          }}
+          overscan={3}
+          style={{ height: 'calc(100vh - 120px)' }}
+          components={{
+            Footer: () => feedQuery.isFetchingNextPage
+              ? <FeedSkeleton count={2} />
+              : null,
+          }}
+        />
       )}
     </motion.div>
   );

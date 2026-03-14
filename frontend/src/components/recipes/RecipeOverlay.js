@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import FocusTrap from 'focus-trap-react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Clock, Loader2, ShoppingCart, User, Users, X } from 'lucide-react';
 import ProductDetailOverlay from '../store/ProductDetailOverlay';
@@ -81,6 +82,7 @@ export default function RecipeOverlay({
 
   return (
     <>
+      <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
         <button
           type="button"
@@ -271,6 +273,7 @@ export default function RecipeOverlay({
           </div>
         </div>
       </div>
+      </FocusTrap>
 
       {selectedProduct ? (
         <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import FocusTrap from 'focus-trap-react';
 import apiClient from '../../services/api/client';
 import { Loader2, Minus, Plus, ShoppingCart, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -68,6 +69,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
   );
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       <button type="button" className="absolute inset-0 bg-black/70" onClick={onClose} aria-label="Cerrar lista de compra" />
       <div className="relative z-10 flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-[32px] bg-white shadow-xl">
@@ -155,5 +157,6 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 }

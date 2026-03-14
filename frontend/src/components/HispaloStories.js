@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { asNumber, firstToken } from '../utils/safe';
+import FocusTrap from 'focus-trap-react';
 
 const STORY_DURATION = 5000;
 const STICKERS = ['🍕', '🥑', '🍓', '🔥', '❤️', '⭐', '🎉', '🛒', '🌿', '😋'];
@@ -187,6 +188,7 @@ function StoryViewer({ group, onClose }) {
   const parsedCaption = parseCaption(current.caption);
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black" data-testid="story-viewer">
       <div className="absolute left-3 right-3 top-2 z-10 flex gap-1">
         {stories.map((_, index) => (
@@ -284,6 +286,7 @@ function StoryViewer({ group, onClose }) {
       <button type="button" className="absolute left-0 top-0 z-[5] h-full w-1/3" onClick={goPrev} aria-label={t('stories.previous', 'Historia anterior')} />
       <button type="button" className="absolute right-0 top-0 z-[5] h-full w-2/3" onClick={goNext} aria-label={t('stories.next', 'Siguiente historia')} />
     </div>
+    </FocusTrap>
   );
 }
 
@@ -387,6 +390,7 @@ function StoryUploadModal({ onClose, onPublished }) {
   };
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4" data-testid="story-upload-modal">
       <div className="flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl bg-white">
         <div className="flex shrink-0 items-center justify-between border-b border-stone-100 p-4">
@@ -595,6 +599,7 @@ function StoryUploadModal({ onClose, onPublished }) {
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 }
 

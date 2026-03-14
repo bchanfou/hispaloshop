@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { VirtuosoGrid } from 'react-virtuoso';
 import { Link, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import ProfilePageHeader from '../components/profile/ProfilePageHeader';
@@ -34,6 +35,26 @@ import {
 } from '../features/user/hooks';
 import { useUpdateProfile } from '../hooks/api';
 import { resolveUserImage } from '../features/user/queries';
+import { getCloudinarySrcSet } from '../utils/cloudinary';
+import FocusTrap from 'focus-trap-react';
+import FollowersModal from '../components/social/FollowersModal';
+import { useAutocomplete } from '../hooks/useAutocomplete';
+import AutocompleteDropdown from '../components/ui/AutocompleteDropdown';
+
+const GridListComponent = React.forwardRef(({ style, children, ...props }, ref) => (
+  <div
+    ref={ref}
+    {...props}
+    style={{
+      ...style,
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: '2px',
+    }}
+  >
+    {children}
+  </div>
+));
 
 function CreatePostModal({ onClose, onCreate, creatingPost }) {
   const { t } = useTranslation();
@@ -41,6 +62,9 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const fileRef = useRef(null);
+  const captionRef = useRef(null);
+  const handleCaptionSet = useCallback((val) => setCaption(val), []);
+  const ac = useAutocomplete(caption, handleCaptionSet, captionRef);
 
   const handleFileSelect = (event) => {
     const nextFile = event.target.files?.[0];
@@ -76,6 +100,7 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
   };
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/55" onClick={onClose} />
       <div className="relative w-full max-w-lg rounded-[28px] bg-white shadow-2xl" data-testid="create-post-modal">
@@ -110,13 +135,26 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
             </button>
           )}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
-          <textarea
-            value={caption}
-            onChange={(event) => setCaption(event.target.value)}
-            placeholder={t('social.writeCaption')}
-            className="h-24 w-full resize-none rounded-2xl border border-stone-200 p-3 text-sm focus:border-stone-400 focus:outline-none"
-            data-testid="post-caption-input"
-          />
+          <div className="relative">
+            <AutocompleteDropdown
+              isOpen={ac.isOpen}
+              trigger={ac.trigger}
+              suggestions={ac.suggestions}
+              activeIndex={ac.activeIndex}
+              onSelect={ac.handleSelect}
+            />
+            <textarea
+              ref={captionRef}
+              value={caption}
+              onChange={ac.handleChange}
+              onKeyDown={ac.handleKeyDown}
+              onSelect={ac.handleSelect}
+              onMouseUp={ac.handleSelect}
+              placeholder={t('social.writeCaption')}
+              className="h-24 w-full resize-none rounded-2xl border border-stone-200 p-3 text-sm focus:border-stone-400 focus:outline-none"
+              data-testid="post-caption-input"
+            />
+          </div>
           <button
             type="button"
             onClick={handleSubmit}
@@ -130,6 +168,7 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 }
 
@@ -164,6 +203,8 @@ function ContentTile({ item, type, onClick }) {
       {imageUrl ? (
         <img
           src={resolveUserImage(imageUrl)}
+          srcSet={getCloudinarySrcSet(resolveUserImage(imageUrl), [200, 400, 800])}
+          sizes="33vw"
           alt={item.title || item.name || item.caption || type}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
@@ -216,6 +257,7 @@ function EditProfileModal({ profile, userId, onClose }) {
   };
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
@@ -297,6 +339,7 @@ function EditProfileModal({ profile, userId, onClose }) {
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 }
 
@@ -314,6 +357,7 @@ export default function UserProfilePage() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedRecipeIndex, setSelectedRecipeIndex] = useState(null);
+  const [followsModal, setFollowsModal] = useState({ open: false, tab: 'followers' });
   const avatarInputRef = useRef(null);
 
   const currentUserId = currentUser?.user_id || currentUser?.id || null;
@@ -438,8 +482,10 @@ export default function UserProfilePage() {
                 {profile?.profile_image ? (
                   <img
                     src={resolveUserImage(profile.profile_image)}
+                    srcSet={getCloudinarySrcSet(resolveUserImage(profile.profile_image), [86, 172, 256])}
+                    sizes="86px"
                     alt={`Avatar de ${realName}`}
-                    loading="lazy"
+                    loading="eager"
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -477,14 +523,20 @@ export default function UserProfilePage() {
                 <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{postCount}</span>
                 <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">publicaciones</span>
               </button>
-              <div className="flex flex-col items-center gap-1">
+              <button
+                className="flex flex-col items-center gap-1 transition-opacity active:opacity-70"
+                onClick={() => setFollowsModal({ open: true, tab: 'followers' })}
+              >
                 <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{followersCount}</span>
                 <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">seguidores</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
+              </button>
+              <button
+                className="flex flex-col items-center gap-1 transition-opacity active:opacity-70"
+                onClick={() => setFollowsModal({ open: true, tab: 'following' })}
+              >
                 <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{followingCount}</span>
                 <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">seguidos</span>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -625,11 +677,15 @@ export default function UserProfilePage() {
                   }
                 />
               ) : (
-                <div className="grid grid-cols-3 gap-0.5">
-                  {safePosts.map((post) => (
+                <VirtuosoGrid
+                  data={safePosts}
+                  overscan={200}
+                  useWindowScroll
+                  components={{ List: GridListComponent }}
+                  itemContent={(index, post) => (
                     <ContentTile key={post.post_id || post.id} item={post} type="post" onClick={() => setSelectedPost(post)} />
-                  ))}
-                </div>
+                  )}
+                />
               )
             ) : null}
 
@@ -653,11 +709,15 @@ export default function UserProfilePage() {
                   description="Este perfil aún no tiene productos publicados."
                 />
               ) : (
-                <div className="grid grid-cols-3 gap-0.5">
-                  {safeProducts.map((product) => (
+                <VirtuosoGrid
+                  data={safeProducts}
+                  overscan={200}
+                  useWindowScroll
+                  components={{ List: GridListComponent }}
+                  itemContent={(index, product) => (
                     <ContentTile key={product.product_id || product.id} item={product} type="product" onClick={() => setSelectedProduct(product)} />
-                  ))}
-                </div>
+                  )}
+                />
               )
             ) : null}
 
@@ -684,11 +744,15 @@ export default function UserProfilePage() {
                   }
                 />
               ) : (
-                <div className="grid grid-cols-3 gap-0.5">
-                  {safeRecipes.map((recipe, index) => (
+                <VirtuosoGrid
+                  data={safeRecipes}
+                  overscan={200}
+                  useWindowScroll
+                  components={{ List: GridListComponent }}
+                  itemContent={(index, recipe) => (
                     <ContentTile key={recipe.recipe_id || recipe.id} item={recipe} type="recipe" onClick={() => setSelectedRecipeIndex(index)} />
-                  ))}
-                </div>
+                  )}
+                />
               )
             ) : null}
           </div>
@@ -749,6 +813,16 @@ export default function UserProfilePage() {
           onClose={() => setShowEditProfile(false)}
         />
       ) : null}
+
+      <FollowersModal
+        isOpen={followsModal.open}
+        onClose={() => setFollowsModal((s) => ({ ...s, open: false }))}
+        userId={userId}
+        currentUserId={currentUserId}
+        initialTab={followsModal.tab}
+        followersCount={followersCount}
+        followingCount={followingCount}
+      />
     </div>
   );
 }

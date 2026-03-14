@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 import { asLowerText } from '../../utils/safe';
+import FocusTrap from 'focus-trap-react';
 
 export default function ContentManagement() {
   const { t } = useTranslation();
@@ -429,6 +430,7 @@ export default function ContentManagement() {
 
       {/* Delete Confirmation Modal */}
       {confirmDelete && (
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
           onClick={(e) => {
@@ -494,6 +496,7 @@ export default function ContentManagement() {
             </div>
           </div>
         </div>
+        </FocusTrap>
       )}
     </div>
   );

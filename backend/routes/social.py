@@ -729,6 +729,148 @@ async def unfollow_user(user_id: str, user: User = Depends(get_current_user)):
     return {"status": "ok"}
 
 
+@router.get("/users/{user_id}/followers")
+async def get_user_followers(
+    request: Request,
+    user_id: str,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=50),
+    search: Optional[str] = Query(None),
+):
+    """Lista paginada de seguidores de un usuario."""
+    current_user = await get_optional_user(request)
+    skip = (page - 1) * limit
+
+    query = {"following_id": user_id}
+
+    if search:
+        matching = await db.users.find(
+            {"$or": [
+                {"username": {"$regex": search, "$options": "i"}},
+                {"name": {"$regex": search, "$options": "i"}},
+            ]},
+            {"user_id": 1},
+        ).to_list(200)
+        matching_ids = [u["user_id"] for u in matching if "user_id" in u]
+        if not matching_ids:
+            return {"users": [], "total": 0, "page": page}
+        query["follower_id"] = {"$in": matching_ids}
+
+    total = await db.user_follows.count_documents(query)
+    follows = (
+        await db.user_follows.find(query)
+        .sort("created_at", -1)
+        .skip(skip)
+        .limit(limit)
+        .to_list(limit)
+    )
+    follower_ids = [f["follower_id"] for f in follows]
+
+    if not follower_ids:
+        return {"users": [], "total": total, "page": page}
+
+    users_docs = await db.users.find(
+        {"user_id": {"$in": follower_ids}},
+        {"_id": 0, "user_id": 1, "username": 1, "name": 1, "profile_image": 1, "verified": 1},
+    ).to_list(limit)
+    users_map = {u["user_id"]: u for u in users_docs}
+
+    my_following_ids = set()
+    if current_user:
+        my_follows = await db.user_follows.find(
+            {"follower_id": current_user.user_id, "following_id": {"$in": follower_ids}},
+            {"following_id": 1},
+        ).to_list(len(follower_ids))
+        my_following_ids = {f["following_id"] for f in my_follows}
+
+    result = []
+    for fid in follower_ids:
+        u = users_map.get(fid)
+        if not u:
+            continue
+        result.append({
+            "id": u["user_id"],
+            "username": u.get("username", ""),
+            "full_name": u.get("name", ""),
+            "avatar_url": u.get("profile_image"),
+            "is_verified": u.get("verified", False),
+            "is_following": fid in my_following_ids,
+        })
+
+    return {"users": result, "total": total, "page": page}
+
+
+@router.get("/users/{user_id}/following")
+async def get_user_following(
+    request: Request,
+    user_id: str,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=50),
+    search: Optional[str] = Query(None),
+):
+    """Lista paginada de usuarios que sigue un usuario."""
+    current_user = await get_optional_user(request)
+    skip = (page - 1) * limit
+
+    query = {"follower_id": user_id}
+
+    if search:
+        matching = await db.users.find(
+            {"$or": [
+                {"username": {"$regex": search, "$options": "i"}},
+                {"name": {"$regex": search, "$options": "i"}},
+            ]},
+            {"user_id": 1},
+        ).to_list(200)
+        matching_ids = [u["user_id"] for u in matching if "user_id" in u]
+        if not matching_ids:
+            return {"users": [], "total": 0, "page": page}
+        query["following_id"] = {"$in": matching_ids}
+
+    total = await db.user_follows.count_documents(query)
+    follows = (
+        await db.user_follows.find(query)
+        .sort("created_at", -1)
+        .skip(skip)
+        .limit(limit)
+        .to_list(limit)
+    )
+    following_ids = [f["following_id"] for f in follows]
+
+    if not following_ids:
+        return {"users": [], "total": total, "page": page}
+
+    users_docs = await db.users.find(
+        {"user_id": {"$in": following_ids}},
+        {"_id": 0, "user_id": 1, "username": 1, "name": 1, "profile_image": 1, "verified": 1},
+    ).to_list(limit)
+    users_map = {u["user_id"]: u for u in users_docs}
+
+    my_following_ids = set()
+    if current_user:
+        my_follows = await db.user_follows.find(
+            {"follower_id": current_user.user_id, "following_id": {"$in": following_ids}},
+            {"following_id": 1},
+        ).to_list(len(following_ids))
+        my_following_ids = {f["following_id"] for f in my_follows}
+
+    result = []
+    for fid in following_ids:
+        u = users_map.get(fid)
+        if not u:
+            continue
+        result.append({
+            "id": u["user_id"],
+            "username": u.get("username", ""),
+            "full_name": u.get("name", ""),
+            "avatar_url": u.get("profile_image"),
+            "is_verified": u.get("verified", False),
+            "is_following": fid in my_following_ids,
+        })
+
+    return {"users": result, "total": total, "page": page}
+
+
 # ── Posts ─────────────────────────────────────────────────────
 
 @router.post("/posts")
@@ -1263,6 +1405,36 @@ async def search_products_for_tagging(q: str = "", limit: int = 5, user: User = 
         query["name"] = {"$regex": q, "$options": "i"}
     products = await db.products.find(query, {"_id": 0, "product_id": 1, "name": 1, "price": 1, "currency": 1, "images": 1}).limit(limit).to_list(limit)
     return [{"product_id": p["product_id"], "name": p.get("name", ""), "price": p.get("price", 0), "currency": p.get("currency", "EUR"), "image": p.get("images", [None])[0]} for p in products]
+
+
+# ── Autocomplete: hashtags + users ────────────────────────────
+
+@router.get("/hashtags/search")
+async def search_hashtags(q: str = Query("", min_length=1), limit: int = Query(6, ge=1, le=10)):
+    """Hashtags que empiezan por q, ordenados por post_count descendente."""
+    results = await db.hashtags.find(
+        {"name": {"$regex": f"^{re.escape(q.lower())}", "$options": "i"}},
+    ).sort("post_count", -1).limit(limit).to_list(limit)
+    return [{"name": r.get("name", ""), "post_count": r.get("post_count", 0)} for r in results]
+
+
+@router.get("/users/search")
+async def search_users_autocomplete(q: str = Query("", min_length=1), limit: int = Query(6, ge=1, le=10)):
+    """Usuarios cuyo username o nombre empieza por q."""
+    results = await db.users.find(
+        {"$or": [
+            {"username": {"$regex": f"^{re.escape(q)}", "$options": "i"}},
+            {"name": {"$regex": f"^{re.escape(q)}", "$options": "i"}},
+        ]},
+        {"_id": 0, "user_id": 1, "username": 1, "name": 1, "profile_image": 1, "verified": 1},
+    ).limit(limit).to_list(limit)
+    return [{
+        "id": r.get("user_id", ""),
+        "username": r.get("username", ""),
+        "full_name": r.get("name", ""),
+        "avatar_url": r.get("profile_image"),
+        "is_verified": r.get("verified", False),
+    } for r in results]
 
 
 # ── Discover ──────────────────────────────────────────────────

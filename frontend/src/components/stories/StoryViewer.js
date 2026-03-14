@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import FocusTrap from 'focus-trap-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Send, MoreHorizontal } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { getCloudinarySrcSet } from '../../utils/cloudinary';
 
 const StoryProgress = ({ slides, currentSlide, progress, isPaused }) => (
   <div className="flex gap-1 px-2 pt-2">
@@ -165,6 +167,7 @@ const StoryViewer = () => {
   }
 
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 bg-black z-50">
       <StoryProgress
         slides={currentGroup.stories}
@@ -179,6 +182,8 @@ const StoryViewer = () => {
           {currentGroup.profile_image ? (
             <img
               src={currentGroup.profile_image}
+              srcSet={getCloudinarySrcSet(currentGroup.profile_image, [40, 80, 120])}
+              sizes="40px"
               alt={currentGroup.user_name}
               className="w-10 h-10 rounded-full border-2 border-white object-cover"
             />
@@ -204,7 +209,10 @@ const StoryViewer = () => {
           {currentSlide?.image_url ? (
             <img
               src={currentSlide.image_url}
+              srcSet={getCloudinarySrcSet(currentSlide.image_url, [640, 1080, 1920])}
+              sizes="100vw"
               alt="Historia"
+              loading="eager"
               className="w-full h-full object-cover"
             />
           ) : (
@@ -267,6 +275,7 @@ const StoryViewer = () => {
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 };
 

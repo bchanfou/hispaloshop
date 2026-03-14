@@ -59,48 +59,74 @@ manager = ConnectionManager()
 
 async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
     """
-    Manejar conexión WebSocket autenticada via session token
-    
-    El token puede venir como query param o en la cookie session_token
+    Manejar conexión WebSocket autenticada.
+
+    Auth priority:
+    1. Query param ?token= (legacy, deprecated)
+    2. Cookie session_token
+    3. First message { "type": "auth", "token": "..." } (preferred)
     """
     user_id = None
-    
+
     try:
         # Intentar obtener session token de query param o cookies
         session_token = token
-        
-        # Si no hay token en query, intentar con cookies
+
         if not session_token:
-            # FastAPI WebSocket tiene cookies en request
             cookies = websocket.cookies
             session_token = cookies.get('session_token')
-        
+
+        # Accept connection first (needed for auth-message flow)
+        await websocket.accept()
+
+        # If no token from query/cookie, wait for auth message
+        if not session_token:
+            import asyncio
+            try:
+                auth_data = await asyncio.wait_for(
+                    websocket.receive_json(), timeout=5.0
+                )
+                if auth_data.get("type") == "auth" and auth_data.get("token"):
+                    session_token = auth_data["token"]
+                else:
+                    await websocket.send_json({"type": "auth_error", "message": "Expected auth message"})
+                    await websocket.close(code=4001, reason="Authentication required")
+                    return
+            except asyncio.TimeoutError:
+                logger.warning("[WS] Auth message timeout")
+                await websocket.close(code=4001, reason="Authentication timeout")
+                return
+
         if not session_token:
             logger.warning("[WS] No session token provided")
+            await websocket.send_json({"type": "auth_error", "message": "No token"})
             await websocket.close(code=4001, reason="Authentication required")
             return
-        
+
         # Validar session token contra la base de datos
         session_doc = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
         if not session_doc:
             logger.warning("[WS] Invalid session token")
+            await websocket.send_json({"type": "auth_error", "message": "Invalid session"})
             await websocket.close(code=4001, reason="Invalid session")
             return
-        
+
         user_id = session_doc.get("user_id")
         if not user_id:
             await websocket.close(code=4001, reason="User not found")
             return
-        
+
         # Verificar que el usuario existe
         user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0})
         if not user_doc:
             await websocket.close(code=4001, reason="User not found")
             return
-        
-        # Aceptar conexión
-        await manager.connect(websocket, user_id)
-        
+
+        # Register connection (already accepted above)
+        self_ref = manager.active_connections
+        self_ref[user_id] = websocket
+        logger.info(f"[WS] User {user_id} connected. Total: {len(self_ref)}")
+
         # Notificar al usuario que está conectado
         await websocket.send_json({
             "type": "connected",
@@ -283,6 +309,10 @@ async def process_websocket_message(message: dict, user_id: str, websocket: WebS
                 "message": "Cannot join conversation"
             })
     
+    elif msg_type == "auth":
+        # Auth already handled during connection setup — ignore duplicate auth messages
+        pass
+
     else:
         await websocket.send_json({
             "type": "error",

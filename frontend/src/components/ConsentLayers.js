@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import FocusTrap from 'focus-trap-react';
 import { Shield, ChevronDown, ChevronUp, Check, AlertTriangle, X, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -289,6 +290,7 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
   if (!isOpen) return null;
   
   return (
+    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" data-testid="consent-modal">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
@@ -355,6 +357,7 @@ export function ConsentModal({ isOpen, onClose, onAccept, onDecline }) {
         </div>
       </div>
     </div>
+    </FocusTrap>
   );
 }
 

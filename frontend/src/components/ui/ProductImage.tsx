@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ImageOff } from 'lucide-react';
 import { sanitizeImageUrl } from '../../utils/helpers';
+import { getCloudinarySrcSet } from '../../utils/cloudinary';
 
 type ImageLike =
   | string
@@ -129,6 +130,7 @@ export default function ProductImage({
           </div>
           <img
             src={normalizedSrc}
+            srcSet={getCloudinarySrcSet(normalizedSrc, [200, 400, 800]) || undefined}
             alt={label}
             loading="lazy"
             decoding="async"
