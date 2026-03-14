@@ -6,12 +6,10 @@ import { useTranslation } from 'react-i18next';
 import {
   ShoppingBag, Search, Package, Heart, Truck, Check,
   Clock, ChevronRight, Star, Store, Compass, Zap, ArrowRight,
-  TrendingUp, Flame
+  TrendingUp, Flame, Sparkles, Bookmark
 } from 'lucide-react';
 import { asNumber, firstToken } from '../../utils/safe';
-
-const statusIcons = { paid: Check, confirmed: Check, preparing: Package, shipped: Truck, delivered: Check, pending: Clock };
-const statusColors = { paid: 'bg-stone-100 text-stone-700', confirmed: 'bg-stone-100 text-stone-700', preparing: 'bg-stone-100 text-stone-700', shipped: 'bg-stone-100 text-stone-700', delivered: 'bg-stone-100 text-stone-700', pending: 'bg-stone-100 text-stone-500' };
+import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 const getStoreSlug = (store) => store?.store_slug || store?.slug || null;
@@ -29,6 +27,7 @@ export default function CustomerOverview() {
   const [loading, setLoading] = useState(true);
   const [predictions, setPredictions] = useState([]);
   const [trending, setTrending] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
 
   useEffect(() => {
     Promise.all([
@@ -47,11 +46,14 @@ export default function CustomerOverview() {
         const actionable = (data?.predictions || []).filter(p => ['overdue', 'due', 'soon'].includes(p.status));
         setPredictions(actionable.slice(0, 3));
       }).catch(() => {}),
+      apiClient.get('/wishlist').then(data => {
+        setWishlist((Array.isArray(data) ? data : data?.items || []).slice(0, 4));
+      }).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
 
   const latestOrder = orders[0];
-  const StatusIcon = latestOrder ? (statusIcons[latestOrder.status] || Clock) : Clock;
+  const StatusIcon = latestOrder ? getStatusIcon(latestOrder.status) : Clock;
 
   if (loading) return <div className="flex justify-center py-20"><div className="loading-spinner" /></div>;
 
@@ -69,7 +71,7 @@ export default function CustomerOverview() {
       {latestOrder && (
         <Link to="/dashboard/orders" className="block bg-white rounded-2xl border border-stone-200 p-4 hover:shadow-sm transition-all" data-testid="latest-order">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${statusColors[latestOrder.status] || 'bg-stone-100 text-stone-500'}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getStatusColor(latestOrder.status)}`}>
               <StatusIcon className="w-5 h-5" />
             </div>
             <div className="flex-1">
@@ -138,6 +140,46 @@ export default function CustomerOverview() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Hispal AI card */}
+      <Link to="/dashboard/ai-preferences" className="block bg-stone-100 rounded-2xl border border-stone-200 p-4 hover:shadow-sm transition-all" data-testid="hispal-ai-card">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-stone-950 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-stone-950">Hispalo AI</p>
+            <p className="text-xs text-stone-500">Personaliza tus recomendaciones y preferencias</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-stone-400" />
+        </div>
+      </Link>
+
+      {/* Wishlist preview */}
+      {wishlist.length > 0 && (
+        <div data-testid="wishlist-preview">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Bookmark className="w-4 h-4 text-stone-400" />
+              <h2 className="text-xs font-semibold text-stone-500 uppercase tracking-wider">{t('wishlist.title', 'Lista de deseos')}</h2>
+            </div>
+            <Link to="/dashboard/wishlist" className="text-xs text-stone-950 hover:underline flex items-center gap-0.5">{t('customerDashboard.seeAll')} <ChevronRight className="w-3 h-3" /></Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+            {wishlist.map(item => (
+              <Link key={item.product_id} to={`/products/${item.product_id}`} className="shrink-0 w-[140px] bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-md transition-all group">
+                <div className="aspect-square bg-stone-100 overflow-hidden">
+                  {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <Heart className="w-6 h-6 text-stone-300 m-auto mt-10" />}
+                </div>
+                <div className="p-2.5">
+                  <p className="text-xs font-medium text-stone-950 truncate">{item.name}</p>
+                  {item.price && <p className="text-sm font-bold text-stone-950">{Number(item.price).toFixed(2)}€</p>}
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       )}

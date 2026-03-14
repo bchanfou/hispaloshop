@@ -1,30 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { ShoppingBag, MapPin, Package, Truck, Check, Clock, X, ExternalLink, Loader2, Send } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ShoppingBag, MapPin, Package, Truck, Check, Clock, X, ExternalLink, Loader2, Send, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api/client';
 import { asNumber } from '../../utils/safe';
 import FocusTrap from 'focus-trap-react';
-
-const statusColors = {
-  pending: 'bg-stone-100 text-stone-700',
-  paid: 'bg-stone-100 text-stone-700',
-  confirmed: 'bg-stone-100 text-stone-700',
-  preparing: 'bg-stone-100 text-stone-700',
-  shipped: 'bg-stone-100 text-stone-700',
-  delivered: 'bg-stone-100 text-stone-700',
-  cancelled: 'bg-stone-100 text-stone-700'
-};
-
-const statusIcons = {
-  pending: Clock,
-  paid: Check,
-  confirmed: Check,
-  preparing: Package,
-  shipped: Truck,
-  delivered: Check,
-  cancelled: X
-};
+import { getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
 
 // Status flow for producers
 const nextStatusMap = {
@@ -209,12 +190,22 @@ function ShipOrderModal({ order, onClose, onSuccess, t }) {
   );
 }
 
+const ORDER_FILTERS = [
+  { key: 'all', label: 'Todos' },
+  { key: 'confirmed', label: 'Nuevos', statuses: ['paid', 'confirmed'] },
+  { key: 'preparing', label: 'Preparando', statuses: ['preparing'] },
+  { key: 'shipped', label: 'Enviados', statuses: ['shipped'] },
+  { key: 'delivered', label: 'Entregados', statuses: ['delivered'] },
+];
+
 export default function ProducerOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showShipModal, setShowShipModal] = useState(false);
   const [orderToShip, setOrderToShip] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const { t } = useTranslation();
 
   const statusLabels = {
@@ -248,6 +239,23 @@ export default function ProducerOrders() {
       setLoading(false);
     }
   };
+
+  const filteredOrders = useMemo(() => {
+    let filtered = orders;
+    if (activeFilter !== 'all') {
+      const tab = ORDER_FILTERS.find(f => f.key === activeFilter);
+      if (tab?.statuses) filtered = filtered.filter(o => tab.statuses.includes(o.status));
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(o =>
+        o.user_email?.toLowerCase().includes(q) ||
+        o.order_id?.toLowerCase().includes(q) ||
+        o.shipping_address?.name?.toLowerCase().includes(q)
+      );
+    }
+    return filtered;
+  }, [orders, activeFilter, searchQuery]);
 
   const handleShipOrder = (order) => {
     // For shipping, validate status
@@ -309,20 +317,53 @@ export default function ProducerOrders() {
       <h1 className="text-3xl font-bold text-stone-950 mb-2">
         {t('orders.myOrders')}
       </h1>
-      <p className="text-stone-500 mb-8">
+      <p className="text-stone-500 mb-4">
         {t('orders.manageOrders')}
       </p>
 
-      {orders.length === 0 ? (
+      {/* Search */}
+      <div className="relative mb-3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+        <input
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Buscar por cliente o número..."
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-400"
+        />
+      </div>
+
+      {/* Filter tabs */}
+      <div className="flex gap-2 mb-5 overflow-x-auto scrollbar-hide pb-1">
+        {ORDER_FILTERS.map(tab => {
+          const count = tab.key === 'all' ? orders.length : orders.filter(o => tab.statuses?.includes(o.status)).length;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveFilter(tab.key)}
+              className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeFilter === tab.key
+                  ? 'bg-stone-950 text-white'
+                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+              }`}
+            >
+              {tab.label} {count > 0 && <span className="ml-1 text-xs opacity-70">({count})</span>}
+            </button>
+          );
+        })}
+      </div>
+
+      {filteredOrders.length === 0 ? (
         <div className="bg-white rounded-xl border border-stone-200 p-12 text-center">
           <ShoppingBag className="w-16 h-16 text-stone-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-stone-950 mb-2">{t('orders.noOrders')}</h3>
-          <p className="text-stone-500">{t('orders.noOrdersDescription')}</p>
+          <h3 className="text-lg font-semibold text-stone-950 mb-2">
+            {activeFilter === 'all' ? t('orders.noOrders') : 'Sin pedidos en esta categoría'}
+          </h3>
+          {activeFilter === 'all' && <p className="text-stone-500">{t('orders.noOrdersDescription')}</p>}
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => {
-            const StatusIcon = statusIcons[order.status] || Clock;
+          {filteredOrders.map((order) => {
+            const StatusIcon = getStatusIcon(order.status);
             const showShipButton = canMarkAsShipped(order.status);
             const canUpdate = canUpdateStatus(order.status);
             const nextStatus = nextStatusMap[order.status];
@@ -336,7 +377,7 @@ export default function ProducerOrders() {
                 {/* Order Header */}
                 <div className="p-4 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-lg ${statusColors[order.status] || 'bg-stone-100'}`}>
+                    <div className={`p-2 rounded-lg ${getStatusColor(order.status)}`}>
                       <StatusIcon className="w-5 h-5" />
                     </div>
                     <div>
@@ -349,7 +390,7 @@ export default function ProducerOrders() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[order.status]}`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
                       {getStatusLabel(order.status, t)}
                     </span>
 

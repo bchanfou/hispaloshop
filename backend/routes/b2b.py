@@ -1,15 +1,16 @@
 """
 Endpoints B2B para importadores y productores.
-Fase 4: B2B Importer
+Fase 4: B2B Importer + Fase 15: Producer B2B Requests
 """
 from datetime import datetime
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 
 from core.database import get_db
 from core.auth import get_current_user
 
-router = APIRouter(prefix="/b2b", tags=["B2B"])
+router = APIRouter(tags=["B2B"])
 
 
 @router.get("/catalog")
@@ -521,5 +522,239 @@ async def update_lead_status(
         },
         {"$set": update}
     )
-    
+
+    return {"success": True}
+
+
+# ── Producer B2B Request Management (Fase 15) ─────────────────────
+
+class ConfirmB2BRequest(BaseModel):
+    confirmed_unit_price: float
+    notes: str = ""
+    estimated_days: int = 7
+
+
+class ShipB2BRequest(BaseModel):
+    tracking_number: str
+    tracking_url: str = ""
+
+
+@router.get("/producer/requests")
+async def get_producer_b2b_requests(
+    status: str = "pending",
+    limit: int = 30,
+    current_user=Depends(get_current_user),
+):
+    """Get B2B requests received by the authenticated producer."""
+    if current_user.role not in ["producer"]:
+        raise HTTPException(status_code=403, detail="Producers only")
+
+    db = get_db()
+
+    query = {"producer_id": current_user.user_id}
+    if status != "all":
+        if status == "confirmed":
+            query["status"] = "confirmed_by_producer"
+        elif status == "rejected":
+            query["status"] = {"$in": ["rejected_by_producer", "rejected_by_importer"]}
+        elif status == "paid":
+            query["status"] = {"$in": ["paid", "preparing", "shipped", "delivered"]}
+        else:
+            query["status"] = status
+
+    requests = await db.b2b_orders.find(query).sort("created_at", -1).limit(limit).to_list(limit)
+
+    pending_count = await db.b2b_orders.count_documents({
+        "producer_id": current_user.user_id,
+        "status": "pending",
+    })
+
+    # Enrich with product and importer info
+    enriched = []
+    for req in requests:
+        product = None
+        if req.get("product_id"):
+            product = await db.products.find_one(
+                {"product_id": req["product_id"]},
+                {"name": 1, "images": 1, "unit": 1, "price": 1},
+            )
+
+        importer = None
+        if req.get("importer_id"):
+            importer = await db.users.find_one(
+                {"user_id": req["importer_id"]},
+                {"company_name": 1, "full_name": 1, "country": 1},
+            )
+
+        enriched.append({
+            "id": str(req.get("_id", req.get("order_id", ""))),
+            "order_id": req.get("order_id", str(req.get("_id", ""))),
+            "status": req.get("status", "pending"),
+            "product_id": req.get("product_id"),
+            "product_name": (product or {}).get("name", req.get("product_name", "Producto")),
+            "product_image": ((product or {}).get("images") or ["/placeholder.png"])[0],
+            "unit": (product or {}).get("unit", req.get("unit", "kg")),
+            "quantity": req.get("quantity", 0),
+            "unit_price": req.get("unit_price", 0),
+            "confirmed_unit_price": req.get("confirmed_unit_price"),
+            "notes": req.get("notes", ""),
+            "importer_username": (importer or {}).get("company_name") or (importer or {}).get("full_name", "Importador"),
+            "importer_country": (importer or {}).get("country", ""),
+            "estimated_days": req.get("estimated_days"),
+            "tracking_number": req.get("tracking_number"),
+            "tracking_url": req.get("tracking_url"),
+            "created_at": req.get("created_at"),
+            "paid_at": req.get("paid_at"),
+        })
+
+    return {"requests": enriched, "pending_count": pending_count}
+
+
+@router.put("/producer/requests/{request_id}/confirm")
+async def confirm_b2b_request(
+    request_id: str,
+    body: ConfirmB2BRequest,
+    current_user=Depends(get_current_user),
+):
+    """Producer confirms availability and price for a B2B request."""
+    if current_user.role != "producer":
+        raise HTTPException(status_code=403, detail="Producers only")
+    if body.confirmed_unit_price <= 0:
+        raise HTTPException(status_code=400, detail="Precio debe ser positivo")
+
+    db = get_db()
+    from bson.objectid import ObjectId
+
+    try:
+        oid = ObjectId(request_id)
+    except Exception:
+        oid = None
+
+    query = {"producer_id": current_user.user_id, "status": "pending"}
+    if oid:
+        query["_id"] = oid
+    else:
+        query["order_id"] = request_id
+
+    result = await db.b2b_orders.update_one(query, {"$set": {
+        "status": "confirmed_by_producer",
+        "confirmed_unit_price": body.confirmed_unit_price,
+        "producer_notes": body.notes,
+        "estimated_days": body.estimated_days,
+        "confirmed_at": datetime.utcnow(),
+    }})
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Solicitud no encontrada o ya procesada")
+
+    # Find the order to get importer_id for notification
+    order = await db.b2b_orders.find_one(query if oid is None else {"_id": oid})
+    if order and order.get("importer_id"):
+        await db.notifications.insert_one({
+            "user_id": order["importer_id"],
+            "type": "b2b_offer_received",
+            "title": "Oferta recibida",
+            "body": f"El productor ha confirmado tu pedido a {body.confirmed_unit_price:.2f}€/ud.",
+            "order_id": str(order.get("_id", "")),
+            "read": False,
+            "created_at": datetime.utcnow(),
+        })
+
+    return {"success": True}
+
+
+@router.put("/producer/requests/{request_id}/reject")
+async def reject_b2b_request(
+    request_id: str,
+    current_user=Depends(get_current_user),
+):
+    """Producer rejects a B2B request."""
+    if current_user.role != "producer":
+        raise HTTPException(status_code=403, detail="Producers only")
+
+    db = get_db()
+    from bson.objectid import ObjectId
+
+    try:
+        oid = ObjectId(request_id)
+    except Exception:
+        oid = None
+
+    query = {"producer_id": current_user.user_id, "status": "pending"}
+    if oid:
+        query["_id"] = oid
+    else:
+        query["order_id"] = request_id
+
+    result = await db.b2b_orders.update_one(query, {"$set": {
+        "status": "rejected_by_producer",
+        "rejected_at": datetime.utcnow(),
+    }})
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Solicitud no encontrada o ya procesada")
+
+    # Notify importer
+    order = await db.b2b_orders.find_one(query if oid is None else {"_id": oid})
+    if order and order.get("importer_id"):
+        await db.notifications.insert_one({
+            "user_id": order["importer_id"],
+            "type": "b2b_request_rejected",
+            "title": "Solicitud rechazada",
+            "body": "El productor no puede atender tu solicitud en este momento.",
+            "order_id": str(order.get("_id", "")),
+            "read": False,
+            "created_at": datetime.utcnow(),
+        })
+
+    return {"success": True}
+
+
+@router.put("/producer/requests/{request_id}/ship")
+async def ship_b2b_request(
+    request_id: str,
+    body: ShipB2BRequest,
+    current_user=Depends(get_current_user),
+):
+    """Producer marks a paid B2B order as shipped with tracking."""
+    if current_user.role != "producer":
+        raise HTTPException(status_code=403, detail="Producers only")
+
+    db = get_db()
+    from bson.objectid import ObjectId
+
+    try:
+        oid = ObjectId(request_id)
+    except Exception:
+        oid = None
+
+    query = {"producer_id": current_user.user_id, "status": {"$in": ["paid", "preparing"]}}
+    if oid:
+        query["_id"] = oid
+    else:
+        query["order_id"] = request_id
+
+    result = await db.b2b_orders.update_one(query, {"$set": {
+        "status": "shipped",
+        "tracking_number": body.tracking_number,
+        "tracking_url": body.tracking_url,
+        "shipped_at": datetime.utcnow(),
+    }})
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado o no está en estado pagado")
+
+    # Notify importer
+    order = await db.b2b_orders.find_one(query if oid is None else {"_id": oid})
+    if order and order.get("importer_id"):
+        await db.notifications.insert_one({
+            "user_id": order["importer_id"],
+            "type": "order_shipped",
+            "title": "Pedido B2B enviado 🚚",
+            "body": f"Tracking: {body.tracking_number}",
+            "order_id": str(order.get("_id", "")),
+            "read": False,
+            "created_at": datetime.utcnow(),
+        })
+
     return {"success": True}

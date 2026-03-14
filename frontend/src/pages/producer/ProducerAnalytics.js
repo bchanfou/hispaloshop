@@ -1,0 +1,159 @@
+import React, { useState, useEffect } from 'react';
+import { BarChart3, TrendingUp, Users, Target, Loader2, ShoppingBag } from 'lucide-react';
+import apiClient from '../../services/api/client';
+
+function AnalyticsSection({ title, icon: Icon, children }) {
+  return (
+    <div className="bg-white rounded-xl border border-stone-200 p-4 mb-4">
+      <h3 className="text-sm font-bold text-stone-950 mb-4 flex items-center gap-2">
+        {Icon && <Icon className="w-4 h-4" />}
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+function SalesSourcesChart({ sources }) {
+  const data = [
+    { name: 'Feed', value: sources?.feed || 0, color: '#57534e' },
+    { name: 'Tienda', value: sources?.store || 0, color: '#78716c' },
+    { name: 'Hispal AI', value: sources?.hispal_ai || 0, color: '#44403c' },
+    { name: 'Influencer', value: sources?.influencer || 0, color: '#a8a29e' },
+    { name: 'Directo', value: sources?.direct || 0, color: '#d6d3d1' },
+  ].filter(d => d.value > 0);
+
+  const total = data.reduce((s, d) => s + d.value, 0);
+  if (!total) return <p className="text-sm text-stone-500 text-center py-4">Sin datos aún</p>;
+
+  return (
+    <div className="space-y-2.5">
+      {data.map(source => (
+        <div key={source.name} className="flex items-center gap-3">
+          <span className="text-xs text-stone-600 w-16 shrink-0">{source.name}</span>
+          <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${(source.value / total) * 100}%`, backgroundColor: source.color }}
+            />
+          </div>
+          <span className="text-xs font-bold text-stone-950 w-8 text-right shrink-0">
+            {Math.round((source.value / total) * 100)}%
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function ProducerAnalytics() {
+  const [period, setPeriod] = useState('30d');
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    apiClient.get(`/producer/analytics?period=${period}`)
+      .then(d => setData(d))
+      .catch(() => setData(null))
+      .finally(() => setLoading(false));
+  }, [period]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-stone-950">Analítica</h1>
+        <select
+          value={period}
+          onChange={e => setPeriod(e.target.value)}
+          className="px-3 py-2 rounded-xl border border-stone-200 bg-white text-sm text-stone-950 focus:outline-none focus:border-stone-400"
+        >
+          <option value="7d">Últimos 7 días</option>
+          <option value="30d">Últimos 30 días</option>
+          <option value="90d">Últimos 90 días</option>
+          <option value="12m">Últimos 12 meses</option>
+        </select>
+      </div>
+
+      {/* Top products */}
+      <AnalyticsSection title="Productos más vendidos" icon={ShoppingBag}>
+        {data?.top_products?.length ? (
+          <div className="space-y-0">
+            {data.top_products.map((product, i) => (
+              <div key={product.product_id || i} className="flex items-center gap-3 py-2.5 border-b border-stone-100 last:border-0">
+                <span className="text-lg font-bold text-stone-300 w-6 text-center shrink-0">
+                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
+                </span>
+                {product.image ? (
+                  <img src={product.image} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-stone-100 shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-stone-950 truncate">{product.name}</p>
+                  <p className="text-xs text-stone-500">{product.units_sold} unidades vendidas</p>
+                </div>
+                <p className="text-sm font-bold text-stone-950 shrink-0">
+                  {(product.revenue || 0).toFixed(2)}€
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-stone-500 text-center py-4">Sin datos aún</p>
+        )}
+      </AnalyticsSection>
+
+      {/* Sales sources */}
+      <AnalyticsSection title="¿De dónde vienen tus ventas?" icon={BarChart3}>
+        <SalesSourcesChart sources={data?.sales_sources} />
+      </AnalyticsSection>
+
+      {/* Followers */}
+      <AnalyticsSection title="Seguidores de la tienda" icon={Users}>
+        <div className="flex items-end gap-4">
+          <div>
+            <p className="text-3xl font-extrabold text-stone-950 tracking-tight">
+              {data?.followers?.current || 0}
+            </p>
+            <p className="text-xs text-stone-500">seguidores totales</p>
+          </div>
+          {(data?.followers?.delta || 0) > 0 && (
+            <p className="text-sm font-semibold text-stone-700 mb-1">
+              +{data.followers.delta} este período
+            </p>
+          )}
+        </div>
+      </AnalyticsSection>
+
+      {/* Conversion */}
+      <AnalyticsSection title="Tasa de conversión" icon={Target}>
+        <div className="grid grid-cols-3 gap-3 mb-3">
+          {[
+            { label: 'Visitas tienda', value: data?.conversion?.store_visits || 0 },
+            { label: 'Añadidos al carrito', value: data?.conversion?.cart_adds || 0 },
+            { label: 'Compras', value: data?.conversion?.purchases || 0 },
+          ].map(stat => (
+            <div key={stat.label} className="bg-stone-50 rounded-xl p-3 text-center">
+              <p className="text-xl font-bold text-stone-950">{stat.value}</p>
+              <p className="text-[10px] text-stone-500 uppercase">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+        {(data?.conversion?.rate || 0) > 0 && (
+          <p className="text-sm text-stone-600 text-center">
+            Tasa de conversión: <strong className="text-stone-950">{(data.conversion.rate * 100).toFixed(1)}%</strong>
+          </p>
+        )}
+      </AnalyticsSection>
+    </div>
+  );
+}

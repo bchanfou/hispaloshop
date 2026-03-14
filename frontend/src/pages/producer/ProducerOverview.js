@@ -8,7 +8,7 @@ import {
   Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import PlanManager from '../../components/PlanManager';
 import LockedFeature from '../../components/LockedFeature';
 import { useProducerPlan } from '../../context/ProducerPlanContext';
@@ -447,9 +447,18 @@ export default function ProducerOverview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dataWarnings, setDataWarnings] = useState([]);
+  const [period, setPeriod] = useState('month');
+  const [salesChart, setSalesChart] = useState([]);
+  const [alerts, setAlerts] = useState([]);
 
   useEffect(() => {
     fetchData();
+  }, []);
+
+  // Fetch sales chart and alerts in parallel
+  useEffect(() => {
+    apiClient.get('/producer/sales-chart').then(d => setSalesChart(d?.days || [])).catch(() => {});
+    apiClient.get('/producer/alerts').then(d => setAlerts(d || [])).catch(() => {});
   }, []);
 
   const fetchData = async () => {
@@ -577,16 +586,36 @@ export default function ProducerOverview() {
         <h1 className="text-3xl font-semibold tracking-tight text-stone-950" data-testid="producer-title">
           {user?.company_name || user?.name}
         </h1>
-        {publicProfileUrl && (
-          <Link
-            to={publicProfileUrl}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
-            data-testid="view-public-profile"
-          >
-            <Users className="h-4 w-4" />
-            Ver perfil público
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Period selector */}
+          <div className="flex rounded-xl border border-stone-200 bg-white p-0.5">
+            {[
+              { key: 'today', label: 'Hoy' },
+              { key: 'week', label: 'Semana' },
+              { key: 'month', label: 'Mes' },
+            ].map(p => (
+              <button
+                key={p.key}
+                onClick={() => setPeriod(p.key)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                  period === p.key ? 'bg-stone-950 text-white' : 'text-stone-600 hover:text-stone-950'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          {publicProfileUrl && (
+            <Link
+              to={publicProfileUrl}
+              className="shrink-0 hidden md:inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+              data-testid="view-public-profile"
+            >
+              <Users className="h-4 w-4" />
+              Ver perfil
+            </Link>
+          )}
+        </div>
       </div>
       {dataWarnings.length > 0 && !error && (
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
@@ -600,6 +629,30 @@ export default function ProducerOverview() {
           </div>
         </div>
       )}
+      {/* Alerts */}
+      {alerts.length > 0 && (
+        <div className="space-y-2" data-testid="producer-alerts">
+          {alerts.map((alert, i) => (
+            <div key={i} className={`flex items-start gap-3 rounded-xl p-3 border ${
+              alert.type === 'danger'
+                ? 'bg-stone-100 border-stone-300'
+                : 'bg-stone-50 border-stone-200'
+            }`}>
+              <span className="text-lg shrink-0">{alert.type === 'danger' ? '🚨' : '⚠️'}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-stone-950">{alert.title}</p>
+                <p className="text-xs text-stone-600">{alert.message}</p>
+              </div>
+              {alert.action_href && (
+                <Link to={alert.action_href} className="shrink-0 text-xs font-bold text-stone-950 hover:underline">
+                  {alert.action_label || 'Ver'} →
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Quick Actions — 2 Big Buttons (impossible to miss) */}
       <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
         <Link to="/producer/products" className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-stone-950 p-5 text-white transition-all hover:scale-[1.02] active:scale-[0.98]" data-testid="quick-add-product">
@@ -676,6 +729,36 @@ export default function ProducerOverview() {
           <p className="text-[10px] text-stone-500 uppercase mt-1">{t('sellerDashboard.earned', 'Earned')}</p>
         </div>
       </div>
+
+      {/* Sales Chart — 30 days */}
+      {salesChart.length > 0 && (
+        <div className="bg-white rounded-xl border border-stone-200 p-4" data-testid="sales-chart">
+          <p className="text-sm font-bold text-stone-950 mb-4">Ventas — últimos 30 días</p>
+          <ResponsiveContainer width="100%" height={160}>
+            <LineChart data={salesChart} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+              <CartesianGrid stroke="#e7e5e4" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 10, fill: '#a8a29e' }}
+                tickLine={false} axisLine={false}
+                tickFormatter={d => new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).slice(0, 5)}
+                interval={4}
+              />
+              <YAxis
+                tick={{ fontSize: 10, fill: '#a8a29e' }}
+                tickLine={false} axisLine={false}
+                tickFormatter={v => `${v}€`}
+              />
+              <Tooltip
+                contentStyle={{ background: '#0c0a09', border: 'none', borderRadius: 8, fontSize: 12, color: 'white' }}
+                formatter={(v) => [`${Number(v).toFixed(2)}€`, 'Ventas']}
+                labelFormatter={d => new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+              />
+              <Line type="monotone" dataKey="revenue" stroke="#0c0a09" strokeWidth={2} dot={false} activeDot={{ r: 5 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Plan Manager */}
       <PlanManager />

@@ -510,14 +510,72 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
     pending_certificates = await db.certificates.count_documents(certificate_query)
     total_orders = await db.orders.count_documents(order_query)
     
+    # GMV this month
+    now = datetime.now(timezone.utc)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
+    gmv_pipeline = [
+        {"$match": {**order_query, "created_at": {"$gte": month_start}, "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]}}},
+        {"$group": {"_id": None, "total": {"$sum": "$total_amount"}, "count": {"$sum": 1}}}
+    ]
+    gmv_result = await db.orders.aggregate(gmv_pipeline).to_list(1)
+    gmv_month = gmv_result[0]["total"] if gmv_result else 0
+    orders_month = gmv_result[0]["count"] if gmv_result else 0
+
+    # New users this month
+    new_users_month = await db.users.count_documents({"created_at": {"$gte": month_start}})
+
+    # Refunded orders
+    refund_query = {**order_query, "status": {"$in": ["refunded", "partially_refunded"]}}
+    refunded_orders = await db.orders.count_documents(refund_query)
+
+    # Open support cases
+    open_support = await db.support_cases.count_documents({"status": {"$in": ["abierto", "en revisión", "pendiente de respuesta", "escalado a humano"]}})
+
+    # Moderation queue pending
+    pending_moderation = await db.moderation_queue.count_documents({"status": "pending"})
+
     return {
         "pending_producers": pending_producers,
         "total_producers": total_producers,
         "pending_products": pending_products,
         "total_products": total_products,
         "pending_certificates": pending_certificates,
-        "total_orders": total_orders
+        "total_orders": total_orders,
+        "gmv_month": round(gmv_month, 2),
+        "orders_month": orders_month,
+        "new_users_month": new_users_month,
+        "refunded_orders": refunded_orders,
+        "open_support": open_support,
+        "pending_moderation": pending_moderation,
     }
+
+
+@router.get("/admin/refunds")
+async def get_admin_refunds(user: User = Depends(get_current_user)):
+    """Get orders that have been refunded or partially refunded."""
+    await require_role(user, ["admin"])
+
+    order_query: Dict[str, Any] = {"status": {"$in": ["refunded", "partially_refunded"]}}
+    if user.role != "super_admin":
+        scoped_seller_ids = await _get_scoped_seller_ids(user)
+        if scoped_seller_ids:
+            order_query["line_items.producer_id"] = {"$in": scoped_seller_ids}
+        else:
+            order_query["line_items.producer_id"] = "__none__"
+
+    orders = await db.orders.find(order_query, {"_id": 0}).sort("refunded_at", -1).to_list(200)
+
+    # Also get orders eligible for refund (paid/delivered, not yet refunded)
+    eligible_query: Dict[str, Any] = {"status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]}}
+    if user.role != "super_admin":
+        if scoped_seller_ids:
+            eligible_query["line_items.producer_id"] = {"$in": scoped_seller_ids}
+        else:
+            eligible_query["line_items.producer_id"] = "__none__"
+
+    eligible = await db.orders.find(eligible_query, {"_id": 0}).sort("created_at", -1).to_list(200)
+
+    return {"refunded": orders, "eligible": eligible}
 
 
 @router.get("/superadmin/overview")

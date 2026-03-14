@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import {
   Package, FileCheck, ShoppingBag, CreditCard,
   LayoutDashboard, ArrowLeft, LogOut, AlertTriangle,
-  User, Store, Menu, X, MoreHorizontal, Settings, BookOpen, Award, BarChart3
+  User, Store, Menu, X, MoreHorizontal, Settings, BookOpen, Award, BarChart3,
+  TrendingUp, Crown, Search, Globe, Bell, Handshake
 } from 'lucide-react';
 import LanguageSwitcher from '../LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +18,7 @@ import {
   useDashboardLogout,
   useProducerDashboardStats,
 } from '../../features/dashboard/queries';
+import { useUnreadNotifications } from '../../hooks/api/useNotifications';
 
 function PlanGatedAIAssistant() {
   const { hasAccess } = useProducerPlan();
@@ -32,6 +34,8 @@ export default function ProducerLayout() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const { data: stats } = useProducerDashboardStats(Boolean(user) && ['producer', 'importer'].includes(user.role));
   const logoutMutation = useDashboardLogout();
+  const { data: notifData } = useUnreadNotifications();
+  const unreadNotifs = user ? (notifData?.count ?? 0) : 0;
   const badges = { pending_products: stats?.pending_products || 0 };
 
   // All navigation items
@@ -42,10 +46,18 @@ export default function ProducerLayout() {
     { to: '/producer/payments', icon: CreditCard, label: 'Ganancias', shortLabel: 'Ganancias' },
     { to: '/producer/store', icon: Store, label: 'Mi Tienda', shortLabel: 'Tienda' },
     { to: '/recipes/create', icon: BookOpen, label: 'Crear Receta', shortLabel: 'Receta' },
-    ...(user?.role === 'importer' ? [{ to: '/importer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' }] : [
+    ...(user?.role === 'importer' ? [
+      { to: '/importer/dashboard', icon: Globe, label: 'Panel Importador', shortLabel: 'Import' },
+      { to: '/importer/catalog', icon: Search, label: 'Catálogo B2B', shortLabel: 'B2B' },
+      { to: '/importer/orders', icon: Package, label: 'Pedidos B2B', shortLabel: 'B2B Ped.' },
+      { to: '/importer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' },
+    ] : [
+      { to: '/producer/b2b-requests', icon: Handshake, label: 'Solicitudes B2B', shortLabel: 'B2B' },
       { to: '/producer/certificates', icon: Award, label: 'Certificados', shortLabel: 'Certs' },
     ]),
     { to: '/producer/insights', icon: BarChart3, label: 'Insights', shortLabel: 'Insights' },
+    { to: '/producer/analytics', icon: TrendingUp, label: 'Analítica', shortLabel: 'Analítica' },
+    { to: '/producer/plan', icon: Crown, label: 'Mi Plan', shortLabel: 'Plan' },
   ];
 
   // Mobile bottom nav - all 5 fit
@@ -115,8 +127,22 @@ export default function ProducerLayout() {
         <h1 className="text-base font-semibold text-stone-950">
           Panel Productor
         </h1>
-        
-        <LanguageSwitcher variant="minimal" />
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/notifications')}
+            className="relative p-2 text-stone-500 hover:text-stone-950 transition-colors"
+            aria-label="Notificaciones"
+          >
+            <Bell className="w-5 h-5" strokeWidth={1.5} />
+            {unreadNotifs > 0 && (
+              <span className="absolute top-1 right-1 w-4 h-4 bg-stone-950 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {unreadNotifs > 9 ? '9+' : unreadNotifs}
+              </span>
+            )}
+          </button>
+          <LanguageSwitcher variant="minimal" />
+        </div>
       </header>
 
       {/* ===== DESKTOP SIDEBAR ===== */}
@@ -132,7 +158,21 @@ export default function ProducerLayout() {
               <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
               <span>{t('common.back')}</span>
             </button>
-            <LanguageSwitcher variant="minimal" />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/notifications')}
+                className="relative p-1.5 text-stone-500 hover:text-stone-950 transition-colors"
+                aria-label="Notificaciones"
+              >
+                <Bell className="w-4 h-4" strokeWidth={1.5} />
+                {unreadNotifs > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-stone-950 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {unreadNotifs > 9 ? '9+' : unreadNotifs}
+                  </span>
+                )}
+              </button>
+              <LanguageSwitcher variant="minimal" />
+            </div>
           </div>
           <h1 className="text-lg font-semibold text-stone-950 tracking-editorial">
             {t('producer.myProducts')}

@@ -85,6 +85,7 @@ const AdminManagement = lazy(() => import('./pages/admin/AdminManagement'));
 const AdminCategories = lazy(() => import('./pages/admin/CategoriesPage'));
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
 const AdminSupportCase = lazy(() => import('./pages/admin/AdminSupportCase'));
+const AdminRefunds = lazy(() => import('./pages/admin/AdminRefunds'));
 const AdminTrustSafety = lazy(() => import('./pages/admin/AdminTrustSafety'));
 const AdminGrowthAnalytics = lazy(() => import('./pages/admin/AdminGrowthAnalytics'));
 const EscalationChat = lazy(() => import('./pages/admin/EscalationChat'));
@@ -93,7 +94,14 @@ const UserManagement = lazy(() => import('./pages/super-admin/UserManagement'));
 const ContentManagement = lazy(() => import('./pages/super-admin/ContentManagement'));
 const FinancialDashboard = lazy(() => import('./pages/super-admin/FinancialDashboard'));
 const MarketCoverage = lazy(() => import('./pages/super-admin/MarketCoverage'));
+const PlansConfigPage = lazy(() => import('./pages/super-admin/PlansConfigPage'));
+const GDPRPage = lazy(() => import('./pages/super-admin/GDPRPage'));
+const InfrastructurePage = lazy(() => import('./pages/super-admin/InfrastructurePage'));
 const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdminOverview'));
+
+const CommunitiesExplorePage = lazy(() => import('./pages/CommunitiesExplorePage'));
+const CommunityPage = lazy(() => import('./pages/CommunityPage'));
+const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
 
 const ProducerLayout = lazy(() => import('./components/dashboard/ProducerLayoutResponsive'));
 const ProducerOverview = lazy(() => import('./pages/producer/ProducerOverview'));
@@ -105,15 +113,19 @@ const ProducerProfile = lazy(() => import('./pages/producer/ProducerProfile'));
 const ProducerStoreProfile = lazy(() => import('./pages/producer/ProducerStoreProfile'));
 const ProductCountryManagement = lazy(() => import('./pages/producer/ProductCountryManagement'));
 const ProducerInsights = lazy(() => import('./pages/producer/ProducerInsights'));
+const ProducerAnalytics = lazy(() => import('./pages/producer/ProducerAnalytics'));
+const ProducerPlanPage = lazy(() => import('./pages/producer/ProducerPlanPage'));
 const ProducerConnectPage = lazy(() => import('./pages/producer/ProducerConnectPage'));
 const ProducerConnectSuccess = lazy(() => import('./pages/producer/ProducerConnectSuccess'));
 const ProducerConnectRefresh = lazy(() => import('./pages/producer/ProducerConnectRefresh'));
 const ProducerShippingPolicy = lazy(() => import('./pages/producer/ProducerShippingPolicy'));
 const CommercialAIPage = lazy(() => import('./pages/producer/CommercialAIPage'));
+const ProducerB2BRequestsPage = lazy(() => import('./pages/producer/ProducerB2BRequestsPage'));
 
 const CustomerLayout = lazy(() => import('./components/dashboard/CustomerLayoutResponsive'));
-const CustomerOverview = lazy(() => import('./pages/customer/Dashboard'));
+const CustomerOverview = lazy(() => import('./pages/customer/CustomerOverview'));
 const CustomerOrders = lazy(() => import('./pages/customer/CustomerOrders'));
+const OrderDetailPage = lazy(() => import('./pages/customer/OrderDetailPage'));
 const CustomerSupport = lazy(() => import('./pages/customer/CustomerSupport'));
 const CustomerProfile = lazy(() => import('./pages/customer/CustomerProfile'));
 const CustomerAIPreferences = lazy(() => import('./pages/customer/CustomerAIPreferences'));
@@ -123,6 +135,8 @@ const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
 
 const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDashboard'));
 const InfluencerInsights = lazy(() => import('./pages/influencer/InfluencerInsights'));
+const AffiliateLinksPage = lazy(() => import('./pages/influencer/AffiliateLinksPage'));
+const PayoutsPage = lazy(() => import('./pages/influencer/PayoutsPage'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
@@ -142,6 +156,8 @@ const ProducerDashboardNew = lazy(() => import('./pages/dashboard/producer'));
 const ImporterDashboardNew = lazy(() => import('./pages/dashboard/importer'));
 const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
 const ImporterCertificatesPage = lazy(() => import('./pages/importer/ImporterCertificatesPage'));
+const ImporterCatalogPage = lazy(() => import('./pages/importer/ImporterCatalogPage'));
+const ImporterOrdersPage = lazy(() => import('./pages/importer/ImporterOrdersPage'));
 
 // Registration flows
 const RoleSelector = lazy(() => import('./pages/register/RoleSelector'));
@@ -276,6 +292,9 @@ function AppRouter() {
               <Route path="/tiendas" element={<Navigate to="/stores" replace />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/communities" element={<CommunitiesExplorePage />} />
+              <Route path="/communities/new" element={<CreateCommunityPage />} />
+              <Route path="/communities/:slug" element={<CommunityPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
@@ -335,7 +354,8 @@ function AppRouter() {
                   </ProtectedRoute>
                 )}
               />
-              <Route path="/importer/catalog" element={<Navigate to="/producer/products" replace />} />
+              <Route path="/importer/catalog" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterCatalogPage /></ProtectedRoute>} />
+              <Route path="/importer/commercial-ai" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><CommercialAIPage /></ProtectedRoute>} />
               <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
               <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
@@ -384,6 +404,7 @@ function AppRouter() {
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="support" element={<AdminSupport />} />
                 <Route path="support/:caseId" element={<AdminSupportCase />} />
+                <Route path="refunds" element={<AdminRefunds />} />
                 <Route path="trust-safety" element={<AdminTrustSafety />} />
                 <Route path="growth" element={<AdminGrowthAnalytics />} />
                 <Route path="escalation" element={<EscalationChat />} />
@@ -406,6 +427,9 @@ function AppRouter() {
                 <Route path="markets" element={<MarketCoverage />} />
                 <Route path="analytics" element={<InsightsDashboard />} />
                 <Route path="admins" element={<AdminManagement />} />
+                <Route path="plans" element={<PlansConfigPage />} />
+                <Route path="gdpr" element={<GDPRPage />} />
+                <Route path="infrastructure" element={<InfrastructurePage />} />
                 <Route path="escalation" element={<EscalationChat />} />
               </Route>
 
@@ -452,7 +476,9 @@ function AppRouter() {
                 <Route path="connect" element={<ProducerConnectPage />} />
                 <Route path="connect/success" element={<ProducerConnectSuccess />} />
                 <Route path="connect/refresh" element={<ProducerConnectRefresh />} />
-                <Route path="analytics" element={<Navigate to="/producer" replace />} />
+                <Route path="analytics" element={<ProducerAnalytics />} />
+                <Route path="plan" element={<ProducerPlanPage />} />
+                <Route path="b2b-requests" element={<ProducerB2BRequestsPage />} />
                 <Route path="promotions" element={<Navigate to="/producer" replace />} />
                 <Route path="influencers" element={<Navigate to="/discover?scope=profiles" replace />} />
               </Route>
@@ -467,7 +493,7 @@ function AppRouter() {
               >
                 <Route index element={<CustomerOverview />} />
                 <Route path="orders" element={<CustomerOrders />} />
-                <Route path="orders/:orderId" element={<Navigate to="/dashboard/orders" replace />} />
+                <Route path="orders/:orderId" element={<OrderDetailPage />} />
                 <Route path="followed-stores" element={<CustomerFollowedStores />} />
                 <Route path="wishlist" element={<WishlistPage />} />
                 <Route path="profile" element={<CustomerProfile />} />
@@ -513,8 +539,27 @@ function AppRouter() {
                 )}
               />
               <Route path="/influencer/opportunities" element={<Navigate to="/influencer/dashboard" replace />} />
-              <Route path="/influencer/links" element={<Navigate to="/influencer/dashboard" replace />} />
-              <Route path="/influencer/earnings" element={<Navigate to="/influencer/dashboard" replace />} />
+              <Route
+                path="/influencer/links"
+                element={
+                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
+                    <InfluencerLayoutResponsive>
+                      <AffiliateLinksPage />
+                    </InfluencerLayoutResponsive>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/influencer/payouts"
+                element={
+                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
+                    <InfluencerLayoutResponsive>
+                      <PayoutsPage />
+                    </InfluencerLayoutResponsive>
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/influencer/earnings" element={<Navigate to="/influencer/payouts" replace />} />
               <Route path="/influencer/perks" element={<Navigate to="/influencer/dashboard" replace />} />
               <Route
                 path="/influencer/stripe-connect"
@@ -528,7 +573,7 @@ function AppRouter() {
               />
 
               <Route path="/reels" element={<ReelsPage />} />
-              <Route path="/feed" element={<Navigate to="/discover?tab=feeds" replace />} />
+              <Route path="/feed" element={<Navigate to="/" replace />} />
               <Route path="/chat" element={<ChatContainer />} />
               <Route path="/profile/:userId" element={<UserProfilePage />} />
               <Route path="/dashboard/new" element={<DashboardPage />} />
@@ -536,7 +581,7 @@ function AppRouter() {
               <Route path="/dashboard/influencer/new" element={<Navigate to="/influencer/dashboard" replace />} />
               <Route path="/dashboard/producer/new" element={<Navigate to="/producer" replace />} />
               <Route path="/dashboard/importer/new" element={<Navigate to="/importer/dashboard" replace />} />
-              <Route path="/importer/orders" element={<Navigate to="/producer/orders" replace />} />
+              <Route path="/importer/orders" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><ImporterOrdersPage /></ProtectedRoute>} />
               <Route path="/importer/orders/:orderId" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/importer/products/new" element={<Navigate to="/producer/products" replace />} />
               <Route path="/importer/analytics" element={<Navigate to="/producer" replace />} />

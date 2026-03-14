@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { AlertTriangle, Award, ChevronRight, Copy, FileCheck, MapPin, Share2, Shield, Package, CheckCircle2 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { AlertTriangle, Award, ChevronDown, ChevronRight, Copy, FileCheck, Globe, MapPin, Share2, Shield, Package, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import BackButton from '../components/BackButton';
@@ -8,6 +8,21 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import { useProductDetail } from '../features/products/hooks/useProductDetail';
+import apiClient from '../services/api/client';
+
+const CERT_LANGUAGES = [
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'pt', label: 'Português', flag: '🇵🇹' },
+  { code: 'ar', label: 'العربية', flag: '🇸🇦', rtl: true },
+  { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
+  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'ko', label: '한국어', flag: '🇰🇷' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+];
 
 function normalizeList(value) {
   if (Array.isArray(value)) return value.filter(Boolean);
@@ -43,23 +58,71 @@ function normalizeIngredientOrigins(value) {
 export default function CertificatePage() {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const { product, certificate, storeInfo, isLoading } = useProductDetail(productId);
 
+  // Language state — detect from URL param, browser, or default to 'es'
+  const initialLang = searchParams.get('lang') || navigator.language?.slice(0, 2) || 'es';
+  const [certLang, setCertLang] = useState(
+    CERT_LANGUAGES.some((l) => l.code === initialLang) ? initialLang : 'es'
+  );
+  const [translatedCert, setTranslatedCert] = useState(null);
+  const [translating, setTranslating] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+
+  const isRtl = CERT_LANGUAGES.find((l) => l.code === certLang)?.rtl || false;
+
+  // Fetch translated certificate when language changes
+  const fetchTranslation = useCallback(async (lang) => {
+    if (lang === 'es' || !productId) {
+      setTranslatedCert(null);
+      return;
+    }
+    setTranslating(true);
+    try {
+      const data = await apiClient.get(`/certificates/${productId}/verify?lang=${lang}`);
+      setTranslatedCert(data);
+    } catch {
+      setTranslatedCert(null);
+    } finally {
+      setTranslating(false);
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    fetchTranslation(certLang);
+  }, [certLang, fetchTranslation]);
+
+  const handleLangChange = (code) => {
+    setCertLang(code);
+    setLangOpen(false);
+    setSearchParams((prev) => { prev.set('lang', code); return prev; }, { replace: true });
+  };
+
+  // Use translated data when available, fall back to original
+  const tc = translatedCert || {};
+  const uiLabels = tc.ui_labels || {};
+
   const productImage = product?.images?.[0] || product?.image_url || null;
-  const nutrition = certificate?.data?.nutritional_info || certificate?.data?.nutrition_info || null;
-  const ingredients = useMemo(() => normalizeList(product?.ingredients), [product?.ingredients]);
+  const nutrition = tc.nutritional_info || certificate?.data?.nutritional_info || certificate?.data?.nutrition_info || null;
+  const ingredients = useMemo(
+    () => normalizeList(tc.ingredients || product?.ingredients),
+    [tc.ingredients, product?.ingredients]
+  );
   const allergens = useMemo(
-    () => normalizeList(product?.allergens || certificate?.data?.allergens),
-    [certificate?.data?.allergens, product?.allergens]
+    () => normalizeList(tc.allergens || product?.allergens || certificate?.data?.allergens),
+    [tc.allergens, certificate?.data?.allergens, product?.allergens]
   );
   const ingredientOrigins = useMemo(
     () => normalizeIngredientOrigins(certificate?.data?.ingredient_origins),
     [certificate?.data?.ingredient_origins]
   );
-  const certifications = Array.isArray(product?.certifications)
-    ? product.certifications
-    : normalizeList(product?.certifications || certificate?.certificate_type);
+  const certifications = tc.certifications
+    || (Array.isArray(product?.certifications)
+      ? product.certifications
+      : normalizeList(product?.certifications || certificate?.certificate_type));
+  const displayName = tc.product_name || product?.name || '';
   const storeSlug = storeInfo?.slug || storeInfo?.store_slug || null;
   const canBuyFromStore = Boolean(storeSlug);
 
@@ -123,18 +186,59 @@ export default function CertificatePage() {
         <Breadcrumbs />
 
         {/* ── Passport card ── */}
-        <div className="mt-5 overflow-hidden rounded-[32px] border border-stone-200 bg-white shadow-sm">
+        <div className={`mt-5 overflow-hidden rounded-[32px] border border-stone-200 bg-white shadow-sm${isRtl ? ' dir-rtl' : ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
           {/* Dark header band */}
           <div className="flex items-center justify-between bg-stone-950 px-5 py-3.5">
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-stone-400" />
               <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
-                Certificado digital
+                {uiLabels.certificate_title || 'Certificado digital'}
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-white" strokeWidth={2} />
-              <span className="text-xs font-semibold text-white">Verificado</span>
+            <div className="flex items-center gap-3">
+              {/* Language selector */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setLangOpen(!langOpen)}
+                  className="flex items-center gap-1.5 rounded-full bg-stone-800 px-2.5 py-1 text-xs font-medium text-stone-300 hover:bg-stone-700 transition-colors"
+                >
+                  <Globe className="h-3 w-3" />
+                  {CERT_LANGUAGES.find((l) => l.code === certLang)?.flag}
+                  <ChevronDown className={`h-3 w-3 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {langOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} />
+                    <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl border border-stone-200 bg-white py-1 shadow-lg max-h-64 overflow-y-auto">
+                      {CERT_LANGUAGES.map((l) => (
+                        <button
+                          key={l.code}
+                          type="button"
+                          onClick={() => handleLangChange(l.code)}
+                          className={`flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
+                            certLang === l.code
+                              ? 'bg-stone-100 font-semibold text-stone-950'
+                              : 'text-stone-700 hover:bg-stone-50'
+                          }`}
+                        >
+                          <span className="text-base">{l.flag}</span>
+                          <span>{l.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+              {translating && (
+                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-stone-500 border-t-white" />
+              )}
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-white" strokeWidth={2} />
+                <span className="text-xs font-semibold text-white">
+                  {uiLabels.status_active || 'Verificado'}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -160,13 +264,13 @@ export default function CertificatePage() {
             {/* Info panel */}
             <div className="flex-1 p-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
-                Producto certificado
+                {uiLabels.product || 'Producto certificado'}
               </p>
               <h1
                 className="mt-1.5 text-2xl font-semibold tracking-tight text-stone-950"
                 data-testid="certificate-title"
               >
-                {product.name}
+                {displayName}
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-stone-600">
                 {product.short_description ||
@@ -209,9 +313,9 @@ export default function CertificatePage() {
           <div className="mt-5 overflow-hidden rounded-[28px] border-2 border-stone-950 bg-white">
             <div className="border-b-[3px] border-stone-950 bg-white px-5 pt-4 pb-3">
               <h2 className="text-xl font-black uppercase tracking-tight text-stone-950">
-                Información nutricional
+                {uiLabels.nutrition || 'Información nutricional'}
               </h2>
-              <p className="text-xs text-stone-500">Valores medios por 100 g / 100 ml</p>
+              <p className="text-xs text-stone-500">{uiLabels.per_100g || 'Valores medios por 100 g / 100 ml'}</p>
             </div>
             {/* Header row */}
             <div className="flex items-center justify-between border-b border-stone-950 bg-stone-950 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-stone-300">
@@ -241,7 +345,7 @@ export default function CertificatePage() {
           {/* Ingredients */}
           <div className="rounded-[28px] border border-stone-100 bg-white p-6 shadow-sm">
             <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
-              Ingredientes
+              {uiLabels.ingredients || 'Ingredientes'}
             </h2>
             {ingredients.length > 0 ? (
               <p className="text-sm leading-relaxed text-stone-700">{ingredients.join(', ')}.</p>
@@ -253,7 +357,7 @@ export default function CertificatePage() {
           {/* Allergens */}
           <div className="rounded-[28px] border border-stone-100 bg-white p-6 shadow-sm">
             <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
-              Alérgenos
+              {uiLabels.allergens || 'Alérgenos'}
             </h2>
             {allergens.length > 0 ? (
               <div className="flex flex-wrap gap-2">

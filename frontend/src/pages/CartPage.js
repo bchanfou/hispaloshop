@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,8 +11,45 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { toast } from 'sonner';
-import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Check } from 'lucide-react';
+import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Check, Clock, RefreshCw } from 'lucide-react';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
+
+/* ── StockHoldTimer — countdown for soft-hold reservation ── */
+function StockHoldTimer({ expiresAt }) {
+  const [remaining, setRemaining] = useState('');
+  const [isExpiring, setIsExpiring] = useState(false);
+  const [expired, setExpired] = useState(false);
+
+  useEffect(() => {
+    if (!expiresAt) return;
+    const update = () => {
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      if (diff <= 0) {
+        setRemaining('Reserva expirada');
+        setExpired(true);
+        return;
+      }
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      setRemaining(`${mins}:${secs.toString().padStart(2, '0')}`);
+      setIsExpiring(diff < 3 * 60 * 1000);
+    };
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, [expiresAt]);
+
+  if (!expiresAt) return null;
+
+  return (
+    <div className={`flex items-center gap-1 text-[11px] font-semibold mt-1 ${
+      expired ? 'text-stone-700' : isExpiring ? 'text-stone-700' : 'text-stone-500'
+    }`}>
+      <Clock className="w-3 h-3" />
+      {expired ? 'Reserva expirada' : `Reservado ${remaining}`}
+    </div>
+  );
+}
 
 const addressSchema = z.object({
   name: z.string().optional(),
@@ -36,6 +73,7 @@ export default function CartPage() {
     appliedDiscount,
     applyDiscount,
     removeDiscount,
+    fetchCart,
   } = useCart();
   const { t, convertAndFormatPrice, currency, getExchangeRateDisplay, countries, country } = useLocale();
   const [verificationToken, setVerificationToken] = useState('');
@@ -296,6 +334,23 @@ export default function CartPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
+              {/* Reservation expired banner */}
+              {cartItems.some(i => i.hold_expires_at && new Date(i.hold_expires_at).getTime() < Date.now()) && (
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-stone-50 p-3">
+                  <div className="flex items-center gap-2 text-sm text-stone-700">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    <span>La reserva de algún producto expiró. Comprueba disponibilidad.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { fetchCart(); refetchPricing(); }}
+                    className="shrink-0 flex items-center gap-1.5 rounded-xl bg-stone-950 px-3 py-1.5 text-xs font-medium text-white hover:bg-stone-800 transition-colors"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Actualizar
+                  </button>
+                </div>
+              )}
               {cartItems.map((item) => {
                 const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
                 const itemKey = item.variant_id && item.pack_id ? `${item.product_id}-${item.variant_id}-${item.pack_id}` : item.product_id;
@@ -332,6 +387,8 @@ export default function CartPage() {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
+                      {/* Stock hold timer */}
+                      <StockHoldTimer expiresAt={item.hold_expires_at} />
                       {hasStockIssue && (
                         <div className="mt-1 flex items-center gap-1 text-xs text-stone-700">
                           <AlertCircle className="w-3 h-3" />

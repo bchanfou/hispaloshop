@@ -436,9 +436,7 @@ export default function StorePage() {
                 <TabButton active={activeTab === 'products'} onClick={() => setActiveTab('products')} icon={ShoppingBag} label="Productos" count={productTotal} />
                 <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')} icon={Star} label={t('store.reviews', 'Reseñas')} count={reviewsTotal} />
                 <TabButton active={activeTab === 'certificates'} onClick={() => setActiveTab('certificates')} icon={Award} label="Certificados" count={certificates.length} />
-                {(store.story || store.founder_quote || store.long_description) ? (
-                  <TabButton active={activeTab === 'about'} onClick={() => setActiveTab('about')} icon={Store} label={t('store.about', 'Historia')} count="" />
-                ) : null}
+                <TabButton active={activeTab === 'about'} onClick={() => setActiveTab('about')} icon={Store} label={t('store.about', 'Historia')} count="" />
               </div>
 
               <div className="mt-6">
@@ -507,11 +505,36 @@ export default function StorePage() {
                     </div>
                   ) : reviews.length > 0 ? (
                     <div className="space-y-4">
-                      {/* Rating summary */}
-                      <div className="flex items-center gap-3 rounded-2xl bg-stone-50 p-4">
-                        <Star className="h-6 w-6 fill-stone-950 stroke-stone-950" />
-                        <span className="text-2xl font-bold text-stone-950">{Number(avgRating || 0).toFixed(1)}</span>
-                        <span className="text-sm text-stone-500">· {reviewsTotal} {t('store.reviewsCount', 'reseñas')}</span>
+                      {/* Rating summary with distribution bars */}
+                      <div className="flex items-start gap-6 rounded-2xl bg-stone-50 p-5">
+                        <div className="shrink-0 text-center">
+                          <p className="text-5xl font-extrabold tracking-tight text-stone-950 leading-none">{Number(avgRating || 0).toFixed(1)}</p>
+                          <div className="mt-2 flex justify-center gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`h-4 w-4 ${i < Math.round(avgRating || 0) ? 'fill-stone-950 stroke-stone-950' : 'fill-stone-200 stroke-stone-200'}`} />
+                            ))}
+                          </div>
+                          <p className="mt-1 text-xs text-stone-500">{reviewsTotal} reseñas</p>
+                        </div>
+                        <div className="flex-1 space-y-1.5">
+                          {[5, 4, 3, 2, 1].map(star => {
+                            const count = reviews.filter(r => r.rating === star).length;
+                            const pct = reviewsTotal > 0 ? (count / reviewsTotal) * 100 : 0;
+                            return (
+                              <div key={star} className="flex items-center gap-2">
+                                <span className="w-4 text-right text-xs text-stone-500">{star}</span>
+                                <Star className="h-3 w-3 shrink-0 fill-stone-300 stroke-stone-300" />
+                                <div className="h-2 flex-1 overflow-hidden rounded-full bg-stone-200">
+                                  <div
+                                    className="h-full rounded-full bg-stone-950 transition-all duration-500"
+                                    style={{ width: `${pct}%` }}
+                                  />
+                                </div>
+                                <span className="w-6 text-right text-xs text-stone-400">{count}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                       {/* Review list */}
                       <div className="divide-y divide-stone-100">
@@ -535,8 +558,17 @@ export default function StorePage() {
                                 </div>
                               </div>
                             </div>
+                            {review.product_name ? (
+                              <p className="mt-1.5 pl-12 text-xs text-stone-400">Compró: <span className="font-medium text-stone-500">{review.product_name}</span></p>
+                            ) : null}
                             {review.comment || review.text ? (
                               <p className="mt-2 text-sm leading-relaxed text-stone-600 pl-12">{review.comment || review.text}</p>
+                            ) : null}
+                            {review.seller_reply ? (
+                              <div className="mt-2 ml-12 rounded-xl bg-stone-50 p-3 border-l-2 border-stone-300">
+                                <p className="text-[11px] font-semibold text-stone-400 mb-1">Respuesta del vendedor</p>
+                                <p className="text-sm text-stone-600">{review.seller_reply}</p>
+                              </div>
                             ) : null}
                           </div>
                         ))}
@@ -586,6 +618,59 @@ export default function StorePage() {
                         </div>
                       </div>
                     ) : null}
+                    {/* Contact & social links */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-stone-950 mb-3">{t('store.contact', 'Contacto')}</h3>
+                      <div className="space-y-2 text-sm text-stone-600">
+                        {store.contact_email ? (
+                          <a href={`mailto:${store.contact_email}`} className="flex items-center gap-2.5 transition-colors hover:text-stone-950">
+                            <Mail className="h-4 w-4 shrink-0 text-stone-400" />
+                            <span>{store.contact_email}</span>
+                          </a>
+                        ) : null}
+                        {store.contact_phone ? (
+                          <a href={`tel:${store.contact_phone}`} className="flex items-center gap-2.5 transition-colors hover:text-stone-950">
+                            <Phone className="h-4 w-4 shrink-0 text-stone-400" />
+                            <span>{store.contact_phone}</span>
+                          </a>
+                        ) : null}
+                        {store.website ? (
+                          <a href={store.website.startsWith('http') ? store.website : `https://${store.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 transition-colors hover:text-stone-950">
+                            <Globe className="h-4 w-4 shrink-0 text-stone-400" />
+                            <span>{store.website}</span>
+                            <ExternalLink className="h-3 w-3 text-stone-300" />
+                          </a>
+                        ) : null}
+                        {store.location ? (
+                          <div className="flex items-center gap-2.5">
+                            <MapPin className="h-4 w-4 shrink-0 text-stone-400" />
+                            <span>{store.location}</span>
+                          </div>
+                        ) : null}
+                      </div>
+                      {(store.social_instagram || store.social_facebook) ? (
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {store.social_instagram ? (
+                            <a
+                              href={store.social_instagram.startsWith('http') ? store.social_instagram : `https://instagram.com/${store.social_instagram.replace('@', '')}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-200"
+                            >
+                              📷 Instagram
+                            </a>
+                          ) : null}
+                          {store.social_facebook ? (
+                            <a
+                              href={store.social_facebook.startsWith('http') ? store.social_facebook : `https://facebook.com/${store.social_facebook}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-200"
+                            >
+                              📘 Facebook
+                            </a>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
 

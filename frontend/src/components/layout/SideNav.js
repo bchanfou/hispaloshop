@@ -10,6 +10,7 @@ import {
   Bell,
   Search,
   MessageCircle,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { key: 'explore',  to: '/discover',  icon: Compass,   labelKey: 'nav.explore',  fallback: 'Explorar' },
   { key: 'reels',    to: '/reels',     icon: Film,      labelKey: 'nav.reels',    fallback: 'Reels' },
   { key: 'messages', to: '/chat',      icon: MessageCircle, labelKey: 'nav.messages', fallback: 'Mensajes' },
+  { key: 'communities', to: '/communities', icon: Users, labelKey: 'nav.communities', fallback: 'Comunidades' },
   { key: 'notifications', to: '/notifications', icon: Bell, labelKey: 'nav.notifications', fallback: 'Notificaciones' },
 ];
 

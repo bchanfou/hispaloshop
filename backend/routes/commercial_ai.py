@@ -125,9 +125,11 @@ async def commercial_ai_chat(request_body: CommercialChatRequest, request: Reque
     current_user = await get_current_user(request)
     user_id = getattr(current_user, "user_id", None)
 
-    # Verify ELITE plan
-    producer = await db.producers.find_one({"user_id": user_id})
-    if not producer or producer.get("plan", "free").lower() != "elite":
+    # Verify ELITE plan (producer or importer)
+    seller = await db.producers.find_one({"user_id": user_id})
+    if not seller:
+        seller = await db.importers.find_one({"user_id": user_id})
+    if not seller or seller.get("plan", "free").lower() != "elite":
         raise HTTPException(
             status_code=403,
             detail="Se requiere plan ELITE para acceder al Agente Comercial",

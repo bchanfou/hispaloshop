@@ -3,10 +3,9 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   Shield, ArrowLeft, LogOut, Users, BarChart3,
-  TrendingUp, Globe, Package, MoreHorizontal, Wallet, ShieldAlert
+  TrendingUp, Globe, Package, MoreHorizontal, Wallet, ShieldAlert,
+  Zap, Lock, Settings
 } from 'lucide-react';
-import LanguageSwitcher from '../LanguageSwitcher';
-import GlobalSearch from '../GlobalSearch';
 import { useTranslation } from 'react-i18next';
 import BottomSheet from './BottomSheet';
 import { useDashboardLogout } from '../../features/dashboard/queries';
@@ -28,57 +27,49 @@ export default function SuperAdminLayoutResponsive() {
     }
   };
 
-  // All navigation items
   const allNavItems = [
-    { to: '/super-admin', icon: Shield, label: 'Panel', shortLabel: 'Panel', end: true },
-    { to: '/super-admin/admins', icon: Users, label: t('superAdmin.manageAdmins', 'Administradores'), shortLabel: 'Admins' },
-    { to: '/super-admin/users', icon: Globe, label: t('admin.userManagement', 'Usuarios'), shortLabel: 'Usuarios' },
-    { to: '/super-admin/finance', icon: Wallet, label: 'Contabilidad', shortLabel: 'Finanzas' },
-    { to: '/super-admin/markets', icon: Globe, label: 'Mercados', shortLabel: 'Mercados' },
-    { to: '/super-admin/content', icon: Package, label: t('contentManagement.title', 'Contenido'), shortLabel: 'Contenido' },
-    { to: '/super-admin/insights', icon: BarChart3, label: t('superAdmin.customerInsights', 'Estadísticas'), shortLabel: 'Estadísticas' },
-    { to: '/super-admin/analytics', icon: TrendingUp, label: t('superAdmin.analytics', 'Analítica'), shortLabel: 'Analítica' },
+    { to: '/super-admin', icon: Shield, label: 'Global', shortLabel: 'Global', end: true },
+    { to: '/super-admin/markets', icon: Globe, label: 'Países', shortLabel: 'Países' },
+    { to: '/super-admin/admins', icon: Users, label: 'Admins', shortLabel: 'Admins' },
+    { to: '/super-admin/finance', icon: Wallet, label: 'Finanzas', shortLabel: 'Finanzas' },
+    { to: '/super-admin/plans', icon: Zap, label: 'Planes', shortLabel: 'Planes' },
+    { to: '/super-admin/users', icon: Users, label: 'Usuarios', shortLabel: 'Usuarios' },
+    { to: '/super-admin/content', icon: Package, label: 'Contenido', shortLabel: 'Contenido' },
+    { to: '/super-admin/gdpr', icon: Lock, label: 'GDPR', shortLabel: 'GDPR' },
+    { to: '/super-admin/infrastructure', icon: Settings, label: 'Infraestructura', shortLabel: 'Infra' },
+    { to: '/super-admin/insights', icon: BarChart3, label: 'Estadísticas', shortLabel: 'Stats' },
     { to: '/super-admin/escalation', icon: ShieldAlert, label: 'Escalaciones', shortLabel: 'Escalar' },
   ];
 
-  // Mobile bottom nav - first 4 + more
   const mobileNavItems = [
     ...allNavItems.slice(0, 4),
     { to: '#more', icon: MoreHorizontal, label: 'More', shortLabel: 'Más' }
   ];
 
-  // Items for "More" bottom sheet
   const moreMenuItems = allNavItems.slice(4);
 
-  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-stone-950 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-sm text-stone-500">Cargando...</p>
+          <div className="w-10 h-10 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-white/40">Cargando...</p>
         </div>
       </div>
     );
   }
 
-  // Access denied
   if (!user || user.role !== 'super_admin') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-8 h-8 text-stone-700" />
+          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-8 h-8 text-white/60" />
           </div>
-          <h1 className="text-xl font-semibold text-stone-950 mb-2">
-            {t('common.accessDenied', 'Acceso Denegado')}
-          </h1>
-          <p className="text-stone-500 mb-4">{t('superAdmin.onlySuperAdmin', 'Solo Super Admins pueden acceder')}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="text-stone-950 hover:underline font-medium"
-          >
-            {t('common.back', 'Volver')}
+          <h1 className="text-xl font-semibold text-white mb-2">Acceso Denegado</h1>
+          <p className="text-white/40 mb-4">Solo Super Admins pueden acceder</p>
+          <button onClick={() => navigate('/')} className="text-[#5856D6] hover:underline font-medium">
+            Volver
           </button>
         </div>
       </div>
@@ -86,111 +77,94 @@ export default function SuperAdminLayoutResponsive() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <GlobalSearch />
+    <div className="min-h-screen bg-[#0A0A0A]">
       {/* ===== MOBILE HEADER ===== */}
-      <header className="mobile-header md:hidden">
-        <button 
+      <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#111111] border-b border-white/[0.08] px-4 h-14 flex items-center justify-between">
+        <button
           onClick={() => navigate('/')}
-          className="p-2 -ml-2 text-stone-500 hover:text-stone-950 transition-colors"
-          data-testid="mobile-back-button"
+          className="p-2 -ml-2 text-white/40 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
-        
         <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-stone-700" />
-          <h1 className="text-base font-semibold text-stone-950">
-            Super Admin
-          </h1>
+          <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#5856D6] text-white px-2 py-0.5 rounded">
+            SUPERADMIN
+          </span>
         </div>
-        
-        <LanguageSwitcher variant="minimal" />
+        <div className="w-9" />
       </header>
 
       {/* ===== DESKTOP SIDEBAR ===== */}
-      <aside className="hidden md:flex desktop-sidebar">
-        {/* Header */}
-        <div className="p-5 border-b border-stone-200">
-          <div className="flex items-center justify-between mb-4">
-            <button 
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-stone-500 hover:text-stone-950 transition-colors text-sm"
-              data-testid="desktop-back-button"
-            >
-              <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-              <span>{t('common.back')}</span>
-            </button>
-            <LanguageSwitcher variant="minimal" />
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-stone-100 rounded-full flex items-center justify-center">
-              <Shield className="w-5 h-5 text-stone-700" />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold text-stone-950 tracking-editorial">
-                {t('superAdmin.title', 'Super Admin')}
-              </h1>
-              <p className="text-xs text-stone-500">{user.email}</p>
-            </div>
+      <aside className="hidden md:flex fixed top-0 left-0 bottom-0 w-[220px] z-40 bg-[#111111] border-r border-white/[0.08] flex-col">
+        {/* Logo */}
+        <div className="p-4 pb-6">
+          <p className="text-[17px] font-extrabold tracking-tight text-white">hispaloshop</p>
+          <div className="mt-1.5">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#5856D6] text-white px-2 py-0.5 rounded">
+              SUPERADMIN
+            </span>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
           {allNavItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
+                `flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-sm ${
                   isActive
-                    ? 'bg-stone-100 text-stone-950 font-medium border border-stone-200'
-                    : 'text-stone-600 hover:bg-stone-100'
+                    ? 'bg-white/10 text-white font-bold'
+                    : 'text-white/45 hover:text-white/70 hover:bg-white/[0.05]'
                 }`
               }
-              data-testid={`desktop-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
             >
-              <item.icon className="w-5 h-5" strokeWidth={1.5} />
+              <item.icon className="w-4 h-4" strokeWidth={1.5} />
               <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
-        {/* Logout */}
-        <div className="p-4 border-t border-stone-200">
+        {/* Footer */}
+        <div className="border-t border-white/[0.08] p-3">
+          <button
+            onClick={() => navigate('/admin')}
+            className="flex items-center gap-2 px-2.5 py-2 text-xs text-white/30 hover:text-white/50 transition-colors w-full"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Panel de admin
+          </button>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-stone-700 hover:bg-stone-100 w-full transition-all"
-            data-testid="desktop-logout-button"
+            className="flex items-center gap-2 px-2.5 py-2 text-xs text-white/30 hover:text-white/50 transition-colors w-full mt-1"
           >
-            <LogOut className="w-5 h-5" strokeWidth={1.5} />
-            {t('auth.logout', 'Cerrar sesión')}
+            <LogOut className="w-3.5 h-3.5" />
+            Cerrar sesión
           </button>
         </div>
       </aside>
 
       {/* ===== MAIN CONTENT ===== */}
-      <main className="md:ml-64">
+      <main className="md:ml-[220px] min-h-screen">
         <div className="pt-[100px] pb-[76px] md:pt-0 md:pb-0">
-          <div className="p-4 md:p-8">
+          <div className="p-4 md:p-7">
             <Outlet />
           </div>
         </div>
       </main>
 
       {/* ===== MOBILE HORIZONTAL TAB NAVIGATION ===== */}
-      <div className="md:hidden fixed top-[56px] left-0 right-0 z-30 bg-white border-b border-stone-200">
-        <div className="flex overflow-x-auto scrollbar-hide">
+      <div className="md:hidden fixed top-14 left-0 right-0 z-30 bg-[#111111] border-b border-white/[0.08]">
+        <div className="flex overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {mobileNavItems.map((item) => {
             if (item.to === '#more') {
               return (
                 <button
                   key="more"
                   onClick={() => setMoreMenuOpen(true)}
-                  className="flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 border-transparent text-stone-500 shrink-0"
-                  data-testid="mobile-nav-more"
+                  className="flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 border-transparent text-white/40 shrink-0"
                 >
                   <item.icon className="w-4 h-4" strokeWidth={1.5} />
                   <span>{item.shortLabel}</span>
@@ -204,10 +178,9 @@ export default function SuperAdminLayoutResponsive() {
                 end={item.end}
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0 ${
-                  isActive ? 'border-stone-950 text-stone-950' : 'border-transparent text-stone-500'
+                    isActive ? 'border-[#5856D6] text-white' : 'border-transparent text-white/40'
                   }`
                 }
-                data-testid={`mobile-nav-${item.shortLabel.toLowerCase()}`}
               >
                 <item.icon className="w-4 h-4" strokeWidth={1.5} />
                 <span>{item.shortLabel}</span>
@@ -221,7 +194,7 @@ export default function SuperAdminLayoutResponsive() {
       <BottomSheet
         isOpen={moreMenuOpen}
         onClose={() => setMoreMenuOpen(false)}
-        title={t('common.moreOptions')}
+        title="Más opciones"
       >
         <div className="p-4 space-y-2">
           {moreMenuItems.map((item) => (
@@ -241,13 +214,8 @@ export default function SuperAdminLayoutResponsive() {
               <p className="font-medium text-stone-950">{item.label}</p>
             </NavLink>
           ))}
-          
-          {/* Logout */}
           <button
-            onClick={() => {
-              setMoreMenuOpen(false);
-              handleLogout();
-            }}
+            onClick={() => { setMoreMenuOpen(false); handleLogout(); }}
             className="flex items-center gap-4 p-4 rounded-xl hover:bg-stone-100 w-full text-left"
           >
             <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center">

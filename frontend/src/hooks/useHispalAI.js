@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import apiClient from '../services/api/client';
 
 const RATE_LIMIT_FREE = 20;
@@ -54,6 +54,13 @@ export default function useHispalAI() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const abortRef = useRef(null);
+
+  // Listen for global 'open-hispal-ai' event (e.g. from CustomerOverview card)
+  useEffect(() => {
+    const handler = () => setIsOpen(true);
+    document.addEventListener('open-hispal-ai', handler);
+    return () => document.removeEventListener('open-hispal-ai', handler);
+  }, []);
 
   const toggleOpen = useCallback(() => {
     setIsOpen((prev) => !prev);

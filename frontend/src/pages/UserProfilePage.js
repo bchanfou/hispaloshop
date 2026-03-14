@@ -9,7 +9,6 @@ import {
   BookOpen,
   Camera,
   ExternalLink,
-  Globe,
   Grid3X3,
   Loader2,
   MoreHorizontal,
@@ -36,11 +35,12 @@ import {
   useUserProfile,
   useUserRecipes,
 } from '../features/user/hooks';
-import { useUpdateProfile } from '../hooks/api';
+// useUpdateProfile moved to EditProfileSheet
 import { resolveUserImage } from '../features/user/queries';
 import { getCloudinarySrcSet } from '../utils/cloudinary';
 import FocusTrap from 'focus-trap-react';
 import FollowersModal from '../components/social/FollowersModal';
+import EditProfileSheet from '../components/profile/EditProfileSheet';
 import { useAutocomplete } from '../hooks/useAutocomplete';
 import AutocompleteDropdown from '../components/ui/AutocompleteDropdown';
 
@@ -236,115 +236,7 @@ function EmptyState({ icon: Icon, title, description, action }) {
   );
 }
 
-function EditProfileModal({ profile, userId, onClose }) {
-  const queryClient = useQueryClient();
-  const { mutate, isPending } = useUpdateProfile();
-  const [draft, setDraft] = useState({
-    name:     profile?.name     || '',
-    username: profile?.username || '',
-    bio:      profile?.bio      || '',
-    website:  profile?.website  || '',
-  });
-
-  const set = (key) => (e) => setDraft((d) => ({ ...d, [key]: e.target.value }));
-
-  const handleSave = () => {
-    mutate(draft, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['userProfile', userId] });
-        toast.success('Perfil actualizado');
-        onClose();
-      },
-      onError: () => toast.error('No se pudo guardar. Inténtalo de nuevo.'),
-    });
-  };
-
-  return (
-    <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-
-      {/* Modal */}
-      <div className="relative w-full max-w-md overflow-hidden rounded-[24px] bg-white shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-stone-100 px-4 py-3.5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-[14px] text-stone-500 active:opacity-50"
-          >
-            Cancelar
-          </button>
-          <span className="text-[15px] font-semibold text-stone-950">Editar perfil</span>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={isPending}
-            className="flex items-center gap-1 text-[14px] font-semibold text-stone-950 disabled:opacity-50 active:opacity-50"
-          >
-            {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            Guardar
-          </button>
-        </div>
-
-        {/* Fields */}
-        <div className="divide-y divide-stone-100">
-          {/* Nombre */}
-          <div className="px-4 py-3.5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Nombre</p>
-            <input
-              type="text"
-              value={draft.name}
-              onChange={set('name')}
-              placeholder="Tu nombre"
-              className="mt-1 w-full bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
-            />
-          </div>
-          {/* Usuario */}
-          <div className="px-4 py-3.5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Usuario</p>
-            <div className="mt-1 flex items-center gap-1">
-              <span className="text-[15px] text-stone-400">@</span>
-              <input
-                type="text"
-                value={draft.username}
-                onChange={set('username')}
-                placeholder="nombre_de_usuario"
-                className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
-              />
-            </div>
-          </div>
-          {/* Bio */}
-          <div className="px-4 py-3.5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">Bio</p>
-            <textarea
-              value={draft.bio}
-              onChange={set('bio')}
-              placeholder="Cuéntanos algo sobre ti…"
-              rows={3}
-              maxLength={150}
-              className="mt-1 w-full resize-none bg-transparent text-[15px] leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
-            />
-            <p className="mt-1 text-right text-[11px] text-stone-400">{draft.bio.length}/150</p>
-          </div>
-          {/* Enlace web */}
-          <div className="flex items-center gap-2 px-4 py-3.5">
-            <Globe className="h-4 w-4 shrink-0 text-stone-400" />
-            <input
-              type="url"
-              value={draft.website}
-              onChange={set('website')}
-              placeholder="Enlace web"
-              className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-    </FocusTrap>
-  );
-}
+/* EditProfileModal removed — replaced by EditProfileSheet component */
 
 export default function UserProfilePage() {
   const { userId } = useParams();
@@ -921,13 +813,12 @@ export default function UserProfilePage() {
         </OverlayErrorBoundary>
       ) : null}
 
-      {showEditProfile ? (
-        <EditProfileModal
-          profile={profile}
-          userId={userId}
-          onClose={() => setShowEditProfile(false)}
-        />
-      ) : null}
+      <EditProfileSheet
+        isOpen={showEditProfile}
+        profile={profile}
+        userId={userId}
+        onClose={() => setShowEditProfile(false)}
+      />
 
       <FollowersModal
         isOpen={followsModal.open}

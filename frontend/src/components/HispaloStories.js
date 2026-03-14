@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import apiClient from '../services/api/client';
 import { Camera, ChevronRight, Loader2, Plus, ShoppingBag, Trash2, User, X } from 'lucide-react';
@@ -183,13 +183,32 @@ function StoryViewer({ group, onClose }) {
     }
   };
 
+  const dragY = useMotionValue(0);
+  const bgOpacity = useTransform(dragY, [0, 300], [1, 0.2]);
+  const viewerScale = useTransform(dragY, [0, 300], [1, 0.85]);
+
+  const handleDragEnd = useCallback((_, info) => {
+    if (info.offset.y > 120 || info.velocity.y > 500) {
+      onClose();
+    }
+  }, [onClose]);
+
   if (!current) return null;
 
   const parsedCaption = parseCaption(current.caption);
 
   return (
     <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black" data-testid="story-viewer">
+    <motion.div className="fixed inset-0 z-[60] bg-black" style={{ opacity: bgOpacity }} data-testid="story-viewer-backdrop">
+    <motion.div
+      drag="y"
+      dragConstraints={{ top: 0, bottom: 0 }}
+      dragElastic={{ top: 0, bottom: 0.6 }}
+      onDragEnd={handleDragEnd}
+      style={{ y: dragY, scale: viewerScale, height: '100%' }}
+      className="flex items-center justify-center"
+      data-testid="story-viewer"
+    >
       <div className="absolute left-3 right-3 top-2 z-10 flex gap-1">
         {stories.map((_, index) => (
           <div key={index} className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/30">
@@ -285,7 +304,8 @@ function StoryViewer({ group, onClose }) {
 
       <button type="button" className="absolute left-0 top-0 z-[5] h-full w-1/3" onClick={goPrev} aria-label={t('stories.previous', 'Historia anterior')} />
       <button type="button" className="absolute right-0 top-0 z-[5] h-full w-2/3" onClick={goNext} aria-label={t('stories.next', 'Siguiente historia')} />
-    </div>
+    </motion.div>
+    </motion.div>
     </FocusTrap>
   );
 }

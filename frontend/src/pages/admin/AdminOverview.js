@@ -1,60 +1,76 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
-import { FileCheck, Loader2, Package, ShieldAlert, ShoppingBag, Users } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import {
+  FileCheck, Loader2, Package, ShieldAlert, ShoppingBag, Users,
+  TrendingUp, UserPlus, RotateCcw, HeadphonesIcon, Shield, ArrowRight
+} from 'lucide-react';
 
-function AdminCard({ icon: Icon, title, value, description, to }) {
+function KPICard({ icon: Icon, title, value, description, to }) {
+  const Wrapper = to ? Link : 'div';
   return (
-    <Link to={to} className="rounded-2xl border border-stone-100 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm text-stone-500">{title}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight text-stone-950">{value}</p>
-          <p className="mt-2 text-sm text-stone-500">{description}</p>
+    <Wrapper
+      to={to}
+      className="rounded-xl border border-stone-200 bg-white p-4 hover:shadow-sm transition-all"
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-9 h-9 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
+          <Icon className="w-4.5 h-4.5 text-stone-700" />
         </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-100 text-stone-700">
-          <Icon className="h-5 w-5" />
-        </div>
+      </div>
+      <p className="text-2xl font-extrabold text-stone-950 tracking-tight">{value}</p>
+      <p className="text-xs text-stone-500 mt-0.5">{title}</p>
+      {description && <p className="text-[11px] text-stone-400 mt-0.5">{description}</p>}
+    </Wrapper>
+  );
+}
+
+function PendingRow({ label, count, to }) {
+  return (
+    <Link
+      to={to}
+      className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 bg-white hover:shadow-sm transition-all text-sm"
+    >
+      <span className="text-stone-700 font-medium">{label}</span>
+      <div className="flex items-center gap-2">
+        {count > 0 && (
+          <span className="bg-stone-950 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+            {count}
+          </span>
+        )}
+        <ArrowRight className="w-4 h-4 text-stone-400" />
       </div>
     </Link>
   );
 }
 
+function QuickLink({ icon: Icon, label, to }) {
+  return (
+    <Link
+      to={to}
+      className="flex items-center gap-3 p-3.5 bg-white rounded-xl border border-stone-200 hover:shadow-sm transition-all text-sm font-semibold text-stone-950"
+    >
+      <Icon className="w-5 h-5 text-stone-500 shrink-0" />
+      {label}
+    </Link>
+  );
+}
+
 export default function AdminOverview() {
-  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-
-    const load = async () => {
-      try {
-        const data = await apiClient.get('/admin/stats');
-        if (active) setStats(data || {});
-      } catch {
-        if (active) setStats({});
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-
-    load();
-    return () => {
-      active = false;
-    };
+    apiClient.get('/admin/stats').then(data => {
+      if (active) setStats(data || {});
+    }).catch(() => {
+      if (active) setStats({});
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
   }, []);
-
-  const pendingCount = useMemo(
-    () => (stats?.pending_producers || 0) + (stats?.pending_products || 0) + (stats?.pending_certificates || 0),
-    [stats],
-  );
-  const producerTotal = stats?.total_producers || 0;
-  const productTotal = stats?.total_products || 0;
-  const pendingProducers = stats?.pending_producers || stats?.pending_moderation?.users || 0;
-  const pendingProducts = stats?.pending_products || stats?.pending_moderation?.products || 0;
-  const pendingCertificates = stats?.pending_certificates || 0;
 
   if (loading) {
     return (
@@ -64,62 +80,74 @@ export default function AdminOverview() {
     );
   }
 
+  const pendingProducers = stats?.pending_producers || 0;
+  const pendingProducts = stats?.pending_products || 0;
+  const pendingCertificates = stats?.pending_certificates || 0;
+  const pendingModeration = stats?.pending_moderation || 0;
+  const openSupport = stats?.open_support || 0;
+
   return (
-    <div className="ds-page">
-      <div className="ds-shell">
-        <header>
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">{t('admin.dashboard', 'Panel de administración')}</h1>
-          <p className="mt-2 text-sm text-stone-500">Usuarios, productos, informes y certificados dentro de una misma cuadrícula de gestión.</p>
-        </header>
+    <div>
+      <h1 className="text-2xl font-bold text-stone-950 mb-1">Panel de administración</h1>
+      <p className="text-sm text-stone-500 mb-6">Gestión de tu mercado en una vista</p>
 
-        <section className="ds-section ds-grid-4">
-          <AdminCard icon={Users} title="Usuarios" value={producerTotal} description={`${pendingProducers} pendientes`} to="/admin/producers" />
-          <AdminCard icon={Package} title="Productos" value={productTotal} description={`${pendingProducts} por revisar`} to="/admin/products" />
-          <AdminCard icon={ShieldAlert} title="Informes" value={pendingCount} description="Revisión operativa" to="/admin/reviews" />
-          <AdminCard icon={FileCheck} title="Certificados" value={pendingCertificates} description="Validaciones abiertas" to="/admin/certificates" />
-        </section>
+      {/* KPI grid */}
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        <KPICard
+          icon={TrendingUp}
+          value={`${(stats?.gmv_month || 0).toFixed(0)}€`}
+          title="GMV este mes"
+          description={`${stats?.orders_month || 0} pedidos`}
+          to="/admin/orders"
+        />
+        <KPICard
+          icon={UserPlus}
+          value={stats?.new_users_month || 0}
+          title="Nuevos usuarios"
+          description="Este mes"
+        />
+        <KPICard
+          icon={Users}
+          value={stats?.total_producers || 0}
+          title="Productores"
+          description={`${pendingProducers} pendientes`}
+          to="/admin/producers"
+        />
+        <KPICard
+          icon={Package}
+          value={stats?.total_products || 0}
+          title="Productos"
+          description={`${pendingProducts} por revisar`}
+          to="/admin/products"
+        />
+      </div>
 
-        <section className="ds-section grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold text-stone-950">Cola de revisión</h2>
-            <div className="mt-5 space-y-3">
-              <Link to="/admin/producers" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
-                <span>Productores e importadores</span>
-                <span>{pendingProducers}</span>
-              </Link>
-              <Link to="/admin/products" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
-                <span>Productos pendientes</span>
-                <span>{pendingProducts}</span>
-              </Link>
-              <Link to="/admin/certificates" className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
-                <span>Certificados</span>
-                <span>{pendingCertificates}</span>
-              </Link>
-            </div>
-          </div>
+      {/* Pending review queue */}
+      <div className="mb-5">
+        <h2 className="text-sm font-bold text-stone-950 mb-3">Cola de revisión</h2>
+        <div className="space-y-2">
+          <PendingRow label="Productores pendientes" count={pendingProducers} to="/admin/producers" />
+          <PendingRow label="Productos por revisar" count={pendingProducts} to="/admin/products" />
+          <PendingRow label="Certificados" count={pendingCertificates} to="/admin/certificates" />
+          <PendingRow label="Moderación de contenido" count={pendingModeration} to="/admin/trust-safety" />
+          <PendingRow label="Soporte abierto" count={openSupport} to="/admin/support" />
+          <PendingRow label="Reembolsos" count={stats?.refunded_orders || 0} to="/admin/refunds" />
+        </div>
+      </div>
 
-          <div className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold text-stone-950">Atajos de gestión</h2>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Link to="/admin/orders" className="rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
-                <ShoppingBag className="mb-3 h-4 w-4" />
-                Pedidos
-              </Link>
-              <Link to="/admin/reviews" className="rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
-                <ShieldAlert className="mb-3 h-4 w-4" />
-                Moderación
-              </Link>
-              <Link to="/admin/discount-codes" className="rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
-                <FileCheck className="mb-3 h-4 w-4" />
-                Descuentos
-              </Link>
-              <Link to="/admin/influencers" className="rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm text-stone-700 transition-all duration-200 hover:shadow-sm">
-                <Users className="mb-3 h-4 w-4" />
-                Influencers
-              </Link>
-            </div>
-          </div>
-        </section>
+      {/* Quick actions */}
+      <div className="mb-5">
+        <h2 className="text-sm font-bold text-stone-950 mb-3">Acciones rápidas</h2>
+        <div className="grid grid-cols-2 gap-2">
+          <QuickLink icon={ShoppingBag} label="Pedidos" to="/admin/orders" />
+          <QuickLink icon={ShieldAlert} label="Reseñas" to="/admin/reviews" />
+          <QuickLink icon={FileCheck} label="Descuentos" to="/admin/discount-codes" />
+          <QuickLink icon={Users} label="Influencers" to="/admin/influencers" />
+          <QuickLink icon={HeadphonesIcon} label="Soporte" to="/admin/support" />
+          <QuickLink icon={Shield} label="Trust & Safety" to="/admin/trust-safety" />
+          <QuickLink icon={RotateCcw} label="Reembolsos" to="/admin/refunds" />
+          <QuickLink icon={TrendingUp} label="Crecimiento" to="/admin/growth" />
+        </div>
       </div>
     </div>
   );

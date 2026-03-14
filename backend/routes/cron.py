@@ -198,6 +198,24 @@ async def cron_attribution_expiry(user: User = Depends(get_current_user)):
     return {"expired": result.modified_count}
 
 
+@router.post("/admin/cron/influencer-tier-sweep")
+async def cron_influencer_tier_sweep(user: User = Depends(get_current_user)):
+    """Weekly (Monday 07:00 UTC): sweep all influencer tiers based on 30-day GMV."""
+    await require_role(user, ["admin", "super_admin"])
+    from routes.influencer import update_influencer_tiers
+    await update_influencer_tiers()
+    return {"status": "completed"}
+
+
+@router.post("/admin/cron/influencer-auto-payouts")
+async def cron_influencer_auto_payouts(user: User = Depends(get_current_user)):
+    """Daily (08:00 UTC): auto-payout influencers with D+15 passed and balance >= 20€."""
+    await require_role(user, ["admin", "super_admin"])
+    from routes.influencer import process_influencer_payouts
+    await process_influencer_payouts()
+    return {"status": "completed"}
+
+
 # ── Hispalo Predict Notifications ──
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.hispaloshop.com')

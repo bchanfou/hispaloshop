@@ -96,6 +96,65 @@ async def get_certificate(product_id: str, lang: Optional[str] = None):
     
     return cert
 
+@router.get("/certificates/{cert_id}/verify")
+async def verify_certificate(cert_id: str, lang: Optional[str] = "es"):
+    """
+    Public verification endpoint for certificate QR codes.
+    Returns certificate data translated to the requested language.
+    """
+    from services.translation import CERT_UI_LABELS
+
+    # Search by certificate_id or product_id across both collections
+    cert = await db.certificates.find_one(
+        {"$or": [{"certificate_id": cert_id}, {"product_id": cert_id}]},
+        {"_id": 0}
+    )
+    if not cert:
+        cert = await db.product_certificates.find_one(
+            {"$or": [{"certificate_id": cert_id}, {"product_id": cert_id}]},
+            {"_id": 0}
+        )
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+
+    # Get product info for enrichment
+    product = await db.products.find_one(
+        {"product_id": cert.get("product_id")},
+        {"_id": 0, "name": 1, "images": 1, "description": 1, "country_origin": 1}
+    )
+
+    # Get producer info
+    producer = await db.users.find_one(
+        {"user_id": cert.get("producer_id")},
+        {"_id": 0, "company_name": 1, "full_name": 1}
+    )
+
+    # Translate if not Spanish
+    target_lang = lang if lang in CERT_UI_LABELS else "es"
+    if target_lang != "es" and cert.get("certificate_id"):
+        translated = await TranslationService.get_certificate_in_language(cert["certificate_id"], target_lang)
+        if translated:
+            cert = translated
+
+    # Ensure UI labels are present
+    if "ui_labels" not in cert:
+        cert["ui_labels"] = CERT_UI_LABELS.get(target_lang, CERT_UI_LABELS["es"])
+
+    # Enrich response
+    cert["verified"] = True
+    cert["language"] = target_lang
+    if product:
+        cert.setdefault("product_image", (product.get("images") or [None])[0])
+        if not cert.get("product_name"):
+            cert["product_name"] = product.get("name", "")
+        if not cert.get("country_origin"):
+            cert["country_origin"] = product.get("country_origin", "")
+    if producer:
+        cert["producer_name"] = producer.get("company_name") or producer.get("full_name", "")
+
+    return cert
+
+
 @router.post("/certificates")
 async def create_certificate(input: CertificateInput, user: User = Depends(get_current_user)):
     await require_role(user, ["producer", "importer", "admin"])
@@ -206,6 +265,116 @@ async def download_certificate_qr(certificate_id: str):
         content=png_bytes,
         media_type="image/png",
         headers={"Content-Disposition": f'attachment; filename="certificate-{certificate_id}-qr.png"'},
+    )
+
+
+@router.get("/certificates/{certificate_id}/pdf")
+async def download_certificate_pdf(certificate_id: str):
+    """Generate and download a PDF certificate with QR code."""
+    cert = await db.certificates.find_one({"certificate_id": certificate_id}, {"_id": 0})
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+
+    product_id = cert.get("product_id", "")
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.units import cm
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib import colors
+        from reportlab.lib.enums import TA_CENTER
+    except ImportError:
+        raise HTTPException(status_code=500, detail="reportlab not installed")
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=2 * cm, bottomMargin=2 * cm)
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle("CertTitle", parent=styles["Title"], fontSize=22, textColor=colors.HexColor("#0c0a09"), spaceAfter=6)
+    subtitle_style = ParagraphStyle("CertSub", parent=styles["Normal"], fontSize=10, textColor=colors.HexColor("#78716c"), alignment=TA_CENTER, spaceAfter=20)
+    heading_style = ParagraphStyle("CertH2", parent=styles["Heading2"], fontSize=13, textColor=colors.HexColor("#0c0a09"), spaceBefore=16, spaceAfter=6)
+    body_style = ParagraphStyle("CertBody", parent=styles["Normal"], fontSize=10, textColor=colors.HexColor("#44403c"), leading=14)
+
+    elements = []
+
+    # Title
+    elements.append(Paragraph("CERTIFICADO DIGITAL", title_style))
+    elements.append(Paragraph("HispaloShop — Ficha de confianza y trazabilidad", subtitle_style))
+
+    cert_number = cert.get("certificate_number", cert.get("certificate_id", ""))
+    issued = cert.get("issue_date") or cert.get("created_at") or ""
+    elements.append(Paragraph(f"<b>N.º certificado:</b> {cert_number}", body_style))
+    elements.append(Paragraph(f"<b>Fecha emisión:</b> {issued[:10] if issued else '—'}", body_style))
+    elements.append(Spacer(1, 10))
+
+    # Product info
+    product_name = cert.get("product_name") or (product.get("name") if product else "—")
+    elements.append(Paragraph("Producto", heading_style))
+    elements.append(Paragraph(f"<b>{product_name}</b>", body_style))
+    origin = (product or {}).get("country_origin") or cert.get("data", {}).get("origin_country", "")
+    if origin:
+        elements.append(Paragraph(f"Origen: {origin}", body_style))
+
+    # Certifications
+    certs_list = (product or {}).get("certifications") or cert.get("data", {}).get("certifications") or []
+    if certs_list:
+        elements.append(Paragraph("Certificaciones", heading_style))
+        elements.append(Paragraph(", ".join(certs_list), body_style))
+
+    # Ingredients
+    ingredients = (product or {}).get("ingredients") or cert.get("data", {}).get("ingredients") or []
+    if ingredients:
+        elements.append(Paragraph("Ingredientes", heading_style))
+        ing_text = ", ".join(i if isinstance(i, str) else i.get("name", "") for i in ingredients)
+        elements.append(Paragraph(ing_text, body_style))
+
+    # Allergens
+    allergens = (product or {}).get("allergens") or cert.get("data", {}).get("allergens") or []
+    if allergens:
+        elements.append(Paragraph("Alérgenos", heading_style))
+        elements.append(Paragraph(", ".join(allergens), body_style))
+
+    # Nutritional info
+    nutrition = (product or {}).get("nutritional_info") or cert.get("data", {}).get("nutritional_info") or {}
+    if nutrition and isinstance(nutrition, dict):
+        elements.append(Paragraph("Información nutricional (por 100 g)", heading_style))
+        table_data = [["Nutriente", "Valor"]]
+        for k, v in nutrition.items():
+            table_data.append([k.replace("_", " ").capitalize(), str(v)])
+        t = Table(table_data, colWidths=[8 * cm, 5 * cm])
+        t.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0c0a09")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#d6d3d1")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#fafaf9")]),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(t)
+
+    # QR code
+    qr_b64 = cert.get("qr_code")
+    if qr_b64:
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph("Verificación", heading_style))
+        qr_bytes = base64.b64decode(qr_b64)
+        qr_buf = io.BytesIO(qr_bytes)
+        qr_image = RLImage(qr_buf, width=3 * cm, height=3 * cm)
+        elements.append(qr_image)
+        verify_url = cert.get("qr_url") or f"https://www.hispaloshop.com/certificate/{product_id}"
+        elements.append(Paragraph(f"<font size=8 color='#78716c'>{verify_url}</font>", body_style))
+
+    doc.build(elements)
+    pdf_bytes = buffer.getvalue()
+
+    safe_name = product_name.replace(" ", "_")[:40] if product_name else certificate_id
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="certificado-{safe_name}.pdf"'},
     )
 
 

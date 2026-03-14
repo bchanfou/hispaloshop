@@ -1094,6 +1094,16 @@ async def delete_comment(comment_id: str, user: User = Depends(get_current_user)
     await db.user_posts.update_one({"post_id": comment["post_id"]}, {"$inc": {"comments_count": -1}})
     return {"status": "deleted"}
 
+@router.get("/users/check-username/{username}")
+async def check_username(username: str):
+    """Check if a username is available."""
+    clean = username.strip().lower().replace(" ", "_")
+    if len(clean) < 3:
+        return {"available": False, "reason": "too_short"}
+    existing = await db.users.find_one({"username": clean}, {"_id": 0, "user_id": 1})
+    return {"available": existing is None, "username": clean}
+
+
 @router.put("/users/me/username")
 async def update_username(request: Request, user: User = Depends(get_current_user)):
     """Update username/ID."""
@@ -1177,6 +1187,26 @@ async def toggle_save_alias(post_id: str, user: User = Depends(get_current_user)
     Behavior matches /posts/{post_id}/bookmark.
     """
     return await toggle_bookmark(post_id, user)
+
+
+@router.get("/users/me/saved-posts")
+async def get_saved_posts(user: User = Depends(get_current_user), skip: int = 0, limit: int = 30):
+    """Get saved/bookmarked posts for the current user."""
+    bookmarks = await db.post_bookmarks.find(
+        {"user_id": user.user_id}, {"_id": 0, "post_id": 1}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    post_ids = [b["post_id"] for b in bookmarks]
+    if not post_ids:
+        return []
+    posts = await db.user_posts.find(
+        {"post_id": {"$in": post_ids}}, {"_id": 0}
+    ).to_list(limit)
+    # Preserve bookmark order
+    post_map = {p["post_id"]: p for p in posts}
+    ordered = [post_map[pid] for pid in post_ids if pid in post_map]
+    for post in ordered:
+        _normalize_post_media(post)
+    return ordered
 
 
 @router.delete("/posts/{post_id}")

@@ -24,7 +24,7 @@ const TABS = [
   { id: 'sello', label: 'Sellos' },
 ];
 
-const GIPHY_API_KEY = 'GlVGYHkr3WSBnllca54iNt0yFbjz7L65'; // GIPHY public beta key
+const GIPHY_API_KEY = process.env.REACT_APP_GIPHY_API_KEY || '';
 
 function StickerTool({ stickers, onAdd, onRemove }) {
   const [tab, setTab]             = useState('emoji');

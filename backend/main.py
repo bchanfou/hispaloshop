@@ -70,6 +70,7 @@ from routes.support import router as support_router
 from routes.moderation import router as moderation_router
 from routes.discovery import router as discovery_router
 from routes.posts import router as legacy_posts_router
+from routes.communities import router as communities_router
 
 logger = logging.getLogger(__name__)
 
@@ -194,6 +195,7 @@ app.include_router(importer_registration_router, prefix="/api", tags=["importer-
 app.include_router(rfq_router, prefix="/api", tags=["RFQ"])
 app.include_router(support_router, prefix="/api", tags=["support"])
 app.include_router(moderation_router, prefix="/api", tags=["moderation"])
+app.include_router(communities_router, prefix="/api", tags=["communities"])
 app.include_router(discovery_router, prefix="/api", tags=["discovery"])
 
 from routes.search import router as search_router

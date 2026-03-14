@@ -855,7 +855,538 @@ async def trigger_withdrawal_notification_check(user: User = Depends(get_current
     return {"message": "Notification check completed"}
 
 # ============================================
-# DISCOUNT CODE APPLICATION (CART)
+# FASE 08: COMMISSION SYSTEM ENDPOINTS
 # ============================================
+
+TIER_RATES = {"hercules": 0.03, "atenea": 0.05, "zeus": 0.07}
+TIER_THRESHOLDS_EUR = {"atenea": 1000, "zeus": 5000}
+
+
+@router.post("/influencer/codes/validate")
+async def validate_discount_code(request: Request):
+    """Validate an influencer discount code for a consumer."""
+    body = await request.json()
+    code = (body.get("code") or "").upper().strip()
+    consumer_id = body.get("consumer_id", "")
+
+    if not code:
+        raise HTTPException(status_code=400, detail="code_required")
+
+    # Search in discount_codes for influencer codes
+    discount = await db.discount_codes.find_one({
+        "code": code,
+        "is_influencer_code": True,
+    }, {"_id": 0})
+
+    if not discount:
+        # Also search users with affiliate capability
+        affiliate_user = await db.users.find_one({
+            "discount_code": code,
+            "capabilities": "affiliate",
+        }, {"_id": 0})
+        if not affiliate_user:
+            raise HTTPException(status_code=404, detail="code_not_found")
+        # Build response from user data
+        return {
+            "code": code,
+            "discount_pct": 10,
+            "influencer_id": affiliate_user.get("user_id", ""),
+            "influencer_username": affiliate_user.get("username", ""),
+        }
+
+    # Check if consumer already has active attribution
+    if consumer_id:
+        existing = await db.customer_influencer_attribution.find_one({
+            "consumer_id": str(consumer_id),
+            "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()},
+        })
+        if existing:
+            raise HTTPException(status_code=409, detail="already_used")
+
+    influencer_id = discount.get("influencer_id", "")
+    influencer = await db.influencers.find_one(
+        {"influencer_id": influencer_id}, {"_id": 0, "full_name": 1}
+    ) if influencer_id else None
+
+    return {
+        "code": code,
+        "discount_pct": discount.get("value", 10),
+        "influencer_id": influencer_id,
+        "influencer_username": influencer.get("full_name", "") if influencer else "",
+    }
+
+
+@router.get("/influencer/stats")
+async def get_influencer_stats(user: User = Depends(get_current_user)):
+    """KPI stats for the influencer overview page."""
+    influencer = await db.influencers.find_one({"email": user.email.lower()}, {"_id": 0})
+    if not influencer:
+        raise HTTPException(status_code=404, detail="Not an influencer")
+
+    inf_id = influencer["influencer_id"]
+    tier = normalize_influencer_tier(
+        influencer.get("current_tier", "hercules"),
+        influencer.get("commission_rate"),
+    )
+    rate = TIER_RATES.get(tier, 0.03)
+
+    # GMV last 30 days
+    thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    commissions_30d = await db.influencer_commissions.find({
+        "influencer_id": inf_id,
+        "created_at": {"$gte": thirty_days_ago},
+    }, {"_id": 0, "order_total": 1}).to_list(1000)
+    gmv_30d = sum(c.get("order_total", 0) for c in commissions_30d)
+
+    # Active attributions
+    now_iso = datetime.now(timezone.utc).isoformat()
+    active_attributions = await db.customer_influencer_attribution.count_documents({
+        "influencer_id": inf_id,
+        "expires_at": {"$gt": now_iso},
+    })
+
+    # Pending EUR (commissions not yet paid)
+    pending_comms = await db.influencer_commissions.find({
+        "influencer_id": inf_id,
+        "commission_status": "pending",
+    }, {"_id": 0, "commission_amount": 1, "payment_available_date": 1}).to_list(1000)
+    pending_eur = sum(c.get("commission_amount", 0) for c in pending_comms)
+
+    # Paid total
+    paid_total = influencer.get("total_commission_earned", 0) - pending_eur
+
+    # Next payout date (earliest payment_available_date in the future)
+    now = datetime.now(timezone.utc)
+    next_payout_date = None
+    for c in pending_comms:
+        pad = c.get("payment_available_date")
+        if pad:
+            try:
+                pd = datetime.fromisoformat(pad.replace("Z", "+00:00"))
+                if pd > now and (next_payout_date is None or pd < next_payout_date):
+                    next_payout_date = pd
+            except Exception:
+                pass
+
+    # Discount code
+    discount_code = None
+    if influencer.get("discount_code_id"):
+        code_doc = await db.discount_codes.find_one(
+            {"code_id": influencer["discount_code_id"]}, {"_id": 0, "code": 1}
+        )
+        discount_code = code_doc["code"] if code_doc else None
+
+    # Has Stripe Connect
+    has_stripe = bool(influencer.get("stripe_onboarding_complete"))
+
+    return {
+        "tier": tier,
+        "tier_rate": rate,
+        "discount_code": discount_code or influencer.get("discount_code", ""),
+        "gmv_30d": round(gmv_30d, 2),
+        "active_attributions": active_attributions,
+        "pending_eur": round(pending_eur, 2),
+        "paid_total_eur": round(max(paid_total, 0), 2),
+        "next_payout_date": next_payout_date.isoformat() if next_payout_date else None,
+        "has_stripe_connect": has_stripe,
+    }
+
+
+@router.get("/influencer/sales")
+async def get_influencer_sales(
+    user: User = Depends(get_current_user),
+    limit: int = Query(10, ge=1, le=50),
+):
+    """Recent sales attributed to this influencer."""
+    influencer = await db.influencers.find_one({"email": user.email.lower()}, {"_id": 0})
+    if not influencer:
+        raise HTTPException(status_code=404, detail="Not an influencer")
+
+    inf_id = influencer["influencer_id"]
+    commissions = await db.influencer_commissions.find(
+        {"influencer_id": inf_id},
+        {"_id": 0},
+    ).sort("created_at", -1).to_list(limit)
+
+    sales = []
+    for comm in commissions:
+        order_id = comm.get("order_id")
+        order = await db.orders.find_one(
+            {"order_id": order_id},
+            {"_id": 0, "user_name": 1, "line_items": 1, "total_amount": 1},
+        ) if order_id else None
+
+        # Check if consumer has previous orders with this influencer (reorder)
+        consumer_id = comm.get("consumer_id", "")
+        is_reorder = False
+        if consumer_id:
+            prev_count = await db.influencer_commissions.count_documents({
+                "influencer_id": inf_id,
+                "consumer_id": consumer_id,
+                "created_at": {"$lt": comm.get("created_at", "")},
+            })
+            is_reorder = prev_count > 0
+
+        product_name = ""
+        product_image = ""
+        if order and order.get("line_items"):
+            first_item = order["line_items"][0]
+            product_name = first_item.get("name", first_item.get("product_name", ""))
+            product_image = first_item.get("image", first_item.get("image_url", ""))
+
+        tier_rate = TIER_RATES.get(
+            comm.get("tier_at_time", influencer.get("current_tier", "hercules")), 0.03
+        )
+
+        sales.append({
+            "id": comm.get("commission_id", ""),
+            "consumer_username": (order.get("user_name", "") if order else "")
+                or comm.get("consumer_name", "Cliente"),
+            "product_name": product_name or comm.get("product_name", "Producto"),
+            "product_image": product_image,
+            "order_total": comm.get("order_total", 0),
+            "commission_eur": comm.get("commission_amount", 0),
+            "tier_rate": tier_rate,
+            "is_reorder": is_reorder,
+            "created_at": comm.get("created_at", ""),
+        })
+
+    return {"sales": sales}
+
+
+@router.get("/influencer/links")
+async def get_influencer_links(user: User = Depends(get_current_user)):
+    """Get all affiliate links for this influencer."""
+    influencer = await db.influencers.find_one({"email": user.email.lower()}, {"_id": 0})
+    if not influencer:
+        raise HTTPException(status_code=404, detail="Not an influencer")
+
+    links = await db.affiliate_links.find(
+        {"influencer_id": influencer["influencer_id"]},
+        {"_id": 0},
+    ).sort("created_at", -1).to_list(100)
+
+    return {"links": links}
+
+
+@router.post("/influencer/links")
+async def create_affiliate_link(request: Request, user: User = Depends(get_current_user)):
+    """Generate an affiliate link for a product."""
+    influencer = await db.influencers.find_one({"email": user.email.lower()}, {"_id": 0})
+    if not influencer:
+        raise HTTPException(status_code=404, detail="Not an influencer")
+
+    body = await request.json()
+    product_id = body.get("product_id")
+    if not product_id:
+        raise HTTPException(status_code=400, detail="product_id required")
+
+    product = await db.products.find_one(
+        {"product_id": product_id},
+        {"_id": 0, "name": 1, "price": 1, "images": 1},
+    )
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    inf_id = influencer["influencer_id"]
+
+    # Check if link already exists for this product
+    existing = await db.affiliate_links.find_one({
+        "influencer_id": inf_id,
+        "product_id": product_id,
+    }, {"_id": 0})
+    if existing:
+        return existing
+
+    # Get the discount code for this influencer
+    code = ""
+    if influencer.get("discount_code_id"):
+        code_doc = await db.discount_codes.find_one(
+            {"code_id": influencer["discount_code_id"]}, {"_id": 0, "code": 1}
+        )
+        code = code_doc["code"] if code_doc else ""
+
+    link_id = f"alink_{uuid.uuid4().hex[:12]}"
+    frontend_url = FRONTEND_URL.rstrip("/")
+    url = f"{frontend_url}/products/{product_id}?ref={code}" if code else f"{frontend_url}/products/{product_id}?aff={inf_id}"
+
+    link_doc = {
+        "link_id": link_id,
+        "influencer_id": inf_id,
+        "product_id": product_id,
+        "product_name": product.get("name", ""),
+        "product_price": product.get("price", 0),
+        "product_image": (product.get("images") or [None])[0],
+        "url": url,
+        "code": code,
+        "clicks": 0,
+        "conversions": 0,
+        "commission_eur": 0,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.affiliate_links.insert_one(link_doc)
+
+    return {
+        "id": link_id,
+        "url": url,
+        "product_name": link_doc["product_name"],
+        "product_price": link_doc["product_price"],
+        "product_image": link_doc["product_image"],
+    }
+
+
+@router.get("/influencer/payouts")
+async def get_influencer_payouts(user: User = Depends(get_current_user)):
+    """Get payout history for influencer."""
+    influencer = await db.influencers.find_one({"email": user.email.lower()}, {"_id": 0})
+    if not influencer:
+        raise HTTPException(status_code=404, detail="Not an influencer")
+
+    # Combine withdrawals (self-service) and scheduled payouts
+    withdrawals = await db.influencer_withdrawals.find(
+        {"influencer_id": influencer["influencer_id"], "status": {"$in": ["completed", "paid"]}},
+        {"_id": 0},
+    ).sort("created_at", -1).to_list(50)
+
+    payouts = []
+    for wd in withdrawals:
+        # Count commissions in this withdrawal
+        comm_count = 0
+        if wd.get("stripe_transfer_id"):
+            comm_count = await db.influencer_commissions.count_documents({
+                "stripe_transfer_id": wd["stripe_transfer_id"],
+            })
+
+        payouts.append({
+            "id": wd.get("withdrawal_id", ""),
+            "paid_at": wd.get("completed_at") or wd.get("created_at", ""),
+            "net_amount_eur": wd.get("amount", 0),
+            "commission_count": comm_count,
+            "stripe_transfer_id": wd.get("stripe_transfer_id"),
+            "status": wd.get("status", "completed"),
+        })
+
+    return {"payouts": payouts}
+
+
+# ── Cron job functions ──────────────────────────────────────
+
+
+async def update_influencer_tiers():
+    """
+    Weekly cron: review GMV of each influencer in the last 30 days
+    and update tier accordingly.
+    """
+    thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+
+    # Get all active influencers
+    influencers = await db.influencers.find(
+        {"status": "active"}, {"_id": 0, "influencer_id": 1, "current_tier": 1, "commission_rate": 1}
+    ).to_list(1000)
+
+    for inf in influencers:
+        inf_id = inf["influencer_id"]
+        old_tier = normalize_influencer_tier(inf.get("current_tier", "hercules"), inf.get("commission_rate"))
+
+        # Calculate 30-day GMV
+        comms = await db.influencer_commissions.find({
+            "influencer_id": inf_id,
+            "created_at": {"$gte": thirty_days_ago},
+        }, {"_id": 0, "order_total": 1}).to_list(10000)
+        gmv = sum(c.get("order_total", 0) for c in comms)
+
+        # Determine new tier
+        if gmv >= TIER_THRESHOLDS_EUR["zeus"]:
+            new_tier = "zeus"
+        elif gmv >= TIER_THRESHOLDS_EUR["atenea"]:
+            new_tier = "atenea"
+        else:
+            new_tier = "hercules"
+
+        if new_tier != old_tier:
+            new_rate = TIER_RATES[new_tier]
+            await db.influencers.update_one(
+                {"influencer_id": inf_id},
+                {"$set": {
+                    "current_tier": new_tier,
+                    "commission_rate": new_rate,
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                }},
+            )
+            # Notify on upgrade
+            tier_order = ["hercules", "atenea", "zeus"]
+            if tier_order.index(new_tier) > tier_order.index(old_tier):
+                tier_labels = {"atenea": "Atenea ⚡", "zeus": "Zeus 🏆"}
+                await db.notifications.insert_one({
+                    "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                    "user_id": inf_id,
+                    "type": "tier_upgrade",
+                    "title": f"¡Has alcanzado el nivel {tier_labels.get(new_tier, new_tier)}!",
+                    "body": f"Ahora ganas un {int(new_rate * 100)}% de comisión en cada venta",
+                    "read": False,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                })
+            logger.info(f"[TIER] Influencer {inf_id}: {old_tier} → {new_tier} (GMV 30d: {gmv:.0f}€)")
+
+
+async def process_influencer_payouts():
+    """
+    Daily cron (08:00 UTC): process scheduled payouts where D+15 has passed
+    and balance >= 20€.
+    """
+    now = datetime.now(timezone.utc)
+    now_iso = now.isoformat()
+
+    # Find all influencers with pending commissions where payment_available_date has passed
+    influencers = await db.influencers.find(
+        {"status": "active", "stripe_onboarding_complete": True},
+        {"_id": 0, "influencer_id": 1, "stripe_account_id": 1},
+    ).to_list(1000)
+
+    for inf in influencers:
+        inf_id = inf["influencer_id"]
+        stripe_account = inf.get("stripe_account_id")
+        if not stripe_account:
+            continue
+
+        # Get eligible commissions (D+15 passed)
+        eligible = await db.influencer_commissions.find({
+            "influencer_id": inf_id,
+            "commission_status": "pending",
+            "payment_available_date": {"$lte": now_iso},
+        }, {"_id": 0, "commission_id": 1, "commission_amount": 1}).to_list(1000)
+
+        if not eligible:
+            continue
+
+        total = sum(c.get("commission_amount", 0) for c in eligible)
+        if total < 20:
+            continue  # Below minimum
+
+        comm_ids = [c["commission_id"] for c in eligible]
+
+        try:
+            transfer = stripe.Transfer.create(
+                amount=int(total * 100),
+                currency="eur",
+                destination=stripe_account,
+                transfer_group=f"INFLUENCER_{inf_id}_{now.strftime('%Y%m')}",
+                metadata={
+                    "influencer_id": inf_id,
+                    "type": "influencer_auto_payout",
+                    "period": now.strftime("%Y-%m"),
+                },
+                idempotency_key=f"auto_payout_{inf_id}_{now.strftime('%Y%m%d')}",
+            )
+            # Mark as paid
+            await db.influencer_commissions.update_many(
+                {"commission_id": {"$in": comm_ids}},
+                {"$set": {
+                    "commission_status": "paid",
+                    "paid_at": now_iso,
+                    "stripe_transfer_id": transfer.id,
+                }},
+            )
+            # Record withdrawal
+            await db.influencer_withdrawals.insert_one({
+                "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
+                "influencer_id": inf_id,
+                "amount": round(total, 2),
+                "payout_method": "stripe",
+                "stripe_transfer_id": transfer.id,
+                "status": "completed",
+                "created_at": now_iso,
+                "completed_at": now_iso,
+            })
+            # Update balance
+            await db.influencers.update_one(
+                {"influencer_id": inf_id},
+                {"$inc": {"available_balance": -total}},
+            )
+            # Notify
+            await db.notifications.insert_one({
+                "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+                "user_id": inf_id,
+                "type": "payout_sent",
+                "title": "Cobro enviado 💸",
+                "body": f"{total:.2f}€ enviados a tu cuenta bancaria",
+                "read": False,
+                "created_at": now_iso,
+            })
+            logger.info(f"[PAYOUT] Auto-payout {total:.2f}€ to influencer {inf_id}")
+
+        except Exception as e:
+            await db.influencer_commissions.update_many(
+                {"commission_id": {"$in": comm_ids}},
+                {"$set": {"payout_error": str(e), "payout_failed_at": now_iso}},
+            )
+            logger.error(f"[PAYOUT] Failed for influencer {inf_id}: {e}")
+
+
+# ── Enable affiliate capability ─────────────────────────────
+
+import secrets as _secrets
+import string as _string
+
+
+def generate_discount_code(username: str, tier: str = "hercules") -> str:
+    """Generate a unique tier-prefixed discount code."""
+    prefix = {"hercules": "HERC", "atenea": "ATEN", "zeus": "ZEUS"}.get(tier, "HERC")
+    clean = "".join(c.upper() for c in username if c.isalnum())[:8]
+    suffix = "".join(_secrets.choice(_string.digits) for _ in range(4))
+    return f"{prefix}-{clean}{suffix}"
+
+
+@router.post("/account/enable-affiliate")
+async def enable_affiliate_capability(user: User = Depends(get_current_user)):
+    """Enable affiliate capability: generate discount code, set tier to hercules."""
+    user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    caps = user_doc.get("capabilities", [])
+    if "affiliate" in caps:
+        # Return existing code
+        code_doc = await db.discount_codes.find_one(
+            {"owner_user_id": user.user_id, "is_affiliate_code": True},
+            {"_id": 0, "code": 1},
+        )
+        return {
+            "code": code_doc["code"] if code_doc else "",
+            "tier": "hercules",
+            "discount_pct": 10,
+        }
+
+    # Generate unique code
+    username = user_doc.get("username", user.user_id[:8])
+    code = generate_discount_code(username, "hercules")
+
+    # Ensure uniqueness
+    while await db.discount_codes.find_one({"code": code}):
+        code = generate_discount_code(username, "hercules")
+
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {
+            "$addToSet": {"capabilities": "affiliate"},
+            "$set": {
+                "influencer_tier": "hercules",
+                "discount_code": code,
+            },
+        },
+    )
+
+    await db.discount_codes.insert_one({
+        "code_id": f"aff_{user.user_id}",
+        "code": code,
+        "type": "percentage",
+        "value": 10,
+        "active": True,
+        "owner_user_id": user.user_id,
+        "is_affiliate_code": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+    return {"code": code, "tier": "hercules", "discount_pct": 10}
 
 

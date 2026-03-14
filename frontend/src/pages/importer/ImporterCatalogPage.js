@@ -1,8 +1,434 @@
-import React from 'react';
-import B2BProductCard from '../../components/b2b/B2BProductCard';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, X, Loader2, Filter } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { toast } from 'sonner';
+import apiClient from '../../services/api/client';
 
-const demo = [{ name: 'Aceite Premium', price_cents: 900, b2b_pricing: { tier_1: { min_qty: 100, unit_price: 8.5 }, tier_2: { min_qty: 500, unit_price: 7.9 } } }];
+const CATEGORIES = [
+  { value: '', label: 'Todas las categorías' },
+  { value: 'aceites', label: 'Aceites' },
+  { value: 'conservas', label: 'Conservas' },
+  { value: 'bebidas', label: 'Bebidas' },
+  { value: 'carnicos', label: 'Cárnicos' },
+  { value: 'lacteos', label: 'Lácteos' },
+  { value: 'dulces', label: 'Dulces' },
+  { value: 'especias', label: 'Especias' },
+];
+
+const CERTIFICATIONS = [
+  { value: '', label: 'Todas las certs.' },
+  { value: 'ecologico', label: 'Ecológico' },
+  { value: 'vegano', label: 'Vegano' },
+  { value: 'halal', label: 'Halal' },
+  { value: 'sin_gluten', label: 'Sin Gluten' },
+  { value: 'dop', label: 'DOP' },
+];
+
+const COUNTRIES = [
+  { value: '', label: 'Todos los países' },
+  { value: 'ES', label: 'España' },
+  { value: 'IT', label: 'Italia' },
+  { value: 'PT', label: 'Portugal' },
+  { value: 'FR', label: 'Francia' },
+  { value: 'GR', label: 'Grecia' },
+];
+
+const CERT_ICONS = {
+  ecologico: '🌿', vegano: '🌱', halal: '☪️',
+  sin_gluten: '🌾', sin_lactosa: '🥛', dop: '🏆',
+};
+
+function B2BProductCard({ product, onRequest }) {
+  const hasTiers = product.b2b_prices?.length > 1;
+  const lowestPrice = product.b2b_prices?.[0]?.unit_price_cents
+    ? product.b2b_prices[0].unit_price_cents / 100
+    : product.price || 0;
+
+  return (
+    <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      {/* Image */}
+      <div className="relative aspect-square">
+        {product.images?.[0] ? (
+          <img src={product.images[0]} alt={product.name}
+            className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-stone-100 flex items-center justify-center">
+            <span className="text-3xl text-stone-300">📦</span>
+          </div>
+        )}
+        {product.certifications?.length > 0 && (
+          <div className="absolute top-1.5 left-1.5 flex gap-1">
+            {product.certifications.slice(0, 2).map(cert => (
+              <span key={cert} className="text-sm bg-white/90 rounded px-1">
+                {CERT_ICONS[cert] || '🏅'}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="p-2.5">
+        <p className="text-[13px] font-bold text-stone-950 line-clamp-2 leading-tight mb-0.5">
+          {product.name}
+        </p>
+        <p className="text-[11px] text-stone-500 mb-2 truncate">
+          {product.producer_name || product.seller_name || ''} · {product.region || product.country_origin || ''}
+        </p>
+
+        {/* Wholesale price */}
+        <p className="text-[15px] font-extrabold text-stone-950 mb-0.5">
+          Desde {lowestPrice.toFixed(2)}€/{product.unit || 'ud'}
+        </p>
+        {product.moq > 1 && (
+          <p className="text-[10px] text-stone-400 mb-2">
+            MOQ: {product.moq} {product.unit || 'uds'}
+          </p>
+        )}
+
+        {/* Price tiers */}
+        {hasTiers && (
+          <div className="mb-2">
+            {product.b2b_prices.slice(0, 2).map((tier, i) => (
+              <div key={i} className="flex justify-between text-[10px] text-stone-500 py-0.5">
+                <span>≥ {tier.min_quantity} {product.unit || 'uds'}</span>
+                <span className="font-semibold text-stone-700">
+                  {(tier.unit_price_cents / 100).toFixed(2)}€
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={() => onRequest(product)}
+          className="w-full py-2 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-lg transition-colors"
+        >
+          Solicitar pedido
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function B2BOrderRequestModal({ product, onClose, onSuccess }) {
+  const [quantity, setQuantity] = useState(product.moq || 1);
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const selectedTier = product.b2b_prices?.slice().reverse()
+    .find(t => quantity >= t.min_quantity);
+  const unitPrice = selectedTier
+    ? selectedTier.unit_price_cents / 100
+    : product.price || 0;
+  const totalPrice = quantity * unitPrice;
+  const moq = product.moq || 1;
+
+  const handleSubmit = async () => {
+    if (quantity < moq) {
+      toast.error(`Cantidad mínima: ${moq} ${product.unit || 'uds'}`);
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await apiClient.post('/rfq/contact', {
+        producer_id: product.producer_id || product.seller_id,
+        product_ids: [product.product_id || product.id],
+        message: `Solicitud B2B: ${quantity} ${product.unit || 'uds'} de ${product.name}. ${notes.trim()}`.trim(),
+        target_country: 'ES',
+      });
+      onSuccess();
+    } catch {
+      toast.error('Error al enviar la solicitud');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/40 z-50"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+        className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl max-h-[85vh] overflow-y-auto"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        {/* Handle */}
+        <div className="flex justify-center pt-2 pb-1">
+          <div className="w-10 h-1 rounded-full bg-stone-300" />
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
+          <h3 className="text-lg font-bold text-stone-950">Solicitar pedido</h3>
+          <button onClick={onClose} className="p-1">
+            <X className="w-5 h-5 text-stone-500" />
+          </button>
+        </div>
+
+        <div className="p-4">
+          {/* Product info */}
+          <div className="flex gap-3 mb-5">
+            {product.images?.[0] ? (
+              <img src={product.images[0]} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
+            ) : (
+              <div className="w-16 h-16 rounded-lg bg-stone-100 shrink-0" />
+            )}
+            <div>
+              <p className="text-[15px] font-bold text-stone-950">{product.name}</p>
+              <p className="text-sm text-stone-500">{product.producer_name || ''}</p>
+            </div>
+          </div>
+
+          {/* Quantity selector */}
+          <label className="text-sm font-semibold text-stone-950 block mb-2">
+            Cantidad ({product.unit || 'uds'})
+          </label>
+          <div className="flex items-center gap-3 mb-1">
+            <button
+              onClick={() => setQuantity(q => Math.max(moq, q - moq))}
+              className="w-10 h-10 rounded-full border border-stone-200 bg-stone-50 text-xl flex items-center justify-center"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              value={quantity}
+              onChange={e => setQuantity(Math.max(moq, parseInt(e.target.value) || 0))}
+              className="flex-1 text-center text-lg font-bold py-2 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-400"
+            />
+            <button
+              onClick={() => setQuantity(q => q + moq)}
+              className="w-10 h-10 rounded-full border border-stone-200 bg-stone-50 text-xl flex items-center justify-center"
+            >
+              +
+            </button>
+          </div>
+          {moq > 1 && (
+            <p className="text-[11px] text-stone-400 mb-4">
+              Mínimo: {moq} {product.unit || 'uds'}
+            </p>
+          )}
+
+          {/* Price tiers */}
+          {product.b2b_prices?.length > 1 && (
+            <div className="bg-stone-50 rounded-xl p-3 mb-4">
+              <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-2">
+                Precios por volumen
+              </p>
+              {product.b2b_prices.map((tier, i) => {
+                const isActive = quantity >= tier.min_quantity &&
+                  (!product.b2b_prices[i + 1] || quantity < product.b2b_prices[i + 1].min_quantity);
+                return (
+                  <div key={i} className={`flex justify-between py-1 text-sm ${
+                    isActive ? 'font-bold text-stone-950' : 'text-stone-500'
+                  }`}>
+                    <span>{isActive ? '→ ' : ''}{tier.min_quantity}+ {product.unit || 'uds'}</span>
+                    <span>{(tier.unit_price_cents / 100).toFixed(2)}€/{product.unit || 'ud'}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Price summary */}
+          <div className="bg-white border border-stone-200 rounded-xl p-3.5 mb-4">
+            <div className="flex justify-between mb-1">
+              <span className="text-sm text-stone-500">
+                {quantity} {product.unit || 'uds'} × {unitPrice.toFixed(2)}€
+              </span>
+              <span className="text-sm font-bold text-stone-950">
+                {totalPrice.toFixed(2)}€
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-400">
+              Precio estimado · El productor confirmará el precio final
+            </p>
+          </div>
+
+          {/* Notes */}
+          <label className="text-sm font-semibold text-stone-950 block mb-2">
+            Notas para el productor (opcional)
+          </label>
+          <textarea
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+            placeholder="Ej: Necesito entrega urgente, packaging especial..."
+            rows={2}
+            className="w-full border border-stone-200 rounded-xl p-3 text-sm resize-none focus:outline-none focus:border-stone-400 mb-4"
+          />
+
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full py-3 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
+          >
+            {submitting ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Enviando...</>
+            ) : 'Enviar solicitud al productor →'}
+          </button>
+
+          <p className="text-[11px] text-stone-400 text-center mt-3 leading-relaxed">
+            El productor tiene 48h para confirmar disponibilidad y condiciones.
+            Solo se procesa el pago tras su confirmación.
+          </p>
+        </div>
+      </motion.div>
+    </>
+  );
+}
 
 export default function ImporterCatalogPage() {
-  return <div className="p-6 space-y-4"><h1 className="text-2xl font-bold">Catálogo B2B</h1>{demo.map((p) => <B2BProductCard key={p.name} product={p} />)}</div>;
+  const [filters, setFilters] = useState({
+    category: '', certification: '', country: '',
+  });
+  const [search, setSearch] = useState('');
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const fetchProducts = useCallback(async (p = 1, append = false) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filters.category) params.set('category', filters.category);
+      if (search) params.set('q', search);
+      params.set('page', p);
+      params.set('limit', 12);
+
+      const res = await apiClient.get(`/b2b/catalog?${params.toString()}`);
+      const data = res?.data || res || {};
+      const items = data.products || [];
+      setProducts(prev => append ? [...prev, ...items] : items);
+      setHasMore(items.length >= 12);
+      setPage(p);
+    } catch {
+      if (!append) setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, search]);
+
+  useEffect(() => {
+    fetchProducts(1, false);
+  }, [fetchProducts]);
+
+  const clearFilters = () => {
+    setFilters({ category: '', certification: '', country: '' });
+    setSearch('');
+  };
+
+  const hasActiveFilters = filters.category || filters.certification || filters.country;
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-stone-950 mb-3">Catálogo mayorista</h1>
+
+        {/* Search */}
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar productos, productores..."
+            className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-xl text-sm bg-white focus:outline-none focus:border-stone-400"
+          />
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+          <select
+            value={filters.category}
+            onChange={e => setFilters(f => ({ ...f, category: e.target.value }))}
+            className="px-3 py-1.5 rounded-full border border-stone-200 text-xs bg-white text-stone-700 cursor-pointer shrink-0 focus:outline-none"
+          >
+            {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+
+          <select
+            value={filters.certification}
+            onChange={e => setFilters(f => ({ ...f, certification: e.target.value }))}
+            className="px-3 py-1.5 rounded-full border border-stone-200 text-xs bg-white text-stone-700 cursor-pointer shrink-0 focus:outline-none"
+          >
+            {CERTIFICATIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+
+          <select
+            value={filters.country}
+            onChange={e => setFilters(f => ({ ...f, country: e.target.value }))}
+            className="px-3 py-1.5 rounded-full border border-stone-200 text-xs bg-white text-stone-700 cursor-pointer shrink-0 focus:outline-none"
+          >
+            {COUNTRIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="px-3 py-1.5 rounded-full border border-stone-300 bg-stone-100 text-xs text-stone-700 font-medium cursor-pointer shrink-0"
+            >
+              ✕ Limpiar
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Products grid */}
+      {loading && products.length === 0 ? (
+        <div className="grid grid-cols-2 gap-3">
+          {Array(6).fill(0).map((_, i) => (
+            <div key={i} className="h-60 rounded-xl bg-stone-100 animate-pulse" />
+          ))}
+        </div>
+      ) : products.length === 0 ? (
+        <div className="text-center py-16">
+          <p className="text-3xl mb-2">🔍</p>
+          <p className="text-sm font-semibold text-stone-950">Sin resultados</p>
+          <p className="text-sm text-stone-500">Prueba con otros filtros</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            {products.map(product => (
+              <B2BProductCard
+                key={product.product_id || product.id}
+                product={product}
+                onRequest={setSelectedProduct}
+              />
+            ))}
+          </div>
+          {hasMore && (
+            <button
+              onClick={() => fetchProducts(page + 1, true)}
+              disabled={loading}
+              className="w-full mt-4 py-2.5 border border-stone-200 rounded-xl text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Ver más productos'}
+            </button>
+          )}
+        </>
+      )}
+
+      {/* Order request modal */}
+      <AnimatePresence>
+        {selectedProduct && (
+          <B2BOrderRequestModal
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            onSuccess={() => {
+              setSelectedProduct(null);
+              toast.success('Solicitud enviada al productor');
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }

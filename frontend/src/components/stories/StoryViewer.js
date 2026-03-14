@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { X, Heart, Send, MoreHorizontal } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
@@ -166,9 +166,26 @@ const StoryViewer = () => {
     );
   }
 
+  const dragY = useMotionValue(0);
+  const bgOpacity = useTransform(dragY, [0, 300], [1, 0.2]);
+  const scale = useTransform(dragY, [0, 300], [1, 0.85]);
+
+  const handleDragEnd = useCallback((_, info) => {
+    if (info.offset.y > 120 || info.velocity.y > 500) {
+      navigate(-1);
+    }
+  }, [navigate]);
+
   return (
     <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-    <div className="fixed inset-0 bg-black z-50">
+    <motion.div className="fixed inset-0 bg-black z-50" style={{ opacity: bgOpacity }}>
+    <motion.div
+      drag="y"
+      dragConstraints={{ top: 0, bottom: 0 }}
+      dragElastic={{ top: 0, bottom: 0.6 }}
+      onDragEnd={handleDragEnd}
+      style={{ y: dragY, scale, height: '100%' }}
+    >
       <StoryProgress
         slides={currentGroup.stories}
         currentSlide={currentSlideIndex}
@@ -274,7 +291,8 @@ const StoryViewer = () => {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
+    </motion.div>
     </FocusTrap>
   );
 };

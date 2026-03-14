@@ -444,7 +444,12 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     if user_id:
         await db.cart_items.delete_many({"user_id": user_id})
         await db.cart_discounts.delete_one({"user_id": user_id})
-    
+
+    # 4a. Release soft-holds (stock reservations)
+    await db.stock_holds.delete_many({"session_id": session_id})
+    if user_id:
+        await db.stock_holds.delete_many({"user_id": user_id})
+
     # 4b. Write order_paid ledger event
     await write_ledger_event(
         db,
@@ -494,7 +499,13 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         except Exception as e:
             logger.error(f"[EMAIL] Failed for producer {producer_id}: {e}")
     
-    # 9. Create commission_transaction record for audit trail
+    # 9. Send confirmation email to customer
+    try:
+        await send_order_status_email(order, "confirmed")
+    except Exception as e:
+        logger.error(f"[EMAIL] Failed customer confirmation for order {order_id}: {e}")
+
+    # 10. Create commission_transaction record for audit trail
     from services.ledger import EXCHANGE_RATES_TO_USD
     currency = order.get("currency", "EUR")
     usd_rate = EXCHANGE_RATES_TO_USD.get(currency.upper(), 1.0)

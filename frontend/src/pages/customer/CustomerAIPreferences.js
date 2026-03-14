@@ -75,7 +75,7 @@ function MultiSelect({ options, selected, onChange, label }) {
             className={`px-4 py-2 rounded-full text-sm transition-all ${
               selected.includes(option.value)
                 ? 'bg-stone-950 text-white border border-stone-950'
-                : 'bg-white text-stone-600 border border-stone-300 hover:border-stone-950'
+                : 'bg-white text-stone-600 border border-stone-200 hover:border-stone-950'
             }`}
           >
             {selected.includes(option.value) && <Check className="w-3 h-3 inline mr-1" />}
@@ -100,7 +100,7 @@ function SingleSelect({ options, selected, onChange, label }) {
             className={`w-full text-left px-4 py-3 rounded-lg border transition-all ${
               selected === option.value
                 ? 'bg-stone-50 border-stone-950'
-                : 'bg-white border-stone-300 hover:border-stone-950'
+                : 'bg-white border-stone-200 hover:border-stone-950'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -208,7 +208,7 @@ export default function CustomerAIPreferences() {
       </div>
 
       <div className="space-y-8">
-        <div className="bg-white border border-stone-300 rounded-lg p-6">
+        <div className="bg-white border border-stone-200 rounded-lg p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.communicationStyle', 'Estilo de comunicacion')}
           </h2>
@@ -220,7 +220,7 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-stone-300 rounded-lg p-6">
+        <div className="bg-white border border-stone-200 rounded-lg p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.dietaryPreferences', 'Preferencias dieteticas')}
           </h2>
@@ -232,7 +232,7 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-stone-300 rounded-lg p-6">
+        <div className="bg-white border border-stone-200 rounded-lg p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.allergies', 'Alergias e intolerancias')}
           </h2>
@@ -247,7 +247,7 @@ export default function CustomerAIPreferences() {
           </p>
         </div>
 
-        <div className="bg-white border border-stone-300 rounded-lg p-6">
+        <div className="bg-white border border-stone-200 rounded-lg p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.goals', 'Objetivos')}
           </h2>
@@ -259,7 +259,7 @@ export default function CustomerAIPreferences() {
           />
         </div>
 
-        <div className="bg-white border border-stone-300 rounded-lg p-6">
+        <div className="bg-white border border-stone-200 rounded-lg p-6">
           <h2 className="text-lg font-medium text-stone-950 mb-4 tracking-[0.02em]">
             {t('aiPrefs.budget', 'Presupuesto')}
           </h2>
