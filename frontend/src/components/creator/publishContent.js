@@ -79,6 +79,11 @@ export async function publishSocialContent({ publishData, onProgress, signal }) 
     },
   };
 
+  // Append audience & interaction toggles for all content types
+  if (publishData.audience) fd.append('audience', publishData.audience);
+  if (publishData.hideLikes) fd.append('hide_likes', 'true');
+  if (publishData.disableComments) fd.append('disable_comments', 'true');
+
   if (publishData.contentType === 'reel') {
     if (!publishData.sourceFile) {
       throw new Error('Missing reel source file');

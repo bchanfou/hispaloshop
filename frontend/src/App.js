@@ -28,6 +28,7 @@ import { CartProvider } from './context/CartContext';
 import { LocaleProvider } from './context/LocaleContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { ChatProvider } from './context/chat/ChatProvider';
+import { UploadQueueProvider } from './context/UploadQueueContext';
 import { usePushNotifications } from './hooks/usePushNotifications';
 
 // Nuevos providers P12
@@ -559,12 +560,14 @@ function App() {
               <LocaleProvider>
                 <CartProvider>
                   <ChatProvider>
+                    <UploadQueueProvider>
                       <a href="#main-content" className="skip-to-content">Ir al contenido principal</a>
                       <AppRouter />
                       <BottomNavBar />
                       <HispalAI />
                       <ConsentBanner onConsent={(accepted) => { if (accepted) initAnalyticsOnConsent(); }} />
                       <Toaster position="top-center" />
+                    </UploadQueueProvider>
                   </ChatProvider>
                 </CartProvider>
               </LocaleProvider>

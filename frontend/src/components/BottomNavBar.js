@@ -11,6 +11,7 @@ import InternalChat from './InternalChat';
 import CreatorEntry from './creator/CreatorEntry';
 import AdvancedEditor from './creator/editor/AdvancedEditor';
 import { publishSocialContent } from './creator/publishContent';
+import { useUploadQueue } from '../context/UploadQueueContext';
 import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
@@ -52,6 +53,7 @@ export default function BottomNavBar() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const uploadQueue = useUploadQueue();
   const location = useLocation();
   const navigate = useNavigate();
   const scrollDirection = useScrollDirection(10);
@@ -114,8 +116,12 @@ export default function BottomNavBar() {
     };
 
     // Lanzado desde HomeHeader (botón ✏) y FeedContainer (historias)
-    const handleOpenCreator = () => {
+    const handleOpenCreator = (e) => {
       if (!user) { navigate('/login'); return; }
+      const mode = e?.detail?.mode;
+      if (mode && ['post', 'reel', 'story'].includes(mode)) {
+        setSelectedContentType(mode);
+      }
       setShowCreatorEntry(true);
     };
 
@@ -200,9 +206,9 @@ export default function BottomNavBar() {
   };
 
   // Called by CreatorEntry when user taps "Siguiente"
-  const handleCreatorProceed = ({ contentType, files }) => {
+  const handleCreatorProceed = ({ contentType, files, textOnly }) => {
     setSelectedContentType(contentType);
-    setSelectedFiles(files);
+    setSelectedFiles(textOnly ? [] : files);
     setShowCreatorEntry(false);
     setShowAdvancedEditor(true);
   };
@@ -217,16 +223,12 @@ export default function BottomNavBar() {
 
   const handlePublish = async (publishData) => {
     try {
-      await publishSocialContent({
-        apiBase: API,
-        publishData,
-        onProgress: publishData.onProgress,
-        signal: publishData.signal,
-      });
-
-      toast.success(t('social.published', 'Publicado'));
+      // Use background upload queue — closes editor immediately
+      uploadQueue.enqueueAndProcess(publishData);
+      toast.success(t('social.uploading', 'Subiendo en segundo plano…'));
       handleEditorClose();
-      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      // Invalidate feed after a delay to give time for upload
+      setTimeout(() => queryClient.invalidateQueries({ queryKey: ['feed'] }), 3000);
     } catch (error) {
       if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError') {
         toast('Cancelado');
@@ -276,8 +278,10 @@ export default function BottomNavBar() {
       <AnimatePresence>
         {showCreatorEntry && (
           <CreatorEntry
+            initialTab={selectedContentType || 'post'}
             onClose={() => {
               setShowCreatorEntry(false);
+              setSelectedContentType(null);
               setSelectedFiles([]);
             }}
             onProceed={handleCreatorProceed}

@@ -290,6 +290,7 @@ function StoryViewer({ group, onClose }) {
   );
 }
 
+/** @deprecated Use CreatorEntry fullscreen flow via 'open-creator' event instead */
 function StoryUploadModal({ onClose, onPublished }) {
   const { t } = useTranslation();
   const [file, setFile] = useState(null);
@@ -636,8 +637,8 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
             type="button"
             whileTap={{ scale: 0.9 }}
             onClick={() => {
-              onCreateStory?.();
-              setShowUpload(true);
+              // Open fullscreen creator with story tab preselected
+              window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
             }}
             className="flex shrink-0 flex-col items-center gap-[5px] active:opacity-70"
             data-testid="add-story-btn"
@@ -736,15 +737,7 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
         />
       ) : null}
 
-      {showUpload ? (
-        <StoryUploadModal
-          onClose={() => setShowUpload(false)}
-          onPublished={() => {
-            setShowUpload(false);
-            fetchStories();
-          }}
-        />
-      ) : null}
+      {/* StoryUploadModal deprecated — fullscreen CreatorEntry used instead */}
     </>
   );
 }

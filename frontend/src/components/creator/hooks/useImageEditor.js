@@ -177,6 +177,27 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     }
   }, [currentImageIndex]);
 
+  const replaceImage = useCallback((index, file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newImage = {
+          id: Date.now().toString(),
+          src: reader.result,
+          file,
+          type: file.type.startsWith('video/') ? 'video' : 'image',
+        };
+        setImages((prev) => {
+          const next = [...prev];
+          next[index] = newImage;
+          return next;
+        });
+        resolve(newImage);
+      };
+      reader.readAsDataURL(file);
+    });
+  }, []);
+
   const moveImage = useCallback((fromIndex, toIndex) => {
     setImages((prev) => {
       if (
@@ -730,6 +751,7 @@ export function useImageEditor(contentType, aspectRatio = '1:1') {
     // Actions
     addImage,
     removeImage,
+    replaceImage,
     moveImage,
     setCurrentImage,
     updateFilterSetting,

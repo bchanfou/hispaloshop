@@ -13,6 +13,7 @@ import {
   ImagePlus,
   LayoutTemplate,
   Layers3,
+  PenLine,
   MapPin,
   Palette,
   Redo2,
@@ -35,6 +36,8 @@ import ReelToolPanel from './ReelToolPanel';
 import TextTool from './TextTool';
 import StickerTool from './StickerTool';
 import ProductTagTool from './ProductTagTool';
+import DrawTool from './DrawTool';
+import Cropper from 'react-easy-crop';
 import CanvasEditor from './CanvasEditor';
 import { ASPECT_RATIOS } from '../types/editor.types';
 
@@ -49,11 +52,43 @@ const BASE_TOOLS = [
   { id: 'adjust', icon: Layers3, label: 'Luz', primary: false },
   { id: 'crop', icon: Crop, label: 'Recorte' },
   { id: 'text', icon: Type, label: 'Texto' },
+  { id: 'draw', icon: PenLine, label: 'Dibujo' },
   { id: 'sticker', icon: MapPin, label: 'Sello', primary: true },
   { id: 'product', icon: ShoppingBag, label: 'Productos' },
 ];
 
 const STAGE_ORDER = ['media', 'edit', 'compose'];
+
+const STORY_GRADIENTS = [
+  ['#0c0a09', '#292524'],         // stone dark
+  ['#1c1917', '#78716C'],         // stone mid
+  ['#292524', '#d6d3d1'],         // stone light
+  ['#0f172a', '#1e3a5f'],         // deep blue
+  ['#312e81', '#6366f1'],         // indigo
+  ['#581c87', '#a855f7'],         // purple
+  ['#831843', '#ec4899'],         // pink
+  ['#7f1d1d', '#ef4444'],         // red
+  ['#78350f', '#f59e0b'],         // amber
+  ['#14532d', '#22c55e'],         // green
+];
+
+function createGradientImage(gradient, width = 1080, height = 1920) {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, height);
+    grad.addColorStop(0, gradient[0]);
+    grad.addColorStop(1, gradient[1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, width, height);
+    canvas.toBlob((blob) => {
+      const file = new File([blob], 'gradient-bg.jpg', { type: 'image/jpeg' });
+      resolve(file);
+    }, 'image/jpeg', 0.95);
+  });
+}
 
 const CONTENT_GUIDANCE = {
   post: {
@@ -365,6 +400,12 @@ function StoryComposeStage({
   location,
   setCaption,
   setLocation,
+  audience,
+  setAudience,
+  hideLikes,
+  setHideLikes,
+  disableComments,
+  setDisableComments,
   isPublishing,
   publishProgress,
   canCancelPublish,
@@ -469,9 +510,11 @@ function StoryEditStage({
   onBack,
   onContinue,
   renderToolPanel,
+  onChangeGradient,
 }) {
   const storyTools = [
     { id: 'text', label: 'Texto', icon: Type },
+    { id: 'draw', label: 'Dibujo', icon: PenLine },
     { id: 'sticker', label: 'Lugar', icon: MapPin },
     { id: 'product', label: 'Producto', icon: ShoppingBag },
     { id: 'filter', label: 'Color', icon: Palette },
@@ -516,7 +559,7 @@ function StoryEditStage({
 
       <div className="flex flex-1 items-center justify-center overflow-hidden px-4">
         <div className="relative w-full max-w-[430px]">
-          <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="story" />
+          <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="story" drawColor={drawColor} drawSize={drawSize} drawTool={drawTool} />
           {editor.textElements.length === 0 ? (
             <button
               type="button"
@@ -531,6 +574,22 @@ function StoryEditStage({
 
       <div className="border-t border-white/10 bg-black/80 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
         <div className="mx-auto w-full max-w-[430px]">
+          {/* Gradient background selector */}
+          {onChangeGradient && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+              {STORY_GRADIENTS.map((grad, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => onChangeGradient(grad)}
+                  className="h-8 w-8 shrink-0 rounded-full border-2 border-white/30 transition-transform active:scale-90"
+                  style={{ background: `linear-gradient(135deg, ${grad[0]}, ${grad[1]})` }}
+                  aria-label={`Fondo ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
+
           <div className="flex gap-2 overflow-x-auto pb-3">
             {storyTools.map((tool) => {
               const Icon = tool.icon;
@@ -583,6 +642,12 @@ function PostComposeStage({
   setCaption,
   setLocation,
   taggedProductsCount,
+  audience,
+  setAudience,
+  hideLikes,
+  setHideLikes,
+  disableComments,
+  setDisableComments,
   isPublishing,
   publishProgress,
   canCancelPublish,
@@ -590,11 +655,8 @@ function PostComposeStage({
   onPublish,
   onCancelPublish,
 }) {
-  const [audience, setAudience] = useState('public');
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [allowReshare, setAllowReshare] = useState(true);
-  const [hideLikes, setHideLikes] = useState(false);
-  const [disableComments, setDisableComments] = useState(false);
   const captionRef = useRef(null);
   const handleCaptionSet = useCallback((v) => setCaption(v), [setCaption]);
   const ac = useAutocomplete(caption, handleCaptionSet, captionRef);
@@ -839,7 +901,7 @@ function PostEditStage({
         <div className="flex min-h-0 flex-col">
           <div className="flex flex-1 items-center justify-center overflow-hidden px-4 py-4">
             <div className="w-full max-w-[620px]">
-              <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="post" />
+              <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="post" drawColor={drawColor} drawSize={drawSize} drawTool={drawTool} />
             </div>
           </div>
 
@@ -943,6 +1005,12 @@ function ReelComposeStage({
   setCaption,
   setLocation,
   taggedProductsCount,
+  audience,
+  setAudience,
+  hideLikes,
+  setHideLikes,
+  disableComments,
+  setDisableComments,
   isPublishing,
   publishProgress,
   canCancelPublish,
@@ -950,11 +1018,8 @@ function ReelComposeStage({
   onPublish,
   onCancelPublish,
 }) {
-  const [audience, setAudience] = useState('public');
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [allowReshare, setAllowReshare] = useState(true);
-  const [hideLikes, setHideLikes] = useState(false);
-  const [disableComments, setDisableComments] = useState(false);
   const reelCaptionRef = useRef(null);
   const handleReelCaptionSet = useCallback((v) => setCaption(v), [setCaption]);
   const reelAc = useAutocomplete(caption, handleReelCaptionSet, reelCaptionRef);
@@ -1210,7 +1275,7 @@ function ReelEditStage({
         <div className="flex min-h-0 flex-col">
           <div className="flex flex-1 items-center justify-center overflow-hidden p-4">
             <div className="w-full max-w-[430px]">
-              <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="reel" />
+              <CanvasEditor editor={editor} aspectRatio={aspectRatio} activeTool={activeTool} contentType="reel" drawColor={drawColor} drawSize={drawSize} drawTool={drawTool} />
             </div>
           </div>
 
@@ -1268,6 +1333,15 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const [publishProgress, setPublishProgress] = useState(0);
   const [hasRecoverableDraft, setHasRecoverableDraft] = useState(false);
 
+  const [drawColor, setDrawColor] = useState('#FFFFFF');
+  const [drawSize, setDrawSize] = useState(4);
+  const [drawTool, setDrawTool] = useState('pen');
+  const [cropState, setCropState] = useState({ x: 0, y: 0 });
+  const [cropZoom, setCropZoom] = useState(1);
+  const [audience, setAudience] = useState('public');
+  const [hideLikes, setHideLikes] = useState(false);
+  const [disableComments, setDisableComments] = useState(false);
+
   const editor = useImageEditor(contentType, aspectRatio);
   const fileInputRef = useRef(null);
   const hasLoadedInitialFilesRef = useRef(false);
@@ -1279,11 +1353,20 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
   const secondaryTools = tools.filter((tool) => tool.primary === false);
 
   React.useEffect(() => {
-    if (files?.length && !hasLoadedInitialFilesRef.current) {
+    if (hasLoadedInitialFilesRef.current) return;
+    if (files?.length) {
       hasLoadedInitialFilesRef.current = true;
       files.forEach((file) => editor.addImage(file));
+    } else if (contentType === 'story' && !files?.length) {
+      // Text-only story: generate gradient background
+      hasLoadedInitialFilesRef.current = true;
+      createGradientImage(STORY_GRADIENTS[0]).then((file) => {
+        editor.addImage(file);
+        setCurrentStage('edit');
+        setActiveTool('text');
+      });
     }
-  }, [editor, files]);
+  }, [contentType, editor, files]);
 
   React.useEffect(() => {
     if (editor.images.length > 0 && currentStage === 'media') {
@@ -1387,6 +1470,9 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
         sourceFiles: editor.images.map((image) => image.file).filter(Boolean),
         reelSettings: editor.reelSettings,
         taggedProducts: editor.stickerElements.filter((item) => item.type === 'product'),
+        audience,
+        hideLikes,
+        disableComments,
         onProgress: setPublishProgress,
         signal: publishController.signal,
       });
@@ -1498,12 +1584,38 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
             defaultTab="ajuste"
           />
         );
-      case 'crop':
+      case 'crop': {
+        const currentImg = editor.images[editor.currentImageIndex];
+        const ratioNumeric = (() => {
+          const parts = aspectRatio.split(':').map(Number);
+          return parts[0] / parts[1];
+        })();
         return (
           <EditorSection
             title="Encuadre"
-            description="Zoom, giro y formato."
+            description="Arrastra y pellizca para recortar."
           >
+            {/* Interactive crop preview */}
+            {currentImg?.src && (
+              <div className="relative mx-auto h-64 w-full overflow-hidden rounded-2xl bg-stone-900">
+                <Cropper
+                  image={currentImg.src}
+                  crop={cropState}
+                  zoom={cropZoom}
+                  aspect={ratioNumeric}
+                  onCropChange={setCropState}
+                  onZoomChange={(z) => { setCropZoom(z); editor.setZoomLevel(z); }}
+                  onCropComplete={(_, croppedAreaPixels) => {
+                    if (croppedAreaPixels) {
+                      editor.setPanPosition(-croppedAreaPixels.x / 10, -croppedAreaPixels.y / 10);
+                    }
+                  }}
+                  classes={{ containerClassName: 'rounded-2xl' }}
+                  style={{ containerStyle: { borderRadius: '1rem' } }}
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
@@ -1540,13 +1652,13 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
             </div>
 
             <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Proporcion</p>
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-500">Proporción</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {ASPECT_RATIOS[contentType].map((ratio) => (
                   <button
                     key={ratio}
                     type="button"
-                    onClick={() => setAspectRatio(ratio)}
+                    onClick={() => { setAspectRatio(ratio); setCropState({ x: 0, y: 0 }); setCropZoom(1); }}
                     className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                       aspectRatio === ratio
                         ? 'bg-stone-950 text-white'
@@ -1561,16 +1673,40 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
               <div className="mt-4">
                 <RangeField
                   label="Zoom"
-                  value={editor.zoom.toFixed(1)}
-                  min={0.5}
+                  value={cropZoom.toFixed(1)}
+                  min={1}
                   max={3}
                   step={0.1}
                   suffix="x"
-                  onChange={(event) => editor.setZoomLevel(parseFloat(event.target.value))}
+                  onChange={(event) => {
+                    const v = parseFloat(event.target.value);
+                    setCropZoom(v);
+                    editor.setZoomLevel(v);
+                  }}
                 />
               </div>
             </div>
           </EditorSection>
+        );
+      }
+      case 'draw':
+        return (
+          <DrawTool
+            drawColor={drawColor}
+            drawSize={drawSize}
+            drawTool={drawTool}
+            onColorChange={setDrawColor}
+            onSizeChange={setDrawSize}
+            onToolChange={setDrawTool}
+            paths={editor.drawingPaths}
+            onClear={editor.clearDrawing}
+            onUndo={() => {
+              if (editor.drawingPaths.length > 0) {
+                editor.clearDrawing();
+                editor.drawingPaths.slice(0, -1).forEach((p) => editor.addDrawingPath(p));
+              }
+            }}
+          />
         );
       case 'text':
         return (
@@ -1638,6 +1774,12 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
             location={location}
             setCaption={setCaption}
             setLocation={setLocation}
+            audience={audience}
+            setAudience={setAudience}
+            hideLikes={hideLikes}
+            setHideLikes={setHideLikes}
+            disableComments={disableComments}
+            setDisableComments={setDisableComments}
             isPublishing={isPublishing}
             publishProgress={publishProgress}
             canCancelPublish={Boolean(publishAbortRef.current)}
@@ -1669,6 +1811,12 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
             setCaption={setCaption}
             setLocation={setLocation}
             taggedProductsCount={taggedProductsCount}
+            audience={audience}
+            setAudience={setAudience}
+            hideLikes={hideLikes}
+            setHideLikes={setHideLikes}
+            disableComments={disableComments}
+            setDisableComments={setDisableComments}
             isPublishing={isPublishing}
             publishProgress={publishProgress}
             canCancelPublish={Boolean(publishAbortRef.current)}
@@ -1700,6 +1848,12 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
             setCaption={setCaption}
             setLocation={setLocation}
             taggedProductsCount={taggedProductsCount}
+            audience={audience}
+            setAudience={setAudience}
+            hideLikes={hideLikes}
+            setHideLikes={setHideLikes}
+            disableComments={disableComments}
+            setDisableComments={setDisableComments}
             isPublishing={isPublishing}
             publishProgress={publishProgress}
             canCancelPublish={Boolean(publishAbortRef.current)}
@@ -1762,6 +1916,10 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
           onBack={goToPreviousStage}
           onContinue={() => setCurrentStage('compose')}
           renderToolPanel={renderToolPanel}
+          onChangeGradient={async (gradient) => {
+            const file = await createGradientImage(gradient);
+            editor.replaceImage(0, file);
+          }}
         />
         <input
           ref={fileInputRef}
@@ -1882,6 +2040,9 @@ function AdvancedEditor({ contentType, files, onClose, onPublish }) {
                 aspectRatio={aspectRatio}
                 activeTool={activeTool}
                 contentType={contentType}
+                drawColor={drawColor}
+                drawSize={drawSize}
+                drawTool={drawTool}
               />
             ) : (
               <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 text-center shadow-xl">

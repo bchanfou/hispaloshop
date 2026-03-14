@@ -9,10 +9,19 @@ const FONT_STYLES = [
   { id: 'mono',   label: 'Mono',   family: 'ui-monospace, monospace',              weight: 400 },
 ];
 
-const COLOR_DOTS = [
-  '#FFFFFF', '#000000', '#A8A29E',
-  '#EF4444', '#F97316', '#FACC15',
-  '#22C55E', '#3B82F6', '#EC4899',
+const SPECTRUM_COLORS = [
+  '#FFFFFF', '#F5F5F4', '#D6D3D1', '#A8A29E', '#78716C',
+  '#44403C', '#1C1917', '#000000',
+  '#EF4444', '#F97316', '#FACC15', '#22C55E',
+  '#3B82F6', '#8B5CF6', '#EC4899', '#F43F5E',
+];
+
+const TEXT_STYLES = [
+  { id: 'plain',      label: 'Normal' },
+  { id: 'background', label: 'Fondo' },
+  { id: 'outline',    label: 'Contorno' },
+  { id: 'neon',       label: 'Neón' },
+  { id: 'shadow',     label: 'Sombra' },
 ];
 
 const ALIGN_OPTIONS = [
@@ -21,12 +30,29 @@ const ALIGN_OPTIONS = [
   { value: 'right',  Icon: AlignRight  },
 ];
 
+function getTextStyleProps(styleId, color) {
+  switch (styleId) {
+    case 'background':
+      return { hasBackground: true, backgroundColor: color === '#FFFFFF' ? '#000000' : '#FFFFFF', hasOutline: false, textStyle: 'background' };
+    case 'outline':
+      return { hasBackground: false, hasOutline: true, textStyle: 'outline' };
+    case 'neon':
+      return { hasBackground: false, hasOutline: false, textStyle: 'neon' };
+    case 'shadow':
+      return { hasBackground: false, hasOutline: false, textStyle: 'shadow' };
+    default:
+      return { hasBackground: false, hasOutline: false, textStyle: 'plain' };
+  }
+}
+
 function TextTool({ texts, onAdd, onUpdate, onRemove }) {
   const [composing, setComposing]   = useState(false);
   const [draft, setDraft]           = useState('');
   const [fontId, setFontId]         = useState('sans');
   const [color, setColor]           = useState('#FFFFFF');
   const [align, setAlign]           = useState('center');
+  const [textStyle, setTextStyle]   = useState('plain');
+  const [fontSize, setFontSize]     = useState(32);
   const [selectedId, setSelectedId] = useState(null);
   const textareaRef = useRef(null);
 
@@ -47,7 +73,14 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
 
   const setColorAndSync = (c) => {
     setColor(c);
-    if (selectedText) onUpdate(selectedText.id, { color: c });
+    const styleProps = getTextStyleProps(textStyle, c);
+    if (selectedText) onUpdate(selectedText.id, { color: c, ...styleProps });
+  };
+
+  const setStyleAndSync = (styleId) => {
+    setTextStyle(styleId);
+    const styleProps = getTextStyleProps(styleId, color);
+    if (selectedText) onUpdate(selectedText.id, styleProps);
   };
 
   const openCompose = () => {
@@ -59,19 +92,42 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
   const handleDone = () => {
     const trimmed = draft.trim();
     if (trimmed) {
+      const styleProps = getTextStyleProps(textStyle, color);
       onAdd(trimmed, {
         x: 72, y: 120,
         fontFamily: currentFont.family,
         fontWeight: currentFont.weight,
-        fontSize: 32,
+        fontSize,
         color,
         textAlign: align,
         scale: 1,
         rotation: 0,
+        ...styleProps,
       });
     }
     setDraft('');
     setComposing(false);
+  };
+
+  const getComposePreviewStyle = () => {
+    const base = {
+      color,
+      fontFamily: currentFont.family,
+      fontWeight: currentFont.weight,
+      textAlign: align,
+    };
+    switch (textStyle) {
+      case 'background':
+        return { ...base, backgroundColor: color === '#FFFFFF' ? '#000000' : '#FFFFFF', padding: '8px 16px', borderRadius: '12px' };
+      case 'outline':
+        return { ...base, WebkitTextStroke: `2px ${color}`, color: 'transparent' };
+      case 'neon':
+        return { ...base, textShadow: `0 0 10px ${color}, 0 0 20px ${color}, 0 0 40px ${color}` };
+      case 'shadow':
+        return { ...base, textShadow: `4px 4px 8px rgba(0,0,0,0.6)` };
+      default:
+        return base;
+    }
   };
 
   const AlignIcon = ALIGN_OPTIONS.find((a) => a.value === align)?.Icon ?? AlignCenter;
@@ -79,7 +135,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
   // ── Full-screen compose overlay ────────────────────────────────────────
   if (composing) {
     return (
-      <div className="fixed inset-0 z-[9999] flex flex-col bg-black/80">
+      <div className="fixed inset-0 z-[9999] flex flex-col bg-black/80 backdrop-blur-sm">
         <div
           className="flex items-center justify-between px-5 py-3"
           style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 12px)' }}
@@ -91,7 +147,7 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
           >
             Cancelar
           </button>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={cycleFont}
@@ -117,6 +173,24 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
           </button>
         </div>
 
+        {/* Text style pills */}
+        <div className="flex justify-center gap-2 px-4 py-2">
+          {TEXT_STYLES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => setTextStyle(s.id)}
+              className={`rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                textStyle === s.id
+                  ? 'bg-white text-stone-950'
+                  : 'bg-white/15 text-white/70 active:bg-white/25'
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex flex-1 items-center justify-center px-8">
           <textarea
             ref={textareaRef}
@@ -125,25 +199,35 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             placeholder="Escribe algo…"
             rows={4}
             className="w-full resize-none bg-transparent text-[32px] leading-tight outline-none placeholder:text-white/35"
-            style={{
-              color,
-              fontFamily: currentFont.family,
-              fontWeight: currentFont.weight,
-              textAlign: align,
-            }}
+            style={getComposePreviewStyle()}
           />
         </div>
 
+        {/* Font size slider */}
+        <div className="flex items-center gap-3 px-8 pb-2">
+          <span className="text-[11px] text-white/50">A</span>
+          <input
+            type="range"
+            min={16}
+            max={64}
+            value={fontSize}
+            onChange={(e) => setFontSize(Number(e.target.value))}
+            className="h-1 flex-1 appearance-none rounded-full bg-white/20 accent-white"
+          />
+          <span className="text-[15px] font-medium text-white/50">A</span>
+        </div>
+
+        {/* Color spectrum */}
         <div
-          className="flex justify-center gap-3 pt-4"
-          style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 24px), 24px)' }}
+          className="flex items-center gap-2 overflow-x-auto px-5 pt-2"
+          style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 24px), 24px)', scrollbarWidth: 'none' }}
         >
-          {COLOR_DOTS.map((c) => (
+          {SPECTRUM_COLORS.map((c) => (
             <button
               key={c}
               type="button"
               onClick={() => setColor(c)}
-              className="h-7 w-7 rounded-full border-2 transition-transform active:scale-90"
+              className="h-7 w-7 shrink-0 rounded-full border-2 transition-transform active:scale-90"
               style={{
                 backgroundColor: c,
                 borderColor: color === c ? '#fff' : 'rgba(255,255,255,0.25)',
@@ -161,9 +245,27 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
   // ── Tool panel ─────────────────────────────────────────────────────────
   return (
     <div className="space-y-3 px-4 py-3">
+      {/* Text style row */}
+      <div className="flex gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        {TEXT_STYLES.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => setStyleAndSync(s.id)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+              textStyle === s.id
+                ? 'bg-stone-950 text-white'
+                : 'bg-stone-100 text-stone-600 active:bg-stone-200'
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
       {/* Color row */}
-      <div className="flex items-center gap-2">
-        {COLOR_DOTS.map((c) => (
+      <div className="flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        {SPECTRUM_COLORS.map((c) => (
           <button
             key={c}
             type="button"
@@ -219,6 +321,25 @@ function TextTool({ texts, onAdd, onUpdate, onRemove }) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Font size */}
+      <div className="flex items-center gap-3 rounded-xl bg-stone-50 px-3 py-2">
+        <span className="text-[11px] text-stone-400">A</span>
+        <input
+          type="range"
+          min={16}
+          max={64}
+          value={fontSize}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            setFontSize(v);
+            if (selectedText) onUpdate(selectedText.id, { fontSize: v });
+          }}
+          className="h-1 flex-1 appearance-none rounded-full bg-stone-200 accent-stone-950"
+        />
+        <span className="text-[14px] font-medium text-stone-400">A</span>
+        <span className="ml-1 min-w-[28px] text-right text-[12px] font-medium text-stone-500">{fontSize}</span>
       </div>
 
       {/* Add button */}

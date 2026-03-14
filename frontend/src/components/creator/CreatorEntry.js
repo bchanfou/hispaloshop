@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, CameraOff, ChevronDown, FlipHorizontal, Images, Plus, X } from 'lucide-react';
+import { AnimatePresence, motion, useAnimation } from 'framer-motion';
+import { useGesture } from '@use-gesture/react';
+import { Camera, CameraOff, ChevronDown, FlipHorizontal, Images, Plus, Type, X } from 'lucide-react';
 
 // ─── Tab config ────────────────────────────────────────────────────────────────
 const TABS = [
@@ -105,19 +106,24 @@ function LargePreview({ file, streaming, cameraVideoRef }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function CreatorEntry({ onClose, onProceed }) {
-  const [activeTab,     setActiveTab]     = useState('post');
+export default function CreatorEntry({ onClose, onProceed, initialTab = 'post' }) {
+  const [activeTab,     setActiveTab]     = useState(initialTab);
   const [facingMode,    setFacingMode]    = useState('environment');
   const [cameraStream,  setCameraStream]  = useState(null);
   const [cameraError,   setCameraError]   = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [allFiles,      setAllFiles]      = useState([]);
   const [multiSelect,   setMultiSelect]   = useState(false);
+  const [isRecording,   setIsRecording]   = useState(false);
+  const [recordSeconds,  setRecordSeconds] = useState(0);
 
   const fileInputRef    = useRef(null);
   const cameraVideoRef  = useRef(null);          // used in grid tile
   const largeVideoRef   = useRef(null);          // used in large preview (when no selection)
   const cameraStreamRef = useRef(null);          // stable ref for cleanup
+  const mediaRecorderRef = useRef(null);
+  const recordChunksRef  = useRef([]);
+  const recordTimerRef   = useRef(null);
 
   const tab       = TABS.find((t) => t.id === activeTab);
   const streaming = Boolean(cameraStream) && !cameraError;
@@ -181,6 +187,67 @@ export default function CreatorEntry({ onClose, onProceed }) {
     }, 'image/jpeg', 0.92);
   }, [cameraStream]);
 
+  // ── Video recording (long-press) ───────────────────────────────────────
+  const startRecording = useCallback(async () => {
+    if (!cameraStream || isRecording) return;
+
+    // Get audio stream and combine with video
+    let combinedStream = cameraStream;
+    try {
+      const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const tracks = [...cameraStream.getVideoTracks(), ...audioStream.getAudioTracks()];
+      combinedStream = new MediaStream(tracks);
+    } catch {
+      // No audio permission — record video only
+    }
+
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+      ? 'video/webm;codecs=vp9'
+      : MediaRecorder.isTypeSupported('video/webm')
+        ? 'video/webm'
+        : 'video/mp4';
+
+    const recorder = new MediaRecorder(combinedStream, { mimeType });
+    recordChunksRef.current = [];
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) recordChunksRef.current.push(e.data);
+    };
+
+    recorder.onstop = () => {
+      clearInterval(recordTimerRef.current);
+      setRecordSeconds(0);
+      const blob = new Blob(recordChunksRef.current, { type: mimeType });
+      const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+      const file = new File([blob], `video-${Date.now()}.${ext}`, { type: mimeType });
+      setAllFiles((prev) => [file, ...prev]);
+      setSelectedFiles([file]);
+      setIsRecording(false);
+    };
+
+    recorder.start(100);
+    mediaRecorderRef.current = recorder;
+    setIsRecording(true);
+    setRecordSeconds(0);
+    recordTimerRef.current = setInterval(() => setRecordSeconds((s) => s + 1), 1000);
+  }, [cameraStream, isRecording]);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+  }, []);
+
+  // Clean up recorder on unmount
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      clearInterval(recordTimerRef.current);
+    };
+  }, []);
+
   // ── File picker ──────────────────────────────────────────────────────────
   const handleFileInput = useCallback((event) => {
     const files = Array.from(event.target.files || []);
@@ -230,13 +297,28 @@ export default function CreatorEntry({ onClose, onProceed }) {
 
   const hasFiles = selectedFiles.length > 0;
 
+  // ── Swipe-down-to-close gesture ──────────────────────────────────────────
+  const controls = useAnimation();
+  useEffect(() => {
+    controls.start({ y: 0, opacity: 1 });
+  }, [controls]);
+  const bindClose = useGesture({
+    onDrag: ({ direction: [, dy], movement: [, my], cancel, event }) => {
+      if (my > 80 && dy > 0) {
+        cancel();
+        controls.start({ y: '100%', opacity: 0 }).then(handleClose);
+      }
+    },
+  }, { drag: { axis: 'y', filterTaps: true, from: () => [0, 0] } });
+
   return (
     <motion.div
+      {...bindClose()}
       initial={{ y: '100%', opacity: 0.8 }}
-      animate={{ y: 0, opacity: 1 }}
+      animate={controls}
       exit={{ y: '100%', opacity: 0.8 }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="fixed inset-0 z-50 flex flex-col bg-black text-white"
+      className="fixed inset-0 z-50 flex flex-col bg-black text-white touch-none"
       style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 0px)' }}
     >
       {/* ── Header ────────────────────────────────────────────────────────── */}
@@ -279,6 +361,50 @@ export default function CreatorEntry({ onClose, onProceed }) {
           >
             <FlipHorizontal className="h-5 w-5" strokeWidth={1.8} />
           </button>
+        )}
+
+        {/* Text-only story button */}
+        {activeTab === 'story' && selectedFiles.length === 0 && (
+          <button
+            type="button"
+            onClick={() => onProceed({ contentType: 'story', files: [], textOnly: true })}
+            className="absolute left-3 bottom-4 flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-2 text-[13px] font-semibold text-white backdrop-blur-sm active:bg-white/30"
+          >
+            <Type className="h-4 w-4" />
+            Crear texto
+          </button>
+        )}
+
+        {/* Capture / Record button (centered bottom of preview) */}
+        {streaming && selectedFiles.length === 0 && (
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+            {(activeTab === 'reel' || activeTab === 'story') ? (
+              <button
+                type="button"
+                onPointerDown={startRecording}
+                onPointerUp={stopRecording}
+                onPointerLeave={stopRecording}
+                className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full border-[4px] border-white/80 transition-all active:scale-95"
+              >
+                <div className={`rounded-full transition-all duration-200 ${
+                  isRecording ? 'h-7 w-7 rounded-[6px] bg-red-500' : 'h-14 w-14 bg-red-500'
+                }`} />
+                {isRecording && (
+                  <div className="absolute -top-8 rounded-full bg-red-500 px-2.5 py-0.5 text-[12px] font-bold text-white">
+                    {String(Math.floor(recordSeconds / 60)).padStart(2, '0')}:{String(recordSeconds % 60).padStart(2, '0')}
+                  </div>
+                )}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCapture}
+                className="flex h-[72px] w-[72px] items-center justify-center rounded-full border-[4px] border-white/80 active:scale-95"
+              >
+                <div className="h-14 w-14 rounded-full bg-white" />
+              </button>
+            )}
+          </div>
         )}
 
         {/* Slide indicator for multi-select */}
