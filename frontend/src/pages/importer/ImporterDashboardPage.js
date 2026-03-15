@@ -2,15 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Package, ShoppingBag, Factory, Store, Search, Award, FileCheck,
-  ExternalLink, Crown, Zap, ArrowRight, AlertTriangle,
-  Loader2, Globe, MessageCircle
+  ExternalLink, ArrowRight, AlertTriangle,
+  Loader2, Globe, MessageCircle, TrendingUp, Eye, Plus,
+  Clock, ChevronRight, BarChart3
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 import { useChatContext } from '../../context/chat/ChatProvider';
 import { toast } from 'sonner';
+import { OperationCard } from '../b2b/B2BOperationsDashboard';
 
-function KPICard({ label, value, icon: Icon, href }) {
+/* ─── Shared Components ─── */
+
+function KPICard({ label, value, icon: Icon, href, description }) {
   const Wrapper = href ? Link : 'div';
   return (
     <Wrapper
@@ -25,6 +29,7 @@ function KPICard({ label, value, icon: Icon, href }) {
       </div>
       <p className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-black)' }}>{value}</p>
       <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>{label}</p>
+      {description && <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-stone)', opacity: 0.7 }}>{description}</p>}
     </Wrapper>
   );
 }
@@ -55,29 +60,20 @@ function AlertCard({ alert }) {
   );
 }
 
-function QuickAction({ icon: Icon, label, href, external }) {
-  if (external) {
-    return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-3 p-3.5 transition-all text-sm font-semibold"
-        style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', color: 'var(--color-black)' }}
-      >
-        <Icon className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
-        {label}
-        <ExternalLink className="w-3.5 h-3.5 ml-auto" style={{ color: 'var(--color-stone)' }} />
-      </a>
-    );
-  }
+function QuickAction({ icon: Icon, label, href, variant = 'default' }) {
+  const isGreen = variant === 'green';
   return (
     <Link
       to={href}
       className="flex items-center gap-3 p-3.5 transition-all text-sm font-semibold"
-      style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', color: 'var(--color-black)' }}
+      style={{
+        background: isGreen ? 'var(--color-green)' : 'var(--color-white)',
+        borderRadius: 'var(--radius-xl)',
+        border: isGreen ? 'none' : '1px solid var(--color-border)',
+        color: isGreen ? '#fff' : 'var(--color-black)',
+      }}
     >
-      <Icon className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
+      <Icon className="w-5 h-5 shrink-0" style={{ color: isGreen ? '#fff' : 'var(--color-stone)' }} />
       {label}
     </Link>
   );
@@ -167,6 +163,54 @@ function B2BOrderStatusBadge({ status }) {
   );
 }
 
+function B2COrderStatusBadge({ status }) {
+  const config = {
+    pending: { label: 'Pendiente', bg: 'var(--color-amber-light)', color: 'var(--color-amber)' },
+    processing: { label: 'Procesando', bg: 'var(--color-blue-light)', color: 'var(--color-blue)' },
+    shipped: { label: 'Enviado', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
+    delivered: { label: 'Entregado', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+    cancelled: { label: 'Cancelado', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
+    refunded: { label: 'Reembolsado', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
+  };
+  const c = config[status] || { label: status, bg: 'var(--color-surface)', color: 'var(--color-stone)' };
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: c.bg, color: c.color }}>
+      {c.label}
+    </span>
+  );
+}
+
+/* ─── Period Selector ─── */
+
+function PeriodSelector({ value, onChange }) {
+  const options = [
+    { key: 'today', label: 'Hoy' },
+    { key: 'week', label: 'Semana' },
+    { key: 'month', label: 'Mes' },
+  ];
+  return (
+    <div className="flex gap-1 p-0.5" style={{ borderRadius: 'var(--radius-full)', background: 'var(--color-surface)' }}>
+      {options.map(o => (
+        <button
+          key={o.key}
+          onClick={() => onChange(o.key)}
+          className="px-3 py-1 text-[11px] font-semibold transition-all"
+          style={{
+            borderRadius: 'var(--radius-full)',
+            background: value === o.key ? 'var(--color-white)' : 'transparent',
+            color: value === o.key ? 'var(--color-black)' : 'var(--color-stone)',
+            boxShadow: value === o.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+          }}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Main Component ─── */
+
 export default function ImporterDashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -180,11 +224,16 @@ export default function ImporterDashboardPage() {
       toast.error('No se pudo abrir el chat');
     }
   };
+
   const [stats, setStats] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [recentB2B, setRecentB2B] = useState([]);
+  const [b2cOrders, setB2cOrders] = useState([]);
+  const [b2bOperations, setB2bOperations] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('b2b');
+  const [activeTab, setActiveTab] = useState('b2c');
+  const [period, setPeriod] = useState('month');
 
   useEffect(() => {
     let active = true;
@@ -192,11 +241,17 @@ export default function ImporterDashboardPage() {
       apiClient.get('/importer/stats').catch(() => null),
       apiClient.get('/importer/alerts').catch(() => []),
       apiClient.get('/importer/b2b-orders?limit=3').catch(() => ({ orders: [] })),
-    ]).then(([s, a, b]) => {
+      apiClient.get('/producer/orders').catch(() => []),
+      apiClient.get('/b2b/operations').catch(() => []),
+      apiClient.get('/products?seller_id=me&limit=5&sort=sales').catch(() => []),
+    ]).then(([s, a, b, orders, ops, products]) => {
       if (!active) return;
       setStats(s || {});
       setAlerts(Array.isArray(a) ? a : []);
       setRecentB2B(b?.orders || []);
+      setB2cOrders(Array.isArray(orders) ? orders : []);
+      setB2bOperations(Array.isArray(ops) ? ops : (ops?.operations || []));
+      setTopProducts(Array.isArray(products) ? products.slice(0, 3) : (products?.products || []).slice(0, 3));
     }).finally(() => {
       if (active) setLoading(false);
     });
@@ -211,27 +266,55 @@ export default function ImporterDashboardPage() {
     );
   }
 
+  const companyName = user?.company_name || user?.business_name || user?.name || 'Mi empresa';
+  const planLabel = (stats?.plan || 'FREE').toUpperCase();
+  const pendingB2cOrders = b2cOrders.filter(o => o.status === 'pending' || o.status === 'processing');
+  const actionableOps = b2bOperations.filter(op => {
+    const isImporter = op.buyer_id === user?.user_id;
+    const actionStatuses = isImporter
+      ? ['offer_received', 'contract_pending', 'contract_generated', 'payment_pending']
+      : ['offer_sent', 'contract_signed', 'payment_confirmed', 'in_transit'];
+    return actionStatuses.includes(op.status);
+  });
+
   return (
     <div style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)' }}>
-      {/* Header */}
-      <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--color-black)' }}>Panel de importador</h1>
-      <p className="text-sm mb-4" style={{ color: 'var(--color-stone)' }}>B2B y B2C en una vista</p>
+      {/* Header with company name + plan badge */}
+      <div className="flex items-center gap-3 mb-1">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{companyName}</h1>
+        <span
+          className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
+          style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}
+        >
+          {planLabel}
+        </span>
+      </div>
+      <p className="text-sm mb-5" style={{ color: 'var(--color-stone)' }}>Panel de importador</p>
 
-      {/* Tabs B2C / B2B */}
-      <div className="flex gap-6 mb-6">
-        {['b2b', 'b2c'].map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className="pb-2 text-sm font-semibold uppercase tracking-wider transition-colors"
-            style={{
-              borderBottom: activeTab === tab ? '2px solid var(--color-black)' : '2px solid transparent',
-              color: activeTab === tab ? 'var(--color-black)' : 'var(--color-stone)',
-            }}
-          >
-            {tab.toUpperCase()}
-          </button>
-        ))}
+      {/* Mode Selector Tabs — large pill style */}
+      <div className="flex gap-0 mb-6 p-1" style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)' }}>
+        {[
+          { key: 'b2c', label: 'B2C Consumidor', icon: Store },
+          { key: 'b2b', label: 'B2B Mayorista', icon: Factory },
+        ].map(tab => {
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-all"
+              style={{
+                borderRadius: 'var(--radius-md)',
+                background: isActive ? 'var(--color-white)' : 'transparent',
+                color: isActive ? 'var(--color-black)' : 'var(--color-stone)',
+                boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+              }}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Alerts */}
@@ -243,8 +326,183 @@ export default function ImporterDashboardPage() {
         </div>
       )}
 
-      {activeTab === 'b2b' ? (
+      {activeTab === 'b2c' ? (
         <>
+          {/* B2C Tab — Full seller dashboard */}
+
+          {/* Period selector + KPIs */}
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Resumen</h2>
+            <PeriodSelector value={period} onChange={setPeriod} />
+          </div>
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <KPICard
+              icon={TrendingUp}
+              value={`${(stats?.volume_month || 0).toFixed(0)}€`}
+              label="Ventas B2C"
+              description={`${stats?.store_orders || 0} pedidos`}
+              href="/producer/orders"
+            />
+            <KPICard
+              icon={Package}
+              value={stats?.store_orders || 0}
+              label="Pedidos"
+              description={`${pendingB2cOrders.length} pendientes`}
+              href="/producer/orders"
+            />
+            <KPICard
+              icon={Eye}
+              value={stats?.follower_count || 0}
+              label="Seguidores tienda"
+              href="/producer/store-profile"
+            />
+            <KPICard
+              icon={BarChart3}
+              value={stats?.total_products || 0}
+              label="Productos activos"
+              description={`${stats?.pending_products || 0} pendientes`}
+              href="/producer/products"
+            />
+          </div>
+
+          {/* Pending B2C orders */}
+          {pendingB2cOrders.length > 0 && (
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Pedidos pendientes</h2>
+                <Link to="/producer/orders" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+                  Ver todos <ArrowRight className="w-3 h-3 inline" />
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {pendingB2cOrders.slice(0, 4).map((order, i) => (
+                  <div
+                    key={order.order_id || i}
+                    className="flex items-center gap-3 p-3.5"
+                    style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}
+                  >
+                    <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-amber-light)' }}>
+                      <Clock className="w-4 h-4" style={{ color: 'var(--color-amber)' }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                        {order.customer_name || 'Cliente'}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                        {(order.items || []).length} producto{(order.items || []).length !== 1 ? 's' : ''} · {formatRelativeTime(order.created_at)}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
+                        {(order.total || 0).toFixed(2)}€
+                      </p>
+                      <B2COrderStatusBadge status={order.status} />
+                    </div>
+                    <Link
+                      to={`/producer/orders`}
+                      className="shrink-0 flex items-center justify-center"
+                      style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-black)' }}
+                    >
+                      <ChevronRight className="w-4 h-4" style={{ color: '#fff' }} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick actions B2C */}
+          <div className="mb-5">
+            <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Acciones rápidas</h2>
+            <div className="grid grid-cols-2 gap-2">
+              <QuickAction icon={Store} label="Ver mi tienda" href="/producer/store-profile" />
+              <QuickAction icon={Plus} label="Publicar producto" href="/producer/products/new" variant="green" />
+            </div>
+          </div>
+
+          {/* Top products this week */}
+          <div className="p-4 mb-5" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Top productos esta semana</h3>
+              <Link to="/producer/products" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+                Ver todos <ArrowRight className="w-3 h-3 inline" />
+              </Link>
+            </div>
+            {topProducts.length > 0 ? topProducts.map((product, i) => (
+              <div
+                key={product.product_id || i}
+                className="flex items-center gap-3 py-2.5"
+                style={{ borderBottom: i < topProducts.length - 1 ? '1px solid var(--color-border)' : 'none' }}
+              >
+                <div
+                  className="w-10 h-10 shrink-0 overflow-hidden"
+                  style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}
+                >
+                  {product.images?.[0] ? (
+                    <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                    {product.name}
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                    {product.price ? `${product.price.toFixed(2)}€` : ''} · Stock: {product.stock ?? '—'}
+                  </p>
+                </div>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
+                  #{i + 1}
+                </span>
+              </div>
+            )) : (
+              <p className="text-sm py-3" style={{ color: 'var(--color-stone)' }}>
+                Aún no tienes productos publicados.
+              </p>
+            )}
+          </div>
+
+          {/* B2C recent orders (completed) */}
+          {b2cOrders.filter(o => o.status !== 'pending' && o.status !== 'processing').length > 0 && (
+            <div className="p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Pedidos B2C recientes</h3>
+                <Link to="/producer/orders" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+                  Ver todos <ArrowRight className="w-3 h-3 inline" />
+                </Link>
+              </div>
+              {b2cOrders.filter(o => o.status !== 'pending' && o.status !== 'processing').slice(0, 3).map((order, i) => (
+                <div
+                  key={order.order_id || i}
+                  className="flex items-center justify-between py-2.5"
+                  style={{ borderBottom: i < 2 ? '1px solid var(--color-border)' : 'none' }}
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                      {order.customer_name || 'Cliente'}
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                      {(order.items || []).length} producto{(order.items || []).length !== 1 ? 's' : ''} · {formatRelativeTime(order.created_at)}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0 ml-3">
+                    <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
+                      {(order.total || 0).toFixed(2)}€
+                    </p>
+                    <B2COrderStatusBadge status={order.status} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          {/* B2B Tab */}
+
           {/* KPIs */}
           <div className="grid grid-cols-2 gap-3 mb-5">
             <KPICard
@@ -266,10 +524,41 @@ export default function ImporterDashboardPage() {
             />
             <KPICard
               icon={Store}
-              value={`3%`}
+              value="3%"
               label="Comisión"
             />
           </div>
+
+          {/* Operations requiring action */}
+          {actionableOps.length > 0 && (
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Requieren tu acción</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-red-light)', color: 'var(--color-red)' }}>
+                  {actionableOps.length}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {actionableOps.slice(0, 3).map(op => (
+                  <OperationCard
+                    key={op.id || op._id}
+                    operation={op}
+                    userId={user?.user_id}
+                    onNavigate={(path) => navigate(path)}
+                  />
+                ))}
+              </div>
+              {actionableOps.length > 3 && (
+                <Link
+                  to="/b2b/operations"
+                  className="flex items-center justify-center gap-2 mt-3 py-2.5 text-sm font-semibold transition-colors"
+                  style={{ color: 'var(--color-black)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+                >
+                  Ver todas las operaciones <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
+            </div>
+          )}
 
           {/* Quick actions */}
           <div className="grid grid-cols-2 gap-2 mb-5">
@@ -331,6 +620,15 @@ export default function ImporterDashboardPage() {
             </div>
           )}
 
+          {/* Ver todas las operaciones B2B */}
+          <Link
+            to="/b2b/operations"
+            className="flex items-center justify-center gap-2 mt-4 py-3 text-sm font-semibold transition-colors"
+            style={{ color: 'var(--color-black)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+          >
+            Ver todas las operaciones B2B <ArrowRight className="w-4 h-4" />
+          </Link>
+
           {/* Active certificates */}
           <div className="mt-5 p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
             <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Certificados activos</h3>
@@ -343,27 +641,6 @@ export default function ImporterDashboardPage() {
                 <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Sin certificados activos</p>
               )}
             </div>
-          </div>
-        </>
-      ) : (
-        <>
-          {/* B2C Tab */}
-          <div className="mb-5">
-            <KPICard
-              icon={Store}
-              value={stats?.store_orders || 0}
-              label="Ventas B2C este mes"
-              href="/producer/orders"
-            />
-          </div>
-          <div className="p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
-            <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Pedidos B2C recientes</h3>
-            <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
-              Los pedidos B2C se gestionan desde tu tienda online.
-            </p>
-            <Link to="/producer/orders" className="inline-flex items-center gap-1 mt-3 text-sm font-semibold" style={{ color: 'var(--color-black)' }}>
-              Ver pedidos <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
         </>
       )}

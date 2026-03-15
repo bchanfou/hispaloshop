@@ -333,8 +333,8 @@ async def upload_store_image(
     user: User = Depends(get_current_user)
 ):
     """Upload image for store profile (hero, logo, or gallery)"""
-    await require_role(user, ["producer"])
-    
+    await require_role(user, ["producer", "importer"])
+
     # Validate file type
     allowed_types = ["image/jpeg", "image/png", "image/webp"]
     if file.content_type not in allowed_types:
