@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import Logo from '../brand/Logo';
 
 const NAV_LINKS = [
   { label: 'Qué es',       to: '/about' },
@@ -73,7 +74,7 @@ export default function InfoHeader() {
           padding: '0 var(--space-4)',
         }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-            <img src="/logo.png" alt="Hispaloshop" style={{ height: 26, width: 26, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+            <Logo variant="icon" theme="dark" size={26} />
             <span style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: textColor }}>
               Hispaloshop
             </span>
@@ -126,7 +127,7 @@ export default function InfoHeader() {
         }}>
           {/* Logo */}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <img src="/logo.png" alt="Hispaloshop" style={{ height: 28, width: 28, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+            <Logo variant="icon" theme="dark" size={28} />
             <span style={{ fontSize: 'var(--text-lg)', fontWeight: 700, color: textColor }}>
               Hispaloshop
             </span>

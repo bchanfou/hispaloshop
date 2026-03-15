@@ -40,8 +40,8 @@ export function showBrowserNotification(title, body, options = {}) {
 
   const notification = new Notification(title, {
     body,
-    icon: '/logo192.png',
-    badge: '/logo192.png',
+    icon: '/brand/logo-icon.png',
+    badge: '/brand/logo-icon.png',
     tag: options.tag || 'hispaloshop-chat',
     ...options,
   });

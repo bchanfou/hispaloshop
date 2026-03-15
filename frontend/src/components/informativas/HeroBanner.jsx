@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import Logo from '../brand/Logo';
 
 export default function HeroBanner() {
   const { user } = useAuth();
@@ -41,11 +42,7 @@ export default function HeroBanner() {
     }}>
       {/* Left */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-        <img
-          src="/logo.png"
-          alt=""
-          style={{ width: 28, height: 28, objectFit: 'contain', filter: 'brightness(10)', flexShrink: 0 }}
-        />
+        <Logo variant="icon" theme="dark" size={28} />
         <div style={{ minWidth: 0 }}>
           <p style={{
             margin: 0,

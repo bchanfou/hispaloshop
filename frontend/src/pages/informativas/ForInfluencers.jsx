@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 function useScrollReveal() {
   useEffect(() => {
@@ -29,6 +30,7 @@ const Section = ({ dark, children, style = {} }) => (
 export default function ForInfluencers() {
   const navigate = useNavigate();
   useScrollReveal();
+  usePageTitle();
 
   return (
     <div>

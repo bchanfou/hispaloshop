@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import Logo from '../brand/Logo';
 
 const COUNTRIES = [
   { code: 'ES', flag: '🇪🇸', name: 'España', active: true },
@@ -71,11 +72,7 @@ export default function Footer() {
         <div className="footer-grid">
           {/* Logo + wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <img
-              src="/logo.png"
-              alt="Hispaloshop"
-              style={{ height: 24, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-            />
+            <Logo variant="icon" theme="dark" size={28} />
             <span style={{ fontSize: 17, fontWeight: 600, color: '#fff' }}>
               hispaloshop
             </span>

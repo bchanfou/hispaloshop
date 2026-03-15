@@ -56,7 +56,7 @@ export default function SEO({
         "@type": "Organization",
         "name": "Hispaloshop",
         "url": "https://www.hispaloshop.com",
-        "logo": "https://www.hispaloshop.com/logo.png",
+        "logo": "https://www.hispaloshop.com/brand/logo-icon.png",
         "sameAs": ["https://instagram.com/hispaloshop"],
         "description": "Marketplace global de productos alimentarios certificados"
       })}</script>

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Logo from '../../components/brand/Logo';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 /* ── Scroll reveal hook ── */
 function useScrollReveal() {
@@ -33,16 +35,12 @@ const Section = ({ dark, children, style = {} }) => (
 );
 
 /* ── Logo Atlas fallback ── */
-const LogoAtlas = ({ size = 72, white = false }) => (
+const LogoAtlas = ({ size = 72 }) => (
   <div style={{
     width: size, height: size, margin: '0 auto 24px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   }}>
-    <img
-      src="/logo.png"
-      alt="Hispaloshop"
-      style={{ width: size, height: size, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-    />
+    <Logo variant="icon" theme="dark" size={size} />
   </div>
 );
 
@@ -50,6 +48,7 @@ export default function WhatIsHispaloshop() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('consumidor');
   useScrollReveal();
+  usePageTitle();
 
   return (
     <div>

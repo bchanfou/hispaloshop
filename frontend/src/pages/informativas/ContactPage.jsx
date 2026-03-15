@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const ROLES = ['Consumidor', 'Productor', 'Influencer', 'Importador', 'Prensa'];
 
@@ -21,6 +22,7 @@ function useScrollReveal() {
 export default function ContactPage() {
   const navigate = useNavigate();
   useScrollReveal();
+  usePageTitle();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

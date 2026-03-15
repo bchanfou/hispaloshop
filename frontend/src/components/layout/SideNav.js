@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import Logo from '../brand/Logo';
 import {
   Home,
   Compass,
@@ -52,7 +53,7 @@ export default function SideNav() {
       {/* Logo */}
       <Link to="/" className="flex items-center gap-3 px-5 py-5">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-stone-50">
-          <img src="/logo.png" alt="Hispaloshop" className="h-6 w-6 object-contain" loading="lazy" />
+          <Logo variant="icon" theme="light" size={24} />
         </div>
         <span className="text-base font-semibold tracking-tight text-stone-950">Hispaloshop</span>
       </Link>

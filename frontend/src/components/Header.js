@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Logo from './brand/Logo';
 import {
   ChevronRight,
   Globe,
@@ -107,7 +108,7 @@ export default function Header() {
           <div className="flex h-16 items-center gap-3 md:h-[76px] md:gap-5">
             <Link to="/" className="flex shrink-0 items-center gap-3" data-testid="logo-link">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-stone-200 bg-stone-50">
-                <img src="/logo.png" alt="Hispaloshop" className="h-7 w-7 object-contain" loading="lazy" />
+                <Logo variant="icon" theme="light" size={28} />
               </div>
               <div className="min-w-0">
                 <span className="block text-base font-semibold tracking-tight text-stone-950 md:text-lg">

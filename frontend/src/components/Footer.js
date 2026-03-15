@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import Logo from './brand/Logo';
 import {
   Check,
   ChevronDown,
@@ -62,7 +63,7 @@ export default function Footer() {
           <div className="xl:pr-4">
             <div className="mb-5 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/8">
-                <img src="/logo.png" alt="Hispaloshop" className="h-7 w-7 object-contain invert" loading="lazy" />
+                <Logo variant="icon" theme="dark" size={28} />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">Hispaloshop</h3>

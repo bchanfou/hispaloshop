@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useUnreadNotifications } from '../../hooks/api/useNotifications';
 import { getDefaultRoute } from '../../lib/navigation';
+import Logo from '../brand/Logo';
 
 const NAV_LINKS = [
   { label: 'Inicio',       to: '/' },
@@ -110,7 +111,7 @@ export default function AppHeader() {
       }}>
         {/* Logo */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Hispaloshop" style={{ height: 28, width: 28, objectFit: 'contain' }} />
+          <Logo variant="icon" theme="light" size={28} />
           <span style={{
             fontSize: 'var(--text-md)',
             fontWeight: 700,
@@ -156,7 +157,7 @@ export default function AppHeader() {
       }}>
         {/* Left: Logo */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Hispaloshop" style={{ height: 30, width: 30, objectFit: 'contain' }} />
+          <Logo variant="icon" theme="light" size={30} />
           <span style={{
             fontSize: 'var(--text-lg)',
             fontWeight: 700,

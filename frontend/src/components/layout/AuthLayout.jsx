@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Logo from '../brand/Logo';
 
 /**
  * AuthLayout — centered layout for auth pages (login, register, verify, etc.)
@@ -23,15 +24,7 @@ export default function AuthLayout({ children }) {
         justifyContent: 'center',
       }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <img src="/logo.png" alt="Hispaloshop" style={{ height: 32, width: 32, objectFit: 'contain' }} />
-          <span style={{
-            fontSize: 'var(--text-xl)',
-            fontWeight: 700,
-            color: 'var(--color-black)',
-            letterSpacing: '-0.01em',
-          }}>
-            Hispaloshop
-          </span>
+          <Logo variant="full" theme="light" size={120} />
         </Link>
       </div>
 
