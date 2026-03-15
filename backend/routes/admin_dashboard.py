@@ -540,6 +540,22 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
         "fiscal_status.certificate_verified": {"$ne": True},
     })
 
+    # Producer verification: pending manual reviews
+    pending_verifications = await db.users.count_documents({
+        "role": {"$in": ["producer", "importer"]},
+        "verification_status.admin_review_required": True,
+        "verification_status.is_verified": {"$ne": True},
+    })
+
+    # Producers blocked by expired certificate
+    blocked_by_expired_cert = await db.users.count_documents({
+        "role": {"$in": ["producer", "importer"]},
+        "verification_status.blocked_from_selling": True,
+        "verification_status.documents.certificates": {
+            "$elemMatch": {"status": "expired"},
+        },
+    })
+
     return {
         "pending_producers": pending_producers,
         "total_producers": total_producers,
@@ -554,6 +570,8 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
         "open_support": open_support,
         "pending_moderation": pending_moderation,
         "fiscal_pending_review": fiscal_pending_review,
+        "pending_verifications": pending_verifications,
+        "blocked_by_expired_cert": blocked_by_expired_cert,
     }
 
 

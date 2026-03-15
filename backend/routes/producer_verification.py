@@ -276,6 +276,73 @@ async def upload_certificate(
     }
 
 
+# ── PUT /verification/certificate/:cert_index (renewal) ──────────
+
+@router.put("/verification/certificate/{cert_index}")
+async def renew_certificate(
+    cert_index: int,
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+):
+    """Renew an existing certificate (replace with new file, re-verify)."""
+    await require_role(user, ["producer", "importer", "admin"])
+
+    db_user = await db.users.find_one({"user_id": user.user_id})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    certs = db_user.get("verification_status", {}).get("documents", {}).get("certificates", [])
+    if cert_index < 0 or cert_index >= len(certs):
+        raise HTTPException(status_code=404, detail="Certificado no encontrado")
+
+    old_cert = certs[cert_index]
+    cert_type = old_cert.get("type", "other")
+
+    if file.content_type not in ALLOWED_DOC_TYPES:
+        raise HTTPException(status_code=400, detail="Formato no válido. Usa PDF, JPG o PNG.")
+
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="El archivo no puede superar 5MB")
+
+    result = await cloudinary_upload(
+        content,
+        folder="verification_docs",
+        filename=f"cert_{user.user_id}_{cert_type}_{uuid.uuid4().hex[:8]}",
+    )
+    file_url = result["url"]
+    now = datetime.now(timezone.utc)
+
+    verification = await verify_certificate(file_url, cert_type)
+
+    # Update the certificate at the given index
+    prefix = f"verification_status.documents.certificates.{cert_index}"
+    update = {
+        f"{prefix}.url": file_url,
+        f"{prefix}.issuer": verification["issuer"],
+        f"{prefix}.issued_to": verification["issued_to"],
+        f"{prefix}.issue_date": verification["issue_date"],
+        f"{prefix}.expiry_date": verification["expiry_date"],
+        f"{prefix}.status": verification["status"],
+        f"{prefix}.rejection_reason": verification["rejection_reason"],
+        f"{prefix}.uploaded_at": now,
+        f"{prefix}.verified_at": now if verification["status"] == "verified" else None,
+    }
+
+    await db.users.update_one({"user_id": user.user_id}, {"$set": update})
+    await run_full_verification(user.user_id)
+
+    updated = await db.users.find_one({"user_id": user.user_id})
+    is_verified = updated.get("verification_status", {}).get("is_verified", False)
+
+    return {
+        "status": verification["status"],
+        "expiry_date": verification["expiry_date"],
+        "confidence": verification["confidence"],
+        "is_verified": is_verified,
+    }
+
+
 # ── GET /verification/status ─────────────────────────────────────
 
 @router.get("/verification/status")

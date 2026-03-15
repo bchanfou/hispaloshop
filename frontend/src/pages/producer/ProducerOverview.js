@@ -524,6 +524,7 @@ export default function ProducerOverview() {
   const [period, setPeriod] = useState('month');
   const [salesChart, setSalesChart] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [verificationStatus, setVerificationStatus] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -533,6 +534,7 @@ export default function ProducerOverview() {
   useEffect(() => {
     apiClient.get('/producer/sales-chart').then(d => setSalesChart(d?.days || [])).catch(() => {});
     apiClient.get('/producer/alerts').then(d => setAlerts(d || [])).catch(() => {});
+    apiClient.get('/verification/status').then(d => setVerificationStatus(d)).catch(() => {});
   }, []);
 
   const fetchData = async () => {
@@ -699,6 +701,53 @@ export default function ProducerOverview() {
           )}
         </div>
       </div>
+      {/* Verification banners */}
+      {verificationStatus && !verificationStatus.is_verified && (
+        <Link
+          to="/producer/verification"
+          className="flex items-start gap-3 p-4 transition-colors"
+          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-amber-light)', border: '1px solid var(--color-amber)' }}
+        >
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+          <div className="flex-1">
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-amber)' }}>Cuenta no verificada</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-amber)' }}>No puedes publicar productos hasta completar la verificación.</p>
+          </div>
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-amber)' }} />
+        </Link>
+      )}
+      {verificationStatus?.is_verified && verificationStatus?.documents?.certificates?.some(c => {
+        if (!c.expiry_date || c.status === 'expired') return false;
+        return (new Date(c.expiry_date) - new Date()) / 86400000 <= 30;
+      }) && (
+        <Link
+          to="/producer/verification"
+          className="flex items-start gap-3 p-4 transition-colors"
+          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-amber-light)', border: '1px solid var(--color-amber)' }}
+        >
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+          <div className="flex-1">
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-amber)' }}>Certificado próximo a caducar</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-amber)' }}>Renuévalo para no interrumpir tus ventas.</p>
+          </div>
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-amber)' }} />
+        </Link>
+      )}
+      {verificationStatus?.documents?.certificates?.some(c => c.status === 'expired') && (
+        <Link
+          to="/producer/verification"
+          className="flex items-start gap-3 p-4 transition-colors"
+          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-red-light)', border: '1px solid var(--color-red)' }}
+        >
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-red)' }} />
+          <div className="flex-1">
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-red)' }}>Certificado caducado</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-red)' }}>Tus ventas pueden estar pausadas. Renueva ahora.</p>
+          </div>
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-red)' }} />
+        </Link>
+      )}
+
       {dataWarnings.length > 0 && !error && (
         <div className="p-4" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
           <div className="flex items-start gap-2">

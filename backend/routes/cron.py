@@ -521,3 +521,171 @@ async def cron_generate_quarterly_tax_report(user: User = Depends(get_current_us
         "total_withheld": result["total_withheld"],
         "perceptors_count": result["perceptors_count"],
     }
+
+
+# ── Certificate Expiry Alerts (daily 09:00) ──────────────────────
+
+CERT_EXPIRY_EMAIL_30 = """
+<h2>Tu certificado caduca pronto</h2>
+<p>Hola {name},</p>
+<p>Tu certificado <strong>{cert_type}</strong> caduca el <strong>{expiry_date}</strong> ({days_left} días).</p>
+<p>Renuévalo para mantener tu badge verificado y no interrumpir tus ventas.</p>
+<p><a href="{frontend_url}/producer/verification">Renovar certificado</a></p>
+"""
+
+CERT_EXPIRY_EMAIL_7 = """
+<h2>⚠️ Certificado a punto de caducar</h2>
+<p>Hola {name},</p>
+<p>Tu certificado <strong>{cert_type}</strong> caduca en <strong>{days_left} días</strong> ({expiry_date}).</p>
+<p>Sube la renovación ahora para no interrumpir tus ventas.</p>
+<p><a href="{frontend_url}/producer/verification">Renovar ahora</a></p>
+"""
+
+CERT_EXPIRED_EMAIL = """
+<h2>Certificado caducado</h2>
+<p>Hola {name},</p>
+<p>Tu certificado <strong>{cert_type}</strong> ha caducado. Tus ventas pueden estar pausadas hasta que subas un certificado renovado.</p>
+<p><a href="{frontend_url}/producer/verification">Renovar certificado</a></p>
+"""
+
+
+@router.post("/admin/cron/certificate-expiry-alerts")
+async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user)):
+    """Daily: check for expiring/expired producer certificates and send alerts."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from services.producer_verification import run_full_verification
+    from routes.notifications import create_notification
+
+    now = datetime.now(timezone.utc)
+    today = now.strftime("%Y-%m-%d")
+    day_7 = (now + timedelta(days=7)).strftime("%Y-%m-%d")
+    day_30 = (now + timedelta(days=30)).strftime("%Y-%m-%d")
+    frontend = FRONTEND_URL
+
+    # Find all producers with verified certificates that have expiry dates
+    producers = await db.users.find(
+        {
+            "role": {"$in": ["producer", "importer"]},
+            "verification_status.documents.certificates": {
+                "$elemMatch": {
+                    "status": {"$in": ["verified"]},
+                    "expiry_date": {"$exists": True, "$ne": None},
+                },
+            },
+        },
+        {"_id": 0, "user_id": 1, "name": 1, "company_name": 1, "email": 1,
+         "verification_status": 1},
+    ).to_list(2000)
+
+    alerts_30 = 0
+    alerts_7 = 0
+    expired_count = 0
+
+    for producer in producers:
+        vs = producer.get("verification_status", {})
+        certs = vs.get("documents", {}).get("certificates", [])
+        name = producer.get("company_name") or producer.get("name", "Productor")
+        uid = producer["user_id"]
+        email = producer.get("email")
+
+        for i, cert in enumerate(certs):
+            if cert.get("status") != "verified" or not cert.get("expiry_date"):
+                continue
+
+            expiry = cert["expiry_date"]  # YYYY-MM-DD string
+
+            if expiry < today:
+                # Certificate expired today — mark as expired
+                await db.users.update_one(
+                    {"user_id": uid},
+                    {"$set": {
+                        f"verification_status.documents.certificates.{i}.status": "expired",
+                    }},
+                )
+                expired_count += 1
+
+                # Re-run verification to check if seller should be blocked
+                await run_full_verification(uid)
+
+                try:
+                    await create_notification(
+                        user_id=uid,
+                        title="Certificado caducado",
+                        message=f"Tu certificado {cert.get('name', '')} ha caducado.",
+                        link="/producer/verification",
+                        notif_type="certificate_expired",
+                    )
+                    if email:
+                        send_email(
+                            to=email,
+                            subject="Certificado caducado — Hispaloshop",
+                            html=CERT_EXPIRED_EMAIL.format(
+                                name=name,
+                                cert_type=cert.get("name", cert.get("type", "")),
+                                frontend_url=frontend,
+                            ),
+                        )
+                except Exception as e:
+                    logger.error("Expiry notification failed for %s: %s", uid, e)
+
+            elif expiry <= day_7:
+                # Expires in 7 days — urgent alert
+                days_left = max(1, (datetime.strptime(expiry, "%Y-%m-%d").date() - now.date()).days)
+                alerts_7 += 1
+                try:
+                    await create_notification(
+                        user_id=uid,
+                        title=f"Certificado caduca en {days_left} días",
+                        message=f"Tu certificado {cert.get('name', '')} caduca el {expiry}.",
+                        link="/producer/verification",
+                        notif_type="certificate_expiry_urgent",
+                    )
+                    if email:
+                        send_email(
+                            to=email,
+                            subject=f"⚠️ Tu certificado caduca en {days_left} días",
+                            html=CERT_EXPIRY_EMAIL_7.format(
+                                name=name,
+                                cert_type=cert.get("name", cert.get("type", "")),
+                                expiry_date=expiry,
+                                days_left=days_left,
+                                frontend_url=frontend,
+                            ),
+                        )
+                except Exception as e:
+                    logger.error("Expiry alert failed for %s: %s", uid, e)
+
+            elif expiry <= day_30:
+                # Expires in 30 days — standard alert
+                days_left = (datetime.strptime(expiry, "%Y-%m-%d").date() - now.date()).days
+                alerts_30 += 1
+                try:
+                    await create_notification(
+                        user_id=uid,
+                        title=f"Certificado caduca en {days_left} días",
+                        message=f"Renueva tu certificado {cert.get('name', '')} antes del {expiry}.",
+                        link="/producer/verification",
+                        notif_type="certificate_expiry_warning",
+                    )
+                    if email:
+                        send_email(
+                            to=email,
+                            subject=f"Tu certificado caduca en {days_left} días",
+                            html=CERT_EXPIRY_EMAIL_30.format(
+                                name=name,
+                                cert_type=cert.get("name", cert.get("type", "")),
+                                expiry_date=expiry,
+                                days_left=days_left,
+                                frontend_url=frontend,
+                            ),
+                        )
+                except Exception as e:
+                    logger.error("Expiry warning failed for %s: %s", uid, e)
+
+    return {
+        "checked": len(producers),
+        "alerts_30_days": alerts_30,
+        "alerts_7_days": alerts_7,
+        "expired_today": expired_count,
+    }

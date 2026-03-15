@@ -135,6 +135,7 @@ export default function AdminOverview() {
         <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Cola de revisión</h2>
         <div className="space-y-2">
           <PendingRow label="Productores pendientes" count={pendingProducers} to="/admin/producers" />
+          <PendingRow label="Verificaciones pendientes" count={stats?.pending_verifications || 0} to="/admin/verification" />
           <PendingRow label="Productos por revisar" count={pendingProducts} to="/admin/products" />
           <PendingRow label="Certificados" count={pendingCertificates} to="/admin/certificates" />
           <PendingRow label="Moderación de contenido" count={pendingModeration} to="/admin/trust-safety" />
@@ -142,6 +143,22 @@ export default function AdminOverview() {
           <PendingRow label="Reembolsos" count={stats?.refunded_orders || 0} to="/admin/refunds" />
         </div>
       </div>
+
+      {/* Verification — blocked producers */}
+      {(stats?.blocked_by_expired_cert || 0) > 0 && (
+        <div className="mb-5">
+          <Link
+            to="/admin/verification"
+            className="flex items-center gap-3 p-3.5 transition-all text-sm"
+            style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-red)', background: 'var(--color-red-light)' }}
+          >
+            <span className="font-medium" style={{ color: 'var(--color-red)' }}>
+              {stats.blocked_by_expired_cert} productor(es) bloqueados por certificado caducado
+            </span>
+            <ArrowRight className="w-4 h-4 ml-auto shrink-0" style={{ color: 'var(--color-red)' }} />
+          </Link>
+        </div>
+      )}
 
       {/* B2B Operations */}
       <div className="mb-5">
