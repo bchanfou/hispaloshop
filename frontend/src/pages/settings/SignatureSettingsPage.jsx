@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Info, Upload, Loader2 } from 'lucide-react';
+import { ArrowLeft, Info, Upload, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '@/services/api/client';
 
@@ -14,6 +14,8 @@ const V2 = {
   surface: '#F0EDE8',
   green: '#2E7D52',
   greenLight: '#E8F5EE',
+  amber: '#B45309',
+  amberLight: '#FEF3C7',
   fontSans: 'Inter, sans-serif',
   radiusMd: 12,
   radiusFull: 9999,
@@ -33,6 +35,8 @@ function dataURLtoBlob(dataURL) {
 
 export default function SignatureSettingsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || '';
 
   const [activeTab, setActiveTab] = useState('draw');
   const [hasDrawn, setHasDrawn] = useState(false);
@@ -43,9 +47,31 @@ export default function SignatureSettingsPage() {
   const [stampPreview, setStampPreview] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  // Existing signature state
+  const [existingSig, setExistingSig] = useState(null);
+  const [existingStamp, setExistingStamp] = useState(null);
+  const [configuredAt, setConfiguredAt] = useState(null);
+  const [loadingSig, setLoadingSig] = useState(true);
+
   const canvasRef = useRef(null);
   const sigInputRef = useRef(null);
   const stampInputRef = useRef(null);
+
+  /* ── Load existing signature ──────────────────────────── */
+  useEffect(() => {
+    apiClient
+      .get('/users/me/signature')
+      .then((data) => {
+        if (data?.signature_url) setExistingSig(data.signature_url);
+        if (data?.stamp_url) {
+          setExistingStamp(data.stamp_url);
+          setStampPreview(data.stamp_url);
+        }
+        if (data?.configured_at) setConfiguredAt(data.configured_at);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingSig(false));
+  }, []);
 
   /* ── Canvas setup ────────────────────────────────────── */
   useEffect(() => {
@@ -133,38 +159,75 @@ export default function SignatureSettingsPage() {
     activeTab === 'draw'
       ? hasDrawn
         ? getCanvasDataURL()
-        : null
-      : sigPreview;
+        : existingSig
+      : sigPreview || existingSig;
 
   /* ── Save ────────────────────────────────────────────── */
   const handleSave = async () => {
     let sigBlob;
 
     if (activeTab === 'draw') {
-      if (!hasDrawn) {
+      if (!hasDrawn && !existingSig) {
         toast.error('Dibuja tu firma antes de guardar');
         return;
       }
-      sigBlob = dataURLtoBlob(getCanvasDataURL());
+      if (hasDrawn) {
+        sigBlob = dataURLtoBlob(getCanvasDataURL());
+      }
     } else {
-      if (!uploadedSig) {
+      if (!uploadedSig && !existingSig) {
         toast.error('Sube una imagen de tu firma');
         return;
       }
-      sigBlob = uploadedSig;
+      if (uploadedSig) {
+        sigBlob = uploadedSig;
+      }
+    }
+
+    // If no new sig blob but existing one, and we have a new stamp, still save
+    if (!sigBlob && !existingSig && !stampFile) {
+      toast.error('Configura tu firma antes de guardar');
+      return;
+    }
+
+    // If nothing changed, just navigate back
+    if (!sigBlob && !stampFile) {
+      toast.info('No hay cambios que guardar');
+      if (returnTo) navigate(returnTo);
+      else navigate(-1);
+      return;
     }
 
     const fd = new FormData();
-    fd.append('signature', sigBlob, 'signature.png');
+    if (sigBlob) {
+      fd.append('signature', sigBlob, 'signature.png');
+    } else {
+      // Need to send existing as a dummy to keep the endpoint happy
+      // Actually we need a signature file - download existing and re-upload
+      try {
+        const resp = await fetch(existingSig);
+        const blob = await resp.blob();
+        fd.append('signature', blob, 'signature.png');
+      } catch {
+        toast.error('Error al procesar la firma existente');
+        return;
+      }
+    }
     if (stampFile) fd.append('stamp', stampFile, 'stamp.png');
 
     setSaving(true);
     try {
-      await apiClient.post('/api/users/me/signature', fd, {
+      const result = await apiClient.post('/users/me/signature', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Firma guardada');
-      navigate(-1);
+      setExistingSig(result?.signature_url || existingSig);
+      setConfiguredAt(result?.configured_at || new Date().toISOString());
+      if (returnTo) {
+        navigate(returnTo);
+      } else {
+        navigate(-1);
+      }
     } catch {
       toast.error('Error al guardar la firma');
     } finally {
@@ -194,6 +257,11 @@ export default function SignatureSettingsPage() {
     { key: 'draw', label: 'Dibujar' },
     { key: 'upload', label: 'Subir imagen' },
   ];
+
+  const goBack = () => {
+    if (returnTo) navigate(returnTo);
+    else navigate(-1);
+  };
 
   /* ────────────────────────────────────────────────────── */
   return (
@@ -225,7 +293,7 @@ export default function SignatureSettingsPage() {
         }}
       >
         <button
-          onClick={() => navigate(-1)}
+          onClick={goBack}
           className="flex items-center justify-center"
           style={{
             width: 36,
@@ -249,6 +317,118 @@ export default function SignatureSettingsPage() {
         className="flex flex-col gap-6"
         style={{ flex: 1, overflowY: 'auto', padding: '20px 16px 32px' }}
       >
+        {/* ── Status card ─────────────────────────────── */}
+        {!loadingSig && (
+          existingSig ? (
+            <div
+              className="flex items-start gap-3"
+              style={{
+                background: V2.greenLight,
+                border: `1px solid ${V2.green}33`,
+                borderRadius: V2.radiusMd,
+                padding: 14,
+              }}
+            >
+              <div
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: V2.radiusFull,
+                  background: V2.green,
+                }}
+              >
+                <Check size={16} style={{ color: V2.white }} strokeWidth={2.5} />
+              </div>
+              <div className="flex-1">
+                <p style={{ fontSize: 13, fontWeight: 600, color: V2.black, margin: 0 }}>
+                  Firma configurada
+                </p>
+                {configuredAt && (
+                  <p style={{ fontSize: 11, color: V2.stone, margin: '2px 0 0' }}>
+                    Configurada el {new Date(configuredAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => { setExistingSig(null); clearCanvas?.(); }}
+                style={{
+                  background: 'transparent',
+                  border: `1px solid ${V2.border}`,
+                  borderRadius: V2.radiusFull,
+                  padding: '4px 12px',
+                  fontSize: 11,
+                  color: V2.stone,
+                  cursor: 'pointer',
+                  fontFamily: V2.fontSans,
+                }}
+              >
+                Actualizar
+              </button>
+            </div>
+          ) : (
+            <div
+              className="flex items-start gap-3"
+              style={{
+                background: V2.amberLight,
+                border: `1px solid ${V2.amber}33`,
+                borderRadius: V2.radiusMd,
+                padding: 14,
+              }}
+            >
+              <Info size={18} style={{ color: V2.amber, flexShrink: 0, marginTop: 2 }} />
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 600, color: V2.black, margin: 0 }}>
+                  Sin firma configurada
+                </p>
+                <p style={{ fontSize: 11, color: V2.stone, margin: '2px 0 0' }}>
+                  Necesitas configurar tu firma para poder firmar contratos B2B.
+                </p>
+              </div>
+            </div>
+          )
+        )}
+
+        {/* ── Existing signature preview ──────────────── */}
+        {existingSig && (
+          <div className="flex flex-col gap-2">
+            <SectionLabel>Firma actual</SectionLabel>
+            <div
+              className="flex items-center justify-center"
+              style={{
+                width: '100%',
+                height: 100,
+                borderRadius: V2.radiusMd,
+                border: `1px solid ${V2.border}`,
+                background: CHECKERBOARD_BG,
+                position: 'relative',
+              }}
+            >
+              <img
+                src={existingSig}
+                alt="Firma actual"
+                style={{ maxWidth: '90%', maxHeight: 80, objectFit: 'contain' }}
+              />
+              {existingStamp && (
+                <img
+                  src={existingStamp}
+                  alt="Sello"
+                  style={{
+                    position: 'absolute',
+                    bottom: 8,
+                    right: 8,
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    opacity: 0.6,
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ── Section 1: Explanation ────────────────────── */}
         <div
           className="flex gap-3"
@@ -276,7 +456,7 @@ export default function SignatureSettingsPage() {
 
         {/* ── Section 2: Signature ──────────────────────── */}
         <div className="flex flex-col gap-3">
-          <SectionLabel>Firma manuscrita</SectionLabel>
+          <SectionLabel>{existingSig ? 'Actualizar firma' : 'Firma manuscrita'}</SectionLabel>
 
           {/* Tabs */}
           <div
@@ -452,7 +632,7 @@ export default function SignatureSettingsPage() {
                   flexShrink: 0,
                   background: V2.white,
                   border: `1.5px dashed ${V2.border}`,
-                  borderRadius: V2.radiusMd,
+                  borderRadius: '50%',
                   cursor: 'pointer',
                 }}
               >

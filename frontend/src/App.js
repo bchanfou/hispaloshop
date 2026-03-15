@@ -112,6 +112,7 @@ const InfrastructurePage = lazy(() => import('./pages/super-admin/Infrastructure
 const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdminOverview'));
 
 const CollabProposalPage = lazy(() => import('./pages/collaborations/CollabProposalPage'));
+const SignedDocumentsPage = lazy(() => import('./pages/documents/SignedDocumentsPage'));
 const CommunitiesExplorePage = lazy(() => import('./pages/CommunitiesExplorePage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
@@ -629,6 +630,7 @@ function AppRouter() {
               <Route path="/messages/new" element={<NewConversationPage />} />
               <Route path="/messages/:conversationId" element={<ChatPage />} />
               <Route path="/collab/new" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><CollabProposalPage /></ProtectedRoute>} />
+              <Route path="/documents" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><SignedDocumentsPage /></ProtectedRoute>} />
               <Route path="/b2b/offer/new" element={<B2BOfferPage />} />
               <Route path="/b2b/contract/:operationId" element={<B2BContractPage />} />
               <Route path="/b2b/payment/:operationId" element={<B2BPaymentPage />} />

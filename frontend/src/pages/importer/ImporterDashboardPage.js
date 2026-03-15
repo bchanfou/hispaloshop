@@ -4,7 +4,7 @@ import {
   Package, ShoppingBag, Factory, Store, Search, Award, FileCheck,
   ExternalLink, ArrowRight, AlertTriangle,
   Loader2, Globe, MessageCircle, TrendingUp, Eye, Plus,
-  Clock, ChevronRight, BarChart3
+  Clock, ChevronRight, BarChart3, PenTool, FileText, KeyRound, CreditCard
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
@@ -644,6 +644,43 @@ export default function ImporterDashboardPage() {
           </div>
         </>
       )}
+
+      {/* Account & Configuration */}
+      <div className="mt-5 p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+        <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Cuenta y configuración</h3>
+        <div className="space-y-1">
+          {[
+            {
+              icon: PenTool,
+              label: 'Firma digital',
+              sublabel: user?.signature_url ? 'Configurada' : 'Pendiente',
+              sublabelColor: user?.signature_url ? 'var(--color-green)' : 'var(--color-amber)',
+              to: '/settings/signature',
+            },
+            { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },
+            { icon: CreditCard, label: 'Datos bancarios', sublabel: 'Stripe Connect', to: '/producer/connect' },
+            { icon: KeyRound, label: 'Cambiar contraseña', sublabel: '', to: '/settings/password' },
+          ].map((item, i) => (
+            <Link
+              key={i}
+              to={item.to}
+              className="flex items-center gap-3 p-3 transition-colors"
+              style={{ borderRadius: 'var(--radius-md)' }}
+            >
+              <div className="w-8 h-8 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
+                <item.icon className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>{item.label}</p>
+                {item.sublabel && (
+                  <p className="text-[11px]" style={{ color: item.sublabelColor || 'var(--color-stone)' }}>{item.sublabel}</p>
+                )}
+              </div>
+              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: 'var(--color-stone)' }} />
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

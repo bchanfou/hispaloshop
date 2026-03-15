@@ -89,7 +89,7 @@ export default function B2BContractPage() {
         if (fresh && fresh.status !== 'offer_accepted' && fresh.status !== 'contract_pending') {
           clearInterval(pollRef.current);
         }
-      }, 2000);
+      }, 5000);
     }
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
@@ -508,7 +508,7 @@ export default function B2BContractPage() {
                 </div>
 
                 <button
-                  onClick={() => navigate('/settings/signature')}
+                  onClick={() => navigate(`/settings/signature?returnTo=/b2b/contract/${operationId}`)}
                   style={{
                     width: '100%',
                     height: 44,
