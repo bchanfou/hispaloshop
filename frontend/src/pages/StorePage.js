@@ -15,6 +15,7 @@ import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
 import { useTranslation } from 'react-i18next';
 import { useStoreFollow } from '../features/products/hooks';
+import { useChatContext } from '../context/chat/ChatProvider';
 
 const normalizeEntityId = (value) => (value == null ? '' : String(value));
 
@@ -70,6 +71,7 @@ export default function StorePage() {
   const avgRating = reviewsQuery.data?.average_rating || store?.rating || 0;
   const isVerified = Boolean(store?.verified || store?.producer_verified);
   const { isFollowing, followLoading, handleFollowStore } = useStoreFollow(store?.slug || store?.store_slug);
+  const { openConversation } = useChatContext();
 
   const handleToggleFollow = async () => {
     if (!user) { toast.error(t('store.loginToFollow', 'Inicia sesión para seguir tiendas')); return; }
@@ -77,6 +79,16 @@ export default function StorePage() {
       await handleFollowStore();
       toast.success(isFollowing ? t('store.unfollowed', 'Dejaste de seguir') : t('store.followed', 'Ahora sigues esta tienda'));
     } catch { toast.error(t('store.followError', 'Error')); }
+  };
+
+  const handleChat = async () => {
+    try {
+      const storeUserId = store.user_id || store.producer_id;
+      const conv = await openConversation(storeUserId, 'b2c');
+      if (conv?.id) navigate(`/messages/${conv.id}`);
+    } catch {
+      toast.error('No se pudo abrir el chat');
+    }
   };
 
   const handleShare = async () => {
@@ -276,6 +288,19 @@ export default function StorePage() {
               <Mail size={16} /> Contactar
             </a>
           )}
+          <button
+            type="button" onClick={handleChat}
+            style={{
+              height: 40, borderRadius: 'var(--radius-md)',
+              padding: '0 16px', display: 'flex', alignItems: 'center', gap: 6,
+              fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)',
+              border: '1px solid var(--color-border)',
+              background: 'var(--color-surface)', color: 'var(--color-black)',
+              cursor: 'pointer',
+            }}
+          >
+            <MessageCircle size={16} /> Chat
+          </button>
         </div>
 
         {/* Certification row */}

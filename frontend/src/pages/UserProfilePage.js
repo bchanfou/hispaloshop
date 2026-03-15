@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VirtuosoGrid } from 'react-virtuoso';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import ProfilePageHeader from '../components/profile/ProfilePageHeader';
 import ProfessionalBanner from '../components/profile/ProfessionalBanner';
@@ -19,6 +19,7 @@ import {
   ShoppingBag,
   User,
   X,
+  MessageCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
@@ -44,6 +45,7 @@ import FollowersModal from '../components/social/FollowersModal';
 import EditProfileSheet from '../components/profile/EditProfileSheet';
 import { useAutocomplete } from '../hooks/useAutocomplete';
 import AutocompleteDropdown from '../components/ui/AutocompleteDropdown';
+import { useChatContext } from '../context/chat/ChatProvider';
 
 const GridListComponent = React.forwardRef(({ style, children, ...props }, ref) => (
   <div
@@ -267,8 +269,10 @@ function EmptyState({ icon: Icon, title, description, action }) {
 
 export default function UserProfilePage() {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { t } = useTranslation();
+  const { openConversation } = useChatContext();
   const { profile, isLoading: profileLoading } = useUserProfile(userId);
   const { posts, isLoading: postsLoading, createPost, creatingPost } = useUserPosts(userId);
   const { isFollowing, followersCount, followingCount, toggleFollow } = useUserFollow(userId, profile);
@@ -353,6 +357,20 @@ export default function UserProfilePage() {
 
     await navigator.clipboard.writeText(url);
     toast.success(t('social.linkCopied'));
+  };
+
+  const handleChat = async () => {
+    try {
+      const getChatType = () => {
+        if (profile?.role === 'influencer') return 'collab';
+        if (['producer', 'importer'].includes(profile?.role)) return 'b2c';
+        return 'c2c';
+      };
+      const conv = await openConversation(userId, getChatType());
+      if (conv?.id) navigate(`/messages/${conv.id}`);
+    } catch {
+      toast.error('No se pudo abrir el chat');
+    }
   };
 
   const handleAvatarUpload = async (event) => {
@@ -627,12 +645,11 @@ export default function UserProfilePage() {
                   {isFollowing ? 'Siguiendo' : t('social.follow', 'Seguir')}
                 </button>
                 <button
-                  onClick={() =>
-                    window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId } }))
-                  }
-                  className="flex-1 h-[34px] rounded-full text-[13px] font-medium"
+                  onClick={handleChat}
+                  className="flex-1 h-[34px] rounded-full text-[13px] font-medium inline-flex items-center justify-center gap-1.5"
                   style={{ background: 'var(--color-surface)', color: 'var(--color-black)', transition: 'var(--transition-fast)' }}
                 >
+                  <MessageCircle className="h-[14px] w-[14px]" />
                   {t('social.message', 'Mensaje')}
                 </button>
                 <button

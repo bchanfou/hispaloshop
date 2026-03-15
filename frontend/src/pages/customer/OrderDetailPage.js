@@ -4,12 +4,13 @@ import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 import {
   ArrowLeft, XCircle, Truck, Check, Clock, Package,
-  MapPin, ExternalLink, RotateCcw, Star, MessageSquare
+  MapPin, ExternalLink, RotateCcw, Star, MessageSquare, MessageCircle
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { asNumber } from '../../utils/safe';
 import ReviewModal from '../../components/ReviewModal';
 import { getStatusLabel, getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
+import { useChatContext } from '../../context/chat/ChatProvider';
 
 const statusIcons = {
   pending: Clock,
@@ -26,6 +27,7 @@ export default function OrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { openConversation } = useChatContext();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -63,6 +65,15 @@ export default function OrderDetailPage() {
       toast.success('Productos agregados al carrito');
     } catch {
       toast.error('Error al reordenar');
+    }
+  };
+
+  const handleContactProducer = async () => {
+    try {
+      const conv = await openConversation(order.producer_id, 'b2c');
+      if (conv?.id) navigate(`/messages/${conv.id}`);
+    } catch {
+      toast.error('No se pudo abrir el chat');
     }
   };
 
@@ -518,6 +529,29 @@ export default function OrderDetailPage() {
             </>
           )}
         </div>
+
+        {/* Contact producer */}
+        {order.producer_id && (
+          <button
+            onClick={handleContactProducer}
+            className="w-full flex items-center justify-center gap-2"
+            style={{
+              height: 44,
+              background: 'var(--color-surface)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+              fontSize: 13,
+              fontWeight: 500,
+              fontFamily: 'var(--font-sans)',
+              color: 'var(--color-black)',
+              cursor: 'pointer',
+              marginBottom: 16,
+            }}
+          >
+            <MessageCircle className="w-4 h-4" />
+            Contactar productor
+          </button>
+        )}
       </div>
 
       <ReviewModal open={reviewOpen} onClose={() => setReviewOpen(false)} order={order} />

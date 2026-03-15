@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Share2, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
-  CheckCircle, User, FileCheck, ChevronRight, Leaf,
+  CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -19,6 +19,7 @@ import {
   useProductReviews as useProductReviewsHook,
   useStoreFollow,
 } from '../features/products/hooks';
+import { useChatContext } from '../context/chat/ChatProvider';
 
 const stripEmoji = (text) => {
   if (typeof text !== 'string') return text;
@@ -77,6 +78,7 @@ export default function ProductDetailPage() {
   const { user } = useAuth();
   const { convertAndFormatPrice } = useLocale();
   const { t } = useTranslation();
+  const { openConversation } = useChatContext();
 
   const {
     product, certificate, storeInfo, inWishlist,
@@ -159,6 +161,15 @@ export default function ProductDetailPage() {
     } else {
       try { await navigator.clipboard.writeText(shareData.url); toast.success('Enlace copiado'); }
       catch { toast.error('No se pudo copiar'); }
+    }
+  };
+
+  const handleAskProducer = async () => {
+    try {
+      const conv = await openConversation(product.producer_id, 'b2c');
+      if (conv?.id) navigate(`/messages/${conv.id}?prefill=${encodeURIComponent(`Hola, tengo una pregunta sobre ${product.name}`)}`);
+    } catch {
+      toast.error('No se pudo abrir el chat');
     }
   };
 
@@ -585,6 +596,27 @@ export default function ProductDetailPage() {
           </div>
           <ChevronRight size={18} color="var(--color-stone)" />
         </Link>
+      )}
+
+      {/* Ask producer */}
+      {product.producer_id && (
+        <div style={{ padding: '0 16px 12px' }}>
+          <button
+            type="button"
+            onClick={handleAskProducer}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              fontSize: 13, fontWeight: 500, color: 'var(--color-black)',
+              fontFamily: 'var(--font-sans)',
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: 0, textDecoration: 'none',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+          >
+            <MessageCircle size={14} /> Preguntar al productor
+          </button>
+        </div>
       )}
 
       {/* ── Collapsible Sections ── */}

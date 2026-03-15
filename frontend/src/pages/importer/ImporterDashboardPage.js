@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Package, ShoppingBag, Factory, Store, Search, Award,
   ExternalLink, Crown, Zap, ArrowRight, AlertTriangle,
-  Loader2, Globe
+  Loader2, Globe, MessageCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import { useChatContext } from '../../context/chat/ChatProvider';
+import { toast } from 'sonner';
 
 function KPICard({ label, value, icon: Icon, href }) {
   const Wrapper = href ? Link : 'div';
@@ -168,6 +170,16 @@ function B2BOrderStatusBadge({ status }) {
 export default function ImporterDashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { openConversation } = useChatContext();
+
+  const handleB2BChat = async (producerId) => {
+    try {
+      const conv = await openConversation(producerId, 'b2b');
+      if (conv?.id) navigate(`/messages/${conv.id}`);
+    } catch {
+      toast.error('No se pudo abrir el chat');
+    }
+  };
   const [stats, setStats] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [recentB2B, setRecentB2B] = useState([]);
@@ -300,6 +312,19 @@ export default function ImporterDashboardPage() {
                       {order.items_count || 1} productos · {formatRelativeTime(order.created_at)}
                     </p>
                   </div>
+                  {order.producer_id && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleB2BChat(order.producer_id); }}
+                      className="shrink-0 flex items-center justify-center"
+                      style={{
+                        width: 32, height: 32, borderRadius: '50%',
+                        background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
+                      }}
+                      aria-label="Chat B2B"
+                    >
+                      <MessageCircle className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+                    </button>
+                  )}
                   <div className="text-right shrink-0 ml-3">
                     <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
                       {(order.total || 0).toFixed(2)}€
