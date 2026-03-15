@@ -19,7 +19,11 @@ export default function ProfilePageHeader({ username, isOwnProfile, onShare }) {
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-stone-100 bg-white/95 backdrop-blur-xl"
+      className="sticky top-0 z-50 backdrop-blur-xl"
+      style={{
+        background: 'var(--color-white)',
+        borderBottom: '1px solid var(--color-border)',
+      }}
       data-testid="profile-page-header"
     >
       <div className="flex h-12 items-center px-2">
@@ -28,7 +32,8 @@ export default function ProfilePageHeader({ username, isOwnProfile, onShare }) {
         {!isOwnProfile ? (
           <button
             onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-stone-700 transition-colors hover:bg-stone-100 active:bg-stone-200"
+            className="flex h-10 w-10 items-center justify-center rounded-full"
+            style={{ color: 'var(--color-stone)', transition: 'var(--transition-fast)' }}
             aria-label="Volver"
           >
             <ChevronLeft className="h-6 w-6" strokeWidth={2} />
@@ -39,11 +44,14 @@ export default function ProfilePageHeader({ username, isOwnProfile, onShare }) {
 
         {/* Center — username */}
         <div className="flex flex-1 items-center justify-center gap-1">
-          <span className="text-[15px] font-semibold leading-none tracking-tight text-stone-950">
+          <span
+            className="text-[15px] font-semibold leading-none tracking-tight"
+            style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}
+          >
             {username}
           </span>
           {isOwnProfile && (
-            <ChevronDown className="h-3.5 w-3.5 text-stone-500" strokeWidth={2.2} />
+            <ChevronDown className="h-3.5 w-3.5" style={{ color: 'var(--color-stone)' }} strokeWidth={2.2} />
           )}
         </div>
 
@@ -52,21 +60,40 @@ export default function ProfilePageHeader({ username, isOwnProfile, onShare }) {
           {!isOwnProfile && onShare ? (
             <button
               onClick={onShare}
-              className="flex h-10 w-10 items-center justify-center rounded-full text-stone-700 transition-colors hover:bg-stone-100 active:bg-stone-200"
+              className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{ color: 'var(--color-stone)', transition: 'var(--transition-fast)' }}
               aria-label="Compartir perfil"
               data-testid="profile-share-btn"
             >
               <Share2 className="h-[18px] w-[18px]" strokeWidth={1.8} />
             </button>
           ) : null}
-          <button
-            onClick={() => navigate(dashRoute)}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-stone-700 transition-colors hover:bg-stone-100 active:bg-stone-200"
-            aria-label="Ir al dashboard"
-            data-testid="profile-hamburger-btn"
-          >
-            <LayoutDashboard className="h-5 w-5" strokeWidth={1.8} />
-          </button>
+          {isOwnProfile ? (
+            <button
+              onClick={() => navigate(dashRoute)}
+              className="flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold"
+              style={{
+                background: 'var(--color-green)',
+                color: '#fff',
+                transition: 'var(--transition-fast)',
+              }}
+              aria-label="Ir al dashboard"
+              data-testid="profile-hamburger-btn"
+            >
+              <LayoutDashboard className="h-4 w-4" strokeWidth={1.8} />
+              Mi dashboard
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(dashRoute)}
+              className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{ color: 'var(--color-stone)', transition: 'var(--transition-fast)' }}
+              aria-label="Ir al dashboard"
+              data-testid="profile-hamburger-btn"
+            >
+              <LayoutDashboard className="h-5 w-5" strokeWidth={1.8} />
+            </button>
+          )}
         </div>
       </div>
     </header>

@@ -39,15 +39,32 @@ function CheckoutStepper({ current }) {
         return (
           <React.Fragment key={step.id}>
             {i > 0 && (
-              <div className={`flex-1 h-[2px] transition-colors ${done ? 'bg-stone-950' : 'bg-stone-200'}`} />
+              <div
+                className="flex-1 h-[2px]"
+                style={{
+                  background: done ? 'var(--color-black)' : 'var(--color-border)',
+                  transition: 'var(--transition-fast)',
+                }}
+              />
             )}
             <div className="flex flex-col items-center gap-1">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-all ${
-                done ? 'bg-stone-950 text-white' : active ? 'bg-stone-950 text-white ring-4 ring-stone-200' : 'bg-stone-100 text-stone-400'
-              }`}>
+              <div
+                className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold"
+                style={{
+                  background: done ? 'var(--color-black)' : active ? 'var(--color-green)' : 'var(--color-surface)',
+                  color: done || active ? '#fff' : 'var(--color-stone)',
+                  ...(active ? { boxShadow: '0 0 0 4px var(--color-green-light)' } : {}),
+                  transition: 'var(--transition-fast)',
+                }}
+              >
                 {done ? <Check className="w-4 h-4" /> : <Icon className="w-3.5 h-3.5" />}
               </div>
-              <span className={`text-[11px] font-medium ${active || done ? 'text-stone-950' : 'text-stone-400'}`}>
+              <span
+                className="text-[11px] font-medium"
+                style={{
+                  color: active || done ? 'var(--color-black)' : 'var(--color-stone)',
+                }}
+              >
                 {step.label}
               </span>
             </div>
@@ -77,13 +94,22 @@ function AddressStep({ addresses, selectedId, onSelect, onSaveNew, onNext, loadi
     setShowForm(false);
   };
 
+  const inputStyle = (hasError) => ({
+    border: hasError ? '1px solid var(--color-red)' : '1px solid var(--color-border)',
+    borderRadius: 'var(--radius-md)',
+    outline: 'none',
+    fontFamily: 'var(--font-sans)',
+    color: 'var(--color-black)',
+    background: 'var(--color-white)',
+  });
+
   return (
     <motion.div key="step-address" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-      <h2 className="text-lg font-bold text-stone-950 mb-4">¿Dónde te lo enviamos?</h2>
+      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>¿Dónde te lo enviamos?</h2>
 
       {loadingAddresses ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 animate-spin text-stone-400" />
+          <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--color-stone)' }} />
         </div>
       ) : (
         <div className="space-y-2">
@@ -91,26 +117,39 @@ function AddressStep({ addresses, selectedId, onSelect, onSaveNew, onNext, loadi
             <div
               key={addr.address_id}
               onClick={() => onSelect(addr.address_id)}
-              className={`p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                selectedId === addr.address_id ? 'border-stone-950 bg-stone-50' : 'border-stone-200 hover:border-stone-400'
-              }`}
+              className="p-4 cursor-pointer"
+              style={{
+                borderRadius: 'var(--radius-xl)',
+                border: selectedId === addr.address_id ? '2px solid var(--color-black)' : '2px solid var(--color-border)',
+                background: selectedId === addr.address_id ? 'var(--color-surface)' : 'var(--color-white)',
+                transition: 'var(--transition-fast)',
+              }}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-semibold text-stone-950 text-sm">{addr.name || addr.full_name}</span>
+                    <span className="font-semibold text-sm" style={{ color: 'var(--color-black)' }}>{addr.name || addr.full_name}</span>
                     {addr.is_default && (
-                      <span className="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full">Principal</span>
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-full"
+                        style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}
+                      >
+                        Principal
+                      </span>
                     )}
                   </div>
-                  <p className="text-sm text-stone-600">{addr.full_name}</p>
-                  <p className="text-sm text-stone-500">{addr.street}</p>
-                  <p className="text-sm text-stone-500">{addr.postal_code} {addr.city}</p>
+                  <p className="text-sm" style={{ color: 'var(--color-stone)' }}>{addr.full_name}</p>
+                  <p className="text-sm" style={{ color: 'var(--color-stone)' }}>{addr.street}</p>
+                  <p className="text-sm" style={{ color: 'var(--color-stone)' }}>{addr.postal_code} {addr.city}</p>
                 </div>
-                <div className={`w-5 h-5 rounded-full border-2 shrink-0 mt-1 flex items-center justify-center ${
-                  selectedId === addr.address_id ? 'border-stone-950 bg-stone-950' : 'border-stone-300'
-                }`}>
-                  {selectedId === addr.address_id && <Check className="w-3 h-3 text-white" />}
+                <div
+                  className="w-5 h-5 rounded-full shrink-0 mt-1 flex items-center justify-center"
+                  style={{
+                    border: selectedId === addr.address_id ? '2px solid var(--color-black)' : '2px solid var(--color-border)',
+                    background: selectedId === addr.address_id ? 'var(--color-black)' : 'transparent',
+                  }}
+                >
+                  {selectedId === addr.address_id && <Check className="w-3 h-3" style={{ color: '#fff' }} />}
                 </div>
               </div>
             </div>
@@ -120,38 +159,77 @@ function AddressStep({ addresses, selectedId, onSelect, onSaveNew, onNext, loadi
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-sm font-medium text-stone-500 transition-colors hover:border-stone-400 hover:text-stone-950"
+              className="flex w-full items-center justify-center gap-2 py-3 text-sm font-medium"
+              style={{
+                borderRadius: 'var(--radius-xl)',
+                border: '2px dashed var(--color-border)',
+                color: 'var(--color-stone)',
+                background: 'transparent',
+                transition: 'var(--transition-fast)',
+              }}
             >
               <Plus className="w-4 h-4" /> Añadir nueva dirección
             </button>
           ) : (
-            <form onSubmit={handleSubmit(handleSave)} className="space-y-3 p-4 border border-stone-200 rounded-xl">
-              <p className="text-sm font-bold text-stone-950">Nueva dirección</p>
+            <form
+              onSubmit={handleSubmit(handleSave)}
+              className="space-y-3 p-4"
+              style={{
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-xl)',
+              }}
+            >
+              <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Nueva dirección</p>
               {[
                 { key: 'name', label: 'Nombre (ej. Casa)', placeholder: 'Casa' },
                 { key: 'full_name', label: 'Nombre completo', placeholder: 'María García' },
                 { key: 'street', label: 'Dirección', placeholder: 'Calle Mayor 12, 3ºB' },
               ].map(f => (
                 <div key={f.key}>
-                  <label className="block text-xs font-medium text-stone-600 mb-1">{f.label}</label>
-                  <input {...register(f.key)} placeholder={f.placeholder} className={`w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:border-stone-950 transition-colors ${errors[f.key] ? 'border-stone-700' : 'border-stone-200'}`} />
-                  {errors[f.key] && <p className="text-xs text-stone-700 mt-1">{errors[f.key].message}</p>}
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-stone)' }}>{f.label}</label>
+                  <input
+                    {...register(f.key)}
+                    placeholder={f.placeholder}
+                    className="w-full px-3 py-2.5 text-sm"
+                    style={inputStyle(errors[f.key])}
+                  />
+                  {errors[f.key] && <p className="text-xs mt-1" style={{ color: 'var(--color-red)' }}>{errors[f.key].message}</p>}
                 </div>
               ))}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-600 mb-1">Ciudad</label>
-                  <input {...register('city')} placeholder="Sevilla" className={`w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:border-stone-950 ${errors.city ? 'border-stone-700' : 'border-stone-200'}`} />
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-stone)' }}>Ciudad</label>
+                  <input
+                    {...register('city')}
+                    placeholder="Sevilla"
+                    className="w-full px-3 py-2.5 text-sm"
+                    style={inputStyle(errors.city)}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-stone-600 mb-1">Código postal</label>
-                  <input {...register('postal_code')} placeholder="41001" className={`w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:border-stone-950 ${errors.postal_code ? 'border-stone-700' : 'border-stone-200'}`} />
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-stone)' }}>Código postal</label>
+                  <input
+                    {...register('postal_code')}
+                    placeholder="41001"
+                    className="w-full px-3 py-2.5 text-sm"
+                    style={inputStyle(errors.postal_code)}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-stone-600 mb-1">País</label>
-                  <select {...register('country')} className="w-full px-3 py-2.5 border border-stone-200 rounded-xl text-sm bg-white">
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-stone)' }}>País</label>
+                  <select
+                    {...register('country')}
+                    className="w-full px-3 py-2.5 text-sm"
+                    style={{
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--color-white)',
+                      color: 'var(--color-black)',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
                     <option value="ES">España</option>
                     <option value="PT">Portugal</option>
                     <option value="FR">Francia</option>
@@ -161,17 +239,43 @@ function AddressStep({ addresses, selectedId, onSelect, onSaveNew, onNext, loadi
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-stone-600 mb-1">Teléfono</label>
-                  <input {...register('phone')} type="tel" placeholder="Opcional" className="w-full px-3 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-stone-950" />
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-stone)' }}>Teléfono</label>
+                  <input
+                    {...register('phone')}
+                    type="tel"
+                    placeholder="Opcional"
+                    className="w-full px-3 py-2.5 text-sm"
+                    style={inputStyle(false)}
+                  />
                 </div>
               </div>
               <div className="flex gap-2 pt-1">
-                <button type="submit" disabled={savingAddress} className="flex-1 py-2.5 bg-stone-950 text-white rounded-xl text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-60">
+                <button
+                  type="submit"
+                  disabled={savingAddress}
+                  className="flex-1 py-2.5 text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-60"
+                  style={{
+                    background: 'var(--color-black)',
+                    color: '#fff',
+                    borderRadius: 'var(--radius-xl)',
+                    border: 'none',
+                  }}
+                >
                   {savingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   Guardar
                 </button>
                 {addresses.length > 0 && (
-                  <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2.5 border border-stone-200 rounded-xl text-sm text-stone-500 hover:bg-stone-50">
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="px-4 py-2.5 text-sm"
+                    style={{
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-xl)',
+                      color: 'var(--color-stone)',
+                      background: 'transparent',
+                    }}
+                  >
                     Cancelar
                   </button>
                 )}
@@ -185,7 +289,13 @@ function AddressStep({ addresses, selectedId, onSelect, onSaveNew, onNext, loadi
         type="button"
         onClick={onNext}
         disabled={!selectedId}
-        className="w-full mt-5 py-3 bg-stone-950 text-white rounded-full text-sm font-semibold transition-colors hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full mt-5 py-3 rounded-full text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+        style={{
+          background: 'var(--color-black)',
+          color: '#fff',
+          transition: 'var(--transition-fast)',
+          border: 'none',
+        }}
       >
         Continuar →
       </button>
@@ -226,10 +336,17 @@ function ShippingStep({ selectedAddress, cartItems, onNext, onBack }) {
 
   return (
     <motion.div key="step-shipping" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-      <h2 className="text-lg font-bold text-stone-950 mb-4">Opciones de envío</h2>
+      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Opciones de envío</h2>
 
       {selectedAddress && (
-        <div className="mb-4 flex items-center gap-2 text-sm text-stone-600 bg-stone-50 rounded-xl p-3">
+        <div
+          className="mb-4 flex items-center gap-2 text-sm p-3"
+          style={{
+            color: 'var(--color-stone)',
+            background: 'var(--color-surface)',
+            borderRadius: 'var(--radius-xl)',
+          }}
+        >
           <MapPin className="w-4 h-4 shrink-0" />
           <span>{selectedAddress.street}, {selectedAddress.postal_code} {selectedAddress.city}</span>
         </div>
@@ -238,7 +355,11 @@ function ShippingStep({ selectedAddress, cartItems, onNext, onBack }) {
       {isLoading ? (
         <div className="space-y-2">
           {[0, 1].map(i => (
-            <div key={i} className="h-[68px] rounded-xl bg-stone-100 animate-pulse" />
+            <div
+              key={i}
+              className="h-[68px] animate-pulse"
+              style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)' }}
+            />
           ))}
         </div>
       ) : (
@@ -247,17 +368,21 @@ function ShippingStep({ selectedAddress, cartItems, onNext, onBack }) {
             <div
               key={opt.id}
               onClick={() => setSelected(opt.id)}
-              className={`p-4 rounded-xl border-2 cursor-pointer transition-colors flex items-center justify-between ${
-                selected === opt.id ? 'border-stone-950 bg-stone-50' : 'border-stone-200 hover:border-stone-400'
-              }`}
+              className="p-4 cursor-pointer flex items-center justify-between"
+              style={{
+                borderRadius: 'var(--radius-xl)',
+                border: selected === opt.id ? '2px solid var(--color-black)' : '2px solid var(--color-border)',
+                background: selected === opt.id ? 'var(--color-surface)' : 'var(--color-white)',
+                transition: 'var(--transition-fast)',
+              }}
             >
               <div>
-                <p className="text-sm font-semibold text-stone-950">{opt.carrier}</p>
-                <p className="text-xs text-stone-500">
+                <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>{opt.carrier}</p>
+                <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
                   {opt.estimated_days === 0 ? 'Hoy' : opt.estimated_days === 1 ? 'Mañana' : `${opt.estimated_days}-${opt.estimated_days + 1} días`}
                 </p>
               </div>
-              <p className={`text-sm font-bold ${opt.price === 0 ? 'text-stone-700' : 'text-stone-950'}`}>
+              <p className="text-sm font-bold" style={{ color: opt.price === 0 ? 'var(--color-green)' : 'var(--color-black)' }}>
                 {opt.price === 0 ? 'Gratis' : `${opt.price.toFixed(2)}€`}
               </p>
             </div>
@@ -266,14 +391,30 @@ function ShippingStep({ selectedAddress, cartItems, onNext, onBack }) {
       )}
 
       <div className="flex gap-2 mt-5">
-        <button type="button" onClick={onBack} className="flex-1 py-3 border border-stone-200 rounded-full text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex-1 py-3 rounded-full text-sm font-medium"
+          style={{
+            border: '1px solid var(--color-border)',
+            color: 'var(--color-stone)',
+            background: 'transparent',
+            transition: 'var(--transition-fast)',
+          }}
+        >
           ← Volver
         </button>
         <button
           type="button"
           onClick={() => onNext(selectedOption)}
           disabled={!selected}
-          className="flex-1 py-3 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 disabled:opacity-40 transition-colors"
+          className="flex-1 py-3 rounded-full text-sm font-semibold disabled:opacity-40"
+          style={{
+            background: 'var(--color-black)',
+            color: '#fff',
+            border: 'none',
+            transition: 'var(--transition-fast)',
+          }}
         >
           Continuar →
         </button>
@@ -321,50 +462,73 @@ function PaymentStep({ selectedAddress, shippingOption, cartItems, discountCode,
 
   return (
     <motion.div key="step-payment" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-      <h2 className="text-lg font-bold text-stone-950 mb-4">Pago seguro</h2>
+      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Pago seguro</h2>
 
       {/* Order summary */}
-      <div className="rounded-xl border border-stone-200 bg-white overflow-hidden mb-4">
-        <div className="divide-y divide-stone-100">
-          {cartItems.map(item => (
-            <div key={item.product_id} className="flex items-center gap-3 p-3">
+      <div
+        className="overflow-hidden mb-4"
+        style={{
+          borderRadius: 'var(--radius-xl)',
+          border: '1px solid var(--color-border)',
+          background: 'var(--color-white)',
+        }}
+      >
+        <div>
+          {cartItems.map((item, idx) => (
+            <div
+              key={item.product_id}
+              className="flex items-center gap-3 p-3"
+              style={idx > 0 ? { borderTop: '1px solid var(--color-surface)' } : {}}
+            >
               {item.image && (
-                <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover bg-stone-100 shrink-0" />
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-12 h-12 object-cover shrink-0"
+                  style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}
+                />
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-stone-950 truncate">{item.name || item.product_name}</p>
-                <p className="text-xs text-stone-500">x{item.quantity}</p>
+                <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>{item.name || item.product_name}</p>
+                <p className="text-xs" style={{ color: 'var(--color-stone)' }}>x{item.quantity}</p>
               </div>
-              <span className="text-sm font-semibold text-stone-950 shrink-0">
+              <span className="text-sm font-semibold shrink-0" style={{ color: 'var(--color-black)' }}>
                 €{(item.price * item.quantity).toFixed(2)}
               </span>
             </div>
           ))}
         </div>
 
-        <div className="border-t border-stone-200 p-3 space-y-1.5">
+        <div className="p-3 space-y-1.5" style={{ borderTop: '1px solid var(--color-border)' }}>
           <div className="flex justify-between text-sm">
-            <span className="text-stone-500">Subtotal</span>
-            <span className="text-stone-950">€{subtotal.toFixed(2)}</span>
+            <span style={{ color: 'var(--color-stone)' }}>Subtotal</span>
+            <span style={{ color: 'var(--color-black)' }}>€{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-stone-500">Envío ({shippingOption?.carrier || 'Estándar'})</span>
-            <span className={shippingCost === 0 ? 'text-stone-700 font-medium' : 'text-stone-950'}>
+            <span style={{ color: 'var(--color-stone)' }}>Envío ({shippingOption?.carrier || 'Estándar'})</span>
+            <span style={{ color: shippingCost === 0 ? 'var(--color-green)' : 'var(--color-black)', fontWeight: shippingCost === 0 ? 500 : 400 }}>
               {shippingCost === 0 ? 'Gratis' : `€${shippingCost.toFixed(2)}`}
             </span>
           </div>
-          <div className="flex justify-between text-sm text-stone-500">
-            <span>IVA incluido</span>
+          <div className="flex justify-between text-sm">
+            <span style={{ color: 'var(--color-stone)' }}>IVA incluido</span>
           </div>
-          <div className="flex justify-between pt-2 border-t border-stone-100">
-            <span className="text-base font-bold text-stone-950">Total</span>
-            <span className="text-lg font-black text-stone-950">€{estimatedTotal.toFixed(2)}</span>
+          <div className="flex justify-between pt-2" style={{ borderTop: '1px solid var(--color-surface)' }}>
+            <span className="text-base" style={{ fontWeight: 800, color: 'var(--color-black)' }}>Total</span>
+            <span className="text-lg" style={{ fontWeight: 800, color: 'var(--color-black)' }}>€{estimatedTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
       {/* Shipping address summary */}
-      <div className="flex items-center gap-2 text-sm text-stone-600 bg-stone-50 rounded-xl p-3 mb-4">
+      <div
+        className="flex items-center gap-2 text-sm p-3 mb-4"
+        style={{
+          color: 'var(--color-stone)',
+          background: 'var(--color-surface)',
+          borderRadius: 'var(--radius-xl)',
+        }}
+      >
         <MapPin className="w-4 h-4 shrink-0" />
         <span>{selectedAddress?.full_name} — {selectedAddress?.street}, {selectedAddress?.postal_code} {selectedAddress?.city}</span>
       </div>
@@ -376,7 +540,13 @@ function PaymentStep({ selectedAddress, shippingOption, cartItems, discountCode,
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="bg-stone-50 border border-stone-200 text-stone-700 rounded-xl p-3 text-sm mb-4"
+            className="p-3 text-sm mb-4"
+            style={{
+              background: 'var(--color-red-light)',
+              color: 'var(--color-red)',
+              borderRadius: 'var(--radius-xl)',
+              border: 'none',
+            }}
           >
             {error}
           </motion.div>
@@ -384,7 +554,7 @@ function PaymentStep({ selectedAddress, shippingOption, cartItems, discountCode,
       </AnimatePresence>
 
       {/* Security badge */}
-      <div className="flex items-center justify-center gap-1.5 text-xs text-stone-400 mb-4">
+      <div className="flex items-center justify-center gap-1.5 text-xs mb-4" style={{ color: 'var(--color-stone)' }}>
         <Lock className="w-3 h-3" />
         Pago seguro procesado por Stripe
       </div>
@@ -394,7 +564,13 @@ function PaymentStep({ selectedAddress, shippingOption, cartItems, discountCode,
           type="button"
           onClick={onBack}
           disabled={isProcessing}
-          className="flex-1 py-3 border border-stone-200 rounded-full text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-40"
+          className="flex-1 py-3 rounded-full text-sm font-medium disabled:opacity-40"
+          style={{
+            border: '1px solid var(--color-border)',
+            color: 'var(--color-stone)',
+            background: 'transparent',
+            transition: 'var(--transition-fast)',
+          }}
         >
           ← Volver
         </button>
@@ -402,7 +578,13 @@ function PaymentStep({ selectedAddress, shippingOption, cartItems, discountCode,
           type="button"
           onClick={handlePay}
           disabled={isProcessing}
-          className="flex-[2] py-3 bg-stone-950 text-white rounded-full text-sm font-semibold hover:bg-stone-800 disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
+          className="flex-[2] py-3 rounded-full text-sm font-semibold disabled:opacity-60 flex items-center justify-center gap-2"
+          style={{
+            background: 'var(--color-green)',
+            color: '#fff',
+            border: 'none',
+            transition: 'var(--transition-fast)',
+          }}
         >
           {isProcessing ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Redirigiendo...</>
@@ -414,7 +596,13 @@ function PaymentStep({ selectedAddress, shippingOption, cartItems, discountCode,
 
       <div className="flex items-center justify-center gap-3 mt-3">
         {['VISA', 'MC', 'AMEX'].map(b => (
-          <span key={b} className="text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">{b}</span>
+          <span
+            key={b}
+            className="text-[10px] font-bold px-2 py-0.5 rounded"
+            style={{ color: 'var(--color-stone)', background: 'var(--color-surface)' }}
+          >
+            {b}
+          </span>
         ))}
       </div>
     </motion.div>
@@ -473,13 +661,28 @@ const CheckoutPage = () => {
   // ── Empty cart
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-4">
-        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
-          <ShoppingBag className="w-10 h-10 text-stone-500" />
+      <div
+        className="min-h-screen flex flex-col items-center justify-center p-4"
+        style={{ background: 'var(--color-cream)' }}
+      >
+        <div
+          className="w-24 h-24 rounded-full flex items-center justify-center mb-4"
+          style={{ background: 'var(--color-white)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+        >
+          <ShoppingBag className="w-10 h-10" style={{ color: 'var(--color-stone)' }} />
         </div>
-        <h2 className="text-xl font-bold text-stone-950 mb-2">Tu carrito está vacío</h2>
-        <p className="text-stone-500 mb-6">Añade productos para continuar</p>
-        <button onClick={() => navigate('/discover')} className="px-6 py-3 bg-stone-950 text-white rounded-full font-medium hover:bg-stone-800 transition-colors">
+        <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--color-black)' }}>Tu carrito está vacío</h2>
+        <p className="mb-6" style={{ color: 'var(--color-stone)' }}>Añade productos para continuar</p>
+        <button
+          onClick={() => navigate('/discover')}
+          className="px-6 py-3 rounded-full font-medium"
+          style={{
+            background: 'var(--color-black)',
+            color: '#fff',
+            border: 'none',
+            transition: 'var(--transition-fast)',
+          }}
+        >
           Explorar productos
         </button>
       </div>
@@ -487,17 +690,24 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-24">
+    <div className="min-h-screen pb-24" style={{ background: 'var(--color-cream)' }}>
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white shadow-sm">
+      <div
+        className="sticky top-0 z-40"
+        style={{ background: 'var(--color-white)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+      >
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => step === 0 ? navigate(-1) : setStep(s => s - 1)} className="p-2 hover:bg-stone-100 rounded-full transition-colors">
-              <ArrowLeft className="w-5 h-5 text-stone-950" />
+            <button
+              onClick={() => step === 0 ? navigate(-1) : setStep(s => s - 1)}
+              className="p-2 rounded-full"
+              style={{ transition: 'var(--transition-fast)' }}
+            >
+              <ArrowLeft className="w-5 h-5" style={{ color: 'var(--color-black)' }} />
             </button>
-            <h1 className="text-lg font-bold text-stone-950">Finalizar compra</h1>
+            <h1 className="text-lg font-bold" style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Finalizar compra</h1>
           </div>
-          <div className="flex items-center gap-1 text-sm text-stone-500">
+          <div className="flex items-center gap-1 text-sm" style={{ color: 'var(--color-stone)' }}>
             <Lock className="w-4 h-4" />
             <span>Pago seguro</span>
           </div>
@@ -507,7 +717,14 @@ const CheckoutPage = () => {
       <div className="max-w-lg mx-auto p-4">
         <CheckoutStepper current={step} />
 
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
+        <div
+          className="p-5"
+          style={{
+            background: 'var(--color-white)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-xl)',
+          }}
+        >
           <AnimatePresence mode="wait">
             {step === 0 && (
               <AddressStep

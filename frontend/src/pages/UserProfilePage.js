@@ -9,6 +9,7 @@ import {
   BookOpen,
   Camera,
   ExternalLink,
+  Gift,
   Grid3X3,
   Loader2,
   MoreHorizontal,
@@ -105,12 +106,16 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
   return (
     <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/55" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-[28px] bg-white shadow-2xl" data-testid="create-post-modal">
-        <div className="flex items-center justify-between border-b border-stone-100 p-4">
-          <h3 className="font-semibold text-stone-950">{t('social.newPost')}</h3>
-          <button onClick={onClose} className="rounded-full p-1.5 hover:bg-stone-100">
-            <X className="h-5 w-5" />
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.55)' }} onClick={onClose} />
+      <div
+        className="relative w-full max-w-lg shadow-2xl"
+        style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-white)' }}
+        data-testid="create-post-modal"
+      >
+        <div className="flex items-center justify-between p-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+          <h3 className="font-semibold" style={{ color: 'var(--color-black)' }}>{t('social.newPost')}</h3>
+          <button onClick={onClose} className="rounded-full p-1.5" style={{ transition: 'var(--transition-fast)' }}>
+            <X className="h-5 w-5" style={{ color: 'var(--color-black)' }} />
           </button>
         </div>
         <div className="space-y-4 p-4">
@@ -122,7 +127,8 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
                   setFile(null);
                   setPreview(null);
                 }}
-                className="absolute right-3 top-3 rounded-full bg-black/60 p-1.5 text-white"
+                className="absolute right-3 top-3 rounded-full p-1.5"
+                style={{ background: 'rgba(0,0,0,0.6)', color: '#fff' }}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -130,11 +136,12 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
           ) : (
             <button
               onClick={() => fileRef.current?.click()}
-              className="flex h-48 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-200 transition-colors hover:border-stone-400 hover:bg-stone-50"
+              className="flex h-48 w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed"
+              style={{ borderColor: 'var(--color-border)', transition: 'var(--transition-fast)' }}
               data-testid="select-image-btn"
             >
-              <Camera className="h-9 w-9 text-stone-400" />
-              <span className="text-sm text-stone-500">{t('social.selectImage')}</span>
+              <Camera className="h-9 w-9" style={{ color: 'var(--color-stone)' }} />
+              <span className="text-sm" style={{ color: 'var(--color-stone)' }}>{t('social.selectImage')}</span>
             </button>
           )}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
@@ -154,7 +161,8 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
               onSelect={ac.handleSelect}
               onMouseUp={ac.handleSelect}
               placeholder={t('social.writeCaption')}
-              className="h-24 w-full resize-none rounded-2xl border border-stone-200 p-3 text-sm focus:border-stone-400 focus:outline-none"
+              className="h-24 w-full resize-none rounded-2xl p-3 text-sm focus:outline-none"
+              style={{ border: '1px solid var(--color-border)', color: 'var(--color-black)' }}
               data-testid="post-caption-input"
             />
           </div>
@@ -162,7 +170,8 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
             type="button"
             onClick={handleSubmit}
             disabled={!file || creatingPost}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-stone-950 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-full text-[14px] font-semibold disabled:opacity-50"
+            style={{ background: 'var(--color-black)', color: '#fff', transition: 'var(--transition-fast)' }}
             data-testid="submit-post-btn"
           >
             {creatingPost ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
@@ -175,16 +184,30 @@ function CreatePostModal({ onClose, onCreate, creatingPost }) {
   );
 }
 
-function ProfileHighlight({ label }) {
+const HIGHLIGHT_EMOJIS = {
+  Recetas: '\uD83C\uDF73',
+  Productos: '\uD83D\uDCE6',
+  Viajes: '\u2708\uFE0F',
+  Eventos: '\uD83C\uDF89',
+  Looks: '\uD83D\uDC57',
+  Origen: '\uD83C\uDF3F',
+};
+
+function ProfileHighlight({ label, active }) {
   return (
     <div className="flex shrink-0 flex-col items-center gap-1.5">
-      {/* Outer black ring → white gap → inner content */}
-      <div className="h-[66px] w-[66px] rounded-full bg-stone-950 p-[1.5px]">
-        <div className="h-full w-full rounded-full bg-white p-[3px]">
-          <div className="h-full w-full rounded-full bg-stone-100" />
-        </div>
+      <div
+        className="flex items-center justify-center rounded-full"
+        style={{
+          width: 54,
+          height: 54,
+          border: active ? '2px solid var(--color-green)' : '2px solid var(--color-border)',
+          background: 'var(--color-surface)',
+        }}
+      >
+        <span className="text-xl">{HIGHLIGHT_EMOJIS[label] || '\u2B50'}</span>
       </div>
-      <span className="text-[11px] font-medium text-stone-700">{label}</span>
+      <span className="text-[11px] font-medium" style={{ color: 'var(--color-stone)' }}>{label}</span>
     </div>
   );
 }
@@ -201,7 +224,8 @@ function ContentTile({ item, type, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="group relative aspect-square overflow-hidden rounded-[3px] bg-stone-100 text-left transition-opacity duration-150 active:opacity-75"
+      className="group relative aspect-square overflow-hidden rounded-[3px] text-left transition-opacity duration-150 active:opacity-75"
+      style={{ background: 'var(--color-surface)' }}
     >
       {imageUrl ? (
         <img
@@ -213,7 +237,7 @@ function ContentTile({ item, type, onClick }) {
           className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
         />
       ) : (
-        <div className="flex h-full items-center justify-center text-stone-300">
+        <div className="flex h-full items-center justify-center" style={{ color: 'var(--color-stone)' }}>
           {type === 'recipe' ? <BookOpen className="h-8 w-8" /> : <Grid3X3 className="h-8 w-8" />}
         </div>
       )}
@@ -227,10 +251,13 @@ function ContentTile({ item, type, onClick }) {
 
 function EmptyState({ icon: Icon, title, description, action }) {
   return (
-    <div className="mx-4 mt-2 rounded-3xl border border-stone-100 bg-white px-6 py-16 text-center">
-      <Icon className="mx-auto h-12 w-12 text-stone-200" />
-      <h3 className="mt-4 text-lg font-semibold text-stone-950">{title}</h3>
-      <p className="mt-2 text-sm text-stone-500">{description}</p>
+    <div
+      className="mx-4 mt-2 rounded-3xl px-6 py-16 text-center"
+      style={{ border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+    >
+      <Icon className="mx-auto h-12 w-12" style={{ color: 'var(--color-stone)' }} />
+      <h3 className="mt-4 text-lg font-semibold" style={{ color: 'var(--color-black)' }}>{title}</h3>
+      <p className="mt-2 text-sm" style={{ color: 'var(--color-stone)' }}>{description}</p>
       {action}
     </div>
   );
@@ -352,37 +379,37 @@ export default function UserProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen" style={{ background: 'var(--color-white)' }}>
         <ProfilePageHeader username={headerUsername} isOwnProfile={isOwnProfile} onShare={handleShare} />
         <div className="px-4 pt-4">
           {/* Skeleton: avatar + stats */}
           <div className="flex items-center gap-5">
-            <div className="h-[86px] w-[86px] rounded-full bg-stone-100 animate-pulse" />
+            <div className="h-[72px] w-[72px] rounded-full animate-pulse" style={{ background: 'var(--color-surface)' }} />
             <div className="flex flex-1 items-center justify-around">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex flex-col items-center gap-1.5">
-                  <div className="h-5 w-10 rounded bg-stone-100 animate-pulse" />
-                  <div className="h-3 w-14 rounded bg-stone-100 animate-pulse" />
+                  <div className="h-5 w-10 rounded animate-pulse" style={{ background: 'var(--color-surface)' }} />
+                  <div className="h-3 w-14 rounded animate-pulse" style={{ background: 'var(--color-surface)' }} />
                 </div>
               ))}
             </div>
           </div>
           {/* Skeleton: name + bio */}
           <div className="mt-4 space-y-2">
-            <div className="h-4 w-28 rounded bg-stone-100 animate-pulse" />
-            <div className="h-3 w-3/4 rounded bg-stone-100 animate-pulse" />
-            <div className="h-3 w-1/2 rounded bg-stone-100 animate-pulse" />
+            <div className="h-4 w-28 rounded animate-pulse" style={{ background: 'var(--color-surface)' }} />
+            <div className="h-3 w-3/4 rounded animate-pulse" style={{ background: 'var(--color-surface)' }} />
+            <div className="h-3 w-1/2 rounded animate-pulse" style={{ background: 'var(--color-surface)' }} />
           </div>
           {/* Skeleton: buttons */}
           <div className="mt-4 flex gap-2">
-            <div className="h-[34px] flex-1 rounded-full bg-stone-100 animate-pulse" />
-            <div className="h-[34px] flex-1 rounded-full bg-stone-100 animate-pulse" />
-            <div className="h-[34px] w-[34px] rounded-full bg-stone-100 animate-pulse" />
+            <div className="h-[34px] flex-1 rounded-full animate-pulse" style={{ background: 'var(--color-surface)' }} />
+            <div className="h-[34px] flex-1 rounded-full animate-pulse" style={{ background: 'var(--color-surface)' }} />
+            <div className="h-[34px] w-[34px] rounded-full animate-pulse" style={{ background: 'var(--color-surface)' }} />
           </div>
           {/* Skeleton: grid 3x3 */}
           <div className="mt-6 grid grid-cols-3 gap-0.5">
             {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="aspect-square bg-stone-100 animate-pulse" />
+              <div key={i} className="aspect-square animate-pulse" style={{ background: 'var(--color-surface)' }} />
             ))}
           </div>
         </div>
@@ -391,13 +418,13 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
       <ProfilePageHeader username={headerUsername} isOwnProfile={isOwnProfile} onShare={handleShare} />
 
       <main className="mx-auto max-w-6xl px-4 pb-24 pt-4">
 
         {/* ── Hero — Instagram mobile-first ── */}
-        <section className="-mx-4 bg-white px-4 pt-4 pb-2">
+        <section className="-mx-4 px-4 pt-4 pb-2" style={{ background: 'var(--color-white)' }}>
 
           {/* Fila 1: Avatar + Stats */}
           <div className="flex items-center gap-5">
@@ -406,10 +433,10 @@ export default function UserProfilePage() {
             <div className="relative shrink-0">
               <div
                 style={{
-                  padding: profile?.has_active_story ? 2 : 0,
+                  padding: profile?.has_active_story ? 2.5 : 0,
                   borderRadius: '50%',
                   background: profile?.has_active_story
-                    ? 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)'
+                    ? 'linear-gradient(135deg, #2E7D52, #8FCF7A)'
                     : 'transparent',
                   display: 'inline-block',
                 }}
@@ -421,23 +448,35 @@ export default function UserProfilePage() {
                     background: '#fff',
                   }}
                 >
-                  <div className={`h-[86px] w-[86px] overflow-hidden rounded-full bg-stone-100 ${!profile?.has_active_story ? (isOwnProfile ? 'ring-[2px] ring-stone-950 ring-offset-[3px] ring-offset-white' : 'ring-[1px] ring-stone-200 ring-offset-0') : ''}`}>
+                  <div
+                    className="overflow-hidden rounded-full"
+                    style={{
+                      width: 72,
+                      height: 72,
+                      background: 'var(--color-surface)',
+                      ...(!profile?.has_active_story
+                        ? isOwnProfile
+                          ? { boxShadow: '0 0 0 2px var(--color-black), 0 0 0 5px var(--color-white)' }
+                          : { boxShadow: '0 0 0 1px var(--color-border)' }
+                        : {}),
+                    }}
+                  >
                     {profile?.profile_image ? (
                       <img
                         src={resolveUserImage(profile.profile_image)}
-                        srcSet={getCloudinarySrcSet(resolveUserImage(profile.profile_image), [86, 172, 256])}
-                        sizes="86px"
+                        srcSet={getCloudinarySrcSet(resolveUserImage(profile.profile_image), [72, 144, 256])}
+                        sizes="72px"
                         alt={`Avatar de ${realName}`}
                         loading="eager"
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center text-stone-300">
+                      <div className="flex h-full items-center justify-center" style={{ color: 'var(--color-stone)' }}>
                         <User className="h-10 w-10" />
                       </div>
                     )}
                     {uploadingAvatar ? (
-                      <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/35">
+                      <div className="absolute inset-0 flex items-center justify-center rounded-full" style={{ background: 'rgba(0,0,0,0.35)' }}>
                         <Loader2 className="h-5 w-5 animate-spin text-white" />
                       </div>
                     ) : null}
@@ -448,7 +487,8 @@ export default function UserProfilePage() {
                 <>
                   <button
                     onClick={() => avatarInputRef.current?.click()}
-                    className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-900 shadow-sm"
+                    className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full shadow-sm"
+                    style={{ border: '1px solid var(--color-border)', background: 'var(--color-white)', color: 'var(--color-black)' }}
                     data-testid="change-avatar-btn"
                     aria-label="Cambiar foto de perfil"
                   >
@@ -465,22 +505,22 @@ export default function UserProfilePage() {
                 className="flex flex-col items-center gap-1 transition-opacity active:opacity-70"
                 onClick={() => setActiveTab('posts')}
               >
-                <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{postCount}</span>
-                <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">publicaciones</span>
+                <span className="text-[17px] font-bold tabular-nums tracking-tight" style={{ color: 'var(--color-black)' }}>{postCount}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.06em]" style={{ color: 'var(--color-stone)' }}>publicaciones</span>
               </button>
               <button
                 className="flex flex-col items-center gap-1 transition-opacity active:opacity-70"
                 onClick={() => setFollowsModal({ open: true, tab: 'followers' })}
               >
-                <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{followersCount}</span>
-                <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">seguidores</span>
+                <span className="text-[17px] font-bold tabular-nums tracking-tight" style={{ color: 'var(--color-black)' }}>{followersCount}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.06em]" style={{ color: 'var(--color-stone)' }}>seguidores</span>
               </button>
               <button
                 className="flex flex-col items-center gap-1 transition-opacity active:opacity-70"
                 onClick={() => setFollowsModal({ open: true, tab: 'following' })}
               >
-                <span className="text-[18px] font-bold tabular-nums tracking-tight text-stone-950">{followingCount}</span>
-                <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-stone-400">seguidos</span>
+                <span className="text-[17px] font-bold tabular-nums tracking-tight" style={{ color: 'var(--color-black)' }}>{followingCount}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.06em]" style={{ color: 'var(--color-stone)' }}>seguidos</span>
               </button>
             </div>
           </div>
@@ -488,7 +528,7 @@ export default function UserProfilePage() {
           {/* Fila 2: Nombre + rol + bio + link */}
           <div className="mt-3 space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[14px] font-bold tracking-tight leading-tight text-stone-950">
+              <p className="text-[14px] font-bold tracking-tight leading-tight" style={{ color: 'var(--color-black)' }}>
                 {realName}
                 {profile?.is_verified && (
                   <svg width="16" height="16" viewBox="0 0 16 16" className="inline ml-1 align-middle">
@@ -498,7 +538,10 @@ export default function UserProfilePage() {
                 )}
               </p>
               {profile?.role && profile.role !== 'customer' && profile.role !== 'consumer' ? (
-                <span className="rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-stone-500">
+                <span
+                  className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]"
+                  style={{ border: '1px solid var(--color-border)', background: 'var(--color-white)', color: 'var(--color-stone)' }}
+                >
                   {profile.role === 'producer'
                     ? 'Productor'
                     : profile.role === 'importer'
@@ -510,19 +553,44 @@ export default function UserProfilePage() {
               ) : null}
             </div>
             {profile?.bio ? (
-              <p className="whitespace-pre-line text-[13px] leading-relaxed text-stone-600">{profile.bio}</p>
+              <p className="whitespace-pre-line text-[13px] leading-relaxed" style={{ color: 'var(--color-stone)' }}>{profile.bio}</p>
             ) : null}
             {profile?.website ? (
               <a
                 href={profile.website.startsWith('http') ? profile.website : `https://${profile.website}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[13px] font-semibold text-stone-950 hover:underline mt-0.5"
+                className="inline-flex items-center gap-1 text-[13px] font-semibold hover:underline mt-0.5"
+                style={{ color: 'var(--color-black)' }}
               >
                 <ExternalLink className="h-3 w-3" />
                 {profile.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
               </a>
             ) : null}
+
+            {/* Diet & Allergy tags */}
+            {(profile?.diet_tags?.length > 0 || profile?.allergy_tags?.length > 0) && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {profile?.diet_tags?.map((tag) => (
+                  <span
+                    key={`diet-${tag}`}
+                    className="rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                    style={{ background: 'var(--color-green-light)', color: 'var(--color-green)' }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {profile?.allergy_tags?.map((tag) => (
+                  <span
+                    key={`allergy-${tag}`}
+                    className="rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                    style={{ background: 'var(--color-red-light)', color: 'var(--color-red)' }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Fila 3: Botones de acción */}
@@ -531,13 +599,15 @@ export default function UserProfilePage() {
               <>
                 <button
                   onClick={() => setShowEditProfile(true)}
-                  className="flex-1 h-[34px] rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100"
+                  className="flex-1 h-[34px] rounded-full text-[13px] font-medium"
+                  style={{ background: 'var(--color-surface)', color: 'var(--color-black)', transition: 'var(--transition-fast)' }}
                 >
                   Editar perfil
                 </button>
                 <button
                   onClick={handleShare}
-                  className="flex-1 h-[34px] rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100"
+                  className="flex-1 h-[34px] rounded-full text-[13px] font-medium"
+                  style={{ background: 'var(--color-surface)', color: 'var(--color-black)', transition: 'var(--transition-fast)' }}
                 >
                   Compartir perfil
                 </button>
@@ -546,11 +616,12 @@ export default function UserProfilePage() {
               <>
                 <button
                   onClick={handleFollow}
-                  className={`flex-1 h-[34px] rounded-full text-[13px] font-semibold transition-colors ${
+                  className="flex-1 h-[34px] rounded-full text-[13px] font-semibold"
+                  style={
                     isFollowing
-                      ? 'border border-stone-200 bg-white text-stone-950 hover:bg-stone-50 active:bg-stone-100'
-                      : 'bg-stone-950 text-white hover:bg-stone-800 active:bg-stone-700'
-                  }`}
+                      ? { background: 'var(--color-surface)', color: 'var(--color-black)', border: '1px solid var(--color-border)', transition: 'var(--transition-fast)' }
+                      : { background: 'var(--color-black)', color: '#fff', transition: 'var(--transition-fast)' }
+                  }
                   data-testid="follow-btn"
                 >
                   {isFollowing ? 'Siguiendo' : t('social.follow', 'Seguir')}
@@ -559,46 +630,55 @@ export default function UserProfilePage() {
                   onClick={() =>
                     window.dispatchEvent(new CustomEvent('open-chat-with-user', { detail: { userId } }))
                   }
-                  className="flex-1 h-[34px] rounded-full border border-stone-200 bg-white text-[13px] font-medium text-stone-900 transition-colors hover:bg-stone-50 active:bg-stone-100"
+                  className="flex-1 h-[34px] rounded-full text-[13px] font-medium"
+                  style={{ background: 'var(--color-surface)', color: 'var(--color-black)', transition: 'var(--transition-fast)' }}
                 >
                   {t('social.message', 'Mensaje')}
                 </button>
                 <button
-                  onClick={handleShare}
-                  className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50 active:bg-stone-100"
-                  aria-label="Compartir perfil"
+                  onClick={() => {/* Regalo action placeholder */}}
+                  className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full"
+                  style={{ background: 'var(--color-surface)', color: 'var(--color-black)', transition: 'var(--transition-fast)' }}
+                  aria-label="Enviar regalo"
                 >
-                  <Share2 className="h-[15px] w-[15px]" strokeWidth={1.8} />
+                  <Gift className="h-[15px] w-[15px]" strokeWidth={1.8} />
                 </button>
                 <div className="relative">
                   <button
                     onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-                    className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50 active:bg-stone-100"
+                    className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full"
+                    style={{ background: 'var(--color-surface)', color: 'var(--color-black)', transition: 'var(--transition-fast)' }}
                     aria-label="Más opciones"
                   >
                     <MoreHorizontal className="h-[15px] w-[15px]" strokeWidth={1.8} />
                   </button>
                   {showOptionsMenu && (
-                    <div className="absolute right-0 top-[110%] z-50 min-w-[200px] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl">
+                    <div
+                      className="absolute right-0 top-[110%] z-50 min-w-[200px] overflow-hidden rounded-2xl shadow-xl"
+                      style={{ border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+                    >
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(window.location.href);
                           toast.success(t('social.linkCopied', 'Enlace copiado'));
                           setShowOptionsMenu(false);
                         }}
-                        className="flex w-full items-center gap-2.5 border-b border-stone-100 px-4 py-3 text-left text-[14px] text-stone-950 hover:bg-stone-50"
+                        className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[14px]"
+                        style={{ color: 'var(--color-black)', borderBottom: '1px solid var(--color-border)' }}
                       >
                         <Share2 className="h-4 w-4" /> {t('profile.copyLink', 'Copiar enlace del perfil')}
                       </button>
                       <button
                         onClick={() => setShowOptionsMenu(false)}
-                        className="flex w-full items-center gap-2.5 border-b border-stone-100 px-4 py-3 text-left text-[14px] text-red-500 hover:bg-stone-50"
+                        className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[14px]"
+                        style={{ color: 'var(--color-red)', borderBottom: '1px solid var(--color-border)' }}
                       >
                         <X className="h-4 w-4" /> {t('profile.block', 'Bloquear usuario')}
                       </button>
                       <button
                         onClick={() => setShowOptionsMenu(false)}
-                        className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[14px] text-red-500 hover:bg-stone-50"
+                        className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[14px]"
+                        style={{ color: 'var(--color-red)' }}
                       >
                         <X className="h-4 w-4" /> {t('profile.report', 'Reportar')}
                       </button>
@@ -621,30 +701,32 @@ export default function UserProfilePage() {
 
         {/* ── Banner profesional ── */}
         {isOwnProfile && isProfessional ? (
-          <div className="-mx-4 bg-white px-4 py-3 border-t border-stone-100">
+          <div className="-mx-4 px-4 py-3" style={{ background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
             <ProfessionalBanner role={profile.role} viewCount={profileViewCount} followersCount={followersCount} />
           </div>
         ) : null}
 
-        <section className="-mx-4 mt-px bg-white">
+        <section className="-mx-4 mt-px" style={{ background: 'var(--color-white)' }}>
           {/* Tabs — solo iconos, estilo Instagram */}
-          <div className="border-b border-stone-100">
+          <div style={{ borderBottom: '1px solid var(--color-border)' }}>
             <div className="flex">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
+                const isActive = activeTab === tab.key;
                 return (
                   <button
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveTab(tab.key)}
                     aria-label={tab.label}
-                    className={`flex flex-1 items-center justify-center border-b-2 py-3.5 transition-colors ${
-                      activeTab === tab.key
-                        ? 'border-stone-950 text-stone-950'
-                        : 'border-transparent text-stone-300 hover:text-stone-600'
-                    }`}
+                    className="flex flex-1 items-center justify-center py-3.5"
+                    style={{
+                      borderBottom: isActive ? '2px solid var(--color-black)' : '2px solid transparent',
+                      color: isActive ? 'var(--color-black)' : 'var(--color-stone)',
+                      transition: 'var(--transition-fast)',
+                    }}
                   >
-                    <Icon className="h-[22px] w-[22px]" strokeWidth={activeTab === tab.key ? 2 : 1.5} />
+                    <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2 : 1.5} />
                   </button>
                 );
               })}
@@ -666,7 +748,8 @@ export default function UserProfilePage() {
                     isOwnProfile ? (
                       <button
                         type="button"
-                        className="mt-5 inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+                        className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold"
+                        style={{ background: 'var(--color-black)', color: '#fff', transition: 'var(--transition-fast)' }}
                         onClick={() => setShowCreatePost(true)}
                       >
                         <Camera className="h-4 w-4" />
@@ -699,7 +782,7 @@ export default function UserProfilePage() {
             {activeTab === 'products' ? (
               productsLoading ? (
                 <div className="flex justify-center py-20">
-                  <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+                  <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--color-stone)' }} />
                 </div>
               ) : safeProducts.length === 0 ? (
                 <EmptyState
@@ -731,7 +814,7 @@ export default function UserProfilePage() {
             {activeTab === 'recipes' ? (
               recipesLoading ? (
                 <div className="flex justify-center py-20">
-                  <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+                  <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--color-stone)' }} />
                 </div>
               ) : recipesCount === 0 ? (
                 <EmptyState
@@ -742,7 +825,8 @@ export default function UserProfilePage() {
                     isOwnProfile ? (
                       <Link
                         to="/recipes/create"
-                        className="mt-5 inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800"
+                        className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold"
+                        style={{ background: 'var(--color-black)', color: '#fff', transition: 'var(--transition-fast)' }}
                       >
                         <BookOpen className="h-4 w-4" />
                         {t('recipes.createRecipe', 'Crear receta')}
