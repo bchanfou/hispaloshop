@@ -142,6 +142,8 @@ const InfluencerInsights = lazy(() => import('./pages/influencer/InfluencerInsig
 const AffiliateLinksPage = lazy(() => import('./pages/influencer/AffiliateLinksPage'));
 const PayoutsPage = lazy(() => import('./pages/influencer/PayoutsPage'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
+const ChatsPage = lazy(() => import('./pages/chat/ChatsPage'));
+const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
@@ -583,6 +585,8 @@ function AppRouter() {
               <Route path="/reels" element={<ReelsPage />} />
               <Route path="/feed" element={<Navigate to="/" replace />} />
               <Route path="/chat" element={<ChatContainer />} />
+              <Route path="/messages" element={<ChatsPage />} />
+              <Route path="/messages/:conversationId" element={<ChatPage />} />
               <Route path="/profile/:userId" element={<UserProfilePage />} />
               <Route path="/dashboard/new" element={<DashboardPage />} />
               <Route path="/dashboard/consumer" element={<Navigate to="/dashboard" replace />} />

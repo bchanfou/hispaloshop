@@ -13,6 +13,7 @@ export function ChatProvider({ children }) {
   const wsRef = useRef(null);
   const notifWsRef = useRef(null);
   const reconnectRef = useRef(null);
+  const reconnectDelayRef = useRef(1000);
   const notifReconnectRef = useRef(null);
   const [connected, setConnected] = useState(false);
   const [notifConnected, setNotifConnected] = useState(false);
@@ -103,6 +104,70 @@ export function ChatProvider({ children }) {
       return null;
     }
   }, [isAuthenticated, loadConversations]);
+
+  // Open or find existing conversation with a user of a given type
+  const openConversation = useCallback(async (userId, type) => {
+    if (!isAuthenticated) return null;
+    try {
+      const data = await apiClient.post(`/chat/conversations`, { other_user_id: userId, type });
+      await loadConversations();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }, [isAuthenticated, loadConversations]);
+
+  // Send a product card message via WebSocket
+  const attachProduct = useCallback((conversationId, productId) => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return false;
+
+    wsRef.current.send(JSON.stringify({
+      type: 'message',
+      conversation_id: conversationId,
+      content: '',
+      message_type: 'product_card',
+      product_id: productId,
+    }));
+    return true;
+  }, []);
+
+  // Upload a document file to a conversation
+  const attachDocument = useCallback(async (conversationId, file) => {
+    if (!isAuthenticated) return null;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const data = await apiClient.post(
+        `/chat/conversations/${conversationId}/upload`,
+        formData,
+      );
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }, [isAuthenticated]);
+
+  // Upload an image to a conversation
+  const sendImage = useCallback(async (conversationId, file) => {
+    if (!isAuthenticated) return null;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('message_type', 'image');
+      const data = await apiClient.post(
+        `/chat/conversations/${conversationId}/upload`,
+        formData,
+      );
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }, [isAuthenticated]);
+
+  // Get conversations filtered by type (memoized)
+  const getConversationsByType = useCallback((type) => {
+    return conversations.filter((c) => c.type === type);
+  }, [conversations]);
 
   // Clear notification unread count
   const clearNotifUnreadCount = useCallback(() => {
@@ -205,6 +270,7 @@ export function ChatProvider({ children }) {
 
       ws.onopen = () => {
         setConnected(true);
+        reconnectDelayRef.current = 1000; // Reset backoff on successful connection
         loadConversations();
         
         // Send ping every 30s to keep connection alive
@@ -219,8 +285,10 @@ export function ChatProvider({ children }) {
 
       ws.onclose = (event) => {
         setConnected(false);
-        // Reconnect after 3 seconds
-        reconnectRef.current = setTimeout(connect, 3000);
+        // Exponential backoff reconnection: 1s → 2s → 4s → … → 30s max
+        const delay = reconnectDelayRef.current;
+        reconnectRef.current = setTimeout(connect, delay);
+        reconnectDelayRef.current = Math.min(delay * 2, 30000);
       };
 
       ws.onerror = () => {
@@ -296,7 +364,10 @@ export function ChatProvider({ children }) {
         }
       };
     } catch (error) {
-      reconnectRef.current = setTimeout(connect, 5000);
+      // TODO: Implement HTTP polling fallback when WebSocket is unavailable
+      const delay = reconnectDelayRef.current;
+      reconnectRef.current = setTimeout(connect, delay);
+      reconnectDelayRef.current = Math.min(delay * 2, 30000);
     }
   }, [isAuthenticated, user, currentConversation, loadConversations, markAsRead]);
 
@@ -343,7 +414,12 @@ export function ChatProvider({ children }) {
     sendTyping,
     markAsRead,
     createConversation,
-    
+    openConversation,
+    attachProduct,
+    attachDocument,
+    sendImage,
+    getConversationsByType,
+
     // Typing indicators
     typingUsers,
 
@@ -366,6 +442,11 @@ export function ChatProvider({ children }) {
     sendTyping,
     markAsRead,
     createConversation,
+    openConversation,
+    attachProduct,
+    attachDocument,
+    sendImage,
+    getConversationsByType,
     typingUsers,
     notifConnected,
     notifUnreadCount,
