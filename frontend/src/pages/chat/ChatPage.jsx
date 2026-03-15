@@ -518,7 +518,7 @@ function MessageInput({ onSend, onTyping, onAttach }) {
 
   return (
     <div
-      className="sticky bottom-0 z-30 flex items-end gap-2 px-3"
+      className="flex items-end gap-2 px-3 shrink-0"
       style={{
         background: V.cream,
         borderTop: `1px solid ${V.border}`,
@@ -769,8 +769,15 @@ export default function ChatPage() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col z-40"
-      style={{ background: V.cream, fontFamily: V.fontSans }}
+      className="flex flex-col"
+      style={{
+        height: '100dvh',
+        background: V.cream,
+        fontFamily: V.fontSans,
+        position: 'fixed',
+        inset: 0,
+        zIndex: 40,
+      }}
     >
       {/* Header */}
       <ChatHeader conversation={conversation} navigate={navigate} />
@@ -783,7 +790,7 @@ export default function ChatPage() {
         ref={scrollRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto relative"
-        style={{ background: V.cream }}
+        style={{ background: V.cream, WebkitOverflowScrolling: 'touch' }}
       >
         <div className="pb-4 pt-2">
           {groupedMessages.map((item) => {

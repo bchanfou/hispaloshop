@@ -98,7 +98,12 @@ export default function AppLayout({ children }) {
       <SideNav />
 
       {/* Content area — offset on desktop for sidebar */}
-      <main className="min-h-screen lg:pl-[var(--hs-sidebar-w)]">
+      <main
+        className="min-h-screen lg:pl-[var(--hs-sidebar-w)]"
+        style={{
+          paddingBottom: 'calc(50px + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
         {children}
       </main>
     </>
