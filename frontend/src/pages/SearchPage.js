@@ -225,7 +225,7 @@ export default function SearchPage() {
   );
 
   return (
-    <div className="min-h-screen bg-white max-w-2xl mx-auto">
+    <div className="min-h-screen max-w-2xl mx-auto">
 
       {/* ── Search bar ─────────────────────────────────────────── */}
       <div className="sticky top-0 z-10 bg-white border-b border-stone-100 px-4 py-3">

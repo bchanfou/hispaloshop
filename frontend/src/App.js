@@ -83,6 +83,8 @@ const BlogPage = lazy(() => import('./pages/BlogPage'));
 const PressPage = lazy(() => import('./pages/PressPage'));
 const CareersPage = lazy(() => import('./pages/CareersPage'));
 const ContactPage = lazy(() => import('./pages/informativas/ContactPage'));
+const InfoPricingPage = lazy(() => import('./pages/informativas/PricingPage'));
+const LegalPage = lazy(() => import('./pages/informativas/LegalPage'));
 const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
@@ -415,6 +417,8 @@ function AppRouter() {
               <Route path="/careers" element={<InfoLayout><CareersPage /></InfoLayout>} />
               <Route path="/contact" element={<InfoLayout><ContactPage /></InfoLayout>} />
               <Route path="/contacto" element={<InfoLayout><ContactPage /></InfoLayout>} />
+              <Route path="/precios" element={<InfoLayout><InfoPricingPage /></InfoLayout>} />
+              <Route path="/legal/*" element={<InfoLayout><LegalPage /></InfoLayout>} />
               <Route
                 path="/pending-approval"
                 element={(

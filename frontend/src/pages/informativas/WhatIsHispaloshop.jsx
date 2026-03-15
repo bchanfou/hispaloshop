@@ -255,12 +255,17 @@ export default function WhatIsHispaloshop() {
           </div>
 
           {/* Stats grid */}
-          <div style={{
+          <div className="reveal-scale stats-grid" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
             marginTop: 64,
             textAlign: 'center',
-          }} className="reveal-scale">
+          }}>
+            <style>{`
+              .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+              @media (min-width: 768px) {
+                .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 0; }
+              }
+            `}</style>
             <div ref={ref1} style={{ padding: '16px 0', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
               <p className="info-h1" style={{ color: '#fff', marginBottom: 8, fontSize: 'var(--text-3xl)' }}>
                 {producers.toLocaleString()}+

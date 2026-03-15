@@ -79,7 +79,7 @@ export default function AuthCallback() {
   }, [location, navigate, checkAuth]);
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center" data-testid="auth-callback-page">
+    <div className="min-h-screen flex items-center justify-center" data-testid="auth-callback-page">
       <div className="text-center">
         {error ? (
           <div>
