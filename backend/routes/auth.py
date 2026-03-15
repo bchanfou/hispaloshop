@@ -270,6 +270,17 @@ async def register(input: RegisterInput, request: Request):
                 "plan_status": "active",
                 "commission_rate": 0.20,
             },
+            "verification_status": {
+                "is_verified": False,
+                "verified_at": None,
+                "verified_by": None,
+                "documents": {"cif_nif": {}, "facility_photo": {}, "certificates": []},
+                "ai_confidence": None,
+                "admin_review_required": False,
+                "admin_review_reason": None,
+                "blocked_from_selling": True,
+                "block_reason": "Verificación de cuenta pendiente",
+            },
         })
     
     if input.role == "influencer":

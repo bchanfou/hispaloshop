@@ -65,6 +65,7 @@ from routes.producer_registration import router as producer_registration_router
 from routes.importer_registration import router as importer_registration_router
 from routes.importer import router as legacy_importer_router
 from routes.onboarding import router as onboarding_router
+from routes.producer_verification import router as producer_verification_router
 from routes.ai import router as ai_router
 from routes.frontend_compat import router as frontend_compat_router
 from routes.rfq import router as rfq_router
@@ -206,6 +207,9 @@ app.include_router(search_router, prefix="/api", tags=["search"])
 
 # Onboarding Routes
 app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])
+
+# Producer/Importer Verification Routes (Fase 23)
+app.include_router(producer_verification_router, prefix="/api", tags=["verification"])
 
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])

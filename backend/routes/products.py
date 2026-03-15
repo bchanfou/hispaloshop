@@ -324,6 +324,20 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
     await require_role(user, ["producer", "importer", "admin"])
     if user.role in ("producer", "importer") and not user.approved:
         raise HTTPException(status_code=403, detail="Seller account not approved")
+
+    # Verification gate — producers/importers must be verified before publishing
+    if user.role in ("producer", "importer"):
+        db_user = await db.users.find_one({"user_id": user.user_id})
+        vs = (db_user or {}).get("verification_status", {})
+        if not vs.get("is_verified", False):
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "verification_required",
+                    "message": "Debes completar la verificación de tu cuenta antes de publicar productos",
+                    "action": "complete_verification",
+                },
+            )
     product_id = f"prod_{uuid.uuid4().hex[:12]}"
     slug = input.name.lower().replace(' ', '-')
     
