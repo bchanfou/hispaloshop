@@ -1,0 +1,19 @@
+/* Superadmin Dark Theme */
+.superadmin-theme {
+  --color-bg-primary:   #0A0A0A;
+  --color-bg-secondary: #141414;
+  --color-bg-card:      #1A1A1A;
+  --color-bg-hover:     #222222;
+  --color-border-base:  #2A2A2A;
+  --color-text-primary: #FFFFFF;
+  --color-text-muted:   #555555;
+  --color-text-subtle:  #333333;
+  --color-accent:       #2E7D52;
+  --color-accent-muted: rgba(46,125,82,0.2);
+}
+
+.superadmin-theme {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+}

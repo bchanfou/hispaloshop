@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Film, Plus, User, X } from 'lucide-react';
+import { Home, Compass, Film, MessageCircle, Plus, User, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -421,26 +421,34 @@ export default function BottomNavBar() {
             </div>
           </button>
 
-          {/* 4 — Reels */}
-          <Link
-            to="/reels"
-            aria-label={t('bottomNav.reels', 'Reels')}
-            data-testid="bottom-nav-reels"
-            onClick={(e) => handleNavClick(e, isReels)}
+          {/* 4 — Chats */}
+          <button
+            type="button"
+            onClick={() => togglePanel('chat')}
+            aria-label={t('bottomNav.chats', 'Chats')}
+            data-testid="bottom-nav-chats"
             className="relative flex h-full items-center justify-center active:opacity-60"
           >
             <div
               className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
-              style={{ transform: `translateX(-50%) scaleX(${isReels ? 1 : 0})` }}
+              style={{ transform: `translateX(-50%) scaleX(${isChatActive ? 1 : 0})` }}
             />
-            {isReels ? (
+            {isChatActive ? (
               <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
-                <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
               </svg>
             ) : (
-              <Film className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
+              <MessageCircle className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
             )}
-          </Link>
+            {unreadCount > 0 && (
+              <span
+                className="absolute top-1 right-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-[#2E7D52] px-0.5"
+                style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)' }}
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
 
           {/* 5 — Perfil */}
           <Link

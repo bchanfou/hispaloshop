@@ -77,7 +77,7 @@ export default function SuperAdminLayoutResponsive() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="superadmin-theme min-h-screen bg-[#0A0A0A]">
       {/* ===== MOBILE HEADER ===== */}
       <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#111111] border-b border-white/[0.08] px-4 h-14 flex items-center justify-between">
         <button

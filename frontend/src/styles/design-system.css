@@ -1,45 +1,49 @@
 /* ═══════════════════════════════════════════════════════
-   HISPALOSHOP — Design System v1.0
-   Paleta Apple: blanco/negro + acentos funcionales mínimos
+   HISPALOSHOP — Design System v2.0
+   Paleta: Crema/Negro + Verde acción + funcionales
    ═══════════════════════════════════════════════════════ */
 
 :root {
   /* ── Colores principales ── */
   --hs-black:       #0A0A0A;
   --hs-white:       #FFFFFF;
-  --hs-bg:          #F5F5F7;
+  --hs-bg:          #F7F6F2;
   --hs-surface:     #FFFFFF;
-  --hs-surface-2:   #F5F5F7;
-  --hs-surface-3:   #E8E8ED;
+  --hs-surface-2:   #F0EDE8;
+  --hs-surface-3:   #E5E2DA;
 
   /* ── Texto ── */
-  --hs-text-1:      #1D1D1F;
-  --hs-text-2:      #6E6E73;
-  --hs-text-3:      #AEAEB2;
-  --hs-text-4:      #C7C7CC;
+  --hs-text-1:      #0A0A0A;
+  --hs-text-2:      #8A8881;
+  --hs-text-3:      #A8A49C;
+  --hs-text-4:      #C7C3BC;
 
   /* ── Bordes ── */
-  --hs-border:      rgba(0, 0, 0, 0.08);
-  --hs-border-med:  rgba(0, 0, 0, 0.12);
-  --hs-border-str:  rgba(0, 0, 0, 0.20);
+  --hs-border:      #E5E2DA;
+  --hs-border-med:  #D4D0C8;
+  --hs-border-str:  #B8B4AC;
 
-  /* ── Acentos funcionales (uso mínimo y con propósito) ── */
-  --hs-green:       #34C759;   /* éxito, gratis, confirmado */
-  --hs-green-bg:    #F0FBF4;
-  --hs-orange:      #FF9500;   /* plan PRO, advertencia */
-  --hs-orange-bg:   #FFF8EC;
-  --hs-purple:      #5856D6;   /* plan ELITE, premium */
+  /* ── Acentos funcionales ── */
+  --hs-green:       #2E7D52;
+  --hs-green-bg:    #EBF5EC;
+  --hs-amber:       #E8A020;
+  --hs-amber-bg:    #FFF4E0;
+  --hs-red:         #C05040;
+  --hs-red-bg:      #FFF0EE;
+  --hs-blue:        #3060A0;
+  --hs-blue-bg:     #EBF0F8;
+  --hs-yellow:      #E8A020;
+
+  /* Legacy compat aliases */
+  --hs-orange:      var(--hs-amber);
+  --hs-orange-bg:   var(--hs-amber-bg);
+  --hs-purple:      #5856D6;
   --hs-purple-bg:   #F2F2FF;
-  --hs-red:         #FF3B30;   /* error, eliminar */
-  --hs-red-bg:      #FFF2F1;
-  --hs-blue:        #007AFF;   /* info, links, verificado */
-  --hs-blue-bg:     #F0F7FF;
-  --hs-yellow:      #FFD60A;   /* rating stars */
 
   /* ── Tipografía ── */
-  --hs-font:        -apple-system, BlinkMacSystemFont, 'SF Pro Display',
-                    'SF Pro Text', 'Helvetica Neue', sans-serif;
-  --hs-font-mono:   'SF Mono', 'Fira Code', 'Courier New', monospace;
+  --hs-font:        'Inter', -apple-system, BlinkMacSystemFont,
+                    'Segoe UI', sans-serif;
+  --hs-font-mono:   'JetBrains Mono', 'Fira Code', monospace;
 
   /* ── Escala tipográfica ── */
   --hs-text-xs:     11px;
@@ -66,19 +70,19 @@
   --hs-sp-20:  80px;
 
   /* ── Border radius ── */
-  --hs-r-sm:    6px;
-  --hs-r-md:    10px;
+  --hs-r-sm:    8px;
+  --hs-r-md:    12px;
   --hs-r-lg:    16px;
-  --hs-r-xl:    22px;
+  --hs-r-xl:    20px;
   --hs-r-2xl:   28px;
   --hs-r-full:  9999px;
 
   /* ── Sombras ── */
-  --hs-shadow-xs: 0 1px 4px rgba(0, 0, 0, 0.05);
-  --hs-shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.07);
-  --hs-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.09);
-  --hs-shadow-lg: 0 8px 36px rgba(0, 0, 0, 0.11);
-  --hs-shadow-xl: 0 16px 56px rgba(0, 0, 0, 0.14);
+  --hs-shadow-xs: 0 1px 3px rgba(10, 10, 10, 0.06);
+  --hs-shadow-sm: 0 1px 3px rgba(10, 10, 10, 0.08);
+  --hs-shadow-md: 0 4px 12px rgba(10, 10, 10, 0.10);
+  --hs-shadow-lg: 0 8px 24px rgba(10, 10, 10, 0.12);
+  --hs-shadow-xl: 0 16px 48px rgba(10, 10, 10, 0.14);
 
   /* ── Transiciones ── */
   --hs-ease:      cubic-bezier(0.4, 0, 0.2, 1);
@@ -108,30 +112,6 @@
   --hs-safe-bottom:  env(safe-area-inset-bottom, 0px);
 }
 
-/* ── Dark mode ── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --hs-black:       #F5F5F7;
-    --hs-white:       #1C1C1E;
-    --hs-bg:          #000000;
-    --hs-surface:     #1C1C1E;
-    --hs-surface-2:   #2C2C2E;
-    --hs-surface-3:   #3A3A3C;
-    --hs-text-1:      #F5F5F7;
-    --hs-text-2:      #98989D;
-    --hs-text-3:      #636366;
-    --hs-text-4:      #48484A;
-    --hs-border:      rgba(255, 255, 255, 0.08);
-    --hs-border-med:  rgba(255, 255, 255, 0.13);
-    --hs-border-str:  rgba(255, 255, 255, 0.22);
-    --hs-green-bg:    rgba(52, 199, 89, 0.15);
-    --hs-orange-bg:   rgba(255, 149, 0, 0.15);
-    --hs-purple-bg:   rgba(88, 86, 214, 0.15);
-    --hs-red-bg:      rgba(255, 59, 48, 0.15);
-    --hs-blue-bg:     rgba(0, 122, 255, 0.15);
-  }
-}
-
 /* ── Reset y base global ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -157,7 +137,7 @@ body {
   justify-content: center;
   gap:             var(--hs-sp-2);
   padding:         13px 28px;
-  border-radius:   var(--hs-r-full);
+  border-radius:   var(--hs-r-md);
   border:          none;
   background:      #0A0A0A;
   color:           #FFFFFF;
@@ -165,14 +145,11 @@ body {
   font-size:       var(--hs-text-base);
   font-weight:     500;
   cursor:          pointer;
-  transition:      var(--hs-transition);
+  transition:      var(--hs-transition-fast);
   white-space:     nowrap;
   text-decoration: none;
 }
-@media (prefers-color-scheme: dark) {
-  .hs-btn-primary { background: #F5F5F7; color: #0A0A0A; }
-}
-.hs-btn-primary:hover  { transform: scale(1.02); box-shadow: var(--hs-shadow-md); }
+.hs-btn-primary:hover  { opacity: 0.85; }
 .hs-btn-primary:active { transform: scale(0.97); }
 .hs-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
@@ -182,52 +159,44 @@ body {
   justify-content: center;
   gap:             var(--hs-sp-2);
   padding:         12px 24px;
-  border-radius:   var(--hs-r-full);
-  border:          1.5px solid var(--hs-border-med);
-  background:      transparent;
+  border-radius:   var(--hs-r-md);
+  border:          0.5px solid var(--hs-border);
+  background:      var(--hs-surface);
   color:           var(--hs-text-1);
   font-family:     var(--hs-font);
   font-size:       var(--hs-text-base);
   font-weight:     500;
   cursor:          pointer;
-  transition:      var(--hs-transition);
+  transition:      var(--hs-transition-fast);
   white-space:     nowrap;
   text-decoration: none;
 }
-.hs-btn-secondary:hover  { background: var(--hs-surface-2); }
+.hs-btn-secondary:hover  { background: var(--hs-bg); }
 .hs-btn-secondary:active { transform: scale(0.97); }
 
 .hs-card {
   background:    var(--hs-surface);
   border-radius: var(--hs-r-lg);
   border:        0.5px solid var(--hs-border);
-  box-shadow:    var(--hs-shadow-sm);
   overflow:      hidden;
-  transition:    transform var(--hs-duration-base) var(--hs-ease),
-                 box-shadow var(--hs-duration-base) var(--hs-ease);
-}
-.hs-card:hover {
-  transform:   translateY(-2px);
-  box-shadow:  var(--hs-shadow-md);
+  transition:    var(--hs-transition-fast);
 }
 
 .hs-input {
   width:         100%;
-  padding:       12px 16px;
+  padding:       10px 12px;
   border-radius: var(--hs-r-md);
-  border:        1px solid var(--hs-border-med);
-  background:    var(--hs-surface-2);
+  border:        0.5px solid var(--hs-border);
+  background:    var(--hs-surface);
   color:         var(--hs-text-1);
   font-family:   var(--hs-font);
-  font-size:     var(--hs-text-base);
+  font-size:     14px;
   outline:       none;
   transition:    var(--hs-transition-fast);
   -webkit-appearance: none;
 }
 .hs-input:focus {
   border-color: var(--hs-black);
-  background:   var(--hs-surface);
-  box-shadow:   0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 .hs-input::placeholder { color: var(--hs-text-3); }
 
@@ -237,14 +206,16 @@ body {
   padding:       3px 10px;
   border-radius: var(--hs-r-full);
   font-size:     var(--hs-text-xs);
-  font-weight:   600;
+  font-weight:   500;
   white-space:   nowrap;
 }
 .hs-badge-green  { background: var(--hs-green-bg);  color: var(--hs-green);  }
-.hs-badge-orange { background: var(--hs-orange-bg); color: var(--hs-orange); }
+.hs-badge-amber  { background: var(--hs-amber-bg);  color: var(--hs-amber);  }
+.hs-badge-red    { background: var(--hs-red-bg);     color: var(--hs-red);    }
+.hs-badge-blue   { background: var(--hs-blue-bg);    color: var(--hs-blue);   }
+/* Legacy compat */
+.hs-badge-orange { background: var(--hs-amber-bg);  color: var(--hs-amber);  }
 .hs-badge-purple { background: var(--hs-purple-bg); color: var(--hs-purple); }
-.hs-badge-red    { background: var(--hs-red-bg);    color: var(--hs-red);    }
-.hs-badge-blue   { background: var(--hs-blue-bg);   color: var(--hs-blue);   }
 
 /* ── Utilidades ── */
 .hs-divider {
@@ -278,7 +249,7 @@ body {
   width:         24px;
   height:        24px;
   border-radius: 50%;
-  border:        2.5px solid var(--hs-border-med);
+  border:        2.5px solid var(--hs-border);
   border-top-color: var(--hs-black);
   animation:     hs-spin 0.7s linear infinite;
 }

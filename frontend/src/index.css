@@ -1,7 +1,9 @@
-/* Hispaloshop Design System - Responsive Mobile-First */
-/* Typography: Playfair Display (headings) + Inter (body) */
+/* Hispaloshop Design System v2.0 - Mobile-First */
+/* Typography: Inter (all text) */
 
+@import './styles/tokens.css';
 @import './styles/design-system.css';
+@import './styles/theme-superadmin.css';
 
 @tailwind base;
 @tailwind components;
@@ -122,12 +124,12 @@ html, body, #root {
 }
 body {
   margin: 0;
-  font-family: var(--hs-font);
+  font-family: var(--font-sans);
   font-weight: 400;
   font-size: var(--hs-text-base);
   line-height: 1.5;
-  color: var(--hs-text-1);
-  background-color: var(--hs-bg);
+  color: var(--color-black);
+  background-color: var(--color-cream);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

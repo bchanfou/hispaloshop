@@ -1,34 +1,50 @@
-import * as React from "react"
-import { cva } from "class-variance-authority";
+import React from 'react';
 
-import { cn } from "@/lib/utils"
+const variantMap = {
+  green:  { background: 'var(--color-green-light)',  color: 'var(--color-green)' },
+  amber:  { background: 'var(--color-amber-light)',  color: 'var(--color-amber)' },
+  red:    { background: 'var(--color-red-light)',    color: 'var(--color-red)' },
+  blue:   { background: 'var(--color-blue-light)',   color: 'var(--color-blue)' },
+  gray:   { background: 'var(--color-surface)',      color: 'var(--color-stone)' },
+  black:  { background: 'var(--color-black)',        color: 'var(--color-white)' },
+};
 
-const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-  {
-    variants: {
-      variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
-        outline: "text-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
+const sizeMap = {
+  sm: { fontSize: '9px', padding: '2px 7px' },
+  md: { fontSize: '10px', padding: '3px 10px' },
+};
 
-function Badge({
+export default function Badge({
+  children,
+  variant = 'gray',
+  size = 'md',
+  style,
   className,
-  variant,
   ...props
 }) {
-  return (<div className={cn(badgeVariants({ variant }), className)} {...props} />);
-}
+  const vs = variantMap[variant] || variantMap.gray;
+  const ss = sizeMap[size] || sizeMap.md;
 
-export { Badge, badgeVariants }
+  return (
+    <span
+      className={className}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
+        borderRadius: 'var(--radius-full)',
+        fontFamily: 'var(--font-sans)',
+        fontWeight: 500,
+        whiteSpace: 'nowrap',
+        letterSpacing: '0.01em',
+        lineHeight: 1.4,
+        ...vs,
+        ...ss,
+        ...style,
+      }}
+      {...props}
+    >
+      {children}
+    </span>
+  );
+}
