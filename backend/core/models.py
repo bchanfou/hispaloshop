@@ -92,6 +92,7 @@ class RegisterInput(BaseModel):
     country: str
     username: Optional[str] = None
     language: Optional[str] = "es"
+    birth_date: Optional[str] = None  # YYYY-MM-DD, required for age verification
     company_name: Optional[str] = None
     phone: Optional[str] = None
     whatsapp: Optional[str] = None

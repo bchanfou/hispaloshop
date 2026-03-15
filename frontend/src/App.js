@@ -154,6 +154,7 @@ const WithdrawalPage = lazy(() => import('./pages/influencer/WithdrawalPage'));
 const PayoutsPage = lazy(() => import('./pages/influencer/PayoutsPage'));
 const AdminFiscalPage = lazy(() => import('./pages/admin/AdminFiscalPage'));
 const AdminVerificationPage = lazy(() => import('./pages/admin/AdminVerificationPage'));
+const AdminModerationPage = lazy(() => import('./pages/admin/AdminModerationPage'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const ChatsPage = lazy(() => import('./pages/chat/ChatsPage'));
 const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
@@ -434,6 +435,7 @@ function AppRouter() {
                 <Route path="escalation" element={<EscalationChat />} />
                 <Route path="fiscal" element={<AdminFiscalPage />} />
                 <Route path="verification" element={<AdminVerificationPage />} />
+                <Route path="moderation" element={<AdminModerationPage />} />
               </Route>
               <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
 

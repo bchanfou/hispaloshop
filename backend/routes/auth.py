@@ -192,13 +192,32 @@ async def _resolve_referral_influencer(referral_code: Optional[str]) -> tuple[Op
 
 @router.post("/auth/register")
 async def register(input: RegisterInput, request: Request):
+    # Age verification — must be 16+
+    if input.birth_date:
+        try:
+            from datetime import date
+            birth = date.fromisoformat(input.birth_date)
+            today = date.today()
+            age = today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
+            if age < 16:
+                # Do NOT store data of rejected minors
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "age_requirement",
+                        "message": "Debes tener al menos 16 años para registrarte en Hispaloshop.",
+                    },
+                )
+        except ValueError:
+            pass  # Invalid date format, skip check
+
     # GDPR Compliance: Consent is MANDATORY for customers
     if input.role == "customer" and not input.analytics_consent:
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail="Analytics consent is required for customer registration"
         )
-    
+
     normalized_email = input.email.lower()
     existing = await db.users.find_one({"email": normalized_email}, {"_id": 0})
     if existing:
@@ -239,6 +258,8 @@ async def register(input: RegisterInput, request: Request):
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "approved": input.role == "customer",
         "auth_provider": "local",
+        "birth_date": input.birth_date,
+        "age_verified": bool(input.birth_date),
         "onboarding_completed": input.role != "customer",
         "onboarding_step": 1 if input.role == "customer" else 0,
         "interests": [],

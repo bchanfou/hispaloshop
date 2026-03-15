@@ -9,6 +9,7 @@ import base64
 from typing import Optional, List
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends, Request, Query
+from fastapi.responses import JSONResponse
 import qrcode
 
 from core.database import db
@@ -338,6 +339,27 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
                     "action": "complete_verification",
                 },
             )
+    # Content moderation — synchronous (products wait for result)
+    from services.content_moderation import moderate_product
+    mod_result = await moderate_product({
+        "name": input.name,
+        "description": input.description,
+        "category": input.category_id,
+        "images": input.images or [],
+        "tags": input.certifications or [],
+        "price": input.price,
+    })
+    if mod_result.get("decision") == "blocked":
+        return JSONResponse(
+            status_code=200,
+            content={
+                "moderated": True,
+                "action": "blocked",
+                "reason": mod_result.get("reason"),
+                "violation_type": mod_result.get("violation_type"),
+            },
+        )
+
     product_id = f"prod_{uuid.uuid4().hex[:12]}"
     slug = input.name.lower().replace(' ', '-')
     
@@ -408,6 +430,18 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
     }
     await db.products.insert_one(product)
     product.pop("_id", None)
+
+    # If moderation flagged for review, add to moderation queue
+    if mod_result.get("decision") == "review":
+        await db.content_moderation_queue.insert_one({
+            "content_type": "product", "content_id": product_id,
+            "creator_id": user.user_id, "action": "review",
+            "violation_type": mod_result.get("violation_type"),
+            "ai_reason": mod_result.get("reason"),
+            "ai_confidence": mod_result.get("confidence"),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "admin_reviewed": False, "admin_action": None,
+        })
     
     # Auto-create certificate + functional QR for physical packaging use
     try:

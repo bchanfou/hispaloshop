@@ -348,6 +348,40 @@ async def create_community_post(
         {"_id": community["_id"]}, {"$inc": {"post_count": 1}}
     )
 
+    # Background moderation
+    import asyncio
+    from services.content_moderation import moderate_post_content
+
+    async def _moderate_community_post(post_id, author_id, text, image_url):
+        try:
+            imgs = [image_url] if image_url else []
+            mod = await moderate_post_content({"text": text, "image_urls": imgs, "tags": []})
+            if mod["action"] == "hide":
+                await db.community_posts.update_one({"_id": post_id}, {"$set": {"status": "hidden"}})
+                await db.content_moderation_queue.insert_one({
+                    "content_type": "community_post", "content_id": str(post_id),
+                    "creator_id": author_id, "action": "hide",
+                    "violation_type": mod.get("violation_type"),
+                    "ai_reason": mod.get("reason"), "ai_confidence": mod.get("confidence"),
+                    "created_at": datetime.utcnow().isoformat(),
+                    "admin_reviewed": False, "admin_action": None,
+                })
+            elif mod["action"] == "review":
+                await db.content_moderation_queue.insert_one({
+                    "content_type": "community_post", "content_id": str(post_id),
+                    "creator_id": author_id, "action": "review",
+                    "violation_type": mod.get("violation_type"),
+                    "ai_reason": mod.get("reason"), "ai_confidence": mod.get("confidence"),
+                    "created_at": datetime.utcnow().isoformat(),
+                    "admin_reviewed": False, "admin_action": None,
+                })
+        except Exception:
+            pass
+
+    asyncio.create_task(_moderate_community_post(
+        result.inserted_id, user.user_id, body.text, body.image_url,
+    ))
+
     return {"id": str(result.inserted_id), "ok": True}
 
 

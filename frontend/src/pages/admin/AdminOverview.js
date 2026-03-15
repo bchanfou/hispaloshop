@@ -138,7 +138,7 @@ export default function AdminOverview() {
           <PendingRow label="Verificaciones pendientes" count={stats?.pending_verifications || 0} to="/admin/verification" />
           <PendingRow label="Productos por revisar" count={pendingProducts} to="/admin/products" />
           <PendingRow label="Certificados" count={pendingCertificates} to="/admin/certificates" />
-          <PendingRow label="Moderación de contenido" count={pendingModeration} to="/admin/trust-safety" />
+          <PendingRow label="Moderación de contenido" count={pendingModeration} to="/admin/moderation" />
           <PendingRow label="Soporte abierto" count={openSupport} to="/admin/support" />
           <PendingRow label="Reembolsos" count={stats?.refunded_orders || 0} to="/admin/refunds" />
         </div>

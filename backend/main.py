@@ -75,6 +75,7 @@ from routes.moderation import router as moderation_router
 from routes.discovery import router as discovery_router
 from routes.posts import router as legacy_posts_router
 from routes.communities import router as communities_router
+from routes.content_moderation import router as content_moderation_router
 
 logger = logging.getLogger(__name__)
 
@@ -212,6 +213,9 @@ app.include_router(onboarding_router, prefix="/api", tags=["onboarding"])
 # Producer/Importer Verification Routes (Fase 23)
 app.include_router(producer_verification_router, prefix="/api", tags=["verification"])
 app.include_router(admin_verification_router, prefix="/api", tags=["admin-verification"])
+
+# Content Moderation Routes (Fase 24)
+app.include_router(content_moderation_router, prefix="/api", tags=["content-moderation"])
 
 # AI Routes (Fase 1)
 app.include_router(ai_router, prefix="/api/ai", tags=["AI"])

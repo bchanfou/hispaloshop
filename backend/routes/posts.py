@@ -5,8 +5,11 @@ Fase 3: Social Feed
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional, List
 from datetime import datetime
+import logging
 
 from services.feed_algorithm import feed_algorithm
+
+logger = logging.getLogger(__name__)
 from core.database import get_db
 from core.auth import get_current_user
 
@@ -125,7 +128,39 @@ async def create_post(
     
     result = await db.posts.insert_one(post_doc)
     post_doc["id"] = str(result.inserted_id)
-    
+
+    # Background moderation — post is published immediately, moderated async
+    import asyncio
+    from services.content_moderation import moderate_post_content
+
+    async def _moderate_bg(post_id, author_id, text, media, hashtags):
+        try:
+            image_urls = [m.get("url") for m in (media or []) if m.get("url")]
+            mod = await moderate_post_content({"text": text, "image_urls": image_urls, "tags": hashtags})
+            if mod["action"] == "hide":
+                await db.posts.update_one({"_id": post_id}, {"$set": {"is_hidden": True, "status": "hidden"}})
+                await db.content_moderation_queue.insert_one({
+                    "content_type": "post", "content_id": str(post_id),
+                    "creator_id": author_id, "action": "hide",
+                    "violation_type": mod.get("violation_type"),
+                    "ai_reason": mod.get("reason"), "ai_confidence": mod.get("confidence"),
+                    "created_at": datetime.utcnow().isoformat(),
+                    "admin_reviewed": False, "admin_action": None,
+                })
+            elif mod["action"] == "review":
+                await db.content_moderation_queue.insert_one({
+                    "content_type": "post", "content_id": str(post_id),
+                    "creator_id": author_id, "action": "review",
+                    "violation_type": mod.get("violation_type"),
+                    "ai_reason": mod.get("reason"), "ai_confidence": mod.get("confidence"),
+                    "created_at": datetime.utcnow().isoformat(),
+                    "admin_reviewed": False, "admin_action": None,
+                })
+        except Exception as e:
+            logger.error("Background moderation failed for post %s: %s", post_id, e)
+
+    asyncio.create_task(_moderate_bg(result.inserted_id, current_user.user_id, content, media, hashtags))
+
     return {"success": True, "data": post_doc}
 
 

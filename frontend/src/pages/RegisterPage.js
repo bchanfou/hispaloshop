@@ -115,9 +115,11 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     fullName: '', email: '', password: '', country: '', role: roleParam || '',
+    birthDay: '', birthMonth: '', birthYear: '',
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [ageBlocked, setAgeBlocked] = useState(false);
 
   const updateForm = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -131,6 +133,16 @@ export default function RegisterPage() {
     if (form.password.length < 8) e.password = 'Mínimo 8 caracteres';
     else if (!/[0-9]/.test(form.password)) e.password = 'Debe incluir al menos un número';
     if (!form.country) e.country = 'Selecciona tu país';
+    if (!form.birthDay || !form.birthMonth || !form.birthYear) {
+      e.birthDate = 'La fecha de nacimiento es obligatoria';
+    } else {
+      const y = parseInt(form.birthYear, 10);
+      const m = parseInt(form.birthMonth, 10);
+      const d = parseInt(form.birthDay, 10);
+      if (isNaN(y) || isNaN(m) || isNaN(d) || y < 1900 || y > new Date().getFullYear() || m < 1 || m > 12 || d < 1 || d > 31) {
+        e.birthDate = 'Fecha de nacimiento no válida';
+      }
+    }
     setErrors(e);
     if (Object.keys(e).length === 0) setStep(2);
   };
@@ -141,6 +153,7 @@ export default function RegisterPage() {
       return;
     }
     setIsLoading(true);
+    const birthDate = `${form.birthYear}-${form.birthMonth.padStart(2, '0')}-${form.birthDay.padStart(2, '0')}`;
     try {
       const data = await register({
         name: form.fullName,
@@ -148,6 +161,7 @@ export default function RegisterPage() {
         password: form.password,
         country: form.country,
         role: form.role,
+        birth_date: birthDate,
       });
 
       if (data?.user) {
@@ -157,6 +171,12 @@ export default function RegisterPage() {
         navigate(`/onboarding/${form.role}`, { replace: true });
       }
     } catch (err) {
+      // Check for age requirement error
+      const detail = err?.response?.data?.detail;
+      if (detail?.error === 'age_requirement' || (typeof detail === 'string' && detail.includes('age_requirement'))) {
+        setAgeBlocked(true);
+        return;
+      }
       const msg = getAuthErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.');
       if (msg.toLowerCase().includes('email')) {
         setErrors({ email: 'Este email ya está registrado' });
@@ -182,6 +202,49 @@ export default function RegisterPage() {
       }} />
     </div>
   );
+
+  // Age-blocked screen
+  if (ageBlocked) {
+    return (
+      <div style={{
+        minHeight: '100dvh', background: 'var(--hs-bg)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px',
+      }}>
+        <div style={{
+          width: '100%', maxWidth: 400, textAlign: 'center',
+          background: 'var(--hs-surface)', borderRadius: 'var(--hs-r-xl)',
+          border: '0.5px solid var(--hs-border)', padding: 'clamp(32px, 5vw, 48px)',
+          boxShadow: 'var(--hs-shadow-lg)',
+        }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
+            background: '#F0EDE8', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 28,
+          }}>
+            🔒
+          </div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: 'var(--hs-black)' }}>
+            Lo sentimos
+          </h1>
+          <p style={{ fontSize: 15, color: 'var(--hs-text-2)', marginBottom: 8, lineHeight: 1.5 }}>
+            Debes tener al menos 16 años para usar Hispaloshop.
+          </p>
+          <p style={{ fontSize: 13, color: 'var(--hs-text-3)', marginBottom: 28, lineHeight: 1.5 }}>
+            Si tienes 16 años o más y crees que esto es un error, comprueba que has introducido tu fecha de nacimiento correctamente.
+          </p>
+          <Link
+            to="/"
+            style={{
+              display: 'inline-block', padding: '12px 32px', background: 'var(--hs-black)',
+              color: '#fff', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none',
+            }}
+          >
+            Volver
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -285,6 +348,47 @@ export default function RegisterPage() {
                   ))}
                 </select>
                 <ErrorMsg>{errors.country}</ErrorMsg>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Fecha de nacimiento</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <select
+                    className="hs-input"
+                    value={form.birthDay}
+                    onChange={e => updateForm('birthDay', e.target.value)}
+                    style={{ flex: 1, ...(errors.birthDate ? { borderColor: 'var(--hs-red)' } : {}) }}
+                  >
+                    <option value="">Día</option>
+                    {Array.from({ length: 31 }, (_, i) => (
+                      <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="hs-input"
+                    value={form.birthMonth}
+                    onChange={e => updateForm('birthMonth', e.target.value)}
+                    style={{ flex: 1.2, ...(errors.birthDate ? { borderColor: 'var(--hs-red)' } : {}) }}
+                  >
+                    <option value="">Mes</option>
+                    {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((m, i) => (
+                      <option key={i + 1} value={String(i + 1)}>{m}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="hs-input"
+                    value={form.birthYear}
+                    onChange={e => updateForm('birthYear', e.target.value)}
+                    style={{ flex: 1.2, ...(errors.birthDate ? { borderColor: 'var(--hs-red)' } : {}) }}
+                  >
+                    <option value="">Año</option>
+                    {Array.from({ length: 100 }, (_, i) => {
+                      const y = new Date().getFullYear() - i;
+                      return <option key={y} value={String(y)}>{y}</option>;
+                    })}
+                  </select>
+                </div>
+                <ErrorMsg>{errors.birthDate}</ErrorMsg>
               </div>
             </div>
 
