@@ -3,22 +3,43 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, Loader2, ArrowRight } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
-function SACard({ children, className = '' }) {
+/* Dark theme uses CSS variables from .superadmin-theme or fallback hardcoded values.
+   All colors reference dark-themed tokens. */
+
+const dark = {
+  bg: '#0A0A0A',
+  card: '#1C1C1E',
+  border: 'rgba(255,255,255,0.08)',
+  text: '#FFFFFF',
+  textMuted: 'rgba(255,255,255,0.40)',
+  textSubtle: 'rgba(255,255,255,0.30)',
+  accent: '#2E7D52',        /* --color-green / --color-accent */
+  accentBlue: '#007AFF',
+  accentPurple: '#5856D6',
+  accentAmber: '#FF9500',
+  hoverBg: 'rgba(255,255,255,0.08)',
+  cardHover: 'rgba(255,255,255,0.04)',
+};
+
+function SACard({ children, className = '', style = {} }) {
   return (
-    <div className={`bg-[#1C1C1E] rounded-[14px] border border-white/[0.08] p-4 ${className}`}>
+    <div
+      className={className}
+      style={{ background: dark.card, borderRadius: '14px', border: `1px solid ${dark.border}`, padding: '16px', ...style }}
+    >
       {children}
     </div>
   );
 }
 
-function KPICard({ label, value, sub, color = '#34C759' }) {
+function KPICard({ label, value, sub, color = dark.accent }) {
   return (
     <SACard>
-      <p className="text-[11px] font-bold uppercase tracking-widest text-white/30 mb-2">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-widest mb-2" style={{ color: dark.textSubtle }}>{label}</p>
       <p className="text-[26px] font-extrabold tracking-tight leading-none mb-1" style={{ color }}>
         {value}
       </p>
-      <p className="text-[11px] text-white/30">{sub}</p>
+      <p className="text-[11px]" style={{ color: dark.textSubtle }}>{sub}</p>
     </SACard>
   );
 }
@@ -48,7 +69,7 @@ export default function SuperAdminOverview() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-white/30" />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: dark.textSubtle }} />
       </div>
     );
   }
@@ -56,9 +77,9 @@ export default function SuperAdminOverview() {
   if (!data) {
     return (
       <SACard className="text-center py-12">
-        <AlertTriangle className="w-8 h-8 text-white/30 mx-auto mb-3" />
-        <h2 className="text-lg font-bold text-white mb-1">No se pudo cargar el overview</h2>
-        <p className="text-sm text-white/40">Revisa la conexión con el backend.</p>
+        <AlertTriangle className="w-8 h-8 mx-auto mb-3" style={{ color: dark.textSubtle }} />
+        <h2 className="text-lg font-bold mb-1" style={{ color: dark.text }}>No se pudo cargar el overview</h2>
+        <p className="text-sm" style={{ color: dark.textMuted }}>Revisa la conexión con el backend.</p>
       </SACard>
     );
   }
@@ -68,51 +89,57 @@ export default function SuperAdminOverview() {
   const orders = data?.orders || {};
   const pending = data?.pending || {};
   const visits = data?.visits || {};
+  const countries = data?.countries || [];
+  const gdprAlerts = data?.gdpr_alerts || [];
 
   // Calculate MRR from subscriptions (simplified)
   const mrr = revenue.platform_commission ? Math.round(revenue.platform_commission / 12) : 0;
   const gmvMonth = revenue.last_30d || 0;
 
+  // Plan distribution
+  const planDist = data?.plan_distribution || { FREE: 0, PRO: 0, ELITE: 0 };
+  const planTotal = (planDist.FREE || 0) + (planDist.PRO || 0) + (planDist.ELITE || 0) || 1;
+
   return (
-    <div className="max-w-[1000px] mx-auto pb-16">
+    <div className="superadmin-theme max-w-[1000px] mx-auto pb-16" style={{ fontFamily: 'var(--font-sans, Inter, sans-serif)' }}>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-[26px] font-extrabold tracking-tight text-white mb-1">Panel Global</h1>
-        <p className="text-sm text-white/40">{formatDate()}</p>
+        <h1 className="text-[26px] font-extrabold tracking-tight mb-1" style={{ color: dark.text }}>Panel Global</h1>
+        <p className="text-sm" style={{ color: dark.textMuted }}>{formatDate()}</p>
       </div>
 
-      {/* KPI Grid */}
+      {/* KPI Grid 2x2 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KPICard
           label="MRR"
           value={`${mrr}€`}
           sub={`ARR ~${Math.round(mrr * 12).toLocaleString()}€`}
-          color="#34C759"
+          color={dark.accent}
         />
         <KPICard
           label="GMV 30d"
           value={`${Math.round(gmvMonth)}€`}
           sub={`${orders.last_30d || 0} pedidos`}
-          color="#007AFF"
+          color={dark.accent}
         />
         <KPICard
           label="Usuarios"
           value={users.total || 0}
           sub={`+${users.new_7d || 0} últimos 7d`}
-          color="#5856D6"
+          color={dark.text}
         />
         <KPICard
           label="Comisiones"
           value={`${Math.round(revenue.platform_commission || 0)}€`}
           sub="Total acumulado"
-          color="#FF9500"
+          color={dark.accent}
         />
       </div>
 
       {/* Pending actions */}
       <SACard className="mb-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-white">Acciones pendientes</h3>
+          <h3 className="text-base font-bold" style={{ color: dark.text }}>Acciones pendientes</h3>
         </div>
         <div className="space-y-2">
           {[
@@ -124,52 +151,130 @@ export default function SuperAdminOverview() {
             <Link
               key={item.label}
               to={item.to}
-              className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition-colors"
+              className="flex items-center justify-between px-3 py-2.5 transition-colors"
+              style={{ borderRadius: '8px', background: dark.cardHover }}
             >
-              <span className="text-sm text-white/60">{item.label}</span>
+              <span className="text-sm" style={{ color: 'rgba(255,255,255,0.60)' }}>{item.label}</span>
               <div className="flex items-center gap-2">
                 {item.count > 0 && (
-                  <span className="bg-[#5856D6] text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center" style={{ background: dark.accentPurple, color: '#fff' }}>
                     {item.count}
                   </span>
                 )}
-                <ArrowRight className="w-4 h-4 text-white/20" />
+                <ArrowRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.20)' }} />
               </div>
             </Link>
           ))}
         </div>
       </SACard>
 
+      {/* Countries list */}
+      {countries.length > 0 && (
+        <SACard className="mb-5">
+          <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Países</h3>
+          <div className="space-y-2">
+            {countries.map((c, i) => {
+              const statusStyles = {
+                active: { bg: '#1a2e1a', border: dark.accent, color: dark.accent },
+                beta: { bg: 'rgba(255,149,0,0.12)', border: dark.accentAmber, color: dark.accentAmber },
+                pending: { bg: 'rgba(255,59,48,0.12)', border: '#FF3B30', color: '#FF3B30' },
+              };
+              const s = statusStyles[c.status] || statusStyles.pending;
+              return (
+                <div key={i} className="flex items-center justify-between py-2" style={{ borderBottom: `1px solid ${dark.border}` }}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">{c.flag || '\uD83C\uDF10'}</span>
+                    <div>
+                      <p className="text-sm font-semibold" style={{ color: dark.text }}>{c.name}</p>
+                      <p className="text-xs" style={{ color: dark.textMuted }}>{c.producers || 0} productores · {c.users || 0} usuarios</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
+                      {c.status}
+                    </span>
+                    {!c.admin && (
+                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,59,48,0.12)', color: '#FF3B30' }}>
+                        Sin admin
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </SACard>
+      )}
+
+      {/* Plan distribution */}
+      <SACard className="mb-5">
+        <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Distribución de planes</h3>
+        <div className="space-y-3">
+          {[
+            { label: 'FREE', count: planDist.FREE || 0, color: 'rgba(255,255,255,0.30)' },
+            { label: 'PRO', count: planDist.PRO || 0, color: dark.accent },
+            { label: 'ELITE', count: planDist.ELITE || 0, color: dark.accentAmber },
+          ].map(p => (
+            <div key={p.label}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold" style={{ color: dark.text }}>{p.label}</span>
+                <span className="text-xs" style={{ color: dark.textMuted }}>{p.count}</span>
+              </div>
+              <div className="h-2 rounded-full overflow-hidden" style={{ background: dark.cardHover }}>
+                <div className="h-full rounded-full transition-all" style={{ width: `${(p.count / planTotal) * 100}%`, background: p.color }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </SACard>
+
+      {/* GDPR Alerts */}
+      {gdprAlerts.length > 0 && (
+        <SACard className="mb-5" style={{ border: `1px solid #FF3B30` }}>
+          <h3 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ color: dark.text }}>
+            <span>\u26A0\uFE0F</span> Alertas GDPR
+          </h3>
+          <div className="space-y-2">
+            {gdprAlerts.map((alert, i) => (
+              <div key={i} className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.60)' }}>
+                <span>\u26A0\uFE0F</span>
+                <p>{alert.message || alert}</p>
+              </div>
+            ))}
+          </div>
+        </SACard>
+      )}
+
       {/* Users by role + Visits side by side */}
       <div className="grid md:grid-cols-2 gap-4 mb-5">
         <SACard>
-          <h3 className="text-sm font-bold text-white mb-3">Usuarios por rol</h3>
+          <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Usuarios por rol</h3>
           <div className="space-y-2">
             {Object.entries(users.by_role || {}).map(([role, count]) => (
-              <div key={role} className="flex items-center justify-between py-1.5 border-b border-white/[0.06] last:border-0">
-                <span className="text-xs text-white/50 capitalize">{role.replace('_', ' ')}</span>
-                <span className="text-sm font-bold text-white">{count}</span>
+              <div key={role} className="flex items-center justify-between py-1.5" style={{ borderBottom: `1px solid ${dark.border}` }}>
+                <span className="text-xs capitalize" style={{ color: 'rgba(255,255,255,0.50)' }}>{role.replace('_', ' ')}</span>
+                <span className="text-sm font-bold" style={{ color: dark.text }}>{count}</span>
               </div>
             ))}
           </div>
         </SACard>
 
         <SACard>
-          <h3 className="text-sm font-bold text-white mb-3">Visitas</h3>
+          <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Visitas</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="bg-white/[0.04] rounded-lg p-3 text-center">
-              <p className="text-xl font-extrabold text-[#007AFF]">{visits.total || 0}</p>
-              <p className="text-[10px] text-white/30">Total</p>
+            <div className="rounded-lg p-3 text-center" style={{ background: dark.cardHover }}>
+              <p className="text-xl font-extrabold" style={{ color: dark.accent }}>{visits.total || 0}</p>
+              <p className="text-[10px]" style={{ color: dark.textSubtle }}>Total</p>
             </div>
-            <div className="bg-white/[0.04] rounded-lg p-3 text-center">
-              <p className="text-xl font-extrabold text-[#34C759]">{visits.last_7d || 0}</p>
-              <p className="text-[10px] text-white/30">Últimos 7d</p>
+            <div className="rounded-lg p-3 text-center" style={{ background: dark.cardHover }}>
+              <p className="text-xl font-extrabold" style={{ color: dark.accent }}>{visits.last_7d || 0}</p>
+              <p className="text-[10px]" style={{ color: dark.textSubtle }}>Últimos 7d</p>
             </div>
           </div>
           {(visits.by_country || []).slice(0, 5).map((v, i) => (
-            <div key={i} className="flex items-center justify-between py-1 border-b border-white/[0.06] last:border-0">
-              <span className="text-xs text-white/50">{v.country || 'Desconocido'}</span>
-              <span className="text-xs font-bold text-white/70">{v.count}</span>
+            <div key={i} className="flex items-center justify-between py-1" style={{ borderBottom: `1px solid ${dark.border}` }}>
+              <span className="text-xs" style={{ color: 'rgba(255,255,255,0.50)' }}>{v.country || 'Desconocido'}</span>
+              <span className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.70)' }}>{v.count}</span>
             </div>
           ))}
         </SACard>
@@ -178,19 +283,20 @@ export default function SuperAdminOverview() {
       {/* Top sellers */}
       {(data?.top_sellers || []).length > 0 && (
         <SACard className="mb-5">
-          <h3 className="text-sm font-bold text-white mb-3">Top vendedores (30d)</h3>
+          <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Top vendedores (30d)</h3>
           {data.top_sellers.map((seller, i) => (
             <div
               key={seller.seller_id || i}
-              className={`flex items-center justify-between py-2.5 ${i < data.top_sellers.length - 1 ? 'border-b border-white/[0.06]' : ''}`}
+              className="flex items-center justify-between py-2.5"
+              style={{ borderBottom: i < data.top_sellers.length - 1 ? `1px solid ${dark.border}` : 'none' }}
             >
               <div className="flex items-center gap-3">
-                <span className="text-xs font-bold text-white/30 w-5">{i + 1}</span>
-                <span className="text-sm font-semibold text-white">{seller.name}</span>
+                <span className="text-xs font-bold w-5" style={{ color: dark.textSubtle }}>{i + 1}</span>
+                <span className="text-sm font-semibold" style={{ color: dark.text }}>{seller.name}</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-bold text-[#34C759]">{seller.revenue?.toFixed(0)}€</span>
-                <span className="text-[10px] text-white/30 ml-2">{seller.orders} pedidos</span>
+                <span className="text-sm font-bold" style={{ color: dark.accent }}>{seller.revenue?.toFixed(0)}€</span>
+                <span className="text-[10px] ml-2" style={{ color: dark.textSubtle }}>{seller.orders} pedidos</span>
               </div>
             </div>
           ))}
@@ -200,28 +306,29 @@ export default function SuperAdminOverview() {
       {/* Recent activity */}
       <SACard>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white">Actividad reciente</h3>
-          <Link to="/super-admin/finance" className="text-xs text-[#5856D6] font-semibold hover:underline">
+          <h3 className="text-sm font-bold" style={{ color: dark.text }}>Actividad reciente</h3>
+          <Link to="/super-admin/finance" className="text-xs font-semibold hover:underline" style={{ color: dark.accentPurple }}>
             Ver todo
           </Link>
         </div>
         {(data?.recent_orders || []).slice(0, 5).map((order, i) => (
           <div
             key={order.order_id || i}
-            className={`flex items-center justify-between py-2.5 ${i < Math.min((data?.recent_orders || []).length, 5) - 1 ? 'border-b border-white/[0.06]' : ''}`}
+            className="flex items-center justify-between py-2.5"
+            style={{ borderBottom: i < Math.min((data?.recent_orders || []).length, 5) - 1 ? `1px solid ${dark.border}` : 'none' }}
           >
             <div>
-              <p className="text-sm font-semibold text-white">#{(order.order_id || '').slice(-8)}</p>
-              <p className="text-[11px] text-white/35">{order.user_name || 'Usuario'}</p>
+              <p className="text-sm font-semibold" style={{ color: dark.text }}>#{(order.order_id || '').slice(-8)}</p>
+              <p className="text-[11px]" style={{ color: dark.textMuted }}>{order.user_name || 'Usuario'}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-bold text-white">{Number(order.total_amount || 0).toFixed(2)}€</p>
-              <p className="text-[11px] text-white/35 capitalize">{order.status}</p>
+              <p className="text-sm font-bold" style={{ color: dark.text }}>{Number(order.total_amount || 0).toFixed(2)}€</p>
+              <p className="text-[11px] capitalize" style={{ color: dark.textMuted }}>{order.status}</p>
             </div>
           </div>
         ))}
         {(data?.recent_orders || []).length === 0 && (
-          <p className="text-sm text-white/30 py-4 text-center">Sin actividad reciente</p>
+          <p className="text-sm py-4 text-center" style={{ color: dark.textSubtle }}>Sin actividad reciente</p>
         )}
       </SACard>
 
@@ -236,7 +343,8 @@ export default function SuperAdminOverview() {
           <Link
             key={link.to}
             to={link.to}
-            className="bg-white/[0.04] hover:bg-white/[0.08] rounded-xl px-4 py-3 text-sm font-semibold text-white/60 text-center transition-colors"
+            className="px-4 py-3 text-sm font-semibold text-center transition-colors"
+            style={{ background: dark.cardHover, borderRadius: 'var(--radius-xl)', color: 'rgba(255,255,255,0.60)' }}
           >
             {link.label}
           </Link>

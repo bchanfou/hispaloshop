@@ -21,7 +21,7 @@ const renderTextWithHashtags = (text) => {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} style={{ color: 'var(--hs-blue)', fontWeight: 500 }}>{part}</span>
+      <span key={i} style={{ color: 'var(--color-green)', fontWeight: 500 }}>{part}</span>
     ) : part
   );
 };
@@ -38,20 +38,20 @@ export default function CommunityPage() {
 
   if (isLoading) {
     return (
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: 16 }}>
-        <div className="hs-skeleton" style={{ height: 140, borderRadius: 12, marginBottom: 16 }} />
-        <div className="hs-skeleton" style={{ height: 24, width: '60%', borderRadius: 6, marginBottom: 8 }} />
-        <div className="hs-skeleton" style={{ height: 16, width: '40%', borderRadius: 6 }} />
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: 16, background: 'var(--color-cream)', minHeight: '100vh' }}>
+        <div style={{ height: 140, borderRadius: 'var(--radius-md)', marginBottom: 16, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <div style={{ height: 24, width: '60%', borderRadius: 6, marginBottom: 8, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <div style={{ height: 16, width: '40%', borderRadius: 6, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
       </div>
     );
   }
 
   if (!community) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--hs-text-2)' }}>
+      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--color-stone)', background: 'var(--color-cream)', minHeight: '100vh' }}>
         <p style={{ fontSize: 48 }}>🔍</p>
-        <p style={{ fontSize: 18, fontWeight: 700 }}>Comunidad no encontrada</p>
-        <Link to="/communities" style={{ color: 'var(--hs-blue)', fontSize: 14 }}>
+        <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad no encontrada</p>
+        <Link to="/communities" style={{ color: 'var(--color-black)', fontSize: 14, textDecoration: 'underline' }}>
           Volver a comunidades
         </Link>
       </div>
@@ -62,14 +62,14 @@ export default function CommunityPage() {
   const isAdmin = community.is_admin || user?.id === community.creator_id;
 
   return (
-    <div style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 100 }}>
+    <div style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 100, background: 'var(--color-cream)', minHeight: '100vh' }}>
 
       {/* Hero */}
       <div style={{ position: 'relative' }}>
         <div style={{
           height: 140, overflow: 'hidden',
           background: community.cover_image
-            ? 'var(--hs-surface-2)'
+            ? 'var(--color-surface)'
             : `hsl(${(community.name.charCodeAt(0) * 7) % 360},40%,70%)`,
         }}>
           {community.cover_image ? (
@@ -91,10 +91,10 @@ export default function CommunityPage() {
             justifyContent: 'space-between', marginTop: 12, marginBottom: 8,
           }}>
             <div>
-              <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 4px' }}>
+              <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 4px', color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
                 {community.name}
               </h1>
-              <p style={{ fontSize: 13, color: 'var(--hs-text-2)', margin: 0 }}>
+              <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
                 {community.member_count?.toLocaleString()} miembros
                 {' · '}Creada por @{community.creator_username}
               </p>
@@ -103,9 +103,9 @@ export default function CommunityPage() {
               {isAdmin && (
                 <Link to={`/communities/${slug}/settings`}
                   style={{
-                    padding: '6px 12px', borderRadius: 'var(--hs-r-full)',
-                    border: '1.5px solid var(--hs-border)',
-                    background: 'var(--hs-surface-2)', color: 'var(--hs-text-2)',
+                    padding: '6px 12px', borderRadius: 'var(--radius-full)',
+                    border: '1px solid var(--color-border)',
+                    background: 'var(--color-surface)', color: 'var(--color-stone)',
                     fontSize: 12, fontWeight: 600, textDecoration: 'none',
                     display: 'flex', alignItems: 'center',
                   }}>
@@ -117,20 +117,20 @@ export default function CommunityPage() {
           </div>
 
           {community.description && (
-            <p style={{ fontSize: 14, color: 'var(--hs-text-1)', lineHeight: 1.5, margin: '0 0 12px' }}>
+            <p style={{ fontSize: 14, color: 'var(--color-black)', lineHeight: 1.5, margin: '0 0 12px', fontFamily: 'var(--font-sans)' }}>
               {community.description}
             </p>
           )}
 
           {community.tags?.length > 0 && (
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', overflowX: 'auto', scrollbarWidth: 'none' }}>
               {community.tags.map(tag => (
                 <span key={tag} style={{
                   fontSize: 11, padding: '3px 10px',
-                  borderRadius: 'var(--hs-r-full)',
-                  background: 'var(--hs-surface-2)',
-                  color: 'var(--hs-text-2)',
-                  border: '0.5px solid var(--hs-border)',
+                  borderRadius: 'var(--radius-full)',
+                  background: 'var(--color-surface)',
+                  color: 'var(--color-stone)',
+                  fontFamily: 'var(--font-sans)',
                 }}>
                   #{tag}
                 </span>
@@ -142,9 +142,9 @@ export default function CommunityPage() {
 
       {/* Tabs */}
       <div style={{
-        display: 'flex', borderBottom: '0.5px solid var(--hs-border)',
-        background: 'var(--hs-surface)',
-        position: 'sticky', top: 'var(--hs-topbar-h)', zIndex: 40,
+        display: 'flex', borderBottom: '1px solid var(--color-border)',
+        background: 'var(--color-white)',
+        position: 'sticky', top: 0, zIndex: 40,
       }}>
         {[
           { id: 'feed', label: 'Feed' },
@@ -157,9 +157,10 @@ export default function CommunityPage() {
               background: 'none', border: 'none', cursor: 'pointer',
               fontSize: 14,
               fontWeight: tab === t.id ? 700 : 400,
-              color: tab === t.id ? 'var(--hs-text-1)' : 'var(--hs-text-2)',
-              borderBottom: tab === t.id ? '2px solid var(--hs-black)' : '2px solid transparent',
-              transition: 'var(--hs-transition)',
+              color: tab === t.id ? 'var(--color-black)' : 'var(--color-stone)',
+              borderBottom: tab === t.id ? '1.5px solid var(--color-black)' : '1.5px solid transparent',
+              transition: 'all 0.15s ease',
+              fontFamily: 'var(--font-sans)',
             }}>
             {t.label}
           </button>
@@ -208,12 +209,13 @@ const JoinButton = ({ communityId, isMember, onToggle }) => {
       onClick={toggle}
       disabled={loading}
       style={{
-        padding: '6px 14px', borderRadius: 'var(--hs-r-full)',
-        border: joined ? '1.5px solid var(--hs-border)' : '1.5px solid var(--hs-black)',
-        background: joined ? 'var(--hs-surface-2)' : 'var(--hs-black)',
-        color: joined ? 'var(--hs-text-2)' : 'white',
+        padding: '6px 14px', borderRadius: 'var(--radius-full)',
+        border: joined ? '1px solid var(--color-border)' : 'none',
+        background: joined ? 'var(--color-white)' : 'var(--color-black)',
+        color: joined ? 'var(--color-stone)' : '#fff',
         fontSize: 12, fontWeight: 600, cursor: 'pointer',
-        transition: 'var(--hs-transition)',
+        transition: 'all 0.15s ease',
+        fontFamily: 'var(--font-sans)',
       }}>
       {loading ? '...' : joined ? 'Unida ✓' : 'Unirse'}
     </motion.button>
@@ -242,12 +244,13 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
         <button onClick={() => setShowPostForm(!showPostForm)}
           style={{
             width: '100%', padding: '12px 16px',
-            background: 'var(--hs-surface)',
-            border: '0.5px solid var(--hs-border)',
-            borderRadius: 'var(--hs-r-full)',
+            background: 'var(--color-cream)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-full)',
             textAlign: 'left', cursor: 'pointer',
-            fontSize: 14, color: 'var(--hs-text-3)',
-            marginBottom: 14, transition: 'var(--hs-transition)',
+            fontSize: 14, color: 'var(--color-stone)',
+            marginBottom: 14, transition: 'all 0.15s ease',
+            fontFamily: 'var(--font-sans)',
           }}>
           ✍️ Comparte algo con la comunidad...
         </button>
@@ -265,12 +268,12 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
 
       {isLoading ? (
         Array(3).fill(0).map((_, i) => (
-          <div key={i} className="hs-skeleton" style={{ height: 120, borderRadius: 12, marginBottom: 10 }} />
+          <div key={i} style={{ height: 120, borderRadius: 'var(--radius-md)', marginBottom: 10, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
         ))
       ) : posts.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--hs-text-2)' }}>
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-stone)' }}>
           <p style={{ fontSize: 36, marginBottom: 8 }}>💬</p>
-          <p style={{ fontSize: 15, fontWeight: 600 }}>Aún no hay posts</p>
+          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>Aún no hay posts</p>
           <p style={{ fontSize: 13 }}>
             {isMember ? '¡Sé el primero en publicar algo!' : 'Únete a la comunidad para ver y publicar contenido'}
           </p>
@@ -284,11 +287,12 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
             <button onClick={() => fetchNextPage()}
               style={{
                 width: '100%', marginTop: 8, padding: '10px',
-                borderRadius: 'var(--hs-r-full)',
-                border: '1.5px solid var(--hs-border)',
-                background: 'var(--hs-surface-2)',
-                color: 'var(--hs-text-2)',
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-white)',
+                color: 'var(--color-stone)',
                 fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
               }}>
               Ver más posts
             </button>
@@ -354,16 +358,25 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       style={{
-        background: 'var(--hs-surface)',
-        borderRadius: 'var(--hs-r-lg)',
-        border: '0.5px solid var(--hs-border)',
+        background: 'var(--color-white)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--color-border)',
         padding: 14, marginBottom: 14,
       }}>
-      <textarea className="hs-input"
+      <textarea
         value={text} onChange={e => setText(e.target.value)}
         placeholder="¿Qué quieres compartir? Puedes usar #hashtags"
         rows={3} maxLength={1000}
-        style={{ resize: 'none', marginBottom: 10, lineHeight: 1.5 }}
+        style={{
+          resize: 'none', marginBottom: 10, lineHeight: 1.5,
+          width: '100%', padding: '10px 12px',
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-md)',
+          outline: 'none', color: 'var(--color-black)',
+          fontFamily: 'var(--font-sans)', fontSize: 14,
+          boxSizing: 'border-box',
+        }}
         autoFocus
       />
 
@@ -374,7 +387,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
           <button onClick={() => { setImagePreview(null); setImageUrl(null); }}
             style={{
               position: 'absolute', top: 6, right: 6,
-              background: 'rgba(0,0,0,0.6)', color: 'white',
+              background: 'rgba(0,0,0,0.6)', color: '#fff',
               border: 'none', borderRadius: '50%',
               width: 26, height: 26, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -387,7 +400,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
               background: 'rgba(0,0,0,0.4)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <span className="hs-spinner" style={{ width: 24, height: 24 }} />
+              <div style={{ width: 24, height: 24, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
             </div>
           )}
         </div>
@@ -395,26 +408,28 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <button onClick={() => fileRef.current?.click()}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--hs-text-2)', fontSize: 20, padding: 4 }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-stone)', fontSize: 20, padding: 4 }}
           title="Añadir imagen">
           📷
         </button>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} style={{ display: 'none' }} />
-        <span style={{ fontSize: 11, color: 'var(--hs-text-3)', flex: 1 }}>{text.length}/1000</span>
+        <span style={{ fontSize: 11, color: 'var(--color-stone)', flex: 1, fontFamily: 'var(--font-sans)' }}>{text.length}/1000</span>
         <button onClick={onClose}
           style={{
-            padding: '6px 12px', borderRadius: 'var(--hs-r-full)',
-            border: '1.5px solid var(--hs-border)', background: 'var(--hs-surface-2)',
-            color: 'var(--hs-text-2)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            padding: '6px 12px', borderRadius: 'var(--radius-full)',
+            border: '1px solid var(--color-border)', background: 'var(--color-white)',
+            color: 'var(--color-stone)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            fontFamily: 'var(--font-sans)',
           }}>
           Cancelar
         </button>
         <button onClick={submit} disabled={isPosting || isUploading}
           style={{
-            padding: '6px 12px', borderRadius: 'var(--hs-r-full)',
-            border: 'none', background: 'var(--hs-black)', color: 'white',
+            padding: '6px 12px', borderRadius: 'var(--radius-full)',
+            border: 'none', background: 'var(--color-black)', color: '#fff',
             fontSize: 12, fontWeight: 600, cursor: 'pointer',
             opacity: (isPosting || isUploading) ? 0.5 : 1,
+            fontFamily: 'var(--font-sans)',
           }}>
           {isPosting ? '...' : 'Publicar'}
         </button>
@@ -459,9 +474,9 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 
   return (
     <div style={{
-      background: 'var(--hs-surface)',
-      borderRadius: 'var(--hs-r-lg)',
-      border: '0.5px solid var(--hs-border)',
+      background: 'var(--color-white)',
+      borderRadius: 'var(--radius-lg)',
+      border: '1px solid var(--color-border)',
       marginBottom: 10, overflow: 'hidden',
     }}>
       {/* Author */}
@@ -473,22 +488,27 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
             style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}
             alt="" />
           <div>
-            <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
               {post.author_username}
               {post.author_is_seller && (
-                <span className="hs-badge hs-badge-green" style={{ marginLeft: 6, fontSize: 9 }}>
+                <span style={{
+                  marginLeft: 6, fontSize: 9,
+                  padding: '1px 6px', borderRadius: 4,
+                  background: 'var(--color-surface)', color: 'var(--color-stone)',
+                  fontWeight: 600,
+                }}>
                   Vendedor
                 </span>
               )}
             </p>
-            <p style={{ fontSize: 11, color: 'var(--hs-text-3)', margin: 0 }}>
+            <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
               {formatRelativeTime(post.created_at)}
             </p>
           </div>
         </Link>
         {(isOwn || isAdmin) && (
           <button onClick={deletePost}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--hs-text-3)', padding: 4 }}>
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--color-stone)', padding: 4 }}>
             ···
           </button>
         )}
@@ -497,7 +517,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
       {/* Content */}
       {post.text && (
         <div style={{ padding: '0 14px 12px' }}>
-          <p style={{ fontSize: 14, lineHeight: 1.55, color: 'var(--hs-text-1)', margin: 0 }}>
+          <p style={{ fontSize: 14, lineHeight: 1.55, color: 'var(--color-black)', margin: 0, fontFamily: 'var(--font-sans)' }}>
             {renderTextWithHashtags(post.text)}
           </p>
         </div>
@@ -509,15 +529,16 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
       )}
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 16, padding: '10px 14px', borderTop: '0.5px solid var(--hs-border)' }}>
+      <div style={{ display: 'flex', gap: 16, padding: '10px 14px', borderTop: '1px solid var(--color-border)' }}>
         <motion.button
           whileTap={{ scale: 0.85 }}
           onClick={toggleLike}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5,
-            fontSize: 13, color: liked ? '#FF375F' : 'var(--hs-text-2)',
+            fontSize: 13, color: liked ? '#FF375F' : 'var(--color-stone)',
             fontWeight: liked ? 700 : 400, padding: 0,
+            fontFamily: 'var(--font-sans)',
           }}>
           <span style={{ fontSize: 18 }}>{liked ? '❤️' : '🤍'}</span>
           {likes > 0 && likes}
@@ -525,7 +546,8 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
 
         <span style={{
           display: 'flex', alignItems: 'center', gap: 5,
-          fontSize: 13, color: 'var(--hs-text-2)',
+          fontSize: 13, color: 'var(--color-stone)',
+          fontFamily: 'var(--font-sans)',
         }}>
           <span style={{ fontSize: 18 }}>💬</span>
           {post.comments_count > 0 && post.comments_count}
@@ -539,7 +561,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5,
-            fontSize: 13, color: 'var(--hs-text-2)', padding: 0,
+            fontSize: 13, color: 'var(--color-stone)', padding: 0,
           }}>
           <span style={{ fontSize: 18 }}>↗️</span>
         </button>
@@ -562,17 +584,17 @@ const CommunityMembers = ({ communityId }) => {
           style={{
             display: 'flex', alignItems: 'center', gap: 10,
             padding: '10px 0',
-            borderBottom: '0.5px solid var(--hs-border)',
+            borderBottom: '1px solid var(--color-border)',
             textDecoration: 'none', color: 'inherit',
           }}>
           <img
             src={member.avatar_url || `https://ui-avatars.com/api/?name=${member.username}&size=40`}
             style={{ width: 40, height: 40, borderRadius: '50%', flexShrink: 0 }} alt="" />
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{member.username}</p>
-            <p style={{ fontSize: 11, color: 'var(--hs-text-3)', margin: 0 }}>
+            <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>{member.username}</p>
+            <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
               {member.is_admin ? '👑 Admin' : ''}
-              {member.is_seller ? ' · Vendedor verificado' : ''}
+              {member.is_seller ? ' · ✓ Vendedor' : ''}
             </p>
           </div>
         </Link>
@@ -586,8 +608,8 @@ const CommunityAbout = ({ community }) => (
   <div style={{ padding: '20px 16px' }}>
     {community.description && (
       <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Descripción</h3>
-        <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--hs-text-1)' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Descripción</h3>
+        <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
           {community.description}
         </p>
       </div>
@@ -600,17 +622,18 @@ const CommunityAbout = ({ community }) => (
     ].map(row => (
       <div key={row.label} style={{
         display: 'flex', justifyContent: 'space-between',
-        padding: '8px 0', borderBottom: '0.5px solid var(--hs-border)', fontSize: 14,
+        padding: '8px 0', borderBottom: '1px solid var(--color-border)', fontSize: 14,
+        fontFamily: 'var(--font-sans)',
       }}>
-        <span style={{ color: 'var(--hs-text-2)' }}>{row.label}</span>
-        <span style={{ fontWeight: 600 }}>{row.value}</span>
+        <span style={{ color: 'var(--color-stone)' }}>{row.label}</span>
+        <span style={{ fontWeight: 600, color: 'var(--color-black)' }}>{row.value}</span>
       </div>
     ))}
     <div style={{ marginTop: 20 }}>
-      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Normas de la comunidad</h3>
+      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Normas de la comunidad</h3>
       <div style={{
-        background: 'var(--hs-surface-2)',
-        borderRadius: 'var(--hs-r-md)', padding: '12px 14px',
+        background: 'var(--color-surface)',
+        borderRadius: 'var(--radius-md)', padding: '12px 14px',
       }}>
         {[
           'Contenido relacionado con alimentación y gastronomía',
@@ -619,8 +642,8 @@ const CommunityAbout = ({ community }) => (
           'Sin bebidas alcohólicas',
           'El admin puede eliminar posts que no cumplan las normas',
         ].map((rule, i) => (
-          <p key={i} style={{ fontSize: 13, color: 'var(--hs-text-1)', margin: '0 0 6px', display: 'flex', gap: 8 }}>
-            <span style={{ color: 'var(--hs-text-2)', flexShrink: 0 }}>{i + 1}.</span>
+          <p key={i} style={{ fontSize: 13, color: 'var(--color-black)', margin: '0 0 6px', display: 'flex', gap: 8, fontFamily: 'var(--font-sans)' }}>
+            <span style={{ color: 'var(--color-stone)', flexShrink: 0 }}>{i + 1}.</span>
             {rule}
           </p>
         ))}

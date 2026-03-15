@@ -49,23 +49,24 @@ export default function CommunitiesExplorePage() {
   const myCommunities = myData?.communities || [];
 
   return (
-    <div style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 100 }}>
+    <div style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 100, background: 'var(--color-cream)', minHeight: '100vh' }}>
 
       {/* Header */}
       <div style={{
         padding: 16,
-        background: 'var(--hs-surface)',
-        borderBottom: '0.5px solid var(--hs-border)',
-        position: 'sticky', top: 'var(--hs-topbar-h)', zIndex: 40,
+        background: 'var(--color-white)',
+        borderBottom: '1px solid var(--color-border)',
+        position: 'sticky', top: 0, zIndex: 40,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Comunidades</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Comunidades</h1>
           {canCreate && (
             <Link to="/communities/new"
               style={{
-                padding: '6px 14px', borderRadius: 'var(--hs-r-full)',
-                background: 'var(--hs-black)', color: 'white',
+                padding: '6px 14px', borderRadius: 'var(--radius-full)',
+                background: 'transparent', color: 'var(--color-black)',
                 fontSize: 13, fontWeight: 600, textDecoration: 'none',
+                border: 'none',
               }}>
               + Crear
             </Link>
@@ -74,13 +75,21 @@ export default function CommunitiesExplorePage() {
 
         {/* Search */}
         <div style={{ position: 'relative', marginBottom: 10 }}>
-          <Search size={15} color="var(--hs-text-3)"
+          <Search size={15} color="var(--color-stone)"
             style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
-          <input className="hs-input"
+          <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar comunidades..."
-            style={{ paddingLeft: 36, height: 38, fontSize: 13 }}
+            style={{
+              width: '100%', paddingLeft: 36, height: 38, fontSize: 13,
+              background: 'var(--color-surface)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+              outline: 'none', color: 'var(--color-black)',
+              fontFamily: 'var(--font-sans)',
+              boxSizing: 'border-box',
+            }}
           />
         </div>
 
@@ -89,12 +98,14 @@ export default function CommunitiesExplorePage() {
           {FILTERS.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)}
               style={{
-                padding: '6px 12px', borderRadius: 'var(--hs-r-full)',
-                border: 'none', cursor: 'pointer', fontSize: 12,
+                padding: '6px 12px', borderRadius: 'var(--radius-full)',
+                border: filter === f.id ? 'none' : '1px solid var(--color-border)',
+                cursor: 'pointer', fontSize: 12,
                 fontWeight: filter === f.id ? 700 : 400,
-                background: filter === f.id ? 'var(--hs-black)' : 'var(--hs-surface-2)',
-                color: filter === f.id ? 'white' : 'var(--hs-text-2)',
-                flexShrink: 0, transition: 'var(--hs-transition)',
+                background: filter === f.id ? 'var(--color-black)' : 'var(--color-white)',
+                color: filter === f.id ? '#fff' : 'var(--color-stone)',
+                flexShrink: 0, transition: 'all 0.15s ease',
+                fontFamily: 'var(--font-sans)',
               }}>
               {f.label}
             </button>
@@ -107,7 +118,7 @@ export default function CommunitiesExplorePage() {
         {/* My communities (joined filter) */}
         {filter === 'joined' && myCommunities.length > 0 && (
           <div style={{ marginBottom: 20 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Mis comunidades</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, color: 'var(--color-black)' }}>Mis comunidades</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {myCommunities.map(c => (
                 <CommunityRow key={c.id || c._id} community={c} />
@@ -120,21 +131,25 @@ export default function CommunitiesExplorePage() {
         {isLoading ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
             {Array(6).fill(0).map((_, i) => (
-              <div key={i} className="hs-skeleton" style={{ height: 160, borderRadius: 12 }} />
+              <div key={i} style={{
+                height: 160, borderRadius: 'var(--radius-xl)',
+                background: 'var(--color-surface)',
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }} />
             ))}
           </div>
         ) : communities.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--hs-text-2)' }}>
+          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-stone)' }}>
             <p style={{ fontSize: 36, marginBottom: 8 }}>🌿</p>
-            <p style={{ fontSize: 15, fontWeight: 600 }}>
+            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>
               {search ? 'Sin resultados' : 'Sin comunidades todavía'}
             </p>
             {canCreate && !search && (
               <Link to="/communities/new"
                 style={{
                   display: 'inline-flex', marginTop: 12,
-                  padding: '8px 16px', borderRadius: 'var(--hs-r-full)',
-                  background: 'var(--hs-black)', color: 'white',
+                  padding: '8px 16px', borderRadius: 'var(--radius-full)',
+                  background: 'var(--color-black)', color: '#fff',
                   fontSize: 13, fontWeight: 600, textDecoration: 'none',
                 }}>
                 Crea la primera →
@@ -153,18 +168,18 @@ export default function CommunitiesExplorePage() {
         {!canCreate && filter !== 'joined' && (
           <div style={{
             marginTop: 20, padding: 16,
-            background: 'var(--hs-surface)',
-            borderRadius: 'var(--hs-r-lg)',
-            border: '0.5px solid var(--hs-border)',
+            background: 'var(--color-surface)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-border)',
             textAlign: 'center',
           }}>
-            <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, color: 'var(--color-black)' }}>
               ¿Quieres crear tu comunidad?
             </p>
-            <p style={{ fontSize: 13, color: 'var(--hs-text-2)', marginBottom: 0 }}>
+            <p style={{ fontSize: 13, color: 'var(--color-stone)', marginBottom: 0 }}>
               Consigue 100 seguidores o verifica tu cuenta de vendedor
             </p>
-            <p style={{ fontSize: 12, color: 'var(--hs-text-3)', marginTop: 4 }}>
+            <p style={{ fontSize: 12, color: 'var(--color-stone)', marginTop: 4 }}>
               Tienes {user?.follower_count || 0}/100 seguidores
             </p>
           </div>
@@ -202,11 +217,11 @@ const CommunityCard = ({ community }) => {
   return (
     <Link to={`/communities/${community.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
       <div style={{
-        background: 'var(--hs-surface)',
-        borderRadius: 'var(--hs-r-lg)',
-        border: '0.5px solid var(--hs-border)',
+        background: 'var(--color-white)',
+        borderRadius: 'var(--radius-xl)',
+        border: '1px solid var(--color-border)',
         overflow: 'hidden',
-        transition: 'var(--hs-transition)',
+        transition: 'all 0.15s ease',
       }}>
         {/* Cover */}
         <div style={{ aspectRatio: '16/7', position: 'relative', overflow: 'hidden' }}>
@@ -226,9 +241,10 @@ const CommunityCard = ({ community }) => {
             <span style={{
               position: 'absolute', top: 6, left: 6,
               fontSize: 9, fontWeight: 800,
-              background: 'rgba(0,0,0,0.6)', color: 'white',
+              background: 'rgba(0,0,0,0.6)', color: '#fff',
               padding: '2px 7px', borderRadius: 4,
               textTransform: 'uppercase', letterSpacing: '0.05em',
+              fontFamily: 'var(--font-sans)',
             }}>
               {community.category}
             </span>
@@ -237,13 +253,14 @@ const CommunityCard = ({ community }) => {
 
         <div style={{ padding: 10 }}>
           <p style={{
-            fontSize: 13, fontWeight: 700, margin: '0 0 2px',
-            lineHeight: 1.3, color: 'var(--hs-text-1)',
+            fontSize: 13, fontWeight: 500, margin: '0 0 2px',
+            lineHeight: 1.3, color: 'var(--color-black)',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            fontFamily: 'var(--font-sans)',
           }}>
             {community.name}
           </p>
-          <p style={{ fontSize: 11, color: 'var(--hs-text-3)', margin: '0 0 8px' }}>
+          <p style={{ fontSize: 10, color: 'var(--color-stone)', margin: '0 0 8px', fontFamily: 'var(--font-sans)' }}>
             {community.member_count?.toLocaleString()} miembros
           </p>
           <motion.button
@@ -252,12 +269,13 @@ const CommunityCard = ({ community }) => {
             disabled={isToggling}
             style={{
               width: '100%', padding: 6,
-              borderRadius: 'var(--hs-r-full)',
-              border: joined ? '1.5px solid var(--hs-border)' : '1.5px solid var(--hs-black)',
-              background: joined ? 'var(--hs-surface-2)' : 'var(--hs-black)',
-              color: joined ? 'var(--hs-text-2)' : 'white',
+              borderRadius: 'var(--radius-full)',
+              border: joined ? 'none' : '1px solid var(--color-black)',
+              background: joined ? 'var(--color-black)' : 'transparent',
+              color: joined ? '#fff' : 'var(--color-black)',
               fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              transition: 'var(--hs-transition)',
+              transition: 'all 0.15s ease',
+              fontFamily: 'var(--font-sans)',
             }}>
             {isToggling ? '...' : joined ? 'Unida ✓' : 'Unirse'}
           </motion.button>
@@ -272,9 +290,9 @@ const CommunityRow = ({ community }) => (
   <Link to={`/communities/${community.slug}`}
     style={{
       display: 'flex', gap: 12, alignItems: 'center',
-      padding: 12, background: 'var(--hs-surface)',
-      borderRadius: 'var(--hs-r-md)',
-      border: '0.5px solid var(--hs-border)',
+      padding: 12, background: 'var(--color-white)',
+      borderRadius: 'var(--radius-md)',
+      border: '1px solid var(--color-border)',
       textDecoration: 'none', color: 'inherit',
     }}>
     <div style={{
@@ -289,18 +307,18 @@ const CommunityRow = ({ community }) => (
       ) : (community.emoji || '🌿')}
     </div>
     <div style={{ flex: 1 }}>
-      <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px' }}>
+      <p style={{ fontSize: 14, fontWeight: 700, margin: '0 0 2px', color: 'var(--color-black)' }}>
         {community.name}
       </p>
-      <p style={{ fontSize: 12, color: 'var(--hs-text-2)', margin: 0 }}>
+      <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: 0 }}>
         {community.member_count?.toLocaleString()} miembros
         {community.unread_posts > 0 && (
-          <span style={{ marginLeft: 8, color: 'var(--hs-blue)', fontWeight: 700 }}>
+          <span style={{ marginLeft: 8, color: 'var(--color-green)', fontWeight: 700 }}>
             · {community.unread_posts} nuevos
           </span>
         )}
       </p>
     </div>
-    <ChevronRight size={16} color="var(--hs-text-3)" />
+    <ChevronRight size={16} color="var(--color-stone)" />
   </Link>
 );

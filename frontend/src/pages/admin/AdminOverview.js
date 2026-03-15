@@ -11,16 +11,17 @@ function KPICard({ icon: Icon, title, value, description, to }) {
   return (
     <Wrapper
       to={to}
-      className="rounded-xl border border-stone-200 bg-white p-4 hover:shadow-sm transition-all"
+      className="p-4 transition-all"
+      style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
     >
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-9 h-9 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
-          <Icon className="w-4.5 h-4.5 text-stone-700" />
+        <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
+          <Icon className="w-4.5 h-4.5" style={{ color: 'var(--color-stone)' }} />
         </div>
       </div>
-      <p className="text-2xl font-extrabold text-stone-950 tracking-tight">{value}</p>
-      <p className="text-xs text-stone-500 mt-0.5">{title}</p>
-      {description && <p className="text-[11px] text-stone-400 mt-0.5">{description}</p>}
+      <p className="text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-black)' }}>{value}</p>
+      <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>{title}</p>
+      {description && <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-stone)', opacity: 0.7 }}>{description}</p>}
     </Wrapper>
   );
 }
@@ -29,16 +30,17 @@ function PendingRow({ label, count, to }) {
   return (
     <Link
       to={to}
-      className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 bg-white hover:shadow-sm transition-all text-sm"
+      className="flex items-center justify-between p-3.5 transition-all text-sm"
+      style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
     >
-      <span className="text-stone-700 font-medium">{label}</span>
+      <span className="font-medium" style={{ color: 'var(--color-stone)' }}>{label}</span>
       <div className="flex items-center gap-2">
         {count > 0 && (
-          <span className="bg-stone-950 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center" style={{ background: 'var(--color-red-light)', color: 'var(--color-red)' }}>
             {count}
           </span>
         )}
-        <ArrowRight className="w-4 h-4 text-stone-400" />
+        <ArrowRight className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
       </div>
     </Link>
   );
@@ -48,9 +50,10 @@ function QuickLink({ icon: Icon, label, to }) {
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 p-3.5 bg-white rounded-xl border border-stone-200 hover:shadow-sm transition-all text-sm font-semibold text-stone-950"
+      className="flex items-center gap-3 p-3.5 transition-all text-sm font-semibold"
+      style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', color: 'var(--color-black)' }}
     >
-      <Icon className="w-5 h-5 text-stone-500 shrink-0" />
+      <Icon className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
       {label}
     </Link>
   );
@@ -75,7 +78,7 @@ export default function AdminOverview() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--color-stone)' }} />
       </div>
     );
   }
@@ -87,9 +90,14 @@ export default function AdminOverview() {
   const openSupport = stats?.open_support || 0;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-stone-950 mb-1">Panel de administración</h1>
-      <p className="text-sm text-stone-500 mb-6">Gestión de tu mercado en una vista</p>
+    <div style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)' }}>
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-1">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>Panel de administración</h1>
+        {/* ADMIN badge — NEUTRAL, NOT green */}
+        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>ADMIN</span>
+      </div>
+      <p className="text-sm mb-6" style={{ color: 'var(--color-stone)' }}>Gestión de tu mercado en una vista</p>
 
       {/* KPI grid */}
       <div className="grid grid-cols-2 gap-3 mb-5">
@@ -124,7 +132,7 @@ export default function AdminOverview() {
 
       {/* Pending review queue */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold text-stone-950 mb-3">Cola de revisión</h2>
+        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Cola de revisión</h2>
         <div className="space-y-2">
           <PendingRow label="Productores pendientes" count={pendingProducers} to="/admin/producers" />
           <PendingRow label="Productos por revisar" count={pendingProducts} to="/admin/products" />
@@ -137,7 +145,7 @@ export default function AdminOverview() {
 
       {/* Quick actions */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold text-stone-950 mb-3">Acciones rápidas</h2>
+        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Acciones rápidas</h2>
         <div className="grid grid-cols-2 gap-2">
           <QuickLink icon={ShoppingBag} label="Pedidos" to="/admin/orders" />
           <QuickLink icon={ShieldAlert} label="Reseñas" to="/admin/reviews" />

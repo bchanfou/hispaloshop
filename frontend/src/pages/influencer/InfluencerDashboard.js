@@ -45,32 +45,32 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
   const canWithdraw = stripeConnected && availableToWithdraw >= MINIMUM_WITHDRAWAL;
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200">
+    <div style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
       <div className="px-6 pt-6 pb-4">
-        <h3 className="text-lg font-semibold text-stone-950 flex items-center gap-2">
-          <Wallet className="w-5 h-5 text-stone-700" />
+        <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-black)' }}>
+          <Wallet className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
           Retirar Comisiones
         </h3>
       </div>
       <div className="px-6 pb-6">
         <div className="space-y-4">
           {/* Available to withdraw */}
-          <div className="text-center p-4 bg-white rounded-lg border border-stone-200">
-            <p className="text-sm text-stone-500 mb-1">Disponible para retirar</p>
-            <p className="text-3xl font-bold text-stone-950">€{availableToWithdraw.toFixed(2)}</p>
-            <p className="text-xs text-stone-500 mt-1">Mínimo: €{MINIMUM_WITHDRAWAL}</p>
+          <div className="text-center p-4" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
+            <p className="text-sm mb-1" style={{ color: 'var(--color-stone)' }}>Disponible para retirar</p>
+            <p className="text-3xl font-bold" style={{ color: 'var(--color-black)' }}>€{availableToWithdraw.toFixed(2)}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>Mínimo: €{MINIMUM_WITHDRAWAL}</p>
           </div>
 
           {/* Withdraw button */}
           {!stripeConnected ? (
-            <div className="text-center p-3 bg-stone-50 rounded-lg border border-stone-200">
-              <p className="text-sm text-stone-700">
+            <div className="text-center p-3" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
+              <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
                 Conecta tu cuenta de Stripe para poder retirar tus comisiones
               </p>
             </div>
           ) : availableToWithdraw < MINIMUM_WITHDRAWAL ? (
-            <div className="text-center p-3 bg-stone-50 rounded-lg border border-stone-200">
-              <p className="text-sm text-stone-500">
+            <div className="text-center p-3" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
+              <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
                 Necesitas €{(MINIMUM_WITHDRAWAL - availableToWithdraw).toFixed(2)} más para alcanzar el mínimo de retiro
               </p>
             </div>
@@ -78,7 +78,8 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
             <button
               onClick={handleWithdraw}
               disabled={withdrawing || !canWithdraw}
-              className="w-full px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-md)' }}
             >
               {withdrawing ? (
                 <>
@@ -98,7 +99,8 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
           {withdrawals.length > 0 && (
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="w-full text-sm text-stone-500 py-2 hover:text-stone-950 transition-colors"
+              className="w-full text-sm py-2 transition-colors"
+              style={{ color: 'var(--color-stone)' }}
             >
               {showHistory ? 'Ocultar historial' : `Ver historial (${withdrawals.length} retiros)`}
             </button>
@@ -108,12 +110,12 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
           {showHistory && withdrawals.length > 0 && (
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {withdrawals.slice(0, 5).map((wd) => (
-                <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 bg-white rounded border">
+                <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 rounded" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)' }}>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-stone-700" />
-                    <span className="text-sm font-medium">€{wd.amount.toFixed(2)}</span>
+                    <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-green)' }} />
+                    <span className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>€{wd.amount.toFixed(2)}</span>
                   </div>
-                  <span className="text-xs text-stone-500">
+                  <span className="text-xs" style={{ color: 'var(--color-stone)' }}>
                     {new Date(wd.created_at).toLocaleDateString('es-ES')}
                   </span>
                 </div>
@@ -155,12 +157,12 @@ function EmailVerificationBanner({ user, onVerified }) {
   };
 
   return (
-    <div className="bg-stone-50 border border-stone-200 rounded-lg p-6 mb-6">
+    <div className="p-6 mb-6" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
       <div className="flex items-start gap-4">
-        <Mail className="w-6 h-6 text-stone-700 flex-shrink-0 mt-1" />
+        <Mail className="w-6 h-6 flex-shrink-0 mt-1" style={{ color: 'var(--color-stone)' }} />
         <div className="flex-1">
-          <h3 className="font-semibold text-stone-950 mb-2">Verifica tu email</h3>
-          <p className="text-stone-700 text-sm mb-4">
+          <h3 className="font-semibold mb-2" style={{ color: 'var(--color-black)' }}>Verifica tu email</h3>
+          <p className="text-sm mb-4" style={{ color: 'var(--color-stone)' }}>
             Hemos enviado un código de 6 dígitos a <strong>{user?.email}</strong>.
             Introdúcelo aquí para activar tu cuenta.
           </p>
@@ -169,13 +171,14 @@ function EmailVerificationBanner({ user, onVerified }) {
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
-              className="w-32 px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950 text-center text-xl tracking-widest font-mono"
+              className="w-32 px-3 py-2 text-center text-xl tracking-widest font-mono"
+              style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-black)', background: 'var(--color-white)', outline: 'none' }}
               maxLength={6}
             />
-            <button onClick={handleVerify} disabled={verifying || code.length !== 6} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors">
+            <button onClick={handleVerify} disabled={verifying || code.length !== 6} className="px-4 py-2 transition-colors disabled:opacity-50" style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-md)' }}>
               {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar'}
             </button>
-            <button onClick={handleResend} disabled={resending} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors">
+            <button onClick={handleResend} disabled={resending} className="px-4 py-2 transition-colors" style={{ border: '1px solid var(--color-border)', color: 'var(--color-stone)', borderRadius: 'var(--radius-md)', background: 'var(--color-white)' }}>
               {resending ? 'Enviando...' : 'Reenviar código'}
             </button>
           </div>
@@ -205,15 +208,15 @@ function CreateCodeCard({ onCodeCreated }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200">
+    <div style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
       <div className="px-6 pt-6 pb-4">
-        <h3 className="text-lg font-semibold text-stone-950 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-stone-700" />
+        <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-black)' }}>
+          <Sparkles className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
           Crea tu código de descuento
         </h3>
       </div>
       <div className="px-6 pb-6">
-        <p className="text-sm text-stone-500 mb-4">
+        <p className="text-sm mb-4" style={{ color: 'var(--color-stone)' }}>
           Elige un código personalizado que tus seguidores usarán para obtener el 10% de descuento.
         </p>
         <div className="flex items-center gap-3">
@@ -221,14 +224,15 @@ function CreateCodeCard({ onCodeCreated }) {
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20))}
             placeholder="Ej: MARIA10"
-            className="flex-1 px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950 uppercase text-lg font-mono"
+            className="flex-1 px-3 py-2 uppercase text-lg font-mono"
+            style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-black)', background: 'var(--color-white)', outline: 'none' }}
             maxLength={20}
           />
-          <button onClick={handleCreate} disabled={creatingCode || code.length < 3} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors">
+          <button onClick={handleCreate} disabled={creatingCode || code.length < 3} className="px-4 py-2 transition-colors disabled:opacity-50" style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-md)' }}>
             {creatingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Crear código'}
           </button>
         </div>
-        <p className="text-xs text-stone-500 mt-2">
+        <p className="text-xs mt-2" style={{ color: 'var(--color-stone)' }}>
           Solo letras y números, entre 3-20 caracteres
         </p>
       </div>
@@ -307,19 +311,19 @@ export default function InfluencerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950"></div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-cream)' }}>
+        <div className="animate-spin rounded-full h-8 w-8" style={{ borderBottom: '2px solid var(--color-black)' }}></div>
       </div>
     );
   }
 
   if (!dashboard) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl border border-stone-200 max-w-md">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-cream)' }}>
+        <div className="max-w-md" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
           <div className="p-8 text-center">
-            <h2 className="text-xl font-medium text-stone-950 mb-4">{t('influencer.notInfluencer')}</h2>
-            <p className="text-stone-500">
+            <h2 className="text-xl font-medium mb-4" style={{ color: 'var(--color-black)' }}>{t('influencer.notInfluencer')}</h2>
+            <p style={{ color: 'var(--color-stone)' }}>
               {t('influencer.notInfluencerDesc')}
             </p>
           </div>
@@ -332,14 +336,14 @@ export default function InfluencerDashboard() {
   const influencerExample = ((18 * tierPercent) / 100).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen" style={{ background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}>
       <div className="max-w-6xl mx-auto px-4 py-4 md:py-8">
-        {/* Header - Mobile: Simple, Desktop: Full */}
+        {/* Header */}
         <div className="mb-6 md:mb-8">
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+          <h1 className="text-3xl font-semibold tracking-tight" style={{ color: 'var(--color-black)' }}>
             {t('influencer.dashboard')}
           </h1>
-          <p className="mt-2 text-sm text-stone-500 md:text-base">
+          <p className="mt-2 text-sm md:text-base" style={{ color: 'var(--color-stone)' }}>
             {t('dashboard.welcome')}, {dashboard.full_name}
           </p>
         </div>
@@ -351,15 +355,15 @@ export default function InfluencerDashboard() {
 
         {/* Status Banner - Pending Approval */}
         {dashboard.status === 'pending' && (
-          <div className="mb-4 rounded-2xl border border-stone-200 bg-stone-50 p-4 md:mb-6 md:p-6">
+          <div className="mb-4 p-4 md:mb-6 md:p-6" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
             <div className="flex items-start gap-3 md:gap-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-700 md:h-6 md:w-6" />
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 md:h-6 md:w-6" style={{ color: 'var(--color-stone)' }} />
               <div>
-                <h3 className="mb-1 text-sm font-semibold text-stone-950 md:mb-2 md:text-base">{t('influencer.pendingApproval')}</h3>
-                <p className="text-xs text-stone-700 md:text-sm">
+                <h3 className="mb-1 text-sm font-semibold md:mb-2 md:text-base" style={{ color: 'var(--color-black)' }}>{t('influencer.pendingApproval')}</h3>
+                <p className="text-xs md:text-sm" style={{ color: 'var(--color-stone)' }}>
                   {t('influencer.pendingApprovalDesc')}
                 </p>
-                <p className="mt-2 text-xs text-stone-500 md:text-sm">
+                <p className="mt-2 text-xs md:text-sm" style={{ color: 'var(--color-stone)' }}>
                   <strong>{t('influencer.estimatedTime')}</strong>
                 </p>
               </div>
@@ -369,39 +373,61 @@ export default function InfluencerDashboard() {
 
         {/* Status Banner - Other statuses */}
         {dashboard.status !== 'active' && dashboard.status !== 'pending' && (
-          <div className="mb-4 rounded-2xl border border-stone-200 bg-stone-50 p-3 md:mb-6 md:p-4">
-            <p className="text-sm text-stone-700">
+          <div className="mb-4 p-3 md:mb-6 md:p-4" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
+            <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
               {t('influencer.accountStatus')} <strong>{dashboard.status}</strong>.
               {dashboard.status === 'suspended' && ` ${t('influencer.accountSuspended')}`}
             </p>
           </div>
         )}
 
-        <div className="bg-white rounded-xl border border-stone-200 mb-6">
+        {/* === BLACK BALANCE CARD === */}
+        <div className="mb-6 p-6" style={{ background: 'var(--color-black)', borderRadius: 'var(--radius-xl)' }}>
+          <p className="text-sm mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>Balance disponible</p>
+          <p className="font-bold mb-2" style={{ color: '#fff', fontSize: '26px' }}>€{asNumber(dashboard.available_balance).toFixed(2)}</p>
+          {dashboard.payment_schedule?.next_payment_date && (
+            <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              Próximo pago: {new Date(dashboard.payment_schedule.next_payment_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+            </p>
+          )}
+          {/* "Solicitar cobro" — GREEN BUTTON INSIDE BLACK CARD */}
+          {(dashboard.available_balance || 0) >= MINIMUM_WITHDRAWAL && (
+            <button
+              onClick={scrollToWithdrawals}
+              className="px-5 py-2 text-sm font-medium transition-colors"
+              style={{ background: 'var(--color-green)', color: '#fff', borderRadius: 'var(--radius-full)' }}
+            >
+              Solicitar cobro
+            </button>
+          )}
+        </div>
+
+        {/* Product Performance */}
+        <div className="mb-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
           <div className="px-6 pt-6 pb-4">
-            <h3 className="text-lg font-semibold text-stone-950 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-stone-700" />
+            <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-black)' }}>
+              <BarChart3 className="h-5 w-5" style={{ color: 'var(--color-stone)' }} />
               Productos que mejor funcionan en tu contenido
             </h3>
           </div>
           <div className="px-6 pb-6 space-y-3">
             {productPerformance.length > 0 ? productPerformance.map((item) => (
-              <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3">
+              <div key={`${item.content_type}-${item.content_id}`} className="flex items-center justify-between px-4 py-3" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-stone-950">{item.title || item.content_id}</p>
-                  <p className="mt-1 text-xs text-stone-500 capitalize">{item.content_type}</p>
+                  <p className="truncate text-sm font-medium" style={{ color: 'var(--color-black)' }}>{item.title || item.content_id}</p>
+                  <p className="mt-1 text-xs capitalize" style={{ color: 'var(--color-stone)' }}>{item.content_type}</p>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-right text-xs text-stone-500">
-                  <div><p className="font-semibold text-stone-950">{item.views}</p><p>Views</p></div>
-                  <div><p className="font-semibold text-stone-950">{item.clicks}</p><p>Clicks</p></div>
-                  <div><p className="font-semibold text-stone-950">{item.sales}</p><p>Sales</p></div>
+                <div className="grid grid-cols-3 gap-4 text-right text-xs" style={{ color: 'var(--color-stone)' }}>
+                  <div><p className="font-semibold" style={{ color: 'var(--color-black)' }}>{item.views}</p><p>Views</p></div>
+                  <div><p className="font-semibold" style={{ color: 'var(--color-black)' }}>{item.clicks}</p><p>Clicks</p></div>
+                  <div><p className="font-semibold" style={{ color: 'var(--color-black)' }}>{item.sales}</p><p>Sales</p></div>
                 </div>
               </div>
-            )) : <p className="text-sm text-stone-500">Publica contenido con productos vinculados para empezar a ver rendimiento.</p>}
+            )) : <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Publica contenido con productos vinculados para empezar a ver rendimiento.</p>}
           </div>
         </div>
 
-        {/* Create Code Card - Only show if active and no code yet (neither pending nor approved) */}
+        {/* Create Code Card - Only show if active and no code yet */}
         {dashboard.status === 'active' && !dashboard.discount_code && (
           <div className="mb-4 md:mb-6">
             <CreateCodeCard onCodeCreated={handleCodeCreated} />
@@ -411,154 +437,87 @@ export default function InfluencerDashboard() {
         {/* Tier Progress */}
         <TierProgress />
 
-        {/* === CODE HERO - The main thing influencers need === */}
+        {/* === CODE HERO - pending === */}
         {dashboard.discount_code && dashboard.discount_code_approval_status === 'pending' && (
-          <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center" data-testid="code-pending">
+          <div className="mb-6 p-6 text-center" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }} data-testid="code-pending">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-widest text-stone-700">
-                <span className="h-2 w-2 rounded-full bg-stone-950 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest" style={{ background: 'var(--color-white)', color: 'var(--color-stone)' }}>
+                <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: 'var(--color-black)' }} />
                 Pendiente de aprobación
               </span>
             </div>
-            <p className="mb-3 text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl" data-testid="influencer-code-pending">
+            <p className="mb-3 text-3xl font-semibold tracking-tight md:text-4xl" style={{ color: 'var(--color-black)' }} data-testid="influencer-code-pending">
               {dashboard.discount_code}
             </p>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
               Tu código está siendo revisado por el equipo de Hispaloshop. Lo aprobaremos en menos de 24h.
             </p>
           </div>
         )}
 
+        {/* === CODE HERO - active === */}
         {dashboard.discount_code && dashboard.discount_code_active && (
-          <div className="mb-6 rounded-2xl border border-stone-100 bg-white p-6 text-center shadow-sm" data-testid="code-hero">
-            <p className="mb-2 text-xs uppercase tracking-widest text-stone-500">Tu código</p>
-            <p className="mb-4 text-4xl font-semibold tracking-tight text-stone-950 md:text-5xl" data-testid="influencer-code">
-              {dashboard.discount_code}
+          <div className="mb-6 p-6 text-center" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }} data-testid="code-hero">
+            <p className="mb-2 text-xs uppercase tracking-widest" style={{ color: 'var(--color-stone)' }}>Tu código</p>
+            <p className="mb-4 text-4xl font-semibold tracking-tight md:text-5xl" style={{ color: 'var(--color-black)', fontFamily: 'monospace', fontSize: '14px' }} data-testid="influencer-code">
+              <span style={{ fontSize: '2.25rem' }}>{dashboard.discount_code}</span>
             </p>
             <div className="flex justify-center gap-3 mb-4">
               <button
                 onClick={() => { navigator.clipboard.writeText(dashboard.discount_code); toast.success('Código copiado'); }}
-                className="rounded-full bg-stone-950 px-6 py-2 text-white hover:bg-stone-800 flex items-center gap-2 transition-colors"
+                className="rounded-full px-6 py-2 flex items-center gap-2 transition-colors"
+                style={{ background: 'var(--color-black)', color: '#fff' }}
                 data-testid="copy-code-btn"
               >
                 <Copy className="w-4 h-4" /> Copiar
               </button>
               <button
                 onClick={() => { if (navigator.share) navigator.share({ title: 'Mi código Hispaloshop', text: `Usa mi código ${dashboard.discount_code} para descuento en hispaloshop.com` }); else { navigator.clipboard.writeText(`Usa mi código ${dashboard.discount_code} en hispaloshop.com`); toast.success('Link copiado'); }}}
-                className="rounded-full px-6 py-2 border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
+                className="rounded-full px-6 py-2 transition-colors"
+                style={{ border: '1px solid var(--color-border)', color: 'var(--color-stone)', background: 'var(--color-white)' }}
               >
                 Compartir
               </button>
             </div>
-            <p className="text-xs text-stone-500">Tu comunidad ahorra {dashboard.discount_value || 10}% con este código</p>
+            <p className="text-xs" style={{ color: 'var(--color-stone)' }}>Tu comunidad ahorra {dashboard.discount_value || 10}% con este código</p>
           </div>
         )}
 
-        {/* === 2 Big Earnings Circles === */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="rounded-2xl border border-stone-100 bg-white p-6 text-center shadow-sm" data-testid="total-earned">
-            <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{asNumber(dashboard.total_commission_earned).toFixed(0)}</p>
-            <p className="mt-2 text-xs text-stone-500">Total ganado</p>
+        {/* === Stats grid 3 cols === */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>€{asNumber(dashboard.total_sales_generated).toFixed(0)}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.totalSales')}</p>
           </div>
-          <div className="rounded-2xl border border-stone-100 bg-white p-6 text-center shadow-sm" data-testid="available-withdraw">
-            <p className="text-3xl font-semibold tracking-tight text-stone-950 md:text-4xl">€{asNumber(dashboard.available_balance).toFixed(0)}</p>
-            <p className="mt-2 text-xs text-stone-500">Disponible</p>
-            {(dashboard.available_balance || 0) >= 50 && (
-              <button
-                onClick={scrollToWithdrawals}
-                className="mt-3 rounded-full bg-stone-950 px-4 py-1 text-xs text-white hover:bg-stone-800 transition-colors"
-              >
-                Retirar
-              </button>
-            )}
+          <div className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>€{asNumber(dashboard.total_commission_earned).toFixed(0)}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>Comisión mes</p>
           </div>
-        </div>
-
-        {/* Stats Grid - Mobile: 2x2, Desktop: 4 columns */}
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-          <div className="bg-white rounded-xl border border-stone-200 dashboard-card">
-            <div className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <div>
-                  <p className="text-xs text-stone-500 md:text-sm">{t('influencer.totalSales')}</p>
-                  <p className="text-xl md:text-2xl font-medium text-stone-950">
-                    €{dashboard.total_sales_generated.toFixed(0)}
-                  </p>
-                </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 md:h-12 md:w-12">
-                  <ShoppingBag className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-stone-200 dashboard-card">
-            <div className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <div>
-                  <p className="text-xs text-stone-500 md:text-sm">{t('influencer.totalEarned')}</p>
-                  <p className="text-xl md:text-2xl font-medium text-stone-950">
-                    €{dashboard.total_commission_earned.toFixed(0)}
-                  </p>
-                </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 md:h-12 md:w-12">
-                  <TrendingUp className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-stone-200 dashboard-card">
-            <div className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <div>
-                  <p className="text-xs text-stone-500 md:text-sm">{t('influencer.availableBalance')}</p>
-                  <p className="text-xl font-medium text-stone-950 md:text-2xl">
-                    €{dashboard.available_balance.toFixed(0)}
-                  </p>
-                </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 md:h-12 md:w-12">
-                  <DollarSign className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-stone-200 dashboard-card">
-            <div className="p-4 md:p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <div>
-                  <p className="text-xs text-stone-500 md:text-sm">{t('influencer.commissionRate')}</p>
-                  <p className="text-xl md:text-2xl font-medium text-stone-950">
-                    {`${tierPercent}%`}
-                  </p>
-                </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 md:h-12 md:w-12">
-                  <CreditCard className="h-5 w-5 text-stone-700 md:h-6 md:w-6" />
-                </div>
-              </div>
-            </div>
+          <div className="p-4 text-center" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
+            <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>{`${tierPercent}%`}</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>Conversión</p>
           </div>
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Discount Code Card */}
-          <div className="bg-white rounded-xl border border-stone-200 lg:col-span-1">
+          <div className="lg:col-span-1" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
             <div className="px-6 pt-6 pb-4">
-              <h3 className="text-lg font-semibold text-stone-950">{t('influencer.discountCode')}</h3>
+              <h3 className="text-lg font-semibold" style={{ color: 'var(--color-black)' }}>{t('influencer.discountCode')}</h3>
             </div>
             <div className="px-6 pb-6">
               {dashboard.discount_code ? (
                 <>
-                  <div className="bg-stone-50 border border-dashed border-stone-300 rounded-lg p-4 text-center mb-4">
-                    <p className="text-3xl font-bold tracking-wider text-stone-950">
-                      {dashboard.discount_code}
+                  <div className="p-4 text-center mb-4" style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border)', borderRadius: 'var(--radius-md)' }}>
+                    <p className="text-3xl font-bold tracking-wider" style={{ color: 'var(--color-black)', fontFamily: 'monospace', fontSize: '14px' }}>
+                      <span style={{ fontSize: '1.875rem' }}>{dashboard.discount_code}</span>
                     </p>
                   </div>
                   <button
                     onClick={copyDiscountCode}
-                    className="w-full px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-md)' }}
                   >
                     {copied ? (
                       <>
@@ -572,20 +531,20 @@ export default function InfluencerDashboard() {
                       </>
                     )}
                   </button>
-                  <p className="text-sm text-stone-500 text-center mt-3">
+                  <p className="text-sm text-center mt-3" style={{ color: 'var(--color-stone)' }}>
                     {t('influencer.shareCode')}
                   </p>
                 </>
               ) : dashboard.status === 'active' ? (
                 <div className="text-center py-4">
-                  <p className="text-stone-500 text-sm">
+                  <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
                     {t('influencer.useFormAbove')}
                   </p>
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <AlertCircle className="w-8 h-8 text-stone-500 mx-auto mb-2" />
-                  <p className="text-stone-500 text-sm">
+                  <AlertCircle className="w-8 h-8 mx-auto mb-2" style={{ color: 'var(--color-stone)' }} />
+                  <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
                     {t('influencer.canCreateWhenApproved')}
                   </p>
                 </div>
@@ -594,38 +553,39 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Stripe Connect Card */}
-          <div className="bg-white rounded-xl border border-stone-200 lg:col-span-1">
+          <div className="lg:col-span-1" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
             <div className="px-6 pt-6 pb-4">
-              <h3 className="text-lg font-semibold text-stone-950">{t('influencer.paymentSetup')}</h3>
+              <h3 className="text-lg font-semibold" style={{ color: 'var(--color-black)' }}>{t('influencer.paymentSetup')}</h3>
             </div>
             <div className="px-6 pb-6">
               {stripeStatus?.connected && stripeStatus?.onboarding_complete ? (
                 <div className="text-center">
-                  <div className="h-16 w-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Check className="h-8 w-8 text-stone-700" />
+                  <div className="h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--color-green-light)' }}>
+                    <Check className="h-8 w-8" style={{ color: 'var(--color-green)' }} />
                   </div>
-                  <p className="font-medium text-stone-700">{t('influencer.stripeConnected')}</p>
-                  <p className="text-sm text-stone-500 mt-2">
+                  <p className="font-medium" style={{ color: 'var(--color-green)' }}>{t('influencer.stripeConnected')}</p>
+                  <p className="text-sm mt-2" style={{ color: 'var(--color-stone)' }}>
                     {t('influencer.shareCode')}
                   </p>
-                  <div className="mt-4 text-sm text-stone-500 flex items-center gap-2">
+                  <div className="mt-4 text-sm flex items-center gap-2" style={{ color: 'var(--color-stone)' }}>
                     <span>{t('influencer.payoutsEnabled')}:</span>
                     {stripeStatus.payouts_enabled ? (
-                      <CheckCircle2 className="w-4 h-4 text-stone-700" />
+                      <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-green)' }} />
                     ) : (
-                      <AlertCircle className="w-4 h-4 text-stone-500" />
+                      <AlertCircle className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
                     )}
                   </div>
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-stone-500 mb-4">
+                  <p className="mb-4" style={{ color: 'var(--color-stone)' }}>
                     {t('influencer.connectStripe')}
                   </p>
                   <button
                     onClick={connectStripe}
                     disabled={connectingStripe}
-                    className="w-full px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-md)' }}
                   >
                     {connectingStripe ? (
                       t('common.loading')
@@ -642,19 +602,19 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Commission Summary */}
-          <div className="bg-white rounded-xl border border-stone-200 lg:col-span-1">
+          <div className="lg:col-span-1" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
             <div className="px-6 pt-6 pb-4">
-              <h3 className="text-lg font-semibold text-stone-950">{t('influencer.commissionSummary')}</h3>
+              <h3 className="text-lg font-semibold" style={{ color: 'var(--color-black)' }}>{t('influencer.commissionSummary')}</h3>
             </div>
             <div className="px-6 pb-6">
               <div className="space-y-4">
-                {/* How commission works explanation */}
-                <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 mb-4">
-                  <p className="text-xs font-medium text-stone-700 mb-2">Info · {t('influencer.howCommissionWorks')}</p>
-                  <p className="text-xs text-stone-600">
+                {/* How commission works */}
+                <div className="p-3 mb-4" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
+                  <p className="text-xs font-medium mb-2" style={{ color: 'var(--color-stone)' }}>Info · {t('influencer.howCommissionWorks')}</p>
+                  <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
                     {t('influencer.commissionExplanation', { percent: dashboard.commission_value })}
                   </p>
-                  <div className="mt-2 text-xs text-stone-600 bg-stone-100 rounded p-2">
+                  <div className="mt-2 text-xs p-2" style={{ color: 'var(--color-stone)', background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
                     <p className="font-medium">{t('influencer.example')}:</p>
                     <p>- {t('influencer.sale')}: €100</p>
                     <p>- {t('influencer.sellerReceives')}: €82</p>
@@ -663,17 +623,17 @@ export default function InfluencerDashboard() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-stone-200">
-                  <span className="text-stone-500">{t('influencer.pendingOrders')}</span>
-                  <span className="font-medium">{dashboard.pending_commissions} {t('orders.orders', 'pedidos')}</span>
+                <div className="flex justify-between items-center py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                  <span style={{ color: 'var(--color-stone)' }}>{t('influencer.pendingOrders')}</span>
+                  <span className="font-medium" style={{ color: 'var(--color-black)' }}>{dashboard.pending_commissions} {t('orders.orders', 'pedidos')}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-stone-200">
-                  <span className="text-stone-500">{t('influencer.paidOrders')}</span>
-                  <span className="font-medium">{dashboard.paid_commissions} {t('orders.orders', 'pedidos')}</span>
+                <div className="flex justify-between items-center py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                  <span style={{ color: 'var(--color-stone)' }}>{t('influencer.paidOrders')}</span>
+                  <span className="font-medium" style={{ color: 'var(--color-black)' }}>{dashboard.paid_commissions} {t('orders.orders', 'pedidos')}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-stone-500">{t('influencer.available')}</span>
-                  <span className="font-medium text-stone-950">
+                  <span style={{ color: 'var(--color-stone)' }}>{t('influencer.available')}</span>
+                  <span className="font-medium" style={{ color: 'var(--color-black)' }}>
                     €{dashboard.available_balance.toFixed(2)}
                   </span>
                 </div>
@@ -684,52 +644,52 @@ export default function InfluencerDashboard() {
 
         {/* Payment Schedule Card */}
         {dashboard.payment_schedule && (
-          <div className="bg-white rounded-xl border border-stone-200 mt-6">
+          <div className="mt-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
             <div className="px-6 pt-6 pb-4">
-              <h3 className="text-lg font-semibold text-stone-950 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-stone-700" />
+              <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-black)' }}>
+                <CreditCard className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
                 {t('influencer.paymentSchedule')}
               </h3>
             </div>
             <div className="px-6 pb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Available to withdraw */}
-                <div className="text-center p-4 bg-white rounded-lg border border-stone-200">
-                  <p className="text-sm text-stone-500 mb-1">{t('influencer.availableToWithdraw')}</p>
-                  <p className="text-2xl font-bold text-stone-950">€{dashboard.payment_schedule.available_to_withdraw.toFixed(2)}</p>
-                  <p className="text-xs text-stone-600 mt-1">{t('influencer.alreadyPassed15Days')}</p>
+                <div className="text-center p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
+                  <p className="text-sm mb-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.availableToWithdraw')}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--color-black)' }}>€{dashboard.payment_schedule.available_to_withdraw.toFixed(2)}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.alreadyPassed15Days')}</p>
                 </div>
 
                 {/* Available soon */}
-                <div className="text-center p-4 bg-white rounded-lg border border-stone-200">
-                  <p className="text-sm text-stone-500 mb-1">{t('influencer.availableSoon')}</p>
-                  <p className="text-2xl font-bold text-stone-700">€{dashboard.payment_schedule.available_soon.toFixed(2)}</p>
-                  <p className="text-xs text-stone-600 mt-1">{t('influencer.inNext7Days')}</p>
+                <div className="text-center p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
+                  <p className="text-sm mb-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.availableSoon')}</p>
+                  <p className="text-2xl font-bold" style={{ color: 'var(--color-stone)' }}>€{dashboard.payment_schedule.available_soon.toFixed(2)}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.inNext7Days')}</p>
                 </div>
 
                 {/* Next payment date */}
-                <div className="text-center p-4 bg-white rounded-lg border border-stone-200">
-                  <p className="text-sm text-stone-500 mb-1">{t('influencer.nextPaymentDate')}</p>
+                <div className="text-center p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
+                  <p className="text-sm mb-1" style={{ color: 'var(--color-stone)' }}>{t('influencer.nextPaymentDate')}</p>
                   {dashboard.payment_schedule.next_payment_date ? (
                     <>
-                      <p className="text-xl font-bold text-stone-700">
+                      <p className="text-xl font-bold" style={{ color: 'var(--color-stone)' }}>
                         {new Date(dashboard.payment_schedule.next_payment_date).toLocaleDateString('es-ES', {
                           day: 'numeric',
                           month: 'short'
                         })}
                       </p>
-                      <p className="text-xs text-stone-600 mt-1">
+                      <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>
                         {t('influencer.daysLeft', { days: Math.ceil((new Date(dashboard.payment_schedule.next_payment_date) - new Date()) / (1000 * 60 * 60 * 24)) })}
                       </p>
                     </>
                   ) : (
-                    <p className="text-lg text-stone-500">{t('influencer.noPendingPayments')}</p>
+                    <p className="text-lg" style={{ color: 'var(--color-stone)' }}>{t('influencer.noPendingPayments')}</p>
                   )}
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-white rounded-lg border border-stone-200">
-                <p className="text-sm text-stone-500">
+              <div className="mt-4 p-3" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
+                <p className="text-sm" style={{ color: 'var(--color-stone)' }}>
                   <strong>Info · {t('influencer.paymentPolicy')}:</strong> {t('influencer.paymentPolicyDesc')}
                 </p>
               </div>
@@ -737,7 +697,7 @@ export default function InfluencerDashboard() {
           </div>
         )}
 
-        {/* Withdrawal Card - Only show for active influencers with Stripe */}
+        {/* Withdrawal Card */}
         {dashboard.status === 'active' && dashboard.payment_schedule && (
           <div id="withdrawal-card-section" className="mt-6">
             <WithdrawalCard
@@ -749,22 +709,22 @@ export default function InfluencerDashboard() {
         )}
 
         {/* Recent Commissions */}
-        <div className="bg-white rounded-xl border border-stone-200 mt-6">
+        <div className="mt-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
           <div className="px-6 pt-6 pb-4">
-            <h3 className="text-lg font-semibold text-stone-950">{t('influencer.recentCommissions')}</h3>
+            <h3 className="text-lg font-semibold" style={{ color: 'var(--color-black)' }}>{t('influencer.recentCommissions')}</h3>
           </div>
           <div className="px-6 pb-6">
             {dashboard.recent_commissions?.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-stone-200">
-                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('orders.orderNumber')}</th>
-                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('orders.orderTotal')}</th>
-                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('influencer.commissionRate')}</th>
-                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('common.status')}</th>
-                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('influencer.paymentAvailable')}</th>
-                      <th className="text-left py-3 px-4 font-medium text-stone-500">{t('common.date')}</th>
+                    <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--color-stone)' }}>{t('orders.orderNumber')}</th>
+                      <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--color-stone)' }}>{t('orders.orderTotal')}</th>
+                      <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--color-stone)' }}>{t('influencer.commissionRate')}</th>
+                      <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--color-stone)' }}>{t('common.status')}</th>
+                      <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--color-stone)' }}>{t('influencer.paymentAvailable')}</th>
+                      <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--color-stone)' }}>{t('common.date')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -775,14 +735,14 @@ export default function InfluencerDashboard() {
                       const daysLeft = paymentDate ? Math.ceil((paymentDate - now) / (1000 * 60 * 60 * 24)) : null;
 
                       return (
-                        <tr key={comm.commission_id} className="border-b border-stone-100">
-                          <td className="py-3 px-4 font-mono text-sm">{comm.order_id}</td>
-                          <td className="py-3 px-4">€{comm.order_total.toFixed(2)}</td>
-                          <td className="py-3 px-4 font-medium text-stone-700">
+                        <tr key={comm.commission_id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                          <td className="py-3 px-4 font-mono text-sm" style={{ color: 'var(--color-black)' }}>{comm.order_id}</td>
+                          <td className="py-3 px-4" style={{ color: 'var(--color-black)' }}>€{comm.order_total.toFixed(2)}</td>
+                          <td className="py-3 px-4 font-medium" style={{ color: 'var(--color-stone)' }}>
                             €{comm.commission_amount.toFixed(2)}
                           </td>
                           <td className="py-3 px-4">
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
+                            <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
                               {comm.commission_status === 'paid' ? t('orders.status.paid') :
                                comm.commission_status === 'pending' ? t('orders.status.pending') :
                                comm.commission_status === 'reversed' ? t('orders.status.reversed', 'Revertido') : comm.commission_status}
@@ -790,24 +750,24 @@ export default function InfluencerDashboard() {
                           </td>
                           <td className="py-3 px-4 text-sm">
                             {comm.commission_status === 'paid' ? (
-                              <span className="text-stone-700 flex items-center gap-1">
+                              <span className="flex items-center gap-1" style={{ color: 'var(--color-green)' }}>
                                 <CheckCircle2 className="w-4 h-4" />
                                 {t('influencer.collected')}
                               </span>
                             ) : isAvailable ? (
-                              <span className="text-stone-700 font-medium flex items-center gap-1">
+                              <span className="font-medium flex items-center gap-1" style={{ color: 'var(--color-green)' }}>
                                 <CheckCircle2 className="w-4 h-4" />
                                 {t('influencer.available')}
                               </span>
                             ) : paymentDate ? (
-                              <span className="text-stone-600">
+                              <span style={{ color: 'var(--color-stone)' }}>
                                 {daysLeft > 0 ? t('influencer.daysLeft', { days: daysLeft }) : t('influencer.today')}
                               </span>
                             ) : (
-                              <span className="text-stone-500">-</span>
+                              <span style={{ color: 'var(--color-stone)' }}>-</span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-sm text-stone-500">
+                          <td className="py-3 px-4 text-sm" style={{ color: 'var(--color-stone)' }}>
                             {new Date(comm.created_at).toLocaleDateString()}
                           </td>
                         </tr>
@@ -818,7 +778,7 @@ export default function InfluencerDashboard() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-stone-500">
+                <p style={{ color: 'var(--color-stone)' }}>
                   {t('influencer.noCommissions')}
                 </p>
               </div>
@@ -835,7 +795,7 @@ export default function InfluencerDashboard() {
 
         {/* Back to Home Link */}
         <div className="mt-8 text-center">
-          <Link to="/" className="text-stone-500 hover:text-stone-950 text-sm inline-flex items-center gap-2">
+          <Link to="/" className="text-sm inline-flex items-center gap-2 transition-colors" style={{ color: 'var(--color-stone)' }}>
             <Home className="w-4 h-4" />
             Volver a la tienda
           </Link>
@@ -850,5 +810,3 @@ export default function InfluencerDashboard() {
     </div>
   );
 }
-
-
