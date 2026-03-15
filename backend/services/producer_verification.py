@@ -164,7 +164,7 @@ async def verify_cif_nif(file_url: str) -> dict:
             return result
 
         # Validate format with regex
-        # TODO: Integrar con API del Registro Mercantil cuando esté disponible.
+        # FUTURE: Integrar con API del Registro Mercantil cuando esté disponible.
         # Por ahora validamos formato con regex.
         fmt = validate_tax_id_format(extracted_id)
         if not fmt["is_valid"]:

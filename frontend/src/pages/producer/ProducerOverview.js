@@ -12,7 +12,6 @@ import { toast } from 'sonner';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import PlanManager from '../../components/PlanManager';
 import LockedFeature from '../../components/LockedFeature';
-import { useProducerPlan } from '../../context/ProducerPlanContext';
 import { useTranslation } from 'react-i18next';
 import HealthScoreHero from '../../components/dashboard/HealthScoreHero';
 import StatCardMobile from '../../components/dashboard/StatCardMobile';

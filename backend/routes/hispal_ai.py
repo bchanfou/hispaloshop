@@ -176,6 +176,7 @@ async def execute_tool(name: str, inp: dict, user_id: str):
 
 @router.post("/chat")
 async def hispal_ai_chat(request_body: ChatRequest, request: Request):
+    """Send a message to the Hispal AI general assistant."""
     current_user = await get_optional_user(request)
     user_id = (getattr(current_user, "user_id", None) if current_user else None) or request_body.user_id
 

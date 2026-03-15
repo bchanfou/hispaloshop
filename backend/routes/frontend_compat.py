@@ -200,6 +200,7 @@ async def get_active_stories(
     response: Response,
     authorization: Optional[str] = Header(default=None),
 ):
+    """Return active stories from the last 24 hours."""
     current_user = await _resolve_current_user(request, authorization)
     now = datetime.now(timezone.utc)
     twenty_four_hours_ago = now - timedelta(hours=24)
@@ -271,6 +272,7 @@ async def get_locale_config(
     request: Request,
     authorization: Optional[str] = Header(default=None),
 ):
+    """Return locale configuration for the current user or request."""
     current_user = await _resolve_current_user(request, authorization)
 
     country_code = "ES"
@@ -306,6 +308,7 @@ async def get_locale_config(
 
 @router.get("/auth/me")
 async def get_me(request: Request, authorization: Optional[str] = Header(default=None)):
+    """Return the authenticated user profile or None."""
     user = await _resolve_current_user(request, authorization)
     if not user:
         return None
@@ -317,6 +320,7 @@ async def get_me(request: Request, authorization: Optional[str] = Header(default
 
 @router.get("/exchange-rates", response_model=ExchangeRatesOut)
 async def get_exchange_rates():
+    """Return cached EUR-based exchange rates."""
     now = datetime.now(timezone.utc)
     updated_at = _EXCHANGE_RATES_CACHE.get("updated_at")
     if _EXCHANGE_RATES_CACHE.get("rates") and isinstance(updated_at, datetime):
@@ -366,6 +370,7 @@ async def get_feed(
     offset: int = Query(default=0, ge=0),
     authorization: Optional[str] = Header(default=None),
 ):
+    """Return the social feed with pagination and scope filtering."""
     current_user = await _resolve_current_user(request, authorization)
     normalized_scope = "following" if scope == "following" else "for-you"
 
@@ -483,6 +488,7 @@ async def get_feed(
 
 @router.post("/track/visit", response_model=TrackVisitOut)
 async def track_visit(payload: TrackVisitIn, request: Request):
+    """Record an analytics page visit."""
     visit_doc = {
         "visit_id": str(uuid.uuid4()),
         "path": payload.path,
@@ -500,6 +506,7 @@ async def track_visit(payload: TrackVisitIn, request: Request):
 
 @router.get("/auth/google/url")
 async def get_google_auth_url(request: Request):
+    """Generate the Google OAuth2 authorization URL."""
     if not settings.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
 

@@ -404,7 +404,7 @@ async def contact_producer(
     }
     await db.b2b_leads.insert_one(lead)
     
-    # TODO: Notificar al productor (email/push)
+    # FUTURE: Notificar al productor (email/push)
     
     return {"success": True, "message": "Contact initiated"}
 

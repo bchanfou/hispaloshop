@@ -16,6 +16,7 @@ router = APIRouter()
 
 @router.post("/rfq/contact")
 async def create_rfq(data: RFQCreateInput, user: User = Depends(get_current_user)):
+    """Create a new RFQ (request for quote) to a producer."""
     await require_role(user, ["importer"])
 
     producer = await db.users.find_one(
@@ -83,6 +84,7 @@ async def create_rfq(data: RFQCreateInput, user: User = Depends(get_current_user
 
 @router.get("/rfq/mine")
 async def list_my_rfqs(user: User = Depends(get_current_user)):
+    """List RFQs sent by the current importer."""
     await require_role(user, ["importer"])
 
     rfqs = await db.rfq_requests.find(
@@ -94,6 +96,7 @@ async def list_my_rfqs(user: User = Depends(get_current_user)):
 
 @router.get("/rfq/received")
 async def list_received_rfqs(user: User = Depends(get_current_user)):
+    """List RFQs received by the current producer."""
     await require_role(user, ["producer"])
 
     rfqs = await db.rfq_requests.find(

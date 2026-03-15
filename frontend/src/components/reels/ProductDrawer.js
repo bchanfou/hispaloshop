@@ -134,7 +134,7 @@ function ProductDrawer({ isOpen, onClose, product }) {
                 style={{
                   width: '100%', height: 48,
                   borderRadius: 'var(--radius-md)',
-                  background: addedToCart ? 'var(--color-black)' : 'var(--color-green)',
+                  background: 'var(--color-black)',
                   color: '#fff', border: 'none', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)',

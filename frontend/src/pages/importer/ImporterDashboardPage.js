@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Package, ShoppingBag, Factory, Store, Search, Award, FileCheck,
-  ExternalLink, ArrowRight, AlertTriangle,
+  ArrowRight, AlertTriangle,
   Loader2, Globe, MessageCircle, TrendingUp, Eye, Plus,
   Clock, ChevronRight, BarChart3, PenTool, FileText, KeyRound, CreditCard
 } from 'lucide-react';

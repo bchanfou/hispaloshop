@@ -122,6 +122,7 @@ class CommercialChatRequest(BaseModel):
 
 @router.post("/chat")
 async def commercial_ai_chat(request_body: CommercialChatRequest, request: Request):
+    """Chat with the commercial AI assistant (ELITE plan only)."""
     current_user = await get_current_user(request)
     user_id = getattr(current_user, "user_id", None)
 

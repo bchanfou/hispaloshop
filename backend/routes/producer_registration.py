@@ -54,6 +54,7 @@ def _iter_existing_leads():
     status_code=status.HTTP_201_CREATED,
 )
 async def register_producer_lead(payload: ProducerLeadRequest, request: Request):
+    """Submit a new producer registration lead."""
     existing = _iter_existing_leads()
     normalized_email = payload.email.strip().lower()
 

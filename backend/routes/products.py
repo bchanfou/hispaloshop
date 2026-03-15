@@ -322,6 +322,7 @@ async def get_product(product_id: str, country: Optional[str] = None, lang: Opti
 
 @router.post("/products")
 async def create_product(input: ProductInput, user: User = Depends(get_current_user)):
+    """Create a new product listing."""
     await require_role(user, ["producer", "importer", "admin"])
     if user.role in ("producer", "importer") and not user.approved:
         raise HTTPException(status_code=403, detail="Seller account not approved")
@@ -509,13 +510,21 @@ async def translate_product_to_all_bg(product_id: str, source_lang: str):
 
 @router.put("/products/{product_id}")
 async def update_product(product_id: str, input: ProductInput, user: User = Depends(get_current_user)):
+    """Update an existing product by ID."""
     await require_role(user, ["producer", "importer", "admin"])
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     if user.role in ("producer", "importer") and product["producer_id"] != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
-    
+
+    # Run alcohol moderation check on name/description changes
+    if input.name != product.get("name") or input.description != product.get("description"):
+        from services.content_moderation import _is_alcohol_product
+        alcohol_block = _is_alcohol_product(input.name, input.description)
+        if alcohol_block:
+            raise HTTPException(status_code=400, detail=alcohol_block["reason"])
+
     # Clear translations if content changed (will be re-translated on demand)
     content_changed = (
         product.get("name") != input.name or
@@ -632,6 +641,7 @@ async def get_product_variants(product_id: str):
 
 @router.delete("/products/{product_id}")
 async def delete_product(product_id: str, user: User = Depends(get_current_user)):
+    """Delete a product by ID."""
     await require_role(user, ["admin", "super_admin", "producer", "importer"])
     product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "producer_id": 1})
     if not product:

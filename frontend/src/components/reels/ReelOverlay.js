@@ -142,7 +142,7 @@ function ReelOverlay({ reel, isFollowing, toggleFollow, onAddToCart }) {
             style={{
               width: '100%', height: 44,
               borderRadius: 'var(--radius-md)',
-              background: 'var(--color-green)',
+              background: 'var(--color-black)',
               color: '#fff', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               fontSize: 14, fontWeight: 600,

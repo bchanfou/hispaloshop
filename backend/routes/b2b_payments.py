@@ -337,7 +337,7 @@ async def stripe_b2b_webhook(request: Request):
                 )
                 logger.info(f"[B2B WEBHOOK] Final payment succeeded for operation {operation_id} — status → completed")
 
-            # TODO: Send notification to buyer/seller
+            # FUTURE: Send notification to buyer/seller
 
         # --- payment_intent.payment_failed ---
         elif event_type == "payment_intent.payment_failed":

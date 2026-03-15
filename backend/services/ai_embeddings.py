@@ -4,9 +4,12 @@ Usa OpenAI API para generar vectores semanticos de productos y usuarios.
 Fase 1: AI Recommendations
 """
 
+import logging
 import os
 from typing import List, Dict, Optional
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 import numpy as np
 
@@ -47,7 +50,7 @@ class EmbeddingService:
             )
             return response.data[0].embedding
         except Exception as e:
-            print(f"[ERROR] Generando embedding: {e}")
+            logger.error("Generando embedding: %s", e)
             return [0.0] * EMBEDDING_DIMENSIONS
     
     async def generate_product_embedding(self, product: Dict) -> List[float]:

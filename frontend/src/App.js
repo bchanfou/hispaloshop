@@ -1,5 +1,4 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { useCart } from './context/CartContext';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import '@/App.css';
@@ -173,17 +172,12 @@ const RoleOnboardingPage = lazy(() => import('./pages/auth/RoleOnboardingPage'))
 // Landing pages
 const QueEsPage = lazy(() => import('./pages/landings/QueEsPage'));
 const DashboardPage = lazy(() => import('./pages/dashboard'));
-const ConsumerDashboard = lazy(() => import('./pages/dashboard/consumer'));
-const InfluencerDashboardNew = lazy(() => import('./pages/dashboard/influencer'));
-const ProducerDashboardNew = lazy(() => import('./pages/dashboard/producer'));
-const ImporterDashboardNew = lazy(() => import('./pages/dashboard/importer'));
 const ImporterDashboardPage = lazy(() => import('./pages/importer/ImporterDashboardPage'));
 const ImporterCertificatesPage = lazy(() => import('./pages/importer/ImporterCertificatesPage'));
 const ImporterCatalogPage = lazy(() => import('./pages/importer/ImporterCatalogPage'));
 const ImporterOrdersPage = lazy(() => import('./pages/importer/ImporterOrdersPage'));
 
 // Registration flows
-const RoleSelector = lazy(() => import('./pages/register/RoleSelector'));
 const ConsumerRegister = lazy(() => import('./pages/register/consumer'));
 
 function RouteLoader() {

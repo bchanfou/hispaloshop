@@ -33,7 +33,7 @@ export const trackPageVisit = async (page, country = null) => {
     }
   } catch (error) {
     // Silently fail - don't break the app for analytics
-    console.debug('Analytics tracking failed:', error);
+    // Silently fail
   }
 };
 
@@ -49,7 +49,7 @@ export const trackMarketingEvent = (eventName, params = {}) => {
       window.fbq('trackCustom', eventName, params);
     }
   } catch (error) {
-    console.debug('Marketing event tracking failed:', error);
+    // Silently fail
   }
 };
 

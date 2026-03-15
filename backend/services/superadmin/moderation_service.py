@@ -2,10 +2,13 @@
 Servicio de Moderación
 Fase 5: Moderación asistida por IA
 """
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
+
+logger = logging.getLogger(__name__)
 
 from core.database import db
 from schemas.superadmin.moderation import (
@@ -122,7 +125,7 @@ class ModerationService:
                 await self._create_auto_alert(queue_item_id, content, max_score, flags)
         
         except Exception as e:
-            print(f"AI moderation error: {e}")
+            logger.error("AI moderation error: %s", e)
     
     async def _create_auto_alert(self, queue_item_id: str, content: str, score: float, flags: List[str]):
         """Crear alerta automática para contenido crítico"""

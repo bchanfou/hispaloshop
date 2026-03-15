@@ -89,6 +89,7 @@ def _read_existing_applications():
     status_code=status.HTTP_201_CREATED,
 )
 async def register_importer_application(payload: ImporterApplicationRequest, request: Request):
+    """Submit a new importer registration application."""
     existing = _read_existing_applications()
     normalized_email = payload.email.strip().lower()
 

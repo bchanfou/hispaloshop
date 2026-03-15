@@ -73,7 +73,7 @@ async def refresh_recommendations(
     Fuerza regeneracion de recomendaciones (ignora cache).
     FREE: 1 vez al dia. PRO: ilimitado.
     """
-    # TODO: Implementar rate limiting por suscripcion
+    # FUTURE: Implementar rate limiting por suscripcion
     
     result = await recommendation_engine.get_recommendations(
         user_id=current_user.user_id,

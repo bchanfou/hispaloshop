@@ -4,9 +4,12 @@ Combina: embeddings semanticos, filtrado colaborativo, trending, y reglas de neg
 Fase 1: AI Recommendations
 """
 
+import logging
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 from core.database import get_db
+
+logger = logging.getLogger(__name__)
 from core.models import AIRecommendationCache
 from services.ai_embeddings import embedding_service, extract_ai_tags_from_product, calculate_trending_score
 import random
@@ -600,7 +603,7 @@ class RecommendationEngine:
                 liked_products=saved_products
             )
         except Exception as e:
-            print(f"[ERROR] Generando user embedding: {e}")
+            logger.error("Generando user embedding: %s", e)
             return existing
         
         # Guardar/actualizar

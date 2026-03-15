@@ -262,7 +262,7 @@ async def send_message(
         }
     )
     
-    # TODO: Enviar notificación (email/push) al destinatario
+    # FUTURE: Enviar notificación (email/push) al destinatario
     
     message["id"] = str(message.pop("_id", ""))
     
