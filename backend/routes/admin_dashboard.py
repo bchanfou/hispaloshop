@@ -683,13 +683,33 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
     ]).to_list(7)
     
     recent_users = await db.users.find({}, {"_id": 0, "user_id": 1, "name": 1, "role": 1, "created_at": 1}).sort("created_at", -1).limit(5).to_list(5)
-    
+
+    # Countries with real stats
+    country_configs = await db.country_configs.find({}).to_list(50)
+    countries_data = []
+    for cc in country_configs:
+        code = cc.get("country_code", "")
+        producer_count = await db.users.count_documents({"country": code, "role": {"$in": ["producer", "importer"]}})
+        user_count = await db.users.count_documents({"country": code})
+        has_admin = bool(cc.get("admin_user_id"))
+        status = "active" if cc.get("is_active") else ("beta" if producer_count > 0 else "pending")
+        countries_data.append({
+            "code": code,
+            "name": cc.get("name_local", code),
+            "flag": cc.get("flag", ""),
+            "status": status,
+            "admin": has_admin,
+            "producers": producer_count,
+            "users": user_count,
+        })
+
     return {
         "users": {"total": total_users, "by_role": users_by_role, "new_7d": new_users_7d},
         "revenue": {"total": round(total_revenue, 2), "last_30d": round(revenue_30d, 2), "platform_commission": round(platform_commission, 2)},
         "orders": {"total": total_orders, "last_30d": orders_30d},
         "pending": {"sellers": pending_sellers, "products": pending_products, "certificates": pending_certs, "flagged_posts": flagged_posts},
         "visits": {"total": total_visits, "last_7d": visits_7d, "by_country": [{"country": v["_id"] or "Unknown", "count": v["count"]} for v in visits_by_country], "daily": [{"date": d["_id"], "count": d["count"]} for d in daily_visits]},
+        "countries": countries_data,
         "top_sellers": top_sellers,
         "recent_orders": recent_orders,
         "recent_users": recent_users,
@@ -966,4 +986,89 @@ async def get_admin_analytics(
         "country_filter": country_filter,
         "is_global": country_filter is None
     }
+
+
+# ── Superadmin: Country Management ───────────────────────────
+
+
+@router.get("/superadmin/countries")
+async def list_countries(user: User = Depends(get_current_user)):
+    """List all configured countries with stats."""
+    await require_role(user, ["super_admin"])
+
+    configs = await db.country_configs.find({}).to_list(50)
+    result = []
+    now = datetime.now(timezone.utc)
+    thirty_days_ago = (now - timedelta(days=30)).isoformat()
+
+    for cc in configs:
+        code = cc.get("country_code", "")
+        producer_count = await db.users.count_documents(
+            {"country": code, "role": {"$in": ["producer", "importer"]}}
+        )
+        user_count = await db.users.count_documents({"country": code})
+
+        # GMV last 30 days for this country
+        gmv_pipeline = [
+            {"$match": {
+                "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]},
+                "created_at": {"$gte": thirty_days_ago},
+                "country": code,
+            }},
+            {"$group": {"_id": None, "total": {"$sum": "$total_amount"}}},
+        ]
+        gmv_raw = await db.orders.aggregate(gmv_pipeline).to_list(1)
+        gmv_month = round(gmv_raw[0]["total"], 2) if gmv_raw else 0.0
+
+        result.append({
+            "country_code": code,
+            "name_local": cc.get("name_local", code),
+            "flag": cc.get("flag", ""),
+            "is_active": cc.get("is_active", False),
+            "admin_assigned": bool(cc.get("admin_user_id")),
+            "admin_user_id": cc.get("admin_user_id"),
+            "producer_count": producer_count,
+            "user_count": user_count,
+            "gmv_month": gmv_month,
+        })
+
+    return {"countries": result}
+
+
+@router.post("/superadmin/countries/{code}/activate")
+async def activate_country(code: str, user: User = Depends(get_current_user)):
+    """Activate a country. Requires an admin assigned."""
+    await require_role(user, ["super_admin"])
+
+    cc = await db.country_configs.find_one({"country_code": code.upper()})
+    if not cc:
+        raise HTTPException(status_code=404, detail="Country config not found")
+
+    if not cc.get("admin_user_id"):
+        raise HTTPException(
+            status_code=400,
+            detail="No se puede activar un país sin un admin local asignado.",
+        )
+
+    await db.country_configs.update_one(
+        {"country_code": code.upper()},
+        {"$set": {"is_active": True, "activated_at": datetime.now(timezone.utc).isoformat()}},
+    )
+    return {"status": "activated", "country_code": code.upper()}
+
+
+@router.post("/superadmin/countries/{code}/deactivate")
+async def deactivate_country(code: str, user: User = Depends(get_current_user)):
+    """Deactivate a country. Existing users keep access."""
+    await require_role(user, ["super_admin"])
+
+    cc = await db.country_configs.find_one({"country_code": code.upper()})
+    if not cc:
+        raise HTTPException(status_code=404, detail="Country config not found")
+
+    await db.country_configs.update_one(
+        {"country_code": code.upper()},
+        {"$set": {"is_active": False, "deactivated_at": datetime.now(timezone.utc).isoformat()}},
+    )
+    return {"status": "deactivated", "country_code": code.upper()}
 

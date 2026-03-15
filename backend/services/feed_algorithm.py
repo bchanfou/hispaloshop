@@ -64,10 +64,25 @@ class FeedAlgorithm:
             .limit(limit * 3)\
             .to_list(length=limit * 3)
         
+        # Get user's country for local boost
+        user_doc_feed = await db.users.find_one({"user_id": user_id}, {"_id": 0, "country": 1})
+        user_country = (user_doc_feed or {}).get("country") or "ES"
+
+        # Check if country has enough local producers to apply boost
+        local_producer_count = await db.users.count_documents({
+            "role": {"$in": ["producer", "importer"]},
+            "country": user_country,
+            "approved": True,
+        })
+        apply_country_boost = local_producer_count >= 10
+
         # Scorear cada post
         scored_posts = []
         for post in candidates:
-            score = await self._calculate_score(post, user_id, following_ids, tenant_id)
+            score = await self._calculate_score(
+                post, user_id, following_ids, tenant_id,
+                user_country=user_country if apply_country_boost else None,
+            )
             scored_posts.append({
                 "post": post,
                 "score": score,
@@ -91,7 +106,8 @@ class FeedAlgorithm:
         post: Dict,
         user_id: str,
         following_ids: List[str],
-        tenant_id: str
+        tenant_id: str,
+        user_country: str = None
     ) -> Dict:
         """Calcula score multidimensional de un post"""
         db = get_db()
@@ -159,8 +175,17 @@ class FeedAlgorithm:
             category_match = len(set(preferred_categories) & set(post_categories))
             personalization_score += category_match * 10
         
+        # Country boost: prioritize local producers' content
+        if user_country:
+            author_doc = await db.users.find_one(
+                {"user_id": str(post.get("author_id"))},
+                {"_id": 0, "country": 1},
+            )
+            if author_doc and author_doc.get("country") == user_country:
+                personalization_score *= 1.5
+
         scores['personalization'] = min(100, personalization_score)
-        
+
         # 4. SERENDIPIA (0-100)
         serendipity_score = random.uniform(20, 80)
         if author_id not in following_ids:

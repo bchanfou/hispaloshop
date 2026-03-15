@@ -168,10 +168,15 @@ export default function SuperAdminOverview() {
         </div>
       </SACard>
 
-      {/* Countries list */}
+      {/* Countries list — real data from /superadmin/overview */}
       {countries.length > 0 && (
         <SACard className="mb-5">
-          <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Países</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold" style={{ color: dark.text }}>Paises</h3>
+            <Link to="/super-admin/markets" className="text-xs font-semibold" style={{ color: dark.accentPurple }}>
+              Gestionar
+            </Link>
+          </div>
           <div className="space-y-2">
             {countries.map((c, i) => {
               const statusStyles = {
@@ -181,7 +186,7 @@ export default function SuperAdminOverview() {
               };
               const s = statusStyles[c.status] || statusStyles.pending;
               return (
-                <div key={i} className="flex items-center justify-between py-2" style={{ borderBottom: `1px solid ${dark.border}` }}>
+                <div key={c.code || i} className="flex items-center justify-between py-2" style={{ borderBottom: `1px solid ${dark.border}` }}>
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{c.flag || '\uD83C\uDF10'}</span>
                     <div>

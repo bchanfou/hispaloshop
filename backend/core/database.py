@@ -193,6 +193,22 @@ async def _create_indexes():
     except Exception:
         pass  # May already exist with different options
 
+    # Country configs — seed if empty
+    await db.country_configs.create_index("country_code", unique=True)
+    existing = await db.country_configs.count_documents({})
+    if existing == 0:
+        seed_countries = [
+            {"country_code": "ES", "name_local": "España", "flag": "🇪🇸", "language": "es", "currency": "EUR", "is_active": True, "admin_user_id": None},
+            {"country_code": "FR", "name_local": "France", "flag": "🇫🇷", "language": "fr", "currency": "EUR", "is_active": True, "admin_user_id": None},
+            {"country_code": "KR", "name_local": "대한민국", "flag": "🇰🇷", "language": "ko", "currency": "KRW", "is_active": False, "admin_user_id": None},
+            {"country_code": "IT", "name_local": "Italia", "flag": "🇮🇹", "language": "it", "currency": "EUR", "is_active": False, "admin_user_id": None},
+            {"country_code": "PT", "name_local": "Portugal", "flag": "🇵🇹", "language": "pt", "currency": "EUR", "is_active": False, "admin_user_id": None},
+            {"country_code": "DE", "name_local": "Deutschland", "flag": "🇩🇪", "language": "de", "currency": "EUR", "is_active": False, "admin_user_id": None},
+        ]
+        await db.country_configs.insert_many(seed_countries)
+        print("  ✓ country_configs seeded")
+    print("  ✓ country_configs index")
+
     print("✅ All indexes created successfully")
 
 
