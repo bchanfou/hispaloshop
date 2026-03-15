@@ -1,15 +1,25 @@
 """
 B2B Operations — Formal offers with Incoterms, counteroffers, and acceptance flow.
 """
+import asyncio
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from bson import ObjectId
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from core.auth import get_current_user
 from core.database import get_db
+from services.b2b_contract_service import (
+    generate_contract,
+    notify_contract_ready,
+    seal_contract,
+    notify_contract_signed,
+)
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["B2B Operations"])
 
@@ -326,6 +336,30 @@ async def accept_offer(
     )
 
     updated = await db.b2b_operations.find_one({"_id": oid})
+
+    # Trigger contract generation in the background
+    async def _generate_in_bg(op_doc):
+        try:
+            result = await generate_contract(op_doc, db)
+            await db.b2b_operations.update_one(
+                {"_id": oid},
+                {"$set": {
+                    "status": "contract_generated",
+                    "contract": {
+                        "pdf_url": result["pdf_url"],
+                        "contract_hash": result["contract_hash"],
+                        "generated_at": result["generated_at"],
+                    },
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                }},
+            )
+            refreshed = await db.b2b_operations.find_one({"_id": oid})
+            await notify_contract_ready(refreshed, db)
+        except Exception as exc:
+            logger.error("Background contract generation failed for %s: %s", operation_id, exc)
+
+    asyncio.create_task(_generate_in_bg(updated))
+
     return _serialize_operation(updated)
 
 
@@ -374,3 +408,167 @@ async def reject_offer(
 
     updated = await db.b2b_operations.find_one({"_id": oid})
     return _serialize_operation(updated)
+
+
+# ---------------------------------------------------------------------------
+# Contract generation (manual trigger)
+# ---------------------------------------------------------------------------
+
+@router.post("/{operation_id}/generate-contract")
+async def generate_contract_endpoint(
+    operation_id: str,
+    current_user=Depends(get_current_user),
+):
+    """Generate the contract PDF. Only when status is 'offer_accepted'."""
+    db = get_db()
+
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    operation = await db.b2b_operations.find_one({"_id": oid})
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    user_id = current_user.user_id
+    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    if operation["status"] not in ("offer_accepted", "contract_generated"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot generate contract when status is '{operation['status']}'. Must be 'offer_accepted'.",
+        )
+
+    result = await generate_contract(operation, db)
+
+    now = datetime.now(timezone.utc).isoformat()
+    await db.b2b_operations.update_one(
+        {"_id": oid},
+        {"$set": {
+            "status": "contract_generated",
+            "contract": {
+                "pdf_url": result["pdf_url"],
+                "contract_hash": result["contract_hash"],
+                "generated_at": result["generated_at"],
+            },
+            "updated_at": now,
+        }},
+    )
+
+    refreshed = await db.b2b_operations.find_one({"_id": oid})
+    await notify_contract_ready(refreshed, db)
+
+    return {
+        "pdf_url": result["pdf_url"],
+        "contract_hash": result["contract_hash"],
+        "status": "contract_generated",
+    }
+
+
+# ---------------------------------------------------------------------------
+# Sign contract
+# ---------------------------------------------------------------------------
+
+@router.post("/{operation_id}/sign")
+async def sign_contract(
+    operation_id: str,
+    request: Request,
+    current_user=Depends(get_current_user),
+):
+    """Sign the contract. When both parties sign, the PDF is sealed."""
+    db = get_db()
+
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    operation = await db.b2b_operations.find_one({"_id": oid})
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    user_id = current_user.user_id
+    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    if operation["status"] not in ("contract_generated", "contract_pending"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot sign when status is '{operation['status']}'. Contract must be generated first.",
+        )
+
+    # Check user has a signature
+    user_doc = await db.users.find_one({"user_id": user_id})
+    if not user_doc or not user_doc.get("signature_url"):
+        raise HTTPException(status_code=400, detail="No signature configured. Please upload your signature first.")
+
+    # Determine role and check if already signed
+    is_seller = user_id == operation["seller_id"]
+    is_buyer = user_id == operation["buyer_id"]
+    contract = operation.get("contract", {})
+
+    if is_seller and contract.get("signed_by_seller"):
+        raise HTTPException(status_code=400, detail="You have already signed this contract")
+    if is_buyer and contract.get("signed_by_buyer"):
+        raise HTTPException(status_code=400, detail="You have already signed this contract")
+
+    # Record signature
+    now = datetime.now(timezone.utc).isoformat()
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+
+    update_fields = {"updated_at": now}
+    if is_seller:
+        update_fields["contract.signed_by_seller"] = True
+        update_fields["contract.seller_signature_at"] = now
+        update_fields["contract.seller_ip"] = client_ip
+        update_fields["contract.seller_user_agent"] = user_agent
+    if is_buyer:
+        update_fields["contract.signed_by_buyer"] = True
+        update_fields["contract.buyer_signature_at"] = now
+        update_fields["contract.buyer_ip"] = client_ip
+        update_fields["contract.buyer_user_agent"] = user_agent
+
+    # Check if both have now signed
+    seller_signed = contract.get("signed_by_seller", False) or is_seller
+    buyer_signed = contract.get("signed_by_buyer", False) or is_buyer
+    both_signed = seller_signed and buyer_signed
+
+    if not both_signed:
+        update_fields["status"] = "contract_pending"
+
+    await db.b2b_operations.update_one(
+        {"_id": oid},
+        {"$set": update_fields},
+    )
+
+    # If both signed, seal the contract
+    if both_signed:
+        try:
+            refreshed = await db.b2b_operations.find_one({"_id": oid})
+            seal_result = await seal_contract(refreshed, db)
+            await db.b2b_operations.update_one(
+                {"_id": oid},
+                {"$set": {
+                    "status": "contract_signed",
+                    "contract.pdf_url": seal_result["pdf_url"],
+                    "contract.contract_hash": seal_result["contract_hash"],
+                    "contract.sealed_at": now,
+                    "updated_at": now,
+                }},
+            )
+            final = await db.b2b_operations.find_one({"_id": oid})
+            await notify_contract_signed(final, db)
+        except Exception as exc:
+            logger.error("Contract sealing failed for %s: %s", operation_id, exc)
+
+    final_op = await db.b2b_operations.find_one({"_id": oid})
+
+    return {
+        "signed": True,
+        "both_signed": both_signed,
+        "pdf_url": final_op.get("contract", {}).get("pdf_url"),
+        "status": final_op.get("status"),
+    }

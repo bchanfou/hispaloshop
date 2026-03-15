@@ -67,6 +67,8 @@ const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
 const B2BChatPage = lazy(() => import('./pages/b2b/B2BChatPage'));
 const B2BOfferPage = lazy(() => import('./pages/b2b/B2BOfferPage'));
+const B2BContractPage = lazy(() => import('./pages/b2b/B2BContractPage'));
+const SignatureSettingsPage = lazy(() => import('./pages/settings/SignatureSettingsPage'));
 const NewConversationPage = lazy(() => import('./pages/chat/NewConversationPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
@@ -592,6 +594,8 @@ function AppRouter() {
               <Route path="/messages/new" element={<NewConversationPage />} />
               <Route path="/messages/:conversationId" element={<ChatPage />} />
               <Route path="/b2b/offer/new" element={<B2BOfferPage />} />
+              <Route path="/b2b/contract/:operationId" element={<B2BContractPage />} />
+              <Route path="/settings/signature" element={<SignatureSettingsPage />} />
               <Route path="/profile/:userId" element={<UserProfilePage />} />
               <Route path="/dashboard/new" element={<DashboardPage />} />
               <Route path="/dashboard/consumer" element={<Navigate to="/dashboard" replace />} />
