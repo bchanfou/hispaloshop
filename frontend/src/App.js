@@ -111,6 +111,7 @@ const GDPRPage = lazy(() => import('./pages/super-admin/GDPRPage'));
 const InfrastructurePage = lazy(() => import('./pages/super-admin/InfrastructurePage'));
 const SuperAdminOverviewPage = lazy(() => import('./pages/super-admin/SuperAdminOverview'));
 
+const CollabProposalPage = lazy(() => import('./pages/collaborations/CollabProposalPage'));
 const CommunitiesExplorePage = lazy(() => import('./pages/CommunitiesExplorePage'));
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const CreateCommunityPage = lazy(() => import('./pages/CreateCommunityPage'));
@@ -627,6 +628,7 @@ function AppRouter() {
               <Route path="/messages" element={<ChatsPage />} />
               <Route path="/messages/new" element={<NewConversationPage />} />
               <Route path="/messages/:conversationId" element={<ChatPage />} />
+              <Route path="/collab/new" element={<ProtectedRoute allowedRoles={['producer', 'importer']} requireOnboarding={false}><CollabProposalPage /></ProtectedRoute>} />
               <Route path="/b2b/offer/new" element={<B2BOfferPage />} />
               <Route path="/b2b/contract/:operationId" element={<B2BContractPage />} />
               <Route path="/b2b/payment/:operationId" element={<B2BPaymentPage />} />

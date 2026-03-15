@@ -19,6 +19,10 @@ import {
 } from 'lucide-react';
 import { useChatContext } from '@/context/chat/ChatProvider';
 import { useAuth } from '@/context/AuthContext';
+import apiClient from '@/services/api/client';
+import CollabProposalCard from '@/components/chat/collab/CollabProposalCard';
+import AffiliateLinkCard from '@/components/chat/collab/AffiliateLinkCard';
+import SampleShipmentCard from '@/components/chat/collab/SampleShipmentCard';
 
 /* ────────────────────────────────────────────
    Design-system V2 CSS variables (inline)
@@ -504,6 +508,42 @@ function MessageBubble({
     );
   }
 
+  /* Collab proposal card */
+  if (message.message_type === 'collab_proposal' && message.metadata?.collab_id) {
+    return (
+      <CollabProposalMessage
+        message={message}
+        isOwn={isOwn}
+        gap={gap}
+        touchProps={touchProps}
+      />
+    );
+  }
+
+  /* Affiliate link card */
+  if (message.message_type === 'collab_affiliate' && message.metadata?.collab_id) {
+    return (
+      <CollabAffiliateMessage
+        message={message}
+        isOwn={isOwn}
+        gap={gap}
+        touchProps={touchProps}
+      />
+    );
+  }
+
+  /* Sample shipment card */
+  if (message.message_type === 'collab_sample' && message.metadata?.collab_id) {
+    return (
+      <CollabSampleMessage
+        message={message}
+        isOwn={isOwn}
+        gap={gap}
+        touchProps={touchProps}
+      />
+    );
+  }
+
   /* Default text bubble */
   return (
     <div
@@ -538,6 +578,129 @@ function MessageBubble({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   Collab message wrappers (fetch real API data)
+   ================================================================ */
+function CollabProposalMessage({ message, isOwn, gap, touchProps }) {
+  const { user } = useAuth();
+  const [collab, setCollab] = useState(null);
+  const [acting, setActing] = useState(false);
+  const collabId = message.metadata?.collab_id;
+
+  useEffect(() => {
+    if (!collabId) return;
+    apiClient.get(`/collaborations/${collabId}`).then(setCollab).catch(() => {});
+  }, [collabId]);
+
+  if (!collab) return null;
+
+  const proposal = collab.proposal || {};
+  const isReceiver = collab.influencer_id === user?.user_id;
+  const status = collab.status === 'proposed' ? 'pending' : collab.status;
+
+  const handleAccept = async () => {
+    setActing(true);
+    try {
+      await apiClient.post(`/collaborations/${collabId}/accept`);
+      const updated = await apiClient.get(`/collaborations/${collabId}`);
+      setCollab(updated);
+    } catch { /* handled by card */ }
+    setActing(false);
+  };
+
+  const handleDecline = async () => {
+    setActing(true);
+    try {
+      await apiClient.post(`/collaborations/${collabId}/decline`, { reason: '' });
+      const updated = await apiClient.get(`/collaborations/${collabId}`);
+      setCollab(updated);
+    } catch { /* handled by card */ }
+    setActing(false);
+  };
+
+  return (
+    <div
+      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
+      style={{ marginTop: gap, opacity: acting ? 0.6 : 1, pointerEvents: acting ? 'none' : 'auto' }}
+      {...touchProps}
+    >
+      <CollabProposalCard
+        proposal={{
+          product_name: proposal.product_name,
+          product_image: proposal.product_image_url,
+          commission_percent: proposal.commission_pct,
+          duration_days: proposal.duration_days,
+          include_sample: proposal.send_sample,
+          status,
+        }}
+        isReceiver={isReceiver}
+        onAccept={handleAccept}
+        onDecline={handleDecline}
+      />
+    </div>
+  );
+}
+
+function CollabAffiliateMessage({ message, isOwn, gap, touchProps }) {
+  const [collab, setCollab] = useState(null);
+  const [stats, setStats] = useState(null);
+  const collabId = message.metadata?.collab_id;
+
+  useEffect(() => {
+    if (!collabId) return;
+    apiClient.get(`/collaborations/${collabId}`).then(setCollab).catch(() => {});
+    apiClient.get(`/collaborations/${collabId}/stats`).then(setStats).catch(() => {});
+  }, [collabId]);
+
+  if (!collab?.affiliate_link?.url) return null;
+
+  return (
+    <div
+      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
+      style={{ marginTop: gap }}
+      {...touchProps}
+    >
+      <AffiliateLinkCard
+        link={{ url: collab.affiliate_link.url, code: collab.affiliate_link.code }}
+        stats={stats ? { clicks: stats.clicks, sales: stats.sales } : null}
+      />
+    </div>
+  );
+}
+
+function CollabSampleMessage({ message, isOwn, gap, touchProps }) {
+  const [collab, setCollab] = useState(null);
+  const collabId = message.metadata?.collab_id;
+
+  useEffect(() => {
+    if (!collabId) return;
+    apiClient.get(`/collaborations/${collabId}`).then(setCollab).catch(() => {});
+  }, [collabId]);
+
+  if (!collab?.sample_shipment?.tracking_number) return null;
+
+  const shipment = collab.sample_shipment;
+  const proposal = collab.proposal || {};
+  const statusMap = { in_transit: 'shipped', delivered: 'delivered' };
+
+  return (
+    <div
+      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
+      style={{ marginTop: gap }}
+      {...touchProps}
+    >
+      <SampleShipmentCard
+        shipment={{
+          product_name: proposal.product_name,
+          product_image: proposal.product_image_url,
+          tracking_number: shipment.tracking_number,
+          status: statusMap[shipment.status] || 'preparing',
+        }}
+      />
     </div>
   );
 }

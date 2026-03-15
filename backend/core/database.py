@@ -172,6 +172,15 @@ async def _create_indexes():
     )
     print("  ✓ communities indexes")
 
+    # Collaborations
+    await db.collaborations.create_index("collab_id", unique=True)
+    await db.collaborations.create_index("producer_id")
+    await db.collaborations.create_index("influencer_id")
+    await db.collaborations.create_index([("producer_id", 1), ("status", 1)])
+    await db.collaborations.create_index([("influencer_id", 1), ("status", 1)])
+    await db.collaborations.create_index("conversation_id")
+    print("  ✓ collaborations indexes")
+
     # B2B
     await db.b2b_requests.create_index([("producer_id", 1), ("status", 1)])
     await db.b2b_requests.create_index("importer_id")

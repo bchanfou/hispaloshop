@@ -5,7 +5,7 @@ import apiClient from '../../services/api/client';
 import {
   Package, FileCheck, ShoppingBag, CreditCard,
   AlertCircle, Users, TrendingUp, Heart, Star,
-  Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle
+  Zap, Target, ChevronRight, Loader2, ExternalLink, CheckCircle, Handshake
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -525,16 +525,18 @@ export default function ProducerOverview() {
   const [salesChart, setSalesChart] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [verificationStatus, setVerificationStatus] = useState(null);
+  const [collabs, setCollabs] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Fetch sales chart and alerts in parallel
+  // Fetch sales chart, alerts, collabs in parallel
   useEffect(() => {
     apiClient.get('/producer/sales-chart').then(d => setSalesChart(d?.days || [])).catch(() => {});
     apiClient.get('/producer/alerts').then(d => setAlerts(d || [])).catch(() => {});
     apiClient.get('/verification/status').then(d => setVerificationStatus(d)).catch(() => {});
+    apiClient.get('/collaborations').then(d => setCollabs(d?.collaborations || [])).catch(() => {});
   }, []);
 
   const fetchData = async () => {
@@ -947,6 +949,53 @@ export default function ProducerOverview() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Active Collaborations */}
+      {collabs.length > 0 && (
+        <section className="p-5" style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Handshake className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
+              <h2 className="text-lg font-medium" style={{ color: 'var(--color-black)' }}>Colaboraciones</h2>
+            </div>
+            <Link to="/messages" className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-stone)' }}>
+              Ver todas <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {collabs.slice(0, 5).map(c => {
+              const proposal = c.proposal || {};
+              const statusStyles = {
+                proposed: { label: 'Pendiente', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
+                active: { label: 'Activa', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+                declined: { label: 'Rechazada', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
+                sample_sent: { label: 'Muestra enviada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
+                sample_received: { label: 'Muestra recibida', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+              };
+              const badge = statusStyles[c.status] || statusStyles.proposed;
+              return (
+                <Link
+                  key={c.collab_id}
+                  to={`/messages/${c.conversation_id}`}
+                  className="flex items-center gap-3 p-3 transition-colors"
+                  style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
+                >
+                  {proposal.product_image_url && (
+                    <img src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>{proposal.product_name}</p>
+                    <p className="text-xs" style={{ color: 'var(--color-stone)' }}>{proposal.commission_pct}% · {proposal.duration_days} días</p>
+                  </div>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: badge.bg, color: badge.color }}>
+                    {badge.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
       )}
 
       {/* Stripe Connect */}

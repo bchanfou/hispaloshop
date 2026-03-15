@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
-import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2, HelpCircle, Building2, X } from 'lucide-react';
+import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2, HelpCircle, Building2, X, Handshake, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
@@ -252,6 +252,7 @@ export default function InfluencerDashboard() {
   const [withholdingSummary, setWithholdingSummary] = useState(null);
   const [payoutHistory, setPayoutHistory] = useState([]);
   const [showIrpfModal, setShowIrpfModal] = useState(false);
+  const [collabs, setCollabs] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -261,6 +262,9 @@ export default function InfluencerDashboard() {
 
   useEffect(() => {
     let active = true;
+    apiClient.get('/collaborations').then(d => {
+      if (active) setCollabs(d?.collaborations || []);
+    }).catch(() => {});
     apiClient
       .get('/intelligence/influencer-performance')
       .then((data) => {
@@ -973,6 +977,53 @@ export default function InfluencerDashboard() {
         {dashboard.status === 'active' && dashboard.discount_code && dashboard.discount_code_active && (
           <div className="mt-8">
             <InfluencerAnalytics />
+          </div>
+        )}
+
+        {/* Collaborations Section */}
+        {collabs.length > 0 && (
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-black)' }}>
+                <Handshake className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
+                Colaboraciones
+              </h2>
+              <Link to="/messages" className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--color-stone)' }}>
+                Ver todas <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {collabs.slice(0, 5).map(c => {
+                const proposal = c.proposal || {};
+                const statusMap = {
+                  proposed: { label: 'Pendiente', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
+                  active: { label: 'Activa', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+                  declined: { label: 'Rechazada', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
+                  sample_sent: { label: 'Muestra enviada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
+                  sample_received: { label: 'Muestra recibida', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+                };
+                const badge = statusMap[c.status] || statusMap.proposed;
+                return (
+                  <Link
+                    key={c.collab_id}
+                    to={`/messages/${c.conversation_id}`}
+                    className="flex items-center gap-3 p-3 transition-colors"
+                    style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}
+                  >
+                    {proposal.product_image_url && (
+                      <img src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>{proposal.product_name}</p>
+                      <p className="text-xs" style={{ color: 'var(--color-stone)' }}>{proposal.commission_pct}% · {proposal.duration_days} días</p>
+                    </div>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0" style={{ background: badge.bg, color: badge.color }}>
+                      {badge.label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
 
