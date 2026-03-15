@@ -288,7 +288,7 @@ export default function B2BTrackingPage() {
                     <div className="flex flex-col items-center" style={{ minWidth: 36 }}>
                       {/* circle */}
                       <div
-                        className="flex items-center justify-center"
+                        className={`flex items-center justify-center${active ? ' step-active' : ''}`}
                         style={{
                           width: 28,
                           height: 28,
@@ -296,7 +296,7 @@ export default function B2BTrackingPage() {
                           ...(completed
                             ? { background: V2.black }
                             : active
-                              ? { background: V2.green, animation: 'b2b-pulse 2s infinite' }
+                              ? { background: V2.green }
                               : { background: 'transparent', border: `1.5px solid ${V2.stone}` }),
                         }}
                       >

@@ -93,11 +93,157 @@
 .reveal {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition:
+    opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
 }
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Variantes de dirección */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Stagger delay helpers */
+.reveal-delay-1 { transition-delay: 100ms; }
+.reveal-delay-2 { transition-delay: 200ms; }
+.reveal-delay-3 { transition-delay: 300ms; }
+.reveal-delay-4 { transition-delay: 400ms; }
+.reveal-delay-5 { transition-delay: 500ms; }
+
+/* Reduced motion — SIEMPRE respetar */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── Hero entrance animation ── */
+.hero-animate-in {
+  animation: heroFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.hero-animate-in-delay-1 {
+  animation: heroFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards;
+  opacity: 0;
+}
+.hero-animate-in-delay-2 {
+  animation: heroFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards;
+  opacity: 0;
+}
+.hero-animate-in-delay-3 {
+  animation: heroFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.6s forwards;
+  opacity: 0;
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Scroll indicator bounce ── */
+@keyframes scrollBounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 0.8;
+  }
+}
+.scroll-indicator {
+  animation: scrollBounce 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Tab content fade ── */
+.tab-content {
+  animation: tabFadeIn 0.25s ease forwards;
+}
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Active step pulse ── */
+@keyframes pulseDot {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(46, 125, 82, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(46, 125, 82, 0);
+  }
+}
+.step-active {
+  animation: pulseDot 2s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-animate-in,
+  .hero-animate-in-delay-1,
+  .hero-animate-in-delay-2,
+  .hero-animate-in-delay-3 {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .scroll-indicator {
+    animation: none !important;
+    opacity: 0.6 !important;
+  }
+  .tab-content {
+    animation: none !important;
+  }
+  .step-active {
+    animation: none !important;
+  }
 }
 
 /* ── Responsive: info-display scales down on mobile ── */

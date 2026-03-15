@@ -1,21 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../components/brand/Logo';
 import { usePageTitle } from '../../hooks/usePageTitle';
-
-/* ── Scroll reveal hook ── */
-function useScrollReveal() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => {
-        if (e.isIntersecting) e.target.classList.add('visible');
-      }),
-      { threshold: 0.1 }
-    );
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-}
+import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { useCountUp } from '../../hooks/useCountUp';
 
 /* ── Section wrapper ── */
 const Section = ({ dark, children, style = {} }) => (
@@ -47,8 +35,20 @@ const LogoAtlas = ({ size = 72 }) => (
 export default function WhatIsHispaloshop() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('consumidor');
+  const [showIndicator, setShowIndicator] = useState(true);
   useScrollReveal();
   usePageTitle();
+
+  const { count: producers, ref: ref1 } = useCountUp(1200, 1500);
+  const { count: countries, ref: ref2 } = useCountUp(7, 800);
+  const { count: users, ref: ref3 } = useCountUp(48000, 2000);
+  const { count: gmv, ref: ref4 } = useCountUp(847, 1500);
+
+  React.useEffect(() => {
+    const handleScroll = () => setShowIndicator(window.scrollY < 100);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div>
@@ -64,51 +64,54 @@ export default function WhatIsHispaloshop() {
         fontFamily: 'var(--font-sans)',
       }}>
         <div style={{ textAlign: 'center', maxWidth: 820, margin: '0 auto' }}>
-          <LogoAtlas size={72} />
+          <div className="hero-animate-in">
+            <LogoAtlas size={72} />
+          </div>
 
-          <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
+          <p className="info-eyebrow hero-animate-in-delay-1" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
             LA PLATAFORMA DE ALIMENTACIÓN LOCAL
           </p>
 
-          <h1 className="info-h1" style={{ color: '#fff', maxWidth: 820, margin: '16px auto', whiteSpace: 'pre-line' }}>
+          <h1 className="info-h1 hero-animate-in-delay-2" style={{ color: '#fff', maxWidth: 820, margin: '16px auto', whiteSpace: 'pre-line' }}>
             {'Lo que me hubiera\ngustado encontrar\ndesde el principio.'}
           </h1>
 
-          <p className="info-lead" style={{
-            color: 'rgba(255,255,255,0.65)',
-            maxWidth: 580,
-            margin: '24px auto',
-          }}>
-            Soy Bil. Emigré a Corea con 22 años, perdí mis ahorros
-            intentando conectar productores españoles con el mundo,
-            y volví a casa con 200 euros y una idea que no me dejaba
-            dormir. Hispaloshop es esa idea.
-          </p>
+          <div className="hero-animate-in-delay-3">
+            <p className="info-lead" style={{
+              color: 'rgba(255,255,255,0.65)',
+              maxWidth: 580,
+              margin: '24px auto',
+            }}>
+              Soy Bil. Emigré a Corea con 22 años, perdí mis ahorros
+              intentando conectar productores españoles con el mundo,
+              y volví a casa con 200 euros y una idea que no me dejaba
+              dormir. Hispaloshop es esa idea.
+            </p>
 
-          {/* Green separator */}
-          <div style={{
-            width: 40, height: 3,
-            background: 'var(--color-green)',
-            margin: '32px auto',
-            borderRadius: 'var(--radius-full)',
-          }} />
+            {/* Green separator */}
+            <div style={{
+              width: 40, height: 3,
+              background: 'var(--color-green)',
+              margin: '32px auto',
+              borderRadius: 'var(--radius-full)',
+            }} />
+          </div>
 
           {/* Scroll indicator */}
-          <div style={{
-            fontSize: 24,
-            color: '#fff',
-            opacity: 0.4,
-            animation: 'scrollBounce 2s infinite',
-            marginTop: 32,
-          }}>
-            ↓
-          </div>
-          <style>{`
-            @keyframes scrollBounce {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(6px); }
-            }
-          `}</style>
+          {showIndicator && (
+            <div
+              className="scroll-indicator"
+              onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+              style={{
+                fontSize: 24,
+                color: '#fff',
+                marginTop: 32,
+                transition: 'opacity 0.3s ease',
+              }}
+            >
+              ↓
+            </div>
+          )}
         </div>
       </section>
 
@@ -257,25 +260,31 @@ export default function WhatIsHispaloshop() {
             gridTemplateColumns: 'repeat(4, 1fr)',
             marginTop: 64,
             textAlign: 'center',
-          }} className="reveal">
-            {[
-              { number: '1.200+', label: 'Productores' },
-              { number: '7', label: 'Países' },
-              { number: '48.000+', label: 'Usuarios' },
-              { number: '847k€', label: 'GMV este mes' },
-            ].map((stat, i) => (
-              <div key={i} style={{
-                padding: '16px 0',
-                borderRight: i < 3 ? '1px solid rgba(255,255,255,0.1)' : 'none',
-              }}>
-                <p className="info-h1" style={{ color: '#fff', marginBottom: 8, fontSize: 'var(--text-3xl)' }}>
-                  {stat.number}
-                </p>
-                <p className="uppercase-label" style={{ color: 'rgba(255,255,255,0.4)', margin: 0 }}>
-                  {stat.label}
-                </p>
-              </div>
-            ))}
+          }} className="reveal-scale">
+            <div ref={ref1} style={{ padding: '16px 0', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+              <p className="info-h1" style={{ color: '#fff', marginBottom: 8, fontSize: 'var(--text-3xl)' }}>
+                {producers.toLocaleString()}+
+              </p>
+              <p className="uppercase-label" style={{ color: 'rgba(255,255,255,0.4)', margin: 0 }}>Productores</p>
+            </div>
+            <div ref={ref2} style={{ padding: '16px 0', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+              <p className="info-h1" style={{ color: '#fff', marginBottom: 8, fontSize: 'var(--text-3xl)' }}>
+                {countries}
+              </p>
+              <p className="uppercase-label" style={{ color: 'rgba(255,255,255,0.4)', margin: 0 }}>Países</p>
+            </div>
+            <div ref={ref3} style={{ padding: '16px 0', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+              <p className="info-h1" style={{ color: '#fff', marginBottom: 8, fontSize: 'var(--text-3xl)' }}>
+                {users.toLocaleString()}+
+              </p>
+              <p className="uppercase-label" style={{ color: 'rgba(255,255,255,0.4)', margin: 0 }}>Usuarios</p>
+            </div>
+            <div ref={ref4} style={{ padding: '16px 0' }}>
+              <p className="info-h1" style={{ color: '#fff', marginBottom: 8, fontSize: 'var(--text-3xl)' }}>
+                {gmv}k€
+              </p>
+              <p className="uppercase-label" style={{ color: 'rgba(255,255,255,0.4)', margin: 0 }}>GMV este mes</p>
+            </div>
           </div>
         </div>
       </Section>
@@ -327,7 +336,7 @@ export default function WhatIsHispaloshop() {
               }
             `}</style>
 
-            <div>
+            <div key={activeTab} className="tab-content">
               <TabSteps tab={activeTab} />
             </div>
 

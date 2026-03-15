@@ -45,11 +45,10 @@ function StepIndicator({ steps, current }) {
             )}
             <div className="flex items-center gap-2">
               <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0${active && !done ? ' step-active' : ''}`}
                 style={{
                   background: done ? T.white : active ? T.green : 'rgba(255,255,255,0.15)',
                   color: done ? T.black : T.white,
-                  ...(active && !done ? { boxShadow: `0 0 0 3px ${T.green}40` } : {}),
                 }}
               >
                 {done ? <Check className="w-3.5 h-3.5" /> : i + 1}

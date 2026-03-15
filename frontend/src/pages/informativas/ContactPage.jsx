@@ -3,21 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const ROLES = ['Consumidor', 'Productor', 'Influencer', 'Importador', 'Prensa'];
-
-function useScrollReveal() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => {
-        if (e.isIntersecting) e.target.classList.add('visible');
-      }),
-      { threshold: 0.1 }
-    );
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-}
 
 export default function ContactPage() {
   const navigate = useNavigate();
@@ -70,8 +58,8 @@ export default function ContactPage() {
       fontFamily: 'var(--font-sans)',
     }}>
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '60px 16px 80px' }}>
-        <h1 className="info-h1" style={{ color: 'var(--color-black)', marginBottom: 12 }}>Hablemos.</h1>
-        <p className="info-lead" style={{ color: 'var(--color-stone)', marginBottom: 48 }}>
+        <h1 className="info-h1 hero-animate-in" style={{ color: 'var(--color-black)', marginBottom: 12 }}>Hablemos.</h1>
+        <p className="info-lead hero-animate-in-delay-1" style={{ color: 'var(--color-stone)', marginBottom: 48 }}>
           Para dudas sobre la plataforma, colaboraciones o prensa.
           Respondemos en menos de 24 horas.
         </p>

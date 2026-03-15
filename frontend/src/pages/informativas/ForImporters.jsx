@@ -1,20 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
-
-function useScrollReveal() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => {
-        if (e.isIntersecting) e.target.classList.add('visible');
-      }),
-      { threshold: 0.1 }
-    );
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-}
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const Section = ({ dark, children, style = {} }) => (
   <section style={{
@@ -45,20 +33,20 @@ export default function ForImporters() {
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
           <div style={{ maxWidth: 820 }}>
-            <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
+            <p className="info-eyebrow hero-animate-in" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
               PARA IMPORTADORES Y DISTRIBUIDORES
             </p>
-            <h1 className="info-h1" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 24 }}>
+            <h1 className="info-h1 hero-animate-in-delay-1" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 24 }}>
               {'Los mercados de alimentación\nartesanal crecen un 24% al año.\n¿Ya estás dentro?'}
             </h1>
-            <p className="info-lead" style={{ color: 'rgba(255,255,255,0.65)', maxWidth: 620, marginBottom: 40 }}>
+            <p className="info-lead hero-animate-in-delay-2" style={{ color: 'rgba(255,255,255,0.65)', maxWidth: 620, marginBottom: 40 }}>
               Viajé 6 meses por Asia tocando puertas de importadoras
               con muestras de productores españoles. Me dijeron que no
               tenían tiempo, que eran demasiado pequeños, que los formatos
               no estaban adaptados. Tenían razón: no había una plataforma
               que lo facilitara. Ahora la hay.
             </p>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div className="hero-animate-in-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button onClick={() => navigate('/b2b/marketplace')} style={{
                 height: 46, padding: '0 28px', borderRadius: 'var(--radius-full)',
                 background: 'var(--color-green)', color: '#fff',

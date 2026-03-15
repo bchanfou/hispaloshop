@@ -1,20 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { usePageTitle } from '../../hooks/usePageTitle';
-
-function useScrollReveal() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => {
-        if (e.isIntersecting) e.target.classList.add('visible');
-      }),
-      { threshold: 0.1 }
-    );
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-}
+import { useScrollReveal } from '../../hooks/useScrollReveal';
 
 const Section = ({ dark, children, style = {} }) => (
   <section style={{
@@ -46,15 +34,15 @@ export default function ForProducers() {
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
           <div style={{ maxWidth: 820 }}>
-            <p className="info-eyebrow" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
+            <p className="info-eyebrow hero-animate-in" style={{ color: 'var(--color-stone)', marginBottom: 16 }}>
               PARA PRODUCTORES ARTESANALES
             </p>
 
-            <h1 className="info-h1" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 24 }}>
+            <h1 className="info-h1 hero-animate-in-delay-1" style={{ color: '#fff', whiteSpace: 'pre-line', marginBottom: 24 }}>
               {'Tienes un producto increíble.\nYa es hora de que\nel país lo sepa.'}
             </h1>
 
-            <p className="info-lead" style={{
+            <p className="info-lead hero-animate-in-delay-2" style={{
               color: 'rgba(255,255,255,0.65)',
               maxWidth: 620,
               marginBottom: 40,
@@ -66,7 +54,7 @@ export default function ForProducers() {
               a vuestra medida.
             </p>
 
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div className="hero-animate-in-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <button
                 onClick={() => navigate('/register')}
                 style={{
