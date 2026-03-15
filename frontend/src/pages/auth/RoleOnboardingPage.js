@@ -17,15 +17,15 @@ const DESTINATIONS = {
 const titleStyle = {
   fontSize: 24, fontWeight: 700,
   letterSpacing: '-0.02em', marginBottom: 8,
-  color: 'var(--hs-text-1)',
+  color: 'var(--color-black)',
 };
 const subtitleStyle = {
-  fontSize: 15, color: 'var(--hs-text-2)',
+  fontSize: 15, color: 'var(--color-stone)',
   lineHeight: 1.6, marginBottom: 24,
 };
 const labelStyle = {
   display: 'block', fontSize: 13, fontWeight: 600,
-  color: 'var(--hs-text-1)', marginBottom: 6,
+  color: 'var(--color-black)', marginBottom: 6,
 };
 
 // ── Nav buttons ───────────────────────────────────────
@@ -39,7 +39,7 @@ function OnboardingNav({ onBack, onNext, nextLabel = 'Continuar →', nextDisabl
       {skipLabel && onSkip && (
         <button onClick={onSkip} style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 14, color: 'var(--hs-text-2)', padding: '8px',
+          fontSize: 14, color: 'var(--color-stone)', padding: '8px',
         }}>
           {skipLabel}
         </button>
@@ -47,7 +47,7 @@ function OnboardingNav({ onBack, onNext, nextLabel = 'Continuar →', nextDisabl
       {onBack && (
         <button onClick={onBack} style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 14, color: 'var(--hs-text-3)', padding: '8px',
+          fontSize: 14, color: 'var(--color-stone)', padding: '8px',
         }}>
           ← Atrás
         </button>
@@ -68,12 +68,12 @@ function SelectGrid({ options, selected, onToggle }) {
           onClick={() => onToggle(opt.id)}
           style={{
             padding: '14px 12px',
-            borderRadius: 'var(--hs-r-md)',
-            border: selected.includes(opt.id) ? '2px solid var(--hs-black)' : '1.5px solid var(--hs-border)',
-            background: selected.includes(opt.id) ? 'var(--hs-black)' : 'var(--hs-surface)',
-            color: selected.includes(opt.id) ? 'white' : 'var(--hs-text-1)',
+            borderRadius: 'var(--radius-md)',
+            border: selected.includes(opt.id) ? '2px solid var(--color-black)' : '1.5px solid var(--color-divider)',
+            background: selected.includes(opt.id) ? 'var(--color-black)' : 'var(--color-surface)',
+            color: selected.includes(opt.id) ? 'white' : 'var(--color-black)',
             cursor: 'pointer', textAlign: 'center',
-            transition: 'var(--hs-transition)',
+            transition: 'var(--transition-base)',
           }}
         >
           <div style={{ fontSize: 24, marginBottom: 4 }}>{opt.emoji}</div>
@@ -182,8 +182,8 @@ function CustomerOnboarding({ step, setStep, onFinish }) {
             {suggestedProducers.map(p => (
               <div key={p.producer_id || p.id || p.store_id} style={{
                 display: 'flex', alignItems: 'center', gap: 12,
-                padding: '12px 14px', background: 'var(--hs-surface)',
-                borderRadius: 'var(--hs-r-md)', border: '0.5px solid var(--hs-border)',
+                padding: '12px 14px', background: 'var(--color-surface)',
+                borderRadius: 'var(--radius-md)', border: '0.5px solid var(--color-divider)',
               }}>
                 {p.logo_url || p.avatar_url ? (
                   <img src={p.logo_url || p.avatar_url} alt="" style={{
@@ -192,7 +192,7 @@ function CustomerOnboarding({ step, setStep, onFinish }) {
                 ) : (
                   <div style={{
                     width: 44, height: 44, borderRadius: '50%',
-                    background: 'var(--hs-surface-2)',
+                    background: 'var(--color-cream)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 20,
                   }}>{(p.name || p.store_name || '?')[0]}</div>
@@ -201,20 +201,20 @@ function CustomerOnboarding({ step, setStep, onFinish }) {
                   <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 2px' }}>
                     {p.name || p.store_name}
                   </p>
-                  <p style={{ fontSize: 12, color: 'var(--hs-text-2)', margin: 0 }}>
+                  <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: 0 }}>
                     {p.tagline || p.region || ''}
                   </p>
                 </div>
                 <motion.button whileTap={{ scale: 0.92 }}
                   onClick={() => toggleItem(followedProducers, setFollowedProducers, p.producer_id || p.id)}
                   style={{
-                    padding: '7px 16px', borderRadius: 'var(--hs-r-full)',
+                    padding: '7px 16px', borderRadius: 'var(--radius-full)',
                     border: 'none', cursor: 'pointer',
                     background: followedProducers.includes(p.producer_id || p.id)
-                      ? 'var(--hs-surface-2)' : 'var(--hs-black)',
+                      ? 'var(--color-cream)' : 'var(--color-black)',
                     color: followedProducers.includes(p.producer_id || p.id)
-                      ? 'var(--hs-text-1)' : 'white',
-                    fontSize: 13, fontWeight: 600, transition: 'var(--hs-transition)',
+                      ? 'var(--color-black)' : 'white',
+                    fontSize: 13, fontWeight: 600, transition: 'var(--transition-base)',
                   }}
                 >
                   {followedProducers.includes(p.producer_id || p.id) ? 'Siguiendo' : 'Seguir'}
@@ -222,7 +222,7 @@ function CustomerOnboarding({ step, setStep, onFinish }) {
               </div>
             ))}
             {suggestedProducers.length === 0 && (
-              <p style={{ fontSize: 13, color: 'var(--hs-text-3)', textAlign: 'center', padding: 20 }}>
+              <p style={{ fontSize: 13, color: 'var(--color-stone)', textAlign: 'center', padding: 20 }}>
                 Cargando productores...
               </p>
             )}
@@ -303,7 +303,7 @@ function ProducerOnboarding({ step, setStep, onFinish }) {
             <label htmlFor="logo-upload" style={{ cursor: 'pointer' }}>
               <div style={{
                 width: 96, height: 96, borderRadius: '50%',
-                background: 'var(--hs-surface-2)', border: '2px dashed var(--hs-border-med)',
+                background: 'var(--color-cream)', border: '2px dashed var(--color-border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 auto 8px', overflow: 'hidden',
               }}>
@@ -312,13 +312,13 @@ function ProducerOnboarding({ step, setStep, onFinish }) {
                 ) : (
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 28 }}>📷</div>
-                    <div style={{ fontSize: 11, color: 'var(--hs-text-3)' }}>Añadir logo</div>
+                    <div style={{ fontSize: 11, color: 'var(--color-stone)' }}>Añadir logo</div>
                   </div>
                 )}
               </div>
             </label>
             <input id="logo-upload" type="file" accept="image/*" onChange={handleLogoChange} style={{ display: 'none' }} />
-            <p style={{ fontSize: 11, color: 'var(--hs-text-3)' }}>JPG, PNG o WebP · Máximo 5MB</p>
+            <p style={{ fontSize: 11, color: 'var(--color-stone)' }}>JPG, PNG o WebP · Máximo 5MB</p>
           </div>
 
           <label style={labelStyle}>Nombre de tu tienda</label>
@@ -373,7 +373,7 @@ function ProducerOnboarding({ step, setStep, onFinish }) {
             Necesitamos verificar tu identidad para transferirte el dinero de tus ventas de forma segura.
           </p>
           <div style={{
-            background: 'var(--hs-surface-2)', borderRadius: 'var(--hs-r-lg)',
+            background: 'var(--color-cream)', borderRadius: 'var(--radius-lg)',
             padding: 20, marginBottom: 24,
           }}>
             {['Proceso seguro gestionado por Stripe',
@@ -381,7 +381,7 @@ function ProducerOnboarding({ step, setStep, onFinish }) {
               'Recibirás tus pagos automáticamente',
               'Puedes hacerlo más tarde desde tu panel',
             ].map((text, i) => (
-              <p key={i} style={{ fontSize: 13, color: 'var(--hs-text-2)', margin: '0 0 8px' }}>
+              <p key={i} style={{ fontSize: 13, color: 'var(--color-stone)', margin: '0 0 8px' }}>
                 ✓ {text}
               </p>
             ))}
@@ -392,7 +392,7 @@ function ProducerOnboarding({ step, setStep, onFinish }) {
           </button>
           <button onClick={onFinish} style={{
             width: '100%', padding: 12, background: 'none', border: 'none',
-            cursor: 'pointer', fontSize: 14, color: 'var(--hs-text-2)',
+            cursor: 'pointer', fontSize: 14, color: 'var(--color-stone)',
           }}>
             Lo haré más tarde
           </button>
@@ -446,9 +446,9 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
               <motion.div key={product.product_id || product.id} whileTap={{ scale: 0.95 }}
                 onClick={() => toggleItem(selectedProducts, setSelectedProducts, product.product_id || product.id)}
                 style={{
-                  borderRadius: 'var(--hs-r-md)', overflow: 'hidden', cursor: 'pointer',
+                  borderRadius: 'var(--radius-md)', overflow: 'hidden', cursor: 'pointer',
                   border: selectedProducts.includes(product.product_id || product.id)
-                    ? '2.5px solid var(--hs-black)' : '1.5px solid transparent',
+                    ? '2.5px solid var(--color-black)' : '1.5px solid transparent',
                   position: 'relative',
                 }}>
                 <img src={product.images?.[0] || '/placeholder.png'} alt={product.name}
@@ -456,22 +456,22 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
                 {selectedProducts.includes(product.product_id || product.id) && (
                   <div style={{
                     position: 'absolute', top: 6, right: 6,
-                    background: 'var(--hs-black)', color: 'white',
+                    background: 'var(--color-black)', color: 'white',
                     borderRadius: '50%', width: 20, height: 20,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11,
                   }}>✓</div>
                 )}
                 <div style={{ padding: '6px 6px 8px' }}>
                   <p style={{
-                    fontSize: 11, margin: '0 0 2px', color: 'var(--hs-text-1)', fontWeight: 500,
+                    fontSize: 11, margin: '0 0 2px', color: 'var(--color-black)', fontWeight: 500,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>{product.name}</p>
-                  <p style={{ fontSize: 11, color: 'var(--hs-text-2)', margin: 0 }}>{product.price}€</p>
+                  <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0 }}>{product.price}€</p>
                 </div>
               </motion.div>
             ))}
           </div>
-          <p style={{ fontSize: 12, color: 'var(--hs-text-3)', textAlign: 'center', marginBottom: 16 }}>
+          <p style={{ fontSize: 12, color: 'var(--color-stone)', textAlign: 'center', marginBottom: 16 }}>
             {selectedProducts.length} seleccionados
           </p>
           <OnboardingNav onNext={saveProducts} nextLabel="Continuar →" />
@@ -485,7 +485,7 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
             Tus seguidores obtienen un 10% de descuento en su primera compra. Tú ganas comisión de por vida.
           </p>
           <div style={{
-            background: 'var(--hs-black)', borderRadius: 'var(--hs-r-lg)',
+            background: 'var(--color-black)', borderRadius: 'var(--radius-lg)',
             padding: 24, textAlign: 'center', marginBottom: 24,
           }}>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, margin: '0 0 8px' }}>TU CÓDIGO PERSONAL</p>
@@ -495,17 +495,17 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
             <button onClick={() => { navigator.clipboard.writeText(discountCode); toast.success('¡Código copiado!'); }}
               style={{
                 background: 'white', color: 'black', border: 'none',
-                borderRadius: 'var(--hs-r-full)', padding: '10px 20px',
+                borderRadius: 'var(--radius-full)', padding: '10px 20px',
                 fontSize: 14, fontWeight: 600, cursor: 'pointer',
               }}>
               Copiar código
             </button>
           </div>
           <div style={{
-            background: 'var(--hs-surface-2)', borderRadius: 'var(--hs-r-md)',
+            background: 'var(--color-cream)', borderRadius: 'var(--radius-md)',
             padding: 16, marginBottom: 24,
           }}>
-            <p style={{ fontSize: 13, color: 'var(--hs-text-2)', margin: '0 0 6px' }}>
+            <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '0 0 6px' }}>
               Cómo ganas dinero:
             </p>
             {['Alguien usa tu código → 10% de descuento para ellos',
@@ -513,7 +513,7 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
               'Cada compra que hagan te genera comisión',
               'Cobras automáticamente en tu cuenta bancaria',
             ].map((t, i) => (
-              <p key={i} style={{ fontSize: 12, color: 'var(--hs-text-2)', margin: '0 0 4px' }}>
+              <p key={i} style={{ fontSize: 12, color: 'var(--color-stone)', margin: '0 0 4px' }}>
                 {i + 1}. {t}
               </p>
             ))}
@@ -534,13 +534,13 @@ function InfluencerOnboarding({ step, setStep, onFinish }) {
             ].map(item => (
               <div key={item.title} style={{
                 display: 'flex', alignItems: 'center', gap: 14,
-                padding: '14px 16px', background: 'var(--hs-surface)',
-                borderRadius: 'var(--hs-r-md)', border: '0.5px solid var(--hs-border)',
+                padding: '14px 16px', background: 'var(--color-surface)',
+                borderRadius: 'var(--radius-md)', border: '0.5px solid var(--color-divider)',
               }}>
                 <span style={{ fontSize: 28 }}>{item.emoji}</span>
                 <div>
                   <p style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{item.title}</p>
-                  <p style={{ fontSize: 12, color: 'var(--hs-text-2)', margin: 0 }}>{item.desc}</p>
+                  <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: 0 }}>{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -579,7 +579,7 @@ export default function RoleOnboardingPage() {
       <div style={{
         minHeight: '100dvh', display: 'flex',
         alignItems: 'center', justifyContent: 'center',
-        background: 'var(--hs-bg)',
+        background: 'var(--color-cream)',
       }}>
         <div className="hs-spinner" style={{ width: 32, height: 32 }} />
       </div>
@@ -588,30 +588,30 @@ export default function RoleOnboardingPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: 'var(--hs-bg)',
+      minHeight: '100dvh', background: 'var(--color-cream)',
       display: 'flex', flexDirection: 'column',
     }}>
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '16px 20px', background: 'var(--hs-surface)',
-        borderBottom: '0.5px solid var(--hs-border)',
+        padding: '16px 20px', background: 'var(--color-surface)',
+        borderBottom: '0.5px solid var(--color-divider)',
       }}>
         <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em' }}>
           hispaloshop
         </span>
         <button onClick={handleFinish} style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 14, color: 'var(--hs-text-2)', fontWeight: 500,
+          fontSize: 14, color: 'var(--color-stone)', fontWeight: 500,
         }}>
           Saltar
         </button>
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 3, background: 'var(--hs-surface-2)' }}>
+      <div style={{ height: 3, background: 'var(--color-cream)' }}>
         <div style={{
-          height: '100%', background: 'var(--hs-black)',
+          height: '100%', background: 'var(--color-black)',
           width: `${(step / totalSteps) * 100}%`,
           transition: 'width 0.4s ease',
         }} />
@@ -632,7 +632,7 @@ export default function RoleOnboardingPage() {
         {[1, 2, 3].map(i => (
           <div key={i} style={{
             width: i === step ? 20 : 7, height: 7, borderRadius: 4,
-            background: i === step ? 'var(--hs-black)' : 'var(--hs-border-med)',
+            background: i === step ? 'var(--color-black)' : 'var(--color-border)',
             transition: 'all 0.3s ease',
           }} />
         ))}

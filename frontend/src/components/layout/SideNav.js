@@ -46,8 +46,8 @@ export default function SideNav() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-[var(--hs-sidebar-w)] flex-col border-r bg-white"
-      style={{ borderColor: 'var(--hs-border)' }}
+    <aside className="fixed left-0 top-0 bottom-0 z-40 hidden lg:flex w-[var(--sidebar-width)] flex-col border-r bg-white"
+      style={{ borderColor: 'var(--color-divider)' }}
     >
       {/* Logo */}
       <Link to="/" className="flex items-center gap-3 px-5 py-5">
@@ -121,7 +121,7 @@ export default function SideNav() {
       </nav>
 
       {/* Profile footer */}
-      <div className="border-t px-3 py-3" style={{ borderColor: 'var(--hs-border)' }}>
+      <div className="border-t px-3 py-3" style={{ borderColor: 'var(--color-divider)' }}>
         <Link
           to={profileUrl}
           className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${

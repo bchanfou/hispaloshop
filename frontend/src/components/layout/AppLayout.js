@@ -46,8 +46,8 @@ function EmailVerificationBanner() {
 
   return (
     <div style={{
-      background: 'var(--hs-orange-bg)',
-      borderBottom: '0.5px solid var(--hs-orange)',
+      background: 'var(--color-amber-light)',
+      borderBottom: '0.5px solid var(--color-amber)',
       padding: '10px 16px',
       display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', gap: 12,
@@ -99,7 +99,7 @@ export default function AppLayout({ children }) {
 
       {/* Content area — offset on desktop for sidebar */}
       <main
-        className="min-h-screen lg:pl-[var(--hs-sidebar-w)]"
+        className="min-h-screen lg:pl-[var(--sidebar-width)]"
         style={{
           paddingBottom: 'calc(50px + env(safe-area-inset-bottom, 0px))',
         }}

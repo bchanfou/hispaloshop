@@ -12,7 +12,7 @@ const FEATURES = [
 
 export default function InfluencerPage() {
   return (
-    <div style={{ fontFamily: 'var(--hs-font, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+    <div style={{ fontFamily: 'var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
       <InfoNav activePage="/influencer" />
 
       <Hero
@@ -71,7 +71,7 @@ export default function InfluencerPage() {
 
       {/* Comisiones */}
       <section style={{
-        background: 'var(--hs-bg, #F5F5F7)',
+        background: 'var(--color-cream, #F5F5F7)',
         padding: 'clamp(48px, 7vw, 80px) 24px',
         textAlign: 'center',
       }}>

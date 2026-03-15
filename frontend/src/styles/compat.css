@@ -1,0 +1,259 @@
+/* ═══════════════════════════════════════════════════════
+   HISPALOSHOP — Compat Layer v2.1
+   Actively-used legacy classes mapped to new tokens.
+   Migrate components off these classes over time.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Scrollbar Hide ── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── HS Button Compat (auth pages) ── */
+.hs-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-white);
+  background: var(--color-black);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.hs-btn-primary:hover { opacity: 0.9; }
+
+.hs-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-black);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.hs-btn-secondary:hover { border-color: var(--color-black); }
+
+/* ── HS Input Compat (auth pages) ── */
+.hs-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-black);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+.hs-input:focus {
+  outline: none;
+  border-color: var(--color-black);
+}
+.hs-input::placeholder { color: var(--color-stone); }
+
+/* ── Skeleton ── */
+.skeleton, .hs-skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-white) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Health Score Hero ── */
+.health-score-hero {
+  background: linear-gradient(135deg, var(--color-black) 0%, #1D1D1F 100%);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  color: var(--color-white);
+  position: relative;
+  overflow: hidden;
+}
+.health-score-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+.health-score-value {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.health-score-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.health-score-excellent { background: linear-gradient(135deg, #1c1917 0%, #0c0a09 100%); }
+.health-score-good { background: linear-gradient(135deg, #292524 0%, #1c1917 100%); }
+.health-score-fair { background: linear-gradient(135deg, #57534e 0%, #44403c 100%); }
+.health-score-poor { background: linear-gradient(135deg, #78716c 0%, #57534e 100%); }
+
+/* ── Quick Actions ── */
+.quick-action-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  min-height: 48px;
+  transition: var(--transition-fast);
+}
+.quick-action-item:active { transform: scale(0.98); }
+.quick-action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Bottom Sheet ── */
+.bottom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 60;
+}
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 92vh;
+  background: var(--color-white);
+  border-radius: 28px 28px 0 0;
+  z-index: 61;
+  padding-bottom: var(--safe-area-bottom);
+}
+.bottom-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  margin: 10px auto 6px;
+  flex-shrink: 0;
+}
+
+/* ── Desktop Sidebar ── */
+.desktop-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: var(--sidebar-width);
+  background: var(--color-white);
+  border-right: 1px solid var(--color-border);
+  flex-direction: column;
+  z-index: 40;
+  transition: width 0.3s ease;
+}
+@media (max-width: 767px) {
+  .desktop-sidebar { display: none !important; }
+}
+
+/* ── Mobile Header ── */
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 16px;
+  padding-right: 16px;
+  z-index: 50;
+}
+
+/* ── Mobile Bottom Navigation ── */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-height);
+  padding-bottom: var(--safe-area-bottom);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 50;
+}
+
+/* ── Safe Area Padding ── */
+.pb-safe {
+  padding-bottom: calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 16px);
+}
+.pt-safe {
+  padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+}
+
+/* ── Loading Spinner ── */
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-black);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Toast Sonner Position ── */
+[data-sonner-toaster] {
+  --normal-bg: var(--color-white) !important;
+  --normal-border: var(--color-border) !important;
+  --normal-text: var(--color-black) !important;
+  font-family: var(--font-sans) !important;
+}
+@media (max-width: 767px) {
+  [data-sonner-toaster] {
+    bottom: calc(var(--bottom-nav-height) + 16px) !important;
+  }
+}
+
+/* ── Button States ── */
+button:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+button:active:not(:disabled) { transform: scale(0.97); }
+

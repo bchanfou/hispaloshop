@@ -12,32 +12,32 @@ const ROLES = [
     emoji: '\uD83D\uDED2',
     title: 'Comprador',
     desc: 'Descubre y compra productos artesanales',
-    color: 'var(--hs-blue)',
-    colorBg: 'var(--hs-blue-bg)',
+    color: 'var(--color-blue)',
+    colorBg: 'var(--color-blue-light)',
   },
   {
     id: 'producer',
     emoji: '\uD83E\uDED9',
     title: 'Productor',
     desc: 'Vende tus productos en España y exporta',
-    color: 'var(--hs-green)',
-    colorBg: 'var(--hs-green-bg)',
+    color: 'var(--color-green)',
+    colorBg: 'var(--color-green-light)',
   },
   {
     id: 'influencer',
     emoji: '\u2B50',
     title: 'Influencer',
     desc: 'Comparte y gana comisiones reales',
-    color: 'var(--hs-orange)',
-    colorBg: 'var(--hs-orange-bg)',
+    color: 'var(--color-amber)',
+    colorBg: 'var(--color-amber-light)',
   },
   {
     id: 'importer',
     emoji: '\uD83C\uDF0D',
     title: 'Importador',
     desc: 'Importa, distribuye y vende en tu país',
-    color: 'var(--hs-purple)',
-    colorBg: 'var(--hs-purple-bg)',
+    color: 'var(--color-blue)',
+    colorBg: 'var(--color-blue-light)',
   },
 ];
 
@@ -60,13 +60,13 @@ const COUNTRY_OPTIONS = [
 
 const labelStyle = {
   display: 'block', fontSize: 13, fontWeight: 600,
-  color: 'var(--hs-text-1)', marginBottom: 6,
+  color: 'var(--color-black)', marginBottom: 6,
 };
 
 function ErrorMsg({ children, style }) {
   if (!children) return null;
   return (
-    <p style={{ fontSize: 12, color: 'var(--hs-red)', marginTop: 4, ...style }}>
+    <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4, ...style }}>
       {children}
     </p>
   );
@@ -85,7 +85,7 @@ function PasswordInput({ value, onChange, error }) {
         autoComplete="new-password"
         style={{
           paddingRight: 44,
-          ...(error ? { borderColor: 'var(--hs-red)' } : {}),
+          ...(error ? { borderColor: 'var(--color-red)' } : {}),
         }}
       />
       <button
@@ -95,7 +95,7 @@ function PasswordInput({ value, onChange, error }) {
           position: 'absolute', right: 12, top: '50%',
           transform: 'translateY(-50%)',
           background: 'none', border: 'none', cursor: 'pointer',
-          color: 'var(--hs-text-3)', padding: 4,
+          color: 'var(--color-stone)', padding: 4,
         }}
         tabIndex={-1}
         aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
@@ -191,12 +191,12 @@ export default function RegisterPage() {
 
   const ProgressBar = () => (
     <div style={{
-      height: 3, background: 'var(--hs-surface-2)',
+      height: 3, background: 'var(--color-cream)',
       borderRadius: 2, marginBottom: 32,
     }}>
       <div style={{
         height: '100%', borderRadius: 2,
-        background: 'var(--hs-black)',
+        background: 'var(--color-black)',
         width: step === 1 ? '50%' : '100%',
         transition: 'width 0.35s ease',
       }} />
@@ -207,14 +207,14 @@ export default function RegisterPage() {
   if (ageBlocked) {
     return (
       <div style={{
-        minHeight: '100dvh', background: 'var(--hs-bg)',
+        minHeight: '100dvh', background: 'var(--color-cream)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px',
       }}>
         <div style={{
           width: '100%', maxWidth: 400, textAlign: 'center',
-          background: 'var(--hs-surface)', borderRadius: 'var(--hs-r-xl)',
-          border: '0.5px solid var(--hs-border)', padding: 'clamp(32px, 5vw, 48px)',
-          boxShadow: 'var(--hs-shadow-lg)',
+          background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)',
+          border: '0.5px solid var(--color-divider)', padding: 'clamp(32px, 5vw, 48px)',
+          boxShadow: 'var(--shadow-lg)',
         }}>
           <div style={{
             width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
@@ -223,19 +223,19 @@ export default function RegisterPage() {
           }}>
             🔒
           </div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: 'var(--hs-black)' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)' }}>
             Lo sentimos
           </h1>
-          <p style={{ fontSize: 15, color: 'var(--hs-text-2)', marginBottom: 8, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 15, color: 'var(--color-stone)', marginBottom: 8, lineHeight: 1.5 }}>
             Debes tener al menos 16 años para usar Hispaloshop.
           </p>
-          <p style={{ fontSize: 13, color: 'var(--hs-text-3)', marginBottom: 28, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 13, color: 'var(--color-stone)', marginBottom: 28, lineHeight: 1.5 }}>
             Si tienes 16 años o más y crees que esto es un error, comprueba que has introducido tu fecha de nacimiento correctamente.
           </p>
           <Link
             to="/"
             style={{
-              display: 'inline-block', padding: '12px 32px', background: 'var(--hs-black)',
+              display: 'inline-block', padding: '12px 32px', background: 'var(--color-black)',
               color: '#fff', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none',
             }}
           >
@@ -249,24 +249,24 @@ export default function RegisterPage() {
   return (
     <div style={{
       minHeight: '100dvh',
-      background: 'var(--hs-bg)',
+      background: 'var(--color-cream)',
       display: 'flex', alignItems: 'center',
       justifyContent: 'center', padding: '24px 16px',
     }}>
       <div style={{
         width: '100%', maxWidth: 440,
-        background: 'var(--hs-surface)',
-        borderRadius: 'var(--hs-r-xl)',
-        border: '0.5px solid var(--hs-border)',
+        background: 'var(--color-surface)',
+        borderRadius: 'var(--radius-xl)',
+        border: '0.5px solid var(--color-divider)',
         padding: 'clamp(24px, 5vw, 40px)',
-        boxShadow: 'var(--hs-shadow-lg)',
+        boxShadow: 'var(--shadow-lg)',
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <span style={{
             fontSize: 26, fontWeight: 800,
             letterSpacing: '-0.03em',
-            color: 'var(--hs-black)',
+            color: 'var(--color-black)',
           }}>
             hispaloshop
           </span>
@@ -283,7 +283,7 @@ export default function RegisterPage() {
               Crear cuenta
             </h1>
             <p style={{
-              fontSize: 15, color: 'var(--hs-text-2)',
+              fontSize: 15, color: 'var(--color-stone)',
               marginBottom: 28,
             }}>
               Ya somos más de 8.000 productores. Únete.
@@ -298,7 +298,7 @@ export default function RegisterPage() {
                   onChange={e => updateForm('fullName', e.target.value)}
                   placeholder="María García"
                   autoComplete="name"
-                  style={errors.fullName ? { borderColor: 'var(--hs-red)' } : {}}
+                  style={errors.fullName ? { borderColor: 'var(--color-red)' } : {}}
                 />
                 <ErrorMsg>{errors.fullName}</ErrorMsg>
               </div>
@@ -312,7 +312,7 @@ export default function RegisterPage() {
                   onChange={e => updateForm('email', e.target.value)}
                   placeholder="tu@email.com"
                   autoComplete="email"
-                  style={errors.email ? { borderColor: 'var(--hs-red)' } : {}}
+                  style={errors.email ? { borderColor: 'var(--color-red)' } : {}}
                 />
                 <ErrorMsg>{errors.email}</ErrorMsg>
               </div>
@@ -325,7 +325,7 @@ export default function RegisterPage() {
                   error={errors.password}
                 />
                 <p style={{
-                  fontSize: 11, color: 'var(--hs-text-3)', marginTop: 4,
+                  fontSize: 11, color: 'var(--color-stone)', marginTop: 4,
                 }}>
                   Mínimo 8 caracteres, 1 número y 1 carácter especial
                 </p>
@@ -338,7 +338,7 @@ export default function RegisterPage() {
                   className="hs-input"
                   value={form.country}
                   onChange={e => updateForm('country', e.target.value)}
-                  style={errors.country ? { borderColor: 'var(--hs-red)' } : {}}
+                  style={errors.country ? { borderColor: 'var(--color-red)' } : {}}
                 >
                   <option value="">Selecciona tu país</option>
                   {COUNTRY_OPTIONS.map(c => (
@@ -357,7 +357,7 @@ export default function RegisterPage() {
                     className="hs-input"
                     value={form.birthDay}
                     onChange={e => updateForm('birthDay', e.target.value)}
-                    style={{ flex: 1, ...(errors.birthDate ? { borderColor: 'var(--hs-red)' } : {}) }}
+                    style={{ flex: 1, ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}) }}
                   >
                     <option value="">Día</option>
                     {Array.from({ length: 31 }, (_, i) => (
@@ -368,7 +368,7 @@ export default function RegisterPage() {
                     className="hs-input"
                     value={form.birthMonth}
                     onChange={e => updateForm('birthMonth', e.target.value)}
-                    style={{ flex: 1.2, ...(errors.birthDate ? { borderColor: 'var(--hs-red)' } : {}) }}
+                    style={{ flex: 1.2, ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}) }}
                   >
                     <option value="">Mes</option>
                     {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((m, i) => (
@@ -379,7 +379,7 @@ export default function RegisterPage() {
                     className="hs-input"
                     value={form.birthYear}
                     onChange={e => updateForm('birthYear', e.target.value)}
-                    style={{ flex: 1.2, ...(errors.birthDate ? { borderColor: 'var(--hs-red)' } : {}) }}
+                    style={{ flex: 1.2, ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}) }}
                   >
                     <option value="">Año</option>
                     {Array.from({ length: 100 }, (_, i) => {
@@ -402,11 +402,11 @@ export default function RegisterPage() {
 
             <p style={{
               textAlign: 'center', marginTop: 20,
-              fontSize: 14, color: 'var(--hs-text-2)',
+              fontSize: 14, color: 'var(--color-stone)',
             }}>
               ¿Ya tienes cuenta?{' '}
               <Link to="/login" style={{
-                color: 'var(--hs-black)', fontWeight: 600, textDecoration: 'none',
+                color: 'var(--color-black)', fontWeight: 600, textDecoration: 'none',
               }}>
                 Iniciar sesión
               </Link>
@@ -418,7 +418,7 @@ export default function RegisterPage() {
               onClick={() => setStep(1)}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--hs-text-2)', fontSize: 14,
+                color: 'var(--color-stone)', fontSize: 14,
                 display: 'flex', alignItems: 'center', gap: 6,
                 marginBottom: 20, padding: 0,
               }}
@@ -433,7 +433,7 @@ export default function RegisterPage() {
               ¿Cómo quieres usar Hispaloshop?
             </h2>
             <p style={{
-              fontSize: 14, color: 'var(--hs-text-2)', marginBottom: 24,
+              fontSize: 14, color: 'var(--color-stone)', marginBottom: 24,
             }}>
               Puedes cambiar esto más adelante desde tu perfil.
             </p>
@@ -448,15 +448,15 @@ export default function RegisterPage() {
                   onClick={() => updateForm('role', role.id)}
                   style={{
                     background: form.role === role.id
-                      ? role.colorBg : 'var(--hs-surface)',
+                      ? role.colorBg : 'var(--color-surface)',
                     border: form.role === role.id
                       ? `2px solid ${role.color}`
-                      : '1.5px solid var(--hs-border)',
-                    borderRadius: 'var(--hs-r-lg)',
+                      : '1.5px solid var(--color-divider)',
+                    borderRadius: 'var(--radius-lg)',
                     padding: '18px 14px',
                     cursor: 'pointer',
                     textAlign: 'left',
-                    transition: 'var(--hs-transition)',
+                    transition: 'var(--transition-base)',
                   }}
                 >
                   <div style={{ fontSize: 32, marginBottom: 8 }}>
@@ -464,12 +464,12 @@ export default function RegisterPage() {
                   </div>
                   <p style={{
                     fontSize: 15, fontWeight: 700,
-                    color: 'var(--hs-text-1)', margin: '0 0 4px',
+                    color: 'var(--color-black)', margin: '0 0 4px',
                   }}>
                     {role.title}
                   </p>
                   <p style={{
-                    fontSize: 12, color: 'var(--hs-text-2)',
+                    fontSize: 12, color: 'var(--color-stone)',
                     margin: 0, lineHeight: 1.4,
                   }}>
                     {role.desc}
@@ -488,7 +488,7 @@ export default function RegisterPage() {
             <ErrorMsg style={{ marginTop: 8 }}>{errors.role}</ErrorMsg>
 
             <p style={{
-              fontSize: 12, color: 'var(--hs-text-3)',
+              fontSize: 12, color: 'var(--color-stone)',
               textAlign: 'center', marginTop: 16, lineHeight: 1.5,
             }}>
               Todos los planes empiezan gratis. Actualiza cuando estés listo.
@@ -508,15 +508,15 @@ export default function RegisterPage() {
             </button>
 
             <p style={{
-              fontSize: 11, color: 'var(--hs-text-3)',
+              fontSize: 11, color: 'var(--color-stone)',
               textAlign: 'center', marginTop: 14, lineHeight: 1.6,
             }}>
               Al crear una cuenta aceptas los{' '}
-              <Link to="/terms" style={{ color: 'var(--hs-text-2)' }}>
+              <Link to="/terms" style={{ color: 'var(--color-stone)' }}>
                 Términos de uso
               </Link>{' '}
               y la{' '}
-              <Link to="/privacy" style={{ color: 'var(--hs-text-2)' }}>
+              <Link to="/privacy" style={{ color: 'var(--color-stone)' }}>
                 Política de privacidad
               </Link>
             </p>

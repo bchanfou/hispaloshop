@@ -72,7 +72,7 @@ const PLANS = [
 
 export default function ProductorPage() {
   return (
-    <div style={{ fontFamily: 'var(--hs-font, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+    <div style={{ fontFamily: 'var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
       <InfoNav activePage="/productor" />
 
       <Hero

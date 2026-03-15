@@ -41,7 +41,7 @@ const CONFETTI = Array.from({ length: 12 }, (_, index) => ({
   left: `${10 + index * 7}%`,
   delay: index * 0.12,
   duration: 2.6 + (index % 3) * 0.35,
-  color: ['var(--hs-orange)', 'var(--hs-blue)', 'var(--hs-green)', 'var(--hs-red)'][index % 4],
+  color: ['var(--color-amber)', 'var(--color-blue)', 'var(--color-green)', 'var(--color-red)'][index % 4],
 }));
 
 let stripeLoader;
@@ -240,9 +240,9 @@ export default function OnboardingModal({ open, onOpenChange, initialPlan = 'fre
           appearance: {
             theme: 'stripe',
             variables: {
-              colorPrimary: 'var(--hs-blue)',
-              colorText: 'var(--hs-text-1)',
-              colorDanger: 'var(--hs-red)',
+              colorPrimary: 'var(--color-blue)',
+              colorText: 'var(--color-black)',
+              colorDanger: 'var(--color-red)',
               borderRadius: '12px',
             },
           },

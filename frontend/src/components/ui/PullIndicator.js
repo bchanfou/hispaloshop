@@ -25,8 +25,8 @@ const PullIndicator = ({ progress, isRefreshing }) => {
         width: 36,
         height: 36,
         borderRadius: '50%',
-        background: 'var(--hs-black)',
-        boxShadow: 'var(--hs-shadow-sm)',
+        background: 'var(--color-black)',
+        boxShadow: 'var(--shadow-sm)',
       }}
     >
       <motion.svg

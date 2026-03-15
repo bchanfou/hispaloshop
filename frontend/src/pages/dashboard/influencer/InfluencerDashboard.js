@@ -79,28 +79,28 @@ function InfluencerDashboard() {
       id: 'links',
       icon: LinkIcon,
       label: 'Mis enlaces',
-      color: 'var(--hs-text-1)',
+      color: 'var(--color-black)',
       onClick: () => navigate('/influencer/links')
     },
     {
       id: 'opportunities',
       icon: TrendingUp,
       label: 'Oportunidades',
-      color: 'var(--hs-text-2)',
+      color: 'var(--color-stone)',
       onClick: () => navigate('/influencer/opportunities')
     },
     {
       id: 'earnings',
       icon: Euro,
       label: 'Mis ganancias',
-      color: 'var(--hs-text-2)',
+      color: 'var(--color-stone)',
       onClick: () => navigate('/influencer/earnings')
     },
     {
       id: 'perks',
       icon: Gift,
       label: 'Beneficios',
-      color: 'var(--hs-text-1)',
+      color: 'var(--color-black)',
       onClick: () => navigate('/influencer/perks')
     }
   ];
@@ -127,28 +127,28 @@ function InfluencerDashboard() {
           value={`EUR ${dashboardData.kpis.earnings.toFixed(0)}`}
           label="Ganancias"
           subtext="este mes"
-          accentColor="var(--hs-text-1)"
+          accentColor="var(--color-black)"
         />
         <KPICard
           icon={MousePointerClick}
           value={dashboardData.kpis.clicks}
           label="Clicks"
           subtext="en tus enlaces"
-          accentColor="var(--hs-text-2)"
+          accentColor="var(--color-stone)"
         />
         <KPICard
           icon={Users}
           value={dashboardData.kpis.conversions}
           label="Ventas"
           subtext="generadas"
-          accentColor="var(--hs-text-2)"
+          accentColor="var(--color-stone)"
         />
         <KPICard
           icon={Users}
           value={dashboardData.kpis.followers}
           label="Seguidores"
           subtext="en tu perfil"
-          accentColor="var(--hs-text-1)"
+          accentColor="var(--color-black)"
         />
       </div>
 

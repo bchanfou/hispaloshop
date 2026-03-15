@@ -76,7 +76,7 @@ export const Hero = ({ eyebrow, headline, sub, cta, ctaHref, ctaColor = '#0A0A0A
 // -- Grid de features --
 export const FeatureGrid = ({ features }) => (
   <section style={{
-    background: 'var(--hs-bg, #F5F5F7)',
+    background: 'var(--color-cream, #F5F5F7)',
     padding: 'clamp(56px, 8vw, 96px) 24px',
   }}>
     <div style={{

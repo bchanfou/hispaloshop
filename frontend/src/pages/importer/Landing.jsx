@@ -67,7 +67,7 @@ const PLANS = [
 
 export default function ImportadorPage() {
   return (
-    <div style={{ fontFamily: 'var(--hs-font, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+    <div style={{ fontFamily: 'var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
       <InfoNav activePage="/importador" />
 
       <Hero
@@ -88,7 +88,7 @@ export default function ImportadorPage() {
 
       {/* Trust section */}
       <section style={{
-        background: 'var(--hs-bg, #F5F5F7)',
+        background: 'var(--color-cream, #F5F5F7)',
         padding: 'clamp(48px, 7vw, 80px) 24px',
         textAlign: 'center',
       }}>

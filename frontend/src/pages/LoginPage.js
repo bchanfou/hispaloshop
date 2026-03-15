@@ -105,7 +105,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col" style={{ background: 'var(--hs-bg)' }}>
+    <div className="flex min-h-screen flex-col" style={{ background: 'var(--color-cream)' }}>
       <div className="safe-area-top sticky top-0 z-40 border-b border-stone-200 bg-white/95 backdrop-blur-md md:hidden">
         <div className="flex h-14 items-center px-4">
           <button
@@ -132,9 +132,9 @@ export default function LoginPage() {
           <section
             className="bg-white p-6 md:p-8"
             style={{
-              borderRadius: 'var(--hs-r-xl)',
-              border: '0.5px solid var(--hs-border)',
-              boxShadow: 'var(--hs-shadow-lg)',
+              borderRadius: 'var(--radius-xl)',
+              border: '0.5px solid var(--color-divider)',
+              boxShadow: 'var(--shadow-lg)',
             }}
             data-testid="login-form"
           >
@@ -143,7 +143,7 @@ export default function LoginPage() {
               <span style={{
                 fontSize: 28, fontWeight: 800,
                 letterSpacing: '-0.03em',
-                color: 'var(--hs-black)',
+                color: 'var(--color-black)',
               }}>
                 hispaloshop
               </span>
@@ -152,14 +152,14 @@ export default function LoginPage() {
             <h1 style={{
               fontSize: 22, fontWeight: 700,
               letterSpacing: '-0.02em',
-              color: 'var(--hs-text-1)',
+              color: 'var(--color-black)',
               marginBottom: 4,
               textAlign: 'center',
             }}>
               Bienvenido
             </h1>
             <p style={{
-              fontSize: 15, color: 'var(--hs-text-2)',
+              fontSize: 15, color: 'var(--color-stone)',
               textAlign: 'center', marginBottom: 24,
             }}>
               Inicia sesión para continuar
@@ -198,7 +198,7 @@ export default function LoginPage() {
                 <div>
                   <label htmlFor="email" style={{
                     display: 'block', fontSize: 13, fontWeight: 600,
-                    color: 'var(--hs-text-1)', marginBottom: 6,
+                    color: 'var(--color-black)', marginBottom: 6,
                   }}>
                     Email
                   </label>
@@ -211,10 +211,10 @@ export default function LoginPage() {
                     placeholder="tu@email.com"
                     autoComplete="email"
                     data-testid="email-input"
-                    style={errors.email ? { borderColor: 'var(--hs-red)' } : {}}
+                    style={errors.email ? { borderColor: 'var(--color-red)' } : {}}
                   />
                   {errors.email && (
-                    <p style={{ fontSize: 12, color: 'var(--hs-red)', marginTop: 4 }}>
+                    <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>
                       {errors.email}
                     </p>
                   )}
@@ -224,7 +224,7 @@ export default function LoginPage() {
                 <div>
                   <label htmlFor="password" style={{
                     display: 'block', fontSize: 13, fontWeight: 600,
-                    color: 'var(--hs-text-1)', marginBottom: 6,
+                    color: 'var(--color-black)', marginBottom: 6,
                   }}>
                     Contraseña
                   </label>
@@ -240,7 +240,7 @@ export default function LoginPage() {
                       data-testid="password-input"
                       style={{
                         paddingRight: 44,
-                        ...(errors.password ? { borderColor: 'var(--hs-red)' } : {}),
+                        ...(errors.password ? { borderColor: 'var(--color-red)' } : {}),
                       }}
                     />
                     <button
@@ -250,7 +250,7 @@ export default function LoginPage() {
                         position: 'absolute', right: 12, top: '50%',
                         transform: 'translateY(-50%)',
                         background: 'none', border: 'none', cursor: 'pointer',
-                        color: 'var(--hs-text-3)', padding: 4,
+                        color: 'var(--color-stone)', padding: 4,
                       }}
                       aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                       tabIndex={-1}
@@ -259,7 +259,7 @@ export default function LoginPage() {
                     </button>
                   </div>
                   {errors.password && (
-                    <p style={{ fontSize: 12, color: 'var(--hs-red)', marginTop: 4 }}>
+                    <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>
                       {errors.password}
                     </p>
                   )}
@@ -267,7 +267,7 @@ export default function LoginPage() {
                     <Link
                       to="/forgot-password"
                       className="text-sm transition-colors hover:text-stone-950"
-                      style={{ color: 'var(--hs-text-2)' }}
+                      style={{ color: 'var(--color-stone)' }}
                     >
                       {t('auth.forgotPassword', '¿Olvidaste tu contraseña?')}
                     </Link>
@@ -277,10 +277,10 @@ export default function LoginPage() {
                 {/* Login error */}
                 {loginError && (
                   <p style={{
-                    fontSize: 13, color: 'var(--hs-red)',
+                    fontSize: 13, color: 'var(--color-red)',
                     textAlign: 'center', padding: '8px 12px',
-                    background: 'var(--hs-red-bg)',
-                    borderRadius: 'var(--hs-r-md)',
+                    background: 'var(--color-red-light)',
+                    borderRadius: 'var(--radius-md)',
                   }}>
                     {loginError}
                   </p>
@@ -319,12 +319,12 @@ export default function LoginPage() {
             )}
 
             {/* Separator + register link */}
-            <div className="mt-6 border-t pt-6 text-center" style={{ borderColor: 'var(--hs-border)' }}>
-              <p style={{ fontSize: 14, color: 'var(--hs-text-2)' }}>
+            <div className="mt-6 border-t pt-6 text-center" style={{ borderColor: 'var(--color-divider)' }}>
+              <p style={{ fontSize: 14, color: 'var(--color-stone)' }}>
                 ¿Aún no tienes cuenta?{' '}
                 <Link
                   to="/register"
-                  style={{ color: 'var(--hs-black)', fontWeight: 600, textDecoration: 'none' }}
+                  style={{ color: 'var(--color-black)', fontWeight: 600, textDecoration: 'none' }}
                   data-testid="register-link"
                 >
                   Crear cuenta →

@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
-   HISPALOSHOP — Design Tokens v2.0
-   Paleta: Crema/Negro + Verde acción + Ámbar/Rojo/Azul funcional
+   HISPALOSHOP — Design Tokens v2.1
+   Nuclear Reset: tokens.css → base.css → typography.css
    ═══════════════════════════════════════════════════════ */
 
 :root {
@@ -10,17 +10,20 @@
   --color-cream:        #F7F6F2;
   --color-stone:        #8A8881;
   --color-border:       #E5E2DA;
+  --color-divider:      #EDE9E3;
   --color-surface:      #F0EDE8;
 
   /* ── Verde — ÚNICO color de acción ── */
   --color-green:        #2E7D52;
   --color-green-light:  #EBF5EC;
   --color-green-border: #C2DFC5;
+  --color-green-dark:   #1F5C3B;
 
   /* ── Ámbar — pendiente, advertencia ── */
   --color-amber:        #E8A020;
   --color-amber-light:  #FFF4E0;
   --color-amber-border: #F4D080;
+  --color-amber-dark:   #B07818;
 
   /* ── Rojo — error, alerta crítica, alergia ── */
   --color-red:          #C05040;
@@ -32,10 +35,23 @@
   --color-blue-light:   #EBF0F8;
   --color-blue-border:  #B0C8E8;
 
-  /* ── Tipografía ── */
+  /* ── Tipografía: familias ── */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont,
                'Segoe UI', sans-serif;
+  --font-info: 'DM Sans', 'Inter', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Tipografía: escala ── */
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-md:   16px;
+  --text-lg:   18px;
+  --text-xl:   20px;
+  --text-2xl:  24px;
+  --text-3xl:  30px;
+  --text-4xl:  36px;
+  --text-5xl:  48px;
 
   /* ── Espaciado ── */
   --space-1:  4px;
@@ -48,6 +64,8 @@
   --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
 
   /* ── Bordes ── */
   --radius-sm:   8px;
@@ -57,9 +75,12 @@
   --radius-2xl:  28px;
   --radius-full: 9999px;
 
-  /* ── Sombras — solo funcionales ── */
+  /* ── Sombras ── */
+  --shadow-xs:    0 1px 2px rgba(10,10,10,0.05);
   --shadow-sm:    0 1px 3px rgba(10,10,10,0.08);
   --shadow-md:    0 4px 12px rgba(10,10,10,0.10);
+  --shadow-lg:    0 8px 24px rgba(10,10,10,0.12);
+  --shadow-xl:    0 16px 48px rgba(10,10,10,0.16);
   --shadow-phone: 0 0 0 8px #0A0A0A;
 
   /* ── Transiciones ── */
@@ -68,8 +89,29 @@
   --transition-slow:  400ms cubic-bezier(0.4, 0, 0.2, 1);
 
   /* ── Z-index ── */
-  --z-base:    1;
-  --z-overlay: 10;
-  --z-modal:   100;
-  --z-toast:   1000;
+  --z-base:       1;
+  --z-dropdown:   5;
+  --z-sticky:     8;
+  --z-overlay:    10;
+  --z-drawer:     20;
+  --z-modal:      100;
+  --z-popover:    200;
+  --z-toast:      1000;
+
+  /* ── Layout ── */
+  --max-width:          1200px;
+  --sidebar-width:      260px;
+  --bottom-nav-height:  64px;
+  --header-height:      56px;
+  --safe-area-bottom:   env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Dark theme (Superadmin) ── */
+.superadmin-theme {
+  --color-dark-bg:      #0F1117;
+  --color-dark-surface: #1A1D27;
+  --color-dark-card:    #222633;
+  --color-dark-border:  #2E3344;
+  --color-dark-text:    #E8E6E3;
+  --color-dark-muted:   #9CA3AF;
 }

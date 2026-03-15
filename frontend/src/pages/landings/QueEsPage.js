@@ -3,7 +3,7 @@ import { InfoNav, Hero, FooterCTA, FadeUp } from '../../components/info/shared';
 
 export default function QueEsPage() {
   return (
-    <div style={{ fontFamily: 'var(--hs-font, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
+    <div style={{ fontFamily: 'var(--font-sans, -apple-system, BlinkMacSystemFont, sans-serif)' }}>
       <InfoNav activePage="/que-es-hispaloshop" />
 
       <Hero
@@ -16,7 +16,7 @@ export default function QueEsPage() {
 
       {/* Que es — explicacion en 2 columnas */}
       <section style={{
-        background: 'var(--hs-bg, #F5F5F7)',
+        background: 'var(--color-cream, #F5F5F7)',
         padding: 'clamp(56px, 8vw, 96px) 24px',
       }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -83,7 +83,7 @@ export default function QueEsPage() {
             <FadeUp key={r.role} delay={i * 0.08}>
               <a href={r.href} style={{ textDecoration: 'none' }}>
                 <div style={{
-                  background: 'var(--hs-bg, #F5F5F7)',
+                  background: 'var(--color-cream, #F5F5F7)',
                   borderRadius: 18, padding: '28px 22px',
                   border: '0.5px solid rgba(0,0,0,0.07)',
                   cursor: 'pointer', height: '100%',
