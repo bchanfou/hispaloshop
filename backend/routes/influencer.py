@@ -681,7 +681,7 @@ async def process_influencer_payout(influencer_id: str, user: User = Depends(get
         raise HTTPException(status_code=500, detail="Failed to process payout")
 
 # Influencer self-service withdrawal
-MINIMUM_WITHDRAWAL_AMOUNT = 50  # €50 minimum for self-service withdrawal
+MINIMUM_WITHDRAWAL_AMOUNT = 20  # €20 minimum net for self-service withdrawal
 
 
 @router.post("/influencer/request-withdrawal")
@@ -729,27 +729,39 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
             continue
 
     available_balance = round(available_balance, 2)
-    withdrawal_amount = request.amount if request.amount else available_balance
-    withdrawal_amount = min(withdrawal_amount, available_balance)
+    gross_amount = request.amount if request.amount else available_balance
+    gross_amount = min(gross_amount, available_balance)
 
-    if withdrawal_amount < MINIMUM_WITHDRAWAL_AMOUNT:
+    # Calculate withholding and transfer fee
+    fiscal = influencer.get("fiscal_status", {})
+    withholding_pct = fiscal.get("withholding_pct", 0.0)
+    withholding = round(gross_amount * (withholding_pct / 100), 2)
+    transfer_fee = 0.25 if payout_method == "stripe" else 0.0
+    net_amount = round(gross_amount - withholding - transfer_fee, 2)
+
+    if net_amount < MINIMUM_WITHDRAWAL_AMOUNT:
         raise HTTPException(
             status_code=400,
-            detail=f"El monto minimo de retiro es EUR {MINIMUM_WITHDRAWAL_AMOUNT}. Tu saldo disponible es EUR {available_balance:.2f}"
+            detail=f"Balance insuficiente. Mínimo {MINIMUM_WITHDRAWAL_AMOUNT}€ neto para solicitar cobro. "
+                   f"Tu neto sería {net_amount:.2f}€ (bruto {gross_amount:.2f}€ - retención {withholding:.2f}€ - fee {transfer_fee:.2f}€)"
         )
 
     try:
         transfer_id = None
         withdrawal_status = "completed"
+        transfer_amount_cents = int(net_amount * 100)
         if payout_method == "stripe":
             transfer = stripe.Transfer.create(
-                amount=int(withdrawal_amount * 100),
+                amount=transfer_amount_cents,
                 currency="eur",
                 destination=influencer["stripe_account_id"],
                 metadata={
                     "influencer_id": influencer["influencer_id"],
                     "type": "influencer_self_withdrawal",
-                    "requested_by": user.email
+                    "requested_by": user.email,
+                    "gross_amount": str(gross_amount),
+                    "withholding": str(withholding),
+                    "transfer_fee": str(transfer_fee),
                 }
             )
             transfer_id = transfer.id
@@ -759,7 +771,12 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
         withdrawal_record = {
             "withdrawal_id": f"wd_{uuid.uuid4().hex[:12]}",
             "influencer_id": influencer["influencer_id"],
-            "amount": withdrawal_amount,
+            "amount": gross_amount,
+            "gross_amount": gross_amount,
+            "withholding_amount": withholding,
+            "withholding_pct": withholding_pct,
+            "transfer_fee": transfer_fee,
+            "net_amount": net_amount,
             "payout_method": payout_method,
             "stripe_transfer_id": transfer_id,
             "status": withdrawal_status,
@@ -797,7 +814,7 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
                     )
                     remaining -= comm_amount
 
-        new_balance = max(0, influencer.get("available_balance", 0) - withdrawal_amount)
+        new_balance = max(0, influencer.get("available_balance", 0) - gross_amount)
         await db.influencers.update_one(
             {"influencer_id": influencer["influencer_id"]},
             {"$set": {
@@ -806,14 +823,51 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
             }}
         )
 
+        # Record withholding for Modelo 190
+        if withholding > 0:
+            current_quarter = (now.month - 1) // 3 + 1
+            current_year = now.year
+            existing_records = influencer.get("withholding_records", [])
+            quarter_idx = next(
+                (i for i, r in enumerate(existing_records)
+                 if r.get("year") == current_year and r.get("quarter") == current_quarter),
+                None,
+            )
+            if quarter_idx is not None:
+                await db.influencers.update_one(
+                    {"influencer_id": influencer["influencer_id"]},
+                    {"$inc": {
+                        f"withholding_records.{quarter_idx}.amount_gross": gross_amount,
+                        f"withholding_records.{quarter_idx}.amount_withheld": withholding,
+                        f"withholding_records.{quarter_idx}.amount_paid": net_amount,
+                    }},
+                )
+            else:
+                await db.influencers.update_one(
+                    {"influencer_id": influencer["influencer_id"]},
+                    {"$push": {"withholding_records": {
+                        "year": current_year,
+                        "quarter": current_quarter,
+                        "amount_gross": gross_amount,
+                        "amount_withheld": withholding,
+                        "amount_paid": net_amount,
+                        "model_190_filed": False,
+                        "filed_at": None,
+                    }}},
+                )
+
         return {
-            "message": f"Retiro de EUR {withdrawal_amount:.2f} registrado correctamente.",
+            "message": f"Cobro de {net_amount:.2f}€ neto registrado correctamente.",
             "withdrawal_id": withdrawal_record["withdrawal_id"],
             "transfer_id": transfer_id,
             "status": withdrawal_status,
             "method": payout_method,
-            "amount": withdrawal_amount,
-            "new_balance": round(new_balance, 2)
+            "gross_amount": gross_amount,
+            "withholding": withholding,
+            "withholding_pct": withholding_pct,
+            "transfer_fee": transfer_fee,
+            "net_amount": net_amount,
+            "new_balance": round(new_balance, 2),
         }
 
     except stripe.error.StripeError as e:
@@ -1061,6 +1115,15 @@ async def get_influencer_links(user: User = Depends(get_current_user)):
     if not influencer:
         raise HTTPException(status_code=404, detail="Not an influencer")
 
+    # Fiscal gate: block if certificate not verified
+    fiscal = influencer.get("fiscal_status", {})
+    if fiscal.get("affiliate_blocked", True):
+        raise HTTPException(status_code=403, detail={
+            "blocked": True,
+            "reason": fiscal.get("block_reason", "Certificado de residencia fiscal pendiente"),
+            "action": "upload_certificate",
+        })
+
     links = await db.affiliate_links.find(
         {"influencer_id": influencer["influencer_id"]},
         {"_id": 0},
@@ -1075,6 +1138,15 @@ async def create_affiliate_link(request: Request, user: User = Depends(get_curre
     influencer = await db.influencers.find_one({"email": user.email.lower()}, {"_id": 0})
     if not influencer:
         raise HTTPException(status_code=404, detail="Not an influencer")
+
+    # Fiscal gate: block if certificate not verified
+    fiscal = influencer.get("fiscal_status", {})
+    if fiscal.get("affiliate_blocked", True):
+        raise HTTPException(status_code=403, detail={
+            "blocked": True,
+            "reason": fiscal.get("block_reason", "Certificado de residencia fiscal pendiente"),
+            "action": "upload_certificate",
+        })
 
     body = await request.json()
     product_id = body.get("product_id")

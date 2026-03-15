@@ -118,6 +118,17 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
     if influencer_amount <= 0:
         return
 
+    # Fiscal gate: do not assign commission if influencer is blocked
+    influencer_doc = await db.influencers.find_one(
+        {"influencer_id": influencer_id}, {"_id": 0, "fiscal_status": 1}
+    )
+    if influencer_doc and influencer_doc.get("fiscal_status", {}).get("affiliate_blocked", False):
+        logger.warning(
+            f"Commission blocked for influencer {influencer_id} on order {order.get('order_id')}: "
+            f"fiscal certificate not verified"
+        )
+        return
+
     existing = await db.influencer_commissions.find_one(
         {"order_id": order["order_id"], "influencer_id": influencer_id},
         {"_id": 0, "commission_id": 1},

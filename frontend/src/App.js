@@ -148,6 +148,7 @@ const WishlistPage = lazy(() => import('./pages/customer/WishlistPage'));
 const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDashboard'));
 const InfluencerInsights = lazy(() => import('./pages/influencer/InfluencerInsights'));
 const AffiliateLinksPage = lazy(() => import('./pages/influencer/AffiliateLinksPage'));
+const FiscalSetupPage = lazy(() => import('./pages/influencer/FiscalSetupPage'));
 const PayoutsPage = lazy(() => import('./pages/influencer/PayoutsPage'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const ChatsPage = lazy(() => import('./pages/chat/ChatsPage'));
@@ -574,6 +575,16 @@ function AppRouter() {
                   <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
                     <InfluencerLayoutResponsive>
                       <PayoutsPage />
+                    </InfluencerLayoutResponsive>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/influencer/fiscal-setup"
+                element={
+                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
+                    <InfluencerLayoutResponsive>
+                      <FiscalSetupPage />
                     </InfluencerLayoutResponsive>
                   </ProtectedRoute>
                 }

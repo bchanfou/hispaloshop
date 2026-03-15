@@ -308,6 +308,10 @@ async def register(input: RegisterInput, request: Request):
             "total_sales_generated": 0,
             "total_commission_earned": 0,
             "available_balance": 0,
+            "fiscal_status": {
+                "affiliate_blocked": True,
+                "block_reason": "Certificado de residencia fiscal pendiente",
+            },
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         await db.influencers.insert_one(influencer_data)

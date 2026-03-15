@@ -289,6 +289,10 @@ async def create_influencer(input: InfluencerCreate, user: User = Depends(get_cu
         "total_sales_generated": 0,
         "total_commission_earned": 0,
         "available_balance": 0,
+        "fiscal_status": {
+            "affiliate_blocked": True,
+            "block_reason": "Certificado de residencia fiscal pendiente",
+        },
         "created_by": user.user_id,
         "created_at": datetime.now(timezone.utc).isoformat()
     }

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Copy, Check, ExternalLink, Link2, Search, Loader2, Share2 } from 'lucide-react';
+import { Copy, Check, ExternalLink, Link2, Search, Loader2, Share2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { Link as RouterLink } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 
 function AffiliateLinkCard({ link }) {
@@ -72,13 +73,20 @@ export default function AffiliateLinksPage() {
   const [generating, setGenerating] = useState(false);
   const [myLinks, setMyLinks] = useState([]);
   const [loadingLinks, setLoadingLinks] = useState(true);
+  const [blocked, setBlocked] = useState(null);
 
   const fetchLinks = useCallback(async () => {
     try {
       const data = await apiClient.get('/influencer/links');
       setMyLinks(data?.links || []);
-    } catch {
-      setMyLinks([]);
+      setBlocked(null);
+    } catch (err) {
+      if (err?.response?.status === 403 || err?.status === 403) {
+        const detail = err?.response?.data?.detail || err?.detail || {};
+        setBlocked(detail);
+      } else {
+        setMyLinks([]);
+      }
     } finally {
       setLoadingLinks(false);
     }
@@ -126,6 +134,37 @@ export default function AffiliateLinksPage() {
       setGenerating(false);
     }
   };
+
+  // Blocked by fiscal gate
+  if (blocked) {
+    return (
+      <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
+        <div className="max-w-xl mx-auto px-4 py-6 pb-28">
+          <h1 className="text-xl font-bold mb-1" style={{ color: 'var(--color-black)' }}>Mis links de afiliado</h1>
+          <div className="mt-6 p-5" style={{ background: 'var(--color-amber-light)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-amber)' }}>
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+              <div>
+                <p className="text-sm font-semibold mb-1" style={{ color: 'var(--color-black)' }}>
+                  Configuración fiscal requerida
+                </p>
+                <p className="text-sm mb-4" style={{ color: 'var(--color-stone)' }}>
+                  {blocked.reason || 'Necesitas completar tu configuración fiscal para activar tus links de afiliado.'}
+                </p>
+                <RouterLink
+                  to="/influencer/fiscal-setup"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors"
+                  style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)' }}
+                >
+                  Activar afiliados
+                </RouterLink>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50">
