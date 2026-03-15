@@ -272,11 +272,14 @@ app.include_router(websocket_router)
 
 @app.exception_handler(404)
 async def not_found_handler(request: Request, exc):
+    # Sanitize path to prevent XSS reflection in JSON responses
+    import html
+    safe_path = html.escape(str(request.url.path))
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={
             "detail": "Route not found",
-            "path": str(request.url.path),
+            "path": safe_path,
         },
     )
 
@@ -284,12 +287,16 @@ async def not_found_handler(request: Request, exc):
 @app.exception_handler(Exception)
 async def internal_error_handler(request: Request, exc: Exception):
     logger.exception("Unhandled error on %s", request.url.path, exc_info=exc)
+    content = {
+        "detail": "Internal server error",
+        "path": str(request.url.path),
+    }
+    # In development, include error type for debugging (never the full traceback)
+    if settings.ENV != "production":
+        content["error_type"] = type(exc).__name__
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "detail": "Internal server error",
-            "path": str(request.url.path),
-        },
+        content=content,
     )
 
 

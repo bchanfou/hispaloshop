@@ -3,11 +3,18 @@ Unified Search — single round-trip that queries products, recipes, stores and 
 Endpoint: GET /api/search?q=...&limit=6
 """
 
+import re
+
 from fastapi import APIRouter, Query, Depends
 from typing import Optional, List
 import asyncio
 from core.database import get_db
 from core.auth import get_current_user_optional
+
+
+def _sanitize_search(q: str) -> str:
+    """Escape regex special characters and truncate to prevent ReDoS."""
+    return re.escape(q.strip()[:100])
 
 router = APIRouter()
 
@@ -141,12 +148,15 @@ async def unified_search(
     if current_user:
         country = current_user.get("country")
 
+    # Sanitize search input to prevent regex injection / ReDoS
+    safe_q = _sanitize_search(q)
+
     # All 4 queries run in parallel
     products, recipes, stores, creators = await asyncio.gather(
-        _search_products(db, q, limit, country),
-        _search_recipes(db, q, limit),
-        _search_stores(db, q, limit),
-        _search_users(db, q, limit),
+        _search_products(db, safe_q, limit, country),
+        _search_recipes(db, safe_q, limit),
+        _search_stores(db, safe_q, limit),
+        _search_users(db, safe_q, limit),
         return_exceptions=True,
     )
 
