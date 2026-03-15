@@ -435,7 +435,7 @@ export default function BottomNavBar() {
             )}
           </Link>
 
-          {/* 3 — Crear (+) */}
+          {/* 3 — Crear (+) — elevated */}
           <button
             type="button"
             onClick={handlePostButton}
@@ -443,13 +443,18 @@ export default function BottomNavBar() {
             data-testid="bottom-nav-post"
             className="relative flex h-full items-center justify-center active:opacity-60"
           >
-            <div className={`flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border transition-all active:scale-95 ${
-              isCreating ? 'border-stone-400 bg-stone-200' : 'border-stone-300 bg-white'
-            }`}>
+            <div
+              className={`flex items-center justify-center rounded-full shadow-md transition-all active:scale-90 ${
+                isCreating
+                  ? 'bg-stone-800'
+                  : 'bg-stone-950'
+              }`}
+              style={{ width: 42, height: 42, marginTop: -12 }}
+            >
               {isCreating ? (
-                <X className="h-5 w-5 text-stone-700" strokeWidth={2} />
+                <X className="h-5 w-5 text-white" strokeWidth={2.2} />
               ) : (
-                <Plus className="h-5 w-5 text-stone-800" strokeWidth={2} />
+                <Plus className="h-5 w-5 text-white" strokeWidth={2.2} />
               )}
             </div>
           </button>
@@ -475,8 +480,8 @@ export default function BottomNavBar() {
             )}
             {unreadCount > 0 && (
               <span
-                className="absolute top-1 right-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full bg-stone-950 px-0.5"
-                style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)' }}
+                className="absolute top-1 right-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full px-0.5"
+                style={{ fontSize: 8, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)', background: 'var(--color-red)' }}
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>

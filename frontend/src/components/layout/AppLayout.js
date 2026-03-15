@@ -1,15 +1,15 @@
 import React, { useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
-import Header from '../Header';
+import AppHeader from './AppHeader';
 import SideNav from './SideNav';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 
 /**
- * AppLayout — responsive shell
- * Mobile:  Header (top) + content + BottomNavBar (rendered in App.js)
- * Desktop: SideNav (left) + content (no Header, no BottomNav)
+ * AppLayout — responsive shell for authenticated app pages
+ * Mobile:  AppHeader (top) + content + BottomNavBar (rendered in App.js)
+ * Desktop: SideNav (left) + content
  */
 
 const NO_CHROME_PATHS = [
@@ -21,6 +21,11 @@ const NO_CHROME_PATHS = [
   '/influencer/dashboard', '/influencer/insights', '/influencer/profile',
   '/influencer/stripe-connect',
   '/reels',
+  // Info/landing pages — use InfoLayout instead
+  '/about', '/pricing', '/productor', '/influencer/aplicar',
+  '/influencer', '/influencers', '/blog', '/press', '/careers', '/contact',
+  '/help', '/terms', '/privacy', '/que-es', '/que-es-hispaloshop',
+  '/importador',
 ];
 
 function shouldHideChrome(pathname) {
@@ -89,9 +94,9 @@ export default function AppLayout({ children }) {
       {/* Email verification banner */}
       {showVerificationBanner && <EmailVerificationBanner />}
 
-      {/* Mobile: TopBar */}
+      {/* Mobile: AppHeader */}
       <div className="lg:hidden">
-        <Header />
+        <AppHeader />
       </div>
 
       {/* Desktop: SideNav */}

@@ -20,6 +20,9 @@ import HispalAI from './components/ai/HispalAI';
 import ScrollToTop from './components/ScrollToTop';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import AppLayout from './components/layout/AppLayout';
+import FeedLayout from './components/layout/FeedLayout';
+import InfoLayout from './components/layout/InfoLayout';
+import AuthLayout from './components/layout/AuthLayout';
 import { SentryErrorBoundary } from './lib/sentry';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from './components/ui/sonner';
@@ -234,6 +237,14 @@ function LegacyProfileRedirect() {
   return <Navigate to="/dashboard/profile" replace />;
 }
 
+function HomeRoute() {
+  const { user } = useAuth();
+  if (user) {
+    return <FeedLayout><HomePage /></FeedLayout>;
+  }
+  return <InfoLayout><HomePage /></InfoLayout>;
+}
+
 function AppRouter() {
   const location = useLocation();
   const { user } = useAuth();
@@ -265,24 +276,24 @@ function AppRouter() {
             transition={{ duration: 0.28, ease: [0, 0, 0.2, 1] }}
           >
             <Routes location={location}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/" element={<HomeRoute />} />
+              <Route path="/about" element={<InfoLayout><AboutPage /></InfoLayout>} />
+              <Route path="/pricing" element={<InfoLayout><PricingPage /></InfoLayout>} />
               <Route path="/vender" element={<Navigate to="/productor" replace />} />
-              <Route path="/productor" element={<ProductorLandingPage />} />
-              <Route path="/productor/registro" element={<ProductorLandingPage />} />
+              <Route path="/productor" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
+              <Route path="/productor/registro" element={<InfoLayout><ProductorLandingPage /></InfoLayout>} />
               <Route path="/info/productor" element={<Navigate to="/productor" replace />} />
               <Route path="/registro/productor" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/vender/registro" element={<Navigate to="/productor/registro" replace />} />
-              <Route path="/vender/login" element={<LoginPage />} />
+              <Route path="/vender/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
               <Route path="/vender/planes" element={<Navigate to="/productor" replace />} />
-              <Route path="/influencers" element={<InfluencerLandingPage />} />
-              <Route path="/influencer" element={<InfluencerLandingPage />} />
-              <Route path="/influencer/aplicar" element={<InfluencerLandingPage />} />
+              <Route path="/influencers" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
+              <Route path="/influencer" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
+              <Route path="/influencer/aplicar" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
               <Route path="/influencers/aplicar" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/influencers/registro" element={<Navigate to="/influencer/aplicar" replace />} />
-              <Route path="/influencers/login" element={<LoginPage />} />
-              <Route path="/signup" element={<RegisterPage />} />
+              <Route path="/influencers/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+              <Route path="/signup" element={<AuthLayout><RegisterPage /></AuthLayout>} />
               <Route path="/recipes" element={<RecipesPage />} />
               <Route path="/recipes/create" element={<CreateRecipePage />} />
               <Route path="/create/post" element={<CreatePostPage />} />
@@ -312,31 +323,31 @@ function AppRouter() {
               <Route path="/stores" element={<StoresListPage />} />
               <Route path="/tiendas" element={<Navigate to="/stores" replace />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
-              <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/discover" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/communities" element={<CommunitiesExplorePage />} />
               <Route path="/communities/new" element={<CreateCommunityPage />} />
               <Route path="/communities/:slug" element={<CommunityPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/category/:categoryId" element={<CategoryPage />} />
-              <Route path="/que-es" element={<QueEsPage />} />
-              <Route path="/que-es-hispaloshop" element={<QueEsPage />} />
+              <Route path="/que-es" element={<InfoLayout><QueEsPage /></InfoLayout>} />
+              <Route path="/que-es-hispaloshop" element={<InfoLayout><QueEsPage /></InfoLayout>} />
               <Route path="/ser-influencer" element={<Navigate to="/influencer" replace />} />
               <Route path="/creator" element={<Navigate to="/influencer" replace />} />
               <Route path="/creator/*" element={<Navigate to="/influencer" replace />} />
               <Route path="/affiliate-old" element={<Navigate to="/influencer" replace />} />
               <Route path="/affiliate-program" element={<Navigate to="/influencer" replace />} />
               <Route path="/ser-productor" element={<Navigate to="/productor" replace />} />
-              <Route path="/importador" element={<ImporterLandingPage />} />
-              <Route path="/importer" element={<ImporterLandingPage />} />
+              <Route path="/importador" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
+              <Route path="/importer" element={<InfoLayout><ImporterLandingPage /></InfoLayout>} />
               <Route path="/importador/onboarding" element={<Navigate to="/importador?onboarding=1&plan=free" replace />} />
               <Route path="/importer/onboarding" element={<Navigate to="/importer?onboarding=1&plan=free" replace />} />
               <Route path="/ser-importador" element={<Navigate to="/importador" replace />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/seller/login" element={<LoginPage />} />
-              <Route path="/influencer/login" element={<LoginPage />} />
-              <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+              <Route path="/seller/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+              <Route path="/influencer/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+              <Route path="/auth/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+              <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
               <Route path="/register/new" element={<Navigate to="/register" replace />} />
               <Route path="/register/consumer" element={<ConsumerRegister />} />
               <Route path="/register/influencer" element={<Navigate to="/influencer/aplicar" replace />} />
@@ -344,7 +355,7 @@ function AppRouter() {
               <Route path="/register/importer" element={<Navigate to="/importer/onboarding" replace />} />
               <Route path="/seller/register" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/influencer/register" element={<Navigate to="/influencer/aplicar" replace />} />
-              <Route path="/auth/register" element={<RegisterPage />} />
+              <Route path="/auth/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
               <Route
                 path="/onboarding"
                 element={(
@@ -354,9 +365,9 @@ function AppRouter() {
                 )}
               />
               <Route path="/onboarding/:role" element={<RoleOnboardingPage />} />
-              <Route path="/verify-email" element={<VerifyEmailPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/verify-email" element={<AuthLayout><VerifyEmailPage /></AuthLayout>} />
+              <Route path="/forgot-password" element={<AuthLayout><ForgotPasswordPage /></AuthLayout>} />
+              <Route path="/reset-password" element={<AuthLayout><ResetPasswordPage /></AuthLayout>} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/importer/register" element={<Navigate to="/importer/onboarding" replace />} />
               <Route
@@ -387,14 +398,14 @@ function AppRouter() {
               <Route path="/profile" element={<LegacyProfileRedirect />} />
               <Route path="/perfil" element={<LegacyProfileRedirect />} />
               <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />
-              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/terms" element={<InfoLayout><TermsPage /></InfoLayout>} />
               <Route path="/legal" element={<Navigate to="/terms" replace />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/help" element={<HelpPage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/press" element={<PressPage />} />
-              <Route path="/careers" element={<CareersPage />} />
-              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/privacy" element={<InfoLayout><PrivacyPage /></InfoLayout>} />
+              <Route path="/help" element={<InfoLayout><HelpPage /></InfoLayout>} />
+              <Route path="/blog" element={<InfoLayout><BlogPage /></InfoLayout>} />
+              <Route path="/press" element={<InfoLayout><PressPage /></InfoLayout>} />
+              <Route path="/careers" element={<InfoLayout><CareersPage /></InfoLayout>} />
+              <Route path="/contact" element={<InfoLayout><ContactPage /></InfoLayout>} />
               <Route
                 path="/pending-approval"
                 element={(
