@@ -41,10 +41,10 @@ import MiniCart from './components/cart/MiniCart';
 import ConsentBanner from './components/ui/ConsentBanner';
 import { initAnalyticsOnConsent } from './utils/analytics';
 
-const AboutPage = lazy(() => import('./pages/AboutPage'));
+const AboutPage = lazy(() => import('./pages/informativas/WhatIsHispaloshop'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
-const ProductorLandingPage = lazy(() => import('./pages/producer/Landing'));
-const InfluencerLandingPage = lazy(() => import('./pages/influencer/Landing'));
+const ProductorLandingPage = lazy(() => import('./pages/informativas/ForProducers'));
+const InfluencerLandingPage = lazy(() => import('./pages/informativas/ForInfluencers'));
 const RecipesPage = lazy(() => import('./pages/RecipesPage'));
 const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
 const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
@@ -64,7 +64,7 @@ const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const ReelsPage = lazy(() => import('./components/reels/ReelsContainer'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
-const ImporterLandingPage = lazy(() => import('./pages/importer/Landing'));
+const ImporterLandingPage = lazy(() => import('./pages/informativas/ForImporters'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
 const B2BQuotesHistoryPage = lazy(() => import('./pages/b2b/B2BQuotesHistoryPage'));
 const B2BChatPage = lazy(() => import('./pages/b2b/B2BChatPage'));
@@ -82,7 +82,7 @@ const HelpPage = lazy(() => import('./pages/HelpPage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
 const PressPage = lazy(() => import('./pages/PressPage'));
 const CareersPage = lazy(() => import('./pages/CareersPage'));
-const ContactPage = lazy(() => import('./pages/ContactPage'));
+const ContactPage = lazy(() => import('./pages/informativas/ContactPage'));
 const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
@@ -237,12 +237,19 @@ function LegacyProfileRedirect() {
   return <Navigate to="/dashboard/profile" replace />;
 }
 
+const HeroBanner = lazy(() => import('./components/informativas/HeroBanner'));
+
 function HomeRoute() {
   const { user } = useAuth();
   if (user) {
     return <FeedLayout><HomePage /></FeedLayout>;
   }
-  return <InfoLayout><HomePage /></InfoLayout>;
+  return (
+    <>
+      <HomePage />
+      <Suspense fallback={null}><HeroBanner /></Suspense>
+    </>
+  );
 }
 
 function AppRouter() {
@@ -406,6 +413,7 @@ function AppRouter() {
               <Route path="/press" element={<InfoLayout><PressPage /></InfoLayout>} />
               <Route path="/careers" element={<InfoLayout><CareersPage /></InfoLayout>} />
               <Route path="/contact" element={<InfoLayout><ContactPage /></InfoLayout>} />
+              <Route path="/contacto" element={<InfoLayout><ContactPage /></InfoLayout>} />
               <Route
                 path="/pending-approval"
                 element={(

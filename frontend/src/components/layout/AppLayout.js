@@ -25,7 +25,7 @@ const NO_CHROME_PATHS = [
   '/about', '/pricing', '/productor', '/influencer/aplicar',
   '/influencer', '/influencers', '/blog', '/press', '/careers', '/contact',
   '/help', '/terms', '/privacy', '/que-es', '/que-es-hispaloshop',
-  '/importador',
+  '/importador', '/contacto',
 ];
 
 function shouldHideChrome(pathname) {

@@ -1,0 +1,115 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+
+export default function HeroBanner() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('banner_dismissed') === 'true') {
+      setDismissed(true);
+    }
+  }, []);
+
+  if (user || dismissed) return null;
+
+  const handleDismiss = () => {
+    sessionStorage.setItem('banner_dismissed', 'true');
+    setDismissed(true);
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 'var(--z-overlay)',
+      height: 72,
+      background: 'rgba(10,10,10,0.92)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderTop: '0.5px solid rgba(255,255,255,0.1)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 16px',
+      fontFamily: 'var(--font-sans)',
+    }}>
+      {/* Left */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+        <img
+          src="/logo.png"
+          alt=""
+          style={{ width: 28, height: 28, objectFit: 'contain', filter: 'brightness(10)', flexShrink: 0 }}
+        />
+        <div style={{ minWidth: 0 }}>
+          <p style={{
+            margin: 0,
+            fontSize: 'var(--text-base)',
+            fontWeight: 500,
+            color: '#fff',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            Únete a hispaloshop
+          </p>
+          <p style={{
+            margin: 0,
+            fontSize: 'var(--text-sm)',
+            color: 'rgba(255,255,255,0.5)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            Descubre productores artesanales
+          </p>
+        </div>
+      </div>
+
+      {/* Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <button
+          onClick={() => navigate('/register')}
+          style={{
+            height: 40,
+            padding: '0 20px',
+            borderRadius: 'var(--radius-full)',
+            background: 'var(--color-green)',
+            color: '#fff',
+            fontSize: 'var(--text-sm)',
+            fontWeight: 600,
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: 'var(--font-sans)',
+            transition: 'background var(--transition-fast)',
+          }}
+        >
+          Crear cuenta
+        </button>
+        <button
+          onClick={handleDismiss}
+          aria-label="Cerrar"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 32,
+            height: 32,
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: 'var(--radius-full)',
+            background: 'transparent',
+            cursor: 'pointer',
+            color: 'rgba(255,255,255,0.6)',
+          }}
+        >
+          <X size={16} />
+        </button>
+      </div>
+    </div>
+  );
+}

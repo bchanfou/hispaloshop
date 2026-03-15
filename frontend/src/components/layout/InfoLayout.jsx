@@ -1,6 +1,6 @@
 import React from 'react';
 import InfoHeader from './InfoHeader';
-import Footer from '../Footer';
+import Footer from './Footer';
 
 /**
  * InfoLayout — for informational/landing pages (no session required)
