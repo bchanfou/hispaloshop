@@ -465,3 +465,59 @@ async def process_b2b_scheduled_payments(
         "failed": failed,
         "total_found": len(pending),
     }
+
+
+# ── Quarterly Tax Report (Modelo 190) ────────────────────────────
+
+@router.post("/admin/cron/generate-quarterly-tax-report")
+async def cron_generate_quarterly_tax_report(user: User = Depends(get_current_user)):
+    """
+    Generate quarterly tax withholding report.
+    Schedule: Q1→1 April, Q2→1 July, Q3→1 October, Q4→20 January.
+    """
+    await require_role(user, ["admin", "super_admin"])
+
+    now = datetime.now(timezone.utc)
+    month = now.month
+
+    # Determine which quarter just ended
+    if month in (1, 2, 3):
+        quarter, year = 4, now.year - 1
+    elif month in (4, 5, 6):
+        quarter, year = 1, now.year
+    elif month in (7, 8, 9):
+        quarter, year = 2, now.year
+    else:
+        quarter, year = 3, now.year
+
+    from services.modelo190_service import generate_quarterly_report
+    result = await generate_quarterly_report(year, quarter)
+
+    # Send email to superadmin
+    try:
+        superadmin = await db.users.find_one({"role": "super_admin"}, {"_id": 0, "email": 1, "name": 1})
+        if superadmin:
+            send_email(
+                to=superadmin["email"],
+                subject=f"Informe de retenciones Q{quarter} {year} listo",
+                html=f"""
+                <h2>Informe Modelo 190 — Q{quarter} {year}</h2>
+                <p>El informe de retenciones trimestral ha sido generado.</p>
+                <ul>
+                    <li>Perceptores: {result['perceptors_count']}</li>
+                    <li>Total retenido: {result['total_withheld']:.2f}€</li>
+                    <li>Total bruto: {result['total_gross']:.2f}€</li>
+                </ul>
+                <p><a href="{result['pdf_url']}">Descargar PDF</a></p>
+                """,
+            )
+    except Exception as e:
+        logger.error(f"Failed to send tax report email: {e}")
+
+    return {
+        "quarter": quarter,
+        "year": year,
+        "pdf_url": result["pdf_url"],
+        "total_withheld": result["total_withheld"],
+        "perceptors_count": result["perceptors_count"],
+    }

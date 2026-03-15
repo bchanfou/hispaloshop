@@ -152,6 +152,22 @@ export default function AdminOverview() {
         </div>
       </div>
 
+      {/* Fiscal */}
+      <div className="mb-5">
+        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Fiscal</h2>
+        <div className="space-y-2">
+          <PendingRow label="Certificados pendientes de revisión" count={stats?.fiscal_pending_review || 0} to="/admin/fiscal" />
+          <PendingRow label="Retenciones acumuladas YTD" count={0} to="/admin/fiscal" />
+        </div>
+        <Link
+          to="/admin/fiscal"
+          className="flex items-center justify-center gap-2 mt-3 py-2.5 text-sm font-semibold transition-colors"
+          style={{ color: 'var(--color-black)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-white)' }}
+        >
+          Gestión fiscal <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+
       {/* Quick actions */}
       <div className="mb-5">
         <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Acciones rápidas</h2>

@@ -149,7 +149,9 @@ const InfluencerDashboard = lazy(() => import('./pages/influencer/InfluencerDash
 const InfluencerInsights = lazy(() => import('./pages/influencer/InfluencerInsights'));
 const AffiliateLinksPage = lazy(() => import('./pages/influencer/AffiliateLinksPage'));
 const FiscalSetupPage = lazy(() => import('./pages/influencer/FiscalSetupPage'));
+const WithdrawalPage = lazy(() => import('./pages/influencer/WithdrawalPage'));
 const PayoutsPage = lazy(() => import('./pages/influencer/PayoutsPage'));
+const AdminFiscalPage = lazy(() => import('./pages/admin/AdminFiscalPage'));
 const ChatContainer = lazy(() => import('./components/chat/ChatContainer'));
 const ChatsPage = lazy(() => import('./pages/chat/ChatsPage'));
 const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
@@ -428,6 +430,7 @@ function AppRouter() {
                 <Route path="trust-safety" element={<AdminTrustSafety />} />
                 <Route path="growth" element={<AdminGrowthAnalytics />} />
                 <Route path="escalation" element={<EscalationChat />} />
+                <Route path="fiscal" element={<AdminFiscalPage />} />
               </Route>
               <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
 
@@ -585,6 +588,16 @@ function AppRouter() {
                   <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
                     <InfluencerLayoutResponsive>
                       <FiscalSetupPage />
+                    </InfluencerLayoutResponsive>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/influencer/withdraw"
+                element={
+                  <ProtectedRoute allowedRoles={['influencer']} requireOnboarding={false}>
+                    <InfluencerLayoutResponsive>
+                      <WithdrawalPage />
                     </InfluencerLayoutResponsive>
                   </ProtectedRoute>
                 }

@@ -42,6 +42,7 @@ from routes.cart import router as legacy_cart_router
 from routes.orders import router as legacy_orders_router
 from routes.influencer import router as legacy_influencer_router
 from routes.influencer_fiscal import router as influencer_fiscal_router
+from routes.admin_fiscal import router as admin_fiscal_router
 from routes.subscriptions import router as legacy_subscriptions_router
 from routes.customer import router as legacy_customer_router
 from routes.wishlist import router as legacy_wishlist_router
@@ -170,6 +171,7 @@ app.include_router(legacy_cart_router, prefix="/api", tags=["cart"])
 app.include_router(legacy_orders_router, prefix="/api", tags=["orders"])
 app.include_router(legacy_influencer_router, prefix="/api", tags=["influencer"])
 app.include_router(influencer_fiscal_router, prefix="/api", tags=["influencer-fiscal"])
+app.include_router(admin_fiscal_router, prefix="/api", tags=["admin-fiscal"])
 app.include_router(legacy_subscriptions_router, prefix="/api", tags=["subscriptions"])
 app.include_router(legacy_customer_router, prefix="/api", tags=["customer"])
 app.include_router(legacy_wishlist_router, prefix="/api", tags=["wishlist"])

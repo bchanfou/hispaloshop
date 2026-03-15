@@ -534,6 +534,12 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
     # Moderation queue pending
     pending_moderation = await db.moderation_queue.count_documents({"status": "pending"})
 
+    # Fiscal: pending certificate reviews
+    fiscal_pending_review = await db.influencers.count_documents({
+        "fiscal_status.needs_manual_review": True,
+        "fiscal_status.certificate_verified": {"$ne": True},
+    })
+
     return {
         "pending_producers": pending_producers,
         "total_producers": total_producers,
@@ -547,6 +553,7 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
         "refunded_orders": refunded_orders,
         "open_support": open_support,
         "pending_moderation": pending_moderation,
+        "fiscal_pending_review": fiscal_pending_review,
     }
 
 

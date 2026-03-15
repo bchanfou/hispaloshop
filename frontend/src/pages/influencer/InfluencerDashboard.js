@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
-import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2 } from 'lucide-react';
+import { Copy, Check, ExternalLink, DollarSign, ShoppingBag, TrendingUp, CreditCard, Home, Percent, Users, AlertCircle, Sparkles, Loader2, Mail, BarChart3, Wallet, ArrowUpRight, Clock, CheckCircle2, HelpCircle, Building2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
@@ -248,6 +248,10 @@ export default function InfluencerDashboard() {
   const [copied, setCopied] = useState(false);
   const [emailVerified, setEmailVerified] = useState(user?.email_verified);
   const [productPerformance, setProductPerformance] = useState([]);
+  const [fiscalStatus, setFiscalStatus] = useState(null);
+  const [withholdingSummary, setWithholdingSummary] = useState(null);
+  const [payoutHistory, setPayoutHistory] = useState([]);
+  const [showIrpfModal, setShowIrpfModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -269,6 +273,17 @@ export default function InfluencerDashboard() {
           setProductPerformance([]);
         }
       });
+
+    // Fetch fiscal data
+    apiClient.get('/influencer/fiscal/status').then(d => {
+      if (active) setFiscalStatus(d);
+    }).catch(() => {});
+    apiClient.get('/influencer/fiscal/withholding-summary').then(d => {
+      if (active) setWithholdingSummary(d);
+    }).catch(() => {});
+    apiClient.get('/influencer/payouts').then(d => {
+      if (active) setPayoutHistory(d?.payouts || d || []);
+    }).catch(() => {});
 
     return () => {
       active = false;
@@ -705,6 +720,174 @@ export default function InfluencerDashboard() {
               stripeConnected={stripeStatus?.connected && stripeStatus?.onboarding_complete}
               onWithdrawSuccess={refetchDashboard}
             />
+          </div>
+        )}
+
+        {/* Fiscal Section — only if certificate verified */}
+        {fiscalStatus?.certificate_verified && (
+          <div className="mt-6 space-y-4">
+            {/* Fiscal Summary Card */}
+            <div className="p-5" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
+                  Resumen fiscal {withholdingSummary?.year || new Date().getFullYear()}
+                </h3>
+                <button
+                  onClick={() => setShowIrpfModal(true)}
+                  className="flex items-center gap-1 text-xs font-medium"
+                  style={{ color: 'var(--color-stone)', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  ¿Qué es la retención?
+                </button>
+              </div>
+
+              {/* YTD Stats */}
+              <div className={`grid ${fiscalStatus?.tax_country === 'ES' ? 'grid-cols-3' : 'grid-cols-2'} gap-3 mb-4`}>
+                <div className="text-center p-3" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
+                  <p className="text-lg font-bold" style={{ color: 'var(--color-black)' }}>
+                    {(withholdingSummary?.gross_ytd || 0).toFixed(2)}€
+                  </p>
+                  <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>Comisiones brutas</p>
+                </div>
+                {fiscalStatus?.tax_country === 'ES' && (
+                  <div className="text-center p-3" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
+                    <p className="text-lg font-bold" style={{ color: 'var(--color-amber)' }}>
+                      {(withholdingSummary?.withheld_ytd || 0).toFixed(2)}€
+                    </p>
+                    <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>IRPF retenido (15%)</p>
+                  </div>
+                )}
+                <div className="text-center p-3" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
+                  <p className="text-lg font-bold" style={{ color: 'var(--color-green)' }}>
+                    {(withholdingSummary?.net_ytd || 0).toFixed(2)}€
+                  </p>
+                  <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>Cobrado neto</p>
+                </div>
+              </div>
+
+              {/* Quarterly breakdown */}
+              {withholdingSummary?.by_quarter && Object.keys(withholdingSummary.by_quarter).length > 0 && (
+                <>
+                  <div className="mb-2" style={{ borderTop: '1px solid var(--color-border)' }} />
+                  <div className="grid grid-cols-4 gap-2">
+                    {['Q1', 'Q2', 'Q3', 'Q4'].map(q => {
+                      const qData = withholdingSummary.by_quarter[q];
+                      const currentQ = `Q${Math.ceil((new Date().getMonth() + 1) / 3)}`;
+                      const isCurrent = q === currentQ;
+                      return (
+                        <div key={q} className="text-center p-2" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)', border: isCurrent ? '2px solid var(--color-black)' : '1px solid var(--color-border)' }}>
+                          <p className="text-[10px] font-bold mb-1" style={{ color: isCurrent ? 'var(--color-black)' : 'var(--color-stone)' }}>{q}</p>
+                          {qData ? (
+                            <>
+                              <p className="text-xs font-semibold" style={{ color: 'var(--color-black)' }}>{qData.gross.toFixed(0)}€</p>
+                              {fiscalStatus?.tax_country === 'ES' && (
+                                <p className="text-[9px]" style={{ color: 'var(--color-stone)' }}>−{qData.withheld.toFixed(0)}€</p>
+                              )}
+                            </>
+                          ) : (
+                            <p className="text-xs" style={{ color: 'var(--color-stone)' }}>—</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Payout method card */}
+            <div className="p-4 flex items-center justify-between" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+              <div className="flex items-center gap-3">
+                {fiscalStatus?.payout_method === 'sepa' ? (
+                  <Building2 className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
+                ) : (
+                  <CreditCard className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
+                )}
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>
+                    {fiscalStatus?.payout_method === 'sepa' ? 'Transferencia SEPA' : 'Stripe'}
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                    {fiscalStatus?.payout_method === 'sepa'
+                      ? `···· ${fiscalStatus?.sepa_iban_last4 || '****'}`
+                      : (fiscalStatus?.stripe_onboarding_complete ? 'Activo' : 'Pendiente')}
+                  </p>
+                </div>
+              </div>
+              <Link to="/influencer/fiscal-setup" className="text-xs font-semibold" style={{ color: 'var(--color-stone)' }}>
+                Cambiar
+              </Link>
+            </div>
+
+            {/* Payout history */}
+            {Array.isArray(payoutHistory) && payoutHistory.length > 0 && (
+              <div className="p-4" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+                <p className="text-[10px] uppercase tracking-wider font-bold mb-3" style={{ color: 'var(--color-stone)' }}>Cobros realizados</p>
+                <div className="space-y-2">
+                  {payoutHistory.slice(0, 5).map((p, i) => (
+                    <div key={p.withdrawal_id || i} className="flex items-center justify-between py-2" style={{ borderBottom: i < Math.min(payoutHistory.length, 5) - 1 ? '1px solid var(--color-border)' : 'none' }}>
+                      <div>
+                        <p className="text-xs font-medium" style={{ color: 'var(--color-black)' }}>
+                          {p.created_at ? new Date(p.created_at).toLocaleDateString('es-ES') : '—'}
+                        </p>
+                        <p className="text-[10px]" style={{ color: 'var(--color-stone)' }}>
+                          Bruto: {(p.gross_amount || p.amount || 0).toFixed(2)}€
+                          {(p.withholding_amount || 0) > 0 && ` · Ret: ${p.withholding_amount.toFixed(2)}€`}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>
+                          {(p.net_amount || p.amount || 0).toFixed(2)}€
+                        </p>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
+                          background: p.status === 'completed' ? 'var(--color-green-light)' : 'var(--color-amber-light)',
+                          color: p.status === 'completed' ? 'var(--color-green)' : 'var(--color-amber)',
+                        }}>
+                          {p.status === 'completed' ? 'Pagado' : 'Procesando'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {Array.isArray(payoutHistory) && payoutHistory.length === 0 && (
+              <div className="p-4 text-center" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+                <p className="text-[10px] uppercase tracking-wider font-bold mb-2" style={{ color: 'var(--color-stone)' }}>Cobros realizados</p>
+                <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Aún no has realizado ningún cobro</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* IRPF Modal */}
+        {showIrpfModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)' }}>
+            <div className="mx-4 max-w-sm w-full p-6" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)' }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>¿Qué es la retención IRPF?</h3>
+                <button onClick={() => setShowIrpfModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <X className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
+                </button>
+              </div>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--color-stone)' }}>
+                Hispaloshop SL retiene el 15% de tus comisiones y lo ingresa a Hacienda en tu nombre trimestralmente (Modelo 111).
+              </p>
+              <p className="text-sm leading-relaxed mt-3" style={{ color: 'var(--color-stone)' }}>
+                Cuando hagas tu declaración de la renta (IRPF), esas retenciones ya estarán pagadas y podrás deducirlas.
+              </p>
+              <p className="text-sm leading-relaxed mt-3" style={{ color: 'var(--color-stone)' }}>
+                Recibirás el certificado de retenciones en enero de cada año.
+              </p>
+              <button
+                onClick={() => setShowIrpfModal(false)}
+                className="w-full mt-5 py-2.5 text-sm font-semibold transition-colors"
+                style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)', border: 'none', cursor: 'pointer' }}
+              >
+                Entendido
+              </button>
+            </div>
           </div>
         )}
 
