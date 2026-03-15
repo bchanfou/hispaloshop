@@ -327,11 +327,11 @@ function AppRouter() {
               <Route path="/configuracion/moneda" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/become-influencer" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/become-seller" element={<Navigate to="/productor/registro" replace />} />
-              <Route path="/stores" element={<StoresListPage />} />
+              <Route path="/stores" element={<FeedLayout><StoresListPage /></FeedLayout>} />
               <Route path="/tiendas" element={<Navigate to="/stores" replace />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/discover" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
-              <Route path="/communities" element={<CommunitiesExplorePage />} />
+              <Route path="/communities" element={<FeedLayout><CommunitiesExplorePage /></FeedLayout>} />
               <Route path="/communities/new" element={<CreateCommunityPage />} />
               <Route path="/communities/:slug" element={<CommunityPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />

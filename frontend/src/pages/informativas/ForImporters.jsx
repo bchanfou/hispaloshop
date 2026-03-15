@@ -100,9 +100,9 @@ export default function ForImporters() {
             gap: 16,
           }}>
             {[
-              { emoji: '📂', title: 'Sin catálogo estructurado', body: 'Los productores están dispersos en ferias, directorios desactualizados y contactos de WhatsApp.' },
-              { emoji: '📧', title: 'Procesos manuales', body: 'Cada pedido requiere decenas de emails, llamadas y documentos escaneados. Sin trazabilidad.' },
-              { emoji: '⚠️', title: 'Sin garantías', body: 'Pagos por transferencia sin protección, contratos en PDF, sin mecanismo de resolución de disputas.' },
+              { emoji: '📂', title: 'Sin catálogo estructurado', body: 'Los mejores productores artesanales no tienen fuerza de ventas. Encontrarlos es labor de detective.' },
+              { emoji: '📧', title: 'Procesos manuales', body: 'Negociar, redactar contratos, gestionar documentación aduanera. Horas que deberían dedicarse a vender.' },
+              { emoji: '⚠️', title: 'Sin garantías', body: 'Un acuerdo de palabra con un productor pequeño es un riesgo. Si algo falla, no hay protocolo.' },
             ].map((card, i) => (
               <div key={i} style={{
                 background: 'var(--color-white)',
@@ -198,9 +198,13 @@ export default function ForImporters() {
             fontSize: 15, color: 'rgba(255,255,255,0.65)',
             maxWidth: 600, lineHeight: 1.7, marginBottom: 32,
           }}>
-            Hispal AI genera la documentación aduanera necesaria para cada
-            operación. Desde los certificados sanitarios hasta los formularios
-            de importación. Revisados por nuestro equipo antes de cada envío.
+            Según el país de origen, el país de destino,
+            el tipo de producto y el Incoterm,
+            la IA de Hispaloshop genera automáticamente
+            la lista de documentos necesarios para
+            el despacho aduanero. Factura comercial,
+            packing list, EUR.1, certificados DOP,
+            fitosanitarios. Todo en una pantalla.
           </p>
 
           <div style={{
@@ -209,10 +213,10 @@ export default function ForImporters() {
             gap: 16,
           }}>
             {[
-              { emoji: '📄', title: 'Documentación automática', body: 'Facturas proforma, packing lists y certificados de origen generados automáticamente.' },
-              { emoji: '🏛️', title: 'Cumplimiento normativo', body: 'Validación de requisitos sanitarios y aduaneros por país de destino.' },
-              { emoji: '🔍', title: 'Códigos arancelarios', body: 'Asignación automática de códigos HS para cada producto del catálogo.' },
-              { emoji: '📊', title: 'Costes estimados', body: 'Cálculo de aranceles, IVA e impuestos antes de confirmar la operación.' },
+              { emoji: '🤖', title: 'Lista de documentos por tráfico específico', body: 'Documentación personalizada según origen, destino, producto e Incoterm.' },
+              { emoji: '⚠️', title: 'Alertas de caducidad de certificados', body: 'Notificaciones automáticas antes de que caduquen tus certificados vigentes.' },
+              { emoji: '📄', title: 'Guía de procedimiento aduanero por país', body: 'Instrucciones paso a paso para cada país de destino.' },
+              { emoji: '🔔', title: 'Notificación cuando la documentación está completa', body: 'Aviso instantáneo cuando todo está listo para el despacho.' },
             ].map((card, i) => (
               <div key={i} style={{
                 background: 'rgba(255,255,255,0.04)',

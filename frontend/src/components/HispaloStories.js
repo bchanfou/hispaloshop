@@ -666,7 +666,7 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
           >
             {/* Círculo con avatar del usuario */}
             <div className="relative">
-              <div className="h-[62px] w-[62px] overflow-hidden rounded-full border border-stone-200 bg-stone-100">
+              <div className="story-circle h-[62px] w-[62px] overflow-hidden rounded-full border border-stone-200 bg-stone-100">
                 {userAvatar ? (
                   <img
                     src={userAvatar}
@@ -685,7 +685,7 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
                 <Plus className="h-3 w-3 text-white" strokeWidth={3} />
               </div>
             </div>
-            <span className="w-[62px] truncate text-center text-[11px] font-medium text-stone-600">
+            <span className="story-label w-[62px] truncate text-center text-[11px] font-medium text-stone-600">
               Tu historia
             </span>
           </motion.button>
@@ -713,7 +713,7 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
             >
               {/* Ring B&W: propio → gris claro · ajeno → negro */}
               <div
-                className={`flex h-[62px] w-[62px] shrink-0 items-center justify-center rounded-full ${
+                className={`story-circle flex h-[62px] w-[62px] shrink-0 items-center justify-center rounded-full ${
                   isOwn
                     ? 'ring-[2px] ring-stone-300 ring-offset-[2px] ring-offset-white'
                     : 'ring-[2px] ring-stone-950 ring-offset-[2px] ring-offset-white'
@@ -739,7 +739,7 @@ export function StoriesRow({ onCreateStory, onViewStory }) {
                 </div>
               </div>
 
-              <span className="w-[62px] truncate text-center text-[11px] font-medium text-stone-600">
+              <span className="story-label w-[62px] truncate text-center text-[11px] font-medium text-stone-600">
                 {isOwn ? t('stories.yourStory', 'Tu historia') : firstToken(group.user_name, '')}
               </span>
             </motion.button>

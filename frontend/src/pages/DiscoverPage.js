@@ -194,9 +194,25 @@ export default function DiscoverPage() {
             Para ti
           </span>
 
+          <style>{`
+            .product-grid {
+              display: grid;
+              gap: 12px;
+              grid-template-columns: repeat(2, 1fr);
+            }
+            @media (min-width: 600px) {
+              .product-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+            }
+            @media (min-width: 1024px) {
+              .product-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+            }
+            @media (min-width: 1440px) {
+              .product-grid { grid-template-columns: repeat(5, 1fr); }
+            }
+          `}</style>
           {loadingProducts ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {[...Array(4)].map((_, i) => (
+            <div className="product-grid">
+              {[...Array(6)].map((_, i) => (
                 <div key={i} style={{
                   borderRadius: 'var(--radius-lg)', background: 'var(--color-white)',
                   border: '0.5px solid var(--color-border)', overflow: 'hidden',
@@ -210,19 +226,10 @@ export default function DiscoverPage() {
               ))}
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {/* Left column */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {products.filter((_, i) => i % 2 === 0).map((product) => (
-                  <ProductCard key={product.product_id || product.id} product={product} />
-                ))}
-              </div>
-              {/* Right column — offset 20px */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 20 }}>
-                {products.filter((_, i) => i % 2 === 1).map((product) => (
-                  <ProductCard key={product.product_id || product.id} product={product} />
-                ))}
-              </div>
+            <div className="product-grid">
+              {products.map((product) => (
+                <ProductCard key={product.product_id || product.id} product={product} />
+              ))}
             </div>
           )}
         </div>

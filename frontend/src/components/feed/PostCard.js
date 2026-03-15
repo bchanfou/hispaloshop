@@ -186,7 +186,7 @@ function PostCard({ post, onLike, onComment, onShare, onSave, priority = false }
     : t('feed.postImageAlt', 'Imagen de la publicación de {{author}}', { author: authorName });
 
   return (
-    <article className="border-b border-stone-100 bg-white" data-testid={`post-card-${post.id}`}>
+    <article className="post-card-hover border-b border-stone-100 bg-white" style={{ transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)' }} data-testid={`post-card-${post.id}`}>
 
       {/* ── Header ── */}
       <div className="flex items-center gap-2.5 px-3 py-2.5">

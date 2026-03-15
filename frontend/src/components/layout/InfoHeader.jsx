@@ -73,7 +73,7 @@ export default function InfoHeader() {
           padding: '0 var(--space-4)',
         }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-            <img src="/logo.png" alt="Hispaloshop" style={{ height: 26, width: 26, objectFit: 'contain', filter: 'brightness(10)' }} />
+            <img src="/logo.png" alt="Hispaloshop" style={{ height: 26, width: 26, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
             <span style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: textColor }}>
               Hispaloshop
             </span>
@@ -126,7 +126,7 @@ export default function InfoHeader() {
         }}>
           {/* Logo */}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <img src="/logo.png" alt="Hispaloshop" style={{ height: 28, width: 28, objectFit: 'contain', filter: 'brightness(10)' }} />
+            <img src="/logo.png" alt="Hispaloshop" style={{ height: 28, width: 28, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
             <span style={{ fontSize: 'var(--text-lg)', fontWeight: 700, color: textColor }}>
               Hispaloshop
             </span>

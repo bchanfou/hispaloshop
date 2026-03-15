@@ -72,10 +72,9 @@ export default function Footer() {
           {/* Logo + wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <img
-              src="/brand/logo-white.svg"
+              src="/logo.png"
               alt="Hispaloshop"
-              style={{ height: 24, objectFit: 'contain' }}
-              onError={(e) => { e.target.style.display = 'none'; }}
+              style={{ height: 24, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
             />
             <span style={{ fontSize: 17, fontWeight: 600, color: '#fff' }}>
               hispaloshop

@@ -155,7 +155,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
       <motion.button
         type="button"
         whileTap={{ scale: 0.985 }}
-        className="group relative aspect-[9/16] w-full overflow-hidden rounded-[28px] border border-stone-200 bg-stone-950 text-left"
+        className="reel-card-hover group relative aspect-[9/16] w-full overflow-hidden rounded-[28px] border border-stone-200 bg-stone-950 text-left"
         onClick={() => onOpenFullscreen?.(reel)}
         aria-label={t('feed.openReel', 'Abrir reel de {{author}}', { author: reelAuthor })}
       >
@@ -167,6 +167,7 @@ function ReelCard({ reel, isInFeed = true, onOpenFullscreen, onLike, onComment, 
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
         />
 
+        <div className="reel-hover-overlay absolute inset-0 bg-black/10 transition-opacity duration-200" style={{ opacity: 0, pointerEvents: 'none' }} />
         <div className="absolute inset-0 bg-gradient-to-b from-black/12 via-transparent to-black/72" />
         <ProductTagMarkers tags={taggedProducts} onSelect={setSelectedProduct} />
 

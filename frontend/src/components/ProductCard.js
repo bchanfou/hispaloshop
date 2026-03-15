@@ -133,12 +133,12 @@ function ProductCard({ product, variant = 'default' }) {
   return (
     <Link
       to={`/products/${productId}`}
-      className="group block overflow-hidden"
+      className="group block overflow-hidden product-card-hover"
       style={{
         borderRadius: 'var(--radius-lg)',
         background: 'var(--color-white)',
         border: '0.5px solid var(--color-border)',
-        transition: 'var(--transition-fast)',
+        transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)',
       }}
       data-testid={`product-card-${productId}`}
     >

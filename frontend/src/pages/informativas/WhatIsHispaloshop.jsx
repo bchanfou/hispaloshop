@@ -39,25 +39,10 @@ const LogoAtlas = ({ size = 72, white = false }) => (
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   }}>
     <img
-      src="/brand/logo-white.svg"
+      src="/logo.png"
       alt="Hispaloshop"
-      style={{ width: size, height: size, objectFit: 'contain' }}
-      onError={(e) => {
-        e.target.style.display = 'none';
-        e.target.nextSibling.style.display = 'flex';
-      }}
+      style={{ width: size, height: size, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
     />
-    <div style={{
-      display: 'none',
-      width: size, height: size, borderRadius: '50%',
-      background: white ? '#fff' : 'var(--color-black)',
-      color: white ? 'var(--color-black)' : '#fff',
-      alignItems: 'center', justifyContent: 'center',
-      fontSize: size * 0.45, fontWeight: 700,
-      fontFamily: 'var(--font-info)',
-    }}>
-      H
-    </div>
   </div>
 );
 

@@ -104,6 +104,10 @@
   --bottom-nav-height:  64px;
   --header-height:      56px;
   --safe-area-bottom:   env(safe-area-inset-bottom, 0px);
+  --container-feed:     680px;
+  --container-sidebar:  320px;
+  --content-px:         16px;
+  --content-px-desktop: 24px;
 }
 
 /* ── Dark theme (Superadmin) ── */
