@@ -76,6 +76,7 @@ proto-plus==1.27.0
 protobuf==5.29.5
 py-vapid
 pyasn1==0.6.1
+PyPDF2==3.0.1
 pyasn1_modules==0.4.2
 pycodestyle==2.14.0
 pycparser==2.23
