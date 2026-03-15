@@ -1,34 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Award,
-  Bell,
-  CheckCircle,
-  ExternalLink,
-  Globe,
-  Heart,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Phone,
-  Share2,
-  Shield,
-  ShoppingBag,
-  SquareLibrary,
-  Star,
-  Store,
-  Truck,
-  User,
-  Users,
+  Award, Bell, CheckCircle, ChevronLeft, ExternalLink, Globe,
+  Heart, Mail, MapPin, MessageCircle, Phone, Share2, Shield,
+  ShoppingBag, Star, Store, Truck, User, Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import BackButton from '../components/BackButton';
-import Footer from '../components/Footer';
-import Header from '../components/Header';
 import PostViewer from '../components/PostViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
-import PremiumSelect from '../components/ui/PremiumSelect';
+import ProductCard from '../components/ProductCard';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
@@ -37,111 +18,14 @@ import { useStoreFollow } from '../features/products/hooks';
 
 const normalizeEntityId = (value) => (value == null ? '' : String(value));
 
-function TabButton({ active, onClick, icon: Icon, label, count }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm transition-all duration-150 ease-out ${
-        active ? 'bg-stone-950 text-white shadow-sm' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-      }`}
-    >
-      <Icon className="h-4 w-4" />
-      <span>{label}</span>
-      <span className={`rounded-full px-2 py-0.5 text-[10px] ${active ? 'bg-white/15 text-white' : 'bg-white text-stone-500'}`}>
-        {count}
-      </span>
-    </button>
-  );
-}
-
-function EmptyPanel({ title, description }) {
-  return (
-    <div className="rounded-3xl border border-stone-100 bg-white px-6 py-16 text-center shadow-sm">
-      <h3 className="text-lg font-semibold text-stone-950">{title}</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-500">{description}</p>
-    </div>
-  );
-}
-
-function ProductTile({ product, onOpen, formatPrice }) {
-  const primaryImage = product.images?.[0] || product.image_url || null;
-
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(product)}
-      className="group block text-left"
-      aria-label={`Abrir detalle de ${product.name}`}
-    >
-      <div className="overflow-hidden rounded-[26px] border border-stone-100 bg-white p-3 shadow-sm transition-all duration-150 ease-out hover:-translate-y-[1px] hover:shadow-md">
-        <div className="relative overflow-hidden rounded-2xl bg-stone-100">
-          <div className="aspect-square">
-            {primaryImage ? (
-              <img
-                src={primaryImage}
-                alt={product.name}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.03]"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-stone-100 text-stone-400">
-                <ShoppingBag className="h-8 w-8" />
-              </div>
-            )}
-          </div>
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-4 pb-4 pt-10">
-            <p className="text-base font-semibold text-white">{formatPrice(product)}</p>
-          </div>
-        </div>
-        <div className="px-1 pb-1 pt-4">
-          <h3 className="line-clamp-2 text-sm font-medium text-stone-950">{product.name}</h3>
-          <p className="mt-1 text-xs text-stone-500">
-            {product.category_name || product.category || 'Selección de tienda'}
-          </p>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-function PostTile({ post, onOpen }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onOpen(post)}
-      className="group relative block overflow-hidden rounded-[24px] bg-stone-100 text-left"
-      aria-label="Abrir publicación"
-    >
-      <div className="aspect-square">
-        {post.image_url ? (
-          <img
-            src={post.image_url}
-            alt={post.caption || 'Publicación de tienda'}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="flex h-full w-full items-end bg-stone-950 p-4">
-            <p className="line-clamp-4 text-sm leading-relaxed text-white/80">{post.caption || 'Publicación sin imagen'}</p>
-          </div>
-        )}
-      </div>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-4 pb-4 pt-12">
-        <p className="line-clamp-2 text-sm text-white">{post.caption || 'Abrir publicación'}</p>
-      </div>
-    </button>
-  );
-}
-
 export default function StorePage() {
   const { storeSlug } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
   const { user } = useAuth();
   const { convertAndFormatPrice } = useLocale();
-  const [activeTab, setActiveTab] = useState('posts');
-  const [productSort, setProductSort] = useState('featured');
+  const [activeTab, setActiveTab] = useState('products');
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const requestedProductId = searchParams.get('product');
@@ -151,7 +35,6 @@ export default function StorePage() {
     queryFn: () => apiClient.get(`/store/${storeSlug}`),
     enabled: Boolean(storeSlug),
   });
-
   const store = storeQuery.data ?? null;
 
   const postsQuery = useQuery({
@@ -161,8 +44,8 @@ export default function StorePage() {
   });
 
   const productsQuery = useQuery({
-    queryKey: ['store', storeSlug, 'products', productSort],
-    queryFn: () => apiClient.get(`/store/${storeSlug}/products`, { params: { sort: productSort, limit: 100 } }),
+    queryKey: ['store', storeSlug, 'products'],
+    queryFn: () => apiClient.get(`/store/${storeSlug}/products`, { params: { sort: 'featured', limit: 100 } }),
     enabled: Boolean(storeSlug),
   });
 
@@ -185,627 +68,538 @@ export default function StorePage() {
   const productTotal = productsQuery.data?.total || products.length || store?.product_count || 0;
   const reviewsTotal = reviewsQuery.data?.total || reviews.length || store?.review_count || 0;
   const avgRating = reviewsQuery.data?.average_rating || store?.rating || 0;
-  const hasFastShipping = Boolean(store?.delivery_time);
   const isVerified = Boolean(store?.verified || store?.producer_verified);
   const { isFollowing, followLoading, handleFollowStore } = useStoreFollow(store?.slug || store?.store_slug);
 
-  const ownerLabel = useMemo(() => {
-    if (!store) return '';
-    if (store.owner_type === 'importer' || store.store_type === 'importer') return 'Importador';
-    return t('store.seller', 'Productor');
-  }, [store, t]);
-
-  const productSortOptions = [
-    { value: 'featured', label: t('store.sortFeatured', 'Destacados') },
-    { value: 'newest', label: t('store.sortNewest', 'Recientes') },
-    { value: 'price_asc', label: t('store.sortPriceAsc', 'Precio: menor') },
-    { value: 'price_desc', label: t('store.sortPriceDesc', 'Precio: mayor') },
-    { value: 'rating', label: t('store.sortRating', 'Mejor valorados') },
-  ];
-
   const handleToggleFollow = async () => {
-    if (!user) {
-      toast.error(t('store.loginToFollow', 'Inicia sesión para seguir tiendas'));
-      return;
-    }
-
+    if (!user) { toast.error(t('store.loginToFollow', 'Inicia sesión para seguir tiendas')); return; }
     try {
       await handleFollowStore();
-      toast.success(
-        isFollowing
-          ? t('store.unfollowed', 'Has dejado de seguir esta tienda')
-          : t('store.followed', 'Ahora sigues esta tienda'),
-      );
-    } catch {
-      toast.error(t('store.followError', 'No hemos podido actualizar el seguimiento'));
+      toast.success(isFollowing ? t('store.unfollowed', 'Dejaste de seguir') : t('store.followed', 'Ahora sigues esta tienda'));
+    } catch { toast.error(t('store.followError', 'Error')); }
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try { await navigator.share({ title: store?.name, url }); } catch { /* cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success(t('social.linkCopied', 'Enlace copiado'));
     }
   };
 
-  const formatPrice = (product) =>
-    convertAndFormatPrice(product.display_price || product.price || 0, product.display_currency || product.currency || 'EUR');
-
   useEffect(() => {
     if (!requestedProductId || products.length === 0) return;
-
-    const matchedProduct = products.find(
-      (product) => normalizeEntityId(product.product_id || product.id) === normalizeEntityId(requestedProductId),
-    );
-    if (!matchedProduct) return;
-
-    setActiveTab('products');
-    setSelectedProduct((current) => (
-      normalizeEntityId(current?.product_id || current?.id) === normalizeEntityId(matchedProduct.product_id || matchedProduct.id)
-        ? current
-        : matchedProduct
-    ));
+    const matched = products.find(p => normalizeEntityId(p.product_id || p.id) === normalizeEntityId(requestedProductId));
+    if (matched) { setActiveTab('products'); setSelectedProduct(prev => normalizeEntityId(prev?.product_id || prev?.id) === normalizeEntityId(matched.product_id || matched.id) ? prev : matched); }
   }, [products, requestedProductId]);
 
+  const tabs = [
+    { id: 'products', label: 'Productos', count: productTotal },
+    { id: 'posts', label: 'Publicaciones', count: posts.length },
+    { id: 'reviews', label: 'Reseñas', count: reviewsTotal },
+    { id: 'about', label: 'Historia', count: null },
+  ];
+
+  // ── Loading ──
   if (storeQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <Header />
-        <div className="flex items-center justify-center py-24">
-          <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-stone-950" />
-        </div>
-        <Footer />
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="h-8 w-8 animate-spin rounded-full border-2" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-black)' }} />
       </div>
     );
   }
 
+  // ── Not found ──
   if (!store) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <Header />
-        <div className="mx-auto max-w-5xl px-4 py-20 text-center">
-          <BackButton />
-          <div className="mx-auto mt-8 max-w-xl rounded-[32px] border border-stone-200 bg-white p-10">
-            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.28em] text-stone-500">Tienda</p>
-            <h1 className="mb-3 text-2xl font-semibold text-stone-950">{t('store.notFound', 'Tienda no encontrada')}</h1>
-            <p className="mb-6 text-sm leading-relaxed text-stone-500">
-              {t('store.notFoundDesc', 'La tienda que buscas no existe o ya no está disponible.')}
-            </p>
-            <Link
-              to="/stores"
-              className="inline-flex items-center rounded-full bg-stone-950 px-5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
-            >
-              {t('store.viewAll', 'Ver todas las tiendas')}
-            </Link>
-          </div>
-        </div>
-        <Footer />
+      <div style={{
+        minHeight: '100vh', background: 'var(--color-cream)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: 32, textAlign: 'center',
+      }}>
+        <p style={{ fontSize: 16, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginBottom: 16 }}>
+          {t('store.notFound', 'Tienda no encontrada')}
+        </p>
+        <button
+          onClick={() => navigate('/stores')}
+          style={{
+            background: 'var(--color-black)', color: '#fff', border: 'none',
+            borderRadius: 'var(--radius-md)', padding: '10px 24px',
+            fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer',
+          }}
+        >
+          {t('store.viewAll', 'Ver tiendas')}
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <Header />
+    <div style={{ minHeight: '100vh', background: 'var(--color-cream)' }}>
+      {/* ── TopBar (over hero) ── */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 16px', height: 52,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+      }}>
+        <button
+          type="button" onClick={() => navigate(-1)}
+          style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)',
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          aria-label="Volver"
+        >
+          <ChevronLeft size={20} strokeWidth={2} color="#fff" />
+        </button>
+        <button
+          type="button" onClick={handleShare}
+          style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)',
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          aria-label="Compartir"
+        >
+          <Share2 size={18} strokeWidth={1.8} color="#fff" />
+        </button>
+      </div>
 
-      <section className="border-b border-stone-200 bg-white">
-        <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
-          <BackButton />
-          <div className="mt-5 overflow-hidden rounded-[32px] border border-stone-100 bg-white shadow-sm">
-            <div className="relative h-[180px] bg-stone-100 md:h-[280px]">
-              {store.hero_image ? (
-                <img
-                  src={store.hero_image}
-                  alt={`Banner de ${store.name}`}
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="h-full w-full bg-stone-100" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
-            </div>
+      {/* ── Hero Banner ── */}
+      <div style={{ position: 'relative', width: '100%', height: 200, background: 'var(--color-surface)' }}>
+        {store.hero_image ? (
+          <img src={store.hero_image} alt={`Banner de ${store.name}`} loading="lazy"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: 'var(--color-surface)' }} />
+        )}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)',
+        }} />
+      </div>
 
-            <div className="relative px-5 pb-6 md:px-8">
-              <div className="-mt-14 flex flex-col gap-5 md:-mt-16 md:flex-row md:items-end md:justify-between">
-                <div className="flex items-end gap-4">
-                  <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-stone-100 shadow-sm md:h-28 md:w-28">
-                    {store.logo ? (
-                      <img src={store.logo} alt={`Logo de ${store.name}`} loading="lazy" className="h-full w-full object-cover" />
-                    ) : (
-                      <Store className="h-9 w-9 text-stone-400" />
-                    )}
-                  </div>
+      {/* ── Store Info ── */}
+      <div style={{ position: 'relative', padding: '0 16px', marginTop: -40 }}>
+        {/* Avatar */}
+        <div style={{
+          width: 80, height: 80, borderRadius: '50%', overflow: 'hidden',
+          border: '3px solid var(--color-cream)', background: 'var(--color-surface)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {store.logo ? (
+            <img src={store.logo} alt={store.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <Store size={28} color="var(--color-stone)" />
+          )}
+        </div>
 
-                  <div className="pb-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h1 className="text-2xl font-semibold tracking-tight text-stone-950 md:text-3xl">{store.name}</h1>
-                      {isVerified ? <CheckCircle className="h-5 w-5 text-stone-950" /> : null}
-                    </div>
-                    {store.location ? (
-                      <p className="mt-2 flex items-center gap-1.5 text-sm text-stone-500">
-                        <MapPin className="h-4 w-4" />
-                        {store.location}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
+        {/* Name + verified */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+            {store.name}
+          </h1>
+          {isVerified && <CheckCircle size={18} color="var(--color-black)" />}
+        </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleToggleFollow}
-                    disabled={followLoading}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold transition-colors ${
-                      isFollowing
-                        ? 'border border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
-                        : 'bg-stone-950 text-white hover:bg-stone-800'
-                    }`}
-                    aria-label={isFollowing ? 'Dejar de seguir tienda' : 'Seguir tienda'}
-                  >
-                    {isFollowing ? <Bell className="h-4 w-4" /> : <Heart className="h-4 w-4" />}
-                    {followLoading
-                      ? t('common.loading', 'Cargando...')
-                      : isFollowing
-                        ? t('store.following', 'Siguiendo')
-                        : t('store.followStore', 'Seguir tienda')}
-                  </button>
-                  {store.contact_email ? (
-                    <a
-                      href={`mailto:${store.contact_email}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-[13px] font-semibold text-stone-700 transition-colors hover:bg-stone-50"
-                    >
-                      <Mail className="h-4 w-4" />
-                      Contactar
-                    </a>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const url = window.location.href;
-                      if (navigator.share) {
-                        try { await navigator.share({ title: store.name, url }); } catch { /* cancelled */ }
-                      } else {
-                        await navigator.clipboard.writeText(url);
-                        toast.success(t('social.linkCopied', 'Enlace copiado'));
-                      }
-                    }}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:bg-stone-50"
-                    aria-label={t('store.share', 'Compartir tienda')}
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
+        {/* Location */}
+        {store.location && (
+          <p style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginTop: 4 }}>
+            <MapPin size={13} /> {store.location}
+          </p>
+        )}
 
-              <div className="mt-5 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-stone-950 px-3 py-1 text-sm font-medium text-white">
-                  {ownerLabel}
-                </span>
-                {store.specialization ? (
-                  <span className="rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">{store.specialization}</span>
-                ) : null}
-                {hasFastShipping ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-3 py-1 text-sm text-stone-700">
-                    <Truck className="h-3.5 w-3.5" />
-                    Envío {store.delivery_time}
-                  </span>
-                ) : null}
-              </div>
+        {/* Tagline */}
+        {store.tagline && (
+          <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', lineHeight: 1.5, marginTop: 8 }}>
+            {store.tagline}
+          </p>
+        )}
 
-              {store.tagline ? (
-                <p className="mt-4 max-w-3xl text-sm leading-relaxed text-stone-600">{store.tagline}</p>
-              ) : null}
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:max-w-2xl">
-                <div className="rounded-3xl bg-stone-50 p-4">
-                  <p className="text-xl font-semibold text-stone-950">{posts.length}</p>
-                  <p className="text-xs text-stone-500">Publicaciones</p>
-                </div>
-                <div className="rounded-3xl bg-stone-50 p-4">
-                  <p className="text-xl font-semibold text-stone-950">{productTotal}</p>
-                  <p className="text-xs text-stone-500">Productos</p>
-                </div>
-                <div className="rounded-3xl bg-stone-50 p-4">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-stone-950 stroke-stone-950" />
-                    <p className="text-xl font-semibold text-stone-950">{Number(avgRating || 0).toFixed(1)}</p>
-                  </div>
-                  <p className="text-xs text-stone-500">{store.follower_count || 0} seguidores</p>
-                </div>
-              </div>
-            </div>
+        {/* Stats row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 14 }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+              {productTotal}
+            </p>
+            <p style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0 }}>productos</p>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+              {store.follower_count || 0}
+            </p>
+            <p style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0 }}>seguidores</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Star size={14} fill="var(--color-black)" stroke="var(--color-black)" />
+            <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+              {Number(avgRating || 0).toFixed(1)}
+            </span>
           </div>
         </div>
-      </section>
 
-      <section className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.7fr)_340px]">
-          <div className="space-y-6">
-            {store.story || store.founder_quote ? (
-              <section className="rounded-[32px] border border-stone-100 bg-white p-6 shadow-sm">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-stone-400">Perfil</p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-stone-950">Una tienda con contexto</h2>
-                {store.story ? (
-                  <p className="mt-4 text-sm leading-relaxed text-stone-600">{store.story}</p>
-                ) : null}
-                {store.founder_quote ? (
-                  <blockquote className="mt-4 rounded-3xl bg-stone-50 px-5 py-4 text-sm leading-relaxed text-stone-700">
-                    “{store.founder_quote}”
-                  </blockquote>
-                ) : null}
-              </section>
-            ) : null}
+        {/* Follow + Contact buttons */}
+        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+          <button
+            type="button" onClick={handleToggleFollow} disabled={followLoading}
+            style={{
+              flex: 1, height: 40, borderRadius: 'var(--radius-md)',
+              fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
+              border: isFollowing ? '1px solid var(--color-border)' : 'none',
+              background: isFollowing ? 'var(--color-white, #fff)' : 'var(--color-black)',
+              color: isFollowing ? 'var(--color-black)' : '#fff',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              transition: 'var(--transition-fast)',
+            }}
+          >
+            {isFollowing ? <Bell size={16} /> : <Heart size={16} />}
+            {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
+          </button>
+          {store.contact_email && (
+            <a
+              href={`mailto:${store.contact_email}`}
+              style={{
+                height: 40, borderRadius: 'var(--radius-md)',
+                padding: '0 16px', display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-white, #fff)', color: 'var(--color-black)',
+                textDecoration: 'none',
+              }}
+            >
+              <Mail size={16} /> Contactar
+            </a>
+          )}
+        </div>
 
-            <section className="rounded-[32px] border border-stone-100 bg-white p-5 shadow-sm">
-              <div className="flex flex-wrap gap-2">
-                <TabButton active={activeTab === 'posts'} onClick={() => setActiveTab('posts')} icon={SquareLibrary} label="Publicaciones" count={posts.length} />
-                <TabButton active={activeTab === 'products'} onClick={() => setActiveTab('products')} icon={ShoppingBag} label="Productos" count={productTotal} />
-                <TabButton active={activeTab === 'reviews'} onClick={() => setActiveTab('reviews')} icon={Star} label={t('store.reviews', 'Reseñas')} count={reviewsTotal} />
-                <TabButton active={activeTab === 'certificates'} onClick={() => setActiveTab('certificates')} icon={Award} label="Certificados" count={certificates.length} />
-                <TabButton active={activeTab === 'about'} onClick={() => setActiveTab('about')} icon={Store} label={t('store.about', 'Historia')} count="" />
+        {/* Certification row */}
+        {certificates.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 }}>
+            {certificates.map((cert, i) => (
+              <span key={i} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontSize: 11, fontWeight: 500, padding: '3px 10px',
+                borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
+                background: 'var(--color-surface)', color: 'var(--color-black)',
+              }}>
+                <Award size={12} />
+                {cert.certificate_type || cert.product_name || 'Certificado'}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Sticky Tab Bar ── */}
+      <div
+        className="sticky top-0 z-40"
+        style={{
+          background: 'var(--color-cream)',
+          borderBottom: '1px solid var(--color-border)',
+          marginTop: 16,
+        }}
+      >
+        <div style={{
+          display: 'flex', gap: 0, overflowX: 'auto',
+          padding: '0 16px',
+          msOverflowStyle: 'none', scrollbarWidth: 'none',
+        }}>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                padding: '12px 16px', whiteSpace: 'nowrap',
+                fontSize: 13, fontWeight: activeTab === tab.id ? 600 : 400,
+                fontFamily: 'var(--font-sans)',
+                color: activeTab === tab.id ? 'var(--color-black)' : 'var(--color-stone)',
+                background: 'none', border: 'none', cursor: 'pointer',
+                borderBottom: activeTab === tab.id ? '2px solid var(--color-black)' : '2px solid transparent',
+                transition: 'var(--transition-fast)',
+              }}
+            >
+              {tab.label}
+              {tab.count !== null && (
+                <span style={{
+                  marginLeft: 6, fontSize: 11, fontWeight: 500,
+                  color: activeTab === tab.id ? 'var(--color-black)' : 'var(--color-stone)',
+                }}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Tab Content ── */}
+      <div style={{ padding: '16px 16px 32px' }}>
+
+        {/* Products — 3-column grid */}
+        {activeTab === 'products' && (
+          productsQuery.isLoading ? (
+            <div style={{ textAlign: 'center', padding: '48px 0' }}>
+              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2"
+                style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-black)' }} />
+            </div>
+          ) : products.length > 0 ? (
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8,
+            }}>
+              {products.map((product) => (
+                <ProductCard
+                  key={product.product_id || product.id}
+                  product={product}
+                  variant="compact"
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState text="No hay productos disponibles" />
+          )
+        )}
+
+        {/* Posts — 3-column grid */}
+        {activeTab === 'posts' && (
+          postsQuery.isLoading ? (
+            <div style={{ textAlign: 'center', padding: '48px 0' }}>
+              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2"
+                style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-black)' }} />
+            </div>
+          ) : posts.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
+              {posts.map((post) => (
+                <button
+                  key={post.post_id}
+                  type="button"
+                  onClick={() => setSelectedPost(post)}
+                  style={{
+                    display: 'block', width: '100%', aspectRatio: '1', overflow: 'hidden',
+                    background: 'var(--color-surface)', border: 'none', cursor: 'pointer', padding: 0,
+                    borderRadius: 2,
+                  }}
+                >
+                  {post.image_url ? (
+                    <img src={post.image_url} alt={post.caption || ''} loading="lazy"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{
+                      width: '100%', height: '100%', background: 'var(--color-black)',
+                      display: 'flex', alignItems: 'flex-end', padding: 8,
+                    }}>
+                      <p style={{
+                        fontSize: 10, color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-sans)',
+                        display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                      }}>
+                        {post.caption || 'Publicación'}
+                      </p>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <EmptyState text="No hay publicaciones todavía" />
+          )
+        )}
+
+        {/* Reviews */}
+        {activeTab === 'reviews' && (
+          reviewsQuery.isLoading ? (
+            <div style={{ textAlign: 'center', padding: '48px 0' }}>
+              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2"
+                style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-black)' }} />
+            </div>
+          ) : reviews.length > 0 ? (
+            <div>
+              {/* Rating summary */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 16,
+                background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
+                padding: 16, marginBottom: 16,
+              }}>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 36, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0, lineHeight: 1 }}>
+                    {Number(avgRating || 0).toFixed(1)}
+                  </p>
+                  <div style={{ display: 'flex', gap: 2, marginTop: 6, justifyContent: 'center' }}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} size={14}
+                        fill={i < Math.round(avgRating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
+                        stroke={i < Math.round(avgRating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
+                      />
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginTop: 4 }}>
+                    {reviewsTotal} reseñas
+                  </p>
+                </div>
+                <div style={{ flex: 1 }}>
+                  {[5, 4, 3, 2, 1].map(star => {
+                    const count = reviews.filter(r => r.rating === star).length;
+                    const pct = reviewsTotal > 0 ? (count / reviewsTotal) * 100 : 0;
+                    return (
+                      <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                        <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', width: 12, textAlign: 'right' }}>{star}</span>
+                        <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--color-border)', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', borderRadius: 3, background: 'var(--color-black)', width: `${pct}%`, transition: 'width 0.5s' }} />
+                        </div>
+                        <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', width: 16, textAlign: 'right' }}>{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="mt-6">
-                {activeTab === 'posts' ? (
-                  postsQuery.isLoading ? (
-                    <div className="py-16 text-center">
-                      <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
-                      <p className="text-sm text-stone-500">{t('common.loading', 'Cargando...')}</p>
-                    </div>
-                  ) : posts.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                      {posts.map((post) => (
-                        <PostTile key={post.post_id} post={post} onOpen={setSelectedPost} />
-                      ))}
-                    </div>
-                  ) : (
-                    <EmptyPanel
-                      title="Todavía no hay publicaciones"
-                      description="Cuando la tienda comparta historias o novedades, aparecerán aquí en una cuadrícula visual."
-                    />
-                  )
-                ) : null}
-
-                {activeTab === 'products' ? (
-                  <div>
-                    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold text-stone-950">Selección de productos</h3>
-                        <p className="mt-1 text-sm text-stone-500">Cada producto se abre en una ficha flotante, sin sacarte del perfil.</p>
+              {/* Review list */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {reviews.map((review, idx) => (
+                  <div key={review.review_id || idx} style={{
+                    background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-border)', padding: 14,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{
+                        width: 32, height: 32, borderRadius: '50%', background: 'var(--color-surface)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <User size={16} color="var(--color-stone)" />
                       </div>
-                      <div className="w-full sm:w-56">
-                        <PremiumSelect
-                          value={productSort}
-                          onChange={setProductSort}
-                          options={productSortOptions}
-                          ariaLabel="Ordenar productos"
-                        />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                          {review.user_name || review.username || 'Anónimo'}
+                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginTop: 2 }}>
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star key={i} size={11}
+                              fill={i < (review.rating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
+                              stroke={i < (review.rating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
-
-                    {productsQuery.isLoading ? (
-                      <div className="py-16 text-center">
-                        <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
-                        <p className="text-sm text-stone-500">{t('common.loading', 'Cargando...')}</p>
+                    {(review.comment || review.text) && (
+                      <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', lineHeight: 1.5, marginTop: 8 }}>
+                        {review.comment || review.text}
+                      </p>
+                    )}
+                    {review.seller_reply && (
+                      <div style={{
+                        marginTop: 8, padding: '8px 12px', borderRadius: 'var(--radius-md)',
+                        background: 'var(--color-surface)', borderLeft: '2px solid var(--color-border)',
+                      }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginBottom: 4 }}>
+                          Respuesta del vendedor
+                        </p>
+                        <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                          {review.seller_reply}
+                        </p>
                       </div>
-                    ) : products.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                        {products.map((product) => (
-                          <ProductTile key={product.product_id} product={product} onOpen={setSelectedProduct} formatPrice={formatPrice} />
-                        ))}
-                      </div>
-                    ) : (
-                      <EmptyPanel
-                        title="No hay productos disponibles"
-                        description="La tienda todavía no ha publicado artículos visibles en el catálogo."
-                      />
                     )}
                   </div>
-                ) : null}
-
-                {activeTab === 'reviews' ? (
-                  reviewsQuery.isLoading ? (
-                    <div className="py-16 text-center">
-                      <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
-                      <p className="text-sm text-stone-500">{t('common.loading', 'Cargando...')}</p>
-                    </div>
-                  ) : reviews.length > 0 ? (
-                    <div className="space-y-4">
-                      {/* Rating summary with distribution bars */}
-                      <div className="flex items-start gap-6 rounded-2xl bg-stone-50 p-5">
-                        <div className="shrink-0 text-center">
-                          <p className="text-5xl font-extrabold tracking-tight text-stone-950 leading-none">{Number(avgRating || 0).toFixed(1)}</p>
-                          <div className="mt-2 flex justify-center gap-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star key={i} className={`h-4 w-4 ${i < Math.round(avgRating || 0) ? 'fill-stone-950 stroke-stone-950' : 'fill-stone-200 stroke-stone-200'}`} />
-                            ))}
-                          </div>
-                          <p className="mt-1 text-xs text-stone-500">{reviewsTotal} reseñas</p>
-                        </div>
-                        <div className="flex-1 space-y-1.5">
-                          {[5, 4, 3, 2, 1].map(star => {
-                            const count = reviews.filter(r => r.rating === star).length;
-                            const pct = reviewsTotal > 0 ? (count / reviewsTotal) * 100 : 0;
-                            return (
-                              <div key={star} className="flex items-center gap-2">
-                                <span className="w-4 text-right text-xs text-stone-500">{star}</span>
-                                <Star className="h-3 w-3 shrink-0 fill-stone-300 stroke-stone-300" />
-                                <div className="h-2 flex-1 overflow-hidden rounded-full bg-stone-200">
-                                  <div
-                                    className="h-full rounded-full bg-stone-950 transition-all duration-500"
-                                    style={{ width: `${pct}%` }}
-                                  />
-                                </div>
-                                <span className="w-6 text-right text-xs text-stone-400">{count}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      {/* Review list */}
-                      <div className="divide-y divide-stone-100">
-                        {reviews.map((review, idx) => (
-                          <div key={review.review_id || idx} className="py-4 first:pt-0 last:pb-0">
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 text-stone-500">
-                                <User className="h-4 w-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-stone-950 truncate">{review.user_name || review.username || t('store.anonymous', 'Anónimo')}</p>
-                                <div className="flex items-center gap-1 mt-0.5">
-                                  {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star key={i} className={`h-3 w-3 ${i < (review.rating || 0) ? 'fill-stone-950 stroke-stone-950' : 'fill-stone-200 stroke-stone-200'}`} />
-                                  ))}
-                                  {review.created_at ? (
-                                    <span className="ml-2 text-[11px] text-stone-400">
-                                      {new Date(review.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                    </span>
-                                  ) : null}
-                                </div>
-                              </div>
-                            </div>
-                            {review.product_name ? (
-                              <p className="mt-1.5 pl-12 text-xs text-stone-400">Compró: <span className="font-medium text-stone-500">{review.product_name}</span></p>
-                            ) : null}
-                            {review.comment || review.text ? (
-                              <p className="mt-2 text-sm leading-relaxed text-stone-600 pl-12">{review.comment || review.text}</p>
-                            ) : null}
-                            {review.seller_reply ? (
-                              <div className="mt-2 ml-12 rounded-xl bg-stone-50 p-3 border-l-2 border-stone-300">
-                                <p className="text-[11px] font-semibold text-stone-400 mb-1">Respuesta del vendedor</p>
-                                <p className="text-sm text-stone-600">{review.seller_reply}</p>
-                              </div>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <EmptyPanel
-                      title={t('store.noReviews', 'Sin reseñas todavía')}
-                      description={t('store.noReviewsDesc', 'Las opiniones de los compradores aparecerán aquí.')}
-                    />
-                  )
-                ) : null}
-
-                {activeTab === 'about' ? (
-                  <div className="space-y-6">
-                    {store.long_description || store.story ? (
-                      <div>
-                        <h3 className="text-lg font-semibold text-stone-950 mb-3">{t('store.ourStory', 'Nuestra historia')}</h3>
-                        <p className="text-sm leading-relaxed text-stone-600 whitespace-pre-line">{store.long_description || store.story}</p>
-                      </div>
-                    ) : null}
-                    {store.founder_quote ? (
-                      <blockquote className="rounded-2xl bg-stone-50 px-5 py-4 text-sm leading-relaxed text-stone-700 italic">
-                        &ldquo;{store.founder_quote}&rdquo;
-                      </blockquote>
-                    ) : null}
-                    {store.process_photos?.length > 0 ? (
-                      <div>
-                        <h3 className="text-lg font-semibold text-stone-950 mb-3">{t('store.process', 'Nuestro proceso')}</h3>
-                        <div className="grid grid-cols-2 gap-2">
-                          {store.process_photos.map((photo, i) => (
-                            <img key={i} src={photo} alt={`Proceso ${i + 1}`} loading="lazy" className="rounded-2xl w-full aspect-[4/3] object-cover" />
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                    {certificates.length > 0 ? (
-                      <div>
-                        <h3 className="text-lg font-semibold text-stone-950 mb-3">{t('store.ourCertifications', 'Nuestras certificaciones')}</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {certificates.map((cert, i) => (
-                            <span key={i} className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-sm text-stone-700">
-                              <Award className="h-3.5 w-3.5" />
-                              {cert.certificate_type || cert.product_name || 'Certificado'}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                    {/* Contact & social links */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-stone-950 mb-3">{t('store.contact', 'Contacto')}</h3>
-                      <div className="space-y-2 text-sm text-stone-600">
-                        {store.contact_email ? (
-                          <a href={`mailto:${store.contact_email}`} className="flex items-center gap-2.5 transition-colors hover:text-stone-950">
-                            <Mail className="h-4 w-4 shrink-0 text-stone-400" />
-                            <span>{store.contact_email}</span>
-                          </a>
-                        ) : null}
-                        {store.contact_phone ? (
-                          <a href={`tel:${store.contact_phone}`} className="flex items-center gap-2.5 transition-colors hover:text-stone-950">
-                            <Phone className="h-4 w-4 shrink-0 text-stone-400" />
-                            <span>{store.contact_phone}</span>
-                          </a>
-                        ) : null}
-                        {store.website ? (
-                          <a href={store.website.startsWith('http') ? store.website : `https://${store.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 transition-colors hover:text-stone-950">
-                            <Globe className="h-4 w-4 shrink-0 text-stone-400" />
-                            <span>{store.website}</span>
-                            <ExternalLink className="h-3 w-3 text-stone-300" />
-                          </a>
-                        ) : null}
-                        {store.location ? (
-                          <div className="flex items-center gap-2.5">
-                            <MapPin className="h-4 w-4 shrink-0 text-stone-400" />
-                            <span>{store.location}</span>
-                          </div>
-                        ) : null}
-                      </div>
-                      {(store.social_instagram || store.social_facebook) ? (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {store.social_instagram ? (
-                            <a
-                              href={store.social_instagram.startsWith('http') ? store.social_instagram : `https://instagram.com/${store.social_instagram.replace('@', '')}`}
-                              target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-200"
-                            >
-                              📷 Instagram
-                            </a>
-                          ) : null}
-                          {store.social_facebook ? (
-                            <a
-                              href={store.social_facebook.startsWith('http') ? store.social_facebook : `https://facebook.com/${store.social_facebook}`}
-                              target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-200"
-                            >
-                              📘 Facebook
-                            </a>
-                          ) : null}
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : null}
-
-                {activeTab === 'certificates' ? (
-                  certificates.length > 0 ? (
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {certificates.map((certificate) => {
-                        const certificateProductId = certificate.product_id || certificate.product?.product_id || certificate.product?.id;
-
-                        return (
-                        <div key={certificate.certificate_id || certificateProductId} className="rounded-3xl border border-stone-100 bg-stone-50 p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-stone-700">
-                              <Award className="h-5 w-5" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-medium text-stone-950">
-                                {certificate.product_name || 'Certificado digital'}
-                              </p>
-                              <p className="mt-1 text-sm text-stone-500">Documento validado para este producto.</p>
-                              {certificateProductId ? (
-                                <Link
-                                  to={`/certificate/${certificateProductId}`}
-                                  className="mt-3 inline-flex items-center rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
-                                  aria-label={`Ver certificado digital de ${certificate.product_name || 'producto'}`}
-                                >
-                                  Ver certificado digital
-                                </Link>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="mt-3 cursor-not-allowed rounded-full border border-stone-200 bg-white px-3 py-2 text-[13px] font-medium text-stone-400"
-                                  disabled
-                                  aria-label={`Certificado no disponible para ${certificate.product_name || 'producto'}`}
-                                >
-                                  Ver certificado digital
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );})}
-                    </div>
-                  ) : (
-                    <EmptyPanel
-                      title="No hay certificados visibles"
-                      description="Los certificados aparecerán aquí cuando la tienda complete su documentación digital."
-                    />
-                  )
-                ) : null}
-              </div>
-            </section>
-          </div>
-
-          <aside className="space-y-5">
-            <div className="rounded-[32px] border border-stone-100 bg-white p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-stone-950">Información clave</h3>
-              <div className="mt-5 space-y-4 text-sm">
-                <div className="flex items-start gap-3 text-stone-600">
-                  <Users className="mt-0.5 h-4 w-4 shrink-0 text-stone-700" />
-                  <div>
-                    <p className="font-medium text-stone-950">{store.follower_count || 0} seguidores</p>
-                    <p className="text-stone-500">Comunidad que sigue esta tienda.</p>
-                  </div>
-                </div>
-                {store.full_address ? (
-                  <div className="flex items-start gap-3 text-stone-600">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-stone-700" />
-                    <div>
-                      <p className="font-medium text-stone-950">Ubicación</p>
-                      <p className="text-stone-500">{store.full_address}</p>
-                    </div>
-                  </div>
-                ) : null}
-                {store.delivery_time ? (
-                  <div className="flex items-start gap-3 text-stone-600">
-                    <Truck className="mt-0.5 h-4 w-4 shrink-0 text-stone-700" />
-                    <div>
-                      <p className="font-medium text-stone-950">Entrega</p>
-                      <p className="text-stone-500">{store.delivery_time}</p>
-                    </div>
-                  </div>
-                ) : null}
+                ))}
               </div>
             </div>
+          ) : (
+            <EmptyState text="Sin reseñas todavía" />
+          )
+        )}
 
-            <div className="rounded-[32px] border border-stone-100 bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <Shield className="h-5 w-5 text-stone-950" />
-                <h3 className="text-lg font-semibold text-stone-950">Contacto</h3>
-              </div>
-              <div className="space-y-3 text-sm text-stone-600">
-                {store.contact_email ? (
-                  <a href={`mailto:${store.contact_email}`} className="flex items-center gap-3 transition-colors hover:text-stone-950">
-                    <Mail className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{store.contact_email}</span>
-                  </a>
-                ) : null}
-                {store.contact_phone ? (
-                  <a href={`tel:${store.contact_phone}`} className="flex items-center gap-3 transition-colors hover:text-stone-950">
-                    <Phone className="h-4 w-4 shrink-0" />
-                    <span>{store.contact_phone}</span>
-                  </a>
-                ) : null}
-                {store.website ? (
-                  <a href={store.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 transition-colors hover:text-stone-950">
-                    <Globe className="h-4 w-4 shrink-0" />
-                    <span>Sitio web</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="rounded-[32px] border border-stone-100 bg-white p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <MessageCircle className="h-5 w-5 text-stone-950" />
-                <h3 className="text-lg font-semibold text-stone-950">Reseñas recientes</h3>
-              </div>
-              <div className="rounded-3xl bg-stone-50 p-4">
-                <div className="flex items-center gap-2 text-stone-950">
-                  <Star className="h-5 w-5 fill-stone-950 stroke-stone-950" />
-                  <span className="text-xl font-semibold">{Number(avgRating || 0).toFixed(1)}</span>
-                  <span className="text-sm text-stone-500">({reviewsTotal})</span>
-                </div>
-                <p className="mt-2 text-sm text-stone-500">
-                  Las reseñas completas se muestran dentro de cada producto para mantener el contexto.
+        {/* About / Historia */}
+        {activeTab === 'about' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {(store.long_description || store.story) && (
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+                  {t('store.ourStory', 'Nuestra historia')}
+                </h3>
+                <p style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', whiteSpace: 'pre-line' }}>
+                  {store.long_description || store.story}
                 </p>
               </div>
-            </div>
-          </aside>
-        </div>
-      </section>
+            )}
 
-      {selectedPost ? (
+            {store.founder_quote && (
+              <blockquote style={{
+                background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
+                padding: 16, fontSize: 13, lineHeight: 1.6,
+                color: 'var(--color-black)', fontStyle: 'italic',
+                fontFamily: 'var(--font-sans)',
+              }}>
+                &ldquo;{store.founder_quote}&rdquo;
+              </blockquote>
+            )}
+
+            {store.process_photos?.length > 0 && (
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+                  {t('store.process', 'Nuestro proceso')}
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                  {store.process_photos.map((photo, i) => (
+                    <img key={i} src={photo} alt={`Proceso ${i + 1}`} loading="lazy"
+                      style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Contact info */}
+            <div>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+                {t('store.contact', 'Contacto')}
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {store.contact_email && (
+                  <a href={`mailto:${store.contact_email}`} style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)',
+                    textDecoration: 'none',
+                  }}>
+                    <Mail size={16} color="var(--color-stone)" /> {store.contact_email}
+                  </a>
+                )}
+                {store.contact_phone && (
+                  <a href={`tel:${store.contact_phone}`} style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)',
+                    textDecoration: 'none',
+                  }}>
+                    <Phone size={16} color="var(--color-stone)" /> {store.contact_phone}
+                  </a>
+                )}
+                {store.website && (
+                  <a href={store.website.startsWith('http') ? store.website : `https://${store.website}`}
+                    target="_blank" rel="noopener noreferrer" style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)',
+                      textDecoration: 'none',
+                    }}>
+                    <Globe size={16} color="var(--color-stone)" /> {store.website}
+                    <ExternalLink size={12} color="var(--color-stone)" />
+                  </a>
+                )}
+                {store.location && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                    <MapPin size={16} color="var(--color-stone)" /> {store.location}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Modals ── */}
+      {selectedPost && (
         <PostViewer
           post={selectedPost}
           posts={posts}
@@ -814,9 +608,9 @@ export default function StorePage() {
           onClose={() => setSelectedPost(null)}
           onNavigate={setSelectedPost}
         />
-      ) : null}
+      )}
 
-      {selectedProduct ? (
+      {selectedProduct && (
         <ProductDetailOverlay
           product={selectedProduct}
           store={store}
@@ -831,9 +625,19 @@ export default function StorePage() {
             }
           }}
         />
-      ) : null}
+      )}
+    </div>
+  );
+}
 
-      <Footer />
+function EmptyState({ text }) {
+  return (
+    <div style={{
+      textAlign: 'center', padding: '48px 16px',
+      background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
+      border: '1px solid var(--color-border)',
+    }}>
+      <p style={{ fontSize: 14, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>{text}</p>
     </div>
   );
 }

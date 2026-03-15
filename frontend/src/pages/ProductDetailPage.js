@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import Breadcrumbs from '../components/Breadcrumbs';
-import ProductImageGallery from '../components/ProductImageGallery';
-import { ShoppingCart, FileCheck, AlertTriangle, AlertCircle, Star, CheckCircle, User, Package, Store, MapPin, Truck, Shield, ChevronRight, Heart, Users, Leaf } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ChevronLeft, Share2, Heart, Star, Shield, Truck, ChevronDown,
+  Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
+  CheckCircle, User, FileCheck, ChevronRight, Leaf,
+} from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import SEO from '../components/SEO';
+import ProductImage from '../components/ui/ProductImage.tsx';
 import {
   useProductDetail,
   useProductPurchaseOptions,
@@ -18,62 +20,86 @@ import {
   useStoreFollow,
 } from '../features/products/hooks';
 
-// Strip emojis from text (data may contain unwanted emoji chars)
 const stripEmoji = (text) => {
   if (typeof text !== 'string') return text;
   return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim();
 };
 
+// ── Collapsible section ──────────────────────────────────────────────────────
+function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div style={{ borderBottom: '1px solid var(--color-border)' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer',
+        }}
+      >
+        <span style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: 14, fontWeight: 600, color: 'var(--color-black)',
+          fontFamily: 'var(--font-sans)',
+        }}>
+          {icon}
+          {title}
+        </span>
+        <ChevronDown
+          size={18} color="var(--color-stone)"
+          style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div style={{ padding: '0 16px 16px' }}>
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function ProductDetailPage() {
   const { productId } = useParams();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
   const { user } = useAuth();
   const { convertAndFormatPrice } = useLocale();
   const { t } = useTranslation();
+
   const {
-    product,
-    certificate,
-    storeInfo,
-    inWishlist,
-    isLoading: loading,
-    isError: hasProductError,
-    wishlistLoading,
-    toggleWishlist: toggleWishlistMutation,
+    product, certificate, storeInfo, inWishlist,
+    isLoading: loading, isError: hasProductError,
+    wishlistLoading, toggleWishlist: toggleWishlistMutation,
   } = useProductDetail(productId);
+
   const {
-    quantity,
-    setQuantity,
-    selectedVariant,
-    selectedPack,
-    setSelectedPack,
-    hasVariants,
-    currentPrice,
-    currentIngredients,
-    currentNutritionalInfo,
-    currentAllergens,
-    trackStock,
-    stock,
-    lowStockThreshold,
-    isOutOfStock,
-    isLowStock,
-    maxQuantity,
-    handleVariantChange,
-    calculateSavings,
+    quantity, setQuantity, selectedVariant, selectedPack, setSelectedPack,
+    hasVariants, currentPrice, currentIngredients, currentNutritionalInfo,
+    currentAllergens, trackStock, stock, isOutOfStock, isLowStock,
+    maxQuantity, handleVariantChange, calculateSavings,
   } = useProductPurchaseOptions(productId);
+
   const {
-    reviews,
-    averageRating,
-    totalReviews,
-    canReview,
-    reviewOrderId,
-    isSubmitting: submittingReview,
-    submitReview,
+    reviews, averageRating, totalReviews, canReview, reviewOrderId,
+    isSubmitting: submittingReview, submitReview,
   } = useProductReviewsHook(productId);
+
   const {
-    isFollowing,
-    followLoading,
-    handleFollowStore: toggleStoreFollow,
+    isFollowing, followLoading, handleFollowStore: toggleStoreFollow,
   } = useStoreFollow(storeInfo?.slug || storeInfo?.store_slug);
+
   const storeSlug = storeInfo?.slug || storeInfo?.store_slug || null;
   const normalizedAverageRating = Number(averageRating || 0);
   const normalizedStoreRating = Number(storeInfo?.rating || 0);
@@ -82,885 +108,793 @@ export default function ProductDetailPage() {
   const [reviewComment, setReviewComment] = useState('');
 
   useEffect(() => {
-    if (hasProductError) {
-      toast.error(t('errors.notFound'));
-    }
+    if (hasProductError) toast.error(t('errors.notFound'));
   }, [hasProductError, t]);
 
   const handleFollowStore = async () => {
-    if (!user) {
-      toast.error(t('errors.unauthorized', 'Inicia sesión para seguir tiendas'));
-      return;
-    }
-
+    if (!user) { toast.error(t('errors.unauthorized', 'Inicia sesión para seguir tiendas')); return; }
     try {
       await toggleStoreFollow();
-      toast.success(
-        isFollowing
-          ? t('store.unfollowed', 'Has dejado de seguir la tienda')
-          : t('store.followed', 'Ahora sigues esta tienda'),
-      );
-    } catch {
-      toast.error(t('errors.generic', 'Error al procesar la solicitud'));
-    }
+      toast.success(isFollowing ? t('store.unfollowed', 'Has dejado de seguir la tienda') : t('store.followed', 'Ahora sigues esta tienda'));
+    } catch { toast.error(t('errors.generic', 'Error')); }
   };
 
   const handleSubmitReview = async () => {
-    if (!reviewComment.trim()) {
-      toast.error('Escribe un comentario antes de enviar la reseña');
-      return;
-    }
-
+    if (!reviewComment.trim()) { toast.error('Escribe un comentario'); return; }
     try {
-      await submitReview({
-        orderId: reviewOrderId,
-        rating: reviewRating,
-        comment: reviewComment,
-      });
-
-      toast.success('Reseña enviada correctamente');
-      setShowReviewForm(false);
-      setReviewComment('');
-      setReviewRating(5);
-    } catch (error) {
-      toast.error(error.message || 'No hemos podido enviar la reseña');
-    }
+      await submitReview({ orderId: reviewOrderId, rating: reviewRating, comment: reviewComment });
+      toast.success('Reseña enviada');
+      setShowReviewForm(false); setReviewComment(''); setReviewRating(5);
+    } catch (error) { toast.error(error.message || 'No hemos podido enviar la reseña'); }
   };
 
   const toggleWishlist = async () => {
-    if (!user) {
-      toast.info(t('auth.loginRequired', 'Inicia sesión para guardar'));
-      return;
-    }
-
+    if (!user) { toast.info(t('auth.loginRequired', 'Inicia sesión para guardar')); return; }
     try {
       await toggleWishlistMutation();
-      toast.success(
-        inWishlist
-          ? t('wishlist.removed', 'Eliminado de la lista de deseos')
-          : t('wishlist.added', 'Guardado en tu lista de deseos'),
-      );
-    } catch {
-      toast.error(t('errors.generic', 'Error'));
-    }
+      toast.success(inWishlist ? t('wishlist.removed', 'Eliminado de lista') : t('wishlist.added', 'Guardado'));
+    } catch { toast.error(t('errors.generic', 'Error')); }
   };
 
   const handleAddToCart = async () => {
     if (!user) {
-      toast.error(t('errors.loginRequired', 'Inicia sesión para añadir productos'), {
-        action: {
-          label: t('auth.login', 'Entrar'),
-          onClick: () => window.location.href = '/login'
-        }
+      toast.error(t('errors.loginRequired', 'Inicia sesión'), {
+        action: { label: t('auth.login', 'Entrar'), onClick: () => { window.location.href = '/login'; } },
       });
       return;
     }
-    if (isOutOfStock) {
-      toast.error(t('productDetail.outOfStock'));
-      return;
-    }
-    
+    if (isOutOfStock) { toast.error(t('productDetail.outOfStock')); return; }
     toast.loading(t('cart.adding', 'Añadiendo...'), { id: 'add-to-cart' });
-    
-    // Pass variant and pack IDs if product has variants
     const variantId = selectedVariant?.variant_id || null;
     const packId = selectedPack?.pack_id || null;
-    
     const success = await addToCart(productId, quantity, variantId, packId);
-    if (success) {
-      toast.success(t('success.added', '¡Añadido al carrito!'), { id: 'add-to-cart' });
+    if (success) toast.success(t('success.added', '¡Añadido!'), { id: 'add-to-cart' });
+    else toast.error(t('errors.generic', 'Error'), { id: 'add-to-cart' });
+  };
+
+  const handleShare = async () => {
+    const shareData = { title: product?.name, url: window.location.href };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch { /* cancelled */ }
     } else {
-      toast.error(t('errors.generic', 'Error al añadir'), { id: 'add-to-cart' });
+      try { await navigator.clipboard.writeText(shareData.url); toast.success('Enlace copiado'); }
+      catch { toast.error('No se pudo copiar'); }
     }
   };
 
-  const handleBuyNow = async () => {
-    if (!user) {
-      toast.error(t('errors.loginRequired', 'Inicia sesión para comprar'), {
-        action: {
-          label: t('auth.login', 'Entrar'),
-          onClick: () => window.location.href = '/login'
-        }
-      });
-      return;
-    }
-    if (isOutOfStock) {
-      toast.error(t('productDetail.outOfStock'));
-      return;
-    }
-    
-    toast.loading(t('cart.processing', 'Procesando...'), { id: 'buy-now' });
-    
-    // Pass variant and pack IDs if product has variants
-    const variantId = selectedVariant?.variant_id || null;
-    const packId = selectedPack?.pack_id || null;
-    
-    const success = await addToCart(productId, quantity, variantId, packId);
-    if (success) {
-      toast.dismiss('buy-now');
-      window.location.href = '/cart';
-    } else {
-      toast.error(t('errors.generic', 'Error al procesar'), { id: 'buy-now' });
-    }
-  };
+  const displayPrice = convertAndFormatPrice(
+    (selectedPack?.price || currentPrice || product?.price || 0),
+    product?.currency || 'EUR'
+  );
+  const totalPrice = convertAndFormatPrice(
+    (selectedPack?.price || currentPrice || product?.price || 0) * quantity,
+    product?.currency || 'EUR'
+  );
+  const isFreeShipping = !product?.shipping_cost || product?.shipping_cost === 0;
+  const certs = product?.certifications || [];
+  const images = product?.images || [];
+  const primaryImage = images[0] || product?.image_url || null;
 
+  // ── Loading state ──
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <Header />
-        <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-12 md:py-20 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-950 mx-auto mb-4"></div>
-          <p className="text-stone-500">{t('productDetail.loading')}</p>
-        </div>
-        <Footer />
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="h-8 w-8 animate-spin rounded-full border-2" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-black)' }} />
       </div>
     );
   }
 
+  // ── Not found ──
   if (!product) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <Header />
-        <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-12 md:py-20 text-center">
-          <p className="text-stone-500 text-lg mb-4">{t('productDetail.notFound')}</p>
-          <Link
-            to="/products"
-            className="inline-flex items-center rounded-full bg-stone-950 px-5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-stone-800"
-          >
-            {t('productDetail.backToProducts')}
-          </Link>
-        </div>
-        <Footer />
+      <div style={{
+        minHeight: '100vh', background: 'var(--color-cream)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: 32, textAlign: 'center',
+      }}>
+        <p style={{ fontSize: 16, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginBottom: 16 }}>
+          {t('productDetail.notFound')}
+        </p>
+        <button
+          onClick={() => navigate('/products')}
+          style={{
+            background: 'var(--color-black)', color: '#fff', border: 'none',
+            borderRadius: 'var(--radius-md)', padding: '10px 24px',
+            fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer',
+          }}
+        >
+          {t('productDetail.backToProducts')}
+        </button>
       </div>
     );
   }
 
-  // Shipping info
-  const isFreeShipping = !product.shipping_cost || product.shipping_cost === 0;
-
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', paddingBottom: 100 }}>
       <SEO
-        title={product?.name || 'Producto'}
-        description={product?.description?.slice(0, 160) || ''}
-        image={product?.images?.[0]}
+        title={product.name || 'Producto'}
+        description={product.description?.slice(0, 160) || ''}
+        image={primaryImage}
         type="product"
         product={product}
       />
-      <Header />
-      <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-4 md:py-8 pb-32 md:pb-8">
-        {/* Breadcrumbs - Hidden on mobile */}
-        <div className="hidden md:block">
-          <Breadcrumbs 
-            className="mb-6"
-            customItems={[
-              { label: t('breadcrumbs.products'), href: '/products' },
-              { label: product.name }
-            ]}
+
+      {/* ── TopBar ── */}
+      <header
+        className="sticky top-0 z-50"
+        style={{ background: 'var(--color-cream)' }}
+      >
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          height: 52, padding: '0 16px',
+        }}>
+          <button
+            type="button" onClick={() => navigate(-1)}
+            style={{
+              width: 36, height: 36, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
+            }}
+            aria-label="Volver"
+          >
+            <ChevronLeft size={20} strokeWidth={2} color="var(--color-black)" />
+          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              type="button" onClick={handleShare}
+              style={{
+                width: 36, height: 36, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
+              }}
+              aria-label="Compartir"
+            >
+              <Share2 size={18} strokeWidth={1.8} color="var(--color-black)" />
+            </button>
+            <button
+              type="button" onClick={toggleWishlist} disabled={wishlistLoading}
+              style={{
+                width: 36, height: 36, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
+              }}
+              aria-label={inWishlist ? 'En tu lista' : 'Guardar'}
+            >
+              <Heart
+                size={18} strokeWidth={inWishlist ? 0 : 1.8}
+                fill={inWishlist ? 'var(--color-black)' : 'none'}
+                color="var(--color-black)"
+              />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Image Gallery — 4:3 aspect ── */}
+      <div style={{ position: 'relative', width: '100%', paddingTop: '75%', background: 'var(--color-surface)' }}>
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <ProductImage
+            src={primaryImage}
+            productName={product.name}
+            className="h-full w-full"
+            imageClassName=""
+            sizes="100vw"
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8">
-          {/* Left Column: Product Images */}
-          <div className="lg:col-span-5">
-            <div className="lg:sticky lg:top-24">
-              <ProductImageGallery 
-                images={product.images}
-                productName={product.name}
-                isOutOfStock={isOutOfStock}
-              />
-            </div>
+        {/* Out of stock overlay */}
+        {isOutOfStock && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'rgba(0,0,0,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{
+              background: 'var(--color-black)', color: '#fff',
+              padding: '6px 16px', borderRadius: 'var(--radius-full)',
+              fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
+            }}>
+              Agotado
+            </span>
           </div>
+        )}
 
-          {/* Center Column: Product Info */}
-          <div className="lg:col-span-4">
-            {/* Certifications */}
-            {product.certifications && product.certifications.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4" data-testid="product-certifications">
-                {product.certifications.map((cert, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-700 md:px-2.5 md:py-1 md:text-xs"
-                    data-testid={`cert-badge-${cert}`}
-                  >
-                    <Shield className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                    {cert}
-                  </span>
-                ))}
-              </div>
-            )}
+        {/* Image dots (if multiple) */}
+        {images.length > 1 && (
+          <div style={{
+            position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)',
+            display: 'flex', gap: 6,
+          }}>
+            {images.slice(0, 5).map((_, i) => (
+              <div key={i} style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: i === 0 ? 'var(--color-black)' : 'rgba(0,0,0,0.25)',
+              }} />
+            ))}
+          </div>
+        )}
+      </div>
 
-            {/* Certificate badge */}
-            {product.certificate_id && (
-              <a
-                href={`/certificate/${product.product_id || product.id}`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1 text-[11px] font-semibold text-stone-700 hover:bg-stone-200 transition-colors mb-2"
-              >
-                <svg width="12" height="12" viewBox="0 0 16 16" className="text-stone-700"><circle cx="8" cy="8" r="8" fill="currentColor"/><path d="M5 8l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
-                {t('productDetail.certified', 'Certificado Hispaloshop verificado')}
-              </a>
-            )}
-
-            {/* Product Title */}
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-stone-950 mb-2 md:mb-3 leading-tight" data-testid="product-title">
-              {product.name}
-            </h1>
-
-            {/* Rating */}
-            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4 flex-wrap">
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 md:w-5 md:h-5 fill-stone-950 stroke-stone-950" />
-                <span className="font-semibold text-stone-950 text-sm md:text-base">{Number.isFinite(normalizedAverageRating) ? normalizedAverageRating.toFixed(1) : '0.0'}</span>
-              </div>
-              <span className="text-stone-500 text-xs md:text-sm">({totalReviews} {t('productDetail.reviews', 'reseñas')})</span>
-              {product.units_sold > 0 && (
-                <>
-                  <span className="text-stone-300 hidden md:inline">·</span>
-                  <span className="text-stone-500 text-xs md:text-sm">{product.units_sold} {t('products.sold', 'vendidos')}</span>
-                </>
-              )}
-            </div>
-
-            {/* Stock Status */}
-            {isOutOfStock && (
-              <div className="flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-100 px-3 py-2 mb-3 md:px-4 md:mb-4">
-                <AlertTriangle className="w-4 h-4 text-stone-700 shrink-0" />
-                <span className="text-stone-700 text-xs md:text-sm font-medium">{t('productDetail.outOfStock')}</span>
-              </div>
-            )}
-            {isLowStock && (
-              <div className="mb-3 flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-100 px-3 py-2 md:mb-4 md:px-4">
-                <AlertCircle className="h-4 w-4 text-stone-700" />
-                <span className="text-xs font-medium text-stone-700 md:text-sm">{t('productDetail.lowStockWarning', { count: stock })}</span>
-              </div>
-            )}
-
-            {/* Price - Larger on mobile since it's key info */}
-            <div className="mb-4 md:mb-6">
-              <span className="text-2xl md:text-3xl font-bold text-stone-950" data-testid="product-price">
-                {convertAndFormatPrice(currentPrice || product.price, product.currency || 'EUR')}
+      {/* ── Product Header ── */}
+      <div style={{ padding: '16px 16px 0' }}>
+        {/* Certifications */}
+        {certs.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+            {certs.map((cert, idx) => (
+              <span key={idx} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                background: 'var(--color-green-light, rgba(46,125,82,0.1))',
+                color: 'var(--color-green)',
+                fontSize: 10, fontWeight: 500, padding: '3px 8px',
+                borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
+              }}>
+                <Shield size={10} />
+                {cert}
               </span>
-            </div>
-
-            {/* Shipping Info */}
-            <div className="mb-4 flex items-center gap-2 rounded-xl border border-stone-200 bg-white p-2.5 md:mb-6 md:p-3">
-              <Truck className={`w-4 h-4 md:w-5 md:h-5 ${isFreeShipping ? 'text-stone-950' : 'text-stone-500'}`} />
-              {isFreeShipping ? (
-                <span className="text-sm font-medium text-stone-950">{t('products.freeShipping', 'Envío gratis')}</span>
-              ) : (
-                <div className="text-xs md:text-sm">
-                  <span className="font-medium text-stone-700">
-                    {t('products.shippingCost', 'Envío')}: {convertAndFormatPrice(product.shipping_cost, 'EUR')}
-                  </span>
-                  {product.free_shipping_min_qty && (
-                    <span className="ml-1 text-stone-500 md:ml-2">
-                      ({t('products.freeFrom', 'gratis desde')} {product.free_shipping_min_qty} uds)
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Description */}
-            <div className="mb-4 md:mb-6">
-              <h3 className="mb-2 text-sm font-medium text-stone-950 md:text-base">{t('productDetail.description', 'Descripción')}</h3>
-              <p className="text-xs leading-relaxed text-stone-600 md:text-sm" data-testid="product-description">
-                {product.description}
-              </p>
-            </div>
-
-            {/* Ingredients Section */}
-            {currentIngredients && currentIngredients.length > 0 && (
-              <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6" data-testid="ingredients-section">
-                <h3 className="font-medium text-stone-950 mb-3 flex items-center gap-2">
-                  <Leaf className="w-4 h-4 text-stone-700" />
-                  {t('productDetail.ingredients', 'Ingredientes')}
-                  {selectedVariant && (
-                    <span className="text-xs text-stone-500 font-normal">({selectedVariant.name})</span>
-                  )}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {currentIngredients.map((ingredient, idx) => (
-                    <span 
-                      key={idx} 
-                      className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-3 py-1.5 text-sm text-stone-700"
-                    >
-                      {typeof ingredient === 'object' ? (
-                        <>
-                          <span className="font-medium">{stripEmoji(ingredient.name)}</span>
-                          {ingredient.origin && (
-                            <span className="text-xs text-stone-500">({stripEmoji(ingredient.origin)})</span>
-                          )}
-                        </>
-                      ) : (
-                        stripEmoji(ingredient)
-                      )}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Nutritional Information */}
-            {currentNutritionalInfo && Object.keys(currentNutritionalInfo).length > 0 && (
-              <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6" data-testid="nutritional-section">
-                <h3 className="font-medium text-stone-950 mb-3">
-                  {t('productDetail.nutritionalInfo', 'Información Nutricional')}
-                  {selectedVariant && (
-                    <span className="text-xs text-stone-500 font-normal ml-2">({selectedVariant.name})</span>
-                  )}
-                </h3>
-                <p className="text-xs text-stone-500 mb-3">{t('productDetail.per100g', 'Por 100g')}</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {currentNutritionalInfo.calories !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.calories}</p>
-                      <p className="text-xs text-stone-500">{t('certificate.calories', 'Calorías')}</p>
-                    </div>
-                  )}
-                  {currentNutritionalInfo.protein !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.protein}g</p>
-                      <p className="text-xs text-stone-500">{t('certificate.protein', 'Proteínas')}</p>
-                    </div>
-                  )}
-                  {currentNutritionalInfo.carbohydrates !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.carbohydrates}g</p>
-                      <p className="text-xs text-stone-500">{t('certificate.carbohydrates', 'Carbohidratos')}</p>
-                    </div>
-                  )}
-                  {currentNutritionalInfo.sugars !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.sugars}g</p>
-                      <p className="text-xs text-stone-500">{t('certificate.sugars', 'Azúcares')}</p>
-                    </div>
-                  )}
-                  {currentNutritionalInfo.fat !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.fat}g</p>
-                      <p className="text-xs text-stone-500">{t('certificate.fat', 'Grasas')}</p>
-                    </div>
-                  )}
-                  {currentNutritionalInfo.saturated_fat !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.saturated_fat}g</p>
-                      <p className="text-xs text-stone-500">{t('certificate.saturatedFat', 'Grasas Sat.')}</p>
-                    </div>
-                  )}
-                  {currentNutritionalInfo.fiber !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.fiber}g</p>
-                      <p className="text-xs text-stone-500">{t('certificate.fiber', 'Fibra')}</p>
-                    </div>
-                  )}
-                  {currentNutritionalInfo.sodium !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.sodium}mg</p>
-                      <p className="text-xs text-stone-500">{t('certificate.sodium', 'Sodio')}</p>
-                    </div>
-                  )}
-                  {currentNutritionalInfo.salt !== undefined && (
-                    <div className="bg-stone-50 rounded-xl p-2 text-center">
-                      <p className="text-lg font-semibold text-stone-950">{currentNutritionalInfo.salt}g</p>
-                      <p className="text-xs text-stone-500">{t('certificate.salt', 'Sal')}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Allergens */}
-            {currentAllergens && currentAllergens.length > 0 && (
-              <div className="mb-6 rounded-xl border border-stone-200 bg-stone-100 p-4" data-testid="allergens-section">
-                <h3 className="mb-2 flex items-center gap-2 font-medium text-stone-950">
-                  <AlertTriangle className="h-4 w-4 text-stone-700" />
-                  {t('productDetail.allergens', 'Alérgenos')}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {currentAllergens.map((allergen, idx) => (
-                    <span 
-                      key={idx} 
-                      className="rounded-full bg-white px-2 py-1 text-xs font-medium text-stone-700"
-                    >
-                      {allergen}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Product Details */}
-            <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6">
-              <h3 className="font-medium text-stone-950 mb-3">{t('productDetail.details', 'Detalles')}</h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="text-stone-500">{t('productDetail.origin', 'Origen')}</span>
-                  <p className="text-stone-950 font-medium">{product.country_origin}</p>
-                </div>
-                <div>
-                  <span className="text-stone-500">{t('productDetail.category', 'Categoría')}</span>
-                  <p className="text-stone-950 font-medium capitalize">{product.category_id?.replace('cat_', '').replace(/-/g, ' ')}</p>
-                </div>
-                {product.sku && (
-                  <div>
-                    <span className="text-stone-500">SKU</span>
-                    <p className="text-stone-950 font-medium">{product.sku}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Variant Selector (for products with internal variants like flavors) */}
-            {hasVariants && product.variants.length > 1 && (
-              <div className="mb-6">
-                <h3 className="font-medium text-stone-950 mb-3">{t('productDetail.selectVariant', 'Seleccionar Variante')}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.variants.map((variant) => (
-                    <button
-                      key={variant.variant_id}
-                      onClick={() => handleVariantChange(variant)}
-                      data-testid={`variant-button-${variant.variant_id}`}
-                      className={`px-4 py-2 rounded-full text-sm transition-all ${
-                        selectedVariant?.variant_id === variant.variant_id
-                          ? 'border border-stone-950 bg-stone-950 text-white'
-                          : 'border border-stone-200 bg-white text-stone-700 hover:border-stone-400'
-                      }`}
-                    >
-                      {variant.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Packs Selector - Show packs from selected variant or product level */}
-            {((selectedVariant?.packs && selectedVariant.packs.length > 1) || (product.packs && product.packs.length > 0)) && (
-              <div className="mb-6">
-                <h3 className="font-medium text-stone-950 mb-3">{t('productDetail.selectPack', 'Seleccionar Pack')}</h3>
-                <div className="space-y-2">
-                  {/* Use variant packs if available, otherwise product packs */}
-                  {(selectedVariant?.packs || product.packs || []).map((pack, idx) => {
-                    const isSelected = selectedPack?.pack_id === pack.pack_id;
-                    return (
-                      <button
-                        key={pack.pack_id || idx}
-                        onClick={() => {
-                          // Toggle: if already selected, deselect. Otherwise select.
-                          if (isSelected) {
-                            setSelectedPack(null);
-                          } else {
-                            setSelectedPack(pack);
-                          }
-                        }}
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${
-                          isSelected
-                            ? 'border-stone-950 bg-stone-100 ring-2 ring-stone-950/10'
-                            : 'bg-white border-stone-200 hover:border-stone-400'
-                        }`}
-                        data-testid={`pack-option-${pack.pack_id || idx}`}
-                      >
-                        <div className="flex items-center gap-2">
-                          {/* Checkbox indicator */}
-                          <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                            isSelected 
-                              ? 'border-stone-950 bg-stone-950' 
-                              : 'border-stone-200'
-                          }`}>
-                            {isSelected && (
-                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </div>
-                          <span className="text-sm font-medium">{pack.label || `${pack.units || pack.quantity || 1} unidades`}</span>
-                          {calculateSavings(pack, selectedVariant) && (
-                            <span className="rounded-full bg-stone-950 px-2 py-0.5 text-xs text-white">
-                              {t('productDetail.savingsNote', 'Ahorra')} €{calculateSavings(pack, selectedVariant).toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-semibold">{convertAndFormatPrice(pack.price, 'EUR')}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            ))}
           </div>
+        )}
 
-          {/* Right Column: Purchase & Store Info */}
-          <div className="lg:col-span-3">
-            <div className="sticky top-24 space-y-4">
-              {/* Purchase Card */}
-              <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
-                {/* Quantity Selector */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-stone-700 mb-2">{t('productDetail.quantity', 'Cantidad')}</label>
-                  <div className="flex items-center border border-stone-200 rounded-xl w-fit">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-4 py-2 text-stone-600 hover:text-stone-950 transition-colors"
-                      disabled={isOutOfStock}
-                    >
-                      −
-                    </button>
-                    <span className="px-4 py-2 font-medium text-stone-950 min-w-[50px] text-center">{quantity}</span>
-                    <button
-                      onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-                      className="px-4 py-2 text-stone-600 hover:text-stone-950 transition-colors"
-                      disabled={isOutOfStock}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
+        {/* Name */}
+        <h1 style={{
+          fontSize: 20, fontWeight: 600, color: 'var(--color-black)',
+          fontFamily: 'var(--font-sans)', lineHeight: 1.3, margin: 0,
+        }}>
+          {product.name}
+        </h1>
 
-                {/* Total */}
-                <div className="flex justify-between items-center mb-4 pb-4 border-b border-stone-100">
-                  <span className="text-stone-600">Total</span>
-                  <span className="text-[22px] font-semibold text-stone-950">
-                    {convertAndFormatPrice((selectedPack?.price || currentPrice || product.price) * quantity, product.currency || 'EUR')}
-                  </span>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleAddToCart}
-                    disabled={isOutOfStock}
-                    className={`flex-1 rounded-full py-3 text-[14px] font-semibold transition-colors ${
-                      isOutOfStock
-                        ? 'cursor-not-allowed bg-stone-100 text-stone-400'
-                        : 'bg-stone-950 text-white hover:bg-stone-800 active:scale-[0.98]'
-                    }`}
-                    data-testid="add-to-cart-button"
-                  >
-                    {isOutOfStock ? t('products.soldOut', 'Agotado') : t('products.addToCart', 'Añadir al carrito')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={toggleWishlist}
-                    disabled={wishlistLoading}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 transition-colors hover:bg-stone-50 active:scale-95"
-                    data-testid="wishlist-button"
-                    aria-label={inWishlist ? t('wishlist.inWishlist', 'En tu lista') : t('wishlist.addToWishlist', 'Guardar')}
-                  >
-                    <Heart
-                      className={`h-5 w-5 transition-all duration-150 ${inWishlist ? 'fill-stone-950 text-stone-950' : 'text-stone-500'}`}
-                      strokeWidth={inWishlist ? 0 : 1.8}
-                    />
-                  </button>
-                </div>
-
-                {/* Trust Signals */}
-                <div className="mt-4 pt-4 border-t border-stone-100 space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-stone-500">
-                    <CheckCircle className="w-4 h-4 text-stone-700" />
-                    <span>{t('productDetail.securePayment', 'Pago 100% seguro')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-stone-500">
-                    <Truck className="w-4 h-4 text-stone-700" />
-                    <span>{t('productDetail.fastShipping', 'Envío en 24-48h')}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Producer/Store Card - Enhanced */}
-              {storeInfo ? (
-                <Link 
-                  to={storeSlug ? `/store/${storeSlug}` : '/stores'}
-                  className="block bg-white rounded-xl border border-stone-200 p-5 shadow-sm hover:shadow-md hover:border-stone-400 transition-all cursor-pointer"
-                  data-testid="producer-card"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium text-stone-950 flex items-center gap-2">
-                      <Store className="w-4 h-4" />
-                      {t('productDetail.soldBy', 'Vendido por')}
-                    </h3>
-                    <ChevronRight className="w-4 h-4 text-stone-400" />
-                  </div>
-                  
-                  <div>
-                    {/* Store Header */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-14 h-14 rounded-full bg-stone-100 overflow-hidden flex items-center justify-center border-2 border-stone-200">
-                        {storeInfo.logo ? (
-                          <img src={storeInfo.logo} alt={storeInfo.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <Store className="w-6 h-6 text-stone-400" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-stone-950 truncate">{storeInfo.name}</h4>
-                        {storeInfo.location && (
-                          <p className="text-xs text-stone-500 flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {storeInfo.location}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Store Stats - 3 columns */}
-                    <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-                      <div className="bg-stone-50 rounded-xl p-2">
-                        <div className="flex items-center justify-center gap-1">
-                          <Star className="w-3.5 h-3.5 fill-stone-950 stroke-stone-950" />
-                          <span className="font-semibold text-stone-950 text-sm">{Number.isFinite(normalizedStoreRating) ? normalizedStoreRating.toFixed(1) : '0.0'}</span>
-                        </div>
-                        <p className="text-[10px] text-stone-500 mt-0.5">{storeInfo.review_count || 0} reviews</p>
-                      </div>
-                      <div className="bg-stone-50 rounded-xl p-2">
-                        <div className="flex items-center justify-center gap-1">
-                          <Package className="w-3.5 h-3.5 text-stone-500" />
-                          <span className="font-semibold text-stone-950 text-sm">{storeInfo.product_count || 0}</span>
-                        </div>
-                        <p className="text-[10px] text-stone-500 mt-0.5">{t('store.products', 'productos')}</p>
-                      </div>
-                      <div className="bg-stone-50 rounded-xl p-2">
-                        <div className="flex items-center justify-center gap-1">
-                          <Users className="w-3.5 h-3.5 text-stone-500" />
-                          <span className="font-semibold text-stone-950 text-sm">{storeInfo.follower_count || 0}</span>
-                        </div>
-                        <p className="text-[10px] text-stone-500 mt-0.5">{t('store.followers', 'seguidores')}</p>
-                      </div>
-                    </div>
-
-                    {/* Store Tagline */}
-                    {storeInfo.tagline && (
-                      <p className="text-xs text-stone-600 mb-4 line-clamp-2">{storeInfo.tagline}</p>
-                    )}
-
-                    {/* Follow Button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleFollowStore();
-                      }}
-                      disabled={followLoading}
-                      className={`w-full py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                        isFollowing
-                          ? 'bg-stone-100 text-stone-700 border border-stone-200 hover:bg-stone-200'
-                          : 'bg-stone-950 text-white hover:bg-stone-800'
-                      }`}
-                      data-testid="follow-store-button"
-                    >
-                      <Heart className={`w-4 h-4 ${isFollowing ? 'fill-stone-950' : ''}`} />
-                      {followLoading 
-                        ? t('common.loading', 'Cargando...')
-                        : isFollowing 
-                          ? t('store.following', 'Siguiendo')
-                          : t('store.follow', 'Seguir tienda')
-                      }
-                    </button>
-                  </div>
-                </Link>
-              ) : (
-                <div
-                  className="block rounded-xl border border-stone-200 bg-white p-5 shadow-sm"
-                  data-testid="producer-card"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium text-stone-950 flex items-center gap-2">
-                      <Store className="w-4 h-4" />
-                      {t('productDetail.soldBy', 'Vendido por')}
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center">
-                      <User className="w-6 h-6 text-stone-400" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-stone-950">{product.producer_name || 'Hispaloshop'}</h4>
-                      <p className="text-xs text-stone-500">{t('productDetail.verifiedSeller', 'Productor verificado')}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Certificate Link */}
-              {certificate && (
-                <Link 
-                  to={`/certificate/${productId}`}
-                  className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-4 transition-colors hover:border-stone-400 hover:bg-stone-50"
-                  data-testid="certificate-link"
-                >
-                  <div className="flex items-center gap-3">
-                    <FileCheck className="w-5 h-5 text-stone-700" />
-                    <div>
-                      <p className="font-medium text-stone-950">{t('productDetail.viewCertificate', 'Ver certificado')}</p>
-                      <p className="text-xs text-stone-500">{t('productDetail.verifiedProduct', 'Producto verificado')}</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-stone-400" />
-                </Link>
-              )}
-            </div>
+        {/* Rating */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Star size={16} fill="var(--color-black)" stroke="var(--color-black)" />
+            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+              {Number.isFinite(normalizedAverageRating) ? normalizedAverageRating.toFixed(1) : '0.0'}
+            </span>
           </div>
+          <span style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+            ({totalReviews} {t('productDetail.reviews', 'reseñas')})
+          </span>
+          {product.units_sold > 0 && (
+            <span style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+              · {product.units_sold} vendidos
+            </span>
+          )}
         </div>
 
-        {/* Reviews Section */}
-        <div className="mt-12 pt-8 border-t border-stone-200">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-[18px] font-semibold text-stone-950">
-              {t('productDetail.customerReviews', 'Reseñas de clientes')}
-            </h2>
-            {canReview && !showReviewForm && (
-              <button
-                type="button"
-                onClick={() => setShowReviewForm(true)}
-                className="rounded-full border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 active:scale-95"
-              >
-                {t('productDetail.writeReview', 'Escribir reseña')}
-              </button>
-            )}
+        {/* Price */}
+        <div style={{ marginTop: 12 }}>
+          <span style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+            {displayPrice}
+          </span>
+        </div>
+
+        {/* Stock warnings */}
+        {isOutOfStock && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
+            padding: '10px 12px', marginTop: 12,
+          }}>
+            <AlertTriangle size={16} color="var(--color-stone)" />
+            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+              {t('productDetail.outOfStock')}
+            </span>
           </div>
+        )}
+        {isLowStock && !isOutOfStock && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
+            padding: '10px 12px', marginTop: 12,
+          }}>
+            <AlertTriangle size={16} color="var(--color-amber, #E8A020)" />
+            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+              {t('productDetail.lowStockWarning', { count: stock })}
+            </span>
+          </div>
+        )}
 
-          {/* Review Form */}
-          {showReviewForm && (
-            <div className="bg-white rounded-xl border border-stone-200 p-6 mb-6">
-              <h3 className="font-medium text-stone-950 mb-4">{t('productDetail.yourReview', 'Tu reseña')}</h3>
-              <div className="mb-4">
-                <label className="block text-sm text-stone-600 mb-2">{t('productDetail.rating', 'Puntuación')}</label>
-                <div className="flex items-center gap-1">
-                  {[1,2,3,4,5,6,7,8,9,10].map((num) => (
-                    <button
-                      key={num}
-                      onClick={() => setReviewRating(num)}
-                      className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
-                        num <= reviewRating ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
-                      }`}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm text-stone-600 mb-2">{t('productDetail.comment', 'Comentario')}</label>
-                <textarea
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia con este producto...')}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
-                />
-              </div>
-              <div className="flex gap-2.5">
-                <button
-                  type="button"
-                  onClick={handleSubmitReview}
-                  disabled={submittingReview}
-                  className="rounded-full bg-stone-950 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
-                >
-                  {submittingReview ? t('common.loading', 'Enviando...') : t('productDetail.submitReview', 'Enviar reseña')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowReviewForm(false)}
-                  className="rounded-full border border-stone-200 px-5 py-2.5 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
-                >
-                  {t('common.cancel', 'Cancelar')}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Reviews List */}
-          {reviews.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {reviews.map((review, idx) => (
-                <div key={idx} className="bg-white rounded-xl border border-stone-200 p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center">
-                        <User className="w-5 h-5 text-stone-400" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-stone-950">{review.user_name || 'Cliente'}</p>
-                        {review.verified_purchase && (
-                          <p className="flex items-center gap-1 text-xs text-stone-500">
-                            <CheckCircle className="w-3 h-3" />
-                            {t('productDetail.verifiedPurchase', 'Compra verificada')}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-1">
-                      <Star className="w-4 h-4 fill-stone-950 stroke-stone-950" />
-                      <span className="font-semibold text-stone-700">{review.rating}</span>
-                    </div>
-                  </div>
-                  <p className="text-stone-600 text-sm">{review.comment}</p>
-                  <p className="text-xs text-stone-400 mt-3">
-                    {new Date(review.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 md:py-12 bg-white rounded-xl border border-stone-200">
-              <Star className="w-10 h-10 md:w-12 md:h-12 text-stone-300 mx-auto mb-4" />
-              <p className="text-sm text-stone-500 md:text-base">{t('productDetail.noReviews', 'Aún no hay reseñas')}</p>
-            </div>
-          )}
+        {/* Shipping */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          marginTop: 12, padding: '10px 0',
+        }}>
+          <Truck size={16} color={isFreeShipping ? 'var(--color-black)' : 'var(--color-stone)'} />
+          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+            {isFreeShipping
+              ? t('products.freeShipping', 'Envío gratis')
+              : `${t('products.shippingCost', 'Envío')}: ${convertAndFormatPrice(product.shipping_cost, 'EUR')}`
+            }
+          </span>
         </div>
       </div>
 
-      {/* Mobile Sticky Buy Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-200 bg-white p-4 shadow-sm md:hidden" data-testid="mobile-buy-bar">
-        <div className="flex items-center gap-3">
-          {/* Price */}
-          <div className="flex-1 min-w-0">
-            <span className="text-lg font-bold text-stone-950">
-              {convertAndFormatPrice((selectedPack?.price || currentPrice || product.price) * quantity, product.currency || 'EUR')}
-            </span>
-            {quantity > 1 && (
-              <span className="ml-1 text-xs text-stone-500">× {quantity}</span>
-            )}
+      {/* ── Variant Selector ── */}
+      {hasVariants && product.variants?.length > 1 && (
+        <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)' }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+            {t('productDetail.selectVariant', 'Variante')}
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {product.variants.map((variant) => {
+              const isSelected = selectedVariant?.variant_id === variant.variant_id;
+              return (
+                <button
+                  key={variant.variant_id}
+                  onClick={() => handleVariantChange(variant)}
+                  style={{
+                    padding: '6px 16px', borderRadius: 'var(--radius-full)',
+                    fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)',
+                    border: isSelected ? '1.5px solid var(--color-black)' : '1px solid var(--color-border)',
+                    background: isSelected ? 'var(--color-black)' : 'var(--color-white, #fff)',
+                    color: isSelected ? '#fff' : 'var(--color-black)',
+                    cursor: 'pointer', transition: 'var(--transition-fast)',
+                  }}
+                >
+                  {variant.name}
+                </button>
+              );
+            })}
           </div>
-          
-          {/* Quantity Controls - Compact */}
-          <div className="flex items-center rounded-xl border border-stone-200">
-            <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-3 py-2 text-stone-600"
-              disabled={isOutOfStock}
-            >
-              −
-            </button>
-            <span className="min-w-[32px] px-2 py-2 text-center text-sm font-medium text-stone-950">{quantity}</span>
-            <button
-              onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-              className="px-3 py-2 text-stone-600"
-              disabled={isOutOfStock}
-            >
-              +
-            </button>
+        </div>
+      )}
+
+      {/* ── Packs Selector ── */}
+      {((selectedVariant?.packs?.length > 1) || (product.packs?.length > 0)) && (
+        <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)' }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+            {t('productDetail.selectPack', 'Pack')}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {(selectedVariant?.packs || product.packs || []).map((pack, idx) => {
+              const isSelected = selectedPack?.pack_id === pack.pack_id;
+              return (
+                <button
+                  key={pack.pack_id || idx}
+                  onClick={() => setSelectedPack(isSelected ? null : pack)}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '12px 14px', borderRadius: 'var(--radius-md)',
+                    border: isSelected ? '1.5px solid var(--color-black)' : '1px solid var(--color-border)',
+                    background: isSelected ? 'var(--color-surface)' : 'var(--color-white, #fff)',
+                    cursor: 'pointer', transition: 'var(--transition-fast)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                      width: 20, height: 20, borderRadius: 6,
+                      border: isSelected ? '2px solid var(--color-black)' : '2px solid var(--color-border)',
+                      background: isSelected ? 'var(--color-black)' : 'transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {isSelected && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                      {pack.label || `${pack.units || pack.quantity || 1} unidades`}
+                    </span>
+                    {calculateSavings(pack, selectedVariant) && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 600, color: '#fff',
+                        background: 'var(--color-black)', borderRadius: 'var(--radius-full)',
+                        padding: '2px 8px', fontFamily: 'var(--font-sans)',
+                      }}>
+                        Ahorra {convertAndFormatPrice(calculateSavings(pack, selectedVariant), 'EUR')}
+                      </span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                    {convertAndFormatPrice(pack.price, 'EUR')}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-          
-          {/* Buy Button */}
+        </div>
+      )}
+
+      {/* ── Quantity Selector ── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 16px', borderTop: '1px solid var(--color-border)',
+      }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+          {t('productDetail.quantity', 'Cantidad')}
+        </span>
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)',
+        }}>
           <button
-            type="button"
-            onClick={handleAddToCart}
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
             disabled={isOutOfStock}
-            className={`rounded-full px-6 py-2.5 text-[14px] font-semibold transition-colors active:scale-[0.98] ${
-              isOutOfStock
-                ? 'cursor-not-allowed bg-stone-100 text-stone-400'
-                : 'bg-stone-950 text-white hover:bg-stone-800'
-            }`}
-            data-testid="mobile-buy-button"
+            style={{
+              width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'none', border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+              color: 'var(--color-stone)',
+            }}
           >
-            {isOutOfStock ? t('products.soldOut', 'Agotado') : t('products.addToCart', 'Añadir')}
+            <Minus size={16} />
+          </button>
+          <span style={{
+            minWidth: 36, textAlign: 'center', fontSize: 14, fontWeight: 600,
+            color: 'var(--color-black)', fontFamily: 'var(--font-sans)',
+          }}>
+            {quantity}
+          </span>
+          <button
+            onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+            disabled={isOutOfStock}
+            style={{
+              width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'none', border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+              color: 'var(--color-stone)',
+            }}
+          >
+            <Plus size={16} />
           </button>
         </div>
       </div>
 
-      <Footer />
+      {/* ── Producer Card ── */}
+      {storeInfo && (
+        <Link
+          to={storeSlug ? `/store/${storeSlug}` : '/stores'}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '14px 16px', textDecoration: 'none',
+            borderTop: '1px solid var(--color-border)',
+          }}
+        >
+          <div style={{
+            width: 48, height: 48, borderRadius: '50%', overflow: 'hidden',
+            background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+            flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {storeInfo.logo ? (
+              <img src={storeInfo.logo} alt={storeInfo.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <Store size={20} color="var(--color-stone)" />
+            )}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{
+              fontSize: 14, fontWeight: 600, color: 'var(--color-black)',
+              fontFamily: 'var(--font-sans)', margin: 0,
+            }}>
+              {storeInfo.name}
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+              {storeInfo.location && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                  <MapPin size={11} /> {storeInfo.location}
+                </span>
+              )}
+              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                <Star size={11} fill="var(--color-stone)" stroke="var(--color-stone)" />
+                {Number.isFinite(normalizedStoreRating) ? normalizedStoreRating.toFixed(1) : '—'}
+              </span>
+              <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                {storeInfo.product_count || 0} productos
+              </span>
+            </div>
+          </div>
+          <ChevronRight size={18} color="var(--color-stone)" />
+        </Link>
+      )}
+
+      {/* ── Collapsible Sections ── */}
+      <div style={{ background: 'var(--color-white, #fff)', borderTop: '1px solid var(--color-border)' }}>
+        {/* Description */}
+        <CollapsibleSection title={t('productDetail.description', 'Descripción')} defaultOpen>
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+            {product.description}
+          </p>
+          {/* Details */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
+            {product.country_origin && (
+              <div>
+                <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>{t('productDetail.origin', 'Origen')}</span>
+                <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>{product.country_origin}</p>
+              </div>
+            )}
+            {product.category_id && (
+              <div>
+                <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>{t('productDetail.category', 'Categoría')}</span>
+                <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '2px 0 0', textTransform: 'capitalize' }}>
+                  {product.category_id.replace('cat_', '').replace(/-/g, ' ')}
+                </p>
+              </div>
+            )}
+          </div>
+        </CollapsibleSection>
+
+        {/* Ingredients */}
+        {currentIngredients?.length > 0 && (
+          <CollapsibleSection title={t('productDetail.ingredients', 'Ingredientes')} icon={<Leaf size={16} color="var(--color-stone)" />}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {currentIngredients.map((ingredient, idx) => (
+                <span key={idx} style={{
+                  fontSize: 12, padding: '4px 10px',
+                  borderRadius: 'var(--radius-full)',
+                  background: 'var(--color-surface)', color: 'var(--color-black)',
+                  fontFamily: 'var(--font-sans)',
+                }}>
+                  {typeof ingredient === 'object' ? stripEmoji(ingredient.name) : stripEmoji(ingredient)}
+                </span>
+              ))}
+            </div>
+          </CollapsibleSection>
+        )}
+
+        {/* Nutritional Info */}
+        {currentNutritionalInfo && Object.keys(currentNutritionalInfo).length > 0 && (
+          <CollapsibleSection title={t('productDetail.nutritionalInfo', 'Info Nutricional')}>
+            <p style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+              {t('productDetail.per100g', 'Por 100g')}
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+              {[
+                ['calories', t('certificate.calories', 'Calorías'), ''],
+                ['protein', t('certificate.protein', 'Proteínas'), 'g'],
+                ['carbohydrates', t('certificate.carbohydrates', 'Carbohidratos'), 'g'],
+                ['sugars', t('certificate.sugars', 'Azúcares'), 'g'],
+                ['fat', t('certificate.fat', 'Grasas'), 'g'],
+                ['saturated_fat', t('certificate.saturatedFat', 'Grasas Sat.'), 'g'],
+                ['fiber', t('certificate.fiber', 'Fibra'), 'g'],
+                ['sodium', t('certificate.sodium', 'Sodio'), 'mg'],
+                ['salt', t('certificate.salt', 'Sal'), 'g'],
+              ].filter(([key]) => currentNutritionalInfo[key] !== undefined).map(([key, label, unit]) => (
+                <div key={key} style={{
+                  background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
+                  padding: '8px', textAlign: 'center',
+                }}>
+                  <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                    {currentNutritionalInfo[key]}{unit}
+                  </p>
+                  <p style={{ fontSize: 10, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>{label}</p>
+                </div>
+              ))}
+            </div>
+          </CollapsibleSection>
+        )}
+
+        {/* Allergens */}
+        {currentAllergens?.length > 0 && (
+          <CollapsibleSection title={t('productDetail.allergens', 'Alérgenos')} icon={<AlertTriangle size={16} color="var(--color-amber, #E8A020)" />}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {currentAllergens.map((allergen, idx) => (
+                <span key={idx} style={{
+                  fontSize: 12, fontWeight: 500, padding: '4px 10px',
+                  borderRadius: 'var(--radius-full)',
+                  background: 'var(--color-surface)', color: 'var(--color-black)',
+                  fontFamily: 'var(--font-sans)',
+                }}>
+                  {allergen}
+                </span>
+              ))}
+            </div>
+          </CollapsibleSection>
+        )}
+
+        {/* Certificate */}
+        {certificate && (
+          <Link
+            to={`/certificate/${productId}`}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '14px 16px', textDecoration: 'none',
+              borderBottom: '1px solid var(--color-border)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <FileCheck size={18} color="var(--color-black)" />
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                  {t('productDetail.viewCertificate', 'Ver certificado')}
+                </p>
+                <p style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>
+                  {t('productDetail.verifiedProduct', 'Producto verificado')}
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={18} color="var(--color-stone)" />
+          </Link>
+        )}
+      </div>
+
+      {/* ── Reviews Preview ── */}
+      <div style={{ padding: '20px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+            {t('productDetail.customerReviews', 'Reseñas')} ({totalReviews})
+          </h2>
+          {canReview && !showReviewForm && (
+            <button
+              type="button" onClick={() => setShowReviewForm(true)}
+              style={{
+                fontSize: 13, fontWeight: 500, color: 'var(--color-black)',
+                background: 'none', border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-full)', padding: '6px 14px',
+                cursor: 'pointer', fontFamily: 'var(--font-sans)',
+              }}
+            >
+              {t('productDetail.writeReview', 'Escribir reseña')}
+            </button>
+          )}
+        </div>
+
+        {/* Review Form */}
+        {showReviewForm && (
+          <div style={{
+            background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)', padding: 16, marginBottom: 16,
+          }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 12 }}>
+              {t('productDetail.yourReview', 'Tu reseña')}
+            </p>
+            <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+              {[1,2,3,4,5,6,7,8,9,10].map((num) => (
+                <button
+                  key={num} onClick={() => setReviewRating(num)}
+                  style={{
+                    width: 30, height: 30, borderRadius: '50%',
+                    fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                    background: num <= reviewRating ? 'var(--color-black)' : 'var(--color-surface)',
+                    color: num <= reviewRating ? '#fff' : 'var(--color-stone)',
+                    border: 'none', cursor: 'pointer',
+                  }}
+                >
+                  {num}
+                </button>
+              ))}
+            </div>
+            <textarea
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia...')}
+              rows={3}
+              style={{
+                width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)', fontSize: 13, fontFamily: 'var(--font-sans)',
+                color: 'var(--color-black)', resize: 'none', outline: 'none',
+                background: 'var(--color-surface)',
+              }}
+            />
+            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+              <button
+                onClick={handleSubmitReview} disabled={submittingReview}
+                style={{
+                  background: 'var(--color-black)', color: '#fff', border: 'none',
+                  borderRadius: 'var(--radius-md)', padding: '8px 20px',
+                  fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                  cursor: 'pointer', opacity: submittingReview ? 0.5 : 1,
+                }}
+              >
+                {submittingReview ? 'Enviando...' : t('productDetail.submitReview', 'Enviar')}
+              </button>
+              <button
+                onClick={() => setShowReviewForm(false)}
+                style={{
+                  background: 'none', color: 'var(--color-stone)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)', padding: '8px 20px',
+                  fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer',
+                }}
+              >
+                {t('common.cancel', 'Cancelar')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Reviews List */}
+        {reviews.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {reviews.slice(0, 3).map((review, idx) => (
+              <div key={idx} style={{
+                background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--color-border)', padding: 14,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: '50%',
+                      background: 'var(--color-surface)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <User size={16} color="var(--color-stone)" />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                        {review.user_name || 'Cliente'}
+                      </p>
+                      {review.verified_purchase && (
+                        <p style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                          <CheckCircle size={10} /> Compra verificada
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    background: 'var(--color-surface)', borderRadius: 'var(--radius-full)',
+                    padding: '3px 8px',
+                  }}>
+                    <Star size={12} fill="var(--color-black)" stroke="var(--color-black)" />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                      {review.rating}
+                    </span>
+                  </div>
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', lineHeight: 1.5, margin: 0 }}>
+                  {review.comment}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{
+            textAlign: 'center', padding: '32px 16px',
+            background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--color-border)',
+          }}>
+            <Star size={32} color="var(--color-border)" style={{ margin: '0 auto 12px' }} />
+            <p style={{ fontSize: 14, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+              {t('productDetail.noReviews', 'Aún no hay reseñas')}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Sticky Bottom Bar — BLACK add-to-cart ── */}
+      <div
+        style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
+          background: 'var(--color-white, #fff)',
+          borderTop: '1px solid var(--color-border)',
+          padding: '12px 16px',
+          paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Price */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+              {totalPrice}
+            </span>
+            {quantity > 1 && (
+              <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginLeft: 4 }}>
+                × {quantity}
+              </span>
+            )}
+          </div>
+
+          {/* BLACK Add to Cart */}
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={isOutOfStock}
+            style={{
+              height: 44,
+              borderRadius: 'var(--radius-md)',
+              padding: '0 28px',
+              fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)',
+              border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+              background: isOutOfStock ? 'var(--color-surface)' : 'var(--color-black)',
+              color: isOutOfStock ? 'var(--color-stone)' : '#fff',
+              transition: 'var(--transition-fast)',
+            }}
+            data-testid="mobile-buy-button"
+          >
+            {isOutOfStock ? t('products.soldOut', 'Agotado') : t('products.addToCart', 'Añadir al carrito')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
-

@@ -1,10 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Send, Bookmark, ShoppingBag } from 'lucide-react';
+import { Heart, MessageCircle, Send, Bookmark } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-/**
- * Formatea números grandes: 1.2k, 4.5M
- */
 function Count({ n }) {
   if (!n && n !== 0) return null;
   let label;
@@ -13,32 +11,34 @@ function Count({ n }) {
   else label = String(n);
 
   return (
-    <span className="text-[11px] font-semibold tabular-nums leading-none text-white drop-shadow">
+    <span style={{
+      fontSize: 11, fontWeight: 600, color: '#fff',
+      fontFamily: 'var(--font-sans)',
+      textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+      lineHeight: 1,
+    }}>
       {label}
     </span>
   );
 }
 
-/**
- * Botón de acción del sidebar.
- * icon     — ReactElement (el icono ya renderizado)
- * count    — número opcional bajo el icono
- * onClick  — handler
- * active   — estado activo (cambia apariencia)
- */
 function SidebarAction({ icon, count, onClick, active = false }) {
   return (
     <motion.button
       type="button"
       whileTap={{ scale: 0.82 }}
       onClick={(e) => { e.stopPropagation(); onClick?.(); }}
-      className="flex flex-col items-center gap-[5px]"
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+        background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+      }}
     >
-      <div
-        className={`flex h-11 w-11 items-center justify-center rounded-full transition-colors ${
-          active ? 'bg-white/15' : 'active:bg-white/10'
-        }`}
-      >
+      <div style={{
+        width: 44, height: 44, borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: active ? 'rgba(255,255,255,0.15)' : 'transparent',
+        transition: 'background 0.15s',
+      }}>
         {icon}
       </div>
       {count !== undefined ? <Count n={count} /> : null}
@@ -55,89 +55,91 @@ function ReelSidebar({
   onSave,
   onOpenComments,
   onShare,
-  onOpenProduct,
 }) {
-  const hasProduct = !!reel.productTag;
-
   return (
     <div
-      className="absolute right-2 z-20 flex flex-col items-center gap-3"
-      style={{ bottom: 'max(calc(env(safe-area-inset-bottom, 0px) + 90px), 102px)' }}
+      style={{
+        position: 'absolute', right: 8, zIndex: 20,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
+        bottom: 'max(calc(env(safe-area-inset-bottom, 0px) + 100px), 116px)',
+      }}
     >
+      {/* Avatar */}
+      <Link
+        to={`/user/${reel.user.id}`}
+        onClick={(e) => e.stopPropagation()}
+        style={{ marginBottom: 6 }}
+      >
+        <div style={{
+          width: 44, height: 44, borderRadius: '50%', overflow: 'hidden',
+          border: '2px solid #fff', background: 'rgba(255,255,255,0.2)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+        }}>
+          {reel.user.avatar ? (
+            <img src={reel.user.avatar} alt={reel.user.username}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <svg style={{ width: '100%', height: '100%', fill: 'rgba(255,255,255,0.5)' }} viewBox="0 0 24 24">
+              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+            </svg>
+          )}
+        </div>
+      </Link>
 
-      {/* ── Like ── */}
+      {/* Like */}
       <SidebarAction
         active={isLiked}
         onClick={onLike}
         count={likesCount}
         icon={
           <Heart
-            className={`h-7 w-7 drop-shadow ${
-              isLiked ? 'fill-white text-white' : 'text-white'
-            }`}
+            size={28}
             strokeWidth={isLiked ? 0 : 1.8}
+            fill={isLiked ? '#fff' : 'none'}
+            color="#fff"
+            style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))' }}
           />
         }
       />
 
-      {/* ── Comentarios ── */}
+      {/* Comments */}
       <SidebarAction
         onClick={onOpenComments}
         count={reel.stats.comments}
         icon={
-          <MessageCircle className="h-7 w-7 text-white drop-shadow" strokeWidth={1.8} />
+          <MessageCircle
+            size={28} strokeWidth={1.8} color="#fff"
+            style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))' }}
+          />
         }
       />
 
-      {/* ── Compartir ── */}
+      {/* Share */}
       <SidebarAction
         onClick={onShare}
         count={reel.stats.shares > 0 ? reel.stats.shares : undefined}
         icon={
-          <Send className="h-[26px] w-[26px] -rotate-[10deg] text-white drop-shadow" strokeWidth={1.8} />
+          <Send
+            size={26} strokeWidth={1.8} color="#fff"
+            style={{ transform: 'rotate(-10deg)', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))' }}
+          />
         }
       />
 
-      {/* ── Guardar (bookmark) ── */}
+      {/* Bookmark */}
       <SidebarAction
         active={isSaved}
         onClick={onSave}
         icon={
           <Bookmark
-            className={`h-7 w-7 drop-shadow ${isSaved ? 'fill-white text-white' : 'text-white'}`}
+            size={28}
             strokeWidth={isSaved ? 0 : 1.8}
+            fill={isSaved ? '#fff' : 'none'}
+            color="#fff"
+            style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))' }}
           />
         }
       />
-
-      {/* ── Producto etiquetado (thumbnail cuadrado) ── */}
-      {hasProduct ? (
-        <motion.button
-          type="button"
-          whileTap={{ scale: 0.88 }}
-          onClick={(e) => { e.stopPropagation(); onOpenProduct?.(); }}
-          className="mt-1 flex flex-col items-center gap-1"
-        >
-          {/* Thumbnail del producto — 48px con esquinas redondeadas + ring blanco */}
-          <div className="h-12 w-12 overflow-hidden rounded-[10px] bg-white/20 ring-[2px] ring-white shadow-lg">
-            {reel.productTag.image ? (
-              <img
-                src={reel.productTag.image}
-                alt={reel.productTag.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <ShoppingBag className="h-6 w-6 text-white/70" strokeWidth={1.5} />
-              </div>
-            )}
-          </div>
-          <span className="text-[10px] font-medium leading-none text-white/80 drop-shadow">
-            Ver
-          </span>
-        </motion.button>
-      ) : null}
-
     </div>
   );
 }

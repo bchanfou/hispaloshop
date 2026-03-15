@@ -37,7 +37,7 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
       {/* Stories */}
       <StoriesCarousel onCreateStory={handleCreateStory} onViewStory={handleViewStory} />
 

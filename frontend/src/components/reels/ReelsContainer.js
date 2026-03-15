@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Camera } from 'lucide-react';
+import { ChevronLeft, ShoppingBag } from 'lucide-react';
 import apiClient from '../../services/api/client';
+import { useCart } from '../../context/CartContext';
 import ReelPlayer from './ReelPlayer';
 
 /**
@@ -43,70 +44,68 @@ function normalizeReel(item) {
   };
 }
 
-// ── Tabs "Para ti / Amigos" — fixed overlay encima de todos los reels ──────
-function ReelsTopBar({ activeTab, onTabChange, onBack }) {
-  const tabs = [
-    { id: 'parati',  label: 'Para ti' },
-    { id: 'amigos',  label: 'Amigos' },
-  ];
-
+// ── Top overlay: back button (left) + cart badge (right) ─────────────────────
+function ReelsTopBar({ onBack, cartCount }) {
   return (
     <div
       className="pointer-events-none fixed inset-x-0 top-0 z-50"
       aria-hidden="false"
     >
-      {/* Gradient fondo para que los controles sean legibles */}
-      <div className="h-24 bg-gradient-to-b from-black/55 to-transparent" />
+      {/* Top gradient for legibility */}
+      <div
+        style={{
+          height: '15vh',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%)',
+        }}
+      />
 
-      {/* Controles: camera | tabs | dots */}
+      {/* Controls */}
       <div
         className="pointer-events-auto absolute inset-x-0 top-0 flex items-center justify-between px-4"
         style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 14px)' }}
       >
-        {/* Cámara — crear reel */}
+        {/* Back */}
         <button
           type="button"
           onClick={onBack}
           aria-label="Volver"
-          className="flex h-10 w-10 items-center justify-center active:opacity-70"
+          style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'rgba(0,0,0,0.35)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: 'none', cursor: 'pointer',
+            backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+          }}
         >
-          <Camera className="h-[26px] w-[26px] text-white drop-shadow" strokeWidth={1.8} />
+          <ChevronLeft size={22} strokeWidth={2} color="#fff" />
         </button>
 
-        {/* Tabs centrados */}
-        <div className="flex items-end gap-5">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => onTabChange(tab.id)}
-                className={`relative pb-1 text-[15px] font-semibold drop-shadow transition-all active:opacity-70 ${
-                  isActive ? 'text-white' : 'text-white/50'
-                }`}
-              >
-                {tab.label}
-                {/* underline activo */}
-                {isActive ? (
-                  <span className="absolute bottom-0 left-1/2 h-[2px] w-4/5 -translate-x-1/2 rounded-full bg-white" />
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ⋯ Opciones */}
+        {/* Cart */}
         <button
           type="button"
-          aria-label="Opciones"
-          className="flex h-10 w-10 items-center justify-center active:opacity-70"
+          onClick={() => { window.location.href = '/cart'; }}
+          aria-label="Carrito"
+          style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'rgba(0,0,0,0.35)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: 'none', cursor: 'pointer', position: 'relative',
+            backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+          }}
         >
-          <svg className="h-6 w-6 fill-white drop-shadow" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="5"  r="1.8" />
-            <circle cx="12" cy="12" r="1.8" />
-            <circle cx="12" cy="19" r="1.8" />
-          </svg>
+          <ShoppingBag size={20} strokeWidth={1.8} color="#fff" />
+          {cartCount > 0 && (
+            <span style={{
+              position: 'absolute', top: -2, right: -2,
+              width: 16, height: 16, borderRadius: '50%',
+              background: 'var(--color-green)', color: '#fff',
+              fontSize: 9, fontWeight: 600,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--font-sans)',
+            }}>
+              {cartCount > 9 ? '9+' : cartCount}
+            </span>
+          )}
         </button>
       </div>
     </div>
@@ -117,14 +116,15 @@ function ReelsContainer() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const initialId = searchParams.get('id');
+  const { getTotalItems } = useCart();
+  const cartCount = getTotalItems ? getTotalItems() : 0;
 
-  const [activeTab, setActiveTab]     = useState('parati');
-  const [reels, setReels]             = useState([]);
+  const [reels, setReels]               = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading]         = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore]         = useState(true);
-  const [error, setError]             = useState(null);
+  const [loading, setLoading]           = useState(true);
+  const [loadingMore, setLoadingMore]   = useState(false);
+  const [hasMore, setHasMore]           = useState(true);
+  const [error, setError]               = useState(null);
   const skipRef      = useRef(0);
   const containerRef = useRef(null);
 
@@ -232,23 +232,32 @@ function ReelsContainer() {
   if (error || reels.length === 0) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-black p-8 text-center text-white">
-        <p className="mb-2 text-lg font-semibold">{error || 'Aún no hay reels disponibles'}</p>
-        <p className="mb-6 text-sm text-white/60">Vuelve más tarde o sé el primero en publicar un reel.</p>
-        <button onClick={() => navigate(-1)} className="rounded-full bg-white/10 px-6 py-2 text-sm">Volver</button>
+        <p className="mb-2 text-lg font-semibold" style={{ fontFamily: 'var(--font-sans)' }}>
+          {error || 'Aún no hay reels disponibles'}
+        </p>
+        <p className="mb-6 text-sm text-white/60" style={{ fontFamily: 'var(--font-sans)' }}>
+          Vuelve más tarde o sé el primero en publicar un reel.
+        </p>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
+            borderRadius: 'var(--radius-full)', padding: '8px 24px',
+            fontSize: 14, fontFamily: 'var(--font-sans)', cursor: 'pointer',
+          }}
+        >
+          Volver
+        </button>
       </div>
     );
   }
 
   return (
     <>
-      {/* ── Top bar global (Para ti / Amigos) ── */}
-      <ReelsTopBar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        onBack={() => navigate(-1)}
-      />
+      {/* Top bar: back + cart */}
+      <ReelsTopBar onBack={() => navigate(-1)} cartCount={cartCount} />
 
-      {/* ── Scroll container ── */}
+      {/* Scroll container */}
       <div
         ref={containerRef}
         className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-black"
@@ -273,11 +282,19 @@ function ReelsContainer() {
 
         {!loadingMore && !hasMore && reels.length > 0 ? (
           <div className="flex h-screen flex-col items-center justify-center bg-black p-8 text-center text-white">
-            <p className="mb-2 text-lg font-semibold">¡Has visto todo!</p>
-            <p className="mb-4 text-sm text-white/70">Vuelve más tarde para ver más contenido</p>
+            <p className="mb-2 text-lg font-semibold" style={{ fontFamily: 'var(--font-sans)' }}>
+              ¡Has visto todo!
+            </p>
+            <p className="mb-4 text-sm text-white/70" style={{ fontFamily: 'var(--font-sans)' }}>
+              Vuelve más tarde para ver más contenido
+            </p>
             <button
               onClick={() => { setCurrentIndex(0); scrollToReel(0); }}
-              className="rounded-full bg-white/10 px-6 py-2 text-sm font-medium"
+              style={{
+                background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
+                borderRadius: 'var(--radius-full)', padding: '8px 24px',
+                fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer',
+              }}
             >
               Volver al inicio
             </button>

@@ -1,34 +1,48 @@
 import React, { useState } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, ShoppingBag, MessageCircle, Store, Check } from 'lucide-react';
+import { X, ShoppingCart, Check, Store } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
+import { useLocale } from '../../context/LocaleContext';
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
 function ProductDrawer({ isOpen, onClose, product }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { convertAndFormatPrice } = useLocale();
   const [addedToCart, setAddedToCart] = useState(false);
 
   if (!product) return null;
 
-  const handleAddToCart = () => {
-    setAddedToCart(true);
-    toast.success('Añadido al carrito');
-    setTimeout(() => setAddedToCart(false), 2000);
-  };
+  const productId = getProductId(product);
+  const displayPrice = convertAndFormatPrice(product.price, 'EUR');
 
-  const handleViewStore = () => {
-    onClose();
-    navigate(`/store/${product.sellerId || 'seller'}`);
+  const handleAddToCart = async () => {
+    if (!user) {
+      toast.error('Inicia sesión para añadir productos', {
+        action: { label: 'Entrar', onClick: () => { window.location.href = '/login'; } },
+      });
+      return;
+    }
+    if (!productId) return;
+    const success = await addToCart(productId, 1);
+    if (success) {
+      setAddedToCart(true);
+      toast.success('Añadido al carrito');
+      setTimeout(() => setAddedToCart(false), 2000);
+    } else {
+      toast.error('Error al añadir');
+    }
   };
 
   const handleViewProduct = () => {
     onClose();
-    const productId = getProductId(product);
-    if (!productId) return;
-    navigate(`/products/${productId}`);
+    if (productId) navigate(`/products/${productId}`);
   };
 
   return (
@@ -49,121 +63,103 @@ function ProductDrawer({ isOpen, onClose, product }) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-3xl bg-white"
+            className="fixed bottom-0 left-0 right-0 z-50 max-h-[80vh] overflow-y-auto"
+            style={{
+              borderRadius: '20px 20px 0 0',
+              background: 'var(--color-white, #fff)',
+            }}
           >
-            <div className="sticky top-0 flex justify-center bg-white pb-2 pt-3">
-              <div className="h-1 w-10 rounded-full bg-stone-300" />
+            {/* Handle */}
+            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, paddingBottom: 8 }}>
+              <div style={{ width: 40, height: 4, borderRadius: 'var(--radius-full)', background: 'var(--color-border)' }} />
             </div>
 
+            {/* Close */}
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 rounded-full bg-white/80 p-2 backdrop-blur-sm"
               aria-label="Cerrar producto"
+              style={{
+                position: 'absolute', right: 16, top: 16,
+                width: 32, height: 32, borderRadius: '50%',
+                background: 'var(--color-surface)', border: 'none',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+              }}
             >
-              <X className="h-5 w-5 text-stone-500" />
+              <X size={18} strokeWidth={2} color="var(--color-stone)" />
             </button>
 
-            <div className="relative h-64 bg-stone-100">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
+            {/* Image */}
+            <div style={{ height: 220, background: 'var(--color-surface)', overflow: 'hidden' }}>
+              {product.image ? (
+                <img src={product.image} alt={product.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : null}
             </div>
 
-            <div className="p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold text-stone-950">{product.name}</h2>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="text-2xl font-bold text-stone-950">
-                      €{product.price.toFixed(2)}
-                    </span>
-                    {product.originalPrice ? (
-                      <span className="text-sm text-stone-500 line-through">
-                        €{product.originalPrice.toFixed(2)}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
+            {/* Info */}
+            <div style={{ padding: '16px 16px 0' }}>
+              <h2 style={{
+                fontSize: 18, fontWeight: 600, color: 'var(--color-black)',
+                fontFamily: 'var(--font-sans)', lineHeight: 1.3,
+              }}>
+                {product.name}
+              </h2>
+              <p style={{
+                fontSize: 20, fontWeight: 600, color: 'var(--color-black)',
+                fontFamily: 'var(--font-sans)', marginTop: 4,
+              }}>
+                {displayPrice}
+              </p>
 
-              <div className="mt-3 flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-stone-400 text-stone-400" />
-                  <span className="text-sm font-semibold">{product.rating || '4.8'}</span>
-                </div>
-                <span className="text-sm text-stone-500">
-                  ({product.reviews || '124'} valoraciones)
-                </span>
-              </div>
-
-              <div
-                onClick={handleViewStore}
-                className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl bg-stone-50 p-3 transition-colors hover:bg-stone-100"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 font-bold text-white">
-                  {product.seller?.[0] || 'V'}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{product.seller || 'Vendedor'}</p>
-                  <p className="text-xs text-stone-500">Ver tienda completa</p>
-                </div>
-                <Store className="h-5 w-5 text-stone-500" />
-              </div>
-
-              <div className="mt-4">
-                <h3 className="mb-2 text-sm font-semibold">Descripción</h3>
-                <p className="text-sm leading-relaxed text-stone-500">
-                  {product.description || 'Producto artesanal de alta calidad elaborado con ingredientes seleccionados. Envío en 24-48 h.'}
+              {product.description && (
+                <p style={{
+                  fontSize: 13, color: 'var(--color-stone)', lineHeight: 1.5,
+                  fontFamily: 'var(--font-sans)', marginTop: 12,
+                }}>
+                  {product.description}
                 </p>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {['Envío gratis', 'Garantía', 'Devolución 14 d'].map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              )}
             </div>
 
-            <div className="space-y-3 border-t border-stone-100 p-4">
+            {/* Actions */}
+            <div style={{
+              padding: 16,
+              paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 16px)',
+              display: 'flex', flexDirection: 'column', gap: 10,
+            }}>
+              {/* Green buy button */}
               <button
                 onClick={handleAddToCart}
-                className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-semibold transition-colors ${
-                  addedToCart ? 'bg-stone-700 text-white' : 'bg-stone-950 text-white hover:bg-stone-800'
-                }`}
+                style={{
+                  width: '100%', height: 48,
+                  borderRadius: 'var(--radius-md)',
+                  background: addedToCart ? 'var(--color-black)' : 'var(--color-green)',
+                  color: '#fff', border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                  transition: 'var(--transition-fast)',
+                }}
               >
                 {addedToCart ? (
-                  <>
-                    <Check className="h-5 w-5" />
-                    Añadido
-                  </>
+                  <><Check size={20} strokeWidth={2.5} /> Añadido</>
                 ) : (
-                  <>
-                    <ShoppingBag className="h-5 w-5" />
-                    Añadir al carrito
-                  </>
+                  <><ShoppingCart size={20} strokeWidth={2} /> Añadir al carrito · {displayPrice}</>
                 )}
               </button>
 
-              <button
-                onClick={() => toast.info('Chat con vendedor próximamente')}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-stone-950 py-3.5 font-semibold text-stone-950 hover:bg-stone-50"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Consultar al vendedor
-              </button>
-
+              {/* View product link */}
               <button
                 onClick={handleViewProduct}
-                className="w-full py-3 text-sm font-medium text-stone-500"
+                style={{
+                  width: '100%', height: 44,
+                  borderRadius: 'var(--radius-md)',
+                  background: 'var(--color-surface)',
+                  color: 'var(--color-black)', border: 'none', cursor: 'pointer',
+                  fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)',
+                }}
               >
-                Ver ficha completa del producto
+                Ver ficha completa
               </button>
             </div>
           </motion.div>
