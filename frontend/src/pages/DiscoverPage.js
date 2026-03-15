@@ -128,7 +128,7 @@ export default function DiscoverPage() {
         <div style={{
           height: 130,
           borderRadius: 'var(--radius-xl)',
-          background: 'linear-gradient(135deg, #1a3a2a 0%, #2E7D52 100%)',
+          background: 'linear-gradient(135deg, #1c1917 0%, #0A0A0A 100%)',
           padding: '20px 24px',
           display: 'flex',
           alignItems: 'center',

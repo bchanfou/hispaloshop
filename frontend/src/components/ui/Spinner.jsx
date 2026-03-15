@@ -1,32 +1,58 @@
 import React from 'react';
 
-const sizeMap = { sm: 16, md: 24, lg: 40 };
+const sizeMap = { sm: 16, md: 24, lg: 32, xl: 48 };
 
 const colorMap = {
-  dark:  { border: 'var(--color-border)', top: 'var(--color-black)' },
-  light: { border: 'rgba(255,255,255,0.3)', top: '#FFFFFF' },
-  green: { border: 'var(--color-green-border)', top: 'var(--color-green)' },
+  black: 'var(--color-black)',
+  white: 'var(--color-white)',
+  green: 'var(--color-green)',
+  stone: 'var(--color-stone)',
 };
 
-export default function Spinner({ size = 'md', variant = 'dark', style, ...props }) {
+export default function Spinner({ size = 'md', color = 'black', style, ...props }) {
   const px = sizeMap[size] || sizeMap.md;
-  const colors = colorMap[variant] || colorMap.dark;
+  const strokeColor = colorMap[color] || colorMap.black;
+  const strokeWidth = px <= 16 ? 3 : 2.5;
+  const r = 10;
+  const circumference = 2 * Math.PI * r;
 
   return (
-    <span
+    <svg
+      width={px}
+      height={px}
+      viewBox="0 0 24 24"
+      fill="none"
       role="status"
       aria-label="Loading"
       style={{
+        animation: 'hs-spin 800ms linear infinite',
         display: 'inline-block',
-        width: px,
-        height: px,
-        borderRadius: '50%',
-        border: `${Math.max(2, px * 0.1)}px solid ${colors.border}`,
-        borderTopColor: colors.top,
-        animation: 'hs-spin 0.7s linear infinite',
+        flexShrink: 0,
         ...style,
       }}
       {...props}
-    />
+    >
+      {/* Track */}
+      <circle
+        cx="12"
+        cy="12"
+        r={r}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        strokeOpacity={0.2}
+      />
+      {/* Fill */}
+      <circle
+        cx="12"
+        cy="12"
+        r={r}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        strokeDasharray={`${circumference * 0.7} ${circumference * 0.3}`}
+        strokeLinecap="round"
+        transform="rotate(-90 12 12)"
+      />
+      <style>{`@keyframes hs-spin { to { transform: rotate(360deg) } }`}</style>
+    </svg>
   );
 }

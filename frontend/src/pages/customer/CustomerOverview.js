@@ -168,16 +168,16 @@ export default function CustomerOverview() {
       )}
 
       {/* Hispal AI card - green-light */}
-      <Link to="/dashboard/ai-preferences" className="block p-4 transition-all" style={{ background: 'var(--color-green-light)', border: '1px solid var(--color-green)', borderRadius: 'var(--radius-xl)' }} data-testid="hispal-ai-card">
+      <Link to="/dashboard/ai-preferences" className="block p-4 transition-all" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }} data-testid="hispal-ai-card">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--color-green)' }}>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--color-black)' }}>
             <Sparkles className="w-5 h-5" style={{ color: '#fff' }} />
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>Hispalo AI</p>
             <p className="text-xs" style={{ color: 'var(--color-stone)' }}>Personaliza tus recomendaciones y preferencias</p>
           </div>
-          <span className="text-xs font-medium" style={{ color: 'var(--color-green)' }}>Ver →</span>
+          <span className="text-xs font-medium" style={{ color: 'var(--color-black)' }}>Ver →</span>
         </div>
       </Link>
 

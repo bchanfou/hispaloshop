@@ -313,7 +313,7 @@ const CommunityRow = ({ community }) => (
       <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: 0 }}>
         {community.member_count?.toLocaleString()} miembros
         {community.unread_posts > 0 && (
-          <span style={{ marginLeft: 8, color: 'var(--color-green)', fontWeight: 700 }}>
+          <span style={{ marginLeft: 8, color: 'var(--color-black)', fontWeight: 700 }}>
             · {community.unread_posts} nuevos
           </span>
         )}

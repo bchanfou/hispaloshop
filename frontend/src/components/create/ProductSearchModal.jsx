@@ -248,7 +248,7 @@ export default function ProductSearchModal({ isOpen, onClose, onSelect }) {
                             width: 22,
                             height: 22,
                             borderRadius: '50%',
-                            background: 'var(--color-green)',
+                            background: 'var(--color-black)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',

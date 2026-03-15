@@ -73,7 +73,7 @@ export default function ProfilePageHeader({ username, isOwnProfile, onShare }) {
               onClick={() => navigate(dashRoute)}
               className="flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold"
               style={{
-                background: 'var(--color-green)',
+                background: 'var(--color-black)',
                 color: '#fff',
                 transition: 'var(--transition-fast)',
               }}

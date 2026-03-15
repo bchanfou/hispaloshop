@@ -1,46 +1,61 @@
 import React from 'react';
 
-export default function Divider({ text, style, ...props }) {
-  if (!text) {
+const variantColors = {
+  default: 'var(--color-border)',
+  dark: 'var(--color-dark-border)',
+  strong: 'var(--color-black)',
+};
+
+export default function Divider({
+  variant = 'default',
+  orientation = 'horizontal',
+  label,
+  style,
+  ...props
+}) {
+  const color = variantColors[variant] || variantColors.default;
+  const isVertical = orientation === 'vertical';
+
+  if (label) {
     return (
-      <hr
+      <div
         style={{
-          height: '0.5px',
-          background: 'var(--color-border)',
-          border: 'none',
-          margin: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
           ...style,
         }}
         {...props}
-      />
+      >
+        <span style={{ flex: 1, height: 1, background: color }} />
+        <span
+          style={{
+            fontSize: 'var(--text-xs)',
+            color: 'var(--color-stone)',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {label}
+        </span>
+        <span style={{ flex: 1, height: 1, background: color }} />
+      </div>
     );
   }
 
   return (
-    <div
+    <hr
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
+        width: isVertical ? 1 : '100%',
+        height: isVertical ? '100%' : 1,
+        background: color,
+        border: 'none',
+        margin: 0,
+        flexShrink: 0,
         ...style,
       }}
       {...props}
-    >
-      <span style={{ flex: 1, height: '0.5px', background: 'var(--color-border)' }} />
-      <span
-        style={{
-          fontSize: '10px',
-          color: 'var(--color-stone)',
-          fontFamily: 'var(--font-sans)',
-          fontWeight: 500,
-          whiteSpace: 'nowrap',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-        }}
-      >
-        {text}
-      </span>
-      <span style={{ flex: 1, height: '0.5px', background: 'var(--color-border)' }} />
-    </div>
+    />
   );
 }

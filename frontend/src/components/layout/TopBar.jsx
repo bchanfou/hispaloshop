@@ -101,7 +101,7 @@ export default function TopBar({
                 position: 'absolute',
                 top: -2,
                 right: -4,
-                background: 'var(--color-green)',
+                background: 'var(--color-black)',
                 color: '#fff',
                 fontSize: 8,
                 fontWeight: 600,

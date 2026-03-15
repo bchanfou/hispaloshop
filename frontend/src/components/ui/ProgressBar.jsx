@@ -1,57 +1,60 @@
 import React from 'react';
 
-const colorMap = {
+const fillColors = {
   green: 'var(--color-green)',
   amber: 'var(--color-amber)',
-  red:   'var(--color-red)',
+  black: 'var(--color-black)',
 };
+
+const heightMap = { xs: 4, sm: 6, md: 8, lg: 12 };
 
 export default function ProgressBar({
   value = 0,
   variant = 'green',
   size = 'sm',
-  showLabel = false,
+  animated = false,
   style,
   ...props
 }) {
   const clamped = Math.max(0, Math.min(100, value));
-  const height = size === 'sm' ? 3 : 6;
-  const fillColor = colorMap[variant] || colorMap.green;
+  const h = heightMap[size] || heightMap.sm;
+  const fillColor = fillColors[variant] || fillColors.green;
+  const showPulse = animated && clamped < 100 && variant === 'green';
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', ...style }} {...props}>
+    <div
+      role="progressbar"
+      aria-valuenow={clamped}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      style={{
+        width: '100%',
+        height: h,
+        borderRadius: 'var(--radius-full)',
+        background: 'var(--color-surface)',
+        overflow: 'hidden',
+        ...style,
+      }}
+      {...props}
+    >
       <div
         style={{
-          flex: 1,
-          height,
-          borderRadius: height,
-          background: 'var(--color-surface)',
-          overflow: 'hidden',
+          width: `${clamped}%`,
+          height: '100%',
+          borderRadius: 'var(--radius-full)',
+          background: fillColor,
+          transition: 'width 600ms ease',
+          position: 'relative',
+          ...(showPulse ? { animation: 'hs-progress-pulse 1.5s ease-in-out infinite' } : {}),
         }}
-      >
-        <div
-          style={{
-            width: `${clamped}%`,
-            height: '100%',
-            borderRadius: height,
-            background: fillColor,
-            transition: 'width 300ms ease',
-          }}
-        />
-      </div>
-      {showLabel && (
-        <span
-          style={{
-            fontSize: '11px',
-            fontWeight: 500,
-            color: 'var(--color-stone)',
-            fontFamily: 'var(--font-sans)',
-            minWidth: '32px',
-            textAlign: 'right',
-          }}
-        >
-          {Math.round(clamped)}%
-        </span>
+      />
+      {showPulse && (
+        <style>{`
+          @keyframes hs-progress-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+          }
+        `}</style>
       )}
     </div>
   );

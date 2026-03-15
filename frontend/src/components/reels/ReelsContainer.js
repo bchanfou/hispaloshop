@@ -98,7 +98,7 @@ function ReelsTopBar({ onBack, cartCount }) {
             <span style={{
               position: 'absolute', top: -2, right: -2,
               width: 16, height: 16, borderRadius: '50%',
-              background: 'var(--color-green)', color: '#fff',
+              background: 'var(--color-black)', color: '#fff',
               fontSize: 9, fontWeight: 600,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'var(--font-sans)',

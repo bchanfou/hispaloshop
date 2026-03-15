@@ -1,14 +1,31 @@
-import { cn } from "@/lib/utils"
+import React from 'react';
 
-function Skeleton({
+export function Skeleton({
+  width,
+  height,
+  shape = 'rect',
+  style,
   className,
   ...props
 }) {
+  const borderRadius = shape === 'circle'
+    ? '50%'
+    : shape === 'text'
+      ? '4px'
+      : 'var(--radius-sm)';
+
   return (
     <div
-      className={cn("animate-pulse rounded-md bg-primary/10", className)}
-      {...props} />
+      className={`skeleton ${className || ''}`}
+      style={{
+        width: width || '100%',
+        height: shape === 'text' ? '1em' : (height || 48),
+        borderRadius,
+        ...style,
+      }}
+      {...props}
+    />
   );
 }
 
-export { Skeleton }
+export default Skeleton;

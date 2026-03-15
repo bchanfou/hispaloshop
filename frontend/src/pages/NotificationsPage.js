@@ -173,7 +173,7 @@ function NotifRow({ notif, onRead, onDelete }) {
       className="flex items-start gap-3 cursor-pointer group"
       style={{
         padding: '12px 16px',
-        borderLeft: !isRead ? '3px solid var(--color-green)' : '3px solid transparent',
+        borderLeft: !isRead ? '3px solid var(--color-black)' : '3px solid transparent',
         background: !isRead ? 'var(--color-surface)' : 'var(--color-white)',
         transition: 'background 0.15s',
       }}
