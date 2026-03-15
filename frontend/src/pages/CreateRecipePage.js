@@ -1,14 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, ImagePlus, Loader2, Package, Plus, Search, UploadCloud, X } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import BackButton from '../components/BackButton';
+import { ArrowLeft, Camera, ChevronDown, ChevronUp, Clock, ImagePlus, Loader2, Plus, Users, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { resolveUserImage } from '../features/user/queries';
+import ProductSearchModal from '../components/create/ProductSearchModal';
 
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -23,6 +21,13 @@ function normalizeIngredientName(value) {
   return value.trim().replace(/\s+/g, ' ');
 }
 
+const DIFFICULTY_MAP = {
+  easy: { label: 'Facil', color: 'var(--color-green)' },
+  medium: { label: 'Media', color: 'var(--color-amber)' },
+  hard: { label: 'Dificil', color: 'var(--color-red)' },
+};
+const DIFFICULTY_KEYS = ['easy', 'medium', 'hard'];
+
 export default function CreateRecipePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -33,9 +38,8 @@ export default function CreateRecipePage() {
   const [manualIngredientInput, setManualIngredientInput] = useState('');
   const [ingredientSuggestions, setIngredientSuggestions] = useState([]);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
-  const [productQuery, setProductQuery] = useState('');
-  const [productResults, setProductResults] = useState([]);
-  const [productLoading, setProductLoading] = useState(false);
+  const [productModalOpen, setProductModalOpen] = useState(false);
+  const [descriptionOpen, setDescriptionOpen] = useState(false);
 
   const [recipe, setRecipe] = useState({
     image_url: '',
@@ -86,12 +90,12 @@ export default function CreateRecipePage() {
 
   const handleMainImage = async (file) => {
     if (!file?.type?.startsWith('image/')) {
-      toast.error(t('social.imagesOnly', 'Solo se permiten imágenes'));
+      toast.error(t('social.imagesOnly', 'Solo se permiten imagenes'));
       return;
     }
 
     if (file.size > 8 * 1024 * 1024) {
-      toast.error(t('social.maxSize10', 'El tamaño máximo es 10MB'));
+      toast.error(t('social.maxSize10', 'El tamano maximo es 10MB'));
       return;
     }
 
@@ -141,29 +145,8 @@ export default function CreateRecipePage() {
     updateRecipe('ingredients', nextIngredients);
   };
 
-  const searchProducts = async (value) => {
-    setProductQuery(value);
-    if (!value.trim()) {
-      setProductResults([]);
-      return;
-    }
-
-    setProductLoading(true);
-    try {
-      const data = await apiClient.get(`/products?search=${encodeURIComponent(value)}&limit=8`);
-      const results = data?.products || data || [];
-      setProductResults(Array.isArray(results) ? results : []);
-    } catch {
-      setProductResults([]);
-    } finally {
-      setProductLoading(false);
-    }
-  };
-
   const addProductIngredient = (product) => {
     if (recipe.ingredients.some((ingredient) => ingredient.product_id === product.product_id)) {
-      setProductQuery('');
-      setProductResults([]);
       return;
     }
 
@@ -178,8 +161,6 @@ export default function CreateRecipePage() {
         source: 'catalog',
       },
     ]);
-    setProductQuery('');
-    setProductResults([]);
   };
 
   const updateStep = (index, field, value) => {
@@ -201,7 +182,7 @@ export default function CreateRecipePage() {
 
   const handleStepImage = async (index, file) => {
     if (!file?.type?.startsWith('image/')) {
-      toast.error(t('social.imagesOnly', 'Solo se permiten imágenes'));
+      toast.error(t('social.imagesOnly', 'Solo se permiten imagenes'));
       return;
     }
 
@@ -211,6 +192,12 @@ export default function CreateRecipePage() {
     } catch {
       toast.error('No hemos podido cargar la imagen del paso');
     }
+  };
+
+  const cycleDifficulty = () => {
+    const idx = DIFFICULTY_KEYS.indexOf(recipe.difficulty);
+    const next = DIFFICULTY_KEYS[(idx + 1) % DIFFICULTY_KEYS.length];
+    updateRecipe('difficulty', next);
   };
 
   const handleSubmit = async () => {
@@ -231,22 +218,17 @@ export default function CreateRecipePage() {
       .filter((step) => step.text || step.image_url);
 
     if (!recipe.title.trim()) {
-      toast.error(t('recipes.missingTitle', 'Añade un título a la receta'));
-      return;
-    }
-
-    if (!recipe.description.trim()) {
-      toast.error(t('recipes.missingDescription', 'Añade una descripción a la receta'));
+      toast.error(t('recipes.missingTitle', 'Anade un titulo a la receta'));
       return;
     }
 
     if (cleanedIngredients.length === 0) {
-      toast.error(t('recipes.missingIngredients', 'Añade al menos un ingrediente'));
+      toast.error(t('recipes.missingIngredients', 'Anade al menos un ingrediente'));
       return;
     }
 
     if (cleanedSteps.length === 0) {
-      toast.error(t('recipes.missingSteps', 'Añade al menos un paso de preparación'));
+      toast.error(t('recipes.missingSteps', 'Anade al menos un paso de preparacion'));
       return;
     }
 
@@ -270,343 +252,722 @@ export default function CreateRecipePage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-stone-50">
-      <Header />
-      <main className="mx-auto max-w-[700px] px-4 py-6">
-        <BackButton />
+  const diff = DIFFICULTY_MAP[recipe.difficulty];
 
-        <div className="mt-8 mb-8">
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">{t('recipes.createRecipe', 'Crear receta')}</h1>
-          <p className="mt-3 text-sm leading-relaxed text-stone-600">
-            Organiza la receta como una publicación limpia: imagen principal, historia, ingredientes y pasos.
-          </p>
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--color-cream)',
+        fontFamily: 'var(--font-sans)',
+      }}
+    >
+      {/* TopBar */}
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          background: 'var(--color-white)',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 16px',
+          height: 52,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 4,
+            color: 'var(--color-black)',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+          aria-label="Volver"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>
+          Nueva receta
+        </span>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitting}
+          style={{
+            background: 'var(--color-black)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 'var(--radius-full)',
+            padding: '7px 16px',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: submitting ? 'not-allowed' : 'pointer',
+            opacity: submitting ? 0.5 : 1,
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          {submitting ? 'Publicando...' : 'Publicar'}
+        </button>
+      </div>
+
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '16px 16px 32px' }}>
+        {/* Cover photo */}
+        <div
+          onDragOver={(event) => { event.preventDefault(); setDragActive(true); }}
+          onDragLeave={() => setDragActive(false)}
+          onDrop={handleDrop}
+          style={{
+            height: 130,
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+            position: 'relative',
+            background: recipe.image_url
+              ? undefined
+              : 'linear-gradient(135deg, var(--color-surface), var(--color-cream))',
+            border: dragActive ? '2px dashed var(--color-stone)' : 'none',
+          }}
+        >
+          {recipe.image_url ? (
+            <>
+              <img
+                src={recipe.image_url}
+                alt="Portada"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <button
+                type="button"
+                onClick={() => updateRecipe('image_url', '')}
+                style={{
+                  position: 'absolute',
+                  right: 10,
+                  top: 10,
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.55)',
+                  border: 'none',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+                aria-label="Eliminar imagen"
+              >
+                <X size={14} />
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: 'rgba(255,255,255,0.9)',
+                borderRadius: 10,
+                border: 'none',
+                padding: '10px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                cursor: 'pointer',
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--color-black)',
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              <Camera size={15} />
+              Foto de portada
+            </button>
+          )}
+        </div>
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(event) => handleMainImage(event.target.files?.[0])}
+        />
+
+        {/* Recipe name */}
+        <input
+          value={recipe.title}
+          onChange={(event) => updateRecipe('title', event.target.value)}
+          placeholder="Nombre de la receta"
+          data-testid="recipe-title-input"
+          style={{
+            width: '100%',
+            fontSize: 16,
+            fontWeight: 500,
+            color: 'var(--color-black)',
+            border: 'none',
+            background: 'transparent',
+            outline: 'none',
+            padding: '16px 0 12px',
+            fontFamily: 'var(--font-sans)',
+            boxSizing: 'border-box',
+          }}
+        />
+
+        {/* Metadata grid */}
+        <div className="grid grid-cols-3" style={{ gap: 8, marginBottom: 20 }}>
+          {/* Time */}
+          <div
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+              padding: '10px 12px',
+              textAlign: 'center',
+            }}
+          >
+            <Clock size={14} style={{ color: 'var(--color-stone)', margin: '0 auto 4px' }} />
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 }}>
+              <input
+                type="number"
+                value={recipe.time_minutes}
+                onChange={(event) => updateRecipe('time_minutes', Number(event.target.value) || 0)}
+                data-testid="recipe-time"
+                style={{
+                  width: 36,
+                  border: 'none',
+                  background: 'transparent',
+                  textAlign: 'center',
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: 'var(--color-black)',
+                  outline: 'none',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              />
+              <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>min</span>
+            </div>
+          </div>
+
+          {/* Difficulty */}
+          <button
+            type="button"
+            onClick={cycleDifficulty}
+            data-testid="recipe-difficulty"
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+              padding: '10px 12px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
+            <div style={{ fontSize: 10, color: 'var(--color-stone)', marginBottom: 4 }}>Dificultad</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: diff.color }}>{diff.label}</div>
+          </button>
+
+          {/* Servings */}
+          <div
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+              padding: '10px 12px',
+              textAlign: 'center',
+            }}
+          >
+            <Users size={14} style={{ color: 'var(--color-stone)', margin: '0 auto 4px' }} />
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 }}>
+              <input
+                type="number"
+                value={recipe.servings}
+                onChange={(event) => updateRecipe('servings', Number(event.target.value) || 1)}
+                data-testid="recipe-servings"
+                style={{
+                  width: 28,
+                  border: 'none',
+                  background: 'transparent',
+                  textAlign: 'center',
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: 'var(--color-black)',
+                  outline: 'none',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              />
+              <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>personas</span>
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <label className="text-sm font-medium text-stone-950">1. Imagen principal</label>
+        {/* INGREDIENTES */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{
+            fontSize: 10,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--color-stone)',
+            marginBottom: 10,
+          }}>
+            Ingredientes
+          </div>
+
+          {/* Ingredient cards */}
+          {recipe.ingredients.map((ingredient, index) => (
             <div
-              onDragOver={(event) => {
-                event.preventDefault();
-                setDragActive(true);
+              key={`${ingredient.name}-${index}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '8px 0',
+                borderBottom: index < recipe.ingredients.length - 1 ? '1px solid var(--color-border)' : 'none',
               }}
-              onDragLeave={() => setDragActive(false)}
-              onDrop={handleDrop}
-              className={`mt-4 overflow-hidden rounded-2xl border border-dashed bg-stone-50 transition-colors ${
-                dragActive ? 'border-stone-500' : 'border-stone-300'
-              }`}
             >
-              {recipe.image_url ? (
-                <div className="relative">
-                  <img src={recipe.image_url} alt="Vista previa" className="aspect-[4/3] w-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => updateRecipe('image_url', '')}
-                    className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/65 text-white"
-                    aria-label="Eliminar imagen"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+              {ingredient.product_id && ingredient.product?.images?.[0] ? (
+                <img
+                  src={resolveUserImage(ingredient.product.images[0])}
+                  alt={ingredient.name}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 7,
+                    objectFit: 'cover',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : ingredient.product_id && ingredient.product?.image ? (
+                <img
+                  src={resolveUserImage(ingredient.product.image)}
+                  alt={ingredient.name}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 7,
+                    objectFit: 'cover',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : null}
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {ingredient.quantity && (
+                    <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-black)' }}>
+                      {ingredient.quantity}{ingredient.unit ? ` ${ingredient.unit}` : ''}
+                    </span>
+                  )}
+                  <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-black)' }}>
+                    {ingredient.name}
+                  </span>
                 </div>
-              ) : (
+                {ingredient.product_id && (
+                  <div style={{ fontSize: 9, color: 'var(--color-green)', marginTop: 1 }}>
+                    {ingredient.product?.seller_name || 'Tienda'} &middot; etiquetado &#10003;
+                  </div>
+                )}
+              </div>
+
+              {/* Quantity / unit inline edits */}
+              <input
+                value={ingredient.quantity}
+                onChange={(e) => updateIngredientField(index, 'quantity', e.target.value)}
+                placeholder="Cant."
+                style={{
+                  width: 42,
+                  fontSize: 10,
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 6,
+                  padding: '4px 6px',
+                  outline: 'none',
+                  color: 'var(--color-black)',
+                  background: 'var(--color-white)',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              />
+              <input
+                value={ingredient.unit}
+                onChange={(e) => updateIngredientField(index, 'unit', e.target.value)}
+                placeholder="Ud."
+                style={{
+                  width: 42,
+                  fontSize: 10,
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 6,
+                  padding: '4px 6px',
+                  outline: 'none',
+                  color: 'var(--color-black)',
+                  background: 'var(--color-white)',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={() => removeIngredient(index)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--color-stone)',
+                  padding: 2,
+                  display: 'flex',
+                  flexShrink: 0,
+                }}
+              >
+                <X size={13} />
+              </button>
+            </div>
+          ))}
+
+          {/* Suggestion loading */}
+          {suggestionLoading && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', fontSize: 11, color: 'var(--color-stone)' }}>
+              <Loader2 size={13} className="animate-spin" />
+              Buscando coincidencias
+            </div>
+          )}
+
+          {/* Ingredient suggestions */}
+          {!suggestionLoading && ingredientSuggestions.length > 0 && (
+            <div style={{ marginTop: 6, marginBottom: 6 }}>
+              {ingredientSuggestions.map((product) => (
+                <button
+                  key={product.product_id}
+                  type="button"
+                  onClick={() => addProductIngredient({ ...product, images: product.image ? [product.image] : [] })}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    width: '100%',
+                    padding: '8px 10px',
+                    marginBottom: 4,
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                >
+                  <div style={{ width: 28, height: 28, borderRadius: 6, overflow: 'hidden', background: 'var(--color-white)', flexShrink: 0 }}>
+                    {product.image ? <img src={resolveUserImage(product.image)} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 11, fontWeight: 500, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</p>
+                    <p style={{ fontSize: 9, color: 'var(--color-stone)', margin: '1px 0 0' }}>Sugerencia para "{manualIngredientInput.trim()}"</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Add ingredient input */}
+          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+            <input
+              value={manualIngredientInput}
+              onChange={(event) => setManualIngredientInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  addManualIngredient();
+                }
+              }}
+              placeholder="Anadir ingrediente"
+              style={{
+                flex: 1,
+                fontSize: 11,
+                border: 'none',
+                borderBottom: '1px solid var(--color-border)',
+                background: 'transparent',
+                padding: '6px 0',
+                outline: 'none',
+                color: 'var(--color-black)',
+                fontFamily: 'var(--font-sans)',
+              }}
+            />
+            <button
+              type="button"
+              onClick={addManualIngredient}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--color-stone)',
+                fontSize: 11,
+                fontWeight: 500,
+                padding: '6px 0',
+                fontFamily: 'var(--font-sans)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <Plus size={13} style={{ display: 'inline', verticalAlign: -2, marginRight: 2 }} />
+              Anadir ingrediente
+            </button>
+          </div>
+
+          {/* Tag product */}
+          <button
+            type="button"
+            onClick={() => setProductModalOpen(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--color-green)',
+              fontSize: 11,
+              fontWeight: 500,
+              padding: '8px 0 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
+            <Plus size={13} />
+            Etiquetar producto
+          </button>
+        </div>
+
+        {/* PASOS */}
+        <div style={{ marginBottom: 24 }}>
+          <div style={{
+            fontSize: 10,
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--color-stone)',
+            marginBottom: 10,
+          }}>
+            Pasos
+          </div>
+
+          {recipe.steps.map((step, index) => (
+            <div key={`step-${index}`} style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+              {/* Step number */}
+              <div
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  background: 'var(--color-black)',
+                  color: '#fff',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: 2,
+                }}
+              >
+                {index + 1}
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <textarea
+                  value={step.text}
+                  onChange={(event) => updateStep(index, 'text', event.target.value)}
+                  placeholder={t('recipes.stepPlaceholder', 'Describe este paso')}
+                  style={{
+                    width: '100%',
+                    minHeight: 70,
+                    resize: 'none',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '10px 12px',
+                    fontSize: 12,
+                    color: 'var(--color-black)',
+                    background: 'var(--color-white)',
+                    outline: 'none',
+                    fontFamily: 'var(--font-sans)',
+                    boxSizing: 'border-box',
+                  }}
+                />
+
+                {/* Step image */}
+                {step.image_url ? (
+                  <div style={{ position: 'relative', marginTop: 6, borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                    <img src={step.image_url} alt={`Paso ${index + 1}`} style={{ width: '100%', height: 120, objectFit: 'cover' }} />
+                    <button
+                      type="button"
+                      onClick={() => updateStep(index, 'image_url', '')}
+                      style={{
+                        position: 'absolute',
+                        right: 6,
+                        top: 6,
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        background: 'rgba(0,0,0,0.55)',
+                        border: 'none',
+                        color: '#fff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    marginTop: 6,
+                    fontSize: 10,
+                    color: 'var(--color-stone)',
+                    cursor: 'pointer',
+                  }}>
+                    <ImagePlus size={13} />
+                    Imagen opcional
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(event) => handleStepImage(index, event.target.files?.[0])}
+                    />
+                  </label>
+                )}
+              </div>
+
+              {recipe.steps.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => imageInputRef.current?.click()}
-                  className="flex w-full flex-col items-center justify-center gap-3 px-6 py-16 text-center"
+                  onClick={() => removeStep(index)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--color-stone)',
+                    padding: 2,
+                    display: 'flex',
+                    alignSelf: 'flex-start',
+                    marginTop: 2,
+                    flexShrink: 0,
+                  }}
                 >
-                  <UploadCloud className="h-8 w-8 text-stone-400" />
-                  <div>
-                    <p className="text-sm font-medium text-stone-950">Arrastra una imagen o súbela desde tu equipo</p>
-                    <p className="mt-1 text-sm text-stone-500">Formato cuadrado o vertical recomendado.</p>
-                  </div>
+                  <X size={13} />
                 </button>
               )}
             </div>
-            <input
-              ref={imageInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(event) => handleMainImage(event.target.files?.[0])}
-            />
-          </section>
-
-          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <label className="text-sm font-medium text-stone-950">2. {t('recipes.recipeName', 'Título')}</label>
-            <input
-              value={recipe.title}
-              onChange={(event) => updateRecipe('title', event.target.value)}
-              placeholder={t('recipes.recipeName', 'Título de la receta')}
-              className="mt-4 h-12 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
-              data-testid="recipe-title-input"
-            />
-          </section>
-
-          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <label className="text-sm font-medium text-stone-950">3. Descripción</label>
-            <textarea
-              value={recipe.description}
-              onChange={(event) => updateRecipe('description', event.target.value)}
-              placeholder="Cuenta qué hace especial esta receta."
-              className="mt-4 min-h-[140px] w-full resize-none rounded-[24px] border border-stone-200 px-4 py-4 text-sm text-stone-950 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
-            />
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div>
-                <label className="text-xs uppercase tracking-[0.22em] text-stone-500">Dificultad</label>
-                <select
-                  value={recipe.difficulty}
-                  onChange={(event) => updateRecipe('difficulty', event.target.value)}
-                  className="mt-2 h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm text-stone-950 outline-none"
-                  data-testid="recipe-difficulty"
-                >
-                  <option value="easy">{t('recipes.easy', 'Fácil')}</option>
-                  <option value="medium">{t('recipes.medium', 'Media')}</option>
-                  <option value="hard">{t('recipes.hard', 'Difícil')}</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs uppercase tracking-[0.22em] text-stone-500">Tiempo</label>
-                <input
-                  type="number"
-                  value={recipe.time_minutes}
-                  onChange={(event) => updateRecipe('time_minutes', Number(event.target.value) || 0)}
-                  className="mt-2 h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
-                  data-testid="recipe-time"
-                />
-              </div>
-              <div>
-                <label className="text-xs uppercase tracking-[0.22em] text-stone-500">Raciones</label>
-                <input
-                  type="number"
-                  value={recipe.servings}
-                  onChange={(event) => updateRecipe('servings', Number(event.target.value) || 1)}
-                  className="mt-2 h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
-                  data-testid="recipe-servings"
-                />
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <label className="text-sm font-medium text-stone-950">4. Ingredientes</label>
-            <div className="mt-4 flex gap-2">
-              <input
-                value={manualIngredientInput}
-                onChange={(event) => setManualIngredientInput(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    addManualIngredient();
-                  }
-                }}
-                placeholder="Añadir ingrediente manual"
-                className="flex-1 h-11 rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
-              />
-              <button type="button" className="h-11 w-11 rounded-full border border-stone-200 bg-white flex items-center justify-center transition-colors hover:bg-stone-50" onClick={addManualIngredient}>
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-
-            {suggestionLoading ? (
-              <div className="mt-3 flex items-center gap-2 text-sm text-stone-500">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Buscando coincidencias
-              </div>
-            ) : null}
-
-            {!suggestionLoading && ingredientSuggestions.length > 0 ? (
-              <div className="mt-3 space-y-2">
-                {ingredientSuggestions.map((product) => (
-                  <button
-                    key={product.product_id}
-                    type="button"
-                    onClick={() => addProductIngredient({ ...product, images: product.image ? [product.image] : [] })}
-                    className="flex w-full items-center gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm"
-                  >
-                    <div className="h-12 w-12 overflow-hidden rounded-xl bg-white">
-                      {product.image ? <img src={resolveUserImage(product.image)} alt={product.name} loading="lazy" className="h-full w-full object-cover" /> : null}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-stone-950">{product.name}</p>
-                      <p className="mt-1 text-xs text-stone-500">Sugerencia automática para “{manualIngredientInput.trim()}”</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            ) : null}
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {recipe.ingredients.map((ingredient, index) => (
-                <div key={`${ingredient.name}-${index}`} className="rounded-full border border-stone-200 bg-white px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-stone-950">{ingredient.name}</span>
-                    <button type="button" onClick={() => removeIngredient(index)} className="text-stone-400 hover:text-stone-800">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {recipe.ingredients.length > 0 ? (
-              <div className="mt-5 space-y-3">
-                {recipe.ingredients.map((ingredient, index) => (
-                  <div key={`details-${ingredient.name}-${index}`} className="grid gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-4 sm:grid-cols-[1.6fr_0.7fr_0.7fr]">
-                    <div>
-                      <p className="text-sm font-medium text-stone-950">{ingredient.name}</p>
-                      <p className="mt-1 text-xs text-stone-500">
-                        {ingredient.product_id ? 'Conectado con producto de Hispaloshop' : 'Ingrediente personalizado'}
-                      </p>
-                    </div>
-                    <input
-                      value={ingredient.quantity}
-                      onChange={(event) => updateIngredientField(index, 'quantity', event.target.value)}
-                      placeholder="Cantidad"
-                      className="h-10 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
-                    />
-                    <input
-                      value={ingredient.unit}
-                      onChange={(event) => updateIngredientField(index, 'unit', event.target.value)}
-                      placeholder="Unidad"
-                      className="h-10 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none focus:border-stone-950 transition-colors"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </section>
-
-          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <label className="text-sm font-medium text-stone-950">5. Pasos</label>
-            <div className="mt-4 space-y-4">
-              {recipe.steps.map((step, index) => (
-                <div key={`step-${index}`} className="rounded-xl border border-stone-100 bg-white p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-950 text-xs font-semibold text-white">
-                      {index + 1}
-                    </div>
-                    <div className="min-w-0 flex-1 space-y-3">
-                      <textarea
-                        value={step.text}
-                        onChange={(event) => updateStep(index, 'text', event.target.value)}
-                        placeholder={t('recipes.stepPlaceholder', 'Describe este paso')}
-                        className="min-h-[110px] w-full resize-none rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400"
-                      />
-                      <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
-                        {step.image_url ? (
-                          <div className="relative overflow-hidden rounded-2xl">
-                            <img src={step.image_url} alt={`Paso ${index + 1}`} className="h-44 w-full object-cover" />
-                            <button
-                              type="button"
-                              onClick={() => updateStep(index, 'image_url', '')}
-                              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <label className="flex cursor-pointer items-center gap-2 text-sm text-stone-600">
-                            <ImagePlus className="h-4 w-4" />
-                            Añadir imagen opcional del paso
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(event) => handleStepImage(index, event.target.files?.[0])}
-                            />
-                          </label>
-                        )}
-                      </div>
-                    </div>
-                    {recipe.steps.length > 1 ? (
-                      <button type="button" onClick={() => removeStep(index)} className="text-stone-400 hover:text-stone-800">
-                        <X className="h-4 w-4" />
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button type="button" onClick={addStep} className="mt-4 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50">
-              <Plus className="h-4 w-4" />
-              {t('recipes.addStep', 'Añadir paso')}
-            </button>
-          </section>
-
-          <section className="rounded-[28px] border border-stone-100 bg-white p-5 sm:p-6">
-            <label className="text-sm font-medium text-stone-950">6. Ingredientes desde la plataforma</label>
-            <div className="relative mt-4">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
-                value={productQuery}
-                onChange={(event) => searchProducts(event.target.value)}
-                placeholder="Buscar productos de Hispaloshop"
-                className="h-11 w-full rounded-full border border-stone-200 bg-white pl-11 pr-4 text-sm outline-none focus:border-stone-950 transition-colors"
-              />
-            </div>
-
-            {selectedProducts.length > 0 ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {selectedProducts.map((ingredient, index) => (
-                  <div key={`${ingredient.product_id}-${index}`} className="rounded-full border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700">
-                    {ingredient.name}
-                  </div>
-                ))}
-              </div>
-            ) : null}
-
-            <div className="mt-4 space-y-2">
-              {productLoading ? (
-                <div className="flex items-center justify-center py-6">
-                  <Loader2 className="h-5 w-5 animate-spin text-stone-500" />
-                </div>
-              ) : (
-                productResults.map((product) => (
-                  <button
-                    key={product.product_id}
-                    type="button"
-                    onClick={() => addProductIngredient(product)}
-                    className="flex w-full items-center gap-3 rounded-2xl border border-stone-100 bg-stone-50 p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm"
-                    data-testid={`product-link-${product.product_id}`}
-                  >
-                    <div className="h-14 w-14 overflow-hidden rounded-xl bg-white">
-                      {product.images?.[0] ? (
-                        <img
-                          src={resolveUserImage(product.images[0])}
-                          alt={product.name}
-                          loading="lazy"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-stone-300">
-                          <Package className="h-5 w-5" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-stone-950">{product.name}</p>
-                      <p className="mt-1 text-xs text-stone-500">Usar como ingrediente conectado</p>
-                    </div>
-                  </button>
-                ))
-              )}
-            </div>
-          </section>
+          ))}
 
           <button
             type="button"
-            onClick={handleSubmit}
-            disabled={submitting}
-            className="inline-flex items-center justify-center gap-2 h-12 w-full rounded-full bg-stone-950 text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
-            data-testid="publish-recipe-btn"
+            onClick={addStep}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--color-stone)',
+              fontSize: 11,
+              fontWeight: 500,
+              padding: '4px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              fontFamily: 'var(--font-sans)',
+            }}
           >
-            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChefHat className="h-4 w-4" />}
-            {t('recipes.publish', 'Publicar receta')}
+            <Plus size={13} />
+            {t('recipes.addStep', 'Anadir paso')}
           </button>
         </div>
-      </main>
-      <Footer />
+
+        {/* Description (optional collapsible) */}
+        <div style={{ marginBottom: 24 }}>
+          <button
+            type="button"
+            onClick={() => setDescriptionOpen(!descriptionOpen)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 11,
+              color: 'var(--color-stone)',
+              fontWeight: 500,
+              padding: 0,
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
+            {descriptionOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            Descripcion (opcional)
+          </button>
+          {descriptionOpen && (
+            <textarea
+              value={recipe.description}
+              onChange={(event) => updateRecipe('description', event.target.value)}
+              placeholder="Cuenta que hace especial esta receta..."
+              style={{
+                width: '100%',
+                minHeight: 90,
+                resize: 'none',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '10px 12px',
+                fontSize: 12,
+                color: 'var(--color-black)',
+                background: 'var(--color-white)',
+                outline: 'none',
+                marginTop: 8,
+                fontFamily: 'var(--font-sans)',
+                boxSizing: 'border-box',
+              }}
+            />
+          )}
+        </div>
+
+        {/* Publish button */}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitting}
+          data-testid="publish-recipe-btn"
+          style={{
+            width: '100%',
+            height: 44,
+            background: 'var(--color-black)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 'var(--radius-full)',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: submitting ? 'not-allowed' : 'pointer',
+            opacity: submitting ? 0.5 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          {submitting && <Loader2 size={15} className="animate-spin" />}
+          Publicar receta
+        </button>
+      </div>
+
+      {/* Product Search Modal */}
+      <ProductSearchModal
+        isOpen={productModalOpen}
+        onClose={() => setProductModalOpen(false)}
+        onSelect={addProductIngredient}
+      />
     </div>
   );
 }

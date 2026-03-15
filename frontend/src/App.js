@@ -46,6 +46,10 @@ const InfluencerLandingPage = lazy(() => import('./pages/influencer/Landing'));
 const RecipesPage = lazy(() => import('./pages/RecipesPage'));
 const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage'));
 const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
+const CreatePostPage = lazy(() => import('./pages/create/CreatePostPage'));
+const CreateReelPage = lazy(() => import('./pages/create/CreateReelPage'));
+const CreateStoryPage = lazy(() => import('./pages/create/CreateStoryPage'));
+const CreateTextPostPage = lazy(() => import('./pages/create/CreateTextPostPage'));
 const ProductsPage = lazy(() => import('./pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const StorePage = lazy(() => import('./pages/StorePage'));
@@ -268,6 +272,10 @@ function AppRouter() {
               <Route path="/signup" element={<RegisterPage />} />
               <Route path="/recipes" element={<RecipesPage />} />
               <Route path="/recipes/create" element={<CreateRecipePage />} />
+              <Route path="/create/post" element={<CreatePostPage />} />
+              <Route path="/create/reel" element={<CreateReelPage />} />
+              <Route path="/create/story" element={<CreateStoryPage />} />
+              <Route path="/create/text" element={<CreateTextPostPage />} />
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/productos" element={<Navigate to="/products" replace />} />

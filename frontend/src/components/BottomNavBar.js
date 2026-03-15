@@ -12,6 +12,7 @@ import CreatorEntry from './creator/CreatorEntry';
 import AdvancedEditor from './creator/editor/AdvancedEditor';
 import { publishSocialContent } from './creator/publishContent';
 import { useUploadQueue } from '../context/UploadQueueContext';
+import CreateContentSheet from './create/CreateContentSheet';
 import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
@@ -61,6 +62,7 @@ export default function BottomNavBar() {
   const [activePanel, setActivePanel] = useState(null);
   const [initialChatUserId, setInitialChatUserId] = useState(null);
   const [messageToast, setMessageToast] = useState(null);
+  const [showContentSheet,      setShowContentSheet]      = useState(false);
   const [showCreatorEntry,      setShowCreatorEntry]      = useState(false);
   const [selectedContentType,   setSelectedContentType]   = useState(null);
   const [selectedFiles,         setSelectedFiles]         = useState([]);
@@ -201,7 +203,20 @@ export default function BottomNavBar() {
 
   const handlePostButton = () => {
     if (!user) { navigate('/login'); return; }
-    if (activePanel === 'post') { closePanel(); return; }
+    setShowContentSheet(true);
+  };
+
+  const handleContentTypeSelect = (type) => {
+    setShowContentSheet(false);
+    if (type === 'recipe') {
+      navigate('/recipes/create');
+      return;
+    }
+    if (type === 'text') {
+      navigate('/create/text');
+      return;
+    }
+    setSelectedContentType(type);
     setShowCreatorEntry(true);
   };
 
@@ -346,6 +361,12 @@ export default function BottomNavBar() {
           </>
         ) : null}
       </AnimatePresence>
+
+      <CreateContentSheet
+        isOpen={showContentSheet}
+        onClose={() => setShowContentSheet(false)}
+        onSelect={handleContentTypeSelect}
+      />
 
       {/* ── Instagram-style flat bottom nav ── */}
       <motion.nav
