@@ -70,6 +70,8 @@ const B2BOfferPage = lazy(() => import('./pages/b2b/B2BOfferPage'));
 const B2BContractPage = lazy(() => import('./pages/b2b/B2BContractPage'));
 const B2BPaymentPage = lazy(() => import('./pages/b2b/B2BPaymentPage'));
 const B2BTrackingPage = lazy(() => import('./pages/b2b/B2BTrackingPage'));
+const B2BOperationsDashboard = lazy(() => import('./pages/b2b/B2BOperationsDashboard'));
+const B2BDisputePage = lazy(() => import('./pages/b2b/B2BDisputePage'));
 const SignatureSettingsPage = lazy(() => import('./pages/settings/SignatureSettingsPage'));
 const NewConversationPage = lazy(() => import('./pages/chat/NewConversationPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
@@ -599,6 +601,8 @@ function AppRouter() {
               <Route path="/b2b/contract/:operationId" element={<B2BContractPage />} />
               <Route path="/b2b/payment/:operationId" element={<B2BPaymentPage />} />
               <Route path="/b2b/tracking/:operationId" element={<B2BTrackingPage />} />
+              <Route path="/b2b/operations" element={<B2BOperationsDashboard />} />
+              <Route path="/b2b/dispute/:operationId" element={<B2BDisputePage />} />
               <Route path="/settings/signature" element={<SignatureSettingsPage />} />
               <Route path="/profile/:userId" element={<UserProfilePage />} />
               <Route path="/dashboard/new" element={<DashboardPage />} />

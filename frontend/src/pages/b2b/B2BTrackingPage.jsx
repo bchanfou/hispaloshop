@@ -49,7 +49,10 @@ const STAGES = [
 ];
 
 const STATUS_TO_STEP = {
+  contract_generated: 0,
+  contract_pending:  0,
   contract_signed:   0,
+  payment_pending:   1,
   payment_confirmed: 1,
   in_transit:        2,
   customs_clearance: 3,

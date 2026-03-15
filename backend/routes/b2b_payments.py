@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 import logging
 import os
 import json as _json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["B2B Payments"])
@@ -410,3 +410,91 @@ async def get_payment_info(
         "currency": offer.get("currency", "EUR"),
         "payments": operation.get("payments", []),
     }
+
+
+# ---------------------------------------------------------------------------
+# 5. POST /{operation_id}/confirm-delivery — Buyer confirms delivery
+# ---------------------------------------------------------------------------
+
+@router.post("/{operation_id}/confirm-delivery")
+async def confirm_delivery(
+    operation_id: str,
+    current_user=Depends(get_current_user),
+):
+    """Buyer confirms delivery. Triggers final payment scheduling if applicable."""
+    db = get_db()
+
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    operation = await db.b2b_operations.find_one({"_id": oid})
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    # Only the buyer can confirm delivery
+    if current_user.user_id != operation["buyer_id"]:
+        raise HTTPException(status_code=403, detail="Only the buyer can confirm delivery")
+
+    if operation["status"] not in ("in_transit", "delivered"):
+        raise HTTPException(status_code=400, detail=f"Cannot confirm delivery when status is '{operation['status']}'")
+
+    now = datetime.now(timezone.utc)
+    offer = operation["offers"][-1] if operation.get("offers") else {}
+    payment_terms = offer.get("payment_terms", "prepaid")
+    total_price = offer.get("total_price", 0)
+
+    await db.b2b_operations.update_one(
+        {"_id": oid},
+        {"$set": {
+            "status": "delivered",
+            "shipment.delivered_at": now.isoformat(),
+            "updated_at": now.isoformat(),
+        }},
+    )
+
+    # Schedule deferred payments if applicable
+    if payment_terms in ("net_30", "net_60"):
+        days = 30 if payment_terms == "net_30" else 60
+        scheduled_for = (now + timedelta(days=days)).isoformat()
+
+        await db.b2b_scheduled_payments.insert_one({
+            "operation_id": operation_id,
+            "amount": total_price,
+            "currency": offer.get("currency", "EUR"),
+            "seller_id": operation["seller_id"],
+            "buyer_id": operation["buyer_id"],
+            "scheduled_for": scheduled_for,
+            "status": "pending",
+            "stripe_transfer_id": None,
+            "created_at": now.isoformat(),
+        })
+        logger.info("Scheduled B2B payment of %.2f for %s (D+%d)", total_price, operation_id, days)
+
+    elif payment_terms == "letter_of_credit":
+        # 50% was deposit, 50% final on delivery
+        final_amount = total_price * 0.50
+        scheduled_for = (now + timedelta(days=3)).isoformat()  # 3-day grace for LC
+
+        await db.b2b_scheduled_payments.insert_one({
+            "operation_id": operation_id,
+            "amount": final_amount,
+            "currency": offer.get("currency", "EUR"),
+            "seller_id": operation["seller_id"],
+            "buyer_id": operation["buyer_id"],
+            "scheduled_for": scheduled_for,
+            "status": "pending",
+            "stripe_transfer_id": None,
+            "created_at": now.isoformat(),
+        })
+
+    # Send chat event
+    from services.b2b_chat_events import send_b2b_system_message
+    await send_b2b_system_message(
+        operation.get("conversation_id"),
+        "payment_received",
+        {"amount": f"{total_price:.2f}€"}
+    )
+
+    return {"delivered": True, "status": "delivered"}

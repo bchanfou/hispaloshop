@@ -811,3 +811,85 @@ async def confirm_shipment(
     )
 
     return {"shipped": True, "tracking_number": tracking_number, "carrier": carrier}
+
+
+# ---------------------------------------------------------------------------
+# Disputes
+# ---------------------------------------------------------------------------
+
+@router.post("/{operation_id}/dispute")
+async def open_dispute(
+    operation_id: str,
+    body: dict,
+    current_user=Depends(get_current_user),
+):
+    """Open a formal dispute for a B2B operation."""
+    db = get_db()
+
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    operation = await db.b2b_operations.find_one({"_id": oid})
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    user_id = current_user.user_id
+    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    if operation["status"] not in ("in_transit", "delivered", "payment_confirmed"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot open dispute when status is '{operation['status']}'. Must be in_transit, delivered, or payment_confirmed."
+        )
+
+    reason = body.get("reason", "")
+    description = body.get("description", "")
+    evidence_urls = body.get("evidence_urls", [])
+
+    if not reason:
+        raise HTTPException(status_code=400, detail="Reason is required")
+    if len(description) < 50:
+        raise HTTPException(status_code=400, detail="Description must be at least 50 characters")
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    dispute_doc = {
+        "operation_id": operation_id,
+        "opened_by": user_id,
+        "reason": reason,
+        "description": description,
+        "evidence_urls": evidence_urls,
+        "status": "investigating",
+        "opened_at": now,
+        "resolved_at": None,
+        "resolution": None,
+    }
+
+    await db.b2b_disputes.insert_one(dispute_doc)
+
+    await db.b2b_operations.update_one(
+        {"_id": oid},
+        {"$set": {
+            "status": "disputed",
+            "dispute": {
+                "reason": reason,
+                "opened_by": user_id,
+                "opened_at": now,
+                "status": "investigating",
+            },
+            "updated_at": now,
+        }},
+    )
+
+    # Send system message to chat
+    from services.b2b_chat_events import send_b2b_system_message
+    await send_b2b_system_message(
+        operation.get("conversation_id"),
+        "ai_alert",
+        {"alert_text": f"Se ha abierto una disputa formal: {reason}"}
+    )
+
+    return {"disputed": True, "reason": reason}

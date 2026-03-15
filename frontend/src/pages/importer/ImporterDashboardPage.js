@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Package, ShoppingBag, Factory, Store, Search, Award,
+  Package, ShoppingBag, Factory, Store, Search, Award, FileCheck,
   ExternalLink, Crown, Zap, ArrowRight, AlertTriangle,
   Loader2, Globe, MessageCircle
 } from 'lucide-react';
@@ -276,12 +276,7 @@ export default function ImporterDashboardPage() {
             <QuickAction icon={Search} label="Catálogo B2B" href="/importer/catalog" />
             <QuickAction icon={Package} label="Mis pedidos B2B" href="/importer/orders" />
             <QuickAction icon={Award} label="Certificados" href="/importer/certificates" />
-            <QuickAction
-              icon={Store}
-              label="Mi tienda"
-              href={`/${user?.username}/tienda`}
-              external
-            />
+            <QuickAction icon={FileCheck} label="Operaciones B2B" href="/b2b/operations" />
           </div>
 
           {/* Plan card */}

@@ -2,14 +2,15 @@
 Cron/scheduled tasks for subscriptions, payouts, tier management and predict notifications.
 Endpoints that can be called by a scheduler or admin manually.
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
 import stripe
 import os
 import uuid
 import logging
 
-from core.database import db
+from bson import ObjectId
+from core.database import db, get_db
 from core.models import User
 from core.auth import get_current_user, require_role
 from services.subscriptions import (
@@ -371,4 +372,96 @@ async def cron_predict_notifications(user: User = Depends(get_current_user)):
         "notified_products": notified_products,
         "skipped_already_notified": skipped_already_notified,
         "total_customers_checked": len(customer_ids),
+    }
+
+
+@router.post("/admin/cron/b2b-scheduled-payments")
+async def process_b2b_scheduled_payments(
+    current_user=Depends(get_current_user),
+):
+    """Process B2B scheduled payments that are due today."""
+    if current_user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    db2 = get_db()
+    now = datetime.now(timezone.utc)
+
+    # Find pending payments scheduled for today or earlier
+    pending = await db2.b2b_scheduled_payments.find({
+        "status": "pending",
+        "scheduled_for": {"$lte": now.isoformat()},
+    }).to_list(length=100)
+
+    processed = 0
+    failed = 0
+
+    for payment in pending:
+        try:
+            operation_id = payment["operation_id"]
+            seller_id = payment["seller_id"]
+            amount = payment["amount"]
+            currency = payment.get("currency", "EUR")
+
+            # Get seller's Stripe account
+            seller = await db2.users.find_one({"user_id": seller_id})
+            stripe_account = (seller or {}).get("stripe_account_id")
+
+            if not stripe_account:
+                logger.warning("No Stripe account for seller %s, skipping B2B payment", seller_id)
+                failed += 1
+                continue
+
+            # Calculate platform fee (3%)
+            platform_fee = round(amount * 0.03, 2)
+            seller_amount = round(amount - platform_fee, 2)
+
+            # Create Stripe transfer
+            from core.config import STRIPE_SECRET_KEY
+            stripe.api_key = STRIPE_SECRET_KEY
+
+            transfer = stripe.Transfer.create(
+                amount=int(seller_amount * 100),
+                currency=currency.lower(),
+                destination=stripe_account,
+                metadata={
+                    "type": "b2b_scheduled",
+                    "operation_id": operation_id,
+                    "payment_id": str(payment["_id"]),
+                },
+            )
+
+            # Update payment record
+            await db2.b2b_scheduled_payments.update_one(
+                {"_id": payment["_id"]},
+                {"$set": {
+                    "status": "paid",
+                    "stripe_transfer_id": transfer.id,
+                    "paid_at": now.isoformat(),
+                }},
+            )
+
+            # Update operation status
+            try:
+                oid = ObjectId(operation_id)
+                await db2.b2b_operations.update_one(
+                    {"_id": oid},
+                    {"$set": {
+                        "status": "completed",
+                        "updated_at": now.isoformat(),
+                    }},
+                )
+            except Exception:
+                pass
+
+            processed += 1
+            logger.info("B2B scheduled payment processed: %s → %s (%.2f)", operation_id, seller_id, seller_amount)
+
+        except Exception as exc:
+            logger.error("Failed to process B2B scheduled payment %s: %s", str(payment["_id"]), exc)
+            failed += 1
+
+    return {
+        "processed": processed,
+        "failed": failed,
+        "total_found": len(pending),
     }

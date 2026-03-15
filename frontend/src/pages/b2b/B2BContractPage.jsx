@@ -82,11 +82,11 @@ export default function B2BContractPage() {
 
   useEffect(() => {
     if (!operation) return;
-    const shouldPoll = operation.status === 'offer_accepted';
+    const shouldPoll = operation.status === 'offer_accepted' || operation.status === 'contract_pending';
     if (shouldPoll) {
       pollRef.current = setInterval(async () => {
         const fresh = await fetchOperation();
-        if (fresh && fresh.status !== 'offer_accepted') {
+        if (fresh && fresh.status !== 'offer_accepted' && fresh.status !== 'contract_pending') {
           clearInterval(pollRef.current);
         }
       }, 2000);
@@ -100,6 +100,7 @@ export default function B2BContractPage() {
   const isGenerating = operation?.status === 'offer_accepted';
   const contractReady =
     operation?.status === 'contract_generated' ||
+    operation?.status === 'contract_pending' ||
     operation?.status === 'contract_signed' ||
     operation?.status === 'completed';
 
@@ -107,8 +108,8 @@ export default function B2BContractPage() {
   const isBuyer = operation?.buyer_id === user?._id;
   const myRole = isSeller ? 'seller' : isBuyer ? 'buyer' : null;
 
-  const sellerSigned = !!operation?.contract?.seller_signed_at;
-  const buyerSigned = !!operation?.contract?.buyer_signed_at;
+  const sellerSigned = !!(operation?.contract?.seller_signature_at || operation?.contract?.seller_signed_at);
+  const buyerSigned = !!(operation?.contract?.buyer_signature_at || operation?.contract?.buyer_signed_at);
   const bothSigned = sellerSigned && buyerSigned;
   const currentUserSigned =
     (isSeller && sellerSigned) || (isBuyer && buyerSigned);
@@ -383,7 +384,7 @@ export default function B2BContractPage() {
             </div>
             {sellerSigned ? (
               <span style={{ fontSize: 11, color: V2.green, fontWeight: 500 }}>
-                ✓ Firmado · {fmtDate(operation.contract?.seller_signed_at)}
+                ✓ Firmado · {fmtDate(operation.contract?.seller_signature_at)}
               </span>
             ) : (
               <span style={{ fontSize: 11, color: V2.amber, fontWeight: 500 }}>
@@ -412,7 +413,7 @@ export default function B2BContractPage() {
             </div>
             {buyerSigned ? (
               <span style={{ fontSize: 11, color: V2.green, fontWeight: 500 }}>
-                ✓ Firmado · {fmtDate(operation.contract?.buyer_signed_at)}
+                ✓ Firmado · {fmtDate(operation.contract?.buyer_signature_at)}
               </span>
             ) : (
               <span style={{ fontSize: 11, color: V2.amber, fontWeight: 500 }}>
@@ -560,9 +561,9 @@ export default function B2BContractPage() {
               </p>
               <p style={{ fontSize: 12, color: V2.stone }}>
                 {fmtDate(
-                  operation.contract?.buyer_signed_at > operation.contract?.seller_signed_at
+                  operation.contract?.buyer_signature_at > operation.contract?.seller_signature_at
                     ? operation.contract.buyer_signed_at
-                    : operation.contract?.seller_signed_at
+                    : operation.contract?.seller_signature_at
                 )}
               </p>
 

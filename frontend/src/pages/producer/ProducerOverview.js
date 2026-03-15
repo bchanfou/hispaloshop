@@ -446,6 +446,67 @@ function FollowerGrowthChart() {
   );
 }
 
+// ===== B2B OPERATIONS SECTION =====
+function B2BOperationsSection() {
+  const [ops, setOps] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiClient.get('/b2b/operations')
+      .then((data) => setOps(Array.isArray(data) ? data : []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const active = ops.filter((o) => !['completed', 'disputed'].includes(o.status));
+  const urgent = active.filter((o) =>
+    ['contract_generated', 'payment_pending', 'contract_pending'].includes(o.status)
+  );
+
+  if (loading) return null;
+  if (ops.length === 0) return null;
+
+  return (
+    <div style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)', padding: 16, marginBottom: 4 }}>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Operaciones B2B</h3>
+        <Link to="/b2b/operations" className="text-xs font-semibold" style={{ color: 'var(--color-stone)' }}>
+          Ver todas <ChevronRight className="w-3 h-3 inline" />
+        </Link>
+      </div>
+      <div className="flex gap-3 mb-3">
+        <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-full)', fontSize: 12 }}>
+          <span style={{ fontWeight: 600, color: 'var(--color-black)' }}>{active.length}</span>
+          <span style={{ color: 'var(--color-stone)' }}>activas</span>
+        </div>
+        {urgent.length > 0 && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: '#FEF3C7', borderRadius: 'var(--radius-full)', fontSize: 12 }}>
+            <span style={{ fontWeight: 600, color: '#B45309' }}>{urgent.length}</span>
+            <span style={{ color: '#B45309' }}>pendientes</span>
+          </div>
+        )}
+      </div>
+      {active.slice(0, 3).map((op) => {
+        const offer = op.offers?.[op.offers.length - 1] || {};
+        return (
+          <Link
+            key={op.id}
+            to={`/b2b/tracking/${op.id}`}
+            className="flex items-center justify-between py-2.5"
+            style={{ borderBottom: '1px solid var(--color-border)', textDecoration: 'none' }}
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>{offer.product_name || 'Operación B2B'}</p>
+              <p className="text-xs" style={{ color: 'var(--color-stone)' }}>{offer.quantity} {offer.unit}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 shrink-0" style={{ color: 'var(--color-stone)' }} />
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 // ===== MAIN COMPONENT =====
 export default function ProducerOverview() {
   const { user } = useAuth();
@@ -893,6 +954,11 @@ export default function ProducerOverview() {
       {/* Follower Chart — PRO+ */}
       <LockedFeature requiredPlan="PRO" featureName="follower-chart">
         <FollowerGrowthChart />
+      </LockedFeature>
+
+      {/* B2B Operations — PRO+ */}
+      <LockedFeature requiredPlan="PRO" featureName="b2b-operations">
+        <B2BOperationsSection />
       </LockedFeature>
 
       {/* Quick Actions - Mobile: List, Desktop: Grid */}

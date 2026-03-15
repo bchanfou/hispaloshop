@@ -403,6 +403,32 @@ function MessageBubble({
     onTouchMove: handleTouchEndOrMove,
   };
 
+  /* System message (B2B events) */
+  if (message.message_type === 'system' || message.sender_id === 'system') {
+    return (
+      <div
+        className="flex justify-center px-4"
+        style={{ marginTop: gap }}
+      >
+        <div
+          style={{
+            background: V.surface,
+            border: `1px solid ${V.border}`,
+            borderRadius: V.radiusFull,
+            padding: '4px 12px',
+            fontSize: 11,
+            color: V.stone,
+            fontFamily: V.fontSans,
+            textAlign: 'center',
+            maxWidth: '85%',
+          }}
+        >
+          {message.content}
+        </div>
+      </div>
+    );
+  }
+
   /* Product card placeholder */
   if (message.message_type === 'product_card') {
     return (

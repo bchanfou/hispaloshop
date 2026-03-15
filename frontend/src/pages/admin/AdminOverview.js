@@ -143,6 +143,15 @@ export default function AdminOverview() {
         </div>
       </div>
 
+      {/* B2B Operations */}
+      <div className="mb-5">
+        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Operaciones B2B</h2>
+        <div className="space-y-2">
+          <PendingRow label="Disputas B2B activas" count={stats?.b2b_disputes || 0} to="/b2b/operations" />
+          <PendingRow label="Docs. vencidos" count={stats?.b2b_expired_docs || 0} to="/b2b/operations" />
+        </div>
+      </div>
+
       {/* Quick actions */}
       <div className="mb-5">
         <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Acciones rápidas</h2>
