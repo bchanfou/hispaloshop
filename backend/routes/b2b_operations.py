@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from bson import ObjectId
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, UploadFile, File, Form
 from pydantic import BaseModel, Field
 
 from core.auth import get_current_user
@@ -572,3 +572,242 @@ async def sign_contract(
         "pdf_url": final_op.get("contract", {}).get("pdf_url"),
         "status": final_op.get("status"),
     }
+
+
+# ---------------------------------------------------------------------------
+# Documents
+# ---------------------------------------------------------------------------
+
+@router.get("/{operation_id}/documents")
+async def get_required_documents(
+    operation_id: str,
+    current_user=Depends(get_current_user),
+):
+    """Get list of required documents for this operation, determined by AI."""
+    db = get_db()
+
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    operation = await db.b2b_operations.find_one({"_id": oid})
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    user_id = current_user.user_id
+    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # Get the accepted offer
+    offer = operation["offers"][-1] if operation.get("offers") else {}
+
+    # Get product info for categories/certifications
+    product_id = offer.get("product_id")
+    product = None
+    if product_id:
+        product = await db.products.find_one({"product_id": product_id})
+
+    # Get seller and buyer for country info
+    seller = await db.users.find_one({"user_id": operation["seller_id"]})
+    buyer = await db.users.find_one({"user_id": operation["buyer_id"]})
+
+    country_origin = (seller or {}).get("country", "ES")
+    country_destination = (buyer or {}).get("country", "ES")
+    certifications = (product or {}).get("certifications", [])
+    incoterm = offer.get("incoterm", "DAP")
+    product_name = offer.get("product_name", "producto alimentario")
+
+    # Call Claude Haiku for document requirements
+    import anthropic
+    import json
+
+    try:
+        client = anthropic.Anthropic()
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=800,
+            messages=[{
+                "role": "user",
+                "content": f"Lista los documentos necesarios para exportar {product_name} con certificaciones {json.dumps(certifications)} desde {country_origin} a {country_destination} bajo Incoterm {incoterm}.\nResponde SOLO con JSON array:\n[{{\"name\": \"nombre del documento\", \"required\": true, \"description\": \"descripción corta\", \"validity_days\": null, \"authority\": \"quién lo emite\"}}]\nMáximo 8 documentos. Solo los realmente necesarios para este tráfico específico."
+            }]
+        )
+
+        ai_text = message.content[0].text.strip()
+        # Extract JSON from response (handle markdown code blocks)
+        if ai_text.startswith("```"):
+            ai_text = ai_text.split("```")[1]
+            if ai_text.startswith("json"):
+                ai_text = ai_text[4:]
+        ai_docs = json.loads(ai_text)
+    except Exception as exc:
+        logger.error("AI document generation failed: %s", exc)
+        # Fallback default documents
+        ai_docs = [
+            {"name": "Factura comercial", "required": True, "description": "Factura del vendedor al comprador", "validity_days": None, "authority": "Vendedor"},
+            {"name": "Packing list", "required": True, "description": "Lista de contenido del envío", "validity_days": None, "authority": "Vendedor"},
+            {"name": "Guía de transporte / CMR", "required": True, "description": "Documento de transporte", "validity_days": None, "authority": "Transportista"},
+            {"name": "Certificado sanitario", "required": True, "description": "Certificado de seguridad alimentaria", "validity_days": 90, "authority": "Autoridad sanitaria"},
+        ]
+
+    # Merge with already uploaded documents
+    existing_docs = operation.get("shipment", {}).get("documents", [])
+    existing_by_name = {d.get("document_type", "").lower(): d for d in existing_docs}
+
+    result = []
+    now = datetime.now(timezone.utc)
+    for doc in ai_docs:
+        doc_name_lower = doc["name"].lower()
+        existing = existing_by_name.get(doc_name_lower)
+
+        status = "pending"
+        url = None
+        uploaded_at = None
+        expires_at = None
+
+        if existing:
+            url = existing.get("url")
+            uploaded_at = existing.get("uploaded_at")
+
+            if doc.get("validity_days") and uploaded_at:
+                upload_dt = datetime.fromisoformat(uploaded_at) if isinstance(uploaded_at, str) else uploaded_at
+                expires_at = (upload_dt + timedelta(days=doc["validity_days"])).isoformat()
+                if datetime.fromisoformat(expires_at) < now:
+                    status = "expired"
+                else:
+                    status = "uploaded"
+            else:
+                status = "uploaded"
+
+        result.append({
+            "name": doc["name"],
+            "required": doc.get("required", True),
+            "description": doc.get("description", ""),
+            "validity_days": doc.get("validity_days"),
+            "authority": doc.get("authority", ""),
+            "status": status,
+            "url": url,
+            "uploaded_at": uploaded_at,
+            "expires_at": expires_at,
+        })
+
+    return result
+
+
+@router.post("/{operation_id}/documents")
+async def upload_document(
+    operation_id: str,
+    current_user=Depends(get_current_user),
+    file: UploadFile = File(...),
+    document_type: str = Form(...),
+):
+    """Upload a document for a B2B operation."""
+    db = get_db()
+
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    operation = await db.b2b_operations.find_one({"_id": oid})
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    user_id = current_user.user_id
+    if user_id not in (operation["buyer_id"], operation["seller_id"]):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # Read file bytes
+    file_bytes = await file.read()
+    if len(file_bytes) > 10 * 1024 * 1024:  # 10MB limit
+        raise HTTPException(status_code=400, detail="File too large. Maximum 10MB.")
+
+    # Upload to Cloudinary
+    from services.cloudinary_storage import upload_image
+
+    filename = f"{operation_id}-{document_type.replace(' ', '_')}"
+    upload_result = await upload_image(file_bytes, folder="b2b_documents", filename=filename)
+
+    now = datetime.now(timezone.utc).isoformat()
+    doc_record = {
+        "document_type": document_type,
+        "url": upload_result.get("url"),
+        "public_id": upload_result.get("public_id"),
+        "uploaded_by": user_id,
+        "uploaded_at": now,
+        "filename": file.filename,
+    }
+
+    await db.b2b_operations.update_one(
+        {"_id": oid},
+        {
+            "$push": {"shipment.documents": doc_record},
+            "$set": {"updated_at": now},
+        },
+    )
+
+    return {"uploaded": True, "document": doc_record}
+
+
+# ---------------------------------------------------------------------------
+# Shipment
+# ---------------------------------------------------------------------------
+
+@router.post("/{operation_id}/ship")
+async def confirm_shipment(
+    operation_id: str,
+    body: dict,
+    current_user=Depends(get_current_user),
+):
+    """Producer confirms shipment with tracking info."""
+    db = get_db()
+
+    try:
+        oid = ObjectId(operation_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    operation = await db.b2b_operations.find_one({"_id": oid})
+    if not operation:
+        raise HTTPException(status_code=404, detail="Operation not found")
+
+    # Only the seller can confirm shipment
+    if current_user.user_id != operation["seller_id"]:
+        raise HTTPException(status_code=403, detail="Only the seller can confirm shipment")
+
+    if operation["status"] not in ("payment_confirmed", "contract_signed"):
+        raise HTTPException(status_code=400, detail=f"Cannot ship when status is '{operation['status']}'")
+
+    tracking_number = body.get("tracking_number", "")
+    carrier = body.get("carrier", "")
+
+    if not tracking_number or not carrier:
+        raise HTTPException(status_code=400, detail="tracking_number and carrier are required")
+
+    now = datetime.now(timezone.utc).isoformat()
+    offer = operation["offers"][-1] if operation.get("offers") else {}
+    delivery_days = offer.get("delivery_days", 7)
+
+    estimated_delivery = (datetime.now(timezone.utc) + timedelta(days=delivery_days)).isoformat()
+
+    await db.b2b_operations.update_one(
+        {"_id": oid},
+        {"$set": {
+            "status": "in_transit",
+            "shipment.tracking_number": tracking_number,
+            "shipment.carrier": carrier,
+            "shipment.shipped_at": now,
+            "shipment.estimated_delivery": estimated_delivery,
+            "updated_at": now,
+        }},
+    )
+
+    # Send system message to chat
+    from services.b2b_chat_events import send_b2b_system_message
+    await send_b2b_system_message(
+        operation.get("conversation_id"),
+        "shipment_confirmed",
+        {"carrier": carrier, "tracking": tracking_number}
+    )
+
+    return {"shipped": True, "tracking_number": tracking_number, "carrier": carrier}

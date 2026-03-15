@@ -224,6 +224,10 @@ app.include_router(b2b_router, prefix="/api/b2b", tags=["B2B"])
 from routes.b2b_operations import router as b2b_operations_router
 app.include_router(b2b_operations_router, prefix="/api/b2b/operations", tags=["B2B Operations"])
 
+# B2B Payments — Stripe PaymentIntents for B2B (Fase 20)
+from routes.b2b_payments import router as b2b_payments_router
+app.include_router(b2b_payments_router, prefix="/api/b2b/operations", tags=["B2B Payments"])
+
 # Chat B2B Routes (Fase 4)
 from routes.chat_b2b import router as chat_b2b_router
 app.include_router(chat_b2b_router, prefix="/api", tags=["Chat B2B"])
