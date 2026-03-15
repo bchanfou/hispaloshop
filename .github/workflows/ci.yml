@@ -133,7 +133,6 @@ jobs:
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
-        if: ${{ secrets.VERCEL_TOKEN != '' }}
         with:
           vercel-token:   ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id:  ${{ secrets.VERCEL_ORG_ID }}
@@ -155,7 +154,6 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy backend to Railway
-        if: ${{ secrets.RAILWAY_TOKEN != '' }}
         run: railway up --service backend
         working-directory: backend
         env:
