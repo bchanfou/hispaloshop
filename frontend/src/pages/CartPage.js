@@ -11,8 +11,59 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { toast } from 'sonner';
-import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Check, Clock, RefreshCw } from 'lucide-react';
+import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Check, Clock, RefreshCw, Truck, Package } from 'lucide-react';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
+
+/* ── ShippingProgressBar — per-store free-shipping progress ── */
+function ShippingProgressBar({ store }) {
+  if (store.threshold_cents == null) {
+    // FREE plan — no free shipping available
+    return (
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 min-w-0">
+          {store.seller_avatar ? (
+            <img src={store.seller_avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+          ) : (
+            <Package className="w-4 h-4 text-stone-400 flex-shrink-0" />
+          )}
+          <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
+        </div>
+        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{(store.shipping_cents / 100).toFixed(2)} €</span>
+      </div>
+    );
+  }
+
+  const pct = store.progress_pct;
+  const barColor = store.is_free ? 'bg-stone-950' : pct >= 60 ? 'bg-stone-700' : 'bg-stone-400';
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2 min-w-0">
+          {store.seller_avatar ? (
+            <img src={store.seller_avatar} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+          ) : (
+            <Package className="w-4 h-4 text-stone-400 flex-shrink-0" />
+          )}
+          <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
+        </div>
+        {store.is_free ? (
+          <span className="text-xs font-bold text-stone-950 flex-shrink-0">Envio gratis</span>
+        ) : (
+          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{(store.shipping_cents / 100).toFixed(2)} €</span>
+        )}
+      </div>
+      <div className="h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
+        <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${pct}%` }} />
+      </div>
+      {!store.is_free && store.remaining_cents > 0 && (
+        <p className="text-[11px] text-stone-500 mt-0.5">
+          Faltan {(store.remaining_cents / 100).toFixed(2)} € para envio gratis
+        </p>
+      )}
+    </div>
+  );
+}
 
 /* ── StockHoldTimer — countdown for soft-hold reservation ── */
 function StockHoldTimer({ expiresAt }) {
@@ -74,6 +125,7 @@ export default function CartPage() {
     applyDiscount,
     removeDiscount,
     fetchCart,
+    getShippingPreview,
   } = useCart();
   const { t, convertAndFormatPrice, currency, getExchangeRateDisplay, countries, country } = useLocale();
   const [verificationToken, setVerificationToken] = useState('');
@@ -81,6 +133,7 @@ export default function CartPage() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [discountLoading, setDiscountLoading] = useState(false);
+  const [shippingData, setShippingData] = useState(null);
   const { emailVerified, verifying, resending, verifyEmail, resendVerification, refetch: refetchVerification } = useCartVerification();
   const { savedAddresses, defaultAddressId, createAddress, savingAddress, isLoading: addressesLoading } = useCartAddresses();
   const { cartSummary, stockIssues, refetch: refetchPricing } = useCartPricing(cartItems, appliedDiscount);
@@ -100,6 +153,17 @@ export default function CartPage() {
       navigate('/login');
     }
   }, [authLoading, navigate, user]);
+
+  // Fetch shipping preview when cart changes (debounced 500ms)
+  useEffect(() => {
+    if (!cartItems.length) { setShippingData(null); return; }
+    const timer = setTimeout(async () => {
+      const data = await getShippingPreview();
+      setShippingData(data);
+    }, 500);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartItems]);
 
   useEffect(() => {
     if (!addressesLoading && savedAddresses.length === 0) {
@@ -407,6 +471,28 @@ export default function CartPage() {
                 );
               })}
 
+              {/* Per-store shipping progress */}
+              {shippingData && shippingData.stores && shippingData.stores.length > 0 && (
+                <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-progress-section">
+                  <h3 className="text-base font-semibold text-stone-950 mb-3 flex items-center gap-2">
+                    <Truck className="w-4 h-4" />
+                    Envio por tienda
+                  </h3>
+                  <div className="space-y-3">
+                    {shippingData.stores.map((store) => (
+                      <ShippingProgressBar key={store.seller_id} store={store} />
+                    ))}
+                  </div>
+                  {shippingData.total_savings_cents > 0 && (
+                    <div className="mt-3 rounded-xl bg-stone-50 p-2.5 text-center">
+                      <p className="text-xs text-stone-700 font-medium">
+                        Ahorras {(shippingData.total_savings_cents / 100).toFixed(2)} € en envio
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="bg-white rounded-xl border border-stone-200 p-4 md:p-6 mt-4 md:mt-6" data-testid="shipping-address-section">
                 <h3 className="text-base md:text-lg font-semibold text-stone-950 mb-3 md:mb-4 flex items-center gap-2">
                   <MapPin className="w-4 h-4 md:w-5 md:h-5" />
@@ -576,7 +662,10 @@ export default function CartPage() {
                 <div className="flex justify-between text-sm md:text-base">
                   <span className="text-stone-500">{t('checkout.shipping')}</span>
                   <span className="text-stone-950">
-                    {(cartSummary.shipping_cents || 0) > 0 ? convertAndFormatPrice(cartSummary.shipping_cents / 100, 'EUR') : <span className="text-stone-700">{t('common.free')}</span>}
+                    {(() => {
+                      const sc = shippingData?.total_shipping_cents ?? cartSummary.shipping_cents ?? 0;
+                      return sc > 0 ? convertAndFormatPrice(sc / 100, 'EUR') : <span className="text-stone-700">{t('common.free')}</span>;
+                    })()}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm md:text-base">

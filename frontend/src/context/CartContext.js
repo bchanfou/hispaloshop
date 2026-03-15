@@ -22,9 +22,14 @@ export function CartProvider({ children }) {
   const fetchCart = async () => {
     try {
       setLoading(true);
-      const data = await apiClient.get('/cart');
-      setCartItems(data.items || []);
-      setAppliedDiscount(data.discount || null);
+      const res = await apiClient.get('/cart');
+      const d = res.data || res;
+      setCartItems(d.items || []);
+      setAppliedDiscount(
+        d.coupon_code
+          ? { code: d.coupon_code, discount_cents: d.discount_cents || 0 }
+          : null
+      );
     } catch (error) {
       console.error('Error fetching cart:', error);
       setCartItems([]);
@@ -40,7 +45,7 @@ export function CartProvider({ children }) {
       if (variantId) payload.variant_id = variantId;
       if (packId) payload.pack_id = packId;
 
-      await apiClient.post('/cart/add', payload);
+      await apiClient.post('/cart/items', payload);
       await fetchCart();
       return true;
     } catch (error) {
@@ -58,7 +63,7 @@ export function CartProvider({ children }) {
 
   const removeFromCart = async (productId, variantId = null, packId = null) => {
     try {
-      let path = `/cart/${productId}`;
+      let path = `/cart/items/${productId}`;
       const params = new URLSearchParams();
       if (variantId) params.append('variant_id', variantId);
       if (packId) params.append('pack_id', packId);
@@ -73,7 +78,7 @@ export function CartProvider({ children }) {
 
   const applyDiscount = async (code) => {
     try {
-      const data = await apiClient.post(`/cart/apply-discount?code=${encodeURIComponent(code)}`, {});
+      const data = await apiClient.post(`/cart/apply-coupon?code=${encodeURIComponent(code)}`, {});
       await fetchCart();
       return { success: true, data };
     } catch (error) {
@@ -84,7 +89,7 @@ export function CartProvider({ children }) {
 
   const removeDiscount = async () => {
     try {
-      await apiClient.delete('/cart/remove-discount');
+      await apiClient.delete('/cart/coupon');
       await fetchCart();
       return { success: true };
     } catch (error) {
@@ -93,12 +98,22 @@ export function CartProvider({ children }) {
     }
   };
 
+  const getShippingPreview = async () => {
+    try {
+      const res = await apiClient.post('/cart/shipping-preview', {});
+      return (res.data || res);
+    } catch (error) {
+      console.error('Error fetching shipping preview:', error);
+      return { stores: [], total_shipping_cents: 0, total_savings_cents: 0, store_count: 0 };
+    }
+  };
+
   const getTotalItems = () => {
     return cartItems.reduce((sum, item) => sum + item.quantity, 0);
   };
 
   const getTotalPrice = () => {
-    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return cartItems.reduce((sum, item) => sum + (item.unit_price_cents || 0) * item.quantity, 0);
   };
 
   return (
@@ -112,6 +127,7 @@ export function CartProvider({ children }) {
         applyDiscount,
         removeDiscount,
         fetchCart,
+        getShippingPreview,
         getTotalItems,
         getTotalPrice
       }}

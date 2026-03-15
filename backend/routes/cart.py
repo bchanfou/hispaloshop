@@ -10,6 +10,7 @@ from core.database import get_db
 from core.auth import get_current_user
 from core.models import Cart
 from services.markets import is_product_available_in_country
+from services.shipping_calculator import calculate_cart_shipping
 
 router = APIRouter(prefix="/cart", tags=["Cart"])
 
@@ -370,7 +371,7 @@ async def apply_coupon(
     
     # Calcular descuento
     subtotal = sum(item.get("total_price_cents", 0) for item in cart["items"])
-    
+
     discount_cents = 0
     if coupon["type"] == "percentage":
         discount_cents = int(subtotal * (coupon["value"] / 100))
@@ -379,25 +380,44 @@ async def apply_coupon(
     elif coupon["type"] == "free_shipping":
         # Se maneja en checkout
         pass
-    
-    # Aplicar a carrito
+
+    # Influencer attribution
+    influencer_id = coupon.get("influencer_id")
+    update_fields = {
+        "coupon_code": code.upper(),
+        "discount_cents": discount_cents,
+        "updated_at": datetime.utcnow(),
+    }
+    if influencer_id:
+        update_fields["influencer_id"] = influencer_id
+        update_fields["influencer_discount_code"] = code.upper()
+        # Attribution lock — upsert consumer→influencer link (18-month)
+        await db.customer_influencer_attribution.update_one(
+            {"consumer_id": current_user.user_id},
+            {
+                "$setOnInsert": {
+                    "consumer_id": current_user.user_id,
+                    "influencer_id": influencer_id,
+                    "code_used": code.upper(),
+                    "attributed_at": datetime.utcnow(),
+                    "expires_at": datetime.utcnow() + timedelta(days=548),
+                }
+            },
+            upsert=True,
+        )
+
     await db.carts.update_one(
         {"_id": cart["_id"]},
-        {
-            "$set": {
-                "coupon_code": code.upper(),
-                "discount_cents": discount_cents,
-                "updated_at": datetime.utcnow()
-            }
-        }
+        {"$set": update_fields},
     )
-    
+
     return {
         "success": True,
         "data": {
             "code": code.upper(),
             "discount_cents": discount_cents,
-            "type": coupon["type"]
+            "type": coupon["type"],
+            "influencer_id": influencer_id,
         }
     }
 
@@ -484,3 +504,56 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
         })
 
     return {"success": True, "items_count": len(normalized_items)}
+
+
+@router.post("/shipping-preview")
+async def shipping_preview(current_user=Depends(get_current_user)):
+    """Per-store shipping breakdown for the current cart."""
+    db = get_db()
+
+    cart = await db.carts.find_one({
+        "user_id": current_user.user_id,
+        "status": "active",
+    })
+
+    if not cart or not cart.get("items"):
+        return {
+            "success": True,
+            "data": {
+                "stores": [],
+                "total_shipping_cents": 0,
+                "total_savings_cents": 0,
+                "store_count": 0,
+            },
+        }
+
+    result = await calculate_cart_shipping(cart["items"])
+    return {"success": True, "data": result}
+
+
+@router.delete("/coupon")
+async def remove_coupon(current_user=Depends(get_current_user)):
+    """Remove applied coupon from cart."""
+    db = get_db()
+
+    cart = await db.carts.find_one({
+        "user_id": current_user.user_id,
+        "status": "active",
+    })
+
+    if not cart:
+        raise HTTPException(status_code=404, detail="Cart not found")
+
+    await db.carts.update_one(
+        {"_id": cart["_id"]},
+        {
+            "$set": {
+                "coupon_code": None,
+                "discount_cents": 0,
+                "influencer_id": None,
+                "updated_at": datetime.utcnow(),
+            }
+        },
+    )
+
+    return {"success": True, "message": "Coupon removed"}

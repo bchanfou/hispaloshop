@@ -303,40 +303,27 @@ function AddressStep({ addresses, selectedId, onSelect, onSaveNew, onNext, loadi
   );
 }
 
-// ─── Step 2: Shipping ──────────────────────────────────────────────────────
+// ─── Step 2: Shipping (per-store breakdown) ──────────────────────────────
 function ShippingStep({ selectedAddress, cartItems, onNext, onBack }) {
-  const [options, setOptions] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [shippingData, setShippingData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Try to fetch shipping options; fallback to standard option
-    apiClient.post('/cart/shipping-options', {
-      address_id: selectedAddress?.address_id,
-      items: cartItems.map(i => ({ product_id: i.product_id, quantity: i.quantity })),
-    })
-      .then(data => {
-        const opts = data?.options || [];
-        setOptions(opts);
-        if (opts.length > 0) setSelected(opts[0].id);
+    setIsLoading(true);
+    apiClient.post('/cart/shipping-preview', {})
+      .then(res => {
+        const d = res?.data || res;
+        setShippingData(d);
       })
-      .catch(() => {
-        // Fallback: standard shipping
-        const fallback = [
-          { id: 'standard', carrier: 'Envío estándar', estimated_days: 3, price: 4.99 },
-          { id: 'express', carrier: 'Envío exprés', estimated_days: 1, price: 9.99 },
-        ];
-        setOptions(fallback);
-        setSelected('standard');
-      })
+      .catch(() => setShippingData({ stores: [], total_shipping_cents: 0, total_savings_cents: 0, store_count: 0 }))
       .finally(() => setIsLoading(false));
-  }, [selectedAddress, cartItems]);
+  }, [cartItems]);
 
-  const selectedOption = options.find(o => o.id === selected);
+  const totalShipping = shippingData?.total_shipping_cents || 0;
 
   return (
     <motion.div key="step-shipping" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Opciones de envío</h2>
+      <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Envio por tienda</h2>
 
       {selectedAddress && (
         <div
@@ -363,30 +350,71 @@ function ShippingStep({ selectedAddress, cartItems, onNext, onBack }) {
           ))}
         </div>
       ) : (
-        <div className="space-y-2">
-          {options.map(opt => (
+        <div className="space-y-3">
+          {(shippingData?.stores || []).map(store => (
             <div
-              key={opt.id}
-              onClick={() => setSelected(opt.id)}
-              className="p-4 cursor-pointer flex items-center justify-between"
+              key={store.seller_id}
+              className="p-4"
               style={{
                 borderRadius: 'var(--radius-xl)',
-                border: selected === opt.id ? '2px solid var(--color-black)' : '2px solid var(--color-border)',
-                background: selected === opt.id ? 'var(--color-surface)' : 'var(--color-white)',
-                transition: 'var(--transition-fast)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-white)',
               }}
             >
-              <div>
-                <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>{opt.carrier}</p>
-                <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
-                  {opt.estimated_days === 0 ? 'Hoy' : opt.estimated_days === 1 ? 'Mañana' : `${opt.estimated_days}-${opt.estimated_days + 1} días`}
-                </p>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2 min-w-0">
+                  {store.seller_avatar ? (
+                    <img src={store.seller_avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: 'var(--color-surface)' }}>
+                      <Truck className="w-3.5 h-3.5" style={{ color: 'var(--color-stone)' }} />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>{store.seller_name}</p>
+                    <p className="text-[11px]" style={{ color: 'var(--color-stone)' }}>{store.item_count} {store.item_count === 1 ? 'producto' : 'productos'} · Plan {store.plan_label}</p>
+                  </div>
+                </div>
+                <span className="text-sm font-bold shrink-0" style={{ color: store.is_free ? 'var(--color-green)' : 'var(--color-black)' }}>
+                  {store.is_free ? 'Gratis' : `${(store.shipping_cents / 100).toFixed(2)}€`}
+                </span>
               </div>
-              <p className="text-sm font-bold" style={{ color: opt.price === 0 ? 'var(--color-green)' : 'var(--color-black)' }}>
-                {opt.price === 0 ? 'Gratis' : `${opt.price.toFixed(2)}€`}
-              </p>
+
+              {store.threshold_cents != null && (
+                <>
+                  <div className="h-1.5 w-full rounded-full overflow-hidden mt-2" style={{ background: 'var(--color-surface)' }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${store.progress_pct}%`,
+                        background: store.is_free ? 'var(--color-green)' : store.progress_pct >= 60 ? 'var(--color-black)' : 'var(--color-stone)',
+                        transition: 'width 0.5s ease',
+                      }}
+                    />
+                  </div>
+                  {!store.is_free && store.remaining_cents > 0 && (
+                    <p className="text-[11px] mt-1" style={{ color: 'var(--color-stone)' }}>
+                      Faltan {(store.remaining_cents / 100).toFixed(2)}€ para envio gratis
+                    </p>
+                  )}
+                </>
+              )}
             </div>
           ))}
+
+          {/* Total shipping summary */}
+          <div className="flex items-center justify-between p-3" style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)' }}>
+            <span className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Envio total</span>
+            <span className="text-sm font-bold" style={{ color: totalShipping === 0 ? 'var(--color-green)' : 'var(--color-black)' }}>
+              {totalShipping === 0 ? 'Gratis' : `${(totalShipping / 100).toFixed(2)}€`}
+            </span>
+          </div>
+
+          {shippingData?.total_savings_cents > 0 && (
+            <p className="text-xs text-center" style={{ color: 'var(--color-green)' }}>
+              Ahorras {(shippingData.total_savings_cents / 100).toFixed(2)}€ en envio
+            </p>
+          )}
         </div>
       )}
 
@@ -406,9 +434,8 @@ function ShippingStep({ selectedAddress, cartItems, onNext, onBack }) {
         </button>
         <button
           type="button"
-          onClick={() => onNext(selectedOption)}
-          disabled={!selected}
-          className="flex-1 py-3 rounded-full text-sm font-semibold disabled:opacity-40"
+          onClick={() => onNext({ id: 'per-store', carrier: 'Por tienda', price: totalShipping / 100 })}
+          className="flex-1 py-3 rounded-full text-sm font-semibold"
           style={{
             background: 'var(--color-black)',
             color: '#fff',
@@ -493,7 +520,7 @@ function PaymentStep({ selectedAddress, shippingOption, cartItems, discountCode,
                 <p className="text-xs" style={{ color: 'var(--color-stone)' }}>x{item.quantity}</p>
               </div>
               <span className="text-sm font-semibold shrink-0" style={{ color: 'var(--color-black)' }}>
-                €{(item.price * item.quantity).toFixed(2)}
+                €{((item.unit_price_cents || item.price * 100 || 0) * item.quantity / 100).toFixed(2)}
               </span>
             </div>
           ))}
@@ -613,7 +640,8 @@ function PaymentStep({ selectedAddress, shippingOption, cartItems, discountCode,
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { cartItems: items, getTotalPrice } = useCart();
-  const subtotal = getTotalPrice();
+  const totalCents = getTotalPrice();
+  const subtotal = totalCents > 1000 ? totalCents / 100 : totalCents; // cents→EUR if value looks like cents
 
   const [step, setStep] = useState(0);
   const [addresses, setAddresses] = useState([]);
