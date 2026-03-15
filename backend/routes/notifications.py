@@ -1,8 +1,8 @@
 """
 Notifications Endpoints
-Fase 5: Centro de notificaciones y preferencias
+Fase 5 + 27: Centro de notificaciones unificado
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional, List
 
 from services.notifications.dispatcher_service import notification_dispatcher
@@ -34,15 +34,16 @@ async def get_unread_count(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Obtener conteo de notificaciones no leídas
+    Lightweight unread count — single count_documents query.
+    Called every 30s from the frontend badge.
     """
-    result = await notification_dispatcher.get_notifications(
-        user_id=str(current_user["_id"]),
-        unread_only=True,
-        page=1,
-        limit=1
-    )
-    return {"unread_count": result["unread"]}
+    from core.database import db
+
+    count = await db.notifications.count_documents({
+        "user_id": str(current_user["_id"]),
+        "read_at": None,
+    })
+    return {"unread_count": count}
 
 
 @router.post("/{notification_id}/read")
@@ -80,6 +81,24 @@ async def mark_all_read(
     )
     
     return {"status": "all_marked_as_read"}
+
+
+@router.delete("/{notification_id}")
+async def delete_notification(
+    notification_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete a single notification (own only)."""
+    from core.database import db
+    from bson import ObjectId
+
+    result = await db.notifications.delete_one({
+        "_id": ObjectId(notification_id),
+        "user_id": str(current_user["_id"]),
+    })
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"success": True}
 
 
 @router.post("/push-token")
@@ -196,7 +215,8 @@ async def admin_send_notification(
     
     return {"notification_id": notification_id, "status": "sent"}
 
-# Function to create notification (used by other modules)
+# ── Internal helpers (used by other modules) ───────────────────
+
 async def create_notification(
     user_id: str,
     title: str,
@@ -204,15 +224,13 @@ async def create_notification(
     notification_type: str = "system",
     channels: List[str] = None,
     priority: str = "normal",
-    data: dict = None
+    data: dict = None,
+    action_url: str = None,
 ):
-    """
-    Create a notification for a user.
-    Used internally by other route modules.
-    """
+    """Create a notification for a user."""
     if channels is None:
         channels = ["in_app"]
-    
+
     await notification_dispatcher.send_notification(
         user_id=user_id,
         title=title,
@@ -220,5 +238,148 @@ async def create_notification(
         notification_type=notification_type,
         channels=channels,
         priority=priority,
-        data=data or {}
+        data=data or {},
+        action_url=action_url,
+    )
+
+
+async def notify_order_event(order_id: str, event_type: str, **kwargs):
+    """
+    Create order-related notifications for consumer and/or producer.
+
+    Supported event_type:
+      order_confirmed, order_preparing, order_shipped,
+      order_delivered, order_review_request, new_order
+    """
+    from core.database import db
+
+    order = await db.orders.find_one({"order_id": order_id})
+    if not order:
+        return
+
+    consumer_id = order.get("user_id")
+    producer_id = order.get("producer_id")
+    short_id = str(order_id)[-8:].upper()
+    store_name = kwargs.get("store_name") or order.get("store_name", "")
+
+    EVENT_MAP = {
+        "order_confirmed": {
+            "consumer": (
+                "Pedido confirmado",
+                f"Pedido #{short_id} confirmado. Los productores ya están preparando tu pedido.",
+            ),
+            "producer": (
+                "Nuevo pedido recibido",
+                f"Nuevo pedido #{short_id} recibido. Prepáralo cuando puedas.",
+            ),
+        },
+        "order_preparing": {
+            "consumer": (
+                "Tu pedido se está preparando",
+                f"Tu pedido de {store_name} se está preparando.",
+            ),
+        },
+        "order_shipped": {
+            "consumer": (
+                "Tu pedido está en camino",
+                f"Tu pedido #{short_id} está en camino.",
+            ),
+        },
+        "order_delivered": {
+            "consumer": (
+                "Pedido entregado",
+                f"Tu pedido #{short_id} ha llegado. ¿Cómo fue tu experiencia?",
+            ),
+        },
+        "order_review_request": {
+            "consumer": (
+                "¿Ya probaste tu pedido?",
+                f"Deja tu reseña sobre el pedido #{short_id}.",
+            ),
+        },
+    }
+
+    event = EVENT_MAP.get(event_type, {})
+    base_data = {"order_id": order_id}
+
+    if "consumer" in event and consumer_id:
+        title, body = event["consumer"]
+        await create_notification(
+            user_id=consumer_id,
+            title=title,
+            body=body,
+            notification_type=event_type,
+            data=base_data,
+            action_url=f"/orders/{order_id}",
+        )
+
+    if "producer" in event and producer_id:
+        title, body = event["producer"]
+        await create_notification(
+            user_id=producer_id,
+            title=title,
+            body=body,
+            notification_type="new_order" if event_type == "order_confirmed" else event_type,
+            data=base_data,
+            action_url=f"/producer/orders/{order_id}",
+        )
+
+
+async def notify_social_event(
+    recipient_id: str,
+    actor_id: str,
+    event_type: str,
+    post_id: str = None,
+    **kwargs,
+):
+    """Create social notifications (new_follower, post_liked, post_commented, mentioned)."""
+    from core.database import db
+
+    actor = await db.users.find_one({"user_id": actor_id}, {"_id": 0, "name": 1})
+    actor_name = (actor or {}).get("name", "Alguien")
+
+    EVENT_MAP = {
+        "new_follower": ("Nuevo seguidor", f"{actor_name} ha empezado a seguirte", f"/profile/{actor_id}"),
+        "post_liked": ("Le gustó tu publicación", f"A {actor_name} le gustó tu publicación", f"/post/{post_id}"),
+        "post_commented": ("Nuevo comentario", f"{actor_name} comentó tu publicación", f"/post/{post_id}"),
+        "mentioned": ("Te mencionaron", f"{actor_name} te mencionó", f"/post/{post_id}"),
+    }
+
+    info = EVENT_MAP.get(event_type)
+    if not info:
+        return
+    title, body, url = info
+
+    await create_notification(
+        user_id=recipient_id,
+        title=title,
+        body=body,
+        notification_type=event_type,
+        data={"actor_id": actor_id, "post_id": post_id},
+        action_url=url,
+    )
+
+
+async def notify_b2b_event(operation_id: str, event_type: str, recipient_id: str, **kwargs):
+    """Create B2B operation notifications."""
+    EVENT_MAP = {
+        "b2b_offer_received": ("Nueva oferta B2B recibida", kwargs.get("body", "Revisa los detalles de la oferta.")),
+        "b2b_offer_accepted": ("Oferta B2B aceptada", "La oferta fue aceptada."),
+        "b2b_contract_ready": ("Contrato listo para firmar", "Revisa y firma el contrato."),
+        "b2b_contract_signed": ("Contrato firmado", "El contrato ha sido firmado por ambas partes."),
+        "b2b_payment_received": ("Pago B2B recibido", kwargs.get("body", "Pago recibido.")),
+    }
+
+    info = EVENT_MAP.get(event_type)
+    if not info:
+        return
+    title, body = info
+
+    await create_notification(
+        user_id=recipient_id,
+        title=title,
+        body=body,
+        notification_type=event_type,
+        data={"operation_id": operation_id},
+        action_url=f"/b2b/tracking/{operation_id}",
     )

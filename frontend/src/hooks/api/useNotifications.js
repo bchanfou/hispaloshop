@@ -3,6 +3,7 @@
  * Push nativas, in-app y preferencias
  */
 
+import { useEffect, useState } from 'react';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../services/api/client';
 
@@ -18,13 +19,22 @@ const NOTIF_KEYS = {
 
 /**
  * Hook para notificaciones no leídas (badge count)
+ * Polls every 30s, pauses when tab is not visible.
  */
 export function useUnreadNotifications() {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const handler = () => setVisible(document.visibilityState === 'visible');
+    document.addEventListener('visibilitychange', handler);
+    return () => document.removeEventListener('visibilitychange', handler);
+  }, []);
+
   return useQuery({
     queryKey: NOTIF_KEYS.unread,
     queryFn: () => apiClient.get('/notifications/unread-count'),
     staleTime: 30 * 1000,
-    refetchInterval: 60 * 1000, // Refetch cada minuto
+    refetchInterval: visible ? 30 * 1000 : false,
   });
 }
 

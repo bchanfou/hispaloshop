@@ -206,9 +206,9 @@ async def restore_moderation(
         await create_notification(
             user_id=item.get("creator_id"),
             title="Contenido restaurado",
-            message="Tu contenido ha sido revisado y restaurado por un administrador.",
-            link="/",
-            notif_type="moderation_restored",
+            body="Tu contenido ha sido revisado y restaurado por un administrador.",
+            notification_type="moderation_restored",
+            action_url="/profile",
         )
     except Exception:
         pass
@@ -316,9 +316,9 @@ def _notify_creator(item: dict, confirmed: bool):
             await create_notification(
                 user_id=item.get("creator_id"),
                 title="Contenido ocultado" if ct != "product" else "Producto bloqueado",
-                message=msg,
-                link="/",
-                notif_type="moderation_action",
+                body=msg,
+                notification_type="moderation_hidden",
+                action_url="/profile",
             )
         except Exception:
             pass

@@ -164,10 +164,10 @@ async def approve_product(product_id: str, approved: bool, user: User = Depends(
         # Notify producer their product was approved
         await create_notification(
             user_id=product.get("producer_id", ""),
-            notif_type="product_approved",
             title="Producto aprobado",
-            message=f"Tu producto '{product.get('name', '')}' ha sido aprobado y ya esta visible en la tienda.",
-            link=f"/product/{product_id}",
+            body=f"Tu producto '{product.get('name', '')}' ha sido aprobado y ya esta visible en la tienda.",
+            notification_type="verification_approved",
+            action_url=f"/product/{product_id}",
         )
         try:
             store = await db.store_profiles.find_one({"producer_id": product["producer_id"]})
@@ -180,10 +180,10 @@ async def approve_product(product_id: str, approved: bool, user: User = Depends(
         # Notify producer their product was rejected
         await create_notification(
             user_id=product.get("producer_id", ""),
-            notif_type="product_rejected",
             title="Producto rechazado",
-            message=f"Tu producto '{product.get('name', '')}' no ha sido aprobado. Revisa los requisitos.",
-            link="/producer/products",
+            body=f"Tu producto '{product.get('name', '')}' no ha sido aprobado. Revisa los requisitos.",
+            notification_type="verification_rejected",
+            action_url="/producer/products",
         )
     
     return {"message": "Product approval updated"}
@@ -227,10 +227,10 @@ async def update_product_price(product_id: str, price: float, user: User = Depen
         for entry in wishlist_entries:
             await create_notification(
                 user_id=entry["user_id"],
-                notif_type="price_drop",
                 title="Bajada de precio",
-                message=f"'{product.get('name', '')}' bajo de {old_price:.2f}EUR a {price:.2f}EUR.",
-                link=f"/product/{product_id}",
+                body=f"'{product.get('name', '')}' bajo de {old_price:.2f}EUR a {price:.2f}EUR.",
+                notification_type="system",
+                action_url=f"/product/{product_id}",
             )
     
     return {"message": "Product price updated"}

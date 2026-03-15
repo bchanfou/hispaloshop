@@ -612,9 +612,9 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
                     await create_notification(
                         user_id=uid,
                         title="Certificado caducado",
-                        message=f"Tu certificado {cert.get('name', '')} ha caducado.",
-                        link="/producer/verification",
-                        notif_type="certificate_expired",
+                        body=f"Tu certificado {cert.get('name', '')} ha caducado.",
+                        notification_type="certificate_expiring",
+                        action_url="/producer/verification",
                     )
                     if email:
                         send_email(
@@ -637,9 +637,9 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
                     await create_notification(
                         user_id=uid,
                         title=f"Certificado caduca en {days_left} días",
-                        message=f"Tu certificado {cert.get('name', '')} caduca el {expiry}.",
-                        link="/producer/verification",
-                        notif_type="certificate_expiry_urgent",
+                        body=f"Tu certificado {cert.get('name', '')} caduca el {expiry}.",
+                        notification_type="certificate_expiring",
+                        action_url="/producer/verification",
                     )
                     if email:
                         send_email(
@@ -664,9 +664,9 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
                     await create_notification(
                         user_id=uid,
                         title=f"Certificado caduca en {days_left} días",
-                        message=f"Renueva tu certificado {cert.get('name', '')} antes del {expiry}.",
-                        link="/producer/verification",
-                        notif_type="certificate_expiry_warning",
+                        body=f"Renueva tu certificado {cert.get('name', '')} antes del {expiry}.",
+                        notification_type="certificate_expiring",
+                        action_url="/producer/verification",
                     )
                     if email:
                         send_email(
@@ -689,3 +689,50 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
         "alerts_7_days": alerts_7,
         "expired_today": expired_count,
     }
+
+
+@router.post("/admin/cron/review-request-notifications")
+async def cron_review_request_notifications(user: User = Depends(get_current_user)):
+    """Daily: send review request 24h after delivery if no review exists."""
+    await require_role(user, ["admin", "super_admin"])
+
+    from routes.notifications import notify_order_event
+
+    now = datetime.now(timezone.utc)
+    window_start = now - timedelta(hours=48)
+    window_end = now - timedelta(hours=24)
+
+    # Orders delivered 24-48h ago
+    delivered_orders = await db.orders.find({
+        "status": "delivered",
+        "delivered_at": {"$gte": window_start.isoformat(), "$lte": window_end.isoformat()},
+    }, {"_id": 0, "order_id": 1, "user_id": 1}).to_list(500)
+
+    sent = 0
+    for order in delivered_orders:
+        oid = order.get("order_id")
+        uid = order.get("user_id")
+        if not oid or not uid:
+            continue
+
+        # Check if a review already exists for this order
+        existing_review = await db.reviews.find_one({"order_id": oid, "user_id": uid})
+        if existing_review:
+            continue
+
+        # Check if we already sent this notification
+        existing_notif = await db.notifications.find_one({
+            "user_id": uid,
+            "type": "order_review_request",
+            "data.order_id": oid,
+        })
+        if existing_notif:
+            continue
+
+        try:
+            await notify_order_event(oid, "order_review_request")
+            sent += 1
+        except Exception as e:
+            logger.error(f"[CRON] Review request failed for order {oid}: {e}")
+
+    return {"checked": len(delivered_orders), "sent": sent}

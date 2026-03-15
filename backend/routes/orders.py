@@ -485,26 +485,16 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
     # 7. Schedule influencer payout (15 days deferred)
     await schedule_influencer_payout(order, total_platform_fee, commission_data)
 
-    # 8. Notify producers
+    # 8. Notify producers + consumer via unified notification service
+    from routes.notifications import notify_order_event
+    try:
+        await notify_order_event(order_id, "order_confirmed")
+    except Exception as e:
+        logger.error(f"[NOTIF] Failed notify_order_event for {order_id}: {e}")
+
     producers = set(item["producer_id"] for item in order.get("line_items", []))
     for producer_id in producers:
         producer_items = [item for item in order["line_items"] if item["producer_id"] == producer_id]
-        notification = {
-            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-            "producer_id": producer_id,
-            "order_id": order_id,
-            "type": "order_received",
-            "content": {
-                "order_number": order_id,
-                "items": producer_items,
-                "customer_name": order.get("user_name", ""),
-                "customer_email": order.get("user_email", ""),
-                "shipping_address": order.get("shipping_address", {})
-            },
-            "read": False,
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        await db.notifications.insert_one(notification)
         try:
             await send_new_order_email_to_producer(producer_id, order, producer_items)
         except Exception as e:

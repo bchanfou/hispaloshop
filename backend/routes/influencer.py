@@ -1288,16 +1288,16 @@ async def update_influencer_tiers():
             # Notify on upgrade
             tier_order = ["hercules", "atenea", "zeus"]
             if tier_order.index(new_tier) > tier_order.index(old_tier):
-                tier_labels = {"atenea": "Atenea ⚡", "zeus": "Zeus 🏆"}
-                await db.notifications.insert_one({
-                    "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-                    "user_id": inf_id,
-                    "type": "tier_upgrade",
-                    "title": f"¡Has alcanzado el nivel {tier_labels.get(new_tier, new_tier)}!",
-                    "body": f"Ahora ganas un {int(new_rate * 100)}% de comisión en cada venta",
-                    "read": False,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
-                })
+                tier_labels = {"atenea": "Atenea", "zeus": "Zeus"}
+                from routes.notifications import create_notification
+                await create_notification(
+                    user_id=inf_id,
+                    title=f"¡Has alcanzado el nivel {tier_labels.get(new_tier, new_tier)}!",
+                    body=f"Ahora ganas un {int(new_rate * 100)}% de comisión en cada venta",
+                    notification_type="tier_upgraded",
+                    data={"new_tier": new_tier, "commission_rate": new_rate},
+                    action_url="/influencer/dashboard",
+                )
             logger.info(f"[TIER] Influencer {inf_id}: {old_tier} → {new_tier} (GMV 30d: {gmv:.0f}€)")
 
 
@@ -1376,15 +1376,15 @@ async def process_influencer_payouts():
                 {"$inc": {"available_balance": -total}},
             )
             # Notify
-            await db.notifications.insert_one({
-                "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-                "user_id": inf_id,
-                "type": "payout_sent",
-                "title": "Cobro enviado 💸",
-                "body": f"{total:.2f}€ enviados a tu cuenta bancaria",
-                "read": False,
-                "created_at": now_iso,
-            })
+            from routes.notifications import create_notification
+            await create_notification(
+                user_id=inf_id,
+                title="Cobro enviado",
+                body=f"{total:.2f}€ enviados a tu cuenta bancaria",
+                notification_type="payout_sent",
+                data={"amount": total},
+                action_url="/influencer/dashboard",
+            )
             logger.info(f"[PAYOUT] Auto-payout {total:.2f}€ to influencer {inf_id}")
 
         except Exception as e:

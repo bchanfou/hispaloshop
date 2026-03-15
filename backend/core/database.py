@@ -135,9 +135,11 @@ async def _create_indexes():
     print("  ✓ certificates indexes")
     
     # Notifications
-    await db.notifications.create_index("producer_id")
-    await db.notifications.create_index([("producer_id", 1), ("read", 1)])
-    await db.notifications.create_index([("producer_id", 1), ("created_at", -1)])
+    await db.notifications.create_index("user_id")
+    await db.notifications.create_index("producer_id", sparse=True)
+    await db.notifications.create_index([("user_id", 1), ("read_at", 1)])
+    await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
+    await db.notifications.create_index([("producer_id", 1), ("created_at", -1)], sparse=True)
     print("  ✓ notifications indexes")
     
     # Discount codes / Influencers

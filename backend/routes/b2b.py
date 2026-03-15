@@ -650,15 +650,13 @@ async def confirm_b2b_request(
     # Find the order to get importer_id for notification
     order = await db.b2b_orders.find_one(query if oid is None else {"_id": oid})
     if order and order.get("importer_id"):
-        await db.notifications.insert_one({
-            "user_id": order["importer_id"],
-            "type": "b2b_offer_received",
-            "title": "Oferta recibida",
-            "body": f"El productor ha confirmado tu pedido a {body.confirmed_unit_price:.2f}€/ud.",
-            "order_id": str(order.get("_id", "")),
-            "read": False,
-            "created_at": datetime.utcnow(),
-        })
+        from routes.notifications import notify_b2b_event
+        await notify_b2b_event(
+            str(order.get("_id", "")),
+            "b2b_offer_received",
+            order["importer_id"],
+            body=f"El productor ha confirmado tu pedido a {body.confirmed_unit_price:.2f}€/ud.",
+        )
 
     return {"success": True}
 
@@ -697,15 +695,15 @@ async def reject_b2b_request(
     # Notify importer
     order = await db.b2b_orders.find_one(query if oid is None else {"_id": oid})
     if order and order.get("importer_id"):
-        await db.notifications.insert_one({
-            "user_id": order["importer_id"],
-            "type": "b2b_request_rejected",
-            "title": "Solicitud rechazada",
-            "body": "El productor no puede atender tu solicitud en este momento.",
-            "order_id": str(order.get("_id", "")),
-            "read": False,
-            "created_at": datetime.utcnow(),
-        })
+        from routes.notifications import create_notification
+        await create_notification(
+            user_id=order["importer_id"],
+            title="Solicitud rechazada",
+            body="El productor no puede atender tu solicitud en este momento.",
+            notification_type="b2b_request_rejected",
+            data={"operation_id": str(order.get("_id", ""))},
+            action_url=f"/b2b/tracking/{str(order.get('_id', ''))}",
+        )
 
     return {"success": True}
 
@@ -747,14 +745,14 @@ async def ship_b2b_request(
     # Notify importer
     order = await db.b2b_orders.find_one(query if oid is None else {"_id": oid})
     if order and order.get("importer_id"):
-        await db.notifications.insert_one({
-            "user_id": order["importer_id"],
-            "type": "order_shipped",
-            "title": "Pedido B2B enviado 🚚",
-            "body": f"Tracking: {body.tracking_number}",
-            "order_id": str(order.get("_id", "")),
-            "read": False,
-            "created_at": datetime.utcnow(),
-        })
+        from routes.notifications import create_notification
+        await create_notification(
+            user_id=order["importer_id"],
+            title="Pedido B2B enviado",
+            body=f"Tracking: {body.tracking_number}",
+            notification_type="order_shipped",
+            data={"operation_id": str(order.get("_id", "")), "tracking_number": body.tracking_number},
+            action_url=f"/b2b/tracking/{str(order.get('_id', ''))}",
+        )
 
     return {"success": True}

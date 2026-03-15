@@ -580,10 +580,10 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
         for entry in wishlist_entries:
             await create_notification(
                 user_id=entry["user_id"],
-                notif_type="price_drop",
                 title="Bajada de precio",
-                message=f"'{product.get('name', '')}' bajo de {product.get('price', 0):.2f}EUR a {input.price:.2f}EUR.",
-                link=f"/product/{product_id}",
+                body=f"'{product.get('name', '')}' bajo de {product.get('price', 0):.2f}EUR a {input.price:.2f}EUR.",
+                notification_type="system",
+                action_url=f"/product/{product_id}",
             )
     
     # Trigger re-translation if content changed and product is approved

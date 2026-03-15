@@ -16,28 +16,69 @@ import {
 
 // ── Category mapping for filter pills ────────────────────────────
 const TYPE_TO_CATEGORY = {
-  like: 'social',
-  comment: 'social',
-  follow: 'social',
-  order_update: 'pedidos',
-  purchase: 'pedidos',
-  support_reply: 'sistema',
-  review: 'social',
-  system: 'sistema',
+  // Social
+  like: 'social', comment: 'social', follow: 'social', review: 'social',
+  new_follower: 'social', post_liked: 'social', post_commented: 'social', mentioned: 'social',
+  // Pedidos
+  order_update: 'pedidos', purchase: 'pedidos',
+  order_confirmed: 'pedidos', order_preparing: 'pedidos', order_shipped: 'pedidos',
+  order_delivered: 'pedidos', new_order: 'pedidos', order_review_request: 'pedidos',
+  order_received: 'pedidos',
+  // Ofertas / Influencer / B2B
   offer: 'ofertas',
+  commission_earned: 'ofertas', tier_upgraded: 'ofertas', payout_sent: 'ofertas',
+  b2b_offer_received: 'ofertas', b2b_offer_accepted: 'ofertas',
+  b2b_contract_ready: 'ofertas', b2b_contract_signed: 'ofertas',
+  b2b_payment_received: 'ofertas', b2b_request_rejected: 'ofertas',
+  // Sistema
+  support_reply: 'sistema', system: 'sistema',
+  verification_approved: 'sistema', verification_rejected: 'sistema',
+  certificate_expiring: 'sistema',
+  moderation_hidden: 'sistema', moderation_restored: 'sistema',
+  fiscal_certificate_ok: 'sistema',
 };
 
 // ── Icon map by notification type (v2 tokens) ────────────────────
 const TYPE_META = {
-  like:          { icon: Heart,          category: 'social' },
-  comment:       { icon: MessageCircle,  category: 'social' },
-  follow:        { icon: UserPlus,       category: 'social' },
-  order_update:  { icon: Package,        category: 'pedidos' },
-  support_reply: { icon: Headphones,     category: 'sistema' },
-  review:        { icon: Star,           category: 'social' },
-  purchase:      { icon: ShoppingBag,    category: 'pedidos' },
-  system:        { icon: Info,           category: 'sistema' },
-  offer:         { icon: Tag,            category: 'ofertas' },
+  // Social
+  like:            { icon: Heart,          category: 'social' },
+  post_liked:      { icon: Heart,          category: 'social' },
+  comment:         { icon: MessageCircle,  category: 'social' },
+  post_commented:  { icon: MessageCircle,  category: 'social' },
+  follow:          { icon: UserPlus,       category: 'social' },
+  new_follower:    { icon: UserPlus,       category: 'social' },
+  mentioned:       { icon: User,           category: 'social' },
+  review:          { icon: Star,           category: 'social' },
+  // Pedidos
+  order_update:          { icon: Package,      category: 'pedidos' },
+  order_confirmed:       { icon: Package,      category: 'pedidos' },
+  order_preparing:       { icon: Package,      category: 'pedidos' },
+  order_shipped:         { icon: Package,      category: 'pedidos' },
+  order_delivered:       { icon: Package,      category: 'pedidos' },
+  new_order:             { icon: ShoppingBag,  category: 'pedidos' },
+  order_received:        { icon: ShoppingBag,  category: 'pedidos' },
+  order_review_request:  { icon: Star,         category: 'pedidos' },
+  purchase:              { icon: ShoppingBag,  category: 'pedidos' },
+  // Ofertas / Influencer / B2B
+  offer:               { icon: Tag,  category: 'ofertas' },
+  commission_earned:   { icon: Tag,  category: 'ofertas' },
+  tier_upgraded:       { icon: Star, category: 'ofertas' },
+  payout_sent:         { icon: Tag,  category: 'ofertas' },
+  b2b_offer_received:  { icon: Tag,  category: 'ofertas' },
+  b2b_offer_accepted:  { icon: Tag,  category: 'ofertas' },
+  b2b_contract_ready:  { icon: Tag,  category: 'ofertas' },
+  b2b_contract_signed: { icon: Tag,  category: 'ofertas' },
+  b2b_payment_received:{ icon: Tag,  category: 'ofertas' },
+  b2b_request_rejected:{ icon: Tag,  category: 'ofertas' },
+  // Sistema
+  support_reply:         { icon: Headphones, category: 'sistema' },
+  system:                { icon: Info,       category: 'sistema' },
+  verification_approved: { icon: Info,       category: 'sistema' },
+  verification_rejected: { icon: Info,       category: 'sistema' },
+  certificate_expiring:  { icon: Info,       category: 'sistema' },
+  moderation_hidden:     { icon: Info,       category: 'sistema' },
+  moderation_restored:   { icon: Info,       category: 'sistema' },
+  fiscal_certificate_ok: { icon: Info,       category: 'sistema' },
 };
 
 // Icon circle styles by category
@@ -115,9 +156,12 @@ function NotifRow({ notif, onRead, onDelete }) {
   const Icon = meta.icon || catStyle.Icon;
   const isRead = !!notif.read_at;
 
+  const navigate = useNavigate();
+
   const handleClick = () => {
     if (!isRead) onRead(notif.notification_id || notif._id);
-    if (notif.action_url) window.location.href = notif.action_url;
+    const url = notif.action_url || notif.data?.action_url;
+    if (url) navigate(url);
   };
 
   return (

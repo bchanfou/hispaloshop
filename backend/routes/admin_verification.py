@@ -139,9 +139,9 @@ async def approve_verification(
         await create_notification(
             user_id=user_id,
             title="Cuenta verificada",
-            message="Tu cuenta ha sido verificada. Ya puedes publicar y vender productos.",
-            link="/producer/verification",
-            notif_type="verification_approved",
+            body="Tu cuenta ha sido verificada. Ya puedes publicar y vender productos.",
+            notification_type="verification_approved",
+            action_url="/producer/verification",
         )
         send_email(
             to=target.get("email"),
@@ -202,9 +202,9 @@ async def reject_verification(
         await create_notification(
             user_id=user_id,
             title="Verificación rechazada",
-            message=f"Tu verificación ha sido rechazada: {reason}",
-            link="/producer/verification",
-            notif_type="verification_rejected",
+            body=f"Tu verificación ha sido rechazada: {reason}",
+            notification_type="verification_rejected",
+            action_url="/producer/verification",
         )
         send_email(
             to=target.get("email"),
@@ -249,9 +249,9 @@ async def request_more_docs(
         await create_notification(
             user_id=user_id,
             title="Documentación adicional solicitada",
-            message=message[:200],
-            link="/producer/verification",
-            notif_type="verification_docs_requested",
+            body=message[:200],
+            notification_type="system",
+            action_url="/producer/verification",
         )
         send_email(
             to=target.get("email"),
