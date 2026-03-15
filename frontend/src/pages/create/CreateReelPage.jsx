@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Film, ChevronRight, Music, Sparkles, ShoppingBag,
-  Play, Pause, Loader2, Hash, Tag, Image as ImageIcon,
+  Play, Pause, Loader2, Hash, Tag, Image as ImageIcon, Mic,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import HispalAIPanel from '../../components/creator/HispalAIPanel';
 
 /* ─── V2 Design Tokens (inline) ──────────────────────────────── */
 const V2 = {
@@ -200,8 +201,12 @@ export default function CreateReelPage() {
   const [publishing, setPublishing] = useState(false);
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [coverThumb, setCoverThumb] = useState(null);
+  const [speed, setSpeed] = useState(1);
+  const [showAIPanel, setShowAIPanel] = useState(false);
+  const [activeEditTab, setActiveEditTab] = useState('speed');
 
   const hasMediaRecorder = typeof MediaRecorder !== 'undefined';
+  const SPEEDS = [0.3, 0.5, 1, 2, 3];
 
   /* ── helpers ───────────────────────────────────────────────── */
   const handleFileChange = (e) => {
@@ -397,6 +402,74 @@ export default function CreateReelPage() {
         {/* right toolbar */}
         <EditToolbar onProductTag={() => setProductModalOpen(true)} />
 
+        {/* Bottom tool tabs */}
+        <div className="absolute bottom-0 left-0 right-0 z-10" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+          {/* Tab bar */}
+          <div className="flex overflow-x-auto" style={{ gap: 4, padding: '8px 16px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
+            {[
+              { id: 'speed', label: 'Velocidad' },
+              { id: 'music', label: 'Música' },
+              { id: 'text', label: 'Texto' },
+              { id: 'filters', label: 'Filtros' },
+              { id: 'voice', label: 'Voz' },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveEditTab(tab.id)}
+                style={{
+                  padding: '6px 14px', borderRadius: V2.radiusFull, border: 'none',
+                  fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0,
+                  background: activeEditTab === tab.id ? '#fff' : 'transparent',
+                  color: activeEditTab === tab.id ? '#000' : 'rgba(255,255,255,0.6)',
+                  fontFamily: V2.fontSans,
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Speed pills */}
+          {activeEditTab === 'speed' && (
+            <div className="flex items-center justify-center" style={{ gap: 8, padding: '12px 16px', background: 'rgba(0,0,0,0.6)' }}>
+              {SPEEDS.map(s => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    setSpeed(s);
+                    if (videoRef.current) videoRef.current.playbackRate = s;
+                  }}
+                  style={{
+                    padding: '8px 16px', borderRadius: V2.radiusFull, border: 'none',
+                    fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                    background: speed === s ? '#fff' : 'rgba(255,255,255,0.15)',
+                    color: speed === s ? '#000' : '#fff',
+                    fontFamily: V2.fontSans,
+                  }}
+                >
+                  {s}x{s === 1 ? ' ✓' : ''}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Music placeholder */}
+          {activeEditTab === 'music' && (
+            <div style={{ padding: '20px 16px', background: 'rgba(0,0,0,0.6)', textAlign: 'center' }}>
+              <Music size={24} color="rgba(255,255,255,0.4)" style={{ margin: '0 auto 8px' }} />
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Biblioteca de música próximamente</p>
+            </div>
+          )}
+
+          {/* Voice-off placeholder */}
+          {activeEditTab === 'voice' && (
+            <div style={{ padding: '20px 16px', background: 'rgba(0,0,0,0.6)', textAlign: 'center' }}>
+              <Mic size={24} color="rgba(255,255,255,0.4)" style={{ margin: '0 auto 8px' }} />
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Grabación de voz en off próximamente</p>
+            </div>
+          )}
+        </div>
+
         {/* product search modal */}
         <AnimatePresence>
           <ProductSearchModal
@@ -515,6 +588,25 @@ export default function CreateReelPage() {
           </div>
         )}
 
+        {/* Hispal AI button */}
+        <div style={{ marginBottom: 16 }}>
+          <button
+            type="button"
+            onClick={() => setShowAIPanel(true)}
+            style={{
+              background: 'var(--color-green-light)',
+              color: 'var(--color-green)',
+              border: '1px solid var(--color-green-border)',
+              borderRadius: V2.radiusFull,
+              fontSize: 'var(--text-sm)', fontWeight: 500,
+              padding: '6px 14px', cursor: 'pointer',
+              fontFamily: V2.fontSans,
+            }}
+          >
+            ✨ Sugerir con Hispal AI
+          </button>
+        </div>
+
         {/* publish button */}
         <button
           onClick={handlePublish}
@@ -535,6 +627,16 @@ export default function CreateReelPage() {
           {publishing ? 'Publicando…' : 'Publicar reel'}
         </button>
       </div>
+
+      <HispalAIPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        contentType="reel"
+        currentText={caption}
+        productIds={taggedProducts.map(p => p.id ?? p._id)}
+        onUseCaption={(text) => { setCaption(text); setShowAIPanel(false); }}
+        onAddHashtags={(tags) => { setCaption(prev => prev + ' ' + tags); setShowAIPanel(false); }}
+      />
     </div>
   );
 }

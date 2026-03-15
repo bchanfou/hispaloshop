@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, Type, Smile, ShoppingBag, Palette, Loader2,
+  X, Type, Smile, ShoppingBag, Palette, Loader2, Timer, BarChart2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
@@ -52,7 +52,16 @@ const TEXT_SIZES = [
   { id: 'large', size: 42, label: 'L' },
 ];
 
-const CULINARY_STICKERS = ['🌿', '🫒', '🧀', '🍯', '🥘', '🌶️', '🍷', '👨‍🍳'];
+const CULINARY_STICKERS = ['🌿', '🫒', '🧀', '🍯', '🥘', '🌶️', '🍷', '👨‍🍳', '🍕', '🥑', '🍓', '😋'];
+
+const CERT_STICKERS = [
+  { emoji: '🌿', label: 'Ecológico EU' },
+  { emoji: '🏆', label: 'DOP' },
+  { emoji: '🥇', label: 'IGP' },
+  { emoji: '☪️', label: 'Halal' },
+  { emoji: '🌾', label: 'Sin gluten' },
+  { emoji: '🌱', label: 'Vegano' },
+];
 
 /* ─── Product Search Modal (inline) ──────────────────────────── */
 function ProductSearchModal({ open, onClose, onSelect }) {
@@ -178,13 +187,25 @@ export default function CreateStoryPage() {
   const [texts, setTexts] = useState([]);                     // { id, text, x, y, size, color }
   const [stickers, setStickers] = useState([]);               // { id, emoji, x, y }
   const [taggedProduct, setTaggedProduct] = useState(null);
-  const [activeTool, setActiveTool] = useState(null);         // null | text | stickers | product | bg
+  const [activeTool, setActiveTool] = useState(null);         // null | text | stickers | product | bg | countdown | poll
   const [publishing, setPublishing] = useState(false);
+  const [countdowns, setCountdowns] = useState([]);           // { id, title, date }
+  const [polls, setPolls] = useState([]);                     // { id, question, optionA, optionB }
+  const [stickerTab, setStickerTab] = useState('culinary');    // culinary | certs | phrases
 
   /* text tool state */
   const [textInput, setTextInput] = useState('');
   const [textSize, setTextSize] = useState('medium');
   const [textColor, setTextColor] = useState('white');
+
+  /* countdown tool state */
+  const [countdownTitle, setCountdownTitle] = useState('');
+  const [countdownDate, setCountdownDate] = useState('');
+
+  /* poll tool state */
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOptionA, setPollOptionA] = useState('Sí 👍');
+  const [pollOptionB, setPollOptionB] = useState('No 👎');
 
   /* ── handlers ──────────────────────────────────────────────── */
   const handleMediaSelect = (e) => {
@@ -330,6 +351,53 @@ export default function CreateStoryPage() {
           }}
         >
           {s.emoji}
+        </div>
+      ))}
+
+      {/* ── rendered countdowns ─────────────────────────────── */}
+      {countdowns.map(cd => (
+        <div
+          key={cd.id}
+          className="absolute z-10 left-1/2 -translate-x-1/2"
+          style={{
+            top: '35%',
+            background: 'rgba(0,0,0,0.7)',
+            borderRadius: V2.radiusMd,
+            padding: '12px 20px',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', margin: '0 0 4px' }}>{cd.title}</p>
+          <p style={{ fontSize: 24, fontWeight: 700, color: '#fff', margin: 0, fontFamily: 'var(--font-mono, monospace)', letterSpacing: 2 }}>
+            ⏱️ Countdown
+          </p>
+        </div>
+      ))}
+
+      {/* ── rendered polls ────────────────────────────────────── */}
+      {polls.map(p => (
+        <div
+          key={p.id}
+          className="absolute z-10 left-1/2 -translate-x-1/2"
+          style={{
+            top: '40%',
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 'var(--radius-xl)',
+            padding: '16px 20px',
+            width: '80%',
+            maxWidth: 280,
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A', margin: '0 0 12px' }}>{p.question}</p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ flex: 1, padding: '10px 0', borderRadius: V2.radiusFull, background: '#F0EDE8', fontSize: 13, fontWeight: 500, color: '#0A0A0A' }}>
+              {p.optionA}
+            </div>
+            <div style={{ flex: 1, padding: '10px 0', borderRadius: V2.radiusFull, background: '#F0EDE8', fontSize: 13, fontWeight: 500, color: '#0A0A0A' }}>
+              {p.optionB}
+            </div>
+          </div>
         </div>
       ))}
 
@@ -491,21 +559,157 @@ export default function CreateStoryPage() {
                 <X size={20} style={{ color: V2.stone }} />
               </button>
             </div>
-            <div className="grid grid-cols-4 gap-2 px-4 pb-4">
-              {CULINARY_STICKERS.map((emoji) => (
+
+            {/* Tabs */}
+            <div className="flex gap-2 px-4 mb-3">
+              {[
+                { id: 'culinary', label: 'Culinarios' },
+                { id: 'certs', label: 'Certificaciones' },
+                { id: 'phrases', label: 'Frases' },
+              ].map(tab => (
                 <button
-                  key={emoji}
-                  onClick={() => addSticker(emoji)}
-                  className="flex items-center justify-center py-3"
+                  key={tab.id}
+                  onClick={() => setStickerTab(tab.id)}
                   style={{
-                    fontSize: 32,
-                    background: V2.surface,
-                    borderRadius: V2.radiusMd,
+                    padding: '5px 12px', borderRadius: V2.radiusFull, border: 'none',
+                    fontSize: 12, fontWeight: 500, cursor: 'pointer',
+                    background: stickerTab === tab.id ? V2.black : V2.surface,
+                    color: stickerTab === tab.id ? '#fff' : V2.black,
+                    fontFamily: V2.fontSans,
                   }}
                 >
-                  {emoji}
+                  {tab.label}
                 </button>
               ))}
+            </div>
+
+            {stickerTab === 'culinary' && (
+              <div className="grid grid-cols-6 gap-2 px-4 pb-4">
+                {CULINARY_STICKERS.map((emoji) => (
+                  <button key={emoji} onClick={() => addSticker(emoji)}
+                    className="flex items-center justify-center py-3"
+                    style={{ fontSize: 28, background: V2.surface, borderRadius: V2.radiusMd }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {stickerTab === 'certs' && (
+              <div className="flex flex-col gap-2 px-4 pb-4">
+                {CERT_STICKERS.map(s => (
+                  <button key={s.label} onClick={() => addSticker(s.emoji + ' ' + s.label)}
+                    className="flex items-center gap-3 py-2 px-3"
+                    style={{ background: V2.surface, borderRadius: V2.radiusMd, fontSize: 14, fontWeight: 500, color: V2.black, fontFamily: V2.fontSans, border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                  >
+                    <span style={{ fontSize: 20 }}>{s.emoji}</span>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {stickerTab === 'phrases' && (
+              <div className="grid grid-cols-2 gap-2 px-4 pb-4">
+                {['Cosecha de temporada', 'Artesanal desde...', 'Sin conservantes', 'Directo del productor'].map(phrase => (
+                  <button key={phrase} onClick={() => {
+                    setTexts(prev => [...prev, { id: Date.now(), text: phrase, x: 50, y: 45, size: 20, color: '#FFFFFF' }]);
+                    setActiveTool(null);
+                  }}
+                    style={{ padding: '12px 8px', background: V2.surface, borderRadius: V2.radiusMd, fontSize: 12, fontWeight: 500, color: V2.black, fontFamily: V2.fontSans, border: 'none', cursor: 'pointer' }}
+                  >
+                    "{phrase}"
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── countdown modal ──────────────────────────────────── */}
+      <AnimatePresence>
+        {activeTool === 'countdown' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 z-30 flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.6)' }}
+            onClick={() => setActiveTool(null)}
+          >
+            <div onClick={e => e.stopPropagation()} style={{
+              background: V2.white, borderRadius: 'var(--radius-xl)', padding: 24, width: '85%', maxWidth: 340, fontFamily: V2.fontSans,
+            }}>
+              <p style={{ fontSize: 16, fontWeight: 600, color: V2.black, margin: '0 0 16px' }}>Countdown timer</p>
+              <input
+                value={countdownTitle} onChange={e => setCountdownTitle(e.target.value)}
+                placeholder="Ej: Nueva cosecha 2026"
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${V2.border}`, borderRadius: V2.radiusMd, fontSize: 14, fontFamily: V2.fontSans, marginBottom: 12, outline: 'none' }}
+              />
+              <input
+                type="datetime-local"
+                value={countdownDate} onChange={e => setCountdownDate(e.target.value)}
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${V2.border}`, borderRadius: V2.radiusMd, fontSize: 14, fontFamily: V2.fontSans, marginBottom: 16, outline: 'none' }}
+              />
+              <button
+                onClick={() => {
+                  if (!countdownTitle || !countdownDate) return;
+                  setCountdowns(prev => [...prev, { id: Date.now(), title: countdownTitle, date: countdownDate }]);
+                  setCountdownTitle(''); setCountdownDate(''); setActiveTool(null);
+                }}
+                style={{
+                  width: '100%', height: 44, background: V2.black, color: '#fff',
+                  borderRadius: V2.radiusFull, border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: V2.fontSans,
+                }}
+              >
+                Añadir countdown
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── poll modal ───────────────────────────────────────── */}
+      <AnimatePresence>
+        {activeTool === 'poll' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 z-30 flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.6)' }}
+            onClick={() => setActiveTool(null)}
+          >
+            <div onClick={e => e.stopPropagation()} style={{
+              background: V2.white, borderRadius: 'var(--radius-xl)', padding: 24, width: '85%', maxWidth: 340, fontFamily: V2.fontSans,
+            }}>
+              <p style={{ fontSize: 16, fontWeight: 600, color: V2.black, margin: '0 0 16px' }}>Encuesta</p>
+              <input
+                value={pollQuestion} onChange={e => setPollQuestion(e.target.value)}
+                placeholder="Pregunta..."
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${V2.border}`, borderRadius: V2.radiusMd, fontSize: 14, fontFamily: V2.fontSans, marginBottom: 8, outline: 'none' }}
+              />
+              <input
+                value={pollOptionA} onChange={e => setPollOptionA(e.target.value)}
+                placeholder="Opción A"
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${V2.border}`, borderRadius: V2.radiusMd, fontSize: 14, fontFamily: V2.fontSans, marginBottom: 8, outline: 'none' }}
+              />
+              <input
+                value={pollOptionB} onChange={e => setPollOptionB(e.target.value)}
+                placeholder="Opción B"
+                style={{ width: '100%', padding: '10px 12px', border: `1px solid ${V2.border}`, borderRadius: V2.radiusMd, fontSize: 14, fontFamily: V2.fontSans, marginBottom: 16, outline: 'none' }}
+              />
+              <button
+                onClick={() => {
+                  if (!pollQuestion) return;
+                  setPolls(prev => [...prev, { id: Date.now(), question: pollQuestion, optionA: pollOptionA, optionB: pollOptionB }]);
+                  setPollQuestion(''); setPollOptionA('Sí 👍'); setPollOptionB('No 👎'); setActiveTool(null);
+                }}
+                style={{
+                  width: '100%', height: 44, background: V2.black, color: '#fff',
+                  borderRadius: V2.radiusFull, border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: V2.fontSans,
+                }}
+              >
+                Añadir encuesta
+              </button>
             </div>
           </motion.div>
         )}
@@ -608,13 +812,15 @@ export default function CreateStoryPage() {
       {/* ── floating toolbar (bottom) ─────────────────────────── */}
       {!activeTool && (
         <div
-          className="absolute z-20 left-0 right-0 flex justify-center gap-5 pb-[env(safe-area-inset-bottom,16px)]"
-          style={{ bottom: 16 }}
+          className="absolute z-20 left-0 right-0 flex justify-center gap-4 overflow-x-auto pb-[env(safe-area-inset-bottom,16px)]"
+          style={{ bottom: 16, scrollbarWidth: 'none', padding: '0 16px' }}
         >
           {[
             { id: 'text', icon: Type, label: 'Texto' },
             { id: 'stickers', icon: Smile, label: 'Stickers' },
             { id: 'product', icon: ShoppingBag, label: 'Producto' },
+            { id: 'countdown', icon: Timer, label: 'Countdown' },
+            { id: 'poll', icon: BarChart2, label: 'Encuesta' },
             { id: 'bg', icon: Palette, label: 'Fondo' },
           ].map((tool) => (
             <button
@@ -625,13 +831,12 @@ export default function CreateStoryPage() {
               <div
                 className="flex items-center justify-center"
                 style={{
-                  width: 48, height: 48,
+                  width: 44, height: 44,
                   borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.15)',
-                  backdropFilter: 'blur(8px)',
+                  background: 'rgba(0,0,0,0.4)',
                 }}
               >
-                <tool.icon size={22} color={iconColor} />
+                <tool.icon size={20} color="#fff" />
               </div>
               <span style={{ fontSize: 10, color: labelColor }}>{tool.label}</span>
             </button>

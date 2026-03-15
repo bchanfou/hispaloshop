@@ -4,6 +4,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import HispalAIPanel from '../../components/creator/HispalAIPanel';
 
 const BACKGROUNDS = [
   { id: 'black', bg: '#0A0A0A', textColor: '#FFFFFF' },
@@ -16,11 +17,7 @@ const BACKGROUNDS = [
   { id: 'grad-stone', bg: 'linear-gradient(135deg, #0A0A0A, #8A8881)', textColor: '#FFFFFF' },
 ];
 
-const FONT_SIZES = {
-  small: 16,
-  medium: 22,
-  large: 30,
-};
+const ALLOWED_SIZES = [14, 16, 18, 20, 24, 28, 32, 40];
 
 function CreateTextPostPage() {
   const navigate = useNavigate();
@@ -30,8 +27,12 @@ function CreateTextPostPage() {
 
   const [selectedBg, setSelectedBg] = useState('black');
   const [text, setText] = useState('');
-  const [fontSizeLevel, setFontSizeLevel] = useState('medium');
+  const [sizeIndex, setSizeIndex] = useState(3); // 20px default
+  const [isBold, setIsBold] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
   const [publishing, setPublishing] = useState(false);
+
+  const currentFontSize = ALLOWED_SIZES[sizeIndex];
 
   const currentBg = BACKGROUNDS.find((b) => b.id === selectedBg) || BACKGROUNDS[0];
   const isGradient = currentBg.bg.startsWith('linear-gradient');
@@ -60,9 +61,10 @@ function CreateTextPostPage() {
       ctx.fillRect(0, 0, size, size);
 
       // Draw text
-      const fontSize = FONT_SIZES[fontSizeLevel] * (size / 390); // Scale relative to mobile width
+      const fontSize = currentFontSize * (size / 390); // Scale relative to mobile width
       ctx.fillStyle = currentBg.textColor;
-      ctx.font = `500 ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+      const weight = isBold ? '700' : '500';
+      ctx.font = `${weight} ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -109,7 +111,7 @@ function CreateTextPostPage() {
         1
       );
     });
-  }, [text, currentBg, isGradient, fontSizeLevel]);
+  }, [text, currentBg, isGradient, currentFontSize, isBold]);
 
   const handlePublish = async () => {
     if (!text.trim() || publishing) return;
@@ -204,9 +206,9 @@ function CreateTextPostPage() {
               onClick={() => setSelectedBg(bg.id)}
               className="flex-shrink-0"
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
+                width: 44,
+                height: 44,
+                borderRadius: 'var(--radius-md, 8px)',
                 border: active
                   ? '2px solid var(--color-black, #0A0A0A)'
                   : '1px solid var(--color-border, #E5E2DA)',
@@ -243,7 +245,8 @@ function CreateTextPostPage() {
               background: 'transparent',
               border: 'none',
               textAlign: 'center',
-              fontSize: FONT_SIZES[fontSizeLevel],
+              fontSize: currentFontSize,
+              fontWeight: isBold ? 700 : 400,
               color: currentBg.textColor,
               fontFamily: 'var(--font-sans)',
               padding: '24px',
@@ -264,38 +267,146 @@ function CreateTextPostPage() {
         </div>
       </div>
 
-      {/* Font size selector */}
-      <div className="flex items-center justify-center" style={{ margin: '12px 0', gap: 12 }}>
-        {[
-          { level: 'small', label: 'A-' },
-          { level: 'medium', label: 'A' },
-          { level: 'large', label: 'A+' },
-        ].map(({ level, label }) => {
-          const active = fontSizeLevel === level;
-          return (
-            <button
-              key={level}
-              onClick={() => setFontSizeLevel(level)}
-              className="flex items-center justify-center"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                border: 'none',
-                background: active
-                  ? 'var(--color-black, #0A0A0A)'
-                  : 'var(--color-surface, #F0EDE8)',
-                color: active ? '#fff' : 'var(--color-black, #0A0A0A)',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
-              }}
-            >
-              {label}
-            </button>
-          );
-        })}
+      {/* Typographic controls */}
+      <div className="flex items-center justify-center" style={{ margin: '12px 0', gap: 8 }}>
+        {/* A- decrease */}
+        <button
+          onClick={() => setSizeIndex(i => Math.max(0, i - 1))}
+          disabled={sizeIndex === 0}
+          className="flex items-center justify-center"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 'var(--radius-full, 9999px)',
+            border: 'none',
+            background: 'var(--color-surface, #F0EDE8)',
+            color: 'var(--color-black, #0A0A0A)',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: sizeIndex === 0 ? 'not-allowed' : 'pointer',
+            opacity: sizeIndex === 0 ? 0.4 : 1,
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          A-
+        </button>
+
+        {/* A reset */}
+        <button
+          onClick={() => setSizeIndex(3)}
+          className="flex items-center justify-center"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 'var(--radius-full, 9999px)',
+            border: 'none',
+            background: sizeIndex === 3 ? 'var(--color-black, #0A0A0A)' : 'var(--color-surface, #F0EDE8)',
+            color: sizeIndex === 3 ? '#fff' : 'var(--color-black, #0A0A0A)',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          A
+        </button>
+
+        {/* A+ increase */}
+        <button
+          onClick={() => setSizeIndex(i => Math.min(ALLOWED_SIZES.length - 1, i + 1))}
+          disabled={sizeIndex === ALLOWED_SIZES.length - 1}
+          className="flex items-center justify-center"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 'var(--radius-full, 9999px)',
+            border: 'none',
+            background: 'var(--color-surface, #F0EDE8)',
+            color: 'var(--color-black, #0A0A0A)',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: sizeIndex === ALLOWED_SIZES.length - 1 ? 'not-allowed' : 'pointer',
+            opacity: sizeIndex === ALLOWED_SIZES.length - 1 ? 0.4 : 1,
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          A+
+        </button>
+
+        {/* Separator */}
+        <span style={{
+          width: 1,
+          height: 20,
+          background: 'var(--color-border, #E5E2DA)',
+          margin: '0 4px',
+        }} />
+
+        {/* Regular / Negrita toggle */}
+        <button
+          onClick={() => setIsBold(false)}
+          className="flex items-center justify-center"
+          style={{
+            height: 36,
+            padding: '0 12px',
+            borderRadius: 'var(--radius-full, 9999px)',
+            border: 'none',
+            background: !isBold ? 'var(--color-black, #0A0A0A)' : 'var(--color-surface, #F0EDE8)',
+            color: !isBold ? '#fff' : 'var(--color-black, #0A0A0A)',
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: 'pointer',
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          Regular
+        </button>
+        <button
+          onClick={() => setIsBold(true)}
+          className="flex items-center justify-center"
+          style={{
+            height: 36,
+            padding: '0 12px',
+            borderRadius: 'var(--radius-full, 9999px)',
+            border: 'none',
+            background: isBold ? 'var(--color-black, #0A0A0A)' : 'var(--color-surface, #F0EDE8)',
+            color: isBold ? '#fff' : 'var(--color-black, #0A0A0A)',
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          Negrita
+        </button>
+
+        {/* Separator */}
+        <span style={{
+          width: 1,
+          height: 20,
+          background: 'var(--color-border, #E5E2DA)',
+          margin: '0 4px',
+        }} />
+
+        {/* AI button */}
+        <button
+          onClick={() => setShowAIPanel(true)}
+          className="flex items-center justify-center"
+          style={{
+            height: 36,
+            padding: '0 12px',
+            borderRadius: 'var(--radius-full, 9999px)',
+            border: 'none',
+            background: 'var(--color-surface, #F0EDE8)',
+            color: 'var(--color-black, #0A0A0A)',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'var(--font-sans)',
+            gap: 4,
+          }}
+        >
+          ✨ IA
+        </button>
       </div>
 
       {/* Spacer */}
@@ -310,7 +421,7 @@ function CreateTextPostPage() {
           style={{
             background: text.trim() && !publishing ? 'var(--color-black, #0A0A0A)' : 'var(--color-stone, #8A8881)',
             color: '#fff',
-            height: 44,
+            height: 52,
             borderRadius: 'var(--radius-full, 9999px)',
             border: 'none',
             fontSize: 15,
@@ -332,6 +443,15 @@ function CreateTextPostPage() {
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
+
+      <HispalAIPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        contentType="text_post"
+        currentText={text}
+        onUseCaption={(caption) => setText(caption)}
+        onAddHashtags={(tags) => setText(prev => prev + '\n' + tags.map(t => `#${t}`).join(' '))}
+      />
     </div>
   );
 }

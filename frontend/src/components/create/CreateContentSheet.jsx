@@ -1,64 +1,60 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import FocusTrap from 'focus-trap-react';
-import { Camera, Film, Circle, Layers, AlignLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const OPTIONS_TOP = [
-  { type: 'post',  icon: Camera,   label: 'Post',   subtitle: 'Foto o carrusel',  green: false },
-  { type: 'reel',  icon: Film,     label: 'Reel',   subtitle: 'Vídeo 60 seg.',    green: false },
-  { type: 'story', icon: Circle,   label: 'Story',  subtitle: '24 horas',         green: false },
+const CONTENT_TYPES = [
+  // Row 1 — 3 columns
+  { type: 'post',  emoji: '📸', label: 'Post',   green: false },
+  { type: 'reel',  emoji: '🎬', label: 'Reel',   green: false },
+  { type: 'story', emoji: '⭕', label: 'Story',  green: false },
+  // Row 2 — 2 columns (centrado)
+  { type: 'recipe', emoji: '🍳', label: 'Receta', green: true },
+  { type: 'text',   emoji: 'Aa', label: 'Texto',  green: false, isText: true },
 ];
 
-const OPTIONS_BOTTOM = [
-  { type: 'recipe', icon: Layers,    label: 'Receta', subtitle: 'Con ingredientes', green: true  },
-  { type: 'text',   icon: AlignLeft, label: 'Texto',  subtitle: 'Con fondo color',  green: false },
-];
-
-function OptionCard({ type, icon: Icon, label, subtitle, green, onSelect }) {
+function ContentTypeButton({ emoji, label, green, isText, onSelect }) {
   return (
     <button
       type="button"
-      onClick={() => onSelect(type)}
+      onClick={onSelect}
       style={{
-        background: 'var(--color-white)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-md)',
-        padding: '12px 8px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 8,
+        padding: '16px 8px',
+        borderRadius: 'var(--radius-lg)',
         cursor: 'pointer',
+        transition: 'var(--transition-fast)',
+        background: 'transparent',
+        border: 'none',
+        fontFamily: 'var(--font-sans)',
       }}
-      className="flex flex-col items-center"
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+      onTouchStart={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
+      onTouchEnd={e => { e.currentTarget.style.background = 'transparent'; }}
     >
-      <div
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: 10,
-          background: green ? 'var(--color-green)' : 'var(--color-black)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Icon size={18} color="white" strokeWidth={2} />
+      <div style={{
+        width: 56,
+        height: 56,
+        borderRadius: 'var(--radius-md)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: isText ? 22 : 26,
+        fontWeight: isText ? 700 : 400,
+        background: green ? 'var(--color-green)' : 'var(--color-surface)',
+        color: green ? '#fff' : 'var(--color-black)',
+      }}>
+        {emoji}
       </div>
-      <span
-        style={{
-          fontSize: 13,
-          fontWeight: 500,
-          color: 'var(--color-black)',
-          marginTop: 8,
-        }}
-      >
+      <span style={{
+        fontSize: 'var(--text-sm)',
+        fontWeight: 500,
+        color: 'var(--color-black)',
+      }}>
         {label}
-      </span>
-      <span
-        style={{
-          fontSize: 10,
-          color: 'var(--color-stone)',
-          marginTop: 2,
-        }}
-      >
-        {subtitle}
       </span>
     </button>
   );
@@ -77,72 +73,93 @@ export default function CreateContentSheet({ isOpen, onClose, onSelect }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 z-[60]"
-            style={{ background: 'rgba(10,10,10,0.5)' }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(10,10,10,0.5)',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
+              zIndex: 'calc(var(--z-modal) - 1)',
+            }}
           />
 
           {/* Sheet */}
-          <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-            <motion.div
-              key="create-sheet"
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="fixed bottom-0 left-0 right-0 z-[61]"
-              style={{
-                background: 'var(--color-white)',
-                borderRadius: '20px 20px 0 0',
-                paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
-              }}
-            >
-              {/* Handle bar */}
-              <div className="flex justify-center" style={{ paddingTop: 10 }}>
-                <div
-                  style={{
-                    width: 36,
-                    height: 4,
-                    borderRadius: 2,
-                    background: 'var(--color-border)',
-                    marginBottom: 16,
-                  }}
+          <motion.div
+            key="create-sheet"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{
+              type: 'tween',
+              duration: 0.3,
+              ease: [0.32, 0.72, 0, 1],
+            }}
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 'var(--z-modal)',
+              background: 'var(--color-white)',
+              borderRadius: 'var(--radius-2xl) var(--radius-2xl) 0 0',
+              padding: '12px 20px 32px',
+              paddingBottom: 'calc(32px + env(safe-area-inset-bottom, 0px))',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
+            {/* Handle */}
+            <div style={{
+              width: 36,
+              height: 4,
+              background: 'var(--color-border)',
+              borderRadius: 'var(--radius-full)',
+              margin: '0 auto 20px',
+            }} />
+
+            {/* Title */}
+            <p style={{
+              fontSize: 'var(--text-md)',
+              fontWeight: 500,
+              color: 'var(--color-black)',
+              margin: '0 0 24px',
+            }}>
+              Crear contenido
+            </p>
+
+            {/* Row 1 — 3 columns */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 8,
+            }}>
+              {CONTENT_TYPES.slice(0, 3).map(opt => (
+                <ContentTypeButton
+                  key={opt.type}
+                  {...opt}
+                  onSelect={() => onSelect(opt.type)}
                 />
-              </div>
+              ))}
+            </div>
 
-              {/* Title */}
-              <div
-                style={{
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: 'var(--color-black)',
-                  marginBottom: 14,
-                  paddingLeft: 16,
-                }}
-              >
-                Crear contenido
-              </div>
-
-              {/* Top row — 3 columns */}
-              <div
-                className="grid grid-cols-3"
-                style={{ gap: 8, padding: '0 16px' }}
-              >
-                {OPTIONS_TOP.map((opt) => (
-                  <OptionCard key={opt.type} {...opt} onSelect={onSelect} />
-                ))}
-              </div>
-
-              {/* Bottom row — 2 columns */}
-              <div
-                className="grid grid-cols-2"
-                style={{ gap: 8, padding: '0 16px', marginTop: 8, paddingBottom: 8 }}
-              >
-                {OPTIONS_BOTTOM.map((opt) => (
-                  <OptionCard key={opt.type} {...opt} onSelect={onSelect} />
-                ))}
-              </div>
-            </motion.div>
-          </FocusTrap>
+            {/* Row 2 — 2 columns centrado */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 8,
+              marginTop: 8,
+              maxWidth: '66.6%',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}>
+              {CONTENT_TYPES.slice(3).map(opt => (
+                <ContentTypeButton
+                  key={opt.type}
+                  {...opt}
+                  onSelect={() => onSelect(opt.type)}
+                />
+              ))}
+            </div>
+          </motion.div>
         </>
       )}
     </AnimatePresence>

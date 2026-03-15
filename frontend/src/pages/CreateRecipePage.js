@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import apiClient from '../services/api/client';
 import { resolveUserImage } from '../features/user/queries';
 import ProductSearchModal from '../components/create/ProductSearchModal';
+import HispalAIPanel from '../components/creator/HispalAIPanel';
 
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -40,6 +41,7 @@ export default function CreateRecipePage() {
   const [suggestionLoading, setSuggestionLoading] = useState(false);
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [descriptionOpen, setDescriptionOpen] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   const [recipe, setRecipe] = useState({
     image_url: '',
@@ -753,25 +755,30 @@ export default function CreateRecipePage() {
           </div>
 
           {recipe.steps.map((step, index) => (
-            <div key={`step-${index}`} style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-              {/* Step number */}
-              <div
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  background: 'var(--color-black)',
-                  color: '#fff',
-                  fontSize: 10,
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  marginTop: 2,
-                }}
-              >
-                {index + 1}
+            <div key={`step-${index}`} style={{ display: 'flex', gap: 10, marginBottom: 12, position: 'relative' }}>
+              {/* Step number + connector line */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    background: 'var(--color-black)',
+                    color: '#fff',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: 2,
+                  }}
+                >
+                  {index + 1}
+                </div>
+                {/* Vertical connector line */}
+                {index < recipe.steps.length - 1 && (
+                  <div style={{ width: 2, flex: 1, minHeight: 20, background: 'var(--color-border)', marginTop: 4 }} />
+                )}
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -933,7 +940,37 @@ export default function CreateRecipePage() {
           )}
         </div>
 
-        {/* Publish button */}
+        {/* Hispal AI card */}
+        <div style={{
+          background: 'var(--color-green-light)',
+          border: '1px solid var(--color-green-border)',
+          borderRadius: 'var(--radius-md)',
+          padding: 16,
+          marginBottom: 16,
+        }}>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-black)', margin: '0 0 8px', lineHeight: 1.5 }}>
+            ✨ Hispal AI puede ayudarte con:
+          </p>
+          <ul style={{ fontSize: 'var(--text-sm)', color: 'var(--color-stone)', margin: '0 0 12px', paddingLeft: 16, lineHeight: 1.6 }}>
+            <li>Una introducción para tu receta</li>
+            <li>Hashtags relevantes</li>
+          </ul>
+          <button
+            type="button"
+            onClick={() => setShowAIPanel(true)}
+            style={{
+              background: 'var(--color-black)', color: '#fff',
+              border: 'none', borderRadius: 'var(--radius-full)',
+              fontSize: 'var(--text-sm)', fontWeight: 500,
+              padding: '6px 14px', cursor: 'pointer',
+              fontFamily: 'var(--font-sans)',
+            }}
+          >
+            Sugerir con IA
+          </button>
+        </div>
+
+        {/* Publish button — GREEN (recipe is premium format) */}
         <button
           type="button"
           onClick={handleSubmit}
@@ -941,12 +978,12 @@ export default function CreateRecipePage() {
           data-testid="publish-recipe-btn"
           style={{
             width: '100%',
-            height: 44,
-            background: 'var(--color-black)',
+            height: 52,
+            background: submitting ? 'var(--color-stone)' : 'var(--color-green)',
             color: '#fff',
             border: 'none',
             borderRadius: 'var(--radius-full)',
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: 600,
             cursor: submitting ? 'not-allowed' : 'pointer',
             opacity: submitting ? 0.5 : 1,
@@ -967,6 +1004,16 @@ export default function CreateRecipePage() {
         isOpen={productModalOpen}
         onClose={() => setProductModalOpen(false)}
         onSelect={addProductIngredient}
+      />
+
+      <HispalAIPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        contentType="recipe"
+        currentText={recipe.description || recipe.title}
+        productIds={selectedProducts.map(p => p.product_id)}
+        onUseCaption={(text) => { setRecipe(prev => ({ ...prev, description: text })); setShowAIPanel(false); }}
+        onAddHashtags={(tags) => { setRecipe(prev => ({ ...prev, description: (prev.description || '') + ' ' + tags })); setShowAIPanel(false); }}
       />
     </div>
   );

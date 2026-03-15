@@ -307,6 +307,7 @@ function AppRouter() {
               <Route path="/create/reel" element={<CreateReelPage />} />
               <Route path="/create/story" element={<CreateStoryPage />} />
               <Route path="/create/text" element={<CreateTextPostPage />} />
+              <Route path="/create/recipe" element={<CreateRecipePage />} />
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/productos" element={<Navigate to="/products" replace />} />
