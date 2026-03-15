@@ -74,6 +74,7 @@ async def get_conversation_messages(
     user: User = Depends(get_current_user)
 ):
     """Get messages for a specific conversation"""
+    await update_last_seen(user.user_id)
     # Verify user is participant
     conv = await db.internal_conversations.find_one({
         "conversation_id": conversation_id,
@@ -110,6 +111,7 @@ async def send_internal_message(
     user: User = Depends(get_current_user)
 ):
     """Send a message in internal chat"""
+    await update_last_seen(user.user_id)
     now = datetime.now(timezone.utc).isoformat()
     if not (input.content or input.image_url or input.shared_item):
         raise HTTPException(status_code=400, detail="Message content, image_url or shared_item is required")
@@ -385,6 +387,7 @@ async def start_conversation(
     """Start a new conversation with a user (or return existing one)"""
     body = await request.json()
     recipient_id = body.get("other_user_id") or body.get("recipient_id")
+    conv_type = body.get("conv_type") or body.get("type")
     if not recipient_id:
         raise HTTPException(status_code=400, detail="recipient_id or other_user_id required")
     # Check if conversation already exists
@@ -438,9 +441,11 @@ async def start_conversation(
         "created_at": now,
         "updated_at": now
     }
-    
+    if conv_type:
+        new_conv["conv_type"] = conv_type
+
     await db.internal_conversations.insert_one(new_conv)
-    
+
     return {"conversation_id": conversation_id, "is_new": True}
 
 
@@ -594,4 +599,111 @@ async def list_escalations(user: User = Depends(get_current_user)):
         })
 
     return result
+
+
+# ──────────────────────────────────────────────
+# HELPERS
+# ──────────────────────────────────────────────
+
+async def update_last_seen(user_id: str):
+    """Update user's last_seen timestamp"""
+    now = datetime.now(timezone.utc).isoformat()
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {"last_seen": now}}
+    )
+
+
+# ──────────────────────────────────────────────
+# BULK READ / TYPING / CONVERSATION DETAIL
+# ──────────────────────────────────────────────
+
+@router.post("/internal-chat/conversations/{conversation_id}/read")
+async def mark_conversation_read(conversation_id: str, user: User = Depends(get_current_user)):
+    """Mark all unread messages in a conversation as read"""
+    conv = await db.internal_conversations.find_one({
+        "conversation_id": conversation_id,
+        "participants.user_id": user.user_id
+    })
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    now = datetime.now(timezone.utc).isoformat()
+    result = await db.internal_messages.update_many(
+        {
+            "conversation_id": conversation_id,
+            "sender_id": {"$ne": user.user_id},
+            "status": {"$ne": "read"}
+        },
+        {"$set": {"status": "read", "read_at": now}}
+    )
+
+    # Notify other participant via WebSocket
+    for p in conv.get("participants", []):
+        if p["user_id"] != user.user_id:
+            await chat_manager.send_personal_message({
+                "type": "messages_read",
+                "conversation_id": conversation_id,
+                "read_by": user.user_id,
+                "read_at": now
+            }, p["user_id"])
+
+    return {"status": "ok", "updated": result.modified_count}
+
+
+@router.post("/internal-chat/conversations/{conversation_id}/typing")
+async def send_typing_indicator(conversation_id: str, user: User = Depends(get_current_user)):
+    """Send typing indicator to conversation participants"""
+    conv = await db.internal_conversations.find_one({
+        "conversation_id": conversation_id,
+        "participants.user_id": user.user_id
+    })
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    for p in conv.get("participants", []):
+        if p["user_id"] != user.user_id:
+            await chat_manager.send_personal_message({
+                "type": "typing",
+                "conversation_id": conversation_id,
+                "user_id": user.user_id,
+                "is_typing": True
+            }, p["user_id"])
+
+    return {"status": "ok"}
+
+
+@router.get("/internal-chat/conversations/{conversation_id}")
+async def get_conversation_detail(conversation_id: str, user: User = Depends(get_current_user)):
+    """Get single conversation detail with participant info"""
+    conv = await db.internal_conversations.find_one({
+        "conversation_id": conversation_id,
+        "participants.user_id": user.user_id
+    }, {"_id": 0})
+
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    # Get other participant details including last_seen
+    other_participant = None
+    for p in conv.get("participants", []):
+        if p["user_id"] != user.user_id:
+            other_participant = dict(p)
+            user_doc = await db.users.find_one({"user_id": p["user_id"]}, {"last_seen": 1})
+            if user_doc:
+                other_participant["last_seen"] = user_doc.get("last_seen")
+            break
+
+    # Count unread
+    unread = await db.internal_messages.count_documents({
+        "conversation_id": conversation_id,
+        "sender_id": {"$ne": user.user_id},
+        "status": {"$ne": "read"}
+    })
+
+    return {
+        **conv,
+        "other_participant": other_participant,
+        "unread_count": unread,
+    }
 

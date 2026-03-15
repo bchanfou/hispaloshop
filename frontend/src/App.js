@@ -149,6 +149,7 @@ const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
 const InfluencerLayoutResponsive = lazy(() => import('./components/dashboard/InfluencerLayoutResponsive'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
+const ChatToastContainer = lazy(() => import('./components/notifications/ChatToastContainer'));
 
 // Checkout
 
@@ -632,6 +633,7 @@ function App() {
                       <a href="#main-content" className="skip-to-content">Ir al contenido principal</a>
                       <AppRouter />
                       <BottomNavBar />
+                      <Suspense fallback={null}><ChatToastContainer /></Suspense>
                       <HispalAI />
                       <ConsentBanner onConsent={(accepted) => { if (accepted) initAnalyticsOnConsent(); }} />
                       <Toaster position="top-center" />

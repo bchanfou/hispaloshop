@@ -172,6 +172,18 @@ export default function BottomNavBar() {
           preview: incomingMessage.content || 'Te ha enviado una imagen',
         });
 
+        // Enhanced toast system (ChatToastContainer)
+        if (window.__hispaloChatToast) {
+          window.__hispaloChatToast({
+            senderId: currentConversation?.other_user_id || incomingMessage.sender_id,
+            senderName: currentConversation?.other_user_name || incomingMessage.sender_name || 'Nuevo mensaje',
+            avatar: currentConversation?.other_user_avatar || null,
+            preview: incomingMessage.content || 'Te ha enviado una imagen',
+            conversationId: payload.conversation_id,
+            type: currentConversation?.conv_type || 'c2c',
+          });
+        }
+
         if (toastTimeoutRef.current) {
           window.clearTimeout(toastTimeoutRef.current);
         }

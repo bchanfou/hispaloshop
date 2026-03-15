@@ -9,8 +9,13 @@ import {
   ChevronRight,
   ArrowUp,
   Plus,
+  Check,
   CheckCheck,
   Image,
+  X,
+  Copy,
+  Reply,
+  Trash2,
 } from 'lucide-react';
 import { useChatContext } from '@/context/chat/ChatProvider';
 import { useAuth } from '@/context/AuthContext';
@@ -62,6 +67,35 @@ function formatTime(date) {
   });
 }
 
+/* ────────── Online status helper ────────── */
+function formatOnlineStatus(lastSeen) {
+  if (!lastSeen) return null;
+  const now = new Date();
+  const seen = new Date(lastSeen);
+  const diffMs = now - seen;
+  const diffMin = Math.floor(diffMs / 60000);
+
+  if (diffMin < 2) return { text: 'En línea', online: true };
+  if (diffMin < 60) return { text: `Hace ${diffMin} min`, online: false };
+
+  const isToday = seen.toDateString() === now.toDateString();
+  if (isToday)
+    return {
+      text: `Hoy a las ${seen.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`,
+      online: false,
+    };
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (seen.toDateString() === yesterday.toDateString())
+    return { text: 'Ayer', online: false };
+
+  return {
+    text: seen.toLocaleDateString('es-ES', { weekday: 'short' }),
+    online: false,
+  };
+}
+
 /* ────────── Avatar shape by type ────────── */
 function avatarRadius(type) {
   if (type === 'group') return '30%';
@@ -73,7 +107,8 @@ function avatarRadius(type) {
    ChatHeader
    ================================================================ */
 function ChatHeader({ conversation, navigate }) {
-  const statusOnline = conversation?.online;
+  const status = formatOnlineStatus(conversation?.last_seen);
+  const isOnline = conversation?.online || status?.online;
 
   return (
     <header
@@ -151,7 +186,7 @@ function ChatHeader({ conversation, navigate }) {
             {conversation?.name || 'Chat'}
           </p>
           <div className="flex items-center gap-1" style={{ marginTop: 2 }}>
-            {statusOnline ? (
+            {isOnline ? (
               <>
                 <span
                   style={{
@@ -174,7 +209,7 @@ function ChatHeader({ conversation, navigate }) {
               </>
             ) : (
               <span style={{ fontSize: 12, color: V.stone }}>
-                Hace 5 min
+                {status?.text || ''}
               </span>
             )}
           </div>
@@ -273,17 +308,108 @@ function DateSeparator({ date }) {
 }
 
 /* ================================================================
+   ReadReceiptTicks
+   ================================================================ */
+function ReadReceiptTicks({ message }) {
+  const status = message.status || (message.read ? 'read' : 'sent');
+
+  if (status === 'read') {
+    return (
+      <CheckCheck
+        size={14}
+        style={{ color: V.green, transition: 'color 0.3s ease' }}
+      />
+    );
+  }
+  if (status === 'delivered') {
+    return (
+      <CheckCheck
+        size={14}
+        style={{ color: V.stone, transition: 'color 0.3s ease' }}
+      />
+    );
+  }
+  return (
+    <Check
+      size={14}
+      style={{ color: V.stone, transition: 'color 0.3s ease' }}
+    />
+  );
+}
+
+/* ================================================================
    MessageBubble
    ================================================================ */
-function MessageBubble({ message, isOwn, isConsecutive }) {
+function MessageBubble({
+  message,
+  isOwn,
+  isConsecutive,
+  isFirstInGroup,
+  isLastInGroup,
+  isMiddleInGroup,
+  onImageTap,
+  onContextMenu: onCtxMenu,
+}) {
   const ts = new Date(message.created_at || message.timestamp);
+  const touchTimerRef = useRef(null);
+
+  const gap = isConsecutive && !isFirstInGroup ? 2 : isConsecutive ? 4 : 12;
+  const showTimestamp = !isMiddleInGroup;
+
+  /* Border radius for grouping */
+  const sentRadius = isFirstInGroup
+    ? '20px 20px 4px 20px'
+    : isLastInGroup
+      ? '20px 4px 20px 20px'
+      : '20px 4px 4px 20px';
+
+  const receivedRadius = isFirstInGroup
+    ? '20px 20px 20px 4px'
+    : isLastInGroup
+      ? '4px 20px 20px 20px'
+      : '4px 20px 20px 4px';
+
+  const bubbleRadius = isOwn ? sentRadius : receivedRadius;
+
+  /* Long-press / context menu handlers */
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    if (onCtxMenu) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      onCtxMenu(message, rect.left + rect.width / 2, rect.top);
+    }
+  };
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    const startX = touch.clientX;
+    const startY = touch.clientY;
+    touchTimerRef.current = setTimeout(() => {
+      if (onCtxMenu) {
+        onCtxMenu(message, startX, startY);
+      }
+    }, 500);
+  };
+  const handleTouchEndOrMove = () => {
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current);
+      touchTimerRef.current = null;
+    }
+  };
+
+  const touchProps = {
+    onContextMenu: handleContextMenu,
+    onTouchStart: handleTouchStart,
+    onTouchEnd: handleTouchEndOrMove,
+    onTouchMove: handleTouchEndOrMove,
+  };
 
   /* Product card placeholder */
   if (message.message_type === 'product_card') {
     return (
       <div
         className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-        style={{ marginTop: isConsecutive ? 4 : 12 }}
+        style={{ marginTop: gap }}
+        {...touchProps}
       >
         <div
           style={{
@@ -304,12 +430,18 @@ function MessageBubble({ message, isOwn, isConsecutive }) {
     return (
       <div
         className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-        style={{ marginTop: isConsecutive ? 4 : 12 }}
+        style={{ marginTop: gap }}
+        {...touchProps}
       >
         <div style={{ maxWidth: 240 }}>
           <div
             className="overflow-hidden"
-            style={{ borderRadius: V.radiusXl, background: V.surface }}
+            style={{
+              borderRadius: bubbleRadius,
+              background: V.surface,
+              cursor: message.image_url ? 'pointer' : 'default',
+            }}
+            onClick={() => message.image_url && onImageTap?.(message.image_url)}
           >
             {message.image_url ? (
               <img
@@ -331,19 +463,16 @@ function MessageBubble({ message, isOwn, isConsecutive }) {
               </div>
             )}
           </div>
-          <div
-            className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}
-          >
-            <span style={{ fontSize: 11, color: V.stone }}>
-              {formatTime(ts)}
-            </span>
-            {isOwn && (
-              <CheckCheck
-                size={14}
-                style={{ color: message.read ? V.green : V.stone }}
-              />
-            )}
-          </div>
+          {showTimestamp && (
+            <div
+              className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}
+            >
+              <span style={{ fontSize: 11, color: V.stone }}>
+                {formatTime(ts)}
+              </span>
+              {isOwn && <ReadReceiptTicks message={message} />}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -353,7 +482,8 @@ function MessageBubble({ message, isOwn, isConsecutive }) {
   return (
     <div
       className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-      style={{ marginTop: isConsecutive ? 4 : 12 }}
+      style={{ marginTop: gap }}
+      {...touchProps}
     >
       <div style={{ maxWidth: '75%' }}>
         <div
@@ -365,27 +495,22 @@ function MessageBubble({ message, isOwn, isConsecutive }) {
             background: isOwn ? V.black : V.white,
             color: isOwn ? V.white : V.black,
             border: isOwn ? 'none' : `1px solid ${V.border}`,
-            borderRadius: isOwn
-              ? '20px 20px 4px 20px'
-              : '20px 20px 20px 4px',
+            borderRadius: bubbleRadius,
             wordBreak: 'break-word',
           }}
         >
           {message.content}
         </div>
-        <div
-          className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}
-        >
-          <span style={{ fontSize: 11, color: V.stone }}>
-            {formatTime(ts)}
-          </span>
-          {isOwn && (
-            <CheckCheck
-              size={14}
-              style={{ color: message.read ? V.green : V.stone }}
-            />
-          )}
-        </div>
+        {showTimestamp && (
+          <div
+            className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}
+          >
+            <span style={{ fontSize: 11, color: V.stone }}>
+              {formatTime(ts)}
+            </span>
+            {isOwn && <ReadReceiptTicks message={message} />}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -462,6 +587,364 @@ function NewMessagesPill({ onClick }) {
     >
       <span style={{ fontSize: 15 }}>↓</span> Nuevos mensajes
     </motion.button>
+  );
+}
+
+/* ================================================================
+   MessageContextMenu
+   ================================================================ */
+function MessageContextMenu({ contextMenu, onClose, userId }) {
+  if (!contextMenu) return null;
+
+  const { message, x, y } = contextMenu;
+  const isOwnMsg = String(message.sender_id || message.user_id) === String(userId);
+  const createdAt = new Date(message.created_at || message.timestamp);
+  const canDelete = isOwnMsg && (Date.now() - createdAt.getTime()) < 5 * 60 * 1000;
+
+  const options = [
+    {
+      label: 'Copiar',
+      icon: Copy,
+      action: () => {
+        navigator.clipboard?.writeText(message.content || '');
+        onClose();
+      },
+    },
+    {
+      label: 'Reaccionar',
+      icon: null,
+      isReaction: true,
+      action: () => {},
+    },
+    {
+      label: 'Responder',
+      icon: Reply,
+      action: () => {
+        onClose();
+      },
+    },
+  ];
+
+  if (canDelete) {
+    options.push({
+      label: 'Eliminar',
+      icon: Trash2,
+      danger: true,
+      action: () => {
+        onClose();
+      },
+    });
+  }
+
+  const reactions = ['\u2764\uFE0F', '\uD83D\uDE02', '\uD83D\uDC4D', '\uD83D\uDE2E', '\uD83D\uDE22', '\uD83D\uDE4F'];
+
+  return (
+    <>
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 60,
+          background: 'rgba(0,0,0,0.2)',
+        }}
+      />
+      {/* Menu */}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        style={{
+          position: 'fixed',
+          zIndex: 61,
+          left: Math.min(x - 100, window.innerWidth - 220),
+          top: Math.max(y - 200, 20),
+          width: 200,
+          background: V.white,
+          borderRadius: V.radiusXl,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+          padding: 8,
+          fontFamily: V.fontSans,
+        }}
+      >
+        {options.map((opt) => {
+          if (opt.isReaction) {
+            return (
+              <div
+                key="reactions"
+                className="flex items-center justify-between"
+                style={{ height: 40, padding: '0 8px' }}
+              >
+                {reactions.map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => {
+                      onClose();
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      fontSize: 20,
+                      cursor: 'pointer',
+                      padding: 2,
+                      borderRadius: '50%',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            );
+          }
+
+          const Icon = opt.icon;
+          return (
+            <button
+              key={opt.label}
+              onClick={opt.action}
+              className="flex items-center w-full"
+              style={{
+                height: 40,
+                gap: 10,
+                padding: '0 8px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 500,
+                color: opt.danger ? '#dc2626' : V.black,
+                fontFamily: V.fontSans,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = V.surface;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'none';
+              }}
+            >
+              {Icon && <Icon size={16} />}
+              <span>{opt.label}</span>
+            </button>
+          );
+        })}
+      </motion.div>
+    </>
+  );
+}
+
+/* ================================================================
+   ImageLightbox
+   ================================================================ */
+function ImageLightbox({ src, onClose }) {
+  if (!src) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        background: 'rgba(0,0,0,0.95)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Close button */}
+      <div className="flex justify-end" style={{ padding: 16 }}>
+        <button
+          onClick={onClose}
+          className="flex items-center justify-center"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            background: 'transparent',
+            border: 'none',
+            color: V.white,
+            cursor: 'pointer',
+          }}
+          aria-label="Cerrar"
+        >
+          <X size={24} />
+        </button>
+      </div>
+
+      {/* Image */}
+      <div
+        className="flex-1 flex items-center justify-center"
+        style={{ padding: 16, overflow: 'hidden' }}
+        onClick={onClose}
+      >
+        <img
+          src={src}
+          alt=""
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: 'contain',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+
+      {/* Download button */}
+      <div className="flex justify-center" style={{ padding: 16 }}>
+        <a
+          href={src}
+          download
+          className="flex items-center justify-center"
+          style={{
+            color: V.white,
+            fontSize: 14,
+            fontWeight: 500,
+            fontFamily: V.fontSans,
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            textDecoration: 'none',
+            padding: '8px 20px',
+            borderRadius: 999,
+          }}
+        >
+          Descargar
+        </a>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ================================================================
+   EmptyConversation
+   ================================================================ */
+const SUGGESTION_PILLS = {
+  b2c: [
+    '\u00BFHac\u00E9is env\u00EDos a...?',
+    '\u00BFTen\u00E9is stock de...?',
+    '\u00BFCu\u00E1l es el plazo de entrega?',
+  ],
+  b2b: [
+    'Estamos interesados en...',
+    '\u00BFTienen precio mayorista para...?',
+    '\u00BFPueden enviar muestras?',
+  ],
+  c2c: [
+    '\u00A1Hola!',
+    '\u00BFD\u00F3nde compraste...?',
+    'Te vi en el feed y...',
+  ],
+  collab: [
+    'Hola, me gustar\u00EDa colaborar...',
+    'Vi tu tienda y...',
+    '\u00BFEnvi\u00E1is muestras?',
+  ],
+};
+
+function EmptyConversation({ conversation, onSendSuggestion }) {
+  const type = conversation?.type || 'c2c';
+  const suggestions = SUGGESTION_PILLS[type] || SUGGESTION_PILLS.c2c;
+  const name = conversation?.name || 'Chat';
+  const initial = (name[0] || '?').toUpperCase();
+
+  return (
+    <div
+      className="flex flex-col items-center justify-center"
+      style={{ padding: '48px 24px', fontFamily: V.fontSans }}
+    >
+      {/* Avatar */}
+      <div
+        className="overflow-hidden flex items-center justify-center"
+        style={{
+          width: 64,
+          height: 64,
+          borderRadius: '50%',
+          background: V.surface,
+          marginBottom: 12,
+        }}
+      >
+        {conversation?.avatar_url ? (
+          <img
+            src={conversation.avatar_url}
+            alt=""
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span
+            style={{
+              fontSize: 24,
+              fontWeight: 600,
+              color: V.stone,
+            }}
+          >
+            {initial}
+          </span>
+        )}
+      </div>
+
+      {/* Name + badge */}
+      <p
+        style={{
+          fontSize: 18,
+          fontWeight: 600,
+          color: V.black,
+          margin: 0,
+          marginBottom: 4,
+        }}
+      >
+        {name}
+      </p>
+      {conversation?.role && (
+        <span
+          style={{
+            fontSize: 12,
+            fontWeight: 500,
+            color: V.stone,
+            background: V.surface,
+            padding: '2px 10px',
+            borderRadius: 999,
+            marginBottom: 8,
+          }}
+        >
+          {conversation.role}
+        </span>
+      )}
+
+      <p style={{ fontSize: 13, color: V.stone, margin: '8px 0 20px' }}>
+        Inicia la conversaci&oacute;n
+      </p>
+
+      {/* Suggestion pills */}
+      <div className="flex flex-wrap justify-center gap-2">
+        {suggestions.map((text) => (
+          <button
+            key={text}
+            onClick={() => onSendSuggestion(text)}
+            style={{
+              background: V.surface,
+              borderRadius: 999,
+              padding: '8px 16px',
+              fontSize: 13,
+              fontWeight: 500,
+              color: V.black,
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: V.fontSans,
+            }}
+          >
+            {text}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -621,6 +1104,9 @@ export default function ChatPage() {
   const [localMessages, setLocalMessages] = useState([]);
   const [showNewPill, setShowNewPill] = useState(false);
   const [showAttachSheet, setShowAttachSheet] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [contextMenu, setContextMenu] = useState(null);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   const scrollRef = useRef(null);
   const bottomRef = useRef(null);
@@ -669,6 +1155,17 @@ export default function ChatPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'auto' });
   }, [conversationId]);
+
+  /* Virtual keyboard height tracking */
+  useEffect(() => {
+    if (!window.visualViewport) return;
+    const handler = () => {
+      const kh = window.innerHeight - window.visualViewport.height;
+      setKeyboardHeight(Math.max(0, kh));
+    };
+    window.visualViewport.addEventListener('resize', handler);
+    return () => window.visualViewport?.removeEventListener('resize', handler);
+  }, []);
 
   /* Scroll listener for "near bottom" detection */
   const handleScroll = useCallback(() => {
@@ -733,11 +1230,17 @@ export default function ChatPage() {
     setShowNewPill(false);
   }, []);
 
-  /* Group messages with date separators & consecutive detection */
+  /* Context menu handler */
+  const handleContextMenu = useCallback((message, x, y) => {
+    setContextMenu({ message, x, y });
+  }, []);
+
+  /* Group messages with date separators, consecutive & timing-based grouping */
   const groupedMessages = useMemo(() => {
     const result = [];
     let lastDate = null;
     let lastSender = null;
+    let lastTime = null;
 
     for (let i = 0; i < localMessages.length; i++) {
       const msg = localMessages[i];
@@ -747,21 +1250,48 @@ export default function ChatPage() {
       if (!lastDate || !isSameDay(lastDate, msgDate)) {
         result.push({ type: 'date', date: msgDate, key: `date-${i}` });
         lastSender = null;
+        lastTime = null;
       }
 
       const senderId = String(msg.sender_id || msg.user_id || '');
+      const withinGroup =
+        senderId === lastSender &&
+        lastTime &&
+        msgDate.getTime() - lastTime.getTime() < 60000;
       const isConsecutive = senderId === lastSender;
+
+      // Look ahead for next message grouping
+      const nextMsg = localMessages[i + 1];
+      const nextSenderId = nextMsg
+        ? String(nextMsg.sender_id || nextMsg.user_id || '')
+        : null;
+      const nextDate = nextMsg
+        ? new Date(nextMsg.created_at || nextMsg.timestamp)
+        : null;
+      const nextWithinGroup =
+        nextSenderId === senderId &&
+        nextDate &&
+        nextDate.getTime() - msgDate.getTime() < 60000 &&
+        (!lastDate || isSameDay(msgDate, nextDate));
+
+      const isFirstInGroup = !withinGroup;
+      const isLastInGroup = !nextWithinGroup;
+      const isMiddleInGroup = !isFirstInGroup && !isLastInGroup;
 
       result.push({
         type: 'message',
         message: msg,
         isOwn: String(senderId) === String(user?.id),
         isConsecutive,
+        isFirstInGroup,
+        isLastInGroup,
+        isMiddleInGroup,
         key: msg.message_id || msg.id || `msg-${i}`,
       });
 
       lastDate = msgDate;
       lastSender = senderId;
+      lastTime = msgDate;
     }
 
     return result;
@@ -777,6 +1307,7 @@ export default function ChatPage() {
         position: 'fixed',
         inset: 0,
         zIndex: 40,
+        paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined,
       }}
     >
       {/* Header */}
@@ -793,6 +1324,14 @@ export default function ChatPage() {
         style={{ background: V.cream, WebkitOverflowScrolling: 'touch' }}
       >
         <div className="pb-4 pt-2">
+          {/* Empty state */}
+          {localMessages.length === 0 && (
+            <EmptyConversation
+              conversation={conversation}
+              onSendSuggestion={handleSend}
+            />
+          )}
+
           {groupedMessages.map((item) => {
             if (item.type === 'date') {
               return <DateSeparator key={item.key} date={item.date} />;
@@ -803,6 +1342,11 @@ export default function ChatPage() {
                 message={item.message}
                 isOwn={item.isOwn}
                 isConsecutive={item.isConsecutive}
+                isFirstInGroup={item.isFirstInGroup}
+                isLastInGroup={item.isLastInGroup}
+                isMiddleInGroup={item.isMiddleInGroup}
+                onImageTap={setLightboxImage}
+                onContextMenu={handleContextMenu}
               />
             );
           })}
@@ -826,6 +1370,27 @@ export default function ChatPage() {
         onTyping={handleTyping}
         onAttach={() => setShowAttachSheet(true)}
       />
+
+      {/* Context menu overlay */}
+      <AnimatePresence>
+        {contextMenu && (
+          <MessageContextMenu
+            contextMenu={contextMenu}
+            onClose={() => setContextMenu(null)}
+            userId={user?.id}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Image lightbox */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <ImageLightbox
+            src={lightboxImage}
+            onClose={() => setLightboxImage(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
