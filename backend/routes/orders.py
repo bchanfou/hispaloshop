@@ -35,8 +35,10 @@ stripe.api_key = STRIPE_SECRET_KEY
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 
-def _round_money(amount: float) -> float:
-    return round(float(amount or 0), 2)
+def _round_money(amount) -> float:
+    """Round monetary amount to 2 decimal places using Decimal to avoid float drift."""
+    from decimal import Decimal, ROUND_HALF_UP
+    return float(Decimal(str(amount or 0)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
 def _first_influencer_split(commission_data: dict) -> Optional[dict]:
@@ -222,7 +224,7 @@ async def execute_seller_transfers(order: dict):
     
     for split in splits:
         seller_id = split["seller_id"]
-        seller_payout_cents = int(split["seller_payout"] * 100)
+        seller_payout_cents = int(round(split["seller_payout"] * 100))
         total_platform_fee += split["platform_gross"]
         total_influencer_cut += split.get("influencer_cut", 0)
         
@@ -549,7 +551,7 @@ async def process_influencer_scheduled_payouts():
     for payout in due_payouts:
         payout_id = payout["payout_id"]
         stripe_account_id = payout.get("influencer_stripe_account_id")
-        amount_cents = int(payout["amount"] * 100)
+        amount_cents = int(round(payout["amount"] * 100))
         currency = payout.get("currency", "eur").lower()
         order_id = payout["order_id"]
         
@@ -1290,7 +1292,7 @@ async def stripe_webhook(request: Request):
     """
     body = await request.body()
     signature = request.headers.get("Stripe-Signature")
-    
+
     # A real webhook secret starts with "whsec_" and is ≥32 chars after that prefix.
     _real_webhook_secret = (
         STRIPE_WEBHOOK_SECRET
@@ -1298,19 +1300,33 @@ async def stripe_webhook(request: Request):
         else None
     )
 
+    # In production, require a valid webhook secret — reject unsigned payloads.
+    is_production = os.environ.get("ENV", "development").lower() == "production"
+    if is_production and not _real_webhook_secret:
+        logger.error("[WEBHOOK] STRIPE_WEBHOOK_SECRET not configured in production — rejecting request")
+        raise HTTPException(status_code=500, detail="Webhook not configured")
+
     try:
         # Verify webhook signature if a real secret is configured
         if _real_webhook_secret:
             event = stripe.Webhook.construct_event(body, signature, _real_webhook_secret)
         else:
-            # No real webhook secret: parse payload directly (test/dev mode — signature not verified)
-            logger.warning("[WEBHOOK] Signature verification skipped — STRIPE_WEBHOOK_SECRET not configured")
+            # No real webhook secret: parse payload directly (dev mode only — signature not verified)
+            logger.warning("[WEBHOOK] Signature verification skipped — STRIPE_WEBHOOK_SECRET not configured (dev mode)")
             payload = body.decode("utf-8")
             event = _json.loads(payload)
-        
-        event_type = event.get("type", event.get("type", "unknown"))
-        logger.info(f"[WEBHOOK] Event: {event_type}")
-        
+
+        event_type = event.get("type", "unknown")
+        event_id = event.get("id")
+        logger.info(f"[WEBHOOK] Event: {event_type} (id={event_id})")
+
+        # Idempotency: reject events already processed
+        if event_id:
+            existing = await db.processed_webhook_events.find_one({"event_id": event_id})
+            if existing:
+                logger.info(f"[WEBHOOK] Event {event_id} already processed, skipping")
+                return {"status": "already_processed"}
+
         if event_type == "checkout.session.completed":
             session_obj = event.get("data", {}).get("object", {})
             session_id = session_obj.get("id")
@@ -1334,6 +1350,12 @@ async def stripe_webhook(request: Request):
                     {"order_id": order_id},
                     {"$set": {"status": "payment_failed", "updated_at": datetime.now(timezone.utc)}}
                 )
+                # Release stock holds for failed payment
+                order = await db.orders.find_one({"order_id": order_id}, {"_id": 0, "payment_session_id": 1})
+                if order and order.get("payment_session_id"):
+                    await db.stock_holds.delete_many({"session_id": order["payment_session_id"]})
+                if user_id:
+                    await db.stock_holds.delete_many({"user_id": user_id})
             if user_id and order_id:
                 try:
                     await db.notifications.insert_one({
@@ -1347,6 +1369,51 @@ async def stripe_webhook(request: Request):
                     })
                 except Exception:
                     pass
+
+        elif event_type == "charge.refunded":
+            charge_obj = event.get("data", {}).get("object", {})
+            payment_intent_id = charge_obj.get("payment_intent")
+            amount_refunded = charge_obj.get("amount_refunded", 0)
+            refunded_fully = charge_obj.get("refunded", False)
+            if payment_intent_id:
+                # Find order by payment intent or session
+                order = await db.orders.find_one(
+                    {"$or": [
+                        {"stripe_payment_intent_id": payment_intent_id},
+                        {"payment_session_id": {"$regex": payment_intent_id}},
+                    ]},
+                    {"_id": 0}
+                )
+                if not order:
+                    # Try to find via payment_transactions
+                    tx = await db.payment_transactions.find_one(
+                        {"stripe_payment_intent_id": payment_intent_id},
+                        {"_id": 0, "order_id": 1}
+                    )
+                    if tx:
+                        order = await db.orders.find_one({"order_id": tx["order_id"]}, {"_id": 0})
+
+                if order:
+                    new_status = "refunded" if refunded_fully else "partially_refunded"
+                    await db.orders.update_one(
+                        {"order_id": order["order_id"]},
+                        {"$set": {
+                            "status": new_status,
+                            "refund_amount_cents": amount_refunded,
+                            "refunded_at": datetime.now(timezone.utc).isoformat(),
+                            "updated_at": datetime.now(timezone.utc).isoformat(),
+                        }}
+                    )
+                    # Cancel scheduled influencer payouts for refunded orders
+                    if refunded_fully:
+                        await db.scheduled_payouts.update_many(
+                            {"order_id": order["order_id"], "status": "scheduled"},
+                            {"$set": {"status": "cancelled", "cancel_reason": "order_refunded",
+                                      "updated_at": datetime.now(timezone.utc).isoformat()}}
+                        )
+                    logger.info(f"[WEBHOOK] Refund processed for order {order['order_id']}: {new_status}")
+                else:
+                    logger.warning(f"[WEBHOOK] charge.refunded: no order found for pi={payment_intent_id}")
 
         elif event_type == "customer.subscription.created":
             sub_obj = event.get("data", {}).get("object", {})
@@ -1382,6 +1449,14 @@ async def stripe_webhook(request: Request):
                     {"stripe_customer_id": customer_id},
                     {"$set": {"subscription_plan": "free", "plan": "free", "updated_at": datetime.now(timezone.utc)}}
                 )
+
+        # Mark event as processed (idempotency)
+        if event_id:
+            await db.processed_webhook_events.insert_one({
+                "event_id": event_id,
+                "event_type": event_type,
+                "processed_at": datetime.now(timezone.utc),
+            })
 
         # Return 200 for all events (including unhandled ones)
         return {"status": "success"}
@@ -1824,8 +1899,18 @@ async def get_order(order_id: str, user: User = Depends(get_current_user)):
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if user.role == "customer" and order["user_id"] != user.user_id:
+    # Customers can only see their own orders
+    if user.role in ("customer", "consumer") and order.get("user_id") != user.user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
+    # Producers/importers can only see orders containing their products
+    if user.role in ("producer", "importer"):
+        order_producer_ids = {item.get("producer_id") for item in order.get("line_items", [])}
+        if user.user_id not in order_producer_ids:
+            raise HTTPException(status_code=403, detail="Not authorized")
+    # Influencers can only see orders with their referral
+    if user.role == "influencer" and order.get("influencer_id") != user.user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    # Admin/super_admin can see all orders
     return order
 
 
@@ -2591,7 +2676,7 @@ async def check_and_notify_influencer_withdrawal_available(influencer_id: str, d
                     payment_date = datetime.fromisoformat(payment_date_str.replace('Z', '+00:00'))
                     if payment_date <= now:
                         available_balance += comm.get("commission_amount", 0)
-                except:
+                except (ValueError, TypeError, KeyError):
                     pass
         
         available_balance = round(available_balance, 2)

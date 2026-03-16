@@ -1353,7 +1353,7 @@ async def get_social_feed(
                     score += 4
                 elif age_hours < 72:
                     score += 2
-            except:
+            except (ValueError, TypeError, KeyError):
                 pass
             scored_posts.append((score, post, is_available))
 

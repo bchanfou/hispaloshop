@@ -175,7 +175,7 @@ async def get_products(
             if isinstance(created_at, str):
                 try:
                     created_at = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
-                except:
+                except (ValueError, TypeError, AttributeError):
                     created_at = None
             
             if created_at and created_at > seven_days_ago:
@@ -273,7 +273,7 @@ async def get_products(
                     product["fresh_save"] = {"discount": 30, "tag": "FRESH -30%", "days_left": days_to_expiry}
                 elif days_to_expiry <= 5:
                     product["fresh_save"] = {"discount": 15, "tag": "FRESH -15%", "days_left": days_to_expiry}
-            except:
+            except (ValueError, TypeError, KeyError):
                 pass
     
     return products
@@ -352,7 +352,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
     })
     if mod_result.get("decision") == "blocked":
         return JSONResponse(
-            status_code=200,
+            status_code=422,
             content={
                 "moderated": True,
                 "action": "blocked",

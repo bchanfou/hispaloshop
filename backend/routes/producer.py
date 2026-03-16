@@ -579,8 +579,8 @@ async def get_producer_follower_stats(user: User = Depends(get_current_user), da
     followers = await db.store_followers.find(
         {"store_id": store["store_id"]},
         {"created_at": 1}
-    ).to_list(10000)
-    
+    ).to_list(500)
+
     # Group by date
     daily_counts = {}
     for f in followers:
@@ -588,7 +588,7 @@ async def get_producer_follower_stats(user: User = Depends(get_current_user), da
             created = datetime.fromisoformat(f["created_at"].replace("Z", "+00:00"))
             date_key = created.strftime("%Y-%m-%d")
             daily_counts[date_key] = daily_counts.get(date_key, 0) + 1
-        except:
+        except (ValueError, TypeError, KeyError):
             pass
     
     # Build cumulative chart data

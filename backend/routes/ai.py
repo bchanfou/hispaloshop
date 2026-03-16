@@ -355,7 +355,7 @@ async def semantic_search(
         for pid in top_ids:
             try:
                 obj_ids.append(ObjectId(pid))
-            except:
+            except Exception:
                 pass
         
         products = await db.products.find({

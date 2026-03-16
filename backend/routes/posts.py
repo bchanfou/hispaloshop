@@ -75,7 +75,7 @@ async def create_post(
         pid = tp.get("product_id")
         try:
             product = await db.products.find_one({"_id": ObjectId(pid) if isinstance(pid, str) else pid})
-        except:
+        except Exception:
             product = None
         
         if not product:
@@ -175,7 +175,7 @@ async def get_post_detail(
     
     try:
         post = await db.posts.find_one({"_id": ObjectId(post_id)})
-    except:
+    except Exception:
         raise HTTPException(status_code=404, detail="Post not found")
     
     if not post:
@@ -222,7 +222,7 @@ async def like_post(
     
     try:
         post = await db.posts.find_one({"_id": ObjectId(post_id)})
-    except:
+    except Exception:
         raise HTTPException(status_code=404, detail="Post not found")
     
     if not post:
@@ -267,7 +267,7 @@ async def save_post(
     
     try:
         post = await db.posts.find_one({"_id": ObjectId(post_id)})
-    except:
+    except Exception:
         raise HTTPException(status_code=404, detail="Post not found")
     
     if not post:
@@ -326,7 +326,7 @@ async def add_comment(
     
     try:
         post = await db.posts.find_one({"_id": ObjectId(post_id)})
-    except:
+    except Exception:
         raise HTTPException(status_code=404, detail="Post not found")
     
     if not post:

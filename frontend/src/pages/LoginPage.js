@@ -62,7 +62,8 @@ export default function LoginPage() {
 
         // Multi-account support
         if (addAccount) {
-          const accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]');
+          let accounts = [];
+          try { accounts = JSON.parse(localStorage.getItem('hsp_accounts') || '[]'); } catch { accounts = []; }
           const userId = data.user.user_id || data.user.id;
           if (!accounts.find(a => a.user_id === userId)) {
             accounts.push({ user_id: userId, email: data.user.email, name: data.user.name });

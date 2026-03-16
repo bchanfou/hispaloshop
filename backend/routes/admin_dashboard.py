@@ -958,7 +958,7 @@ async def get_admin_analytics(
             if date_key in daily_data:
                 daily_data[date_key]["sales"] += order.get("total_amount", 0)
                 daily_data[date_key]["orders"] += 1
-        except:
+        except (ValueError, TypeError, KeyError):
             pass
     
     # Aggregate visits
@@ -971,7 +971,7 @@ async def get_admin_analytics(
                 date_key = ts.strftime("%Y-%m-%d")
             if date_key in daily_data:
                 daily_data[date_key]["visits"] += 1
-        except:
+        except (ValueError, TypeError, KeyError):
             pass
     
     # If no visit data, generate sample based on orders

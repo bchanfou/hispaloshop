@@ -224,6 +224,26 @@ async def _create_indexes():
     except Exception:
         pass  # May already exist with different options
 
+    # User sessions — TTL for automatic expiration (7 days)
+    try:
+        await db.user_sessions.create_index("session_token", unique=True)
+        await db.user_sessions.create_index(
+            "created_at", expireAfterSeconds=7 * 24 * 3600  # 7 days
+        )
+        logger.info("  OK: user_sessions indexes (with TTL)")
+    except Exception:
+        pass  # May already exist with different options
+
+    # Processed webhook events — idempotency (TTL 30 days)
+    try:
+        await db.processed_webhook_events.create_index("event_id", unique=True)
+        await db.processed_webhook_events.create_index(
+            "processed_at", expireAfterSeconds=30 * 24 * 3600  # 30 days
+        )
+        logger.info("  OK: processed_webhook_events indexes (with TTL)")
+    except Exception:
+        pass
+
     # Country configs — seed if empty
     await db.country_configs.create_index("country_code", unique=True)
     existing = await db.country_configs.count_documents({})

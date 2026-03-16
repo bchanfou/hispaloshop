@@ -172,7 +172,7 @@ async def get_influencer_dashboard(user: User = Depends(get_current_user)):
                     available_soon += comm.get("commission_amount", 0)
                     if next_payment_date is None or payment_date < next_payment_date:
                         next_payment_date = payment_date
-            except:
+            except (ValueError, TypeError, KeyError):
                 pass
     
     return {
@@ -362,7 +362,7 @@ async def get_influencer_analytics(user: User = Depends(get_current_user), days:
             date_key = click.get("clicked_at", "")[:10]
             if date_key in daily_data:
                 daily_data[date_key]["link_clicks"] += 1
-        except:
+        except (ValueError, TypeError, KeyError):
             pass
     
     # Aggregate code uses
@@ -371,7 +371,7 @@ async def get_influencer_analytics(user: User = Depends(get_current_user), days:
             date_key = use.get("applied_at", "")[:10]
             if date_key in daily_data:
                 daily_data[date_key]["code_uses"] += 1
-        except:
+        except (ValueError, TypeError, KeyError):
             pass
     
     # Aggregate orders (conversions)
@@ -381,7 +381,7 @@ async def get_influencer_analytics(user: User = Depends(get_current_user), days:
             if date_key in daily_data:
                 daily_data[date_key]["conversions"] += 1
                 daily_data[date_key]["revenue"] += order.get("total_amount", 0)
-        except:
+        except (ValueError, TypeError, KeyError):
             pass
     
     # Aggregate commissions
@@ -390,7 +390,7 @@ async def get_influencer_analytics(user: User = Depends(get_current_user), days:
             date_key = comm.get("created_at", "")[:10]
             if date_key in daily_data:
                 daily_data[date_key]["commission"] += comm.get("commission_amount", 0)
-        except:
+        except (ValueError, TypeError, KeyError):
             pass
     
     chart_data = sorted(daily_data.values(), key=lambda x: x["date"])

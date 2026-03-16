@@ -490,7 +490,7 @@ export default function CheckoutPage() {
                     <Tag size={14} /> {appliedDiscount.code}
                   </span>
                   <button
-                    onClick={async () => { setDiscountLoading(true); await removeDiscount(); setDiscountLoading(false); }}
+                    onClick={async () => { setDiscountLoading(true); try { await removeDiscount(); } catch { /* handled by context */ } finally { setDiscountLoading(false); } }}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--color-stone)' }}
                   >
                     Eliminar

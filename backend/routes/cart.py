@@ -76,7 +76,7 @@ async def add_to_cart(
             "_id": ObjectId(product_id),
             "status": {"$in": ["active", "approved"]}
         })
-    except:
+    except Exception:
         raise HTTPException(status_code=400, detail="Invalid product ID")
     
     if not product:
@@ -101,7 +101,7 @@ async def add_to_cart(
     # Obtener precio
     unit_price_cents = product.get("price_cents", 0)
     if unit_price_cents == 0 and product.get("price"):
-        unit_price_cents = int(product["price"] * 100)
+        unit_price_cents = int(round(product["price"] * 100))
     
     # Obtener o crear carrito
     cart = await db.carts.find_one({

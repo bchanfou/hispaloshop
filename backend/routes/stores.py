@@ -140,7 +140,7 @@ async def get_store_by_slug(slug: str):
     if product_ids:
         reviews = await db.reviews.find(
             {"product_id": {"$in": product_ids}, "approved": True}
-        ).to_list(10000)
+        ).to_list(500)
         if reviews:
             store["rating"] = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
             store["review_count"] = len(reviews)
@@ -221,7 +221,7 @@ async def get_store_reviews(slug: str, limit: int = 20, offset: int = 0):
     all_reviews = await db.reviews.find(
         {"product_id": {"$in": product_ids}, "approved": True},
         {"rating": 1}
-    ).to_list(10000)
+    ).to_list(500)
     avg_rating = round(sum(r["rating"] for r in all_reviews) / len(all_reviews), 1) if all_reviews else 0
     
     return {"reviews": reviews, "total": total, "average_rating": avg_rating}
@@ -456,7 +456,7 @@ async def notify_store_followers(store_id: str, product_name: str, product_id: s
     if not store:
         return
     
-    followers = await db.store_followers.find({"store_id": store_id}).to_list(10000)
+    followers = await db.store_followers.find({"store_id": store_id}).to_list(500)
     
     for follower in followers:
         # Create in-app notification

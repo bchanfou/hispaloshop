@@ -8,7 +8,7 @@ _CENTS_PRECISION = Decimal("0.01")
 COMMISSION_RATES = {
     "FREE": Decimal("0.20"),
     "PRO": Decimal("0.18"),
-    "ELITE": Decimal("0.17"),
+    "ELITE": Decimal("0.15"),
 }
 
 INFLUENCER_TIER_RATES = {

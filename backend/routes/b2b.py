@@ -372,7 +372,7 @@ async def contact_producer(
             "_id": ObjectId(match_id),
             "importer_id": current_user.user_id
         })
-    except:
+    except Exception:
         raise HTTPException(status_code=404, detail="Match not found")
     
     if not match:

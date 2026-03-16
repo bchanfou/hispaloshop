@@ -30,26 +30,30 @@ export default function CustomerOverview() {
   const [wishlist, setWishlist] = useState([]);
 
   useEffect(() => {
+    let active = true;
     Promise.all([
       apiClient.get('/customer/orders').then(data => {
-        setOrders((Array.isArray(data) ? data : data?.orders || []).slice(0, 3));
-      }).catch(() => setOrders([])),
+        if (active) setOrders((Array.isArray(data) ? data : data?.orders || []).slice(0, 3));
+      }).catch(() => { if (active) setOrders([]); }),
       apiClient.get('/customer/followed-stores').then(data => {
-        setFollowedStores(Array.isArray(data) ? data : data?.stores || []);
-      }).catch(() => setFollowedStores([])),
+        if (active) setFollowedStores(Array.isArray(data) ? data : data?.stores || []);
+      }).catch(() => { if (active) setFollowedStores([]); }),
       apiClient.get('/products?limit=8&sort=newest').then(data => {
+        if (!active) return;
         const ps = data?.products || data || [];
         setRecommended(ps.slice(0, 4));
         setTrending(ps.slice(4, 8));
       }).catch(() => {}),
       apiClient.get('/customer/predictions').then(data => {
+        if (!active) return;
         const actionable = (data?.predictions || []).filter(p => ['overdue', 'due', 'soon'].includes(p.status));
         setPredictions(actionable.slice(0, 3));
       }).catch(() => {}),
       apiClient.get('/wishlist').then(data => {
-        setWishlist((Array.isArray(data) ? data : data?.items || []).slice(0, 4));
+        if (active) setWishlist((Array.isArray(data) ? data : data?.items || []).slice(0, 4));
       }).catch(() => {}),
-    ]).finally(() => setLoading(false));
+    ]).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   const latestOrder = orders[0];

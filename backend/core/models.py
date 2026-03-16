@@ -4,7 +4,7 @@ Single source of truth — imported by server.py and all route modules.
 """
 from pydantic import BaseModel, ConfigDict, Field, EmailStr
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 # ── User & Auth ──────────────────────────────────────────────
@@ -84,12 +84,15 @@ class UserConsent(BaseModel):
     consent_ip: Optional[str] = None
 
 
+VALID_ROLES = ("customer", "producer", "influencer", "importer")
+
+
 class RegisterInput(BaseModel):
     email: EmailStr
-    name: str
-    password: str
-    role: str
-    country: str
+    name: str = Field(min_length=1, max_length=100)
+    password: str = Field(min_length=8, max_length=128)
+    role: str = Field(pattern="^(customer|consumer|producer|influencer|importer)$")
+    country: str = Field(min_length=2, max_length=3)
     username: Optional[str] = None
     language: Optional[str] = "es"
     birth_date: Optional[str] = None  # YYYY-MM-DD, required for age verification
@@ -120,7 +123,7 @@ class ForgotPasswordInput(BaseModel):
 
 class ResetPasswordInput(BaseModel):
     token: str
-    new_password: str
+    new_password: str = Field(min_length=8, max_length=128)
 
 
 class UserAddressInput(BaseModel):
@@ -367,10 +370,10 @@ class PackInput(BaseModel):
 
 
 class ProductInput(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=200)
     category_id: str
-    description: str
-    price: float
+    description: str = Field(min_length=1, max_length=5000)
+    price: float = Field(gt=0)
     images: List[str]
     country_origin: str
     target_markets: Optional[List[str]] = None
@@ -583,8 +586,20 @@ class CartUpdateInput(BaseModel):
     pack_id: Optional[str] = None
 
 
+class OrderShippingAddress(BaseModel):
+    full_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    street: Optional[str] = Field(None, max_length=200)
+    line1: Optional[str] = Field(None, max_length=200)  # Frontend compat alias for street
+    line2: Optional[str] = Field(None, max_length=200)
+    city: str = Field(min_length=1, max_length=100)
+    postal_code: str = Field(min_length=1, max_length=20)
+    country: str = Field(min_length=2, max_length=3)
+    phone: Optional[str] = Field(None, max_length=20)
+
+
 class OrderCreateInput(BaseModel):
-    shipping_address: Dict[str, str]
+    shipping_address: Dict[str, str]  # Validated at checkout route level; accepts both street/line1 formats
 
 
 class OrderStatusUpdate(BaseModel):
@@ -629,9 +644,9 @@ class DiscountCode(BaseModel):
 
 
 class DiscountCodeCreate(BaseModel):
-    code: str
-    type: str
-    value: float
+    code: str = Field(min_length=1, max_length=50)
+    type: str = Field(pattern="^(percentage|fixed|free_shipping)$")
+    value: float = Field(ge=0)
     active: bool = True
     start_date: Optional[str] = None
     end_date: Optional[str] = None
@@ -847,7 +862,7 @@ class AIRecommendationCache(BaseModel):
     post_ids: List[str] = []
     
     # Metadata del calculo
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: Optional[datetime] = None  # TTL: 1 hora para FREE, 15 min para PRO
     cache_version: int = 1
     
@@ -880,7 +895,7 @@ class ProductEmbedding(BaseModel):
     trending_score: float = 50.0
     
     # Ultima actualizacion
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class UserEmbedding(BaseModel):
@@ -900,7 +915,7 @@ class UserEmbedding(BaseModel):
     interaction_weights: Dict[str, float] = Field(default_factory=dict)
     # Ej: {"category_organic": 0.8, "price_premium": 0.6}
     
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class AIQueryLog(BaseModel):
@@ -917,7 +932,7 @@ class AIQueryLog(BaseModel):
     # Feedback implicito (clicks posteriores)
     clicked_results: List[str] = []
     
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class AIRecommendationResponse(BaseModel):
@@ -957,8 +972,8 @@ class AffiliateClick(BaseModel):
     post_id: Optional[str] = None     # Si vino de un post
     
     # Cookie/tracking
-    cookie_set_at: datetime = Field(default_factory=datetime.utcnow)
-    expires_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(days=30))
+    cookie_set_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    expires_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(days=30))
     
     # Conversion (se actualiza si ocurre)
     converted: bool = False
@@ -1030,7 +1045,7 @@ class InfluencerTierHistory(BaseModel):
     conversions_at_change: int
     followers_at_change: int
     
-    changed_at: datetime = Field(default_factory=datetime.utcnow)
+    changed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     changed_by: Optional[str] = None  # "system" o admin_id
 
 
@@ -1084,7 +1099,7 @@ class InfluencerStats(BaseModel):
     commission_30d_cents: int = 0
     
     # Metadata
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ═══════════════════════════════════════════════════════════
@@ -1156,7 +1171,7 @@ class Post(BaseModel):
     report_reason: Optional[str] = None
     
     # Timestamps
-    published_at: datetime = Field(default_factory=datetime.utcnow)
+    published_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_engagement_at: Optional[datetime] = None
 
 
@@ -1183,7 +1198,7 @@ class Comment(BaseModel):
     is_pinned: bool = False
     status: str = "active"  # active, deleted, reported
     
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Follow(BaseModel):
@@ -1193,7 +1208,7 @@ class Follow(BaseModel):
     following_id: str
     follow_type: str = "user"  # user, producer, importer, influencer
     notifications_enabled: bool = True
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class FeedInteraction(BaseModel):
@@ -1205,7 +1220,7 @@ class FeedInteraction(BaseModel):
     product_id: Optional[str] = None
     dwell_time_seconds: Optional[float] = None
     session_id: str = ""
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Collection(BaseModel):
@@ -1218,7 +1233,7 @@ class Collection(BaseModel):
     items: List[Dict] = Field(default_factory=list)
     # [{"type": "product|post", "id": "...", "saved_at": datetime, "note": "..."}]
     cover_image: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ═══════════════════════════════════════════════════════════
@@ -1247,9 +1262,9 @@ class Cart(BaseModel):
     #   "added_from_post_id": null,
     #   "added_at": datetime
     # }]
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    expires_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(days=7))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    expires_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(days=7))
 
 
 class Order(BaseModel):
@@ -1311,8 +1326,8 @@ class Order(BaseModel):
     shipped_at: Optional[datetime] = None
     delivered_at: Optional[datetime] = None
     cancelled_at: Optional[datetime] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class OrderTransfer(BaseModel):
@@ -1324,7 +1339,7 @@ class OrderTransfer(BaseModel):
     currency: str = "eur"
     stripe_transfer_id: Optional[str] = None
     status: str = "pending"  # pending, completed, failed
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ═══════════════════════════════════════════════════════════
@@ -1355,8 +1370,8 @@ class B2BProfile(BaseModel):
     # Búsqueda
     search_keywords: List[str] = Field(default_factory=list)
     
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class B2BCatalogPrice(BaseModel):
@@ -1370,11 +1385,11 @@ class B2BCatalogPrice(BaseModel):
     max_quantity: Optional[int] = None  # NULL = sin límite superior
     
     is_active: bool = True
-    valid_from: datetime = Field(default_factory=datetime.utcnow)
+    valid_from: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     valid_until: Optional[datetime] = None
     
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class B2BDiscoveryMatch(BaseModel):
@@ -1397,8 +1412,8 @@ class B2BDiscoveryMatch(BaseModel):
     importer_notes: Optional[str] = None
     producer_notes: Optional[str] = None
     
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class B2BLead(BaseModel):
@@ -1423,12 +1438,12 @@ class B2BLead(BaseModel):
     assigned_to: Optional[str] = None  # Vendedor del productor
     
     # Timeline
-    contacted_at: datetime = Field(default_factory=datetime.utcnow)
+    contacted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     qualified_at: Optional[datetime] = None
     proposal_sent_at: Optional[datetime] = None
     closed_at: Optional[datetime] = None
     
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # ═══════════════════════════════════════════════════════════
@@ -1460,8 +1475,8 @@ class ChatConversation(BaseModel):
     # Metadata
     initiated_by: str  # importer_id o producer_id
     
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class ChatMessage(BaseModel):
@@ -1486,7 +1501,7 @@ class ChatMessage(BaseModel):
     is_system_message: bool = False
     system_message_type: Optional[str] = None  # 'lead_created', 'status_changed', etc.
     
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class ChatNotification(BaseModel):
@@ -1495,7 +1510,7 @@ class ChatNotification(BaseModel):
     conversation_id: str
     message_id: str
     
-    notified_at: datetime = Field(default_factory=datetime.utcnow)
+    notified_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     read_at: Optional[datetime] = None
     email_sent: bool = False
     push_sent: bool = False

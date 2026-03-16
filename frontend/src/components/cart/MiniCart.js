@@ -96,7 +96,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 <div className="p-4 space-y-4">
                   {cartItems.map((item) => (
                     <motion.div
-                      key={item.product_id}
+                      key={`${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`}
                       layout
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
