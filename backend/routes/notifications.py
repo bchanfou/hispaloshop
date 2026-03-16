@@ -69,15 +69,15 @@ async def mark_all_read(
     Marcar todas las notificaciones como leídas
     """
     from core.database import db
-    from datetime import datetime
+    from datetime import datetime, timezone
     from bson import ObjectId
-    
+
     await db.notifications.update_many(
         {
             "user_id": str(current_user["_id"]),
             "read_at": None
         },
-        {"$set": {"read_at": datetime.utcnow()}}
+        {"$set": {"read_at": datetime.now(timezone.utc)}}
     )
     
     return {"status": "all_marked_as_read"}
@@ -172,10 +172,10 @@ async def update_notification_preferences(
     Actualizar preferencias de notificación
     """
     from core.database import db
-    from datetime import datetime
-    
+    from datetime import datetime, timezone
+
     preferences["user_id"] = str(current_user["_id"])
-    preferences["updated_at"] = datetime.utcnow()
+    preferences["updated_at"] = datetime.now(timezone.utc)
     
     await db.user_notification_preferences.update_one(
         {"user_id": str(current_user["_id"])},

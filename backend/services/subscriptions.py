@@ -227,7 +227,7 @@ async def ensure_stripe_products(db):
                 continue
             price = stripe.Price.create(
                 product=product.id,
-                unit_amount=int(plan["price_monthly"] * 100),
+                unit_amount=int(round(plan["price_monthly"] * 100)),
                 currency=plan.get("currency", "eur"),
                 recurring={"interval": "month"},
                 metadata={"plan": plan_key},
@@ -445,7 +445,7 @@ async def recalculate_influencer_tier(db, influencer_id: str) -> str:
             "total_gmv": {"$sum": "$total_amount"}
         }}
     ]
-    customer_metrics = await db.orders.aggregate(pipeline).to_list(10000)
+    customer_metrics = await db.orders.aggregate(pipeline).to_list(2000)
 
     unique_customers = len(customer_metrics)
     net_gmv = round(sum(c["total_gmv"] for c in customer_metrics), 2)

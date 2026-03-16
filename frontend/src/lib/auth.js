@@ -53,7 +53,8 @@ export function setUser(user) {
  */
 export function getUser() {
   const user = localStorage.getItem(USER_KEY);
-  return user ? JSON.parse(user) : null;
+  if (!user) return null;
+  try { return JSON.parse(user); } catch { return null; }
 }
 
 /**

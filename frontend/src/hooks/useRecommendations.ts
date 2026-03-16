@@ -20,8 +20,22 @@ export function useRecommendations(limit: number = 10) {
   }, [limit]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await api.getPersonalizedRecommendations({ limit });
+        if (active) setData(result);
+      } catch (err: any) {
+        if (active) setError(err.message);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    load();
+    return () => { active = false; };
+  }, [limit]);
 
   return { data, loading, error, refresh };
 }

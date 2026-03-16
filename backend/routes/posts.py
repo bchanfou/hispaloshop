@@ -4,7 +4,7 @@ Fase 3: Social Feed
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 from services.feed_algorithm import feed_algorithm
@@ -121,9 +121,9 @@ async def create_post(
         "is_featured": False,
         "is_viral": False,
         "status": "published",
-        "published_at": datetime.utcnow(),
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "published_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(timezone.utc)
     }
     
     result = await db.posts.insert_one(post_doc)
@@ -144,7 +144,7 @@ async def create_post(
                     "creator_id": author_id, "action": "hide",
                     "violation_type": mod.get("violation_type"),
                     "ai_reason": mod.get("reason"), "ai_confidence": mod.get("confidence"),
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat(),
                     "admin_reviewed": False, "admin_action": None,
                 })
             elif mod["action"] == "review":
@@ -153,7 +153,7 @@ async def create_post(
                     "creator_id": author_id, "action": "review",
                     "violation_type": mod.get("violation_type"),
                     "ai_reason": mod.get("reason"), "ai_confidence": mod.get("confidence"),
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat(),
                     "admin_reviewed": False, "admin_action": None,
                 })
         except Exception as e:
@@ -242,7 +242,7 @@ async def like_post(
         # Like
         await db.posts.update_one(
             {"_id": ObjectId(post_id)},
-            {"$push": {"liked_by": user_id}, "$inc": {"likes_count": 1}, "$set": {"last_engagement_at": datetime.utcnow()}}
+            {"$push": {"liked_by": user_id}, "$inc": {"likes_count": 1}, "$set": {"last_engagement_at": datetime.now(timezone.utc)}}
         )
         action = "liked"
         
@@ -296,8 +296,8 @@ async def save_post(
         await db.collections.update_one(
             {"user_id": user_id, "name": "Guardados"},
             {
-                "$push": {"items": {"type": "post", "id": post_id, "saved_at": datetime.utcnow()}},
-                "$setOnInsert": {"created_at": datetime.utcnow(), "tenant_id": getattr(current_user, 'country', None) or "ES"}
+                "$push": {"items": {"type": "post", "id": post_id, "saved_at": datetime.now(timezone.utc)}},
+                "$setOnInsert": {"created_at": datetime.now(timezone.utc), "tenant_id": getattr(current_user, 'country', None) or "ES"}
             },
             upsert=True
         )
@@ -353,7 +353,7 @@ async def add_comment(
         "liked_by": [],
         "is_pinned": False,
         "status": "active",
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     }
     
     result = await db.comments.insert_one(comment_doc)

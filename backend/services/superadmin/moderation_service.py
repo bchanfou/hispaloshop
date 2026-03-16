@@ -3,7 +3,7 @@ Servicio de Moderación
 Fase 5: Moderación asistida por IA
 """
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
@@ -51,7 +51,7 @@ class ModerationService:
             "report_reason": report_reason,
             "tenant_id": tenant_id,
             "priority_score": 25 if reported_by else 0,  # Más prioridad si fue reportado
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
             "reviewed_at": None
         }
         
@@ -112,7 +112,7 @@ class ModerationService:
                     "$set": {
                         "ai_score": max_score,
                         "ai_flags": flags,
-                        "ai_reviewed_at": datetime.utcnow(),
+                        "ai_reviewed_at": datetime.now(timezone.utc),
                         "status": ModerationStatus.AI_REVIEWED.value,
                         "severity": severity.value if severity else None,
                         "priority_score": priority_score
@@ -203,7 +203,7 @@ class ModerationService:
                     "moderator_id": moderator_id,
                     "moderator_notes": action.moderator_notes,
                     "action_taken": action.action,
-                    "reviewed_at": datetime.utcnow()
+                    "reviewed_at": datetime.now(timezone.utc)
                 }
             }
         )
@@ -280,7 +280,7 @@ class ModerationService:
         })
         
         # Últimas 24h
-        day_ago = datetime.utcnow() - timedelta(hours=24)
+        day_ago = datetime.now(timezone.utc) - timedelta(hours=24)
         rejected_24h = await db.moderation_queue.count_documents({
             "status": "rejected",
             "reviewed_at": {"$gte": day_ago}
@@ -358,7 +358,7 @@ class ModerationService:
             "triggered_value": triggered_value,
             "threshold_value": threshold_value,
             "notifications_sent": [],
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc)
         }
         
         result = await db.system_alerts.insert_one(alert)
@@ -414,10 +414,10 @@ class ModerationService:
         
         if new_status == SystemAlertStatus.ACKNOWLEDGED:
             update["acknowledged_by"] = user_id
-            update["acknowledged_at"] = datetime.utcnow()
+            update["acknowledged_at"] = datetime.now(timezone.utc)
         elif new_status == SystemAlertStatus.RESOLVED:
             update["resolved_by"] = user_id
-            update["resolved_at"] = datetime.utcnow()
+            update["resolved_at"] = datetime.now(timezone.utc)
             update["resolution_notes"] = notes
         
         result = await db.system_alerts.update_one(

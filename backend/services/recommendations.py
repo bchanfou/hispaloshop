@@ -5,7 +5,7 @@ Fase 1: AI Recommendations
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional, Tuple
 from core.database import get_db
 
@@ -102,16 +102,16 @@ class RecommendationEngine:
             else self.CACHE_TTL_FREE_MINUTES
         )
         
-        generated_at = cache.get("generated_at", datetime.utcnow())
+        generated_at = cache.get("generated_at", datetime.now(timezone.utc))
         if isinstance(generated_at, str):
             try:
                 generated_at = datetime.fromisoformat(generated_at.replace('Z', '+00:00'))
-            except:
-                generated_at = datetime.utcnow()
+            except Exception:
+                generated_at = datetime.now(timezone.utc)
         
         expiry = generated_at + timedelta(minutes=ttl_minutes)
         
-        if datetime.utcnow() > expiry:
+        if datetime.now(timezone.utc) > expiry:
             return None  # Expiro
         
         return {
@@ -235,7 +235,7 @@ class RecommendationEngine:
         for pid in top_ids:
             try:
                 object_ids.append(ObjectId(pid))
-            except:
+            except Exception:
                 pass
         
         products = await db.products.find({
@@ -344,7 +344,7 @@ class RecommendationEngine:
         for r in new_recommendations[:limit]:
             try:
                 rec_ids.append(ObjectId(r["_id"]))
-            except:
+            except Exception:
                 pass
         
         if not rec_ids:
@@ -382,7 +382,7 @@ class RecommendationEngine:
             for eid in exclude_ids:
                 try:
                     exclude_obj_ids.append(ObjectId(eid))
-                except:
+                except Exception:
                     pass
             if exclude_obj_ids:
                 query["_id"] = {"$nin": exclude_obj_ids}
@@ -553,14 +553,14 @@ class RecommendationEngine:
         
         if existing:
             # Verificar si es reciente (< 7 dias)
-            updated_at = existing.get("updated_at", datetime.utcnow())
+            updated_at = existing.get("updated_at", datetime.now(timezone.utc))
             if isinstance(updated_at, str):
                 try:
                     updated_at = datetime.fromisoformat(updated_at.replace('Z', '+00:00'))
-                except:
-                    updated_at = datetime.utcnow()
+                except Exception:
+                    updated_at = datetime.now(timezone.utc)
             
-            age = datetime.utcnow() - updated_at
+            age = datetime.now(timezone.utc) - updated_at
             if age.days < 7:
                 return existing
         
@@ -586,7 +586,7 @@ class RecommendationEngine:
         for sid in saved_ids:
             try:
                 saved_obj_ids.append(ObjectId(sid))
-            except:
+            except Exception:
                 pass
         
         saved_products = []
@@ -614,7 +614,7 @@ class RecommendationEngine:
             "diet_preferences": consumer_data.get("preferences", {}).get("diet", []),
             "allergy_restrictions": consumer_data.get("preferences", {}).get("allergies", []),
             "health_goals": consumer_data.get("preferences", {}).get("goals", []),
-            "updated_at": datetime.utcnow()
+            "updated_at": datetime.now(timezone.utc)
         }
         
         await db.user_embeddings.update_one(
@@ -651,8 +651,8 @@ class RecommendationEngine:
             "post_ids": [extract_id(p) for p in recommendations["posts"]],
             "reasons": recommendations["reasons"],
             "confidence_score": recommendations["confidence_score"],
-            "generated_at": datetime.utcnow(),
-            "expires_at": datetime.utcnow() + timedelta(minutes=ttl),
+            "generated_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(minutes=ttl),
             "used_cached": False,
             "cache_version": 1
         }
@@ -674,7 +674,7 @@ class RecommendationEngine:
         for pid in product_ids:
             try:
                 obj_ids.append(ObjectId(pid))
-            except:
+            except Exception:
                 pass
         
         if not obj_ids:
@@ -705,7 +705,7 @@ class RecommendationEngine:
         for pid in post_ids:
             try:
                 obj_ids.append(ObjectId(pid))
-            except:
+            except Exception:
                 pass
         
         if not obj_ids:
@@ -747,7 +747,7 @@ class RecommendationEngine:
             if subscription in ["pro", "elite"] 
             else self.CACHE_TTL_FREE_MINUTES
         )
-        return (datetime.utcnow() + timedelta(minutes=ttl)).isoformat()
+        return (datetime.now(timezone.utc) + timedelta(minutes=ttl)).isoformat()
     
     async def _get_trending_only(self, tenant_id: str, limit: int) -> Dict:
         """Fallback cuando no hay datos de usuario"""

@@ -282,7 +282,7 @@ async def process_influencer_payout(
     if influencer.get("stripe_account_id") and influencer.get("stripe_onboarding_complete"):
         try:
             transfer = stripe.Transfer.create(
-                amount=int(total_payout * 100),  # Convert to cents
+                amount=int(round(total_payout * 100)),  # Convert to cents
                 currency="eur",
                 destination=influencer["stripe_account_id"],
                 metadata={"influencer_id": influencer_id}

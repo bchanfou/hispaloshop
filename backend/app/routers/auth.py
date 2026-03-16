@@ -4,10 +4,16 @@ Authentication routes: register, login, verify, password reset, Google OAuth.
 from fastapi import APIRouter, HTTPException, Request, Response, Depends
 from datetime import datetime, timezone, timedelta
 import uuid
+import hashlib
 
 # Import from core
 from ..core.config import db, FRONTEND_URL, logger
 from ..core.security import hash_password, generate_verification_token, get_current_user
+
+
+def _hash_session_token(token: str) -> str:
+    """Hash session token for storage. SHA-256 is safe here because tokens are high-entropy UUIDs."""
+    return hashlib.sha256(token.encode()).hexdigest()
 from ..core.email import send_email
 
 # Import models
@@ -191,7 +197,7 @@ async def login(input: LoginInput, response: Response):
     session_token = f"session_{uuid.uuid4().hex}"
     await db.users.update_one(
         {"email": input.email},
-        {"$set": {"session_token": session_token}}
+        {"$set": {"session_token": _hash_session_token(session_token)}}
     )
     
     # Set cookie
@@ -278,7 +284,7 @@ async def get_session(request: Request):
     if not session_token:
         return {"authenticated": False}
     
-    user_doc = await db.users.find_one({"session_token": session_token}, {"_id": 0, "password_hash": 0})
+    user_doc = await db.users.find_one({"session_token": _hash_session_token(session_token)}, {"_id": 0, "password_hash": 0})
     if not user_doc:
         return {"authenticated": False}
     

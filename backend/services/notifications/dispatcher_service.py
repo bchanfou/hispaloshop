@@ -2,7 +2,7 @@
 Servicio de Notificaciones Omnicanal
 Fase 5: Email, Push, In-App, SMS con routing inteligente
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
@@ -80,7 +80,7 @@ class NotificationDispatcher:
             "action_url": action_url,
             "channels": effective_channels,
             "status_by_channel": {ch: "pending" for ch in effective_channels},
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
             "sent_at": None,
             "read_at": None,
             "clicked_at": None
@@ -118,7 +118,7 @@ class NotificationDispatcher:
         # Actualizar timestamp de envío
         await db.notifications.update_one(
             {"_id": ObjectId(notification_id)},
-            {"$set": {"sent_at": datetime.utcnow()}}
+            {"$set": {"sent_at": datetime.now(timezone.utc)}}
         )
         
         return notification_id
@@ -346,7 +346,7 @@ class NotificationDispatcher:
                 return now >= quiet_start_time or now < quiet_end_time
             else:
                 return quiet_start_time <= now < quiet_end_time
-        except:
+        except Exception:
             return False
     
     async def _get_user_preferences(self, user_id: str) -> Dict:
@@ -394,7 +394,7 @@ class NotificationDispatcher:
                 "_id": ObjectId(notification_id),
                 "user_id": user_id
             },
-            {"$set": {"read_at": datetime.utcnow()}}
+            {"$set": {"read_at": datetime.now(timezone.utc)}}
         )
     
     async def mark_as_clicked(self, notification_id: str, user_id: str):
@@ -405,7 +405,7 @@ class NotificationDispatcher:
                 "user_id": user_id
             },
             {
-                "$set": {"clicked_at": datetime.utcnow()},
+                "$set": {"clicked_at": datetime.now(timezone.utc)},
                 "$inc": {"click_count": 1}
             }
         )
@@ -451,8 +451,8 @@ class NotificationDispatcher:
             "token": token,
             "platform": platform,
             "device_id": device_id,
-            "registered_at": datetime.utcnow(),
-            "last_used": datetime.utcnow(),
+            "registered_at": datetime.now(timezone.utc),
+            "last_used": datetime.now(timezone.utc),
             "active": True
         }
         

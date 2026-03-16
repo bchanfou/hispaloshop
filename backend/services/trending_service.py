@@ -5,7 +5,7 @@ All operations are async; record_interaction is a single-insert hot-path.
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
 from core.database import get_db
@@ -52,7 +52,7 @@ async def record_interaction(
         "user_id": user_id,
         "country": country,
         "context_id": context_id,
-        "created_at": datetime.utcnow(),
+        "created_at": datetime.now(timezone.utc),
     })
 
 
@@ -65,7 +65,7 @@ async def get_trending_products(
 ) -> List[Dict]:
     """Top products by interaction velocity over the last `days` days."""
     db = get_db()
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
 
     match: Dict = {"entity_type": "product", "created_at": {"$gte": since}}
     if country:
@@ -112,7 +112,7 @@ async def get_trending_recipes(
 ) -> List[Dict]:
     """Top growing recipes by save + cook velocity."""
     db = get_db()
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
 
     match: Dict = {
         "entity_type": "recipe",
@@ -192,7 +192,7 @@ async def get_suggested_creators(
         },
     ).sort("followers_count", -1).limit(limit * 4).to_list(length=limit * 4)
 
-    since = datetime.utcnow() - timedelta(days=30)
+    since = datetime.now(timezone.utc) - timedelta(days=30)
     scored: List[Dict] = []
     for creator in creators:
         cid = creator.get("user_id")
@@ -224,7 +224,7 @@ async def get_content_conversion_stats(
     entity_id = user_id of the influencer, producer, or importer.
     """
     db = get_db()
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
 
     pipeline = [
         {"$match": {"context_id": entity_id, "created_at": {"$gte": since}}},
@@ -248,7 +248,7 @@ async def get_content_conversion_stats(
 async def get_top_converting_content(limit: int = 10, days: int = 30) -> List[Dict]:
     """Posts and recipes ranked by commerce conversion weight."""
     db = get_db()
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
 
     pipeline = [
         {"$match": {

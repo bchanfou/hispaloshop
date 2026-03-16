@@ -3,7 +3,7 @@ Chat B2B async entre importadores y productores.
 Fase 4: B2B Importer
 """
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -107,8 +107,8 @@ async def create_conversation(
         "unread_count_importer": 0,
         "unread_count_producer": 0,
         "initiated_by": current_user.user_id,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(timezone.utc)
     }
     
     result = await db.chat_conversations.insert_one(conversation)
@@ -123,7 +123,7 @@ async def create_conversation(
         "content": f"Conversation started by {current_user.full_name}",
         "is_system_message": True,
         "system_message_type": "conversation_started",
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     })
     
     return {"success": True, "data": conversation}
@@ -176,7 +176,7 @@ async def get_conversation_messages(
                 {"_id": msg["_id"]},
                 {
                     "$push": {"read_by": current_user.user_id},
-                    "$set": {"read_at": datetime.utcnow()}
+                    "$set": {"read_at": datetime.now(timezone.utc)}
                 }
             )
     
@@ -242,7 +242,7 @@ async def send_message(
         "attachments": attachments or [],
         "read_by": [current_user.user_id],
         "is_system_message": False,
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     }
     
     await db.chat_messages.insert_one(message)
@@ -254,9 +254,9 @@ async def send_message(
         {"conversation_id": conversation_id},
         {
             "$set": {
-                "last_message_at": datetime.utcnow(),
+                "last_message_at": datetime.now(timezone.utc),
                 "last_message_preview": content[:100],
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             },
             "$inc": {unread_field: 1}
         }
@@ -297,7 +297,7 @@ async def mark_message_read(
             {"_id": ObjectId(message_id)},
             {
                 "$push": {"read_by": current_user.user_id},
-                "$set": {"read_at": datetime.utcnow()}
+                "$set": {"read_at": datetime.now(timezone.utc)}
             }
         )
     
@@ -323,7 +323,7 @@ async def archive_conversation(
         {
             "$set": {
                 "status": "archived",
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             }
         }
     )

@@ -18,7 +18,7 @@ async def recalculate_store_rating(producer_id: str):
     producer_products = await db.products.find(
         {"producer_id": producer_id},
         {"product_id": 1, "_id": 0}
-    ).to_list(10000)
+    ).to_list(2000)
     product_ids = [p["product_id"] for p in producer_products]
     if not product_ids:
         return

@@ -3,7 +3,7 @@ Collab Influencer–Productor endpoints.
 Fase 28: Propuestas, aceptación, links de afiliado, muestras.
 """
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -90,7 +90,7 @@ async def create_collaboration(body: CreateCollabBody, current_user=Depends(get_
     # Get influencer user info for name
     inf_user = await db.users.find_one({"user_id": body.influencer_id}, {"_id": 0, "name": 1, "username": 1})
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     collab_id = f"collab_{uuid.uuid4().hex[:12]}"
 
     collab = {
@@ -158,7 +158,7 @@ async def accept_collaboration(collab_id: str, current_user=Depends(get_current_
     code = _gen_collab_code(username, slug)
     url = f"https://hispaloshop.com/r/{code}"
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Create discount code for tracking
     await db.discount_codes.update_one(
@@ -220,7 +220,7 @@ async def decline_collaboration(collab_id: str, body: DeclineBody, current_user=
     if collab["status"] != "proposed":
         raise HTTPException(status_code=400, detail=f"Estado actual: {collab['status']}")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     await db.collaborations.update_one(
         {"collab_id": collab_id},
         {"$set": {
@@ -258,7 +258,7 @@ async def send_sample(collab_id: str, body: SendSampleBody, current_user=Depends
     if collab["status"] not in ("active", "accepted"):
         raise HTTPException(status_code=400, detail="La colaboración debe estar activa")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     await db.collaborations.update_one(
         {"collab_id": collab_id},
         {"$set": {
@@ -299,7 +299,7 @@ async def confirm_receipt(collab_id: str, current_user=Depends(get_current_user)
     if collab["influencer_id"] != current_user.user_id:
         raise HTTPException(status_code=403, detail="Solo el influencer puede confirmar recepción")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     await db.collaborations.update_one(
         {"collab_id": collab_id},
         {"$set": {

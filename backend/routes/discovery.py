@@ -14,7 +14,7 @@ GET  /discovery/producer-insights
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from bson.objectid import ObjectId
@@ -121,7 +121,7 @@ async def get_explore_sections(
         "growing_recipes": [_s(r) for r in growing_recipes],
         "suggested_creators": [_s(c) for c in suggested_creators],
         "country": resolved_country,
-        "generated_at": datetime.utcnow().isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -257,7 +257,7 @@ async def get_growth_analytics(
         raise HTTPException(status_code=403, detail="Admin access required")
 
     db = get_db()
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
 
     # Run heavy queries in parallel
     top_content, total_interactions, content_driven_carts, content_driven_purchases = await asyncio.gather(
@@ -374,7 +374,7 @@ async def get_influencer_insights(
         raise HTTPException(status_code=403, detail="Influencer access required")
 
     db = get_db()
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
 
     stats, top_products_raw = await asyncio.gather(
         get_content_conversion_stats(entity_id=user.user_id, days=days),
@@ -433,7 +433,7 @@ async def get_producer_insights(
         raise HTTPException(status_code=403, detail="Producer/importer access required")
 
     db = get_db()
-    since = datetime.utcnow() - timedelta(days=days)
+    since = datetime.now(timezone.utc) - timedelta(days=days)
 
     seller_products = await db.products.find(
         {"$or": [{"producer_id": user.user_id}, {"seller_id": user.user_id}]},

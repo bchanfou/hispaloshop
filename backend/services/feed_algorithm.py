@@ -6,7 +6,7 @@ Fase 3: Social Feed
 
 import uuid
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional
 from core.database import get_db
 
@@ -54,7 +54,7 @@ class FeedAlgorithm:
         elif feed_type == "trending":
             base_query["is_viral"] = True
             base_query["published_at"] = {
-                "$gte": datetime.utcnow() - timedelta(hours=48)
+                "$gte": datetime.now(timezone.utc) - timedelta(hours=48)
             }
         
         # Obtener candidatos
@@ -64,9 +64,9 @@ class FeedAlgorithm:
             .limit(limit * 3)\
             .to_list(length=limit * 3)
         
-        # Get user's country for local boost
-        user_doc_feed = await db.users.find_one({"user_id": user_id}, {"_id": 0, "country": 1})
-        user_country = (user_doc_feed or {}).get("country") or "ES"
+        # Get user's country and preferences for local boost
+        user_doc_full = await db.users.find_one({"user_id": user_id}, {"_id": 0, "country": 1, "consumer_data": 1})
+        user_country = (user_doc_full or {}).get("country") or "ES"
 
         # Check if country has enough local producers to apply boost
         local_producer_count = await db.users.count_documents({
@@ -76,12 +76,32 @@ class FeedAlgorithm:
         })
         apply_country_boost = local_producer_count >= 10
 
+        # --- Batch fetch to eliminate N+1 queries ---
+        # Batch fetch all unique author docs
+        author_ids = list({str(c.get("author_id", "")) for c in candidates if c.get("author_id")})
+        author_docs = await db.users.find({"user_id": {"$in": author_ids}}, {"_id": 0, "user_id": 1, "country": 1}).to_list(200)
+        author_cache = {a["user_id"]: a for a in author_docs}
+
+        # Batch fetch all unique product categories from tagged_products
+        all_tagged_pids = []
+        for c in candidates:
+            for tp in c.get("tagged_products", []):
+                if tp.get("product_id"):
+                    all_tagged_pids.append(tp["product_id"])
+        product_category_cache = {}
+        if all_tagged_pids:
+            prod_docs = await db.products.find({"_id": {"$in": list(set(all_tagged_pids))}}, {"_id": 1, "category_id": 1}).to_list(500)
+            product_category_cache = {str(p["_id"]): p.get("category_id") for p in prod_docs}
+
         # Scorear cada post
         scored_posts = []
         for post in candidates:
             score = await self._calculate_score(
                 post, user_id, following_ids, tenant_id,
                 user_country=user_country if apply_country_boost else None,
+                user_doc_full=user_doc_full,
+                author_cache=author_cache,
+                product_category_cache=product_category_cache,
             )
             scored_posts.append({
                 "post": post,
@@ -107,21 +127,24 @@ class FeedAlgorithm:
         user_id: str,
         following_ids: List[str],
         tenant_id: str,
-        user_country: str = None
+        user_country: str = None,
+        user_doc_full: Dict = None,
+        author_cache: Dict = None,
+        product_category_cache: Dict = None
     ) -> Dict:
         """Calcula score multidimensional de un post"""
         db = get_db()
         scores = {}
-        
+
         # 1. RECENCY (0-100)
-        published_at = post.get("published_at", datetime.utcnow())
+        published_at = post.get("published_at", datetime.now(timezone.utc))
         if isinstance(published_at, str):
             try:
                 published_at = datetime.fromisoformat(published_at.replace('Z', '+00:00'))
-            except:
-                published_at = datetime.utcnow()
-        
-        age_hours = (datetime.utcnow() - published_at).total_seconds() / 3600
+            except Exception:
+                published_at = datetime.now(timezone.utc)
+
+        age_hours = (datetime.now(timezone.utc) - published_at).total_seconds() / 3600
         if age_hours < 1:
             scores['recency'] = 100
         elif age_hours < 24:
@@ -130,7 +153,7 @@ class FeedAlgorithm:
             scores['recency'] = 50 - (age_hours * 0.5)
         else:
             scores['recency'] = max(10, 30 - age_hours * 0.1)
-        
+
         # 2. ENGAGEMENT (0-100)
         engagement_score = min(100, (
             post.get("likes_count", 0) +
@@ -138,20 +161,20 @@ class FeedAlgorithm:
             post.get("shares_count", 0) * 3 +
             post.get("saves_count", 0) * 2
         ) / 10)
-        
+
         if post.get("is_viral"):
             engagement_score = min(100, engagement_score * 1.3)
-        
+
         scores['engagement'] = engagement_score
-        
+
         # 3. PERSONALIZACION (0-100)
         personalization_score = 50
-        
+
         # Si sigue al autor
         author_id = str(post.get("author_id"))
         if author_id in following_ids:
             personalization_score += 30
-        
+
         # Interacciones previas con productos similares
         tagged_product_ids = [tp.get("product_id") for tp in post.get("tagged_products", []) if tp.get("product_id")]
         if tagged_product_ids:
@@ -161,26 +184,24 @@ class FeedAlgorithm:
                 "product_id": {"$in": tagged_product_ids}
             })
             personalization_score += min(20, similar_interactions * 5)
-        
-        # Categorias preferidas
-        user = await db.users.find_one({"user_id": user_id})
-        if user:
-            preferred_categories = user.get("consumer_data", {}).get("preferences", {}).get("categories", [])
+
+        # Categorias preferidas (use cached user doc)
+        if user_doc_full:
+            preferred_categories = user_doc_full.get("consumer_data", {}).get("preferences", {}).get("categories", [])
             post_categories = []
             for tp in post.get("tagged_products", []):
-                product = await db.products.find_one({"_id": tp.get("product_id")})
-                if product:
-                    post_categories.append(product.get("category_id"))
-            
+                pid = tp.get("product_id")
+                if pid and product_category_cache is not None:
+                    cat = product_category_cache.get(str(pid))
+                    if cat:
+                        post_categories.append(cat)
+
             category_match = len(set(preferred_categories) & set(post_categories))
             personalization_score += category_match * 10
-        
-        # Country boost: prioritize local producers' content
+
+        # Country boost: prioritize local producers' content (use cached author doc)
         if user_country:
-            author_doc = await db.users.find_one(
-                {"user_id": str(post.get("author_id"))},
-                {"_id": 0, "country": 1},
-            )
+            author_doc = (author_cache or {}).get(str(post.get("author_id")))
             if author_doc and author_doc.get("country") == user_country:
                 personalization_score *= 1.5
 
@@ -245,7 +266,7 @@ class FeedAlgorithm:
             "tenant_id": tenant_id,
             "is_viral": False,
             "status": "published",
-            "published_at": {"$gte": datetime.utcnow() - timedelta(days=7)}
+            "published_at": {"$gte": datetime.now(timezone.utc) - timedelta(days=7)}
         }).to_list(length=1000)
         
         viral_count = 0
@@ -264,9 +285,9 @@ class FeedAlgorithm:
                         {"$set": {"is_viral": True}}
                     )
                     viral_count += 1
-                except:
+                except Exception:
                     pass
-        
+
         return {"marked_viral": viral_count}
     
     async def log_interaction(
@@ -290,7 +311,7 @@ class FeedAlgorithm:
             "product_id": product_id,
             "dwell_time_seconds": dwell_time,
             "session_id": session_id or str(uuid.uuid4()),
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc)
         })
         
         # Actualizar last_engagement_at en post
@@ -299,9 +320,9 @@ class FeedAlgorithm:
             try:
                 await db.posts.update_one(
                     {"_id": ObjectId(post_id) if isinstance(post_id, str) else post_id},
-                    {"$set": {"last_engagement_at": datetime.utcnow()}}
+                    {"$set": {"last_engagement_at": datetime.now(timezone.utc)}}
                 )
-            except:
+            except Exception:
                 pass
 
 

@@ -6,9 +6,15 @@ from fastapi import WebSocket, WebSocketDisconnect, Query
 from typing import Dict, Optional
 import json
 import logging
+import hashlib
 
 from core.database import db
 from core.auth import get_current_user
+
+
+def _hash_session_token(token: str) -> str:
+    """Hash session token for storage. SHA-256 is safe here because tokens are high-entropy UUIDs."""
+    return hashlib.sha256(token.encode()).hexdigest()
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +110,7 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
             return
 
         # Validar session token contra la base de datos
-        session_doc = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
+        session_doc = await db.user_sessions.find_one({"session_token": _hash_session_token(session_token)}, {"_id": 0})
         if not session_doc:
             logger.warning("[WS] Invalid session token")
             await websocket.send_json({"type": "auth_error", "message": "Invalid session"})

@@ -107,7 +107,7 @@ async def create_checkout(
                 "price_data": {
                     "currency": "eur",
                     "product_data": {"name": item["name"]},
-                    "unit_amount": int(item["price"] * 100)
+                    "unit_amount": int(round(item["price"] * 100))
                 },
                 "quantity": item["quantity"]
             } for item in line_items],
@@ -216,7 +216,7 @@ async def buy_now_checkout(
                 "price_data": {
                     "currency": "eur",
                     "product_data": {"name": product["name"]},
-                    "unit_amount": int(price * 100)
+                    "unit_amount": int(round(price * 100))
                 },
                 "quantity": input.quantity
             }],

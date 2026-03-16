@@ -2,7 +2,7 @@
 Servicio de Analytics para Superadmin
 Fase 5: KPIs en tiempo real con cache
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
 import asyncio
@@ -65,7 +65,7 @@ class AnalyticsService:
         )
         
         summary = DashboardSummaryResponse(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             period="realtime",
             tenant_id=tenant_id,
             metrics={
@@ -99,7 +99,7 @@ class AnalyticsService:
     
     async def _get_today_metrics(self, tenant_id: Optional[str]) -> Dict[str, Any]:
         """Métricas de hoy"""
-        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         
         query = {
             "created_at": {"$gte": today_start},
@@ -131,7 +131,7 @@ class AnalyticsService:
     
     async def _get_active_users(self, tenant_id: Optional[str]) -> Dict[str, int]:
         """Usuarios activos últimas 24h"""
-        cutoff = datetime.utcnow() - timedelta(hours=24)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
         
         query = {"last_activity": {"$gte": cutoff}}
         if tenant_id:
@@ -158,7 +158,7 @@ class AnalyticsService:
     
     async def _get_30d_metrics(self, tenant_id: Optional[str]) -> Dict[str, Any]:
         """Métricas de últimos 30 días"""
-        cutoff = datetime.utcnow() - timedelta(days=30)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=30)
         
         query = {
             "created_at": {"$gte": cutoff},
@@ -198,7 +198,7 @@ class AnalyticsService:
         days: int = 30
     ) -> List[RevenueDataPoint]:
         """Datos para gráfico de ingresos"""
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         
         query = {
             "created_at": {"$gte": cutoff},
@@ -225,7 +225,7 @@ class AnalyticsService:
             {"$sort": {"_id.year": 1, "_id.month": 1, "_id.day": 1}}
         ]
         
-        results = await db.orders.aggregate(pipeline).to_list(length=None)
+        results = await db.orders.aggregate(pipeline).to_list(length=2000)
         
         chart_data = []
         for r in results:
@@ -250,7 +250,7 @@ class AnalyticsService:
         tenant_id: Optional[str]
     ) -> List[GeoDistribution]:
         """Distribución geográfica de ventas"""
-        cutoff = datetime.utcnow() - timedelta(days=90)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=90)
         
         # Este query requiere join con users para obtener country
         # Simplificado: agrupar por dirección de orden
@@ -274,7 +274,7 @@ class AnalyticsService:
             {"$sort": {"total_gmv": -1}}
         ]
         
-        results = await db.orders.aggregate(pipeline).to_list(length=None)
+        results = await db.orders.aggregate(pipeline).to_list(length=2000)
         
         country_names = {
             "ES": "España", "FR": "Francia", "IT": "Italia",
@@ -344,7 +344,7 @@ class AnalyticsService:
         days: int = 30
     ) -> List[TopProduct]:
         """Productos más vendidos"""
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         
         query = {
             "created_at": {"$gte": cutoff},
@@ -368,7 +368,7 @@ class AnalyticsService:
             {"$limit": limit}
         ]
         
-        results = await db.orders.aggregate(pipeline).to_list(length=None)
+        results = await db.orders.aggregate(pipeline).to_list(length=2000)
         
         return [
             TopProduct(
@@ -387,7 +387,7 @@ class AnalyticsService:
         days: int = 30
     ) -> List[TopInfluencer]:
         """Influencers top por GMV generado"""
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         
         query = {
             "created_at": {"$gte": cutoff},
@@ -410,7 +410,7 @@ class AnalyticsService:
             {"$limit": limit}
         ]
         
-        results = await db.orders.aggregate(pipeline).to_list(length=None)
+        results = await db.orders.aggregate(pipeline).to_list(length=2000)
         
         influencers = []
         for r in results:

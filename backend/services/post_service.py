@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
@@ -67,7 +67,7 @@ class PostService:
             visibility=visibility,
             status="published",
             # DB columns are TIMESTAMP WITHOUT TIME ZONE, keep UTC naive values.
-            published_at=datetime.utcnow(),
+            published_at=datetime.now(timezone.utc),
         )
         db.add(post)
         user.posts_count = (user.posts_count or 0) + 1

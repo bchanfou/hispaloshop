@@ -271,22 +271,31 @@ async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
             {"_id": 0},
         ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
 
+    # Batch fetch users and follow status to eliminate N+1
+    reel_uids = list({r.get("user_id") for r in reels if r.get("user_id")})
+    reel_user_cache = {}
+    if reel_uids:
+        reel_user_docs = await db.users.find(
+            {"user_id": {"$in": reel_uids}},
+            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1}
+        ).to_list(100)
+        reel_user_cache = {u["user_id"]: u for u in reel_user_docs}
+    followed_set = set()
+    if current_user and reel_uids:
+        follow_docs = await db.user_follows.find(
+            {"follower_id": current_user.user_id, "following_id": {"$in": reel_uids}},
+            {"_id": 0, "following_id": 1}
+        ).to_list(100)
+        followed_set = {f["following_id"] for f in follow_docs}
+
     items = []
     for reel in reels:
         user_id = reel.get("user_id")
-        user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0}) if user_id else None
+        user_doc = reel_user_cache.get(user_id)
         media_url = reel.get("video_url") or reel.get("media_url") or (reel.get("media") or [{}])[0].get("url")
         thumb_url = reel.get("thumbnail_url") or (reel.get("media") or [{}])[0].get("thumbnail_url") or media_url
 
-        is_followed = False
-        if current_user and user_id:
-            is_followed = (
-                await db.user_follows.find_one(
-                    {"follower_id": current_user.user_id, "following_id": user_id},
-                    {"_id": 0},
-                )
-                is not None
-            )
+        is_followed = user_id in followed_set if current_user and user_id else False
 
         items.append(
             {
@@ -1367,42 +1376,81 @@ async def get_social_feed(
         page_posts = [(p, avail) for _, p, avail in scored_posts[skip:skip + limit]]
         total = len(scored_posts)
 
-    enriched = []
+    # --- Batch fetch to eliminate N+1 queries ---
+    all_uids = list({p.get("user_id", "") for p, _ in page_posts if p.get("user_id")})
+    all_product_ids = list({p.get("tagged_product", {}).get("product_id") for p, _ in page_posts if p.get("tagged_product", {}).get("product_id")})
+    all_post_ids = [p["post_id"] for p, _ in page_posts if p.get("post_id")]
+
+    # Batch fetch users
     user_cache = {}
+    if all_uids:
+        user_docs = await db.users.find(
+            {"user_id": {"$in": all_uids}},
+            {"_id": 0, "user_id": 1, "name": 1, "profile_image": 1, "role": 1, "country": 1}
+        ).to_list(100)
+        user_cache = {u["user_id"]: u for u in user_docs}
+
+    # Batch fetch products
+    product_cache = {}
+    if all_product_ids:
+        prod_docs = await db.products.find(
+            {"product_id": {"$in": all_product_ids}},
+            {"_id": 0, "product_id": 1, "price": 1, "stock": 1, "images": 1, "name": 1, "track_stock": 1}
+        ).to_list(100)
+        product_cache = {p["product_id"]: p for p in prod_docs}
+
+    # Batch fetch reviews aggregated by product
+    review_cache = {}
+    if all_product_ids:
+        rev_agg = await db.reviews.aggregate([
+            {"$match": {"product_id": {"$in": all_product_ids}, "visible": True}},
+            {"$group": {"_id": "$product_id", "avg_rating": {"$avg": "$rating"}, "count": {"$sum": 1}}}
+        ]).to_list(100)
+        review_cache = {r["_id"]: r for r in rev_agg}
+
+    # Batch fetch likes and bookmarks for current user
+    liked_set = set()
+    bookmarked_set = set()
+    if current_user and all_post_ids:
+        liked_docs = await db.post_likes.find(
+            {"post_id": {"$in": all_post_ids}, "user_id": current_user.user_id},
+            {"_id": 0, "post_id": 1}
+        ).to_list(100)
+        liked_set = {d["post_id"] for d in liked_docs}
+
+        bookmarked_docs = await db.post_bookmarks.find(
+            {"post_id": {"$in": all_post_ids}, "user_id": current_user.user_id},
+            {"_id": 0, "post_id": 1}
+        ).to_list(100)
+        bookmarked_set = {d["post_id"] for d in bookmarked_docs}
+
+    enriched = []
     for post, post_available in page_posts:
         uid = post.get("user_id", "")
-        if uid not in user_cache:
-            u = await db.users.find_one({"user_id": uid}, {"_id": 0, "name": 1, "profile_image": 1, "role": 1, "country": 1})
-            user_cache[uid] = u or {}
-        ui = user_cache[uid]
+        ui = user_cache.get(uid, {})
         tagged = post.get("tagged_product")
         if tagged and tagged.get("product_id"):
-            live = await db.products.find_one({"product_id": tagged["product_id"]}, {"_id": 0, "price": 1, "stock": 1, "images": 1, "name": 1, "track_stock": 1})
+            pid = tagged["product_id"]
+            live = product_cache.get(pid)
             if live:
                 tagged["price"] = live.get("price", tagged.get("price", 0))
                 tagged["stock"] = live.get("stock", 0)
                 tagged["in_stock"] = live.get("stock", 0) > 0 if live.get("track_stock", True) else True
                 tagged["image"] = (live.get("images") or [tagged.get("image")])[0]
                 tagged["name"] = live.get("name", tagged.get("name", ""))
-            rev_agg = await db.reviews.aggregate([
-                {"$match": {"product_id": tagged["product_id"], "visible": True}},
-                {"$group": {"_id": None, "avg_rating": {"$avg": "$rating"}, "count": {"$sum": 1}}}
-            ]).to_list(1)
-            if rev_agg:
-                tagged["avg_rating"] = round(rev_agg[0]["avg_rating"], 1)
-                tagged["review_count"] = rev_agg[0]["count"]
-        is_liked = is_bookmarked = False
-        if current_user:
-            is_liked = await db.post_likes.find_one({"post_id": post["post_id"], "user_id": current_user.user_id}) is not None
-            is_bookmarked = await db.post_bookmarks.find_one({"post_id": post["post_id"], "user_id": current_user.user_id}) is not None
+            rev = review_cache.get(pid)
+            if rev:
+                tagged["avg_rating"] = round(rev["avg_rating"], 1)
+                tagged["review_count"] = rev["count"]
+        post_id = post.get("post_id", "")
         enriched.append({
             **post,
             "user_name": ui.get("name", post.get("user_name", "Usuario")),
             "user_profile_image": ui.get("profile_image"),
             "user_role": ui.get("role", "customer"),
             "user_country": ui.get("country"),
-            "is_liked": is_liked,
-            "is_bookmarked": is_bookmarked,
+            "is_liked": post_id in liked_set,
+            "is_bookmarked": post_id in bookmarked_set,
             "product_available_in_country": post_available,
         })
 

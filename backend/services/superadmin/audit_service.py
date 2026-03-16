@@ -2,7 +2,7 @@
 Servicio de Auditoría
 Fase 5: Compliance SOX/GDPR - Logging inmutable
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from bson import ObjectId
 
@@ -55,7 +55,7 @@ class AuditService:
             "tenant_id": tenant_id,
             "session_id": session_id,
             "request_id": request_id,
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc)
         }
         
         result = await db.admin_audit_log.insert_one(log_entry)
@@ -115,10 +115,10 @@ class AuditService:
         """
         Estadísticas de auditoría
         """
-        cutoff = datetime.utcnow() - __import__('datetime').timedelta(days=days)
+        cutoff = datetime.now(timezone.utc) - __import__('datetime').timedelta(days=days)
         
         # Total acciones últimas 24h
-        day_cutoff = datetime.utcnow() - __import__('datetime').timedelta(hours=24)
+        day_cutoff = datetime.now(timezone.utc) - __import__('datetime').timedelta(hours=24)
         total_24h = await db.admin_audit_log.count_documents({
             "created_at": {"$gte": day_cutoff}
         })
@@ -128,7 +128,7 @@ class AuditService:
             {"$match": {"created_at": {"$gte": cutoff}}},
             {"$group": {"_id": "$action", "count": {"$sum": 1}}}
         ]
-        types_result = await db.admin_audit_log.aggregate(pipeline_types).to_list(length=None)
+        types_result = await db.admin_audit_log.aggregate(pipeline_types).to_list(length=2000)
         actions_by_type = {r["_id"]: r["count"] for r in types_result}
         
         # Top admins
@@ -142,7 +142,7 @@ class AuditService:
             {"$sort": {"count": -1}},
             {"$limit": 5}
         ]
-        top_admins = await db.admin_audit_log.aggregate(pipeline_admins).to_list(length=None)
+        top_admins = await db.admin_audit_log.aggregate(pipeline_admins).to_list(length=2000)
         
         # IPs sospechosas (múltiples admins desde misma IP)
         pipeline_ips = [
@@ -155,7 +155,7 @@ class AuditService:
             {"$match": {"$expr": {"$gt": [{"$size": "$unique_admins"}, 1]}}},
             {"$sort": {"count": -1}}
         ]
-        suspicious_ips = await db.admin_audit_log.aggregate(pipeline_ips).to_list(length=None)
+        suspicious_ips = await db.admin_audit_log.aggregate(pipeline_ips).to_list(length=2000)
         
         return AuditStats(
             total_actions_24h=total_24h,
@@ -277,18 +277,18 @@ class AuditService:
         user.pop("stripe_customer_id", None)
         
         # Órdenes
-        orders = await db.orders.find({"user_id": user_id}).to_list(length=None)
+        orders = await db.orders.find({"user_id": user_id}).to_list(length=2000)
         
         # Comisiones (si es influencer)
         commissions = await db.commission_records.find({
             "influencer_id": user_id
-        }).to_list(length=None)
+        }).to_list(length=2000)
         
         # Direcciones
-        addresses = await db.addresses.find({"user_id": user_id}).to_list(length=None)
+        addresses = await db.addresses.find({"user_id": user_id}).to_list(length=2000)
         
         # Posts (si tiene)
-        posts = await db.posts.find({"author_id": user_id}).to_list(length=None)
+        posts = await db.posts.find({"author_id": user_id}).to_list(length=2000)
         
         return {
             "user": user,
@@ -296,7 +296,7 @@ class AuditService:
             "commissions": commissions,
             "addresses": addresses,
             "posts": posts,
-            "exported_at": datetime.utcnow().isoformat()
+            "exported_at": datetime.now(timezone.utc).isoformat()
         }
 
 

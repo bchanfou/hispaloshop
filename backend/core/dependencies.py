@@ -4,10 +4,16 @@ FastAPI dependencies for authentication and authorization
 from fastapi import HTTPException, Header, Request
 from typing import Optional
 import logging
+import hashlib
 from .database import db
 from ..models.user import User
 
 logger = logging.getLogger(__name__)
+
+
+def _hash_session_token(token: str) -> str:
+    """Hash session token for storage. SHA-256 is safe here because tokens are high-entropy UUIDs."""
+    return hashlib.sha256(token.encode()).hexdigest()
 
 # Auth helpers
 async def get_current_user(request: Request, authorization: Optional[str] = Header(None)) -> User:
@@ -32,7 +38,7 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
     logger.info(f"[get_current_user] Using session token: {session_token[:20]}...")
     
     session_doc = await db.user_sessions.find_one(
-        {"session_token": session_token},
+        {"session_token": _hash_session_token(session_token)},
         {"_id": 0}
     )
     

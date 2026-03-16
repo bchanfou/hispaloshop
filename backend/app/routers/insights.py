@@ -146,7 +146,7 @@ async def get_country_insights(country_code: str, user: User = Depends(get_curre
     users_in_country = await db.users.find(
         {"country": country_code, "consent.analytics_consent": True},
         {"user_id": 1, "_id": 0}
-    ).to_list(10000)
+    ).to_list(2000)
     
     user_ids = [u["user_id"] for u in users_in_country]
     user_count = len(user_ids)

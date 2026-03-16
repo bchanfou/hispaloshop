@@ -5,7 +5,7 @@ Fase 1: AI Recommendations
 
 from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from services.recommendations import recommendation_engine
 from services.ai_embeddings import embedding_service
@@ -204,7 +204,7 @@ async def get_market_insights(
     trending_categories_pipeline = [
         {"$match": {
             "tenant_id": tenant_id,
-            "created_at": {"$gte": datetime.utcnow() - timedelta(days=30)}
+            "created_at": {"$gte": datetime.now(timezone.utc) - timedelta(days=30)}
         }},
         {"$unwind": "$items"},
         {"$lookup": {

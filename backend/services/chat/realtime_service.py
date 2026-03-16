@@ -2,7 +2,7 @@
 Servicio de Chat Real-Time
 Fase 5: WebSockets bidireccionales con presencia y typing indicators
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Set, Any
 from bson import ObjectId
 import asyncio
@@ -53,7 +53,7 @@ class ChatRealtimeService:
             redis_client.setex(
                 f"presence:{user_id}",
                 60,  # Última actividad hace 1 minuto
-                f"last_seen:{datetime.utcnow().isoformat()}"
+                f"last_seen:{datetime.now(timezone.utc).isoformat()}"
             )
         
         # Limpiar typing status
@@ -94,7 +94,7 @@ class ChatRealtimeService:
                             "type": "presence_update",
                             "user_id": user_id,
                             "status": status,
-                            "timestamp": datetime.utcnow().isoformat()
+                            "timestamp": datetime.now(timezone.utc).isoformat()
                         })
                     except Exception:
                         pass
@@ -107,7 +107,7 @@ class ChatRealtimeService:
             self.typing_users[conversation_id] = {}
         
         if is_typing:
-            self.typing_users[conversation_id][user_id] = datetime.utcnow()
+            self.typing_users[conversation_id][user_id] = datetime.now(timezone.utc)
         else:
             if user_id in self.typing_users[conversation_id]:
                 del self.typing_users[conversation_id][user_id]
@@ -132,7 +132,7 @@ class ChatRealtimeService:
                         "conversation_id": conversation_id,
                         "user_id": user_id,
                         "is_typing": is_typing,
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.now(timezone.utc).isoformat()
                     })
                 except Exception:
                     pass
@@ -158,7 +158,7 @@ class ChatRealtimeService:
         if conv.get("participants"):
             participant_ids.extend([p["user_id"] for p in conv["participants"]])
         
-        message["timestamp"] = datetime.utcnow().isoformat()
+        message["timestamp"] = datetime.now(timezone.utc).isoformat()
         
         for pid in participant_ids:
             if pid == exclude_user:
@@ -240,7 +240,7 @@ class ChatRealtimeService:
                 "conversation_id": conversation_id,
                 "message_preview": message.get("content", "")[:100],
                 "sender_name": message.get("sender_name", "Unknown"),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             redis_client.lpush(
@@ -292,7 +292,7 @@ class ChatRealtimeService:
         """
         Limpiar indicadores de typing antiguos (más de 10 segundos)
         """
-        cutoff = datetime.utcnow() - timedelta(seconds=10)
+        cutoff = datetime.now(timezone.utc) - timedelta(seconds=10)
         
         for conv_id in list(self.typing_users.keys()):
             users = self.typing_users[conv_id]

@@ -5,10 +5,16 @@ Imported by route modules and server.py.
 from fastapi import HTTPException, Header, Request
 from typing import Optional, List
 import logging
+import hashlib
 from .database import db
 from .models import User
 
 logger = logging.getLogger(__name__)
+
+
+def _hash_session_token(token: str) -> str:
+    """Hash session token for storage. SHA-256 is safe here because tokens are high-entropy UUIDs."""
+    return hashlib.sha256(token.encode()).hexdigest()
 
 
 def _normalize_role(raw_role: Optional[str]) -> str:
@@ -30,13 +36,13 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
     if not session_token:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    session_doc = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
+    session_doc = await db.user_sessions.find_one({"session_token": _hash_session_token(session_token)}, {"_id": 0})
     if not session_doc:
-        raise HTTPException(status_code=401, detail="Invalid session")
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
     user_doc = await db.users.find_one({"user_id": session_doc["user_id"]}, {"_id": 0})
     if not user_doc:
-        raise HTTPException(status_code=401, detail="User not found")
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
     return User(**user_doc)
 

@@ -3,6 +3,7 @@ Security utilities: password hashing, token generation, authentication.
 """
 import hashlib
 import uuid
+import bcrypt as _bcrypt
 from fastapi import Request, Header, HTTPException, Depends
 from typing import Optional, List
 from ..core.config import db
@@ -10,13 +11,18 @@ from ..models.user import User
 
 
 def hash_password(password: str) -> str:
-    """Hash password using SHA256."""
-    return hashlib.sha256(password.encode()).hexdigest()
+    """Hash password using bcrypt (secure)."""
+    return _bcrypt.hashpw(password.encode('utf-8'), _bcrypt.gensalt()).decode('utf-8')
 
 
 def generate_verification_token() -> str:
     """Generate a 64-character verification token."""
     return uuid.uuid4().hex + uuid.uuid4().hex
+
+
+def _hash_session_token(token: str) -> str:
+    """Hash session token for storage. SHA-256 is safe here because tokens are high-entropy UUIDs."""
+    return hashlib.sha256(token.encode()).hexdigest()
 
 
 async def get_current_user(request: Request, authorization: Optional[str] = Header(None)) -> User:
@@ -38,9 +44,9 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
     if not session_token:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    # Find user by session token
+    # Find user by session token (hashed)
     user_doc = await db.users.find_one(
-        {"session_token": session_token},
+        {"session_token": _hash_session_token(session_token)},
         {"_id": 0}
     )
     

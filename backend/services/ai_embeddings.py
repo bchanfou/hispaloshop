@@ -7,7 +7,7 @@ Fase 1: AI Recommendations
 import logging
 import os
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -215,11 +215,11 @@ def calculate_trending_score(product: Dict) -> float:
             try:
                 from datetime import datetime
                 created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
-            except:
+            except Exception:
                 created_at = None
         
         if created_at:
-            days_since = (datetime.utcnow() - created_at).days
+            days_since = (datetime.now(timezone.utc) - created_at).days
             if days_since < 7:
                 score += 15  # Boost de nuevo producto
             elif days_since < 30:

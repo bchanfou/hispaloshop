@@ -2,7 +2,7 @@
 Endpoints de carrito persistente y checkout completo.
 Fase 4: Checkout + B2B Importer
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 
@@ -23,7 +23,7 @@ async def get_cart(current_user = Depends(get_current_user)):
     cart = await db.carts.find_one({
         "user_id": current_user.user_id,
         "status": "active",
-        "expires_at": {"$gte": datetime.utcnow()}
+        "expires_at": {"$gte": datetime.now(timezone.utc)}
     })
     
     if not cart:
@@ -119,7 +119,7 @@ async def add_to_cart(
         "unit_price_cents": unit_price_cents,
         "total_price_cents": unit_price_cents * quantity,
         "variant_id": variant_id,
-        "added_at": datetime.utcnow()
+        "added_at": datetime.now(timezone.utc)
     }
     
     if cart:
@@ -147,7 +147,7 @@ async def add_to_cart(
             {
                 "$set": {
                     "items": cart["items"],
-                    "updated_at": datetime.utcnow()
+                    "updated_at": datetime.now(timezone.utc)
                 }
             }
         )
@@ -158,9 +158,9 @@ async def add_to_cart(
             "tenant_id": getattr(current_user, 'country', None) or "ES",
             "status": "active",
             "items": [cart_item],
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
-            "expires_at": datetime.utcnow() + timedelta(days=7)
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=7)
         }
         await db.carts.insert_one(new_cart)
     
@@ -219,7 +219,7 @@ async def update_cart_item(
     
     await db.carts.update_one(
         {"_id": cart["_id"]},
-        {"$set": {"items": items, "updated_at": datetime.utcnow()}}
+        {"$set": {"items": items, "updated_at": datetime.now(timezone.utc)}}
     )
     
     return {"success": True, "message": "Cart updated"}
@@ -247,7 +247,7 @@ async def remove_from_cart(
     
     await db.carts.update_one(
         {"_id": cart["_id"]},
-        {"$set": {"items": items, "updated_at": datetime.utcnow()}}
+        {"$set": {"items": items, "updated_at": datetime.now(timezone.utc)}}
     )
     
     return {"success": True, "message": "Item removed"}
@@ -329,7 +329,7 @@ async def apply_country_change(request: Request, current_user = Depends(get_curr
 
     await db.carts.update_one(
         {"_id": cart["_id"]},
-        {"$set": {"items": next_items, "updated_at": datetime.utcnow()}},
+        {"$set": {"items": next_items, "updated_at": datetime.now(timezone.utc)}},
     )
 
     return {"removed_count": removed_count, "updated_count": updated_count, "items": next_items}
@@ -349,7 +349,7 @@ async def apply_coupon(
         "active": True,
         "$or": [
             {"end_date": None},
-            {"end_date": {"$gte": datetime.utcnow()}}
+            {"end_date": {"$gte": datetime.now(timezone.utc)}}
         ]
     })
     
@@ -386,7 +386,7 @@ async def apply_coupon(
     update_fields = {
         "coupon_code": code.upper(),
         "discount_cents": discount_cents,
-        "updated_at": datetime.utcnow(),
+        "updated_at": datetime.now(timezone.utc),
     }
     if influencer_id:
         update_fields["influencer_id"] = influencer_id
@@ -399,8 +399,8 @@ async def apply_coupon(
                     "consumer_id": current_user.user_id,
                     "influencer_id": influencer_id,
                     "code_used": code.upper(),
-                    "attributed_at": datetime.utcnow(),
-                    "expires_at": datetime.utcnow() + timedelta(days=548),
+                    "attributed_at": datetime.now(timezone.utc),
+                    "expires_at": datetime.now(timezone.utc) + timedelta(days=548),
                 }
             },
             upsert=True,
@@ -437,7 +437,7 @@ async def clear_cart(current_user = Depends(get_current_user)):
                 "items": [],
                 "coupon_code": None,
                 "discount_cents": 0,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc)
             }
         }
     )
@@ -474,7 +474,7 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
             "unit_price_cents": int(item.get("unit_price_cents", 0) or 0),
             "total_price_cents": int(item.get("total_price_cents", 0) or 0),
             "variant_id": item.get("variant_id"),
-            "added_at": datetime.utcnow(),
+            "added_at": datetime.now(timezone.utc),
         })
 
     existing_cart = await db.carts.find_one({
@@ -488,7 +488,7 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
             {
                 "$set": {
                     "items": normalized_items,
-                    "updated_at": datetime.utcnow(),
+                    "updated_at": datetime.now(timezone.utc),
                 }
             },
         )
@@ -498,9 +498,9 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
             "tenant_id": getattr(current_user, 'country', None) or "ES",
             "status": "active",
             "items": normalized_items,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
-            "expires_at": datetime.utcnow() + timedelta(days=7),
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+            "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
         })
 
     return {"success": True, "items_count": len(normalized_items)}
@@ -551,7 +551,7 @@ async def remove_coupon(current_user=Depends(get_current_user)):
                 "coupon_code": None,
                 "discount_cents": 0,
                 "influencer_id": None,
-                "updated_at": datetime.utcnow(),
+                "updated_at": datetime.now(timezone.utc),
             }
         },
     )

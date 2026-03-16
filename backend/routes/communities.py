@@ -2,7 +2,7 @@
 Communities — create, explore, join, post, like.
 Mounted at /api/communities and /api/community-posts.
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -170,7 +170,7 @@ async def create_community(body: CreateCommunityBody, request: Request):
     if existing:
         raise HTTPException(400, detail="slug_taken")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     community = {
         "name": body.name,
         "slug": body.slug,
@@ -230,7 +230,7 @@ async def join_community(community_id: str, request: Request):
         "avatar_url": getattr(user, "picture", None),
         "is_admin": False,
         "is_seller": user.role in ("producer", "importer"),
-        "joined_at": datetime.utcnow().isoformat(),
+        "joined_at": datetime.now(timezone.utc).isoformat(),
     })
 
     await db.communities.update_one(
@@ -328,7 +328,7 @@ async def create_community_post(
     if not body.text.strip() and not body.image_url:
         raise HTTPException(400, "Post must have text or image")
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     post = {
         "community_id": cid,
         "author_id": user.user_id,
@@ -363,7 +363,7 @@ async def create_community_post(
                     "creator_id": author_id, "action": "hide",
                     "violation_type": mod.get("violation_type"),
                     "ai_reason": mod.get("reason"), "ai_confidence": mod.get("confidence"),
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat(),
                     "admin_reviewed": False, "admin_action": None,
                 })
             elif mod["action"] == "review":
@@ -372,7 +372,7 @@ async def create_community_post(
                     "creator_id": author_id, "action": "review",
                     "violation_type": mod.get("violation_type"),
                     "ai_reason": mod.get("reason"), "ai_confidence": mod.get("confidence"),
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat(),
                     "admin_reviewed": False, "admin_action": None,
                 })
         except Exception:
@@ -406,7 +406,7 @@ async def like_post(post_id: str, request: Request):
     await db.community_post_likes.insert_one({
         "post_id": pid,
         "user_id": user.user_id,
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
     })
     await db.community_posts.update_one(
         {"_id": post["_id"]}, {"$inc": {"likes_count": 1}}

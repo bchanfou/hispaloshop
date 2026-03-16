@@ -40,7 +40,7 @@ async def generate_quarterly_report(year: int, quarter: int) -> dict:
     influencers = await db.influencers.find(
         {"fiscal_status.tax_country": "ES"},
         {"_id": 0},
-    ).to_list(5000)
+    ).to_list(2000)
 
     perceptors = []
     total_gross = 0

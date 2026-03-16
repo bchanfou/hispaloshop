@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from time import perf_counter
 from typing import Any, Dict, List
 from uuid import UUID
@@ -88,7 +88,7 @@ class FeedService:
 
     @staticmethod
     async def _calculate_score(db: AsyncSession, post: Dict[str, Any], user_id: UUID) -> float:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         created_at = post["created_at"]
         hours_old = (now - created_at).total_seconds() / 3600
         recency = max(0.0, 100 * (0.95**hours_old))
@@ -162,8 +162,8 @@ class FeedService:
             db.add(entry)
 
         entry.feed_posts = [{"post_id": str(p["id"]), "score": p["calculated_score"]} for p in feed]
-        entry.generated_at = datetime.utcnow()
-        entry.expires_at = datetime.utcnow() + timedelta(minutes=30)
+        entry.generated_at = datetime.now(timezone.utc)
+        entry.expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
         entry.posts_considered = len(feed)
         entry.generation_time_ms = generation_ms
         await db.flush()

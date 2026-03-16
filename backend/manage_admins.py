@@ -13,7 +13,8 @@ MONGO_URL = "mongodb://localhost:27017"
 DB_NAME = "test_database"
 
 def hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode()).hexdigest()
+    import bcrypt
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def create_admin(email: str, password: str, name: str, is_super: bool = False):
     """Crear una nueva cuenta de administrador"""

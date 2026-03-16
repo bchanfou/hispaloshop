@@ -9,6 +9,7 @@ from urllib.parse import urlencode, urlparse
 import uuid
 import logging
 import re
+import hashlib
 
 from core.database import db
 from core.models import User, RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput
@@ -22,6 +23,13 @@ from services.auth_helpers import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _hash_session_token(token: str) -> str:
+    """Hash session token for storage. SHA-256 is safe here because tokens are high-entropy UUIDs."""
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
 router = APIRouter()
 _LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0"}
 _TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com", "vercel.app")
@@ -150,7 +158,7 @@ async def _create_user_session(user_id: str) -> str:
     session_token = f"session_{uuid.uuid4().hex}"
     await db.user_sessions.insert_one({
         "user_id": user_id,
-        "session_token": session_token,
+        "session_token": _hash_session_token(session_token),
         "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat()
     })
@@ -780,14 +788,14 @@ async def auth_session(request: Request, response: Response):
     
     session_token = auth_data["session_token"]
     
-    # Store session in database
+    # Store session in database (hashed for security)
     await db.user_sessions.insert_one({
         "user_id": user_id,
-        "session_token": session_token,
+        "session_token": _hash_session_token(session_token),
         "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat()
     })
-    
+
     response = JSONResponse(content={
         "user": _sanitize_user_doc(user_doc),
         "session_token": session_token
@@ -812,44 +820,45 @@ async def refresh_token(request: Request, response: Response):
     if not session_token:
         raise HTTPException(status_code=401, detail="No session token")
     
-    # Find valid session
+    # Find valid session (hash the token for DB lookup)
+    hashed_token = _hash_session_token(session_token)
     session = await db.user_sessions.find_one(
-        {"session_token": session_token},
+        {"session_token": hashed_token},
         {"_id": 0}
     )
-    
+
     if not session:
         raise HTTPException(status_code=401, detail="Invalid session")
-    
+
     # Check expiration
     expires_at = datetime.fromisoformat(session["expires_at"])
     if expires_at.tzinfo is None:
         expires_at = expires_at.replace(tzinfo=timezone.utc)
-    
+
     if expires_at < datetime.now(timezone.utc):
-        await db.user_sessions.delete_one({"session_token": session_token})
+        await db.user_sessions.delete_one({"session_token": hashed_token})
         raise HTTPException(status_code=401, detail="Session expired")
-    
+
     # Get user
     user_doc = await db.users.find_one(
         {"user_id": session["user_id"]},
         {"_id": 0, "password_hash": 0}
     )
-    
+
     if not user_doc:
-        await db.user_sessions.delete_one({"session_token": session_token})
+        await db.user_sessions.delete_one({"session_token": hashed_token})
         raise HTTPException(status_code=401, detail="User not found")
-    
+
     # Create new session BEFORE deleting old one to prevent session loss on crash
     new_session_token = f"session_{uuid.uuid4().hex}"
     await db.user_sessions.insert_one({
         "user_id": user_doc["user_id"],
-        "session_token": new_session_token,
+        "session_token": _hash_session_token(new_session_token),
         "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat()
     })
     # Delete old session after new one is safely persisted
-    await db.user_sessions.delete_one({"session_token": session_token})
+    await db.user_sessions.delete_one({"session_token": hashed_token})
     
     # Set new cookie
     _set_session_cookie(response, request, new_session_token)
@@ -864,7 +873,7 @@ async def refresh_token(request: Request, response: Response):
 async def logout(request: Request):
     session_token = request.cookies.get('session_token')
     if session_token:
-        await db.user_sessions.delete_one({"session_token": session_token})
+        await db.user_sessions.delete_one({"session_token": _hash_session_token(session_token)})
     response = JSONResponse(content={"message": "Logged out"})
     response.delete_cookie("session_token", path="/")
     return response
@@ -1072,12 +1081,12 @@ async def google_auth_callback(
             user_doc["picture"] = google_user["picture"]
         logger.info(f"[GOOGLE_AUTH] Existing user logged in: {google_user['email']}")
     
-    # Create session
+    # Create session (store hashed token, plain token goes to client cookie)
     session_token = f"session_{uuid.uuid4().hex}"
-    
+
     await db.user_sessions.insert_one({
         "user_id": user_id,
-        "session_token": session_token,
+        "session_token": _hash_session_token(session_token),
         "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat()
     })

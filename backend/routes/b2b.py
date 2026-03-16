@@ -2,7 +2,7 @@
 Endpoints B2B para importadores y productores.
 Fase 4: B2B Importer + Fase 15: Producer B2B Requests
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -347,7 +347,7 @@ async def _generate_basic_matches(importer_id: str, tenant_id: str) -> int:
                 "match_score": round(score, 2),
                 "match_reasons": reasons,
                 "status": "suggested",
-                "created_at": datetime.utcnow()
+                "created_at": datetime.now(timezone.utc)
             })
             matches_created += 1
     
@@ -384,8 +384,8 @@ async def contact_producer(
         {
             "$set": {
                 "status": "contacted",
-                "first_contact_at": datetime.utcnow(),
-                "last_contact_at": datetime.utcnow(),
+                "first_contact_at": datetime.now(timezone.utc),
+                "last_contact_at": datetime.now(timezone.utc),
                 "importer_notes": message[:500]
             },
             "$inc": {"contact_count": 1}
@@ -400,7 +400,7 @@ async def contact_producer(
         "initial_message": message,
         "status": "new",
         "priority": "medium",
-        "contacted_at": datetime.utcnow()
+        "contacted_at": datetime.now(timezone.utc)
     }
     await db.b2b_leads.insert_one(lead)
     
@@ -441,7 +441,7 @@ async def add_b2b_price(
         "unit_price_cents": unit_price_cents,
         "max_quantity": max_quantity,
         "is_active": True,
-        "created_at": datetime.utcnow()
+        "created_at": datetime.now(timezone.utc)
     }
     
     await db.b2b_catalog_prices.insert_one(price_doc)
@@ -505,15 +505,15 @@ async def update_lead_status(
     
     update = {
         "status": status,
-        "updated_at": datetime.utcnow()
+        "updated_at": datetime.now(timezone.utc)
     }
     
     if status == "qualified":
-        update["qualified_at"] = datetime.utcnow()
+        update["qualified_at"] = datetime.now(timezone.utc)
     elif status == "proposal_sent":
-        update["proposal_sent_at"] = datetime.utcnow()
+        update["proposal_sent_at"] = datetime.now(timezone.utc)
     elif status in ["won", "lost"]:
-        update["closed_at"] = datetime.utcnow()
+        update["closed_at"] = datetime.now(timezone.utc)
     
     await db.b2b_leads.update_one(
         {
@@ -641,7 +641,7 @@ async def confirm_b2b_request(
         "confirmed_unit_price": body.confirmed_unit_price,
         "producer_notes": body.notes,
         "estimated_days": body.estimated_days,
-        "confirmed_at": datetime.utcnow(),
+        "confirmed_at": datetime.now(timezone.utc),
     }})
 
     if result.matched_count == 0:
@@ -686,7 +686,7 @@ async def reject_b2b_request(
 
     result = await db.b2b_orders.update_one(query, {"$set": {
         "status": "rejected_by_producer",
-        "rejected_at": datetime.utcnow(),
+        "rejected_at": datetime.now(timezone.utc),
     }})
 
     if result.matched_count == 0:
@@ -736,7 +736,7 @@ async def ship_b2b_request(
         "status": "shipped",
         "tracking_number": body.tracking_number,
         "tracking_url": body.tracking_url,
-        "shipped_at": datetime.utcnow(),
+        "shipped_at": datetime.now(timezone.utc),
     }})
 
     if result.matched_count == 0:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 from uuid import UUID
 
@@ -37,7 +37,7 @@ class RedisManager:
             return current <= max_requests
         except redis.RedisError:
             # Fail-open fallback for local/dev environments without Redis.
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             current, expires_at = self._local_rate_fallback.get(redis_key, (0, now + timedelta(seconds=window)))
             if now > expires_at:
                 current = 0
@@ -47,7 +47,7 @@ class RedisManager:
             return current <= max_requests
 
     async def set_user_online(self, user_id: UUID, socket_id: str) -> None:
-        await self.client.hset(f"presence:{user_id}", mapping={"socket": socket_id, "ts": str(datetime.utcnow().timestamp())})
+        await self.client.hset(f"presence:{user_id}", mapping={"socket": socket_id, "ts": str(datetime.now(timezone.utc).timestamp())})
         await self.client.expire(f"presence:{user_id}", 60)
 
     async def publish_message(self, channel: str, message: str) -> None:
