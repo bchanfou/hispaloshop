@@ -87,7 +87,7 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
         if iid not in by_influencer:
             by_influencer[iid] = {"payouts": [], "total": 0}
         by_influencer[iid]["payouts"].append(p)
-        by_influencer[iid]["total"] += p["amount"]
+        by_influencer[iid]["total"] = round(by_influencer[iid]["total"] + p["amount"], 2)
 
     paid_count = 0
     skipped_count = 0
@@ -119,7 +119,7 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
         if not valid_payouts:
             continue
 
-        total_valid = sum(p["amount"] for p in valid_payouts)
+        total_valid = round(sum(p["amount"] for p in valid_payouts), 2)
         if total_valid < INFLUENCER_MIN_PAYOUT_EUR:
             continue
 
@@ -450,8 +450,8 @@ async def process_b2b_scheduled_payments(
                         "updated_at": now.isoformat(),
                     }},
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("ObjectId conversion failed: %s", e)
 
             processed += 1
             logger.info("B2B scheduled payment processed: %s → %s (%.2f)", operation_id, seller_id, seller_amount)

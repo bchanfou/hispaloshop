@@ -146,28 +146,48 @@ async def upload_chat_image(file: UploadFile = File(...), user: User = Depends(g
 
 @router.get("/uploads/products/{filename}")
 async def get_product_image(filename: str):
-    file_path = Path("/app/uploads/products") / filename
+    if '..' in filename or '/' in filename or '\\' in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    base_dir = Path("/app/uploads/products").resolve()
+    file_path = (base_dir / filename).resolve()
+    if not str(file_path).startswith(str(base_dir)):
+        raise HTTPException(status_code=400, detail="Invalid filename")
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(file_path)
 
 @router.get("/uploads/posts/{filename}")
 async def get_post_image(filename: str):
-    file_path = Path("/app/uploads/posts") / filename
+    if '..' in filename or '/' in filename or '\\' in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    base_dir = Path("/app/uploads/posts").resolve()
+    file_path = (base_dir / filename).resolve()
+    if not str(file_path).startswith(str(base_dir)):
+        raise HTTPException(status_code=400, detail="Invalid filename")
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(file_path)
 
 @router.get("/uploads/avatars/{filename}")
 async def get_avatar_image(filename: str):
-    file_path = Path("/app/uploads/avatars") / filename
+    if '..' in filename or '/' in filename or '\\' in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    base_dir = Path("/app/uploads/avatars").resolve()
+    file_path = (base_dir / filename).resolve()
+    if not str(file_path).startswith(str(base_dir)):
+        raise HTTPException(status_code=400, detail="Invalid filename")
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(file_path)
 
 @router.get("/uploads/chat_images/{filename}")
 async def get_chat_image(filename: str):
-    file_path = Path("/app/uploads/chat_images") / filename
+    if '..' in filename or '/' in filename or '\\' in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    base_dir = Path("/app/uploads/chat_images").resolve()
+    file_path = (base_dir / filename).resolve()
+    if not str(file_path).startswith(str(base_dir)):
+        raise HTTPException(status_code=400, detail="Invalid filename")
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(file_path)

@@ -28,7 +28,7 @@ function ProductCard({ product }) {
         )}
         {lowestPrice && (
           <p className="text-stone-950 font-bold text-sm mt-2">
-            desde {(lowestPrice.unit_price_cents / 100).toFixed(2)} EUR/ud
+            desde {((Number(lowestPrice?.unit_price_cents) || 0) / 100).toFixed(2)} EUR/ud
           </p>
         )}
         {product.b2b_prices?.length > 1 && (

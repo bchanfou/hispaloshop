@@ -160,8 +160,8 @@ async def restore_moderation(
     body = {}
     try:
         body = await request.json()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Failed to parse moderation data: %s", e)
     note = body.get("note", "")
 
     item = await db.content_moderation_queue.find_one({"_id": _oid(item_id)})
@@ -210,8 +210,8 @@ async def restore_moderation(
             notification_type="moderation_restored",
             action_url="/profile",
         )
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Failed to create moderation notification: %s", e)
 
     return {"status": "restored", "id": item_id}
 
@@ -320,8 +320,8 @@ def _notify_creator(item: dict, confirmed: bool):
                 notification_type="moderation_hidden",
                 action_url="/profile",
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed to notify creator: %s", e)
 
     try:
         asyncio.create_task(_send())

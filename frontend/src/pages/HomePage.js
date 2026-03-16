@@ -4,9 +4,10 @@ import HomeHeader from '../components/feed/HomeHeader';
 import SEO from '../components/SEO';
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState(
-    () => localStorage.getItem('feedTab') || 'foryou'
-  );
+  const [activeTab, setActiveTab] = useState(() => {
+    try { return localStorage.getItem('feedTab') || 'foryou'; }
+    catch { return 'foryou'; }
+  });
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);

@@ -263,7 +263,7 @@ export default function CartPage() {
     if (!appliedDiscount) {
       return subtotal;
     }
-    return Math.max(0, subtotal - (appliedDiscount.discount_amount || 0));
+    return Math.max(0, subtotal - ((appliedDiscount?.discount_cents || 0) / 100));
   };
 
   const handleCheckout = async () => {
@@ -672,10 +672,10 @@ export default function CartPage() {
                   <span className="text-stone-500">{t('cart.subtotal')}</span>
                   <span className="text-stone-950">{convertAndFormatPrice((cartSummary.subtotal_cents || Math.round(getTotalPrice() * 100)) / 100, 'EUR')}</span>
                 </div>
-                {appliedDiscount && appliedDiscount.discount_amount > 0 && (
+                {appliedDiscount && (appliedDiscount?.discount_cents || 0) > 0 && (
                   <div className="flex justify-between text-sm text-stone-700 md:text-base">
                     <span>{t('cart.discount')}</span>
-                    <span>-{convertAndFormatPrice(appliedDiscount.discount_amount, currency)}</span>
+                    <span>-{convertAndFormatPrice((appliedDiscount?.discount_cents || 0) / 100, currency)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm md:text-base">

@@ -195,6 +195,7 @@ export default function CheckoutPage() {
   };
 
   const handlePay = async () => {
+    if (checkoutLoading) return;
     const addr = selectedAddress;
     if (!addr) { toast.error('Selecciona una dirección'); return; }
     try {

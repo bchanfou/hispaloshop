@@ -18,7 +18,7 @@ export function useCartPricing(cartItems, appliedDiscount) {
   const shippingCents = pricing?.shippingCents || 0;
   const taxCents = pricing?.taxCents || 0;
   const taxRateBp = pricing?.taxRateBp || 2100;
-  const discountAmountCents = Math.round((appliedDiscount?.discount_amount || 0) * 100);
+  const discountAmountCents = appliedDiscount?.discount_cents || 0;
 
   return {
     cartSummary: {
