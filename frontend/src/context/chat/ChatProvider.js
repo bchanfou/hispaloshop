@@ -189,6 +189,8 @@ export function ChatProvider({ children }) {
 
       ws.onopen = () => {
         setNotifConnected(true);
+        // Cookie-based auth is automatic via browser upgrade request.
+        // Send token message as fallback for environments without cookies.
         const token = getToken();
         if (token) {
           ws.send(JSON.stringify({ type: 'auth', token }));

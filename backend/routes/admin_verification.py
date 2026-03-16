@@ -10,6 +10,7 @@ from core.database import db
 from core.auth import get_current_user, require_role
 from core.models import User
 from services.auth_helpers import send_email
+from services.audit_logger import log_admin_action
 from routes.notifications import create_notification
 
 logger = logging.getLogger(__name__)
@@ -157,6 +158,15 @@ async def approve_verification(
     except Exception as e:
         logger.error("Failed to notify producer %s: %s", user_id, e)
 
+    await log_admin_action(
+        admin_id=user.user_id,
+        admin_role=user.role,
+        action="verification_approved",
+        target_type="user",
+        target_id=user_id,
+        details=f"Verification approved for {target.get('company_name') or target.get('name')}",
+    )
+
     return {"status": "approved", "user_id": user_id}
 
 
@@ -220,6 +230,16 @@ async def reject_verification(
         )
     except Exception as e:
         logger.error("Failed to notify producer %s: %s", user_id, e)
+
+    await log_admin_action(
+        admin_id=user.user_id,
+        admin_role=user.role,
+        action="verification_rejected",
+        target_type="user",
+        target_id=user_id,
+        details=f"Verification rejected for {target.get('company_name') or target.get('name')}: {reason}",
+        severity="warning",
+    )
 
     return {"status": "rejected", "user_id": user_id, "reason": reason}
 

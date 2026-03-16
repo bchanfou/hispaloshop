@@ -21,6 +21,7 @@ from services.auth_helpers import (
     generate_verification_token, generate_verification_code,
     send_email, FRONTEND_URL, AUTH_BACKEND_URL,
 )
+from middleware.rate_limit import rate_limiter
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +127,7 @@ def _set_session_cookie(target_response: Response, request: Request, session_tok
         value=session_token,
         max_age=7 * 24 * 60 * 60,
         path="/",
-        samesite="none" if is_secure_cookie else "lax",
+        samesite="lax",
         httponly=True,
         secure=is_secure_cookie
     )
@@ -200,6 +201,7 @@ async def _resolve_referral_influencer(referral_code: Optional[str]) -> tuple[Op
 
 @router.post("/auth/register")
 async def register(input: RegisterInput, request: Request):
+    await rate_limiter.check(request, endpoint_type="register")
     # Age verification — must be 16+
     if input.birth_date:
         try:
@@ -564,6 +566,7 @@ async def get_verification_status(user: User = Depends(get_current_user)):
 
 @router.post("/auth/login")
 async def login(input: LoginInput, request: Request):
+    await rate_limiter.check(request, endpoint_type="login")
     identifier = input.email.strip().lower()
     
     # Determine if identifier is email or username
@@ -601,6 +604,7 @@ async def login(input: LoginInput, request: Request):
 @router.post("/auth/forgot-password")
 async def forgot_password(input: ForgotPasswordInput, request: Request):
     """Request password reset email — uses request origin for correct URL."""
+    await rate_limiter.check(request, endpoint_type="forgot_password")
     normalized_email = input.email.lower()
     user = await db.users.find_one({"email": normalized_email}, {"_id": 0})
     

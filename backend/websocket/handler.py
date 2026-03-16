@@ -68,19 +68,20 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
     Manejar conexión WebSocket autenticada.
 
     Auth priority:
-    1. Query param ?token= (legacy, deprecated)
-    2. Cookie session_token
-    3. First message { "type": "auth", "token": "..." } (preferred)
+    1. Cookie session_token (preferred — automatic via browser upgrade request)
+    2. Query param ?token= (legacy fallback)
+    3. First message { "type": "auth", "token": "..." } (testing fallback)
     """
     user_id = None
 
     try:
-        # Intentar obtener session token de query param o cookies
-        session_token = token
+        # Prefer cookie-based auth (sent automatically with WS upgrade request)
+        cookies = websocket.cookies
+        session_token = cookies.get('session_token')
 
+        # Fall back to query param if no cookie
         if not session_token:
-            cookies = websocket.cookies
-            session_token = cookies.get('session_token')
+            session_token = token
 
         # Accept connection first (needed for auth-message flow)
         await websocket.accept()

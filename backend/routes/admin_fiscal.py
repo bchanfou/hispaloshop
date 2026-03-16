@@ -9,6 +9,7 @@ from core.database import db
 from core.auth import get_current_user, require_role
 from core.models import User
 from services.modelo190_service import generate_quarterly_report
+from services.audit_logger import log_admin_action
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -160,6 +161,14 @@ async def review_certificate(request: Request, user: User = Depends(get_current_
                 "updated_at": now_iso,
             }},
         )
+        await log_admin_action(
+            admin_id=user.user_id,
+            admin_role=user.role,
+            action="certificate_approved",
+            target_type="influencer",
+            target_id=influencer_id,
+            details=f"Fiscal certificate approved for {influencer.get('full_name', '')}",
+        )
         return {"status": "approved", "influencer_id": influencer_id}
     else:
         await db.influencers.update_one(
@@ -171,6 +180,15 @@ async def review_certificate(request: Request, user: User = Depends(get_current_
                 "fiscal_status.needs_manual_review": False,
                 "updated_at": now_iso,
             }},
+        )
+        await log_admin_action(
+            admin_id=user.user_id,
+            admin_role=user.role,
+            action="certificate_rejected",
+            target_type="influencer",
+            target_id=influencer_id,
+            details=f"Fiscal certificate rejected for {influencer.get('full_name', '')}: {reason}",
+            severity="warning",
         )
         return {"status": "rejected", "influencer_id": influencer_id, "reason": reason}
 

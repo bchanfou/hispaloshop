@@ -16,6 +16,7 @@ from core.models import User, RejectCertificateInput, PageVisitRequest
 from core.constants import SUPPORTED_COUNTRIES
 from core.auth import get_current_user, require_role, require_super_admin
 from services.auth_helpers import send_email
+from services.audit_logger import log_admin_action
 from routes.notifications import create_notification
 
 logger = logging.getLogger(__name__)
@@ -91,6 +92,15 @@ async def update_producer_status(producer_id: str, status: str, user: User = Dep
 
     update_data = {"status": status, "approved": status == "approved"}
     await db.users.update_one({"user_id": producer_id}, {"$set": update_data})
+    await log_admin_action(
+        admin_id=user.user_id,
+        admin_role=user.role,
+        action="producer_status_changed",
+        target_type="producer",
+        target_id=producer_id,
+        details=f"Producer status changed to {status}",
+        extra={"new_status": status},
+    )
     return {"message": f"Seller status updated to {status}"}
 
 @router.put("/admin/producers/{producer_id}")
@@ -186,6 +196,14 @@ async def approve_product(product_id: str, approved: bool, user: User = Depends(
             action_url="/producer/products",
         )
     
+    await log_admin_action(
+        admin_id=user.user_id,
+        admin_role=user.role,
+        action="product_approved" if approved else "product_rejected",
+        target_type="product",
+        target_id=product_id,
+        details=f"Product {'approved' if approved else 'rejected'}: {product.get('name', '')}",
+    )
     return {"message": "Product approval updated"}
 
 @router.put("/admin/products/{product_id}/featured")
@@ -200,6 +218,14 @@ async def toggle_product_featured(product_id: str, featured: bool, user: User = 
         if product.get("producer_id") not in scoped_seller_ids:
             raise HTTPException(status_code=404, detail="Product not found")
     await db.products.update_one({"product_id": product_id}, {"$set": {"featured": featured}})
+    await log_admin_action(
+        admin_id=user.user_id,
+        admin_role=user.role,
+        action="product_featured" if featured else "product_unfeatured",
+        target_type="product",
+        target_id=product_id,
+        details=f"Product {'featured' if featured else 'unfeatured'}",
+    )
     return {"message": f"Product {'featured' if featured else 'unfeatured'}"}
 
 @router.put("/admin/products/{product_id}/price")
@@ -217,8 +243,17 @@ async def update_product_price(product_id: str, price: float, user: User = Depen
             raise HTTPException(status_code=404, detail="Product not found")
     old_price = product.get("price", 0) if product else 0
     
-    await db.products.update_one({"product_id": product_id}, {"$set": {"price": price}})
-    
+    await db.products.update_one({"product_id": product_id}, {"$set": {"price": price, "price_cents": int(round(price * 100))}})
+    await log_admin_action(
+        admin_id=user.user_id,
+        admin_role=user.role,
+        action="product_price_changed",
+        target_type="product",
+        target_id=product_id,
+        details=f"Price changed from {old_price:.2f} to {price:.2f}",
+        extra={"old_price": old_price, "new_price": price},
+    )
+
     # Notify wishlist users if price dropped
     if product and price < old_price:
         wishlist_entries = await db.wishlists.find(

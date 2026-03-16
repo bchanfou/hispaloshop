@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 from uuid import UUID
@@ -7,6 +8,8 @@ from uuid import UUID
 import redis.asyncio as redis
 
 from config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class RedisManager:
@@ -36,6 +39,7 @@ class RedisManager:
                 await self.client.expire(redis_key, window)
             return current <= max_requests
         except redis.RedisError:
+            logger.warning("Redis unavailable for rate limiting, using in-memory fallback for key: %s", key)
             # Fail-open fallback for local/dev environments without Redis.
             now = datetime.now(timezone.utc)
             current, expires_at = self._local_rate_fallback.get(redis_key, (0, now + timedelta(seconds=window)))

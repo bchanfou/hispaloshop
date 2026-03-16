@@ -373,6 +373,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
                 "pack_id": pack.pack_id or f"pack_{uuid.uuid4().hex[:8]}",
                 "quantity": pack.quantity,
                 "price": pack.price,
+                "price_cents": int(round(pack.price * 100)),
                 "label": pack.label or f"Pack of {pack.quantity}"
             }
             # Calculate discount percentage based on unit price
@@ -382,7 +383,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
                 discount_pct = round(((expected_price - pack.price) / expected_price) * 100)
                 pack_dict["discount_percentage"] = discount_pct
             packs_data.append(pack_dict)
-    
+
     # Determine seller type from user role
     seller_type = user.role if user.role in ["producer", "importer", "admin"] else "producer"
     target_markets = normalize_markets(input.target_markets or ([input.country_origin] if input.country_origin else []))
@@ -396,6 +397,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         "slug": slug,
         "description": input.description,
         "price": input.price,
+        "price_cents": int(round(input.price * 100)),
         "images": input.images,
         "country_origin": input.country_origin,
         "ingredients": input.ingredients,
@@ -413,6 +415,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         "available_countries": target_markets,
         "target_markets": target_markets,
         "country_prices": {input.country_origin: input.price} if input.country_origin else {},
+        "country_prices_cents": {input.country_origin: int(round(input.price * 100))} if input.country_origin else {},
         "country_currency": {input.country_origin: "EUR"} if input.country_origin else {},
         # Translation fields
         "source_language": input.source_language or "es",
@@ -543,6 +546,7 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
                 "pack_id": pack.pack_id or f"pack_{uuid.uuid4().hex[:8]}",
                 "quantity": pack.quantity,
                 "price": pack.price,
+                "price_cents": int(round(pack.price * 100)),
                 "label": pack.label or f"Pack of {pack.quantity}"
             }
             # Calculate discount percentage based on unit price
@@ -552,11 +556,12 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
                 discount_pct = round(((expected_price - pack.price) / expected_price) * 100)
                 pack_dict["discount_percentage"] = discount_pct
             packs_data.append(pack_dict)
-    
+
     update_data = {
         "name": input.name,
         "description": input.description,
         "price": input.price,
+        "price_cents": int(round(input.price * 100)),
         "images": input.images,
         "country_origin": input.country_origin,
         "ingredients": input.ingredients,

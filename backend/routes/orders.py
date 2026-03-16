@@ -23,6 +23,7 @@ from core.auth import get_current_user, require_role
 from services.auth_helpers import send_email
 from services.ledger import write_ledger_event
 from services.markets import get_product_target_markets, is_product_available_in_country, normalize_market_code
+from middleware.rate_limit import rate_limiter
 from config import normalize_influencer_tier
 from services.shipping_service import ShippingPolicy, ShippingService
 
@@ -708,6 +709,7 @@ async def stripe_status():
 
 @router.post("/payments/create-checkout")
 async def create_checkout(request: Request, input: OrderCreateInput, user: User = Depends(get_current_user)):
+    await rate_limiter.check(request, endpoint_type="checkout")
     # Guard: Stripe must be configured with a real key
     _sk = STRIPE_SECRET_KEY or ""
     if not (_sk.startswith(("sk_live_", "sk_test_")) and len(_sk) > 20 and "PENDIENTE" not in _sk):
@@ -748,6 +750,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
         
         # Auto-correct pricing if changed (don't reject, just update)
         current_price = product.get("price", 0)
+        current_price_cents = product.get("price_cents") or int(round(current_price * 100))
         inv = product.get("inventory_by_country", [])
         market = next((m for m in inv if m.get("country_code") == user_country and m.get("active")), None)
         if market:
@@ -964,7 +967,9 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
             "producer_id": item["producer_id"],
             "quantity": item["quantity"],
             "price": item["price"],
-            "subtotal": item["price"] * item["quantity"]
+            "price_cents": int(round(item["price"] * 100)),
+            "subtotal": item["price"] * item["quantity"],
+            "subtotal_cents": int(round(item["price"] * item["quantity"] * 100)),
         }
         if item.get("variant_id"):
             line_item["variant_id"] = item["variant_id"]
