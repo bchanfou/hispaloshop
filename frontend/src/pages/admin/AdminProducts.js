@@ -18,10 +18,11 @@ export default function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
-  const [editingProduct, setEditingProduct] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [checklistProduct, setChecklistProduct] = useState(null); // product pending checklist approval
   const [checklistItems, setChecklistItems] = useState({});
+  const [editingPrice, setEditingPrice] = useState({ productId: null, value: '' });
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     category_id: '',
@@ -106,10 +107,27 @@ export default function AdminProducts() {
       await apiClient.put(`/admin/products/${productId}/price?price=${price}`, {});
       toast.success(t('adminProducts.messages.priceUpdated'));
       fetchProducts();
-      setEditingProduct(null);
+      setEditingPrice({ productId: null, value: '' });
     } catch (error) {
       toast.error(t('adminProducts.messages.priceError'));
     }
+  };
+
+  const approveSelected = async () => {
+    try {
+      await Promise.all(selectedProducts.map(id => apiClient.put(`/admin/products/${id}/approve?approved=true`, {})));
+      toast.success(`${selectedProducts.length} producto(s) aprobado(s)`);
+      setSelectedProducts([]);
+      fetchProducts();
+    } catch (error) {
+      toast.error(t('adminProducts.messages.updateError'));
+    }
+  };
+
+  const toggleSelectProduct = (productId) => {
+    setSelectedProducts(prev =>
+      prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
+    );
   };
 
   const createProduct = async (e) => {
@@ -327,6 +345,25 @@ export default function AdminProducts() {
         </select>
       </div>
 
+      {/* Bulk actions */}
+      {selectedProducts.length > 0 && (
+        <div className="flex items-center gap-3 mb-4 px-4 py-3 bg-stone-950 rounded-xl">
+          <span className="text-sm text-white flex-1">{selectedProducts.length} producto(s) seleccionado(s)</span>
+          <button
+            onClick={approveSelected}
+            className="px-4 py-1.5 bg-white text-stone-950 text-sm font-medium rounded-xl hover:bg-stone-100 transition-colors"
+          >
+            Aprobar seleccionados ({selectedProducts.length})
+          </button>
+          <button
+            onClick={() => setSelectedProducts([])}
+            className="px-3 py-1.5 border border-white/30 text-white text-sm rounded-xl hover:bg-white/10 transition-colors"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
+
       {/* Table */}
       <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
         {loading ? (
@@ -337,6 +374,7 @@ export default function AdminProducts() {
           <table className="w-full" data-testid="products-table">
             <thead className="bg-stone-50 border-b border-stone-200">
               <tr>
+                <th scope="col" className="px-4 py-4 w-10"></th>
                 <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducts.table.product')}</th>
                 <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducts.table.producer')}</th>
                 <th scope="col" className="text-left px-6 py-4 text-sm font-medium text-stone-600">{t('adminProducts.table.price')}</th>
@@ -347,6 +385,15 @@ export default function AdminProducts() {
             <tbody className="divide-y divide-stone-200">
               {filteredProducts.map((product) => (
                 <tr key={product.product_id} className="hover:bg-stone-50">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedProducts.includes(product.product_id)}
+                      onChange={() => toggleSelectProduct(product.product_id)}
+                      className="w-4 h-4 accent-stone-950"
+                      aria-label={`Seleccionar ${product.name}`}
+                    />
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden">
@@ -364,29 +411,26 @@ export default function AdminProducts() {
                     <p className="text-stone-950">{product.producer_name}</p>
                   </td>
                   <td className="px-6 py-4">
-                    {editingProduct === product.product_id ? (
+                    {editingPrice.productId === product.product_id ? (
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
                           step="0.01"
-                          defaultValue={product.price}
+                          value={editingPrice.value}
+                          onChange={e => setEditingPrice(prev => ({ ...prev, value: e.target.value }))}
                           className="w-24 px-2 py-1 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
-                          id={`price-${product.product_id}`}
                         />
                         <button
                           type="button"
                           className="px-2 py-1 text-xs font-medium bg-stone-950 text-white rounded-xl hover:bg-stone-800 transition-colors"
-                          onClick={() => {
-                            const input = document.getElementById(`price-${product.product_id}`);
-                            updatePrice(product.product_id, parseFloat(input.value));
-                          }}
+                          onClick={() => updatePrice(product.product_id, parseFloat(editingPrice.value))}
                         >
                           {t('common.save')}
                         </button>
                         <button
                           type="button"
                           className="px-2 py-1 text-xs font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
-                          onClick={() => setEditingProduct(null)}
+                          onClick={() => setEditingPrice({ productId: null, value: '' })}
                         >
                           {t('common.cancel')}
                         </button>
@@ -395,7 +439,7 @@ export default function AdminProducts() {
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-stone-950">{asNumber(product.price).toFixed(2)}€</span>
                         <button
-                          onClick={() => setEditingProduct(product.product_id)}
+                          onClick={() => setEditingPrice({ productId: product.product_id, value: String(product.price) })}
                           className="text-stone-500 hover:text-stone-950"
                           aria-label={`${t('common.edit')} ${t('adminProducts.table.price')}`}
                           title={t('common.edit')}

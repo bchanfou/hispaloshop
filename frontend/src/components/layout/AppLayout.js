@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import AppHeader from './AppHeader';
 import SideNav from './SideNav';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
+import { trackPageVisit } from '../../utils/analytics';
 
 /**
  * AppLayout — responsive shell for authenticated app pages
@@ -82,6 +83,15 @@ export default function AppLayout({ children }) {
   const location = useLocation();
   const { user } = useAuth();
   const hideChrome = shouldHideChrome(location.pathname);
+  const prevPathRef = useRef(location.pathname);
+
+  // Track page visits for analytics
+  useEffect(() => {
+    if (location.pathname !== prevPathRef.current) {
+      prevPathRef.current = location.pathname;
+      trackPageVisit(location.pathname, user?.country);
+    }
+  }, [location.pathname, user?.country]);
 
   if (hideChrome) {
     return <>{children}</>;

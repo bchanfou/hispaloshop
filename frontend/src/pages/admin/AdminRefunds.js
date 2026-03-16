@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, RotateCcw, Search, AlertTriangle, Check, ChevronDown } from 'lucide-react';
+import { Loader2, RotateCcw, Search, AlertTriangle, Check, ChevronDown, Download } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -30,6 +30,7 @@ function formatDate(dateStr) {
 function RefundModal({ order, onClose, onRefunded }) {
   const [type, setType] = useState('full');
   const [amount, setAmount] = useState('');
+  const [reason, setReason] = useState('');
   const [processing, setProcessing] = useState(false);
 
   const total = order?.total_amount || 0;
@@ -45,6 +46,7 @@ function RefundModal({ order, onClose, onRefunded }) {
     try {
       const body = { type };
       if (type === 'partial') body.amount = parseFloat(amount);
+      if (reason.trim()) body.reason = reason.trim();
       await apiClient.post(`/payments/refund/${order.order_id}`, body);
       toast.success('Reembolso procesado correctamente');
       onRefunded();
@@ -93,6 +95,22 @@ function RefundModal({ order, onClose, onRefunded }) {
             />
           </div>
         )}
+
+        {/* Reason */}
+        <div className="mb-4">
+          <label className="text-sm font-medium text-stone-700 mb-1 block">
+            Motivo del reembolso <span className="text-stone-400 font-normal">(opcional)</span>
+          </label>
+          <textarea
+            value={reason}
+            onChange={e => setReason(e.target.value.slice(0, 200))}
+            maxLength={200}
+            rows={3}
+            placeholder="Describe el motivo..."
+            className="w-full px-3 py-2.5 border border-stone-200 rounded-xl text-sm resize-none focus:outline-none focus:border-stone-400"
+          />
+          <p className="text-right text-xs text-stone-400 mt-0.5">{reason.length}/200</p>
+        </div>
 
         <div className="bg-stone-50 rounded-xl p-3 mb-4 text-xs text-stone-600">
           <div className="flex items-start gap-2">
@@ -226,6 +244,26 @@ export default function AdminRefunds() {
 
   const totalRefunded = data.refunded.reduce((sum, o) => sum + (o.refund_amount || 0), 0);
 
+  const exportCSV = () => {
+    const headers = ['Order ID', 'Customer', 'Amount', 'Status', 'Date'];
+    const rows = data.refunded.map(o => [
+      o.order_id,
+      o.user_name || o.user_email || 'Cliente',
+      (o.refund_amount || 0).toFixed(2),
+      o.status,
+      formatDate(o.created_at),
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'refunds.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('CSV exportado');
+  };
+
   return (
     <div>
       <div className="mb-4">
@@ -235,15 +273,24 @@ export default function AdminRefunds() {
         </p>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-3">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Buscar por ID, cliente..."
-          className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-xl text-sm bg-white focus:outline-none focus:border-stone-400"
-        />
+      {/* Search + Export */}
+      <div className="flex items-center gap-3 mb-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar por ID, cliente..."
+            className="w-full pl-9 pr-4 py-2.5 border border-stone-200 rounded-xl text-sm bg-white focus:outline-none focus:border-stone-400"
+          />
+        </div>
+        <button
+          onClick={exportCSV}
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors text-stone-700 shrink-0"
+        >
+          <Download className="w-4 h-4" />
+          Exportar CSV
+        </button>
       </div>
 
       {/* Tabs */}

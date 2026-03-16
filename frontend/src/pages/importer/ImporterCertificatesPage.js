@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Download, Loader2, ExternalLink, Award } from 'lucide-react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -80,17 +81,25 @@ export default function ImporterCertificatesPage() {
   const [certs, setCerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const { producerId: paramProducerId } = useParams();
+  const [searchParams] = useSearchParams();
+  const producerId = paramProducerId || searchParams.get('producer_id') || searchParams.get('producerId');
+
   useEffect(() => {
+    if (!producerId) {
+      setLoading(false);
+      return;
+    }
     const load = async () => {
       setLoading(true);
       try {
-        // Try supplier-certificates endpoint first, fallback to producer certificates
+        // Try supplier-certificates endpoint first
         let data;
         try {
           data = await apiClient.get('/importer/supplier-certificates');
         } catch {
-          // Fallback: use producer certificates endpoint (works for importers too)
-          data = await apiClient.get('/producer/certificates');
+          // Fallback: fetch certificates for the specific producer
+          data = await apiClient.get(`/b2b/producers/${producerId}/certificates`);
         }
         const items = data?.certificates || (Array.isArray(data) ? data : []);
         setCerts(items);
@@ -101,7 +110,7 @@ export default function ImporterCertificatesPage() {
       }
     };
     load();
-  }, []);
+  }, [producerId]);
 
   const expiring = certs.filter(c => c.days_until_expiry != null && c.days_until_expiry > 0 && c.days_until_expiry <= 60);
   const expired = certs.filter(c => c.days_until_expiry != null && c.days_until_expiry <= 0);
@@ -116,6 +125,23 @@ export default function ImporterCertificatesPage() {
     return (c.certification_name || c.name || '').toLowerCase().includes(q) ||
       (c.producer_name || '').toLowerCase().includes(q);
   });
+
+  if (!producerId) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] px-4">
+        <div className="bg-white border border-stone-200 rounded-xl p-8 text-center max-w-sm w-full">
+          <Award className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-stone-950 mb-1">Selecciona un proveedor para ver sus certificados</p>
+          <Link
+            to="/b2b/marketplace"
+            className="inline-block mt-4 text-sm font-medium text-stone-950 underline underline-offset-2"
+          >
+            Ir al directorio B2B →
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

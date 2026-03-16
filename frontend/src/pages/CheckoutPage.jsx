@@ -219,7 +219,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const total = cartSummary?.total_cents ? (cartSummary.total_cents / 100).toFixed(2) : getTotalPrice().toFixed(2);
+  const total = cartSummary?.total_cents ? (cartSummary.total_cents / 100).toFixed(2) : '...';
 
   const inputStyle = {
     width: '100%', height: 46, padding: '0 14px',

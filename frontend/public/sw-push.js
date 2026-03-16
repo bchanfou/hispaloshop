@@ -12,11 +12,11 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body || '',
-    icon: data.icon || '/logo192.png',
-    badge: data.badge || '/logo192.png',
-    data: data.data || {},
+    icon: data.icon || '/brand/logo-icon.png',
+    badge: data.badge || '/brand/logo-icon.png',
+    data: { ...(data.data || {}), action_url: data.action_url, type: data.type },
     vibrate: [100, 50, 100],
-    tag: data.data?.conversation_id || 'default',
+    tag: data.tag || data.type || data.data?.conversation_id || 'default',
     renotify: true,
   };
 
@@ -29,9 +29,18 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const data = event.notification.data || {};
 
-  let url = '/';
-  if (data.type === 'chat' && data.conversation_id) {
-    url = '/dashboard?openChat=true';
+  // Resolve URL based on notification type
+  let url = data.action_url || data.url || '/';
+  if (!url || url === '/') {
+    if (data.type === 'chat' && data.conversation_id) {
+      url = '/dashboard?openChat=true';
+    } else if (data.type === 'order_confirmed') {
+      url = '/producer/orders';
+    } else if (data.type === 'commission_earned') {
+      url = '/influencer/dashboard';
+    } else if (data.type === 'order_shipped') {
+      url = '/orders';
+    }
   }
 
   event.waitUntil(
@@ -40,6 +49,7 @@ self.addEventListener('notificationclick', (event) => {
         if (client.url.includes(self.location.origin)) {
           client.focus();
           client.postMessage({ type: 'NOTIFICATION_CLICK', data });
+          if (url !== '/') client.navigate(url);
           return;
         }
       }

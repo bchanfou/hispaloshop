@@ -58,7 +58,10 @@ export default function B2BContractPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [signing, setSigning] = useState(false);
+  const [pollTimedOut, setPollTimedOut] = useState(false);
   const pollRef = useRef(null);
+  const pollAttemptsRef = useRef(0);
+  const MAX_POLL_ATTEMPTS = 12;
 
   /* ── Fetch ──────────────────────────────────────── */
   const fetchOperation = useCallback(async () => {
@@ -84,7 +87,14 @@ export default function B2BContractPage() {
     if (!operation) return;
     const shouldPoll = operation.status === 'offer_accepted' || operation.status === 'contract_pending';
     if (shouldPoll) {
+      pollAttemptsRef.current = 0;
       pollRef.current = setInterval(async () => {
+        pollAttemptsRef.current += 1;
+        if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+          clearInterval(pollRef.current);
+          setPollTimedOut(true);
+          return;
+        }
         const fresh = await fetchOperation();
         if (fresh && fresh.status !== 'offer_accepted' && fresh.status !== 'contract_pending') {
           clearInterval(pollRef.current);
@@ -288,7 +298,7 @@ export default function B2BContractPage() {
           style={{ marginBottom: 16 }}
         >
           <AnimatePresence mode="wait">
-            {isGenerating && (
+            {isGenerating && !pollTimedOut && (
               <motion.div
                 key="generating"
                 initial={{ opacity: 0 }}
@@ -308,6 +318,41 @@ export default function B2BContractPage() {
                 <p style={{ color: V2.stone, fontSize: 12, marginTop: 4 }}>
                   Esto puede tardar unos segundos
                 </p>
+              </motion.div>
+            )}
+
+            {isGenerating && pollTimedOut && (
+              <motion.div
+                key="poll-timeout"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center"
+                style={{ padding: '40px 20px', textAlign: 'center' }}
+              >
+                <AlertCircle size={32} style={{ color: V2.amber, marginBottom: 14 }} />
+                <p style={{ color: V2.black, fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+                  El contrato está tardando más de lo esperado
+                </p>
+                <p style={{ color: V2.stone, fontSize: 13, lineHeight: 1.5, marginBottom: 20 }}>
+                  Recibirás una notificación cuando esté listo.
+                </p>
+                <button
+                  onClick={() => navigate(-1)}
+                  style={{
+                    background: V2.black,
+                    color: V2.white,
+                    border: 'none',
+                    borderRadius: V2.radiusFull,
+                    padding: '10px 28px',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    fontFamily: V2.fontSans,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Volver
+                </button>
               </motion.div>
             )}
 

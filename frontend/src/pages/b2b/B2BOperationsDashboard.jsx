@@ -299,24 +299,28 @@ const B2BOperationsDashboard = () => {
 
   const [operations, setOperations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [tab, setTab] = useState('active');
 
-  useEffect(() => {
+  const loadOperations = useCallback(async () => {
     let cancelled = false;
-    const fetch = async () => {
-      try {
-        setLoading(true);
-        const res = await apiClient.get('/api/b2b/operations');
-        if (!cancelled) setOperations(res.data?.operations || res.data || []);
-      } catch (err) {
-        console.error('Failed to fetch B2B operations', err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    fetch();
+    setError(false);
+    setLoading(true);
+    try {
+      const res = await apiClient.get('/api/b2b/operations');
+      if (!cancelled) setOperations(res.data?.operations || res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch B2B operations', err);
+      if (!cancelled) setError(true);
+    } finally {
+      if (!cancelled) setLoading(false);
+    }
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    loadOperations();
+  }, [loadOperations]);
 
   const activeOps = useMemo(
     () => operations.filter((o) => o.status !== 'completed' && o.status !== 'disputed'),
@@ -445,15 +449,41 @@ const B2BOperationsDashboard = () => {
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {loading ? (
+          <div className="p-4 space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="animate-pulse bg-stone-100 rounded-xl h-24" />
+            ))}
+          </div>
+        ) : error ? (
           <div
             style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '80px 0',
+              padding: '64px 24px',
+              gap: 12,
             }}
           >
-            <Loader2 size={28} color={T.stone} className="animate-spin" />
+            <span style={{ fontSize: 14, color: T.stone, fontFamily: T.fontSans }}>
+              Error al cargar las operaciones
+            </span>
+            <button
+              onClick={loadOperations}
+              style={{
+                padding: '8px 20px',
+                fontSize: 13,
+                fontWeight: 600,
+                fontFamily: T.fontSans,
+                backgroundColor: T.black,
+                color: T.white,
+                border: 'none',
+                borderRadius: T.radiusFull,
+                cursor: 'pointer',
+              }}
+            >
+              Reintentar
+            </button>
           </div>
         ) : (
           <>

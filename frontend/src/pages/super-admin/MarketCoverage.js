@@ -25,6 +25,22 @@ const ALL_COUNTRIES = [
   { code: 'CN', name: 'China', flag: '🇨🇳' },
 ];
 
+const COUNTRY_META = {
+  ES: { currency: 'EUR', lang: 'es' },
+  US: { currency: 'USD', lang: 'en' },
+  DE: { currency: 'EUR', lang: 'de' },
+  FR: { currency: 'EUR', lang: 'fr' },
+  IT: { currency: 'EUR', lang: 'it' },
+  PT: { currency: 'EUR', lang: 'pt' },
+  GB: { currency: 'GBP', lang: 'en' },
+  KR: { currency: 'KRW', lang: 'ko' },
+  JP: { currency: 'JPY', lang: 'ja' },
+  CA: { currency: 'CAD', lang: 'en' },
+  MX: { currency: 'MXN', lang: 'es' },
+  BR: { currency: 'BRL', lang: 'pt' },
+  AU: { currency: 'AUD', lang: 'en' },
+};
+
 function SACard({ children, className = '' }) {
   return (
     <div className={`bg-[#1C1C1E] rounded-[14px] border border-white/[0.08] p-5 ${className}`}>
@@ -181,12 +197,17 @@ export default function MarketCoverage() {
                   <th className="text-right py-2 px-2">Sellers</th>
                   <th className="text-right py-2 px-2">Stock</th>
                   <th className="text-right py-2 px-2">SLA</th>
-                  <th className="text-right py-2 pl-2">Sin stock</th>
+                  <th className="text-right py-2 px-2">Sin stock</th>
+                  <th className="text-right py-2 px-2">Moneda</th>
+                  <th className="text-right py-2 px-2">Idioma</th>
+                  <th className="text-right py-2 pl-2">Estado</th>
                 </tr>
               </thead>
               <tbody>
                 {coverage.map(c => {
                   const info = ALL_COUNTRIES.find(ac => ac.code === c.country_code);
+                  const meta = COUNTRY_META[c.country_code] || {};
+                  const isReady = (c.active_products || 0) >= 5 && (c.active_sellers || 0) >= 1;
                   return (
                     <tr key={c.country_code} className="border-t border-white/[0.06]">
                       <td className="py-2.5 pr-3 text-white font-medium">
@@ -196,9 +217,16 @@ export default function MarketCoverage() {
                       <td className="text-right py-2.5 px-2 text-white/60">{c.active_sellers}</td>
                       <td className="text-right py-2.5 px-2 text-white/60">{(c.total_stock || 0).toLocaleString()}</td>
                       <td className="text-right py-2.5 px-2 text-white/60">{c.avg_sla_hours}h</td>
-                      <td className="text-right py-2.5 pl-2">
+                      <td className="text-right py-2.5 px-2">
                         <span className={c.out_of_stock > 0 ? 'text-[#FF9500] font-bold' : 'text-white/30'}>
                           {c.out_of_stock}
+                        </span>
+                      </td>
+                      <td className="text-right py-2.5 px-2 text-white/60 font-mono text-[11px]">{meta.currency || '—'}</td>
+                      <td className="text-right py-2.5 px-2 text-white/60 font-mono text-[11px]">{meta.lang || '—'}</td>
+                      <td className="text-right py-2.5 pl-2">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${isReady ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'}`}>
+                          {isReady ? 'Listo' : 'Insuficiente'}
                         </span>
                       </td>
                     </tr>

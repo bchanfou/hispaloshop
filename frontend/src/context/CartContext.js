@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import apiClient from '../services/api/client';
 import { useAuth } from './AuthContext';
+import { captureException } from '../lib/sentry';
 
 const CartContext = createContext();
 
@@ -42,6 +43,7 @@ export function CartProvider({ children }) {
       );
     } catch (error) {
       console.error('Error fetching cart:', error);
+      captureException(error);
       setCartItems([]);
       setAppliedDiscount(null);
     } finally {
@@ -120,6 +122,7 @@ export function CartProvider({ children }) {
       return true;
     } catch (error) {
       console.error('[CartContext] Error adding to cart:', error);
+      captureException(error);
 
       if (error.status === 401) {
         sessionStorage.setItem('pendingCartAction', JSON.stringify({ productId, quantity, variantId, packId }));
@@ -240,6 +243,8 @@ export function CartProvider({ children }) {
     return cartItems.reduce((sum, item) => sum + item.quantity, 0);
   }, [cartItems]);
 
+  // Estimate only — backend cartSummary is the source of truth for checkout.
+  // Do NOT use this for payment amounts. Only for UI display hints.
   const getTotalPrice = useCallback(() => {
     return cartItems.reduce((sum, item) => sum + (item.unit_price_cents || item.price || 0) * item.quantity, 0);
   }, [cartItems]);

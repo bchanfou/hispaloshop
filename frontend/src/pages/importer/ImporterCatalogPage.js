@@ -27,10 +27,18 @@ const CERTIFICATIONS = [
 const COUNTRIES = [
   { value: '', label: 'Todos los países' },
   { value: 'ES', label: 'España' },
+  { value: 'US', label: 'Estados Unidos' },
+  { value: 'DE', label: 'Alemania' },
+  { value: 'FR', label: 'Francia' },
   { value: 'IT', label: 'Italia' },
   { value: 'PT', label: 'Portugal' },
-  { value: 'FR', label: 'Francia' },
-  { value: 'GR', label: 'Grecia' },
+  { value: 'GB', label: 'Reino Unido' },
+  { value: 'KR', label: 'Corea del Sur' },
+  { value: 'JP', label: 'Japón' },
+  { value: 'CA', label: 'Canadá' },
+  { value: 'MX', label: 'México' },
+  { value: 'BR', label: 'Brasil' },
+  { value: 'AU', label: 'Australia' },
 ];
 
 const CERT_ICONS = {

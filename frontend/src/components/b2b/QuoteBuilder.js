@@ -25,7 +25,7 @@ const quoteSchema = z.object({
 // ─── Field error helper ──────────────────────────────────────────────────────
 function FieldError({ message }) {
   if (!message) return null;
-  return <p className="text-xs text-stone-600 mt-1">{message}</p>;
+  return <p className="text-xs text-stone-700 mt-1">{message}</p>;
 }
 
 // ─── Main component ──────────────────────────────────────────────────────────

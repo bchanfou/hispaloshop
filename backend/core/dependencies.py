@@ -58,8 +58,9 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
 
 def require_role(allowed_roles: list):
     """
-    Dependency factory for role-based access control.
-    Usage: user = Depends(require_role(["admin", "producer"]))
+    DEPRECATED — Not used. The active require_role is in core.auth
+    and is called as: await require_role(user, ["admin", "producer"])
+    This factory pattern exists but nothing imports it.
     """
     async def role_checker(user: User = get_current_user) -> User:
         if user.role not in allowed_roles:

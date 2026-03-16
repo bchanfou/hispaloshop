@@ -31,7 +31,11 @@ function SACard({ children, className = '' }) {
 }
 
 function StatusDot({ status }) {
-  const color = status === 'ok' ? '#34C759' : status === 'degraded' ? '#FF9500' : '#FF3B30';
+  const color =
+    status === 'ok' ? '#34C759' :
+    status === 'degraded' ? '#FF9500' :
+    status === 'unknown' ? '#8E8E93' :
+    '#FF3B30';
   return (
     <div
       className="w-2 h-2 rounded-full shrink-0"
@@ -47,25 +51,40 @@ export default function InfrastructurePage() {
 
   const fetchHealth = async (showToast = false) => {
     try {
-      // Try to get health status from the API
-      const data = await apiClient.get('/health').catch(() => null);
+      // Try dedicated health endpoints first, fall back to a simple config endpoint
+      let data = null;
+      const t0 = Date.now();
+      data = await apiClient.get('/admin/health').catch(() => null);
+      if (!data) data = await apiClient.get('/config/health').catch(() => null);
+      if (!data) data = await apiClient.get('/config/countries').catch(() => null);
+      const latency = Date.now() - t0;
+
+      const apiOk = data !== null;
       const serviceHealth = {};
 
-      // API is healthy if we got a response
-      serviceHealth.api = { status: data ? 'ok' : 'down', latency_ms: null };
-      serviceHealth.database = { status: data?.database === 'ok' || data ? 'ok' : 'down' };
+      serviceHealth.api = { status: apiOk ? 'ok' : 'down', latency_ms: latency };
       serviceHealth.frontend = { status: 'ok' }; // We're running, so frontend is ok
-      serviceHealth.stripe = { status: 'ok' }; // Assume ok unless we check
-      serviceHealth.cloudinary = { status: 'ok' };
-      serviceHealth.sentry = { status: 'ok' };
+
+      // Use health-endpoint reported statuses when available, otherwise unknown
+      serviceHealth.database = {
+        status: data?.database ? (data.database === 'ok' ? 'ok' : 'down') : (apiOk ? 'unknown' : 'down'),
+      };
+      serviceHealth.stripe = {
+        status: data?.stripe ? (data.stripe === 'ok' ? 'ok' : 'degraded') : 'unknown',
+      };
+      serviceHealth.cloudinary = {
+        status: data?.cloudinary ? (data.cloudinary === 'ok' ? 'ok' : 'degraded') : 'unknown',
+      };
+      serviceHealth.sentry = {
+        status: data?.sentry ? (data.sentry === 'ok' ? 'ok' : 'degraded') : 'unknown',
+      };
 
       setHealth(serviceHealth);
       if (showToast) toast.success('Estado actualizado');
     } catch {
-      // All services status unknown
-      SERVICES.forEach(s => {
-        health[s.key] = { status: 'unknown' };
-      });
+      const unknown = {};
+      SERVICES.forEach(s => { unknown[s.key] = { status: 'unknown' }; });
+      setHealth(unknown);
       if (showToast) toast.error('Error comprobando estado');
     } finally {
       setLoading(false);
@@ -80,7 +99,9 @@ export default function InfrastructurePage() {
     fetchHealth(true);
   };
 
-  const allOk = Object.values(health).every(h => h?.status === 'ok');
+  const anyDown = Object.values(health).some(h => h?.status === 'down');
+  const allOk = !anyDown && Object.values(health).some(h => h?.status === 'ok') &&
+    Object.values(health).every(h => h?.status === 'ok' || h?.status === 'unknown');
 
   return (
     <div className="max-w-[800px] mx-auto pb-16">
@@ -110,7 +131,7 @@ export default function InfrastructurePage() {
             }}
           />
           <span className="text-sm font-bold text-white">
-            {loading ? 'Comprobando...' : allOk ? 'Todos los servicios operativos' : 'Algunos servicios con incidencias'}
+            {loading ? 'Comprobando...' : anyDown ? 'Algunos servicios con incidencias' : allOk ? 'Todos los servicios operativos' : 'Estado parcialmente verificado'}
           </span>
         </div>
       </SACard>

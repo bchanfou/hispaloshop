@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2, MessageSquare } from 'lucide-react';
+import { Package, Users, FileText, Search, MapPin, ChevronRight, Tag, Loader2, MessageSquare, Check } from 'lucide-react';
 import { useB2BCatalog, useB2BProducers } from '../../features/b2b/queries';
 import QuoteBuilder from '../../components/b2b/QuoteBuilder';
 
@@ -51,7 +51,16 @@ function ProducerCard({ producer, onContact, onChat }) {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-stone-800 truncate">{producer.company_name || producer.full_name}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="font-semibold text-stone-800 truncate">{producer.company_name || producer.full_name}</p>
+            {producer.is_verified && (
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-stone-950 text-white rounded-full text-[10px] font-semibold shrink-0">
+                <Check className="w-2.5 h-2.5" />
+                Verificado
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-stone-500 mt-0.5">{producer.product_count || 0} productos</p>
           {producer.country && (
             <div className="flex items-center gap-1 mt-0.5">
               <MapPin className="w-3 h-3 text-stone-400" />
@@ -65,7 +74,13 @@ function ProducerCard({ producer, onContact, onChat }) {
               ))}
             </div>
           )}
-          <p className="text-xs text-stone-400 mt-1">{producer.product_count || 0} productos activos</p>
+          {producer.certifications?.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {producer.certifications.slice(0, 3).map((cert) => (
+                <span key={cert} className="px-2 py-0.5 bg-stone-100 rounded-full text-[10px] text-stone-600">{cert}</span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <div className="mt-3 flex gap-2">

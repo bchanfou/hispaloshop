@@ -503,6 +503,14 @@ export default function ImporterDashboardPage() {
         <>
           {/* B2B Tab */}
 
+          {/* Section header */}
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Mis Importaciones (B2B)</h2>
+            <Link to="/b2b/operations" className="text-xs font-semibold hover:underline flex items-center gap-1" style={{ color: 'var(--color-stone)' }}>
+              Ver operaciones B2B <ArrowRight className="w-3 h-3 inline" />
+            </Link>
+          </div>
+
           {/* KPIs */}
           <div className="grid grid-cols-2 gap-3 mb-5">
             <KPICard
@@ -522,11 +530,20 @@ export default function ImporterDashboardPage() {
               label="Proveedores activos"
               href="/importer/catalog"
             />
-            <KPICard
-              icon={Store}
-              value="3%"
-              label="Comisión"
-            />
+            {stats?.b2b_operations_count != null ? (
+              <KPICard
+                icon={FileCheck}
+                value={stats.b2b_operations_count}
+                label="Operaciones B2B"
+                href="/b2b/operations"
+              />
+            ) : (
+              <KPICard
+                icon={Store}
+                value="3%"
+                label="Comisión"
+              />
+            )}
           </div>
 
           {/* Operations requiring action */}
@@ -571,6 +588,60 @@ export default function ImporterDashboardPage() {
           {/* Plan card */}
           <div className="mb-5">
             <ImporterPlanCard plan={stats?.plan || 'FREE'} />
+          </div>
+
+          {/* Últimos proveedores */}
+          <div className="p-4 mb-5" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Últimos proveedores</h3>
+              <Link to="/b2b/marketplace" className="text-xs font-semibold hover:underline" style={{ color: 'var(--color-stone)' }}>
+                Explorar <ArrowRight className="w-3 h-3 inline" />
+              </Link>
+            </div>
+            {recentB2B.length > 0 ? (
+              recentB2B
+                .filter((order, i, arr) => arr.findIndex(o => o.producer_id === order.producer_id) === i)
+                .slice(0, 3)
+                .map((order, i, arr) => (
+                  <div
+                    key={order.producer_id || i}
+                    className="flex items-center gap-3 py-2.5"
+                    style={{ borderBottom: i < arr.length - 1 ? '1px solid var(--color-border)' : 'none' }}
+                  >
+                    <div className="w-9 h-9 flex items-center justify-center shrink-0" style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}>
+                      <Factory className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-black)' }}>
+                        {order.producer_name || 'Productor'}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
+                        {formatRelativeTime(order.created_at)}
+                      </p>
+                    </div>
+                    {order.producer_id && (
+                      <button
+                        onClick={() => handleB2BChat(order.producer_id)}
+                        className="shrink-0 flex items-center justify-center"
+                        style={{
+                          width: 32, height: 32, borderRadius: '50%',
+                          background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
+                        }}
+                        aria-label="Chat B2B"
+                      >
+                        <MessageCircle className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
+                      </button>
+                    )}
+                  </div>
+                ))
+            ) : (
+              <div className="flex flex-col items-center py-4 gap-2">
+                <p className="text-sm" style={{ color: 'var(--color-stone)' }}>Aún no tienes proveedores contactados.</p>
+                <Link to="/b2b/marketplace" className="text-xs font-semibold hover:underline flex items-center gap-1" style={{ color: 'var(--color-black)' }}>
+                  Explorar el marketplace B2B <ArrowRight className="w-3 h-3 inline" />
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Recent B2B orders */}

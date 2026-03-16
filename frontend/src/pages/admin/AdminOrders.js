@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/api/client';
-import { Search, ShoppingBag, DollarSign, TrendingUp } from 'lucide-react';
+import { Search, ShoppingBag, DollarSign, TrendingUp, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { asLowerText, asNumber } from '../../utils/safe';
+import { toast } from 'sonner';
 
 
 
@@ -39,6 +40,27 @@ export default function AdminOrders() {
     asLowerText(o.user_email).includes(searchNeedle) ||
     asLowerText(o.user_name).includes(searchNeedle)
   );
+
+  const exportCSV = () => {
+    const headers = ['Order ID', 'Customer', 'Items', 'Total', 'Status', 'Date'];
+    const rows = filteredOrders.map(o => [
+      o.order_id,
+      `${o.user_name || ''} <${o.user_email || ''}>`,
+      o.line_items?.length || 0,
+      asNumber(o.total_amount).toFixed(2),
+      o.status,
+      o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A',
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'orders.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('CSV exportado');
+  };
 
   const statusColors = {
     pending: 'bg-stone-200 text-stone-700',
@@ -133,17 +155,28 @@ export default function AdminOrders() {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
-        <input
-          type="text"
-          placeholder={activeTab === 'orders' ? t('adminOrders.searchOrdersPlaceholder') : t('adminOrders.searchPaymentsPlaceholder')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl bg-white text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
-          data-testid="search-input"
-        />
+      {/* Search + Export */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="relative max-w-md flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+          <input
+            type="text"
+            placeholder={activeTab === 'orders' ? t('adminOrders.searchOrdersPlaceholder') : t('adminOrders.searchPaymentsPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-3 py-2 border border-stone-200 rounded-xl bg-white text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+            data-testid="search-input"
+          />
+        </div>
+        {activeTab === 'orders' && (
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors text-stone-700 shrink-0"
+          >
+            <Download className="w-4 h-4" />
+            Exportar CSV
+          </button>
+        )}
       </div>
 
       {/* Content */}

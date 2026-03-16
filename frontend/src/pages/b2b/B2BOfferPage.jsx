@@ -60,6 +60,7 @@ const EMPTY_FORM = {
   product_id: '',
   quantity: '',
   unit: 'kg',
+  moq: '',
   price_per_unit: '',
   currency: 'EUR',
   payment_terms: '',
@@ -233,6 +234,11 @@ function StepProducto({ form, set }) {
           onChange={(e) => set('quantity', e.target.value)}
           style={inputStyle}
         />
+        {form.moq && Number(form.quantity) > 0 && Number(form.quantity) < Number(form.moq) && (
+          <p className="text-xs text-stone-500 mt-1">
+            La cantidad mínima recomendada es {form.moq} unidades
+          </p>
+        )}
       </div>
 
       <div>
@@ -385,7 +391,9 @@ function StepLogistica({ form, set }) {
       </div>
 
       <div>
-        <label style={labelStyle}>Ciudad de entrega *</label>
+        <label style={labelStyle}>
+          Ciudad de entrega {form.incoterm !== 'EXW' ? '*' : '(opcional)'}
+        </label>
         <input
           type="text"
           placeholder="Ej: Barcelona"
@@ -393,19 +401,28 @@ function StepLogistica({ form, set }) {
           onChange={(e) => set('incoterm_city', e.target.value)}
           style={inputStyle}
         />
+        {form.incoterm && form.incoterm !== 'EXW' && !form.incoterm_city.trim() && (
+          <p className="text-xs text-stone-500 mt-1">La ciudad de entrega es obligatoria para {form.incoterm}</p>
+        )}
       </div>
 
       <div className="flex gap-3">
         <div style={{ flex: 1 }}>
-          <label style={labelStyle}>Plazo de entrega (días)</label>
+          <label style={labelStyle}>Plazo de entrega (días) *</label>
           <input
             type="number"
             min="1"
             placeholder="0"
             value={form.delivery_days}
             onChange={(e) => set('delivery_days', e.target.value)}
-            style={inputStyle}
+            style={{
+              ...inputStyle,
+              borderColor: form.delivery_days && Number(form.delivery_days) >= 1 ? undefined : '#E5E2DA',
+            }}
           />
+          {(!form.delivery_days || Number(form.delivery_days) < 1) && (
+            <p className="text-xs text-stone-500 mt-1">Indica el plazo mínimo de entrega</p>
+          )}
         </div>
         <div style={{ flex: 1 }}>
           <label style={labelStyle}>Validez (días)</label>
@@ -557,7 +574,12 @@ export default function B2BOfferPage() {
   const canAdvance = useMemo(() => {
     if (step === 0) return form.product_name.trim() && form.quantity && form.unit;
     if (step === 1) return form.price_per_unit && form.payment_terms;
-    if (step === 2) return form.incoterm && form.incoterm_city.trim();
+    if (step === 2) {
+      if (!form.incoterm) return false;
+      if (!form.delivery_days || Number(form.delivery_days) < 1) return false;
+      if (form.incoterm !== 'EXW' && !form.incoterm_city.trim()) return false;
+      return true;
+    }
     if (step === 3) return confirmed;
     return false;
   }, [step, form, confirmed]);

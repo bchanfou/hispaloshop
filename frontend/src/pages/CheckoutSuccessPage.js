@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Check, Loader2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
+import { captureException } from '../lib/sentry';
 
 export default function CheckoutSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -41,7 +42,8 @@ export default function CheckoutSuccessPage() {
         } else if (!cancelled) {
           setTimeout(poll, getDelay(attempt));
         }
-      } catch {
+      } catch (err) {
+        captureException(err);
         if (!cancelled) setStatus('error');
       }
     };

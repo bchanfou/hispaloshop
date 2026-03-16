@@ -62,6 +62,7 @@ function QuickLink({ icon: Icon, label, to }) {
 export default function AdminOverview() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fiscalStats, setFiscalStats] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -71,6 +72,11 @@ export default function AdminOverview() {
       if (active) setStats({});
     }).finally(() => {
       if (active) setLoading(false);
+    });
+    apiClient.get('/admin/tax/fiscal-stats').then(data => {
+      if (active) setFiscalStats(data || {});
+    }).catch(() => {
+      if (active) setFiscalStats({});
     });
     return () => { active = false; };
   }, []);
@@ -174,7 +180,11 @@ export default function AdminOverview() {
         <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Fiscal</h2>
         <div className="space-y-2">
           <PendingRow label="Certificados pendientes de revisión" count={stats?.fiscal_pending_review || 0} to="/admin/fiscal" />
-          <PendingRow label="Retenciones acumuladas YTD" count={0} to="/admin/fiscal" />
+          <PendingRow
+            label={`Retenciones acumuladas YTD${fiscalStats === null ? '' : `: ${((fiscalStats.total_withheld_ytd_cents || 0) / 100).toFixed(2)}€`}`}
+            count={0}
+            to="/admin/fiscal"
+          />
         </div>
         <Link
           to="/admin/fiscal"

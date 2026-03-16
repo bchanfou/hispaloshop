@@ -1,20 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, RefreshCw, ShoppingCart, TrendingUp, Users, Zap } from 'lucide-react';
+import { ArrowDown, ArrowUp, BarChart3, RefreshCw, ShoppingCart, TrendingUp, Users, Zap } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
 const PERIODS = [
   { label: '7 días', value: 7 },
   { label: '30 días', value: 30 },
   { label: '90 días', value: 90 },
+  { label: '12 meses', value: 365 },
 ];
 
-function StatCard({ icon: Icon, label, value, sub }) {
+function TrendBadge({ current, previous }) {
+  if (previous == null || previous === 0 || current == null) return null;
+  const pct = ((current - previous) / previous) * 100;
+  const positive = pct >= 0;
+  const Arrow = positive ? ArrowUp : ArrowDown;
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${positive ? 'text-stone-950' : 'text-stone-400'}`}>
+      <Arrow className="h-3 w-3" />
+      {Math.abs(pct).toFixed(1)}%
+    </span>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, sub, current, previous }) {
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-stone-200 bg-white p-5">
       <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100">
         <Icon className="h-4.5 w-4.5 text-stone-700" />
       </div>
-      <p className="text-2xl font-semibold text-stone-950">{value ?? '—'}</p>
+      <div className="flex items-end gap-2">
+        <p className="text-2xl font-semibold text-stone-950">{value ?? '—'}</p>
+        <div className="mb-0.5">
+          <TrendBadge current={current} previous={previous} />
+        </div>
+      </div>
       <p className="text-sm font-medium text-stone-700">{label}</p>
       {sub ? <p className="text-xs text-stone-500">{sub}</p> : null}
     </div>
@@ -40,20 +59,26 @@ function EmptyRow({ cols }) {
 export default function AdminGrowthAnalytics() {
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
+  const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const load = (d) => {
     setLoading(true);
-    apiClient
-      .get(`/discovery/growth-analytics?days=${d}`)
-      .then((data) => setData(data))
-      .catch(() => setData(null))
-      .finally(() => setLoading(false));
+    Promise.all([
+      apiClient.get(`/discovery/growth-analytics?days=${d}`).catch(() => null),
+      apiClient.get(`/discovery/growth-analytics?days=${d * 2}`).catch(() => null),
+    ]).then(([current, prior]) => {
+      setData(current);
+      // Prior period = double window minus current window → approximate previous period
+      // We use the full 2x window's overview as the "prev" baseline
+      setPrevData(prior);
+    }).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(days); }, [days]);
 
   const overview = data?.overview || {};
+  const prevOverview = prevData?.overview || {};
 
   return (
     <div className="min-h-screen bg-stone-50 pb-20">
@@ -104,18 +129,24 @@ export default function AdminGrowthAnalytics() {
             label="Interacciones totales"
             value={overview.total_interactions?.toLocaleString('es-ES') ?? '—'}
             sub={`Últimos ${days} días`}
+            current={overview.total_interactions}
+            previous={prevOverview.total_interactions != null ? prevOverview.total_interactions - (overview.total_interactions ?? 0) : null}
           />
           <StatCard
             icon={ShoppingCart}
             label="Carritos desde contenido"
             value={overview.content_driven_carts?.toLocaleString('es-ES') ?? '—'}
             sub="Atribuido a post o receta"
+            current={overview.content_driven_carts}
+            previous={prevOverview.content_driven_carts != null ? prevOverview.content_driven_carts - (overview.content_driven_carts ?? 0) : null}
           />
           <StatCard
             icon={TrendingUp}
             label="Compras desde contenido"
             value={overview.content_driven_purchases?.toLocaleString('es-ES') ?? '—'}
             sub="Conversión directa"
+            current={overview.content_driven_purchases}
+            previous={prevOverview.content_driven_purchases != null ? prevOverview.content_driven_purchases - (overview.content_driven_purchases ?? 0) : null}
           />
         </div>
 

@@ -6,7 +6,7 @@ const FEATURES = [
   { icon: '💬', title: 'Chat directo B2B', desc: 'Contacta directamente con los productores. Sin intermediarios, sin formularios, respuesta en menos de 24 horas.' },
   { icon: '📜', title: 'Gestión de certificados', desc: 'Centraliza y verifica los certificados de tus proveedores. Alertas automáticas cuando están próximos a vencer.' },
   { icon: '📦', title: 'Pedidos integrados', desc: 'Gestiona órdenes de compra, seguimiento y logística desde un solo panel.' },
-  { icon: '🤖', title: 'IA para importadores', desc: 'El plan ELITE incluye alertas de desabastecimiento, análisis de precios y contratos automatizados.' },
+  { icon: '🤖', title: 'Gestión documental integrada', desc: 'Centraliza contratos, facturas y documentos de exportación en un único panel. Acceso inmediato a todo el historial documental de tus operaciones.' },
   { icon: '🌐', title: 'Acceso a productores ELITE', desc: 'Los productores con plan internacional priorizan a los importadores de la plataforma para sus exportaciones.' },
 ];
 
@@ -52,7 +52,7 @@ const PLANS = [
     features: [
       'Todo lo del Distribuidor',
       'Hispal AI para importadores',
-      'Matching automático con productores',
+      'Directorio de productores verificados',
       'Alertas de desabastecimiento',
       'Análisis de precios por origen',
       'Órdenes de compra automatizadas',

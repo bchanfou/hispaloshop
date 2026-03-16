@@ -165,6 +165,7 @@ export default function PayoutsPage() {
             </p>
           </div>
         ) : (
+          <>
           <div className="divide-y divide-stone-100">
             {payouts.slice((payoutPage - 1) * PAYOUTS_PER_PAGE, payoutPage * PAYOUTS_PER_PAGE).map((payout) => (
               <div
@@ -219,6 +220,7 @@ export default function PayoutsPage() {
               </button>
             </div>
           )}
+          </>
         )}
       </div>
     </div>
