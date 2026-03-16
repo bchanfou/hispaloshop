@@ -4,6 +4,7 @@ import FocusTrap from 'focus-trap-react';
 import { X, Send, Sparkles, Mic, Trash2 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import useHispalAI from '../../hooks/useHispalAI';
+import { useAuth } from '../../context/AuthContext';
 import ProductCardInChat from './ProductCardInChat';
 
 const QUICK_SUGGESTIONS = [
@@ -50,6 +51,7 @@ function TypingIndicator() {
 }
 
 export default function HispalAI() {
+  const { user } = useAuth();
   const {
     messages,
     isLoading,
@@ -62,6 +64,9 @@ export default function HispalAI() {
   } = useHispalAI();
 
   const [input, setInput] = useState('');
+
+  // Don't render for unauthenticated users
+  if (!user) return null;
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 

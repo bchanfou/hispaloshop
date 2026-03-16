@@ -1454,8 +1454,8 @@ async def stripe_webhook(request: Request):
                         "read": False,
                         "created_at": datetime.now(timezone.utc),
                     })
-                except Exception:
-                    pass
+                except Exception as notif_err:
+                    logger.error(f"[WEBHOOK] Failed to create payment_failed notification for {user_id}: {notif_err}")
 
         elif event_type == "charge.refunded":
             charge_obj = event.get("data", {}).get("object", {})
@@ -1655,6 +1655,10 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
     cancelled_payouts = 0
     clawback_amount = 0
     
+    # Reverse influencer aggregate counters to keep them consistent
+    influencer_id = order.get("influencer_id")
+    influencer_commission = order.get("influencer_commission_amount", 0)
+
     if refund_type == "full":
         # Cancel ALL pending influencer payouts
         result = await db.scheduled_payouts.update_many(
@@ -1662,7 +1666,25 @@ async def refund_order(order_id: str, request: Request, user: User = Depends(get
             {"$set": {"status": "cancelled", "cancel_reason": "order_refunded", "updated_at": now_iso}}
         )
         cancelled_payouts = result.modified_count
-        
+
+        # Reverse influencer counters so lifetime stats stay accurate
+        if influencer_id and influencer_commission > 0:
+            order_value = order.get("influencer_commission_amount", 0)
+            commission_data = order.get("commission_data", {})
+            order_gmv = _round_money(sum(s.get("seller_gmv", 0) for s in commission_data.get("splits", []))) if commission_data else total_amount
+            await db.influencers.update_one(
+                {"influencer_id": influencer_id},
+                {"$inc": {
+                    "total_sales_generated": -order_gmv,
+                    "total_commission_earned": -influencer_commission,
+                    "available_balance": -influencer_commission,
+                }}
+            )
+            await db.influencer_commissions.update_many(
+                {"order_id": order_id, "commission_status": "pending"},
+                {"$set": {"commission_status": "refunded", "updated_at": now_iso}}
+            )
+
         # Check if any were already paid → create clawback
         paid_payouts = await db.scheduled_payouts.find({"order_id": order_id, "status": "paid"}, {"_id": 0}).to_list(10)
         for pp in paid_payouts:

@@ -658,7 +658,17 @@ async def delete_product(product_id: str, user: User = Depends(get_current_user)
     await db.certificates.delete_many({"product_id": product_id})
     await db.cart_items.delete_many({"product_id": product_id})
     await db.post_bookmarks.delete_many({"product_id": product_id})
-    
+    await db.wishlists.delete_many({"product_id": product_id})
+    await db.affiliate_links.update_many(
+        {"product_id": product_id},
+        {"$set": {"status": "product_deleted", "deleted_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    # Remove from embedded cart items (new cart system stores items inside carts doc)
+    await db.carts.update_many(
+        {"items.product_id": product_id},
+        {"$pull": {"items": {"product_id": product_id}}}
+    )
+
     # Remove from any posts that tagged this product
     await db.user_posts.update_many(
         {"tagged_product.product_id": product_id},

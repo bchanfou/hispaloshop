@@ -151,23 +151,38 @@ async def unified_search(
     # Sanitize search input to prevent regex injection / ReDoS
     safe_q = _sanitize_search(q)
 
-    # All 4 queries run in parallel
+    # Fetch limit+1 per category so we can detect if there are more results
+    fetch_limit = limit + 1
     products, recipes, stores, creators = await asyncio.gather(
-        _search_products(db, safe_q, limit, country),
-        _search_recipes(db, safe_q, limit),
-        _search_stores(db, safe_q, limit),
-        _search_users(db, safe_q, limit),
+        _search_products(db, safe_q, fetch_limit, country),
+        _search_recipes(db, safe_q, fetch_limit),
+        _search_stores(db, safe_q, fetch_limit),
+        _search_users(db, safe_q, fetch_limit),
         return_exceptions=True,
     )
 
+    def _trim(results, lim):
+        if isinstance(results, Exception):
+            return [], False
+        has_more = len(results) > lim
+        return results[:lim], has_more
+
+    p, p_more = _trim(products, limit)
+    r, r_more = _trim(recipes, limit)
+    s, s_more = _trim(stores, limit)
+    c, c_more = _trim(creators, limit)
+
     return {
         "query": q,
-        "products":  products  if not isinstance(products,  Exception) else [],
-        "recipes":   recipes   if not isinstance(recipes,   Exception) else [],
-        "stores":    stores    if not isinstance(stores,    Exception) else [],
-        "creators":  creators  if not isinstance(creators,  Exception) else [],
-        "total": sum(
-            len(r) for r in [products, recipes, stores, creators]
-            if not isinstance(r, Exception)
-        ),
+        "products": p,
+        "recipes": r,
+        "stores": s,
+        "creators": c,
+        "has_more": {
+            "products": p_more,
+            "recipes": r_more,
+            "stores": s_more,
+            "creators": c_more,
+        },
+        "total": len(p) + len(r) + len(s) + len(c),
     }

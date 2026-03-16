@@ -255,7 +255,7 @@ async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
     """
     current_user = await get_optional_user(request) if request is not None else None
     try:
-        reels = await db.reels.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        reels = await db.reels.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
     except Exception:
         reels = []
 
@@ -328,7 +328,8 @@ async def get_reels(limit: int = 40, skip: int = 0, request: Request = None):
             }
         )
 
-    return {"items": items, "has_more": len(items) == limit}
+    _has_more = len(items) > limit
+    return {"items": items[:limit], "has_more": _has_more}
 
 
 @router.post("/reels")
@@ -959,13 +960,15 @@ async def create_post(
 @router.get("/posts")
 async def list_posts(skip: int = 0, limit: int = 30):
     """List public posts ordered by newest first."""
-    posts = await db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    posts = await db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit + 1).to_list(limit + 1)
+    _has_more = len(posts) > limit
+    posts = posts[:limit]
     for post in posts:
         _normalize_post_media(post)
         tagged_products = post.get("tagged_products") or ([post["tagged_product"]] if post.get("tagged_product") else [])
         post["tagged_products"] = tagged_products
         post["tagged_product"] = tagged_products[0] if tagged_products else None
-    return {"posts": posts, "total": len(posts), "has_more": len(posts) == limit}
+    return {"posts": posts, "total": len(posts), "has_more": _has_more}
 
 
 @router.get("/posts/{post_id}")
@@ -1096,10 +1099,13 @@ async def delete_comment(comment_id: str, user: User = Depends(get_current_user)
 
 @router.get("/users/by-username/{username}")
 async def get_user_by_username(username: str):
-    """Get public user by username — sanitized (no password_hash, no tokens)."""
+    """Get public user by username — only public-safe fields returned."""
     user = await db.users.find_one(
         {"username": username},
-        {"_id": 0, "password_hash": 0, "verification_code": 0, "stripe_customer_id": 0, "stripe_connect_id": 0}
+        {"_id": 0, "user_id": 1, "name": 1, "username": 1, "role": 1, "bio": 1,
+         "profile_image": 1, "picture": 1, "country": 1, "company_name": 1,
+         "followers_count": 1, "following_count": 1, "posts_count": 1,
+         "interests": 1, "created_at": 1, "niche": 1, "social_links": 1}
     )
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

@@ -357,7 +357,7 @@ export default function BottomNavBar() {
           {/* 4 — Chats */}
           <button
             type="button"
-            onClick={() => togglePanel('chat')}
+            onClick={() => { if (!user) { navigate('/login'); return; } togglePanel('chat'); }}
             aria-label={t('bottomNav.chats', 'Chats')}
             data-testid="bottom-nav-chats"
             className="relative flex h-full items-center justify-center active:opacity-60"

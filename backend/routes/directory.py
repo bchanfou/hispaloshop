@@ -14,16 +14,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.get("/directory/influencers")
-async def get_public_influencers():
+async def get_public_influencers(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=50, ge=1, le=100),
+):
     """Get list of public influencer profiles for the directory"""
+    _filter = {
+        "status": "active",
+        "user_id": {"$ne": None, "$exists": True},
+    }
+    total = await db.influencers.count_documents(_filter)
     influencers = await db.influencers.find(
-        {
-            "status": "active",
-            "user_id": {"$ne": None, "$exists": True}  # Only show influencers linked to user accounts
-        },
-        {"_id": 0, "stripe_account_id": 0, "stripe_onboarding_complete": 0, 
+        _filter,
+        {"_id": 0, "stripe_account_id": 0, "stripe_onboarding_complete": 0,
          "total_commission_earned": 0, "available_balance": 0}
-    ).to_list(100)
+    ).skip((page - 1) * limit).limit(limit).to_list(limit)
     
     # Enrich with user data for profile photos
     enriched = []
@@ -45,8 +50,8 @@ async def get_public_influencers():
                 "total_sales_generated": inf.get("total_sales_generated", 0),
                 "created_at": inf.get("created_at")
             })
-    
-    return enriched
+
+    return {"items": enriched, "total": total, "page": page, "pages": max(1, -(-total // limit)), "has_more": page * limit < total}
 
 # Admin endpoint to sync influencer records with user accounts
 @router.post("/admin/sync-influencer-users")

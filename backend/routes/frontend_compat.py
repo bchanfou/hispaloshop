@@ -368,13 +368,22 @@ async def get_feed(
     scope: str = Query(default="for-you", pattern="^(following|for-you|for_you|global|hybrid)$"),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
+    before: Optional[str] = Query(default=None, description="Cursor: created_at of last seen post (ISO)"),
     authorization: Optional[str] = Header(default=None),
 ):
-    """Return the social feed with pagination and scope filtering."""
+    """Return the social feed with pagination and scope filtering.
+    Supports cursor-based pagination via `before` param to prevent duplicate posts on scroll.
+    Falls back to offset-based if `before` is not provided (backward compat).
+    """
     current_user = await _resolve_current_user(request, authorization)
     normalized_scope = "following" if scope == "following" else "for-you"
 
-    base_posts = await db.user_posts.find({}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
+    # Cursor-based filter: only fetch posts older than the cursor to prevent duplicates
+    post_filter: Dict[str, object] = {}
+    if before:
+        post_filter["created_at"] = {"$lt": before}
+
+    base_posts = await db.user_posts.find(post_filter, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
     following_ids: List[str] = []
     if current_user:
         follows = await db.user_follows.find(
@@ -420,10 +429,13 @@ async def get_feed(
         if post_user_id and post_user_id not in user_cache:
             user_cache[post_user_id] = await db.users.find_one(
                 {"user_id": post_user_id},
-                {"_id": 0, "name": 1, "profile_image": 1, "picture": 1, "role": 1, "country": 1},
+                {"_id": 0, "name": 1, "profile_image": 1, "picture": 1, "role": 1, "country": 1, "account_status": 1},
             ) or {}
 
         author = user_cache.get(post_user_id, {})
+        # Skip posts from suspended users
+        if author.get("account_status") == "suspended":
+            continue
         tagged_product = post.get("tagged_product")
         tagged_products = post.get("tagged_products") or ([tagged_product] if tagged_product else [])
         if tagged_product and tagged_product.get("product_id"):

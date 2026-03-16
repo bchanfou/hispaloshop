@@ -262,32 +262,32 @@ export default function InfluencerDashboard() {
 
   useEffect(() => {
     let active = true;
+    const logFetchErr = (label) => (err) => {
+      console.warn(`[InfluencerDashboard] Failed to load ${label}:`, err?.message || err);
+    };
     apiClient.get('/collaborations').then(d => {
       if (active) setCollabs(d?.collaborations || []);
-    }).catch(() => {});
+    }).catch(logFetchErr('collaborations'));
     apiClient
       .get('/intelligence/influencer-performance')
       .then((data) => {
-        if (active) {
-          setProductPerformance(data?.items || []);
-        }
+        if (active) setProductPerformance(data?.items || []);
       })
-      .catch(() => {
-        if (active) {
-          setProductPerformance([]);
-        }
+      .catch((err) => {
+        if (active) setProductPerformance([]);
+        logFetchErr('performance')(err);
       });
 
     // Fetch fiscal data
     apiClient.get('/influencer/fiscal/status').then(d => {
       if (active) setFiscalStatus(d);
-    }).catch(() => {});
+    }).catch(logFetchErr('fiscal-status'));
     apiClient.get('/influencer/fiscal/withholding-summary').then(d => {
       if (active) setWithholdingSummary(d);
-    }).catch(() => {});
+    }).catch(logFetchErr('withholding'));
     apiClient.get('/influencer/payouts').then(d => {
       if (active) setPayoutHistory(d?.payouts || d || []);
-    }).catch(() => {});
+    }).catch(logFetchErr('payouts'));
 
     return () => {
       active = false;

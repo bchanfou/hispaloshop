@@ -115,10 +115,17 @@ async def get_producer_certificates(user: User = Depends(get_current_user)):
     return certificates
 
 @router.get("/producer/orders")
-async def get_producer_orders(user: User = Depends(get_current_user)):
+async def get_producer_orders(
+    page: int = 1,
+    limit: int = 50,
+    user: User = Depends(get_current_user),
+):
     """Get orders containing producer's products"""
     await require_role(user, ["producer", "importer"])
-    orders = await db.orders.find({}, {"_id": 0}).to_list(500)
+    # Query at DB level: only orders that contain this producer's items
+    query = {"line_items.producer_id": user.user_id}
+    total = await db.orders.count_documents(query)
+    orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).skip((page - 1) * limit).limit(limit).to_list(limit)
     producer_orders = []
     for order in orders:
         producer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == user.user_id]
@@ -128,7 +135,7 @@ async def get_producer_orders(user: User = Depends(get_current_user)):
                 "customer_name": order.get("user_name", "Unknown"),
                 "shipping_address": order.get("shipping_address", {}),
                 "items": producer_items,
-                "total": sum(item.get("amount", 0) for item in producer_items),
+                "total": sum(item.get("subtotal", item.get("price", 0) * item.get("quantity", 1)) for item in producer_items),
                 "status": order["status"],
                 "tracking_number": order.get("tracking_number"),
                 "tracking_url": order.get("tracking_url"),
@@ -136,7 +143,7 @@ async def get_producer_orders(user: User = Depends(get_current_user)):
                 "created_at": order["created_at"],
                 "updated_at": order.get("updated_at")
             })
-    return producer_orders
+    return {"orders": producer_orders, "total": total, "page": page, "has_more": page * limit < total}
 
 
 @router.get("/producer/profile")

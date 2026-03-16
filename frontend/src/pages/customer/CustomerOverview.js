@@ -28,30 +28,33 @@ export default function CustomerOverview() {
   const [predictions, setPredictions] = useState([]);
   const [trending, setTrending] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     let active = true;
+    let errorCount = 0;
+    const onErr = () => { errorCount++; if (active && errorCount >= 3) setLoadError(true); };
     Promise.all([
       apiClient.get('/customer/orders').then(data => {
         if (active) setOrders((Array.isArray(data) ? data : data?.orders || []).slice(0, 3));
-      }).catch(() => { if (active) setOrders([]); }),
+      }).catch(() => { if (active) setOrders([]); onErr(); }),
       apiClient.get('/customer/followed-stores').then(data => {
         if (active) setFollowedStores(Array.isArray(data) ? data : data?.stores || []);
-      }).catch(() => { if (active) setFollowedStores([]); }),
+      }).catch(() => { if (active) setFollowedStores([]); onErr(); }),
       apiClient.get('/products?limit=8&sort=newest').then(data => {
         if (!active) return;
         const ps = data?.products || data || [];
         setRecommended(ps.slice(0, 4));
         setTrending(ps.slice(4, 8));
-      }).catch(() => {}),
+      }).catch(onErr),
       apiClient.get('/customer/predictions').then(data => {
         if (!active) return;
         const actionable = (data?.predictions || []).filter(p => ['overdue', 'due', 'soon'].includes(p.status));
         setPredictions(actionable.slice(0, 3));
-      }).catch(() => {}),
+      }).catch(onErr),
       apiClient.get('/wishlist').then(data => {
         if (active) setWishlist((Array.isArray(data) ? data : data?.items || []).slice(0, 4));
-      }).catch(() => {}),
+      }).catch(onErr),
     ]).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
@@ -62,6 +65,12 @@ export default function CustomerOverview() {
   if (loading) return <div className="flex justify-center py-20"><div className="loading-spinner" /></div>;
 
   return (
+    <>
+    {loadError && (
+      <div className="mx-4 mt-2 mb-4 rounded-xl bg-stone-100 px-4 py-3 text-sm text-stone-500 text-center">
+        Algunos datos no se han podido cargar. Desliza hacia abajo para reintentar.
+      </div>
+    )}
     <div className="space-y-6 pb-4" data-testid="customer-dashboard" style={{ background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}>
       {/* Greeting */}
       <div>

@@ -42,7 +42,7 @@ export default function ConsentBanner({ onConsent }) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-          className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] left-3 right-3 z-[999] flex flex-col gap-3 rounded-2xl bg-stone-950 p-4 shadow-[0_8px_40px_rgba(0,0,0,0.30)]"
+          className="fixed bottom-[calc(58px+env(safe-area-inset-bottom,0px))] left-3 right-3 z-[45] flex flex-col gap-3 rounded-2xl bg-stone-950 p-4 shadow-[0_8px_40px_rgba(0,0,0,0.30)]"
         >
           <p className="m-0 text-[13px] leading-relaxed text-stone-200">
             Usamos cookies de analítica para mejorar la experiencia.

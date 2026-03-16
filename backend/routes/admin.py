@@ -796,12 +796,32 @@ async def update_user_status(
             }}
         )
         await db.user_sessions.delete_many({"user_id": user_id})
+        # Hide products of suspended sellers so they don't appear in feed/search
+        target_role = target_user.get("role", "")
+        if target_role in ("producer", "importer"):
+            await db.products.update_many(
+                {"producer_id": user_id, "status": "active"},
+                {"$set": {"status": "suspended_by_admin", "_pre_suspend_status": "active"}}
+            )
+            # Cancel pending RFQs so importers aren't left waiting on a suspended producer
+            await db.rfq_requests.update_many(
+                {"producer_id": user_id, "status": "pending"},
+                {"$set": {"status": "cancelled", "cancel_reason": "producer_suspended",
+                          "updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
     elif action == "reactivate":
         await db.users.update_one(
             {"user_id": user_id},
             {"$set": {"account_status": "active"},
              "$unset": {"suspended_at": "", "suspended_reason": ""}}
         )
+        # Restore products that were hidden by suspension
+        target_role = target_user.get("role", "")
+        if target_role in ("producer", "importer"):
+            await db.products.update_many(
+                {"producer_id": user_id, "status": "suspended_by_admin"},
+                {"$set": {"status": "active"}, "$unset": {"_pre_suspend_status": ""}}
+            )
     elif action == "approve":
         await db.users.update_one(
             {"user_id": user_id},
