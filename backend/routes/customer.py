@@ -217,6 +217,22 @@ async def delete_account(request: DeleteAccountRequest, user: User = Depends(get
     
     user_id = user.user_id
     
+    # ── Common cleanup for ALL roles ──
+    # Sessions, follows, social, notifications, wishlists, communities
+    await db.user_sessions.delete_many({"user_id": user_id})
+    await db.user_follows.delete_many({"$or": [{"follower_id": user_id}, {"following_id": user_id}]})
+    await db.post_likes.delete_many({"user_id": user_id})
+    await db.post_comments.update_many({"user_id": user_id}, {"$set": {"user_name": "Deleted User", "user_id": "deleted"}})
+    await db.wishlists.delete_many({"user_id": user_id})
+    await db.notifications.delete_many({"user_id": user_id})
+    await db.user_notifications.delete_many({"user_id": user_id})
+    await db.community_members.delete_many({"user_id": user_id})
+    await db.carts.delete_many({"user_id": user_id})
+    await db.cart_items.delete_many({"user_id": user_id})
+    await db.cart_discounts.delete_many({"user_id": user_id})
+    await db.stock_holds.delete_many({"user_id": user_id})
+    await db.customer_influencer_attribution.delete_many({"consumer_id": user_id})
+
     if user.role == "customer":
         await db.cart.delete_many({"user_id": user_id})
         await db.ai_profiles.delete_one({"user_id": user_id})
@@ -230,22 +246,41 @@ async def delete_account(request: DeleteAccountRequest, user: User = Depends(get
             {"user_id": user_id},
             {"$set": {"user_name": "Deleted User"}}
         )
-    
+
     elif user.role == "producer":
         pending_orders = await db.orders.count_documents({
-            "items.producer_id": user_id,
+            "line_items.producer_id": user_id,
             "status": {"$in": ["pending", "processing", "confirmed", "preparing"]}
         })
         if pending_orders > 0:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail=f"Cannot delete account with {pending_orders} pending orders. Please complete or cancel them first."
             )
         await db.products.update_many(
             {"producer_id": user_id},
             {"$set": {"status": "deleted", "visible": False}}
         )
-    
+        await db.stores.update_many(
+            {"producer_id": user_id},
+            {"$set": {"status": "deleted"}}
+        )
+
+    elif user.role == "influencer":
+        # Deactivate discount codes owned by this influencer
+        await db.discount_codes.update_many(
+            {"influencer_id": user_id},
+            {"$set": {"active": False}}
+        )
+        await db.affiliate_links.update_many(
+            {"influencer_id": user_id},
+            {"$set": {"status": "owner_deleted"}}
+        )
+        await db.scheduled_payouts.update_many(
+            {"influencer_id": user_id, "status": "scheduled"},
+            {"$set": {"status": "cancelled", "cancel_reason": "account_deleted"}}
+        )
+
     await db.users.delete_one({"user_id": user_id})
     return {"message": "Account deleted successfully"}
 

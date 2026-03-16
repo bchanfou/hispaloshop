@@ -22,6 +22,7 @@ INFLUENCER_TIER_ALIASES = {
     "aquiles": "hercules",
     "artemisa": "atenea",
     "apolo": "zeus",
+    "titan": "zeus",
     "atenea": "atenea",
     "hercules": "hercules",
     "zeus": "zeus",

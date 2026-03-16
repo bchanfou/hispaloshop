@@ -24,9 +24,12 @@ async def get_wishlist(user: User = Depends(get_current_user)):
     if not product_ids:
         return []
 
+    # Only show products that are still active/approved (exclude suspended/deleted)
     products = await db.products.find(
-        {"product_id": {"$in": product_ids}},
-        {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "image_urls": 1, "approved": 1}
+        {"product_id": {"$in": product_ids},
+         "status": {"$nin": ["suspended_by_admin", "deleted", "rejected"]},
+         "$or": [{"approved": True}, {"status": "active"}]},
+        {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1, "image_urls": 1, "approved": 1, "stock": 1, "track_stock": 1}
     ).to_list(200)
     product_map = {p["product_id"]: p for p in products}
 
@@ -53,9 +56,12 @@ async def add_to_wishlist(product_id: str, user: User = Depends(get_current_user
     if existing:
         return {"message": "Already in wishlist", "in_wishlist": True}
 
-    product = await db.products.find_one({"product_id": product_id}, {"_id": 0, "name": 1})
+    product = await db.products.find_one(
+        {"product_id": product_id, "status": {"$nin": ["suspended_by_admin", "deleted", "rejected"]}},
+        {"_id": 0, "name": 1},
+    )
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=404, detail="Product not found or unavailable")
 
     await db.wishlists.insert_one({
         "wishlist_id": str(uuid.uuid4()),

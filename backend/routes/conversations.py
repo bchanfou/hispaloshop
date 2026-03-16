@@ -5,6 +5,7 @@ Extracted from server.py.
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from typing import Optional
 from datetime import datetime, timezone
+import re
 import uuid
 import logging
 
@@ -240,7 +241,7 @@ async def search_users_for_chat(query: str, user_type: str, user: User = Depends
         # Producer searching for influencers
         influencers = await db.influencers.find({
             "status": "active",
-            "full_name": {"$regex": query, "$options": "i"}
+            "full_name": {"$regex": re.escape(query), "$options": "i"}
         }, {"_id": 0, "user_id": 1, "full_name": 1}).to_list(20)
         
         for inf in influencers:
@@ -254,7 +255,7 @@ async def search_users_for_chat(query: str, user_type: str, user: User = Depends
         producers = await db.users.find({
             "role": {"$in": ["producer", "importer"]},
             "approved": True,
-            "name": {"$regex": query, "$options": "i"}
+            "name": {"$regex": re.escape(query), "$options": "i"}
         }, {"_id": 0, "user_id": 1, "name": 1, "role": 1}).to_list(20)
         
         for prod in producers:

@@ -758,7 +758,8 @@ async def global_search(q: str, user: User = Depends(get_current_user)):
     if not q or len(q) < 2:
         return {"results": []}
     
-    regex = {"$regex": q, "$options": "i"}
+    import re as _re
+    regex = {"$regex": _re.escape(q), "$options": "i"}
     results = []
     
     # Users

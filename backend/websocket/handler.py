@@ -21,27 +21,37 @@ logger = logging.getLogger(__name__)
 
 class ConnectionManager:
     """
-    Gestor de conexiones WebSocket
+    Gestor de conexiones WebSocket — supports multiple tabs per user.
     """
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
-    
+        self.active_connections: Dict[str, list[WebSocket]] = {}
+
     async def connect(self, websocket: WebSocket, user_id: str):
         await websocket.accept()
-        self.active_connections[user_id] = websocket
-        logger.info(f"[WS] User {user_id} connected. Total: {len(self.active_connections)}")
+        self.active_connections.setdefault(user_id, []).append(websocket)
+        logger.info(f"[WS] User {user_id} connected. Total connections: {sum(len(v) for v in self.active_connections.values())}")
     
-    def disconnect(self, user_id: str):
-        if user_id in self.active_connections:
-            del self.active_connections[user_id]
-            logger.info(f"[WS] User {user_id} disconnected. Total: {len(self.active_connections)}")
-    
+    def disconnect(self, user_id: str, websocket: WebSocket = None):
+        conns = self.active_connections.get(user_id, [])
+        if websocket and websocket in conns:
+            conns.remove(websocket)
+        if not conns:
+            self.active_connections.pop(user_id, None)
+        logger.info(f"[WS] User {user_id} disconnected. Total connections: {sum(len(v) for v in self.active_connections.values())}")
+
     async def send_personal_message(self, message: dict, user_id: str):
-        if user_id in self.active_connections:
+        conns = self.active_connections.get(user_id, [])
+        dead = []
+        for ws in conns:
             try:
-                await self.active_connections[user_id].send_json(message)
+                await ws.send_json(message)
             except Exception as e:
                 logger.error(f"[WS] Error sending to {user_id}: {e}")
+                dead.append(ws)
+        for ws in dead:
+            conns.remove(ws)
+        if not conns:
+            self.active_connections.pop(user_id, None)
     
     async def broadcast_to_conversation(self, conversation_id: str, message: dict, exclude_user_id: str = None):
         """Enviar mensaje a todos los participantes de una conversación"""
@@ -53,11 +63,8 @@ class ConnectionManager:
         participants = [conv.get("user1_id"), conv.get("user2_id")]
         
         for user_id in participants:
-            if user_id and user_id != exclude_user_id and user_id in self.active_connections:
-                try:
-                    await self.active_connections[user_id].send_json(message)
-                except Exception as e:
-                    logger.error(f"[WS] Error broadcasting to {user_id}: {e}")
+            if user_id and user_id != exclude_user_id:
+                await self.send_personal_message(message, user_id)
 
 
 manager = ConnectionManager()

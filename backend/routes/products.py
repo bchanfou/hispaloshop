@@ -3,6 +3,7 @@ Product routes: CRUD, search, variants, filtering.
 """
 import uuid
 import logging
+import re
 import asyncio
 import io
 import base64
@@ -134,9 +135,9 @@ async def get_products(
     if search:
         and_conditions.append({
             "$or": [
-                {"name": {"$regex": search, "$options": "i"}},
-                {"description": {"$regex": search, "$options": "i"}},
-                {"tagline": {"$regex": search, "$options": "i"}}
+                {"name": {"$regex": re.escape(search), "$options": "i"}},
+                {"description": {"$regex": re.escape(search), "$options": "i"}},
+                {"tagline": {"$regex": re.escape(search), "$options": "i"}}
             ]
         })
     

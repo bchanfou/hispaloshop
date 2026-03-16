@@ -123,11 +123,12 @@ async def cron_influencer_payouts(user: User = Depends(get_current_user)):
         if total_valid < INFLUENCER_MIN_PAYOUT_EUR:
             continue
 
-        # Execute Stripe transfer
+        # Execute Stripe transfer — use EUR (platform currency), not USD
+        payout_currency = valid_payouts[0].get("currency", "eur").lower()
         try:
             transfer = stripe.Transfer.create(
                 amount=int(total_valid * 100),
-                currency="usd",
+                currency=payout_currency,
                 destination=inf["stripe_account_id"],
                 metadata={"influencer_id": iid, "payout_count": len(valid_payouts)},
                 idempotency_key=f"inf_batch_{iid}_{now.strftime('%Y%m%d')}",
@@ -411,16 +412,19 @@ async def process_b2b_scheduled_payments(
                 failed += 1
                 continue
 
-            # Calculate platform fee (3%)
-            platform_fee = round(amount * 0.03, 2)
-            seller_amount = round(amount - platform_fee, 2)
+            # Calculate platform fee (3%) using Decimal for precision
+            from decimal import Decimal, ROUND_HALF_UP
+            _q = Decimal("0.01")
+            amt = Decimal(str(amount))
+            platform_fee = (amt * Decimal("0.03")).quantize(_q, rounding=ROUND_HALF_UP)
+            seller_amount = (amt - platform_fee).quantize(_q, rounding=ROUND_HALF_UP)
 
-            # Create Stripe transfer
+            # Create Stripe transfer with idempotency key to prevent double-pay on retry
             from core.config import STRIPE_SECRET_KEY
             stripe.api_key = STRIPE_SECRET_KEY
 
             transfer = stripe.Transfer.create(
-                amount=int(round(seller_amount * 100)),
+                amount=int(seller_amount * 100),
                 currency=currency.lower(),
                 destination=stripe_account,
                 metadata={
@@ -428,6 +432,7 @@ async def process_b2b_scheduled_payments(
                     "operation_id": operation_id,
                     "payment_id": str(payment["_id"]),
                 },
+                idempotency_key=f"b2b_sched_{operation_id}_{str(payment['_id'])}",
             )
 
             # Update payment record
@@ -630,8 +635,14 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
                     logger.error("Expiry notification failed for %s: %s", uid, e)
 
             elif expiry <= day_7:
-                # Expires in 7 days — urgent alert
+                # Expires in 7 days — urgent alert (dedup: one alert per cert per 3 days)
                 days_left = max(1, (datetime.strptime(expiry, "%Y-%m-%d").date() - now.date()).days)
+                recent_alert = await db.notifications.find_one({
+                    "user_id": uid, "type": "certificate_expiring",
+                    "created_at": {"$gte": (now - timedelta(days=3)).isoformat()},
+                })
+                if recent_alert:
+                    continue
                 alerts_7 += 1
                 try:
                     await create_notification(
@@ -657,8 +668,14 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
                     logger.error("Expiry alert failed for %s: %s", uid, e)
 
             elif expiry <= day_30:
-                # Expires in 30 days — standard alert
+                # Expires in 30 days — standard alert (dedup: one alert per cert per 7 days)
                 days_left = (datetime.strptime(expiry, "%Y-%m-%d").date() - now.date()).days
+                recent_alert = await db.notifications.find_one({
+                    "user_id": uid, "type": "certificate_expiring",
+                    "created_at": {"$gte": (now - timedelta(days=7)).isoformat()},
+                })
+                if recent_alert:
+                    continue
                 alerts_30 += 1
                 try:
                     await create_notification(

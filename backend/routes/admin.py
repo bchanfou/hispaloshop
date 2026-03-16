@@ -9,6 +9,7 @@ from typing import Optional, List
 from datetime import datetime, timezone
 import uuid
 import logging
+import re
 
 from core.database import db
 from core.models import (
@@ -660,9 +661,9 @@ async def get_all_users_by_role(
     
     if search:
         query["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"email": {"$regex": search, "$options": "i"}},
-            {"company_name": {"$regex": search, "$options": "i"}}
+            {"name": {"$regex": re.escape(search), "$options": "i"}},
+            {"email": {"$regex": re.escape(search), "$options": "i"}},
+            {"company_name": {"$regex": re.escape(search), "$options": "i"}}
         ]
     
     users = await db.users.find(
@@ -809,6 +810,17 @@ async def update_user_status(
                 {"$set": {"status": "cancelled", "cancel_reason": "producer_suspended",
                           "updated_at": datetime.now(timezone.utc).isoformat()}}
             )
+        if target_role == "influencer":
+            # Deactivate influencer's discount codes so they can't generate new conversions
+            await db.discount_codes.update_many(
+                {"influencer_id": user_id, "active": True},
+                {"$set": {"active": False, "_pre_suspend_active": True}}
+            )
+            # Cancel pending payouts
+            await db.scheduled_payouts.update_many(
+                {"influencer_id": user_id, "status": "scheduled"},
+                {"$set": {"status": "suspended", "updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
     elif action == "reactivate":
         await db.users.update_one(
             {"user_id": user_id},
@@ -821,6 +833,17 @@ async def update_user_status(
             await db.products.update_many(
                 {"producer_id": user_id, "status": "suspended_by_admin"},
                 {"$set": {"status": "active"}, "$unset": {"_pre_suspend_status": ""}}
+            )
+        if target_role == "influencer":
+            # Restore discount codes that were deactivated by suspension
+            await db.discount_codes.update_many(
+                {"influencer_id": user_id, "_pre_suspend_active": True},
+                {"$set": {"active": True}, "$unset": {"_pre_suspend_active": ""}}
+            )
+            # Restore suspended payouts
+            await db.scheduled_payouts.update_many(
+                {"influencer_id": user_id, "status": "suspended"},
+                {"$set": {"status": "scheduled"}}
             )
     elif action == "approve":
         await db.users.update_one(
@@ -976,12 +999,12 @@ async def get_all_products_admin(
         query["approved"] = False
     
     if country and country != "all":
-        query["country_origin"] = {"$regex": country, "$options": "i"}
+        query["country_origin"] = {"$regex": re.escape(country), "$options": "i"}
     
     if search:
         query["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"description": {"$regex": search, "$options": "i"}}
+            {"name": {"$regex": re.escape(search), "$options": "i"}},
+            {"description": {"$regex": re.escape(search), "$options": "i"}}
         ]
     
     products = await db.products.find(
@@ -1048,8 +1071,8 @@ async def get_all_certificates_admin(
     
     if search:
         query["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"issuer": {"$regex": search, "$options": "i"}}
+            {"name": {"$regex": re.escape(search), "$options": "i"}},
+            {"issuer": {"$regex": re.escape(search), "$options": "i"}}
         ]
     
     certificates = await db.certificates.find(

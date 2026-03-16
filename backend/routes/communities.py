@@ -6,11 +6,14 @@ from datetime import datetime, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
+import re
+import logging
 from bson import ObjectId
 
 from core.database import get_db
 from core.auth import get_current_user, get_optional_user
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["communities"])
 
 # ── Helpers ──────────────────────────────────────────────
@@ -73,7 +76,7 @@ async def list_communities(
 
     # Text search
     if q:
-        query["name"] = {"$regex": q, "$options": "i"}
+        query["name"] = {"$regex": re.escape(q), "$options": "i"}
 
     # Category filter
     if filter in CATEGORY_MAP:
@@ -375,8 +378,8 @@ async def create_community_post(
                     "created_at": datetime.now(timezone.utc).isoformat(),
                     "admin_reviewed": False, "admin_action": None,
                 })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Background moderation failed: %s", e)
 
     asyncio.create_task(_moderate_community_post(
         result.inserted_id, user.user_id, body.text, body.image_url,

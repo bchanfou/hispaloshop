@@ -206,6 +206,18 @@ async def _create_indexes():
     await db.b2b_requests.create_index("importer_id")
     logger.info("  OK: b2b indexes")
 
+    # Social: follows and likes — unique constraints prevent duplicates
+    await db.user_follows.create_index(
+        [("follower_id", 1), ("following_id", 1)], unique=True
+    )
+    await db.post_likes.create_index(
+        [("post_id", 1), ("user_id", 1)], unique=True
+    )
+    await db.reel_likes.create_index(
+        [("reel_id", 1), ("user_id", 1)], unique=True
+    )
+    logger.info("  OK: social unique indexes (follows, likes)")
+
     # Affiliate commissions
     await db.influencer_commissions.create_index(
         [("influencer_id", 1), ("status", 1)]

@@ -528,6 +528,9 @@ async def shipping_preview(current_user=Depends(get_current_user)):
         }
 
     result = await calculate_cart_shipping(cart["items"])
+    # Note: this is a plan-based estimate. Final shipping is calculated at checkout
+    # using the producer's custom shipping policy (ShippingService), which may differ.
+    result["is_estimate"] = True
     return {"success": True, "data": result}
 
 

@@ -2,6 +2,7 @@
 Hispaloshop Backend - Main Application
 Modular FastAPI application structure.
 """
+import os
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
@@ -17,7 +18,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

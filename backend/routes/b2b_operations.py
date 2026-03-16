@@ -314,6 +314,11 @@ async def accept_offer(
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
         raise HTTPException(status_code=403, detail="Not authorized")
 
+    # Guard: cannot accept on already-completed/accepted operations
+    op_status = operation.get("status", "")
+    if op_status in ("offer_accepted", "contract_generated", "contract_signed", "payment_confirmed", "in_transit", "delivered", "completed"):
+        raise HTTPException(status_code=400, detail=f"Cannot accept offer: operation is already '{op_status}'")
+
     # Find the offer version
     target_offer = None
     for offer in operation["offers"]:
@@ -330,10 +335,13 @@ async def accept_offer(
 
     now = datetime.now(timezone.utc).isoformat()
 
-    await db.b2b_operations.update_one(
-        {"_id": oid},
+    # Atomic status transition to prevent concurrent accepts
+    result = await db.b2b_operations.update_one(
+        {"_id": oid, "status": {"$in": ["offer_sent", "negotiating"]}},
         {"$set": {"status": "offer_accepted", "updated_at": now}},
     )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=409, detail="Operation status changed concurrently. Please refresh.")
 
     updated = await db.b2b_operations.find_one({"_id": oid})
 

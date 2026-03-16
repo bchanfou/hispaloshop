@@ -144,7 +144,7 @@ async def get_recipes(q: Optional[str] = None, tag: Optional[str] = None, diffic
     """Get recipes with filters."""
     query = {"status": "active"}
     if q:
-        query["title"] = {"$regex": q, "$options": "i"}
+        query["title"] = {"$regex": re.escape(q), "$options": "i"}
     if tag:
         query["tags"] = tag
     if difficulty:

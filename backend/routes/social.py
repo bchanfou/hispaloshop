@@ -724,10 +724,17 @@ async def get_user_recipes(user_id: str, skip: int = 0, limit: int = 50):
 async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     if user.user_id == user_id:
         raise HTTPException(status_code=400, detail="Cannot follow yourself")
-    existing = await db.user_follows.find_one({"follower_id": user.user_id, "following_id": user_id})
-    if existing:
+    # Atomic upsert to prevent duplicate follows from concurrent requests
+    result = await db.user_follows.update_one(
+        {"follower_id": user.user_id, "following_id": user_id},
+        {"$setOnInsert": {"follower_id": user.user_id, "following_id": user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    if not result.upserted_id:
         raise HTTPException(status_code=400, detail="Already following this user")
-    await db.user_follows.insert_one({"follower_id": user.user_id, "following_id": user_id, "created_at": datetime.now(timezone.utc).isoformat()})
+    # Keep followers_count in sync
+    await db.users.update_one({"user_id": user_id}, {"$inc": {"followers_count": 1}})
+    await db.users.update_one({"user_id": user.user_id}, {"$inc": {"following_count": 1}})
     return {"status": "ok"}
 
 
@@ -736,6 +743,9 @@ async def unfollow_user(user_id: str, user: User = Depends(get_current_user)):
     result = await db.user_follows.delete_one({"follower_id": user.user_id, "following_id": user_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Not following this user")
+    # Keep followers_count in sync
+    await db.users.update_one({"user_id": user_id}, {"$inc": {"followers_count": -1}})
+    await db.users.update_one({"user_id": user.user_id}, {"$inc": {"following_count": -1}})
     return {"status": "ok"}
 
 
@@ -756,8 +766,8 @@ async def get_user_followers(
     if search:
         matching = await db.users.find(
             {"$or": [
-                {"username": {"$regex": search, "$options": "i"}},
-                {"name": {"$regex": search, "$options": "i"}},
+                {"username": {"$regex": re.escape(search), "$options": "i"}},
+                {"name": {"$regex": re.escape(search), "$options": "i"}},
             ]},
             {"user_id": 1},
         ).to_list(200)
@@ -827,8 +837,8 @@ async def get_user_following(
     if search:
         matching = await db.users.find(
             {"$or": [
-                {"username": {"$regex": search, "$options": "i"}},
-                {"name": {"$regex": search, "$options": "i"}},
+                {"username": {"$regex": re.escape(search), "$options": "i"}},
+                {"name": {"$regex": re.escape(search), "$options": "i"}},
             ]},
             {"user_id": 1},
         ).to_list(200)
@@ -1002,12 +1012,17 @@ async def get_post_likes(post_id: str, skip: int = 0, limit: int = 50):
 
 @router.post("/posts/{post_id}/like")
 async def like_post(post_id: str, user: User = Depends(get_current_user)):
-    existing = await db.post_likes.find_one({"post_id": post_id, "user_id": user.user_id})
-    if existing:
-        await db.post_likes.delete_one({"post_id": post_id, "user_id": user.user_id})
+    # Atomic toggle: delete returns count=1 if existed, 0 if not
+    result = await db.post_likes.delete_one({"post_id": post_id, "user_id": user.user_id})
+    if result.deleted_count > 0:
         await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"likes_count": -1}})
         return {"liked": False}
-    await db.post_likes.insert_one({"post_id": post_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()})
+    # Use update+upsert to prevent duplicate likes from concurrent double-clicks
+    await db.post_likes.update_one(
+        {"post_id": post_id, "user_id": user.user_id},
+        {"$setOnInsert": {"post_id": post_id, "user_id": user.user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
     await db.user_posts.update_one({"post_id": post_id}, {"$inc": {"likes_count": 1}})
     await _record_intelligence_signal("content_engagement", {"content_type": "post", "content_id": post_id, "action": "like"}, user.user_id)
     return {"liked": True}
@@ -1498,7 +1513,7 @@ async def search_products_for_tagging(q: str = "", limit: int = 5, user: User = 
     if user.role in {"producer", "importer"}:
         query["producer_id"] = user.user_id
     if q:
-        query["name"] = {"$regex": q, "$options": "i"}
+        query["name"] = {"$regex": re.escape(q), "$options": "i"}
     products = await db.products.find(query, {"_id": 0, "product_id": 1, "name": 1, "price": 1, "currency": 1, "images": 1}).limit(limit).to_list(limit)
     return [{"product_id": p["product_id"], "name": p.get("name", ""), "price": p.get("price", 0), "currency": p.get("currency", "EUR"), "image": p.get("images", [None])[0]} for p in products]
 
@@ -1547,7 +1562,7 @@ async def discover_profiles(request: Request, role: str = None, search: str = No
     else:
         query["role"] = {"$in": ["customer", "producer", "importer", "influencer"]}
     if search:
-        query["name"] = {"$regex": search, "$options": "i"}
+        query["name"] = {"$regex": re.escape(search), "$options": "i"}
     try:
         users = await db.users.find(query, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
         total = await db.users.count_documents(query)
