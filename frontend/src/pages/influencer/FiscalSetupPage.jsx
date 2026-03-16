@@ -174,6 +174,13 @@ export default function FiscalSetupPage() {
           setSavingPayout(false);
           return;
         }
+        // Basic IBAN format validation
+        const ibanClean = iban.replace(/\s/g, '').toUpperCase();
+        if (!/^[A-Z]{2}\d{2}[A-Z0-9]{4,}$/.test(ibanClean)) {
+          toast.error('Formato de IBAN no válido. Debe empezar con código de país (ej: ES12...)');
+          setSavingPayout(false);
+          return;
+        }
         body.iban = iban.trim();
         body.account_name = accountName.trim();
       }
@@ -222,11 +229,40 @@ export default function FiscalSetupPage() {
   return (
     <div style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)', minHeight: '100vh' }}>
       {/* TopBar */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-2">
         <button onClick={() => navigate(-1)} className="shrink-0" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
           <ArrowLeft className="w-5 h-5" style={{ color: 'var(--color-black)' }} />
         </button>
         <h1 className="text-lg font-bold" style={{ color: 'var(--color-black)' }}>Configuración fiscal</h1>
+      </div>
+
+      {/* Step indicator */}
+      <div className="flex items-center gap-2 mb-6 px-1">
+        {['País fiscal', 'Certificado', 'Método de cobro', 'Resumen'].map((stepLabel, i) => {
+          const stepNum = i + 1;
+          const isComplete = (stepNum === 1 && country) || (stepNum === 2 && certStatus === 'verified') || (stepNum === 3 && payoutMethod) || (stepNum === 4 && canSave);
+          const isCurrent = (!country && stepNum === 1) || (country && certStatus !== 'verified' && stepNum === 2) || (country && certStatus === 'verified' && !payoutMethod && stepNum === 3) || (canSave && stepNum === 4);
+          return (
+            <div key={stepLabel} className="flex items-center gap-1.5">
+              <div
+                style={{
+                  width: 20, height: 20, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, fontWeight: 700,
+                  background: isComplete || isCurrent ? 'var(--color-black)' : 'transparent',
+                  color: isComplete || isCurrent ? '#fff' : 'var(--color-stone)',
+                  border: isComplete || isCurrent ? 'none' : '1.5px solid var(--color-border)',
+                }}
+              >
+                {isComplete ? <Check size={10} /> : stepNum}
+              </div>
+              <span style={{ fontSize: 10, color: isCurrent ? 'var(--color-black)' : 'var(--color-stone)', fontWeight: isCurrent ? 600 : 400, fontFamily: 'var(--font-sans)' }}>
+                {stepLabel}
+              </span>
+              {i < 3 && <span style={{ fontSize: 10, color: 'var(--color-border)', margin: '0 2px' }}>—</span>}
+            </div>
+          );
+        })}
       </div>
 
       {/* Blocked banner */}
@@ -243,7 +279,18 @@ export default function FiscalSetupPage() {
 
       {/* 1. Tax country */}
       <div className="mb-5">
-        <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Residencia fiscal</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>Residencia fiscal</h2>
+          {country && certStatus !== 'verified' && (
+            <button
+              onClick={() => { setCountry(''); setCertStatus(null); }}
+              className="text-xs font-semibold"
+              style={{ color: 'var(--color-stone)', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Cambiar
+            </button>
+          )}
+        </div>
         <div className="relative">
           <button
             onClick={() => setShowCountryDropdown(!showCountryDropdown)}

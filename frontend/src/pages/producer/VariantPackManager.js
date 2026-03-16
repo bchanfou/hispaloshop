@@ -390,8 +390,8 @@ function PackRow({ pack, onUpdate, onDelete }) {
     onUpdate(pack.pack_id, {
       label: editData.label,
       units: parseInt(editData.units),
-      price: parseFloat(editData.price),
-      stock: parseInt(editData.stock)
+      price: parseFloat(editData.price) || 0,
+      stock: parseInt(editData.stock) || 0
     });
     setEditing(false);
   };

@@ -357,13 +357,14 @@ export default function InfluencerDashboard() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}>
       <div className="max-w-6xl mx-auto px-4 py-4 md:py-8">
-        {/* Header */}
+        {/* Header — H1 with influencer name at top */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-3xl font-semibold tracking-tight" style={{ color: 'var(--color-black)' }}>
-            {t('influencer.dashboard')}
+            {dashboard.full_name || t('influencer.dashboard')}
           </h1>
-          <p className="mt-2 text-sm md:text-base" style={{ color: 'var(--color-stone)' }}>
-            {t('dashboard.welcome')}, {dashboard.full_name}
+          <p className="mt-1 text-sm md:text-base" style={{ color: 'var(--color-stone)' }}>
+            {dashboard.current_tier && <span className="font-semibold" style={{ color: 'var(--color-black)' }}>{dashboard.current_tier} · {tierPercent}%</span>}
+            {dashboard.current_tier && ' · '}{t('influencer.dashboard')}
           </p>
         </div>
 
@@ -400,23 +401,59 @@ export default function InfluencerDashboard() {
           </div>
         )}
 
+        {/* === KPI CARDS ROW === */}
+        {dashboard.stats && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="rounded-xl border border-stone-200 bg-white p-4">
+              <p className="text-xs text-stone-500 mb-1">Clics 30d</p>
+              <p className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>{dashboard.stats.clicks_30d || 0}</p>
+            </div>
+            <div className="rounded-xl border border-stone-200 bg-white p-4">
+              <p className="text-xs text-stone-500 mb-1">Ventas 30d</p>
+              <p className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>{dashboard.stats.sales_30d || 0}</p>
+            </div>
+            <div className="rounded-xl border border-stone-200 bg-white p-4">
+              <p className="text-xs text-stone-500 mb-1">Conversión</p>
+              <p className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>
+                {(dashboard.stats.clicks_30d || 0) > 0
+                  ? `${((dashboard.stats.sales_30d || 0) / dashboard.stats.clicks_30d * 100).toFixed(1)}%`
+                  : '—'}
+              </p>
+            </div>
+            <div className="rounded-xl border-2 border-stone-500 bg-white p-4">
+              <p className="text-xs text-stone-500 mb-1">Comisiones 30d</p>
+              <p className="text-xl font-bold" style={{ color: 'var(--color-black)' }}>€{(dashboard.stats.earned_30d || 0).toFixed(2)}</p>
+            </div>
+          </div>
+        )}
+
         {/* === BLACK BALANCE CARD === */}
         <div className="mb-6 p-6" style={{ background: 'var(--color-black)', borderRadius: 'var(--radius-xl)' }}>
           <p className="text-sm mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>Balance disponible</p>
           <p className="font-bold mb-2" style={{ color: '#fff', fontSize: '26px' }}>€{asNumber(dashboard.available_balance).toFixed(2)}</p>
+          {dashboard.payment_schedule?.available_soon > 0 && (
+            <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              +€{asNumber(dashboard.payment_schedule.available_soon).toFixed(2)} disponible en los próximos días
+            </p>
+          )}
           {dashboard.payment_schedule?.next_payment_date && (
             <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.45)' }}>
               Próximo pago: {new Date(dashboard.payment_schedule.next_payment_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
             </p>
           )}
-          {/* "Solicitar cobro" — GREEN BUTTON INSIDE BLACK CARD */}
+          {dashboard.payment_schedule?.pending_amount > 0 && (
+            <p className="text-[10px] mb-3" style={{ color: 'rgba(255,255,255,0.3)' }} title="Las comisiones están disponibles 15 días después de la venta para cubrir posibles devoluciones">
+              €{asNumber(dashboard.payment_schedule.pending_amount).toFixed(2)} en retención (disponible tras 15 días de la venta)
+            </p>
+          )}
+          {/* "Solicitar cobro" */}
           {(dashboard.available_balance || 0) >= MINIMUM_WITHDRAWAL && (
             <button
               onClick={scrollToWithdrawals}
               className="px-5 py-2 text-sm font-medium transition-colors"
-              style={{ background: 'var(--color-green)', color: '#fff', borderRadius: 'var(--radius-full)' }}
+              style={{ background: '#fff', color: 'var(--color-black)', borderRadius: 'var(--radius-full)' }}
             >
-              Solicitar cobro
+              Solicitar cobro →
             </button>
           )}
         </div>

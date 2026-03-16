@@ -21,6 +21,7 @@ export default function ProducerShippingPolicy() {
     base_cost_cents: 0,
     free_threshold_cents: null,
     per_item_cents: 0,
+    local_pickup_enabled: false,
   });
 
   const preview = useMemo(() => {
@@ -39,6 +40,7 @@ export default function ProducerShippingPolicy() {
           base_cost_cents: res.base_cost_cents || 0,
           free_threshold_cents: res.free_threshold_cents ?? null,
           per_item_cents: res.per_item_cents || 0,
+          local_pickup_enabled: !!res.local_pickup_enabled,
         });
       } catch (error) {
         toast.error(error.message || 'No se pudo cargar la política de envío');
@@ -57,6 +59,7 @@ export default function ProducerShippingPolicy() {
         base_cost_cents: Math.max(0, policy.base_cost_cents || 0),
         free_threshold_cents: policy.free_threshold_cents === null ? null : Math.max(0, policy.free_threshold_cents),
         per_item_cents: Math.max(0, policy.per_item_cents || 0),
+        local_pickup_enabled: !!policy.local_pickup_enabled,
       };
       await apiClient.put('/producer/shipping/policy', payload);
       toast.success('Política de envío guardada');
@@ -137,10 +140,29 @@ export default function ProducerShippingPolicy() {
           </>
         )}
 
+        {/* Local pickup */}
+        <label className="flex items-center justify-between gap-4 pt-2 border-t border-stone-200">
+          <div>
+            <span className="text-sm font-medium text-stone-950">Recogida local disponible</span>
+            <p className="text-xs text-stone-500 mt-0.5">Los clientes pueden recoger en tu obrador (sin coste de envío)</p>
+          </div>
+          <input
+            type="checkbox"
+            checked={policy.local_pickup_enabled}
+            onChange={(e) => setPolicy((prev) => ({ ...prev, local_pickup_enabled: e.target.checked }))}
+            className="h-4 w-4 accent-stone-950"
+          />
+        </label>
+
         <button onClick={savePolicy} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors w-full md:w-auto">
           <Save className="w-4 h-4 mr-2 inline" />
           {saving ? 'Guardando...' : 'Guardar'}
         </button>
+      </div>
+
+      {/* Plan shipping defaults info */}
+      <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 text-xs text-stone-500 leading-relaxed">
+        <strong className="text-stone-600">Referencia por plan:</strong> Free: base €5.90, sin envío gratis · Pro: base €3.90, gratis desde €30 · Elite: base €2.90, gratis desde €20. Tu configuración personalizada prevalece sobre estos valores.
       </div>
     </div>
   );

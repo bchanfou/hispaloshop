@@ -36,16 +36,17 @@ export default function WithdrawalPage() {
   const withholdingPct = fiscal?.withholding_pct || 0;
   const gross = balance;
   const withholding = isSpain ? Math.round(gross * (withholdingPct / 100) * 100) / 100 : 0;
-  const transferFee = fiscal?.payout_method === 'sepa' ? 0 : 0.25;
+  const isSEPA = ['sepa', 'bank_transfer'].includes(fiscal?.payout_method);
+  const transferFee = isSEPA ? 0 : 0.25;
   const net = Math.max(0, Math.round((gross - withholding - transferFee) * 100) / 100);
   const canWithdraw = net >= 20;
-  const methodLabel = fiscal?.payout_method === 'sepa' ? 'cuenta bancaria' : 'Stripe';
+  const methodLabel = isSEPA ? 'cuenta bancaria' : 'Stripe';
 
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
       const res = await apiClient.post('/influencer/request-withdrawal', {
-        method: fiscal?.payout_method === 'sepa' ? 'bank_transfer' : 'stripe',
+        method: isSEPA ? 'bank_transfer' : 'stripe',
       });
       setSuccess({
         net_amount: res.net_amount || net,
@@ -55,7 +56,9 @@ export default function WithdrawalPage() {
         transfer_fee: res.transfer_fee || transferFee,
       });
     } catch (err) {
-      toast.error(err?.message || err?.detail || 'Error al procesar el cobro');
+      toast.error(err?.message || err?.detail || 'Error al procesar el cobro. Inténtalo de nuevo.', {
+        action: { label: 'Reintentar', onClick: () => handleSubmit() },
+      });
     } finally {
       setSubmitting(false);
     }
@@ -150,7 +153,7 @@ export default function WithdrawalPage() {
 
           <div className="flex justify-between text-sm items-start">
             <div className="flex items-center gap-1">
-              <span style={{ color: 'var(--color-stone)' }}>Fee de transferencia</span>
+              <span style={{ color: 'var(--color-stone)' }} title="La comisión real puede variar según tu método de pago">Fee de transferencia (aprox.)</span>
             </div>
             <span className="font-semibold" style={{ color: transferFee > 0 ? 'var(--color-red)' : 'var(--color-green)' }}>
               {transferFee > 0 ? `−${transferFee.toFixed(2)}€` : '0€'}
@@ -169,9 +172,9 @@ export default function WithdrawalPage() {
         <div className="p-4 mb-5 flex items-start gap-3" style={{ background: 'var(--color-amber-light)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-amber)' }}>
           <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
           <div>
-            <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Balance insuficiente</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Casi llegas</p>
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>
-              Mínimo 20€ neto para solicitar cobro · Te faltan {(20 - net).toFixed(2)}€
+              Estás a {(20 - net).toFixed(2)}€ de poder solicitar tu cobro (mínimo 20€ neto)
             </p>
           </div>
         </div>
@@ -180,17 +183,17 @@ export default function WithdrawalPage() {
       {/* Payout method */}
       <div className="p-4 mb-5 flex items-center justify-between" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)' }}>
         <div className="flex items-center gap-3">
-          {fiscal?.payout_method === 'sepa' ? (
+          {isSEPA ? (
             <Building2 className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
           ) : (
             <CreditCard className="w-5 h-5" style={{ color: 'var(--color-stone)' }} />
           )}
           <div>
             <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>
-              {fiscal?.payout_method === 'sepa' ? 'Transferencia SEPA' : 'Stripe'}
+              {isSEPA ? 'Transferencia SEPA' : 'Stripe'}
             </p>
             <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
-              {fiscal?.payout_method === 'sepa'
+              {isSEPA
                 ? `···· ${fiscal?.sepa_iban_last4 || '****'}`
                 : 'Cuenta conectada'}
             </p>

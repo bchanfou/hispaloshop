@@ -126,6 +126,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
   };
 
   const removeImage = (index) => {
+    if (!window.confirm('¿Eliminar esta foto? Esta acción no se puede deshacer.')) return;
     onChange(images.filter((_, i) => i !== index));
   };
 
@@ -274,11 +275,16 @@ export default function ProducerStoreProfile() {
         </div>
       </div>
 
-      {/* URL Preview */}
+      {/* URL Preview + Ver mi tienda */}
       {profile.slug && (
-        <div className="bg-stone-50 rounded-lg p-3 border border-stone-200">
-          <p className="text-sm text-stone-500">URL de tu tienda:</p>
-          <p className="text-stone-950 font-medium">{window.location.origin}/store/{profile.slug}</p>
+        <div className="bg-stone-50 rounded-lg p-3 border border-stone-200 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm text-stone-500">URL de tu tienda:</p>
+            <p className="text-stone-950 font-medium">{window.location.origin}/store/{profile.slug}</p>
+          </div>
+          <Link to={`/store/${profile.slug}`} target="_blank" className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white text-sm font-medium rounded-xl transition-colors">
+            Ver mi tienda →
+          </Link>
         </div>
       )}
 
@@ -378,6 +384,15 @@ export default function ProducerStoreProfile() {
               images={profile.gallery || []}
               onChange={(val) => updateField('gallery', val)}
             />
+
+            {/* Certifications visible */}
+            <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 space-y-1">
+              <h3 className="text-sm font-semibold text-stone-950">Certificaciones visibles</h3>
+              <p className="text-sm text-stone-500">Tus certificados verificados aparecen automáticamente en tu tienda.</p>
+              <Link to="/producer/certificates" className="inline-flex items-center gap-1 text-sm font-medium text-stone-950 hover:underline mt-1">
+                Gestionar certificados →
+              </Link>
+            </div>
           </div>
         </div>
 

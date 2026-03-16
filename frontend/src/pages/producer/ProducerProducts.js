@@ -612,23 +612,24 @@ export default function ProducerProducts() {
       { key: 'salt', label: t('producerProducts.nutritionLabels.salt'), unit: 'g' }
     ];
     
-    // Common allergens
-    const commonAllergens = [
-      { key: 'gluten', label: t('producerProducts.commonAllergens.gluten') },
-      { key: 'dairy', label: t('producerProducts.commonAllergens.dairy') },
-      { key: 'egg', label: t('producerProducts.commonAllergens.egg') },
-      { key: 'nuts', label: t('producerProducts.commonAllergens.nuts') },
-      { key: 'peanuts', label: t('producerProducts.commonAllergens.peanuts') },
-      { key: 'soy', label: t('producerProducts.commonAllergens.soy') },
-      { key: 'fish', label: t('producerProducts.commonAllergens.fish') },
-      { key: 'shellfish', label: t('producerProducts.commonAllergens.shellfish') },
-      { key: 'celery', label: t('producerProducts.commonAllergens.celery') },
-      { key: 'mustard', label: t('producerProducts.commonAllergens.mustard') },
-      { key: 'sesame', label: t('producerProducts.commonAllergens.sesame') },
-      { key: 'sulfites', label: t('producerProducts.commonAllergens.sulfites') },
-      { key: 'lupin', label: t('producerProducts.commonAllergens.lupin') },
-      { key: 'mollusks', label: t('producerProducts.commonAllergens.mollusks') }
+    // 14 EU mandatory allergens (official Spanish names)
+    const EU_ALLERGENS = [
+      { key: 'gluten',      label: 'Gluten' },
+      { key: 'crustaceans', label: 'Crustáceos' },
+      { key: 'egg',         label: 'Huevo' },
+      { key: 'fish',        label: 'Pescado' },
+      { key: 'peanuts',     label: 'Cacahuetes' },
+      { key: 'soy',         label: 'Soja' },
+      { key: 'dairy',       label: 'Lácteos' },
+      { key: 'nuts',        label: 'Frutos de cáscara' },
+      { key: 'celery',      label: 'Apio' },
+      { key: 'mustard',     label: 'Mostaza' },
+      { key: 'sesame',      label: 'Sésamo' },
+      { key: 'sulfites',    label: 'Sulfitos' },
+      { key: 'lupin',       label: 'Altramuces' },
+      { key: 'mollusks',    label: 'Moluscos' },
     ];
+    const commonAllergens = EU_ALLERGENS;
     
     // Common certifications
     const commonCertifications = [
@@ -1030,20 +1031,44 @@ export default function ProducerProducts() {
                       <AlertTriangle className="w-4 h-4" />
                       {t('producerProducts.allergens')}
                     </h3>
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {commonAllergens.map((allergen) => {
+                    <div className="grid grid-cols-2 gap-y-2 gap-x-4 mb-3">
+                      {EU_ALLERGENS.map((allergen) => {
                         const isSelected = formData.allergens.includes(allergen.label);
                         return (
-                          <button key={allergen.key} type="button" onClick={() => {
-                            if (isSelected) setFormData({ ...formData, allergens: formData.allergens.filter(a => a !== allergen.label) });
-                            else setFormData({ ...formData, allergens: [...formData.allergens, allergen.label] });
-                          }} className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${isSelected ? 'bg-stone-950 border-stone-950 text-white' : 'bg-white border-stone-200 text-stone-600 hover:border-stone-400'}`} data-testid={`allergen-${allergen.key}`}>
-                            {allergen.label}
-                          </button>
+                          <label key={allergen.key} className="flex items-center gap-2 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => {
+                                if (isSelected) setFormData({ ...formData, allergens: formData.allergens.filter(a => a !== allergen.label) });
+                                else setFormData({ ...formData, allergens: [...formData.allergens, allergen.label] });
+                              }}
+                              className="accent-stone-950 w-4 h-4 rounded"
+                              data-testid={`allergen-${allergen.key}`}
+                            />
+                            <span className="text-sm text-stone-700">{allergen.label}</span>
+                          </label>
                         );
                       })}
+                      {/* Otros */}
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={allergensStr.length > 0}
+                          onChange={(e) => { if (!e.target.checked) setAllergensStr(''); }}
+                          className="accent-stone-950 w-4 h-4 rounded"
+                          data-testid="allergen-otros"
+                        />
+                        <span className="text-sm text-stone-700">Otros</span>
+                      </label>
                     </div>
-                    <input value={allergensStr} onChange={(e) => setAllergensStr(e.target.value)} placeholder={t('producerProducts.otherAllergensPlaceholder')} className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950" data-testid="allergens-text-input" />
+                    <input
+                      value={allergensStr}
+                      onChange={(e) => setAllergensStr(e.target.value)}
+                      placeholder="Especifica otros alérgenos..."
+                      className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                      data-testid="allergens-text-input"
+                    />
                   </div>
 
                   {/* Certifications */}

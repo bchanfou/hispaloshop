@@ -636,7 +636,18 @@ export default function ProducerCertificates() {
                 {certificates.map((cert) => {
                   const status = getStatus(cert);
                   const StatusIcon = STATUS_CONFIG[status].icon;
-                  
+
+                  // Expiry-soon: within 30 days of today
+                  const isExpiringSoon = (() => {
+                    if (!cert.data?.expiry_date) return false;
+                    const expiry = new Date(cert.data.expiry_date);
+                    const now = new Date();
+                    const diffDays = (expiry - now) / (1000 * 60 * 60 * 24);
+                    return diffDays >= 0 && diffDays <= 30;
+                  })();
+
+                  const showRenew = status === 'rejected' || isExpiringSoon;
+
                   return (
                     <tr key={cert.certificate_id} className="hover:bg-stone-50">
                       <td className="px-4 md:px-6 py-4">
@@ -651,16 +662,30 @@ export default function ProducerCertificates() {
                         </span>
                       </td>
                       <td className="px-4 md:px-6 py-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_CONFIG[status].bg} ${STATUS_CONFIG[status].color}`}>
                             <StatusIcon className="w-3.5 h-3.5" />
                             <span className="hidden sm:inline">{STATUS_CONFIG[status].label}</span>
                           </span>
+                          {isExpiringSoon && (
+                            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-700">
+                              Caduca pronto
+                            </span>
+                          )}
                         </div>
                         {status === 'rejected' && cert.rejection_reason && (
-                          <p className="text-xs text-stone-600 mt-1">
+                          <p className="text-xs text-stone-500 mt-1">
                             {cert.rejection_reason}
                           </p>
+                        )}
+                        {showRenew && (
+                          <button
+                            type="button"
+                            onClick={() => setShowCreateForm(true)}
+                            className="mt-1.5 text-xs font-medium text-stone-950 underline hover:no-underline"
+                          >
+                            Renovar
+                          </button>
                         )}
                       </td>
                       <td className="px-4 md:px-6 py-4 hidden sm:table-cell">

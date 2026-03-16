@@ -520,7 +520,7 @@ export default function ProducerOrders() {
                     <div className="text-right">
                       <p className="text-sm text-stone-500">{t('orders.orderTotal')}</p>
                       <p className="text-xl font-bold text-stone-950">€{asNumber(order.total_amount).toFixed(2)}</p>
-                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: €{(asNumber(order.total_amount) * 0.82).toFixed(2)}</p>
+                      <p className="text-xs text-stone-600">{t('orders.yourShare')}: €{(asNumber(order.total_amount) * 0.82).toFixed(2)} <span className="text-stone-400">(Plan {order.commission_plan || 'FREE'})</span></p>
                     </div>
                   </div>
                 </div>

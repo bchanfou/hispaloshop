@@ -14,12 +14,12 @@ const STATUS_CONFIG = {
   pending: { label: 'Pendiente', color: 'text-stone-600', bg: 'bg-stone-100', icon: Clock },
   approved: { label: 'Aprobado', color: 'text-stone-700', bg: 'bg-stone-100', icon: CheckCircle },
   paid: { label: 'Pagado', color: 'text-stone-950', bg: 'bg-stone-100', icon: DollarSign },
-  disputed: { label: 'Disputado', color: 'text-stone-500', bg: 'bg-stone-50', icon: AlertCircle }
 };
 
 export function CommissionHistory() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('recent'); // recent | highest
   const limit = 10;
 
   const { data, isLoading } = useQuery({
@@ -56,8 +56,8 @@ export function CommissionHistory() {
 
   return (
     <div className="space-y-4">
-      {/* Filtros */}
-      <div className="flex flex-wrap gap-2">
+      {/* Filtros + Sort */}
+      <div className="flex flex-wrap items-center gap-2">
         {['all', 'pending', 'approved', 'paid'].map((status) => (
           <button
             key={status}
@@ -66,12 +66,20 @@ export function CommissionHistory() {
               setPage(1);
             }}
             className={statusFilter === status
-              ? 'px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors text-sm'
-              : 'px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-sm'}
+              ? 'px-3 py-1.5 sm:px-4 sm:py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors text-xs sm:text-sm'
+              : 'px-3 py-1.5 sm:px-4 sm:py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-xs sm:text-sm'}
           >
             {status === 'all' ? 'Todos' : STATUS_CONFIG[status]?.label || status}
           </button>
         ))}
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="ml-auto px-3 py-1.5 border border-stone-200 text-stone-600 rounded-lg text-xs sm:text-sm bg-white"
+        >
+          <option value="recent">Más recientes</option>
+          <option value="highest">Mayor comisión</option>
+        </select>
       </div>
 
       {/* Lista de comisiones */}
@@ -91,7 +99,10 @@ export function CommissionHistory() {
                 No hay comisiones {statusFilter !== 'all' ? 'con este filtro' : ''}
               </p>
             ) : (
-              commissions.map((commission) => (
+              [...commissions].sort((a, b) => {
+                if (sortBy === 'highest') return (b.commission_cents || 0) - (a.commission_cents || 0);
+                return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+              }).map((commission) => (
                 <CommissionRow key={commission.id} commission={commission} />
               ))
             )}

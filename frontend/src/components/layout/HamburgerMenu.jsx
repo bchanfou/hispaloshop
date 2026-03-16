@@ -165,7 +165,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
               <MenuItem to="/explore?tab=products" icon={<ShoppingBag size={20} />} label="Productos" onClose={onClose} />
               <MenuItem to="/recipes" icon={<UtensilsCrossed size={20} />} label="Recetas" onClose={onClose} />
               <MenuItem to="/communities" icon={<Users size={20} />} label="Comunidades" onClose={onClose} />
-              <MenuItem to="/certifications" icon={<Award size={20} />} label="Certificaciones" onClose={onClose} />
+              <MenuItem to="/certificates" icon={<Award size={20} />} label="Certificados digitales" onClose={onClose} />
 
               <Divider />
 

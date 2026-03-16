@@ -34,11 +34,12 @@ function TypingDots() {
 }
 
 const QUICK_PROMPTS = [
-  { icon: Video,     label: 'Guión de video',      prompt: 'Crea un guión para un video corto de TikTok o Reels promocionando productos de Hispaloshop de forma natural y entretenida.' },
-  { icon: Instagram, label: 'Caption para post',    prompt: 'Escribe un caption atractivo para Instagram que promocione mi código de descuento de forma auténtica.' },
-  { icon: FileText,  label: 'Historia promocional', prompt: 'Dame ideas para una serie de Stories de Instagram promocionando productos artesanales.' },
-  { icon: Megaphone, label: 'Estrategia contenido', prompt: 'Diseña una estrategia de contenido semanal para promocionar productos de alimentación saludable.' },
-  { icon: PenTool,   label: 'Texto para bio',       prompt: 'Ayúdame a crear un texto corto para mi bio que mencione que soy embajador de Hispaloshop.' },
+  { icon: Video,     label: 'Guión de video',      prompt: 'Crea un guión para un video corto de TikTok o Reels promocionando productos de Hispaloshop de forma natural y entretenida. Incluye mi código de descuento en el guión.' },
+  { icon: Instagram, label: 'Caption para post',    prompt: 'Escribe un caption atractivo para Instagram que promocione mi código de descuento de forma auténtica. Incluye el código al final.' },
+  { icon: FileText,  label: 'Historia promocional', prompt: 'Dame ideas para una serie de Stories de Instagram promocionando productos artesanales. Incluye slides con mi código de descuento.' },
+  { icon: Megaphone, label: 'Estrategia contenido', prompt: 'Diseña una estrategia de contenido semanal para promocionar productos de alimentación saludable. Prioriza los productos que mejor me convierten.' },
+  { icon: PenTool,   label: 'Texto para bio',       prompt: 'Ayúdame a crear un texto corto para mi bio que mencione que soy embajador de Hispaloshop e incluya mi código de descuento.' },
+  { icon: Megaphone, label: 'Qué producto promocionar', prompt: 'Basándote en mis datos de rendimiento, ¿qué producto debería promocionar esta semana para maximizar mis comisiones?' },
 ];
 
 export default function InfluencerAIAssistant({ influencerData, isEmbedded = false, onClose = null }) {
@@ -74,7 +75,13 @@ export default function InfluencerAIAssistant({ influencerData, isEmbedded = fal
     setShowPrompts(false);
 
     try {
-      const data = await apiClient.post('/ai/influencer-assistant', { message: text, influencer_context: influencerData });
+      const enrichedContext = {
+        ...influencerData,
+        discount_code: influencerData?.discount_code || influencerData?.referral_code,
+        top_products: influencerData?.top_products || [],
+        tier: influencerData?.tier || influencerData?.current_tier,
+      };
+      const data = await apiClient.post('/ai/influencer-assistant', { message: text, influencer_context: enrichedContext });
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (error) {
       console.error('Error:', error);

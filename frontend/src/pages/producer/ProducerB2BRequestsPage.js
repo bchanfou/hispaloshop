@@ -47,6 +47,10 @@ function ShipForm({ requestId, onSuccess }) {
       toast.error('Introduce el número de tracking');
       return;
     }
+    if (trackUrl.trim() && !/^https?:\/\/.+/.test(trackUrl.trim())) {
+      toast.error('URL de tracking no válida. Debe empezar con http:// o https://');
+      return;
+    }
     setSaving(true);
     try {
       await apiClient.put(`/b2b/producer/requests/${requestId}/ship`, {
@@ -113,6 +117,7 @@ function RequestCard({ request, onAction }) {
   const [confirmedPrice, setConfirmedPrice] = useState(request.unit_price || '');
   const [notes, setNotes] = useState('');
   const [estimatedDays, setEstimatedDays] = useState(7);
+  const [estimatedDeliveryDate, setEstimatedDeliveryDate] = useState('');
   const [processing, setProcessing] = useState(false);
 
   const confirm = async () => {
@@ -126,6 +131,7 @@ function RequestCard({ request, onAction }) {
         confirmed_unit_price: parseFloat(confirmedPrice),
         notes: notes.trim(),
         estimated_days: estimatedDays,
+        estimated_delivery_date: estimatedDeliveryDate || undefined,
       });
       toast.success('Oferta enviada al importador');
       setShowConfirm(false);
@@ -193,6 +199,12 @@ function RequestCard({ request, onAction }) {
                 <p className="text-sm font-extrabold text-stone-950">{totalEstimado.toFixed(2)}€</p>
               </div>
             </div>
+            {request.product_moq != null && request.quantity < request.product_moq && (
+              <p className="text-xs text-stone-500 mt-1.5 flex items-center gap-1">
+                <Package className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                Cantidad menor al MOQ del producto ({request.product_moq} unidades)
+              </p>
+            )}
           </div>
         </div>
 
@@ -231,6 +243,16 @@ function RequestCard({ request, onAction }) {
                   className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-950"
                 />
               </div>
+            </div>
+            <div className="mb-3">
+              <label className="text-xs font-semibold text-stone-600 block mb-1">Fecha estimada de entrega</label>
+              <input
+                type="date"
+                value={estimatedDeliveryDate}
+                onChange={e => setEstimatedDeliveryDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-950"
+              />
             </div>
             <div className="mb-3">
               <label className="text-xs font-semibold text-stone-600 block mb-1">Nota (opcional)</label>

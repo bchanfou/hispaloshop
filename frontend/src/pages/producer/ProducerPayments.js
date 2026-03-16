@@ -128,7 +128,7 @@ function OrderRow({ order, expanded, onToggle }) {
               </div>
             ))}
             <div className="pt-1.5 mt-1.5 border-t border-stone-200 flex justify-between text-xs">
-              <span className="text-stone-500">Comisión plataforma ({(order.platform_fee / order.gross_amount * 100).toFixed(0)}%)</span>
+              <span className="text-stone-500">Comisión plataforma ({order.gross_amount > 0 ? (order.platform_fee / order.gross_amount * 100).toFixed(0) : 0}%)</span>
               <span className="text-stone-600">-{order.platform_fee.toFixed(2)}€</span>
             </div>
           </div>
@@ -345,11 +345,31 @@ export default function ProducerPayments() {
       {/* Monthly Breakdown Table */}
       {data.monthly_summary.length > 0 && (
         <div className="bg-white rounded-xl border border-stone-200 overflow-hidden" data-testid="monthly-breakdown">
-          <div className="px-4 py-3 border-b border-stone-100">
+          <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
             <h2 className="font-medium text-stone-950 text-sm flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-stone-500" />
               Desglose mensual
             </h2>
+            <button
+              onClick={() => {
+                const rows = [['Mes', 'Pedidos', 'Bruto (€)', 'Neto (€)']];
+                data.monthly_summary.forEach(m => {
+                  rows.push([m.month, m.orders, m.gross.toFixed(2), m.net.toFixed(2)]);
+                });
+                const csv = rows.map(r => r.join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `hispaloshop-pagos-${new Date().toISOString().slice(0, 10)}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success('CSV exportado');
+              }}
+              className="text-xs font-semibold text-stone-500 hover:text-stone-950 transition-colors"
+            >
+              Exportar CSV
+            </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

@@ -488,12 +488,12 @@ export default function ProfileHeader({
             <span
               style={{
                 fontSize: 10,
-                fontWeight: 600,
+                fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.04em',
-                background: 'var(--color-surface)',
-                color: 'var(--color-stone)',
-                padding: '2px 8px',
+                background: user?.role === 'influencer' ? 'var(--color-black)' : 'var(--color-surface)',
+                color: user?.role === 'influencer' ? '#fff' : 'var(--color-stone)',
+                padding: '3px 10px',
                 borderRadius: 'var(--radius-full)',
                 marginLeft: 6,
               }}
@@ -506,8 +506,8 @@ export default function ProfileHeader({
               style={{
                 fontSize: 10,
                 fontWeight: 600,
-                background: 'var(--color-green-light)',
-                color: 'var(--color-green)',
+                background: 'var(--color-surface)',
+                color: 'var(--color-black)',
                 padding: '2px 8px',
                 borderRadius: 'var(--radius-full)',
                 marginLeft: 4,
@@ -543,19 +543,53 @@ export default function ProfileHeader({
           </div>
         )}
 
+        {/* Influencer public stats + discount code */}
+        {user?.role === 'influencer' && (user?.sales_count > 0 || user?.discount_code) && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginTop: 8 }}>
+            {user?.sales_count > 0 && (
+              <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                {user.sales_count} ventas generadas
+              </span>
+            )}
+            {user?.producers_count > 0 && (
+              <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                · {user.producers_count} productores apoyados
+              </span>
+            )}
+            {user?.discount_code && (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(user.discount_code);
+                  toast.success('Código copiado: ' + user.discount_code);
+                }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  fontSize: 11, fontWeight: 600,
+                  background: 'var(--color-black)', color: '#fff',
+                  padding: '4px 12px', borderRadius: 'var(--radius-full)',
+                  border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                }}
+              >
+                <Copy size={10} />
+                {user.discount_code}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* website */}
         {user?.website && (
           <div
             style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}
           >
-            <ExternalLink size={12} color="var(--color-green)" />
+            <ExternalLink size={12} color="var(--color-stone)" />
             <a
               href={user.website}
               target="_blank"
               rel="noopener noreferrer"
               style={{
                 fontSize: 13,
-                color: 'var(--color-green)',
+                color: 'var(--color-stone)',
                 textDecoration: 'none',
               }}
             >

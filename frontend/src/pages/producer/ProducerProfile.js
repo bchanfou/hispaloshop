@@ -100,9 +100,17 @@ export default function ProducerProfile() {
       toast.error(t('profile.typeDelete', 'Please type DELETE to confirm'));
       return;
     }
-    
+
     setDeleting(true);
     try {
+      // Check for pending orders before deletion
+      const ordersCheck = await apiClient.get('/producer/orders?limit=1&status=pending,preparing,paid,confirmed');
+      const pendingCount = ordersCheck?.total || ordersCheck?.orders?.length || 0;
+      if (pendingCount > 0) {
+        toast.error(`Tienes ${pendingCount} pedido(s) pendiente(s). Completa los envíos antes de eliminar tu cuenta.`);
+        setDeleting(false);
+        return;
+      }
       await apiClient.delete('/account/delete', {
         data: { password: deletePassword, confirmation: deleteConfirmation }
       });

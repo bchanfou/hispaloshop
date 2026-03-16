@@ -2,10 +2,10 @@ import React from 'react';
 import { InfoNav, Hero, FeatureGrid, FooterCTA } from '../../components/info/shared';
 
 const FEATURES = [
-  { icon: '💰', title: 'Comisiones reales', desc: 'Gana entre el 3% y el 7% de cada venta generada con tu enlace de afiliado. Liquidación mensual automática.' },
-  { icon: '🏪', title: 'Tu tienda de productos', desc: 'Crea tu selección personalizada de productos favoritos. Tus seguidores compran directamente desde tu perfil.' },
-  { icon: '📈', title: 'Analytics completo', desc: 'Ve exactamente qué contenido genera clics, qué convierte en venta y cuánto has ganado en tiempo real.' },
-  { icon: '🤝', title: 'Matching con marcas', desc: 'Los productores te encuentran directamente si tu audiencia coincide con su nicho. Sin agencias, sin comisiones.' },
+  { icon: '💰', title: 'Comisiones reales', desc: 'Gana entre el 3% y el 7% de cada venta generada con tu enlace de afiliado. Cobra cuando quieras a partir de 20€.' },
+  { icon: '🏷️', title: 'Código de descuento personal', desc: 'Tu código único que puedes compartir con tus seguidores. Ellos ahorran y tú ganas comisión por cada compra.' },
+  { icon: '📈', title: 'Analytics de rendimiento', desc: 'Ve los clics, conversiones y comisiones que genera tu contenido. Descubre qué productos conectan con tu audiencia.' },
+  { icon: '📂', title: 'Directorio de productores', desc: 'Explora productores artesanales verificados y elige los que encajan con tu estilo. Sin agencias, sin intermediarios.' },
   { icon: '🔗', title: 'Links de afiliado', desc: 'Un link único por producto. Compártelo en bio, historias o reels. El tracking funciona automáticamente.' },
   { icon: '🌱', title: 'Solo productos auténticos', desc: 'Hispaloshop es exclusivamente alimentos artesanales y saludables. Contenido que tu audiencia de salud agradece.' },
 ];
@@ -44,7 +44,7 @@ export default function InfluencerPage() {
           {[
             { n: '01', title: 'Crea tu perfil', desc: 'Regístrate como influencer, conecta tus redes y elige los productos que encajan con tu estilo de vida.' },
             { n: '02', title: 'Comparte con tu enlace', desc: 'Cada producto tiene tu link único. Publícalo donde quieras: bio, stories, reels o newsletters.' },
-            { n: '03', title: 'Cobra cada mes', desc: 'Cada venta generada suma a tu balance. Liquidamos automáticamente el día 1 de cada mes.' },
+            { n: '03', title: 'Cobra cuando quieras', desc: 'Cada venta generada suma a tu balance. Solicita tu cobro cuando alcances 20€ mínimo.' },
           ].map((step, i) => (
             <div key={step.n} style={{
               padding: '0 32px 32px',

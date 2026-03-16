@@ -431,6 +431,18 @@ async def run_full_verification(user_id: str) -> dict:
             "verification_status.blocked_from_selling": True,
             "verification_status.block_reason": cif_doc.get("rejection_reason", "CIF/NIF rechazado"),
         }
+        try:
+            await db.notifications.insert_one({
+                "user_id": user_id,
+                "type": "verification_rejected",
+                "title": "Verificación rechazada",
+                "body": "Algunos documentos necesitan ser revisados. Consulta los detalles en tu panel.",
+                "action_url": "/producer/verification",
+                "read": False,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+        except Exception:
+            pass
 
     elif cif_ok and facility_ok and has_valid_cert and not any_low_confidence and not any_cert_low:
         # APPROVED
@@ -444,6 +456,18 @@ async def run_full_verification(user_id: str) -> dict:
             "verification_status.blocked_from_selling": False,
             "verification_status.block_reason": None,
         }
+        try:
+            await db.notifications.insert_one({
+                "user_id": user_id,
+                "type": "verification_approved",
+                "title": "Cuenta verificada",
+                "body": "Tu cuenta de productor ha sido verificada. Ya puedes publicar y vender productos.",
+                "action_url": "/producer/products",
+                "read": False,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+        except Exception:
+            pass
 
     elif any_low_confidence or any_cert_low:
         # Manual review needed

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, MousePointerClick, RefreshCw, ShoppingCart, TrendingUp } from 'lucide-react';
+import { BarChart3, MousePointerClick, RefreshCw, ShoppingCart, TrendingUp, TrendingDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { toast } from 'sonner';
 import apiClient from '../../services/api/client';
 
 const PERIODS = [
@@ -11,13 +12,25 @@ const PERIODS = [
 const formatPrice = (v) =>
   new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(Number(v) || 0);
 
-function KpiCard({ icon: Icon, label, value }) {
+function KpiCard({ icon: Icon, label, value, prevValue }) {
+  const change = (prevValue != null && prevValue > 0 && value != null && value !== '—')
+    ? ((Number(value) - prevValue) / prevValue * 100)
+    : null;
+
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-stone-200 bg-white p-5">
       <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100">
         <Icon className="h-4 w-4 text-stone-700" />
       </div>
-      <p className="text-2xl font-semibold text-stone-950">{value}</p>
+      <div className="flex items-center gap-2">
+        <p className="text-2xl font-semibold text-stone-950">{value}</p>
+        {change !== null && Math.abs(change) >= 5 && (
+          <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${change > 0 ? 'text-stone-950' : 'text-stone-400'}`}>
+            {change > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+            {Math.abs(change).toFixed(0)}%
+          </span>
+        )}
+      </div>
       <p className="text-sm text-stone-600">{label}</p>
     </div>
   );
@@ -26,20 +39,31 @@ function KpiCard({ icon: Icon, label, value }) {
 export default function InfluencerInsights() {
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
+  const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const load = (d) => {
+  const load = (d, isRefresh = false) => {
     setLoading(true);
-    apiClient
-      .get(`/discovery/influencer-insights?days=${d}`)
-      .then((data) => setData(data))
-      .catch(() => setData(null))
+    setError(false);
+    // Fetch current + previous period for trend comparison
+    Promise.all([
+      apiClient.get(`/discovery/influencer-insights?days=${d}`),
+      apiClient.get(`/discovery/influencer-insights?days=${d * 2}`).catch(() => null),
+    ])
+      .then(([current, prev]) => {
+        setData(current);
+        setPrevData(prev);
+        if (isRefresh) toast.success('Datos actualizados');
+      })
+      .catch(() => { setData(null); setError(true); })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { load(days); }, [days]);
 
   const overview = data?.overview || {};
+  const prevOverview = prevData?.overview || {};
   const topProducts = data?.top_products_driven || [];
 
   return (
@@ -71,7 +95,7 @@ export default function InfluencerInsights() {
               ))}
             </div>
             <button
-              onClick={() => load(days)}
+              onClick={() => load(days, true)}
               disabled={loading}
               className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-600 hover:text-stone-950 disabled:opacity-40"
             >
@@ -88,21 +112,25 @@ export default function InfluencerInsights() {
             icon={MousePointerClick}
             label="Clics en productos"
             value={overview.product_clicks ?? '—'}
+            prevValue={prevOverview.product_clicks}
           />
           <KpiCard
             icon={ShoppingCart}
             label="Añadidos al carrito"
             value={overview.add_to_cart ?? '—'}
+            prevValue={prevOverview.add_to_cart}
           />
           <KpiCard
             icon={TrendingUp}
             label="Compras generadas"
             value={overview.purchases ?? '—'}
+            prevValue={prevOverview.purchases}
           />
           <KpiCard
             icon={BarChart3}
             label="Guardados"
             value={overview.saves ?? '—'}
+            prevValue={prevOverview.saves}
           />
         </div>
 
@@ -118,9 +146,22 @@ export default function InfluencerInsights() {
                 <div key={i} className="h-16 rounded-2xl border border-stone-200 bg-white animate-pulse" />
               ))}
             </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center">
+              <p className="text-sm font-medium text-stone-950">Error de conexión</p>
+              <p className="mt-1 text-sm text-stone-500 mb-3">
+                No pudimos cargar tus datos. Comprueba tu conexión e inténtalo de nuevo.
+              </p>
+              <button
+                onClick={() => load(days)}
+                className="px-4 py-2 bg-stone-950 text-white rounded-xl text-sm font-medium hover:bg-stone-800 transition-colors"
+              >
+                Reintentar
+              </button>
+            </div>
           ) : topProducts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-8 text-center">
-              <p className="text-sm font-medium text-stone-950">Sin datos todavía</p>
+              <p className="text-sm font-medium text-stone-950">Aún no tienes datos</p>
               <p className="mt-1 text-sm text-stone-500">
                 Cuando tu contenido impulse clics o compras aparecerá aquí.
               </p>

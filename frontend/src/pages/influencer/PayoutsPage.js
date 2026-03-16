@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { CheckCircle2, CreditCard, Loader2, Wallet } from 'lucide-react';
+import { CheckCircle2, CreditCard, Loader2, Wallet, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 
 export default function PayoutsPage() {
@@ -9,6 +10,9 @@ export default function PayoutsPage() {
   const [loadingPayouts, setLoadingPayouts] = useState(true);
   const [loadingStats, setLoadingStats] = useState(true);
   const [connectingStripe, setConnectingStripe] = useState(false);
+  const [withholdingSummary, setWithholdingSummary] = useState(null);
+  const [payoutPage, setPayoutPage] = useState(1);
+  const PAYOUTS_PER_PAGE = 10;
 
   const fetchPayouts = useCallback(async () => {
     try {
@@ -35,6 +39,10 @@ export default function PayoutsPage() {
   useEffect(() => {
     fetchPayouts();
     fetchStats();
+    // Fetch fiscal withholding summary
+    apiClient.get('/influencer/fiscal/withholding-summary')
+      .then(setWithholdingSummary)
+      .catch(() => setWithholdingSummary(null));
   }, [fetchPayouts, fetchStats]);
 
   const connectStripe = async () => {
@@ -76,7 +84,7 @@ export default function PayoutsPage() {
                 </p>
               ) : (
                 <p className="text-sm text-stone-500 mb-4">
-                  Mínimo 20€ para cobrar · Faltan {(20 - (stats?.pending_eur || 0)).toFixed(2)}€
+                  Estás a {(20 - (stats?.pending_eur || 0)).toFixed(2)}€ de poder solicitar tu cobro
                 </p>
               )}
 
@@ -119,6 +127,24 @@ export default function PayoutsPage() {
           de cada pago. Recibirás el importe neto en tu cuenta bancaria.
         </div>
 
+        {/* Fiscal summary */}
+        {withholdingSummary && (withholdingSummary.total_withheld_cents > 0 || withholdingSummary.total_gross_cents > 0) && (
+          <div className="bg-white border border-stone-200 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FileText className="w-4 h-4 text-stone-500 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-stone-950">Resumen fiscal {new Date().getFullYear()}</p>
+                <p className="text-xs text-stone-500">
+                  Retenciones acumuladas: {((withholdingSummary.total_withheld_cents || 0) / 100).toFixed(2)}€
+                </p>
+              </div>
+            </div>
+            <Link to="/influencer/fiscal-setup" className="text-xs font-semibold text-stone-500 hover:text-stone-950 transition-colors">
+              Ver detalle
+            </Link>
+          </div>
+        )}
+
         {/* Payout history */}
         <h3 className="text-base font-bold text-stone-950 mb-3 flex items-center gap-2">
           <Wallet className="w-4 h-4" />
@@ -140,7 +166,7 @@ export default function PayoutsPage() {
           </div>
         ) : (
           <div className="divide-y divide-stone-100">
-            {payouts.map((payout) => (
+            {payouts.slice((payoutPage - 1) * PAYOUTS_PER_PAGE, payoutPage * PAYOUTS_PER_PAGE).map((payout) => (
               <div
                 key={payout.id}
                 className="flex items-center justify-between py-4"
@@ -171,6 +197,28 @@ export default function PayoutsPage() {
               </div>
             ))}
           </div>
+          {/* Pagination */}
+          {payouts.length > PAYOUTS_PER_PAGE && (
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-100">
+              <button
+                onClick={() => setPayoutPage(p => Math.max(1, p - 1))}
+                disabled={payoutPage === 1}
+                className="flex items-center gap-1 text-sm text-stone-600 disabled:opacity-40"
+              >
+                <ChevronLeft className="w-4 h-4" /> Anterior
+              </button>
+              <span className="text-xs text-stone-500">
+                {payoutPage} de {Math.ceil(payouts.length / PAYOUTS_PER_PAGE)}
+              </span>
+              <button
+                onClick={() => setPayoutPage(p => Math.min(Math.ceil(payouts.length / PAYOUTS_PER_PAGE), p + 1))}
+                disabled={payoutPage >= Math.ceil(payouts.length / PAYOUTS_PER_PAGE)}
+                className="flex items-center gap-1 text-sm text-stone-600 disabled:opacity-40"
+              >
+                Siguiente <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         )}
       </div>
     </div>

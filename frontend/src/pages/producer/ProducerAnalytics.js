@@ -61,8 +61,17 @@ export default function ProducerAnalytics() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-stone-500" />
+      <div className="space-y-4 pt-6">
+        <div className="h-10 w-48 bg-stone-100 rounded-xl animate-pulse" />
+        <div className="grid grid-cols-2 gap-3">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="bg-white rounded-xl border border-stone-200 p-5 space-y-3">
+              <div className="h-3 w-16 bg-stone-100 rounded animate-pulse" />
+              <div className="h-6 w-24 bg-stone-100 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+        <div className="bg-white rounded-xl border border-stone-200 p-4 h-48 animate-pulse" />
       </div>
     );
   }

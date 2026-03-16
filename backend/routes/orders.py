@@ -161,6 +161,22 @@ async def _ensure_influencer_commission_record(order: dict, commission_data: dic
     }
     await db.influencer_commissions.insert_one(commission_record)
 
+    # Notify influencer about new commission (B-09)
+    try:
+        influencer_user = await db.users.find_one({"user_id": influencer_id})
+        if influencer_user:
+            await db.notifications.insert_one({
+                "user_id": influencer_id,
+                "type": "commission_earned",
+                "title": "Nueva comisión generada",
+                "body": f"Has ganado {influencer_amount:.2f}€ de comisión por un pedido de {_round_money(order_value)}€",
+                "action_url": "/influencer/dashboard",
+                "read": False,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+    except Exception:
+        pass  # Non-critical — don't block order flow
+
     await db.orders.update_one(
         {"order_id": order["order_id"]},
         {"$set": {
@@ -484,6 +500,27 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
                       "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
     
+    # 2b. Notify producers about new order (C-02)
+    try:
+        producer_ids_seen = set()
+        for item in order.get("line_items", []):
+            pid = item.get("producer_id") or item.get("seller_id")
+            if pid and pid not in producer_ids_seen:
+                producer_ids_seen.add(pid)
+                item_count = sum(1 for li in order.get("line_items", []) if (li.get("producer_id") or li.get("seller_id")) == pid)
+                await db.notifications.insert_one({
+                    "user_id": pid,
+                    "type": "order_confirmed",
+                    "title": "Nuevo pedido recibido",
+                    "body": f"Tienes un nuevo pedido con {item_count} producto(s). Prepáralo cuanto antes.",
+                    "action_url": "/producer/orders",
+                    "read": False,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "data": {"order_id": order_id},
+                })
+    except Exception:
+        pass  # Non-critical
+
     # 3. Atomic discount usage increment — prevents exceeding usage_limit under concurrency
     if order.get("discount_info"):
         code = order["discount_info"].get("code")

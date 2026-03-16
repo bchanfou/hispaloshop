@@ -49,16 +49,23 @@ function AffiliateLinkCard({ link }) {
         ))}
       </div>
 
+      {/* Conversion rate */}
+      {(link.clicks || 0) > 0 && (
+        <p className="text-xs text-stone-500 mb-2 text-center">
+          Conversión: <span className="font-semibold text-stone-950">{((link.conversions || 0) / link.clicks * 100).toFixed(1)}%</span>
+        </p>
+      )}
+
       <button
         onClick={copyLink}
         className={`w-full py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
           copied
-            ? 'bg-stone-100 text-stone-700'
+            ? 'bg-stone-950 text-white'
             : 'bg-stone-950 text-white hover:bg-stone-800'
         }`}
       >
         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-        {copied ? 'Copiado' : 'Copiar link'}
+        {copied ? '¡Copiado!' : 'Copiar link'}
       </button>
     </div>
   );
@@ -259,12 +266,14 @@ export default function AffiliateLinksPage() {
                 Copiar link
               </button>
               <button
-                onClick={() =>
-                  navigator.share?.({
-                    url: generatedLink,
-                    text: `${selectedProduct.name} — Hispaloshop`,
-                  })
-                }
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({ url: generatedLink, text: `${selectedProduct.name} — Hispaloshop` });
+                  } else {
+                    navigator.clipboard.writeText(generatedLink);
+                    toast.success('Link copiado al portapapeles');
+                  }
+                }}
                 className="flex-1 py-2.5 bg-white text-stone-950 rounded-xl text-sm font-medium border border-stone-200 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
               >
                 <Share2 className="w-4 h-4" />
