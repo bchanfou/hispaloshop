@@ -6,7 +6,7 @@ import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
-import { CATEGORIES } from '../constants/categories';
+import { CATEGORY_GROUPS } from '../constants/categories';
 
 const FILTER_PILLS = [
   { id: 'all', label: 'Todo', emoji: '' },
@@ -20,7 +20,7 @@ const FILTER_PILLS = [
 ];
 
 const SECTION_PILLS = [
-  { id: 'explore', emoji: '📦', label: 'Productos', to: '/explore' },
+  { id: 'products', emoji: '📦', label: 'Productos', to: '/products' },
   { id: 'stores', emoji: '🏪', label: 'Tiendas', to: '/stores' },
   { id: 'recipes', emoji: '🍳', label: 'Recetas', to: '/recipes' },
   { id: 'communities', emoji: '👥', label: 'Comunidad', to: '/communities' },
@@ -204,10 +204,10 @@ export default function DiscoverPage() {
             Categorías
           </span>
           <div className="scrollbar-hide" style={{ display: 'flex', gap: 8, marginTop: 10, overflowX: 'auto', paddingBottom: 4 }}>
-            {CATEGORIES.map((cat) => (
+            {CATEGORY_GROUPS.map((grp) => (
               <button
-                key={cat.slug}
-                onClick={() => navigate(`/explore/category/${cat.slug}`)}
+                key={grp.slug}
+                onClick={() => navigate(`/explore/category/${grp.slug}`)}
                 style={{
                   flexShrink: 0,
                   display: 'flex', alignItems: 'center', gap: 6,
@@ -223,7 +223,7 @@ export default function DiscoverPage() {
                   transition: 'var(--transition-fast)',
                 }}
               >
-                {cat.emoji} {cat.label}
+                {grp.emoji} {grp.label}
               </button>
             ))}
           </div>

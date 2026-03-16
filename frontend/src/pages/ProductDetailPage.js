@@ -1106,11 +1106,10 @@ export default function ProductDetailPage() {
       {/* ── Sticky Bottom Bar — add-to-cart with green animation ── */}
       <div
         style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
+          position: 'fixed', bottom: 'calc(50px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, zIndex: 40,
           background: 'var(--color-white, #fff)',
           borderTop: '1px solid var(--color-border)',
           padding: '12px 16px',
-          paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

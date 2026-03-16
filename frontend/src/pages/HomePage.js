@@ -1,14 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FeedContainer, HIFloatingButton } from '../components/feed';
+import { FeedContainer } from '../components/feed';
 import HomeHeader from '../components/feed/HomeHeader';
 import SEO from '../components/SEO';
-import { useAuth } from '../context/AuthContext';
 
 export default function HomePage() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState(
     () => localStorage.getItem('feedTab') || 'foryou'
   );
@@ -46,8 +41,6 @@ export default function HomePage() {
       <main id="main-content">
         <FeedContainer activeTab={activeTab} onTabChange={handleTabChange} />
       </main>
-
-      <HIFloatingButton onClick={() => navigate(user ? '/chat' : '/login')} />
     </div>
   );
 }

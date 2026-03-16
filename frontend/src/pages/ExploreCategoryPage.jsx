@@ -4,31 +4,36 @@ import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
-import { CATEGORIES, getCategoryBySlug, getCategoriesByGroup } from '../constants/categories';
+import { getGroupBySlug, getCategoriesByGroup } from '../constants/categories';
 
 export default function ExploreCategoryPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeSlug, setActiveSlug] = useState(slug);
+  const [activeSubSlug, setActiveSubSlug] = useState(null);
 
-  const category = useMemo(() => getCategoryBySlug(slug), [slug]);
+  const group = useMemo(() => getGroupBySlug(slug), [slug]);
 
-  const siblingCategories = useMemo(() => {
-    if (!category) return [];
-    return getCategoriesByGroup(category.group);
-  }, [category]);
+  const subcategories = useMemo(() => {
+    if (!group) return [];
+    return getCategoriesByGroup(group.slug);
+  }, [group]);
 
+  // Reset active sub when group changes
   useEffect(() => {
-    setActiveSlug(slug);
+    setActiveSubSlug(null);
   }, [slug]);
 
+  // Fetch products — by subcategory if selected, otherwise by first subcategory or group slug
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+
+    const categoryParam = activeSubSlug || (subcategories.length > 0 ? subcategories[0].slug : slug);
+
     apiClient
-      .get('/products', { params: { category: activeSlug, limit: 40 } })
+      .get('/products', { params: { category: categoryParam, limit: 40 } })
       .then((res) => {
         if (!cancelled) setProducts(res.data?.products || res.data || []);
       })
@@ -39,9 +44,9 @@ export default function ExploreCategoryPage() {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [activeSlug]);
+  }, [activeSubSlug, subcategories, slug]);
 
-  if (!category) {
+  if (!group) {
     return (
       <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12, fontFamily: 'var(--font-sans)' }}>
         <span style={{ fontSize: 48 }}>🔍</span>
@@ -52,6 +57,8 @@ export default function ExploreCategoryPage() {
       </div>
     );
   }
+
+  const effectiveSubSlug = activeSubSlug || (subcategories.length > 0 ? subcategories[0].slug : null);
 
   return (
     <div style={{ fontFamily: 'var(--font-sans)', minHeight: '100vh', background: 'var(--color-white)' }}>
@@ -70,23 +77,23 @@ export default function ExploreCategoryPage() {
         >
           <ArrowLeft size={22} color="var(--color-black)" />
         </button>
-        <span style={{ fontSize: 22 }}>{category.emoji}</span>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>{category.label}</span>
+        <span style={{ fontSize: 22 }}>{group.emoji}</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>{group.label}</span>
       </div>
 
-      {/* Subcategory pills (siblings from same group) */}
-      {siblingCategories.length > 1 && (
+      {/* Subcategory pills */}
+      {subcategories.length > 0 && (
         <div style={{
           display: 'flex', gap: 8, overflowX: 'auto',
           padding: '12px 16px', WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
         }}>
-          {siblingCategories.map((cat) => {
-            const isActive = cat.slug === activeSlug;
+          {subcategories.map((cat) => {
+            const isActive = cat.slug === effectiveSubSlug;
             return (
               <button
                 key={cat.slug}
-                onClick={() => setActiveSlug(cat.slug)}
+                onClick={() => setActiveSubSlug(cat.slug)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: '7px 14px', borderRadius: 'var(--radius-full)',

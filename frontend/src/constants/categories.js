@@ -1,3 +1,16 @@
+export const CATEGORY_GROUPS = [
+  { slug: 'frescos',  emoji: '🥬', label: 'Frescos' },
+  { slug: 'despensa', emoji: '🫙', label: 'Despensa' },
+  { slug: 'snacks',   emoji: '🍫', label: 'Dulces y Snacks' },
+  { slug: 'bebidas',  emoji: '🥤', label: 'Bebidas' },
+  { slug: 'bebes',    emoji: '👶', label: 'Bebés y Niños' },
+  { slug: 'mascotas', emoji: '🐾', label: 'Mascotas' },
+  { slug: 'gourmet',  emoji: '⭐', label: 'Gourmet' },
+];
+
+export const getGroupBySlug = (slug) =>
+  CATEGORY_GROUPS.find((g) => g.slug === slug) || null;
+
 export const CATEGORIES = [
   // FRESCOS
   { slug: 'frutas-verduras',  emoji: '🥦', label: 'Verduras',       group: 'frescos' },
