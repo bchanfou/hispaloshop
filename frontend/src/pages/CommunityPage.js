@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { ArrowLeft, Users, Settings, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
@@ -21,13 +22,20 @@ const renderTextWithHashtags = (text) => {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} style={{ color: 'var(--color-green)', fontWeight: 500 }}>{part}</span>
+      <span key={i} style={{ color: 'var(--color-black)', fontWeight: 600 }}>{part}</span>
     ) : part
   );
 };
 
+const TABS = [
+  { id: 'feed', label: 'Posts' },
+  { id: 'members', label: 'Miembros' },
+  { id: 'about', label: 'Info' },
+];
+
 export default function CommunityPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [tab, setTab] = useState('feed');
   const { user } = useAuth();
 
@@ -36,24 +44,60 @@ export default function CommunityPage() {
     queryFn: () => apiClient.get(`/communities/${slug}`),
   });
 
+  const font = { fontFamily: 'var(--font-sans)' };
+
   if (isLoading) {
     return (
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: 16, background: 'var(--color-cream)', minHeight: '100vh' }}>
-        <div style={{ height: 140, borderRadius: 'var(--radius-md)', marginBottom: 16, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-        <div style={{ height: 24, width: '60%', borderRadius: 6, marginBottom: 8, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-        <div style={{ height: 16, width: '40%', borderRadius: 6, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 40,
+          background: 'var(--color-white)',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+        }}>
+          <button onClick={() => navigate(-1)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
+            <ArrowLeft size={22} color="var(--color-black)" />
+          </button>
+          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
+          <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+        </div>
+        <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
       </div>
     );
   }
 
   if (!community) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--color-stone)', background: 'var(--color-cream)', minHeight: '100vh' }}>
-        <p style={{ fontSize: 48 }}>🔍</p>
-        <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad no encontrada</p>
-        <Link to="/communities" style={{ color: 'var(--color-black)', fontSize: 14, textDecoration: 'underline' }}>
-          Volver a comunidades
-        </Link>
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 40,
+          background: 'var(--color-white)',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+        }}>
+          <button onClick={() => navigate(-1)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
+            <ArrowLeft size={22} color="var(--color-black)" />
+          </button>
+          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Comunidad</span>
+        </div>
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', gap: 12, padding: '60px 16px',
+        }}>
+          <Users size={56} color="var(--color-stone)" strokeWidth={1} />
+          <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Comunidad no encontrada</p>
+          <Link to="/communities" style={{
+            padding: '10px 24px', background: 'var(--color-black)',
+            color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
+            fontSize: 14, fontWeight: 600, textDecoration: 'none',
+          }}>
+            Volver a comunidades
+          </Link>
+        </div>
       </div>
     );
   }
@@ -62,12 +106,37 @@ export default function CommunityPage() {
   const isAdmin = community.is_admin || user?.id === community.creator_id;
 
   return (
-    <div style={{ maxWidth: 640, margin: '0 auto', paddingBottom: 100, background: 'var(--color-cream)', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', paddingBottom: 100, ...font }}>
+      {/* ── Topbar ── */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 40,
+        background: 'var(--color-white)',
+        borderBottom: '1px solid var(--color-border)',
+        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+      }}>
+        <button onClick={() => navigate(-1)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+          aria-label="Volver">
+          <ArrowLeft size={22} color="var(--color-black)" />
+        </button>
+        <span style={{
+          fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {community.name}
+        </span>
+        {isAdmin && (
+          <Link to={`/communities/${slug}/settings`}
+            style={{ display: 'flex', padding: 4, color: 'var(--color-stone)' }}>
+            <Settings size={20} />
+          </Link>
+        )}
+      </div>
 
-      {/* Hero */}
+      {/* ── Cover Image (3:1) ── */}
       <div style={{ position: 'relative' }}>
         <div style={{
-          height: 140, overflow: 'hidden',
+          aspectRatio: '3/1', overflow: 'hidden',
           background: community.cover_image
             ? 'var(--color-surface)'
             : `hsl(${(community.name.charCodeAt(0) * 7) % 360},40%,70%)`,
@@ -83,100 +152,90 @@ export default function CommunityPage() {
               {community.emoji || '🌿'}
             </div>
           )}
-        </div>
-
-        <div style={{ padding: '0 16px 16px' }}>
+          {/* Gradient overlay */}
           <div style={{
-            display: 'flex', alignItems: 'flex-end',
-            justifyContent: 'space-between', marginTop: 12, marginBottom: 8,
-          }}>
-            <div>
-              <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 4px', color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
-                {community.name}
-              </h1>
-              <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
-                {community.member_count?.toLocaleString()} miembros
-                {' · '}Creada por @{community.creator_username}
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-              {isAdmin && (
-                <Link to={`/communities/${slug}/settings`}
-                  style={{
-                    padding: '6px 12px', borderRadius: 'var(--radius-full)',
-                    border: '1px solid var(--color-border)',
-                    background: 'var(--color-surface)', color: 'var(--color-stone)',
-                    fontSize: 12, fontWeight: 600, textDecoration: 'none',
-                    display: 'flex', alignItems: 'center',
-                  }}>
-                  ⚙️
-                </Link>
-              )}
-              <JoinButton communityId={community.id || community._id} isMember={isMember} onToggle={refetch} />
-            </div>
-          </div>
-
-          {community.description && (
-            <p style={{ fontSize: 14, color: 'var(--color-black)', lineHeight: 1.5, margin: '0 0 12px', fontFamily: 'var(--font-sans)' }}>
-              {community.description}
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)',
+          }} />
+          {/* Name + stats overlay */}
+          <div style={{ position: 'absolute', bottom: 12, left: 16, right: 16 }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-white)', margin: '0 0 4px', textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+              {community.name}
+            </h1>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
+              {community.member_count?.toLocaleString()} miembros · @{community.creator_username}
             </p>
-          )}
-
-          {community.tags?.length > 0 && (
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', overflowX: 'auto', scrollbarWidth: 'none' }}>
-              {community.tags.map(tag => (
-                <span key={tag} style={{
-                  fontSize: 11, padding: '3px 10px',
-                  borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-surface)',
-                  color: 'var(--color-stone)',
-                  fontFamily: 'var(--font-sans)',
-                }}>
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* ── Info + Join ── */}
+      <div style={{ padding: '12px 16px 0', maxWidth: 600, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          {community.description && (
+            <p style={{ fontSize: 14, color: 'var(--color-black)', lineHeight: 1.5, margin: 0, flex: 1, marginRight: 12 }}>
+              {community.description}
+            </p>
+          )}
+          <JoinButton communityId={community.id || community._id} isMember={isMember} onToggle={refetch} />
+        </div>
+
+        {community.tags?.length > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+            {community.tags.map(tag => (
+              <span key={tag} style={{
+                fontSize: 11, padding: '3px 10px',
+                borderRadius: 'var(--radius-full, 999px)',
+                background: 'var(--color-surface)',
+                color: 'var(--color-stone)', ...font,
+              }}>
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Tabs ── */}
       <div style={{
         display: 'flex', borderBottom: '1px solid var(--color-border)',
         background: 'var(--color-white)',
-        position: 'sticky', top: 0, zIndex: 40,
+        position: 'sticky', top: 50, zIndex: 39,
+        maxWidth: 600, margin: '0 auto',
       }}>
-        {[
-          { id: 'feed', label: 'Feed' },
-          { id: 'members', label: 'Miembros' },
-          { id: 'about', label: 'Info' },
-        ].map(t => (
+        {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{
-              flex: 1, padding: 13,
+              flex: 1, padding: '12px 0',
               background: 'none', border: 'none', cursor: 'pointer',
               fontSize: 14,
-              fontWeight: tab === t.id ? 700 : 400,
+              fontWeight: tab === t.id ? 600 : 400,
               color: tab === t.id ? 'var(--color-black)' : 'var(--color-stone)',
-              borderBottom: tab === t.id ? '1.5px solid var(--color-black)' : '1.5px solid transparent',
-              transition: 'all 0.15s ease',
-              fontFamily: 'var(--font-sans)',
+              borderBottom: tab === t.id ? '2px solid var(--color-black)' : '2px solid transparent',
+              transition: 'var(--transition-fast)', ...font,
             }}>
             {t.label}
           </button>
         ))}
       </div>
 
-      {/* Tab content */}
-      {tab === 'feed' && (
-        <CommunityFeed communityId={community.id || community._id} isMember={isMember} isAdmin={isAdmin} />
-      )}
-      {tab === 'members' && (
-        <CommunityMembers communityId={community.id || community._id} />
-      )}
-      {tab === 'about' && (
-        <CommunityAbout community={community} />
-      )}
+      {/* ── Tab content ── */}
+      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+        {tab === 'feed' && (
+          <CommunityFeed communityId={community.id || community._id} isMember={isMember} isAdmin={isAdmin} />
+        )}
+        {tab === 'members' && (
+          <CommunityMembers communityId={community.id || community._id} />
+        )}
+        {tab === 'about' && (
+          <CommunityAbout community={community} />
+        )}
+      </div>
+
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      `}</style>
     </div>
   );
 }
@@ -209,15 +268,16 @@ const JoinButton = ({ communityId, isMember, onToggle }) => {
       onClick={toggle}
       disabled={loading}
       style={{
-        padding: '6px 14px', borderRadius: 'var(--radius-full)',
+        padding: '8px 20px', borderRadius: 'var(--radius-full, 999px)',
         border: joined ? '1px solid var(--color-border)' : 'none',
         background: joined ? 'var(--color-white)' : 'var(--color-black)',
-        color: joined ? 'var(--color-stone)' : '#fff',
-        fontSize: 12, fontWeight: 600, cursor: 'pointer',
-        transition: 'all 0.15s ease',
+        color: joined ? 'var(--color-stone)' : 'var(--color-white)',
+        fontSize: 13, fontWeight: 600, cursor: 'pointer',
+        transition: 'var(--transition-fast)',
         fontFamily: 'var(--font-sans)',
+        flexShrink: 0,
       }}>
-      {loading ? '...' : joined ? 'Unida ✓' : 'Unirse'}
+      {loading ? '...' : joined ? 'Unida' : 'Unirse'}
     </motion.button>
   );
 };
@@ -244,15 +304,15 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
         <button onClick={() => setShowPostForm(!showPostForm)}
           style={{
             width: '100%', padding: '12px 16px',
-            background: 'var(--color-cream)',
+            background: 'var(--color-white)',
             border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-full)',
+            borderRadius: 'var(--radius-full, 999px)',
             textAlign: 'left', cursor: 'pointer',
             fontSize: 14, color: 'var(--color-stone)',
-            marginBottom: 14, transition: 'all 0.15s ease',
+            marginBottom: 14, transition: 'var(--transition-fast)',
             fontFamily: 'var(--font-sans)',
           }}>
-          ✍️ Comparte algo con la comunidad...
+          Comparte algo con la comunidad...
         </button>
       )}
 
@@ -268,14 +328,21 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
 
       {isLoading ? (
         Array(3).fill(0).map((_, i) => (
-          <div key={i} style={{ height: 120, borderRadius: 'var(--radius-md)', marginBottom: 10, background: 'var(--color-surface)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+          <div key={i} style={{
+            height: 120, borderRadius: 'var(--radius-xl)',
+            marginBottom: 10, background: 'var(--color-surface)',
+            animation: 'pulse 1.5s ease-in-out infinite',
+          }} />
         ))
       ) : posts.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-stone)' }}>
-          <p style={{ fontSize: 36, marginBottom: 8 }}>💬</p>
-          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>Aún no hay posts</p>
-          <p style={{ fontSize: 13 }}>
-            {isMember ? '¡Sé el primero en publicar algo!' : 'Únete a la comunidad para ver y publicar contenido'}
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', gap: 8, padding: '40px 0', color: 'var(--color-stone)',
+        }}>
+          <Users size={48} strokeWidth={1} color="var(--color-stone)" />
+          <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>Aún no hay posts</p>
+          <p style={{ fontSize: 13, margin: 0 }}>
+            {isMember ? '¡Sé el primero en publicar algo!' : 'Únete para ver y publicar contenido'}
           </p>
         </div>
       ) : (
@@ -287,7 +354,7 @@ const CommunityFeed = ({ communityId, isMember, isAdmin }) => {
             <button onClick={() => fetchNextPage()}
               style={{
                 width: '100%', marginTop: 8, padding: '10px',
-                borderRadius: 'var(--radius-full)',
+                borderRadius: 'var(--radius-full, 999px)',
                 border: '1px solid var(--color-border)',
                 background: 'var(--color-white)',
                 color: 'var(--color-stone)',
@@ -359,7 +426,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       exit={{ opacity: 0, y: -8 }}
       style={{
         background: 'var(--color-white)',
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 'var(--radius-xl)',
         border: '1px solid var(--color-border)',
         padding: 14, marginBottom: 14,
       }}>
@@ -383,11 +450,11 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
       {imagePreview && (
         <div style={{ position: 'relative', marginBottom: 10 }}>
           <img src={imagePreview} alt=""
-            style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 8 }} />
+            style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
           <button onClick={() => { setImagePreview(null); setImageUrl(null); }}
             style={{
               position: 'absolute', top: 6, right: 6,
-              background: 'rgba(0,0,0,0.6)', color: '#fff',
+              background: 'rgba(0,0,0,0.6)', color: 'var(--color-white)',
               border: 'none', borderRadius: '50%',
               width: 26, height: 26, cursor: 'pointer', fontSize: 16,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -396,11 +463,11 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
           </button>
           {isUploading && (
             <div style={{
-              position: 'absolute', inset: 0, borderRadius: 8,
+              position: 'absolute', inset: 0, borderRadius: 'var(--radius-md)',
               background: 'rgba(0,0,0,0.4)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <div style={{ width: 24, height: 24, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
+              <div style={{ width: 24, height: 24, border: '2px solid var(--color-white)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.6s linear infinite' }} />
             </div>
           )}
         </div>
@@ -416,7 +483,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
         <span style={{ fontSize: 11, color: 'var(--color-stone)', flex: 1, fontFamily: 'var(--font-sans)' }}>{text.length}/1000</span>
         <button onClick={onClose}
           style={{
-            padding: '6px 12px', borderRadius: 'var(--radius-full)',
+            padding: '6px 12px', borderRadius: 'var(--radius-full, 999px)',
             border: '1px solid var(--color-border)', background: 'var(--color-white)',
             color: 'var(--color-stone)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
             fontFamily: 'var(--font-sans)',
@@ -425,8 +492,8 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
         </button>
         <button onClick={submit} disabled={isPosting || isUploading}
           style={{
-            padding: '6px 12px', borderRadius: 'var(--radius-full)',
-            border: 'none', background: 'var(--color-black)', color: '#fff',
+            padding: '6px 12px', borderRadius: 'var(--radius-full, 999px)',
+            border: 'none', background: 'var(--color-black)', color: 'var(--color-white)',
             fontSize: 12, fontWeight: 600, cursor: 'pointer',
             opacity: (isPosting || isUploading) ? 0.5 : 1,
             fontFamily: 'var(--font-sans)',
@@ -475,7 +542,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
   return (
     <div style={{
       background: 'var(--color-white)',
-      borderRadius: 'var(--radius-lg)',
+      borderRadius: 'var(--radius-xl)',
       border: '1px solid var(--color-border)',
       marginBottom: 10, overflow: 'hidden',
     }}>
@@ -488,7 +555,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
             style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }}
             alt="" />
           <div>
-            <p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+            <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
               {post.author_username}
               {post.author_is_seller && (
                 <span style={{
@@ -577,28 +644,49 @@ const CommunityMembers = ({ communityId }) => {
     queryFn: () => apiClient.get(`/communities/${communityId}/members?limit=30`),
   });
 
+  const members = data?.members || [];
+
   return (
     <div style={{ padding: '12px 16px' }}>
-      {(data?.members || []).map(member => (
-        <Link key={member.id || member._id || member.user_id} to={`/${member.username}`}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '10px 0',
-            borderBottom: '1px solid var(--color-border)',
-            textDecoration: 'none', color: 'inherit',
-          }}>
-          <img
-            src={member.avatar_url || `https://ui-avatars.com/api/?name=${member.username}&size=40`}
-            style={{ width: 40, height: 40, borderRadius: '50%', flexShrink: 0 }} alt="" />
-          <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>{member.username}</p>
-            <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
-              {member.is_admin ? '👑 Admin' : ''}
-              {member.is_seller ? ' · ✓ Vendedor' : ''}
-            </p>
-          </div>
-        </Link>
-      ))}
+      {members.length === 0 ? (
+        <p style={{ textAlign: 'center', padding: '24px 0', color: 'var(--color-stone)', fontSize: 14 }}>
+          Sin miembros todavía
+        </p>
+      ) : (
+        members.map(member => (
+          <Link key={member.id || member._id || member.user_id} to={`/${member.username}`}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '12px 0',
+              borderBottom: '1px solid var(--color-border)',
+              textDecoration: 'none', color: 'inherit',
+            }}>
+            <img
+              src={member.avatar_url || `https://ui-avatars.com/api/?name=${member.username}&size=44`}
+              style={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0 }} alt="" />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                {member.username}
+              </p>
+              <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
+                {member.is_admin && '👑 Admin'}
+                {member.is_seller && (member.is_admin ? ' · ' : '') + '✓ Vendedor'}
+              </p>
+            </div>
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              style={{
+                padding: '6px 14px', borderRadius: 'var(--radius-full, 999px)',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-white)', color: 'var(--color-black)',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                fontFamily: 'var(--font-sans)', flexShrink: 0,
+              }}>
+              Seguir
+            </button>
+          </Link>
+        ))
+      )}
     </div>
   );
 };
@@ -608,32 +696,65 @@ const CommunityAbout = ({ community }) => (
   <div style={{ padding: '20px 16px' }}>
     {community.description && (
       <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Descripción</h3>
-        <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '0 0 8px' }}>
+          Descripción
+        </h3>
+        <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
           {community.description}
         </p>
       </div>
     )}
-    {[
-      { label: 'Fundada', value: new Date(community.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) },
-      { label: 'Miembros', value: community.member_count?.toLocaleString() },
-      { label: 'Posts', value: community.post_count?.toLocaleString() },
-      { label: 'Creada por', value: `@${community.creator_username}` },
-    ].map(row => (
-      <div key={row.label} style={{
-        display: 'flex', justifyContent: 'space-between',
-        padding: '8px 0', borderBottom: '1px solid var(--color-border)', fontSize: 14,
-        fontFamily: 'var(--font-sans)',
-      }}>
-        <span style={{ color: 'var(--color-stone)' }}>{row.label}</span>
-        <span style={{ fontWeight: 600, color: 'var(--color-black)' }}>{row.value}</span>
+
+    <div style={{
+      background: 'var(--color-surface)',
+      borderRadius: 'var(--radius-xl)', padding: 16, marginBottom: 20,
+    }}>
+      {[
+        { label: 'Fundada', value: new Date(community.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) },
+        { label: 'Miembros', value: community.member_count?.toLocaleString() },
+        { label: 'Posts', value: community.post_count?.toLocaleString() },
+        { label: 'Creada por', value: `@${community.creator_username}` },
+      ].map((row, i, arr) => (
+        <div key={row.label} style={{
+          display: 'flex', justifyContent: 'space-between',
+          padding: '8px 0',
+          borderBottom: i < arr.length - 1 ? '1px solid var(--color-border)' : 'none',
+          fontSize: 14, fontFamily: 'var(--font-sans)',
+        }}>
+          <span style={{ color: 'var(--color-stone)' }}>{row.label}</span>
+          <span style={{ fontWeight: 600, color: 'var(--color-black)' }}>{row.value}</span>
+        </div>
+      ))}
+    </div>
+
+    {community.categories?.length > 0 && (
+      <div style={{ marginBottom: 20 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px', color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Categorías</h3>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {community.categories.map(cat => (
+            <span key={cat} style={{
+              fontSize: 12, padding: '5px 12px',
+              borderRadius: 'var(--radius-full, 999px)',
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-black)', fontWeight: 500,
+              fontFamily: 'var(--font-sans)',
+            }}>
+              {cat}
+            </span>
+          ))}
+        </div>
       </div>
-    ))}
-    <div style={{ marginTop: 20 }}>
-      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>Normas de la comunidad</h3>
+    )}
+
+    <div>
+      <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px', color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+        Normas de la comunidad
+      </h3>
       <div style={{
-        background: 'var(--color-surface)',
-        borderRadius: 'var(--radius-md)', padding: '12px 14px',
+        background: 'var(--color-white)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-xl)', padding: '12px 14px',
       }}>
         {[
           'Contenido relacionado con alimentación y gastronomía',
@@ -642,7 +763,7 @@ const CommunityAbout = ({ community }) => (
           'Sin bebidas alcohólicas',
           'El admin puede eliminar posts que no cumplan las normas',
         ].map((rule, i) => (
-          <p key={i} style={{ fontSize: 13, color: 'var(--color-black)', margin: '0 0 6px', display: 'flex', gap: 8, fontFamily: 'var(--font-sans)' }}>
+          <p key={i} style={{ fontSize: 13, color: 'var(--color-black)', margin: i < 4 ? '0 0 6px' : 0, display: 'flex', gap: 8, fontFamily: 'var(--font-sans)' }}>
             <span style={{ color: 'var(--color-stone)', flexShrink: 0 }}>{i + 1}.</span>
             {rule}
           </p>

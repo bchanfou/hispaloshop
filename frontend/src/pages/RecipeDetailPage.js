@@ -1,243 +1,480 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ChefHat, Clock3, Loader2, ShoppingCart, User, Users } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ChefHat, Clock3, Users, ShoppingCart, Minus, Plus, Bookmark, Loader2, User } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import BackButton from '../components/BackButton';
+import apiClient from '../services/api/client';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { resolveUserImage } from '../features/user/queries';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
-import ContextualProductSuggestions from '../components/intelligence/ContextualProductSuggestions';
-import { useTranslation } from 'react-i18next';
-import apiClient from '../services/api/client';
-import { resolveUserImage } from '../features/user/queries';
+
+const DIFFICULTY_COLORS = {
+  easy: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', label: 'Fácil' },
+  medium: { bg: 'rgba(217,119,6,0.1)', color: '#d97706', label: 'Media' },
+  hard: { bg: 'rgba(220,38,38,0.1)', color: '#dc2626', label: 'Difícil' },
+};
 
 function normalizeStep(step) {
-  if (typeof step === 'string') {
-    return { text: step, image_url: '' };
-  }
-
-  return {
-    text: step?.text || step?.description || '',
-    image_url: step?.image_url || '',
-  };
+  if (typeof step === 'string') return { text: step, image_url: '' };
+  return { text: step?.text || step?.description || '', image_url: step?.image_url || '' };
 }
 
 export default function RecipeDetailPage() {
   const { recipeId } = useParams();
-  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { addToCart } = useCart();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [portions, setPortions] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [addingAll, setAddingAll] = useState(false);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-
-    apiClient
-      .get(`/recipes/${recipeId}`)
-      .then((data) => {
-        if (active) {
-          setRecipe(data || null);
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setRecipe(null);
-          toast.error(t('recipes.notFound', 'Receta no encontrada'));
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [recipeId, t]);
+    apiClient.get(`/recipes/${recipeId}`)
+      .then(data => { if (active) { setRecipe(data || null); setPortions(data?.servings || 1); } })
+      .catch(() => { if (active) { setRecipe(null); toast.error('Receta no encontrada'); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [recipeId]);
 
   const steps = useMemo(() => (recipe?.steps || []).map(normalizeStep), [recipe?.steps]);
+  const baseServings = recipe?.servings || 1;
+  const ratio = portions / baseServings;
+
+  const taggedIngredients = useMemo(() =>
+    (recipe?.ingredients || []).filter(i => i.product || i.product_id),
+    [recipe?.ingredients]
+  );
 
   const handleAddAllToCart = async () => {
-    setShowShoppingList(true);
+    if (taggedIngredients.length >= 2) {
+      setAddingAll(true);
+      try {
+        for (const ing of taggedIngredients) {
+          const productId = ing.product?.product_id || ing.product_id;
+          if (productId) await addToCart(productId, 1);
+        }
+        toast.success(`${taggedIngredients.length} ingredientes añadidos al carrito`);
+      } catch {
+        toast.error('Error al añadir productos');
+      } finally {
+        setAddingAll(false);
+      }
+    } else {
+      setShowShoppingList(true);
+    }
   };
+
+  const handleAddSingle = async (ingredient) => {
+    const productId = ingredient.product?.product_id || ingredient.product_id;
+    if (!productId) return;
+    try {
+      await addToCart(productId, 1);
+      toast.success('Añadido al carrito');
+    } catch {
+      toast.error('Error al añadir');
+    }
+  };
+
+  const font = { fontFamily: 'var(--font-sans)' };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <Header />
-        <div className="flex justify-center py-24">
-          <Loader2 className="h-6 w-6 animate-spin text-stone-500" />
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 40, background: 'var(--color-white)',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+        }}>
+          <button onClick={() => navigate(-1)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
+            <ArrowLeft size={22} color="var(--color-black)" />
+          </button>
+          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Receta</span>
         </div>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
+          <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+        </div>
+        <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
       </div>
     );
   }
 
   if (!recipe) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <Header />
-        <div className="mx-auto max-w-3xl px-4 py-10">
-          <BackButton />
-          <div className="mt-6 rounded-[28px] border border-stone-100 bg-white p-10 text-center">
-            <ChefHat className="mx-auto h-10 w-10 text-stone-300" />
-            <h1 className="mt-4 text-xl font-semibold text-stone-950">{t('recipes.notFound', 'Receta no encontrada')}</h1>
-            <p className="mt-2 text-sm text-stone-500">{t('recipes.tryAnother', 'Prueba con otra receta de nuestro catálogo.')}</p>
-            <Link to="/recipes" className="mt-5 inline-flex rounded-full bg-stone-950 px-5 py-2.5 text-sm text-white">
-              {t('recipes.backToList', 'Ver recetas')}
-            </Link>
-          </div>
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 40, background: 'var(--color-white)',
+          borderBottom: '1px solid var(--color-border)',
+          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+        }}>
+          <button onClick={() => navigate(-1)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
+            <ArrowLeft size={22} color="var(--color-black)" />
+          </button>
+          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Receta</span>
         </div>
-        <Footer />
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '60px 16px',
+        }}>
+          <ChefHat size={56} color="var(--color-stone)" strokeWidth={1} />
+          <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Receta no encontrada</p>
+          <Link to="/recipes" style={{
+            padding: '10px 24px', background: 'var(--color-black)', color: 'var(--color-white)',
+            borderRadius: 'var(--radius-lg)', fontSize: 14, fontWeight: 600, textDecoration: 'none',
+          }}>
+            Ver recetas
+          </Link>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-stone-50">
-      <Header />
-      <main className="mx-auto max-w-6xl px-4 py-6">
-        <BackButton />
+  const diff = DIFFICULTY_COLORS[recipe.difficulty] || DIFFICULTY_COLORS.easy;
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
-          <section className="space-y-5">
-            <div className="overflow-hidden rounded-[32px] border border-stone-100 bg-white">
-              <div className="aspect-square bg-stone-100">
-                {recipe.image_url ? (
-                  <img
-                    src={resolveUserImage(recipe.image_url)}
-                    alt={recipe.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-200 hover:scale-[1.02]"
-                  />
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+      {/* ── Topbar ── */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 40, background: 'var(--color-white)',
+        borderBottom: '1px solid var(--color-border)',
+        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+      }}>
+        <button onClick={() => navigate(-1)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+          aria-label="Volver">
+          <ArrowLeft size={22} color="var(--color-black)" />
+        </button>
+        <span style={{
+          fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {recipe.title}
+        </span>
+        <button
+          onClick={() => setSaved(!saved)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+          aria-label="Guardar"
+        >
+          <Bookmark size={22} color="var(--color-black)" fill={saved ? 'var(--color-black)' : 'none'} />
+        </button>
+      </div>
+
+      {/* ── Hero Image (edge-to-edge) ── */}
+      <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', background: 'var(--color-surface)', position: 'relative' }}>
+        {recipe.image_url ? (
+          <img src={resolveUserImage(recipe.image_url)} alt={recipe.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ChefHat size={48} color="var(--color-stone)" />
+          </div>
+        )}
+        {/* Gradient */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%',
+          background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)',
+        }} />
+      </div>
+
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px 100px' }}>
+        {/* ── Title + Meta ── */}
+        <div style={{ padding: '16px 0' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 10px', lineHeight: 1.3 }}>
+            {recipe.title}
+          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{
+              fontSize: 12, fontWeight: 600, padding: '4px 10px',
+              borderRadius: 'var(--radius-full, 999px)', background: diff.bg, color: diff.color,
+            }}>
+              {diff.label}
+            </span>
+            <span style={{ fontSize: 12, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Clock3 size={13} /> {recipe.time_minutes || 0} min
+            </span>
+            <span style={{ fontSize: 12, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Users size={13} /> {recipe.servings || 1} porciones
+            </span>
+          </div>
+
+          {/* Author */}
+          {recipe.author_name && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: '50%', background: 'var(--color-surface)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+              }}>
+                {recipe.author_avatar ? (
+                  <img src={recipe.author_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <ChefHat className="h-10 w-10 text-stone-300" />
-                  </div>
+                  <User size={16} color="var(--color-stone)" />
                 )}
               </div>
-            </div>
-
-            <div className="rounded-[32px] border border-stone-100 bg-white p-6">
-              <h1 className="text-3xl font-semibold tracking-tight text-stone-950">{recipe.title}</h1>
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-stone-600">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-50 px-3 py-1.5">
-                  <Clock3 className="h-4 w-4" />
-                  {recipe.time_minutes || 0} min
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-50 px-3 py-1.5">
-                  <Users className="h-4 w-4" />
-                  {recipe.servings || 1}
-                </span>
-                <span className="rounded-full bg-stone-50 px-3 py-1.5 capitalize">{recipe.difficulty || 'easy'}</span>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>
+                  {recipe.author_name}
+                </p>
               </div>
+            </div>
+          )}
 
-              <div className="mt-5 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 text-stone-500">
-                  <User className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.22em] text-stone-400">Autor</p>
-                  {recipe.author_id ? (
-                    <Link to={`/user/${recipe.author_id}`} className="text-sm font-medium text-stone-950 hover:underline">
-                      {recipe.author_name || 'Usuario'}
-                    </Link>
-                  ) : (
-                    <p className="text-sm font-medium text-stone-950">{recipe.author_name || 'Usuario'}</p>
+          {recipe.description && (
+            <p style={{ fontSize: 14, color: 'var(--color-stone)', lineHeight: 1.6, margin: '12px 0 0' }}>
+              {recipe.description}
+            </p>
+          )}
+        </div>
+
+        {/* ── Portion Selector ── */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: 14, background: 'var(--color-white)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-xl)', marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)' }}>Porciones</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={() => setPortions(p => Math.max(1, p - 1))}
+              disabled={portions <= 1}
+              style={{
+                width: 32, height: 32, borderRadius: '50%',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-white)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: portions <= 1 ? 'default' : 'pointer',
+                opacity: portions <= 1 ? 0.4 : 1,
+              }}
+            >
+              <Minus size={16} color="var(--color-black)" />
+            </button>
+            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)', minWidth: 24, textAlign: 'center' }}>
+              {portions}
+            </span>
+            <button
+              onClick={() => setPortions(p => p + 1)}
+              style={{
+                width: 32, height: 32, borderRadius: '50%',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-white)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <Plus size={16} color="var(--color-black)" />
+            </button>
+          </div>
+        </div>
+
+        {/* ── Ingredients ── */}
+        <section style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 10px', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
+            Ingredientes
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {(recipe.ingredients || []).map((ing, i) => {
+              const hasProduct = ing.product || ing.product_id;
+              const quantity = ing.quantity ? (parseFloat(ing.quantity) * ratio).toFixed(ing.quantity % 1 === 0 && ratio === Math.round(ratio) ? 0 : 1) : '';
+              const displayQty = [quantity, ing.unit, ing.name].filter(Boolean).join(' ');
+
+              return (
+                <div key={i} style={{
+                  padding: 12,
+                  background: hasProduct ? 'rgba(22,163,74,0.04)' : 'var(--color-white)',
+                  border: `1px solid ${hasProduct ? 'rgba(22,163,74,0.15)' : 'var(--color-border)'}`,
+                  borderRadius: 'var(--radius-xl)',
+                }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)', margin: 0 }}>
+                    {displayQty}
+                  </p>
+
+                  {ing.product && (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 10, marginTop: 8,
+                      padding: 8, background: 'var(--color-white)',
+                      border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)',
+                    }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 'var(--radius-md)',
+                        background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
+                        cursor: 'pointer',
+                      }}
+                        onClick={() => setSelectedProduct(ing.product)}
+                      >
+                        {ing.product.images?.[0] && (
+                          <img src={resolveUserImage(ing.product.images[0])} alt=""
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{
+                          fontSize: 13, fontWeight: 500, color: 'var(--color-black)', margin: 0,
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          {ing.product.name}
+                        </p>
+                        {ing.product.price && (
+                          <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0' }}>
+                            {Number(ing.product.price).toFixed(2)}€
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleAddSingle(ing)}
+                        style={{
+                          padding: '6px 12px', borderRadius: 'var(--radius-full, 999px)',
+                          background: 'var(--color-black)', color: 'var(--color-white)',
+                          fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0,
+                        }}
+                      >
+                        <ShoppingCart size={11} /> Añadir
+                      </button>
+                    </div>
                   )}
                 </div>
-              </div>
+              );
+            })}
+          </div>
 
-              {recipe.description ? (
-                <p className="mt-5 text-sm leading-relaxed text-stone-700">{recipe.description}</p>
-              ) : null}
+          {/* Add all to cart */}
+          {taggedIngredients.length >= 2 && (
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handleAddAllToCart}
+              disabled={addingAll}
+              style={{
+                width: '100%', padding: 14, marginTop: 12,
+                background: 'var(--color-black)', color: 'var(--color-white)',
+                borderRadius: 'var(--radius-xl)', border: 'none',
+                fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                opacity: addingAll ? 0.6 : 1,
+                ...font,
+              }}
+            >
+              <ShoppingCart size={18} />
+              {addingAll ? 'Añadiendo...' : `Añadir todos al carrito (${taggedIngredients.length})`}
+            </motion.button>
+          )}
+        </section>
 
-              <button
-                type="button"
-                onClick={handleAddAllToCart}
-                className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-stone-950 px-5 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800"
+        {/* ── Steps ── */}
+        <section style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 10px', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
+            Preparación
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                style={{
+                  background: 'var(--color-white)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-xl)',
+                  padding: 14,
+                }}
               >
-                <ShoppingCart className="h-4 w-4" />
-                {t('recipes.buyAll', 'Comprar ingredientes')}
-              </button>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                  {/* Step number circle */}
+                  <div style={{
+                    width: 28, height: 28, borderRadius: '50%',
+                    background: 'var(--color-black)', color: 'var(--color-white)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 700, flexShrink: 0,
+                  }}>
+                    {i + 1}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {step.text && (
+                      <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--color-black)', margin: 0 }}>
+                        {step.text}
+                      </p>
+                    )}
+                    {step.image_url && (
+                      <div style={{ marginTop: 10, borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+                        <img
+                          src={resolveUserImage(step.image_url)}
+                          alt={`Paso ${i + 1}`}
+                          loading="lazy"
+                          style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Chef Tips ── */}
+        {recipe.tips && (
+          <section style={{ marginBottom: 20 }}>
+            <div style={{
+              background: 'var(--color-surface)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-xl)',
+              padding: 16,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <ChefHat size={18} color="var(--color-black)" />
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-black)' }}>Consejos del chef</span>
+              </div>
+              <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--color-stone)', margin: 0 }}>
+                {recipe.tips}
+              </p>
             </div>
           </section>
+        )}
 
-          <section className="space-y-5">
-            <div className="rounded-[32px] border border-stone-100 bg-white p-6">
-              <h2 className="text-lg font-semibold text-stone-950">{t('recipes.ingredients', 'Ingredientes')}</h2>
-              <div className="mt-4 space-y-3">
-                {(recipe.ingredients || []).map((ingredient, index) => (
-                  <div key={`${ingredient.name}-${index}`} className="rounded-2xl border border-stone-100 bg-stone-50 p-4">
-                    <p className="text-sm font-medium text-stone-950">
-                      {[ingredient.quantity, ingredient.unit, ingredient.name].filter(Boolean).join(' ')}
-                    </p>
-                    {ingredient.product ? (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedProduct(ingredient.product)}
-                        className="mt-3 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
-                      >
-                        <div className="h-14 w-14 overflow-hidden rounded-xl bg-stone-100">
-                          {ingredient.product.images?.[0] ? (
-                            <img
-                              src={resolveUserImage(ingredient.product.images[0])}
-                              alt={ingredient.product.name}
-                              loading="lazy"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : null}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-stone-950">{ingredient.product.name}</p>
-                          <p className="mt-1 text-xs text-stone-500">Abrir producto</p>
-                        </div>
-                      </button>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* ── Tags ── */}
+        {recipe.tags?.length > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+            {recipe.tags.map(tag => (
+              <span key={tag} style={{
+                fontSize: 12, padding: '4px 12px',
+                borderRadius: 'var(--radius-full, 999px)',
+                background: 'var(--color-white)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-stone)',
+              }}>
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
 
-            <div className="rounded-[32px] border border-stone-100 bg-white p-6">
-              <h2 className="text-lg font-semibold text-stone-950">{t('recipes.steps', 'Pasos')}</h2>
-              <div className="mt-4 space-y-4">
-                {steps.map((step, index) => (
-                  <div key={`step-${index}`} className="rounded-xl border border-stone-100 bg-white p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-950 text-xs font-semibold text-white">
-                        {index + 1}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        {step.text ? <p className="text-sm leading-relaxed text-stone-700">{step.text}</p> : null}
-                        {step.image_url ? (
-                          <div className="mt-3 overflow-hidden rounded-2xl bg-stone-100">
-                            <img
-                              src={resolveUserImage(step.image_url)}
-                              alt={`Paso ${index + 1}`}
-                              loading="lazy"
-                              className="h-48 w-full object-cover transition-transform duration-200 hover:scale-[1.02]"
-                            />
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {selectedProduct && (
+        <ProductDetailOverlay
+          product={selectedProduct}
+          store={selectedProduct.store || null}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
+      {showShoppingList && (
+        <RecipeShoppingListOverlay
+          recipeId={recipeId}
+          defaultServings={recipe?.servings || 1}
+          onClose={() => setShowShoppingList(false)}
+        />
+      )}
 
-            <ContextualProductSuggestions contentType="recipe" contentId={recipeId} />
-          </section>
-        </div>
-      </main>
-      <Footer />
-
-      {selectedProduct ? <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} /> : null}
-      {showShoppingList ? <RecipeShoppingListOverlay recipeId={recipeId} defaultServings={recipe?.servings || 1} onClose={() => setShowShoppingList(false)} /> : null}
+      <style>{`
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      `}</style>
     </div>
   );
 }

@@ -1,625 +1,494 @@
-import BackButton from '../components/BackButton';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import PremiumSelect from '../components/ui/PremiumSelect';
-import { ArrowUpRight, Grid3X3, Map, MapPin, Search, Sparkles, Store, X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Search, Star, ChevronRight, MapPin, Package, Truck, Loader2, Store, ShieldCheck, X } from 'lucide-react';
+import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
-import { asLowerText } from '../utils/safe';
 
-const FALLBACK_REGIONS = {
-  ES: {
-    name: 'España',
-    regions: [
-      { code: 'CT', name: 'Cataluña' },
-      { code: 'MD', name: 'Madrid' },
-      { code: 'AN', name: 'Andalucía' },
-      { code: 'VC', name: 'Comunidad Valenciana' },
-      { code: 'GA', name: 'Galicia' },
-    ],
-  },
-  US: {
-    name: 'Estados Unidos',
-    regions: [
-      { code: 'CA', name: 'California' },
-      { code: 'NY', name: 'Nueva York' },
-      { code: 'TX', name: 'Texas' },
-    ],
-  },
-  KR: {
-    name: 'Corea del Sur',
-    regions: [
-      { code: 'SEOUL', name: 'Seúl' },
-      { code: 'BUSAN', name: 'Busan' },
-    ],
-  },
-};
+const FILTER_PILLS = [
+  { id: 'all', label: 'Todas' },
+  { id: 'verified', label: 'Verificadas' },
+  { id: 'ES', label: 'España' },
+  { id: 'FR', label: 'Francia' },
+  { id: 'elite', label: 'ELITE' },
+  { id: 'pro', label: 'PRO' },
+  { id: 'free_shipping', label: 'Envío gratis' },
+];
 
-function GoogleMapEmbed({ stores, selectedStore, countryName, regionName }) {
-  let query = 'España';
-  let zoom = 5;
+function useDebounce(value, delay) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
 
-  if (selectedStore?.full_address) {
-    query = selectedStore.full_address;
-    zoom = 15;
-  } else if (selectedStore?.coordinates) {
-    query = `${selectedStore.coordinates.lat},${selectedStore.coordinates.lng}`;
-    zoom = 15;
-  } else if (regionName && countryName) {
-    query = `${regionName}, ${countryName}`;
-    zoom = 8;
-  } else if (countryName) {
-    query = countryName;
-    zoom = 6;
-  } else if (stores.length > 0 && stores[0]?.full_address) {
-    query = stores[0].full_address;
-    zoom = 6;
-  }
-
+function PlanBadge({ plan }) {
+  if (!plan || plan === 'free') return null;
+  const upper = plan.toUpperCase();
+  const isElite = upper === 'ELITE';
   return (
-    <div className="relative h-full overflow-hidden rounded-2xl border border-stone-100 bg-white shadow-sm">
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-gradient-to-b from-black/15 to-transparent" />
-      <div className="absolute left-4 top-4 z-10 rounded-full bg-white/92 px-3 py-1.5 text-xs font-medium text-stone-700 shadow-sm backdrop-blur">
-        Mapa de tiendas
-      </div>
-      <iframe
-        title="Mapa de tiendas"
-        src={`https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=${zoom}&output=embed`}
-        className="h-full w-full"
-        style={{ border: 0 }}
-        allowFullScreen
-        loading="lazy"
-      />
-    </div>
+    <span style={{
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
+      padding: '2px 8px', borderRadius: 'var(--radius-full, 999px)',
+      background: isElite ? 'var(--color-black)' : 'var(--color-surface)',
+      color: isElite ? 'var(--color-white)' : 'var(--color-black)',
+      whiteSpace: 'nowrap',
+    }}>
+      {upper}
+    </span>
   );
 }
 
-function StoreCard({ store, isActive, onHover, onLeave, onFocusMap, t }) {
-  const location = store.location || 'España';
-  const heroImage = store.hero_image || store.logo || null;
-  const storeSlug = store.slug || store.store_slug || null;
+function RatingStars({ rating }) {
+  if (!rating) return null;
+  return (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'var(--color-stone)' }}>
+      <Star size={13} fill="var(--color-black)" color="var(--color-black)" />
+      {Number(rating).toFixed(1)}
+    </span>
+  );
+}
+
+/* ── Destacada Card (horizontal scroll) ── */
+function FeaturedStoreCard({ store }) {
+  const slug = store.slug || store.store_slug;
+  const banner = store.hero_image || store.banner_image || null;
+  const logo = store.logo || null;
+  const rating = store.average_rating || store.rating;
+  const plan = store.plan || store.subscription_plan;
 
   return (
     <Link
-      to={storeSlug ? `/store/${storeSlug}` : '/stores'}
-      className={`group block overflow-hidden rounded-2xl border bg-white transition-all duration-150 ease-out hover:-translate-y-[1px] hover:shadow-md ${
-        isActive ? 'border-stone-950 shadow-sm' : 'border-stone-100 hover:border-stone-400'
-      }`}
-      onMouseEnter={() => {
-        onHover();
-        onFocusMap();
+      to={slug ? `/store/${slug}` : '/stores'}
+      style={{
+        display: 'block', width: 200, flexShrink: 0,
+        background: 'var(--color-white)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-xl)',
+        overflow: 'hidden', textDecoration: 'none',
+        transition: 'var(--transition-fast)',
       }}
-      onMouseLeave={onLeave}
-      onFocus={() => {
-        onHover();
-        onFocusMap();
-      }}
-      data-testid={`store-card-${storeSlug || store.store_id || 'unknown'}`}
     >
-      <div className="relative overflow-hidden">
-        <div className="aspect-video bg-stone-100">
-          {heroImage ? (
-            <img
-              src={heroImage}
-              alt={`Vista de ${store.name}`}
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-200 ease-out group-hover:scale-[1.02]"
-            />
+      {/* Banner */}
+      <div style={{ height: 100, background: 'var(--color-surface)', position: 'relative', overflow: 'hidden' }}>
+        {banner ? (
+          <img src={banner} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Store size={28} color="var(--color-stone)" />
+          </div>
+        )}
+        {/* Avatar overlap */}
+        <div style={{
+          position: 'absolute', bottom: -18, left: 12,
+          width: 40, height: 40, borderRadius: 'var(--radius-full, 999px)',
+          border: '2px solid var(--color-white)',
+          background: 'var(--color-surface)', overflow: 'hidden',
+        }}>
+          {logo ? (
+            <img src={logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-stone-100 text-stone-400">
-              <Store className="h-8 w-8" />
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Store size={16} color="var(--color-stone)" />
             </div>
-          )}
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-        <div className="absolute left-4 top-4 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-white/80 bg-white shadow-sm">
-          {store.logo ? (
-            <img src={store.logo} alt="" loading="lazy" className="h-full w-full object-cover" />
-          ) : (
-            <Store className="h-5 w-5 text-stone-500" />
           )}
         </div>
       </div>
 
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="truncate text-lg font-semibold text-stone-950">{store.name}</h3>
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-stone-500">
-              <MapPin className="h-3.5 w-3.5" />
-              <span className="truncate">{location}</span>
-            </p>
-          </div>
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition-colors group-hover:border-stone-400 group-hover:text-stone-950">
-            <ArrowUpRight className="h-4 w-4" />
-          </span>
+      {/* Info */}
+      <div style={{ padding: '22px 12px 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <p style={{
+            fontSize: 14, fontWeight: 600, color: 'var(--color-black)',
+            margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
+          }}>
+            {store.name}
+          </p>
+          <PlanBadge plan={plan} />
         </div>
-
-        {store.tagline ? (
-          <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-stone-600">{store.tagline}</p>
-        ) : null}
-
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="rounded-2xl bg-stone-50 px-3 py-2">
-            <p className="text-sm font-semibold text-stone-950">{store.product_count || 0}</p>
-            <p className="text-xs text-stone-500">{t('store.products', 'Productos')}</p>
-          </div>
-          <div className="rounded-2xl bg-stone-50 px-3 py-2">
-            <p className="text-sm font-semibold text-stone-950">{store.follower_count || 0}</p>
-            <p className="text-xs text-stone-500">{t('store.followers', 'Seguidores')}</p>
-          </div>
+        {store.location && (
+          <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <MapPin size={11} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{store.location}</span>
+          </p>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+          <RatingStars rating={rating} />
+          {store.product_count > 0 && (
+            <span style={{ fontSize: 11, color: 'var(--color-stone)' }}>{store.product_count} prod.</span>
+          )}
         </div>
       </div>
     </Link>
   );
 }
 
+/* ── StoreRow (vertical list) ── */
+function StoreRow({ store }) {
+  const navigate = useNavigate();
+  const slug = store.slug || store.store_slug;
+  const logo = store.logo || null;
+  const rating = store.average_rating || store.rating;
+  const plan = store.plan || store.subscription_plan;
+  const verified = store.verified || store.is_verified;
+
+  return (
+    <div
+      onClick={() => navigate(slug ? `/store/${slug}` : '/stores')}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '14px 16px',
+        background: 'var(--color-white)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-xl)',
+        cursor: 'pointer',
+        transition: 'var(--transition-fast)',
+      }}
+    >
+      {/* Avatar */}
+      <div style={{
+        width: 52, height: 52, borderRadius: 'var(--radius-full, 999px)',
+        background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
+      }}>
+        {logo ? (
+          <img src={logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Store size={22} color="var(--color-stone)" />
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <p style={{
+            fontSize: 15, fontWeight: 600, color: 'var(--color-black)',
+            margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {store.name}
+          </p>
+          {verified && <ShieldCheck size={14} color="var(--color-black)" />}
+          <PlanBadge plan={plan} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 }}>
+          {store.location && (
+            <span style={{ fontSize: 12, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 3 }}>
+              <MapPin size={11} /> {store.location}
+            </span>
+          )}
+          <RatingStars rating={rating} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
+          {store.product_count > 0 && (
+            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 3 }}>
+              <Package size={11} /> {store.product_count} productos
+            </span>
+          )}
+          {store.free_shipping && (
+            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 3 }}>
+              <Truck size={11} /> Envío gratis
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* CTA */}
+      <span style={{
+        fontSize: 13, fontWeight: 600, color: 'var(--color-stone)',
+        display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0,
+      }}>
+        Ver <ChevronRight size={16} />
+      </span>
+    </div>
+  );
+}
+
+/* ── Skeleton ── */
+function SkeletonCard() {
+  return (
+    <div style={{
+      width: 200, height: 200, flexShrink: 0,
+      background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)',
+      animation: 'pulse 1.5s ease-in-out infinite',
+    }} />
+  );
+}
+
+function SkeletonRow() {
+  return (
+    <div style={{
+      height: 80, background: 'var(--color-surface)',
+      borderRadius: 'var(--radius-xl)',
+      animation: 'pulse 1.5s ease-in-out infinite',
+    }} />
+  );
+}
+
+/* ══════════════════════════════════════════════ */
+/*  MAIN COMPONENT                               */
+/* ══════════════════════════════════════════════ */
 export default function StoresListPage() {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('grid');
-  const [selectedStoreForMap, setSelectedStoreForMap] = useState(null);
-  const [highlightedStore, setHighlightedStore] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [visibleCount, setVisibleCount] = useState(12);
-  const [regions, setRegions] = useState({});
-  const [availableRegions, setAvailableRegions] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(15);
+  const scrollRef = useRef(null);
+  const sentinelRef = useRef(null);
 
-  useEffect(() => {
-    fetchRegions();
-  }, []);
+  const debouncedSearch = useDebounce(searchInput, 400);
 
-  useEffect(() => {
-    if (selectedCountry && regions[selectedCountry]) {
-      setAvailableRegions(regions[selectedCountry].regions || []);
-    } else {
-      setAvailableRegions([]);
-    }
-    setSelectedRegion('');
-    setSelectedStoreForMap(null);
-  }, [selectedCountry, regions]);
-
-  useEffect(() => {
-    fetchStores();
-    setSelectedStoreForMap(null);
-  }, [selectedCountry, selectedRegion]);
-
-  const fetchRegions = async () => {
-    try {
-      const data = await apiClient.get('/config/regions');
-      setRegions(Object.keys(data || {}).length ? data : FALLBACK_REGIONS);
-    } catch (error) {
-      console.error('Error fetching regions:', error);
-      setRegions(FALLBACK_REGIONS);
-    }
-  };
-
-  const fetchStores = async () => {
+  /* Fetch stores */
+  const fetchStores = useCallback(async (search) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (selectedCountry) params.append('country', selectedCountry);
-      if (selectedRegion) params.append('region', selectedRegion);
-      const url = `/stores${params.toString() ? `?${params.toString()}` : ''}`;
+      if (search) params.append('search', search);
+      const url = `/stores${params.toString() ? `?${params}` : ''}`;
       const data = await apiClient.get(url);
       setStores(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Error fetching stores:', error);
+    } catch {
       setStores([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const countryNames = {
-    ES: t('countries.Spain', 'España'),
-    US: t('countries.USA', 'Estados Unidos'),
-    KR: t('countries.Korea', 'Corea del Sur'),
-    IT: t('countries.Italy', 'Italia'),
-    FR: t('countries.France', 'Francia'),
-    GR: t('countries.Greece', 'Grecia'),
-    PT: t('countries.Portugal', 'Portugal'),
-    DE: t('countries.Germany', 'Alemania'),
-    NL: t('countries.Netherlands', 'Países Bajos'),
-    BE: t('countries.Belgium', 'Bélgica'),
-    GB: t('countries.UnitedKingdom', 'Reino Unido'),
-    CH: t('countries.Switzerland', 'Suiza'),
-    AT: t('countries.Austria', 'Austria'),
-    PL: t('countries.Poland', 'Polonia'),
-    IE: t('countries.Ireland', 'Irlanda'),
-    SE: t('countries.Sweden', 'Suecia'),
-    DK: t('countries.Denmark', 'Dinamarca'),
-    NO: t('countries.Norway', 'Noruega'),
-    CZ: t('countries.CzechRepublic', 'República Checa'),
-    HU: t('countries.Hungary', 'Hungría'),
-    RO: t('countries.Romania', 'Rumanía'),
-    BG: t('countries.Bulgaria', 'Bulgaria'),
-    HR: t('countries.Croatia', 'Croacia'),
-    TR: t('countries.Turkey', 'Turquía'),
-    MX: t('countries.Mexico', 'México'),
-    CO: t('countries.Colombia', 'Colombia'),
-    AR: t('countries.Argentina', 'Argentina'),
-    CL: t('countries.Chile', 'Chile'),
-    PE: t('countries.Peru', 'Perú'),
-    BR: t('countries.Brazil', 'Brasil'),
-    EC: t('countries.Ecuador', 'Ecuador'),
-    CA: t('countries.Canada', 'Canadá'),
-    CR: t('countries.CostaRica', 'Costa Rica'),
-    DO: t('countries.DominicanRepublic', 'República Dominicana'),
-    JP: t('countries.Japan', 'Japón'),
-    CN: t('countries.China', 'China'),
-    IN: t('countries.India', 'India'),
-    TH: t('countries.Thailand', 'Tailandia'),
-    VN: t('countries.Vietnam', 'Vietnam'),
-    ID: t('countries.Indonesia', 'Indonesia'),
-    PH: t('countries.Philippines', 'Filipinas'),
-    AU: t('countries.Australia', 'Australia'),
-    NZ: t('countries.NewZealand', 'Nueva Zelanda'),
-    MA: t('countries.Morocco', 'Marruecos'),
-    TN: t('countries.Tunisia', 'Túnez'),
-    EG: t('countries.Egypt', 'Egipto'),
-    ZA: t('countries.SouthAfrica', 'Sudáfrica'),
-    IL: t('countries.Israel', 'Israel'),
-    LB: t('countries.Lebanon', 'Líbano'),
-    IR: t('countries.Iran', 'Irán'),
-  };
+  useEffect(() => {
+    fetchStores(debouncedSearch);
+  }, [debouncedSearch, fetchStores]);
 
-  const storeCountryGroups = [
-    { label: t('regions.europe', 'Europa'), codes: ['ES', 'IT', 'FR', 'GR', 'PT', 'DE', 'NL', 'BE', 'GB', 'CH', 'AT', 'PL', 'IE', 'SE', 'DK', 'NO', 'CZ', 'HU', 'RO', 'BG', 'HR', 'TR'] },
-    { label: t('regions.americas', 'Américas'), codes: ['US', 'CA', 'MX', 'CO', 'AR', 'CL', 'PE', 'BR', 'EC', 'CR', 'DO'] },
-    { label: t('regions.asiaOceania', 'Asia y Oceanía'), codes: ['KR', 'JP', 'CN', 'IN', 'TH', 'VN', 'ID', 'PH', 'AU', 'NZ'] },
-    { label: t('regions.africaMiddleEast', 'África y Oriente Medio'), codes: ['MA', 'TN', 'EG', 'ZA', 'IL', 'LB', 'IR'] },
-  ];
-
-  const countryGroups = useMemo(() => {
-    const grouped = storeCountryGroups
-      .map((group) => ({
-        label: group.label,
-        options: group.codes
-          .filter((code) => regions[code])
-          .map((code) => ({ value: code, label: countryNames[code] || code })),
-      }))
-      .filter((group) => group.options.length > 0);
-
-    const groupedCodes = new Set(storeCountryGroups.flatMap((group) => group.codes));
-    const extraCodes = Object.keys(regions)
-      .filter((code) => !groupedCodes.has(code))
-      .map((code) => ({ value: code, label: countryNames[code] || regions[code]?.name || code }));
-
-    return [
-      {
-        label: null,
-        options: [{ value: '', label: t('stores.allCountries', 'Todos los países') }],
-      },
-      ...grouped,
-      ...(extraCodes.length > 0 ? [{ label: t('stores.otherCountries', 'Otros'), options: extraCodes }] : []),
-    ];
-  }, [countryNames, regions, storeCountryGroups, t]);
-
-  const regionOptions = useMemo(() => ([
-    { value: '', label: t('stores.allRegions', 'Todas las regiones') },
-    ...availableRegions.map((region) => ({
-      value: region.code,
-      label: region.name,
-    })),
-  ]), [availableRegions, t]);
-
-  const selectedCountryName = selectedCountry ? (regions[selectedCountry]?.name || countryNames[selectedCountry] || '') : '';
-  const selectedRegionName = selectedRegion ? (availableRegions.find((region) => region.code === selectedRegion)?.name || '') : '';
-
-  const filteredStores = stores.filter((store) => {
-    if (!searchQuery) return true;
-    const needle = asLowerText(searchQuery);
-    return (
-      asLowerText(store.name).includes(needle) ||
-      asLowerText(store.location).includes(needle) ||
-      asLowerText(store.tagline).includes(needle)
+  /* Infinite scroll via IntersectionObserver */
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisibleCount(p => p + 15); },
+      { rootMargin: '200px' }
     );
-  });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
 
-  const hasActiveFilters = Boolean(selectedCountry || selectedRegion || searchQuery);
-  const activeFilterCount = [selectedCountry, selectedRegion, searchQuery].filter(Boolean).length;
+  /* Filter logic */
+  const filtered = useMemo(() => {
+    return stores.filter(s => {
+      if (activeFilter === 'all') return true;
+      if (activeFilter === 'verified') return s.verified || s.is_verified;
+      if (activeFilter === 'ES') return (s.country || '').toUpperCase() === 'ES';
+      if (activeFilter === 'FR') return (s.country || '').toUpperCase() === 'FR';
+      if (activeFilter === 'elite') return (s.plan || s.subscription_plan || '').toLowerCase() === 'elite';
+      if (activeFilter === 'pro') return (s.plan || s.subscription_plan || '').toLowerCase() === 'pro';
+      if (activeFilter === 'free_shipping') return s.free_shipping;
+      return true;
+    });
+  }, [stores, activeFilter]);
 
-  const clearFilters = () => {
-    setSelectedCountry('');
-    setSelectedRegion('');
-    setSearchQuery('');
-    setSelectedStoreForMap(null);
-    setVisibleCount(12);
-  };
+  /* Featured = verified or elite/pro, max 10 */
+  const featured = useMemo(() => {
+    return stores
+      .filter(s => s.verified || s.is_verified || ['elite', 'pro'].includes((s.plan || s.subscription_plan || '').toLowerCase()))
+      .slice(0, 10);
+  }, [stores]);
 
-  const emptyState = (
-    <div className="rounded-3xl border border-stone-100 bg-white px-6 py-16 text-center shadow-sm">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 text-stone-500">
-        <Store className="h-6 w-6" />
-      </div>
-      <h3 className="mt-4 text-lg font-semibold text-stone-950">{t('stores.noStores', 'No se encontraron tiendas')}</h3>
-      <p className="mt-2 text-sm text-stone-500">
-        Ajusta los filtros o explora otra región para descubrir productores cercanos.
-      </p>
-      {hasActiveFilters ? (
-        <button
-          type="button"
-          className="mt-5 rounded-full border border-stone-200 bg-white px-5 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
-          onClick={clearFilters}
-        >
-          Limpiar filtros
-        </button>
-      ) : null}
-    </div>
-  );
+  const font = { fontFamily: 'var(--font-sans)' };
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <Header />
+    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+      {/* ── Topbar ── */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 40,
+        background: 'var(--color-white)',
+        borderBottom: '1px solid var(--color-border)',
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '12px 16px',
+      }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+          aria-label="Volver"
+        >
+          <ArrowLeft size={22} color="var(--color-black)" />
+        </button>
+        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Tiendas</span>
+      </div>
 
-      <section className="border-b border-stone-200 bg-white">
-        <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
-          <BackButton />
-          <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-stone-400">
-                Descubrimiento local
-              </p>
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-stone-950">
-                {t('stores.title', 'Tiendas cerca de ti')}
-              </h1>
-              <p className="mt-3 text-sm text-stone-500">
-                Recorre perfiles de tienda con una lectura más limpia: mapa, contexto local y acceso directo a sus productos.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 self-start rounded-full border border-stone-200 bg-stone-50 p-1">
-              <button
-                type="button"
-                onClick={() => setViewMode('grid')}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-150 ease-out ${
-                  viewMode === 'grid' ? 'bg-stone-950 text-white shadow-sm' : 'text-stone-600 hover:bg-white'
-                }`}
-                aria-label="Ver tiendas en tarjetas"
-              >
-                <Grid3X3 className="h-4 w-4" />
-                Tarjetas
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('map')}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-150 ease-out ${
-                  viewMode === 'map' ? 'bg-stone-950 text-white shadow-sm' : 'text-stone-600 hover:bg-white'
-                }`}
-                aria-label="Ver tiendas en mapa"
-              >
-                <Map className="h-4 w-4" />
-                Mapa
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-8 hidden gap-3 lg:grid lg:grid-cols-[minmax(0,1.4fr)_220px_220px_auto]">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder={t('stores.searchPlaceholder', 'Buscar tienda o ubicación')}
-                className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 text-sm placeholder:text-stone-400 outline-none focus:border-stone-950"
-                aria-label="Buscar tiendas"
-                data-testid="stores-search-input"
-              />
-            </div>
-            <PremiumSelect
-              value={selectedCountry}
-              onChange={setSelectedCountry}
-              groups={countryGroups}
-              placeholder={t('stores.filterCountry', 'País')}
-              ariaLabel="Filtrar por país"
-            />
-            <PremiumSelect
-              value={selectedRegion}
-              onChange={setSelectedRegion}
-              options={regionOptions}
-              placeholder={t('stores.filterRegion', 'Región')}
-              disabled={!selectedCountry}
-              ariaLabel="Filtrar por región"
-            />
-            <div className="flex items-center justify-end gap-2">
-              {hasActiveFilters ? (
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
-                  onClick={clearFilters}
-                >
-                  <X className="h-4 w-4" />
-                  Limpiar
-                </button>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="sticky top-0 z-30 border-b border-stone-200 bg-white/95 py-3 backdrop-blur lg:hidden">
-        <div className="px-4">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder={t('stores.searchPlaceholder', 'Buscar tienda o ubicación')}
-                className="h-11 w-full rounded-full border border-stone-200 bg-stone-50 pl-11 text-sm placeholder:text-stone-400 outline-none focus:border-stone-950"
-                aria-label="Buscar tiendas"
-                data-testid="stores-search-input-mobile"
-              />
-            </div>
+      {/* ── Search ── */}
+      <div style={{ padding: '12px 16px 0', maxWidth: 600, margin: '0 auto' }}>
+        <div style={{ position: 'relative' }}>
+          <Search
+            size={18}
+            color="var(--color-stone)"
+            style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
+          />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            placeholder="Buscar tienda o ubicación..."
+            style={{
+              width: '100%', height: 44,
+              paddingLeft: 42, paddingRight: searchInput ? 36 : 14,
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-full, 999px)',
+              background: 'var(--color-white)',
+              fontSize: 14, color: 'var(--color-black)',
+              outline: 'none', boxSizing: 'border-box',
+              fontFamily: 'var(--font-sans)',
+            }}
+          />
+          {searchInput && (
             <button
-              type="button"
-              className={`relative inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors ${showFilters ? 'border-stone-950 bg-stone-100 text-stone-950' : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'}`}
-              onClick={() => setShowFilters((current) => !current)}
-              aria-label="Abrir filtros de tiendas"
+              onClick={() => setSearchInput('')}
+              style={{
+                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
+                borderRadius: '50%', width: 22, height: 22,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+              aria-label="Limpiar búsqueda"
             >
-              Filtros
-              {activeFilterCount > 0 ? (
-                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-stone-950 text-[10px] text-white">
-                  {activeFilterCount}
-                </span>
-              ) : null}
+              <X size={13} color="var(--color-stone)" />
             </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Filter Pills ── */}
+      <div style={{
+        display: 'flex', gap: 8, padding: '12px 16px',
+        overflowX: 'auto', maxWidth: 600, margin: '0 auto',
+        WebkitOverflowScrolling: 'touch',
+        msOverflowStyle: 'none', scrollbarWidth: 'none',
+      }}>
+        {FILTER_PILLS.map(pill => {
+          const active = activeFilter === pill.id;
+          return (
+            <button
+              key={pill.id}
+              onClick={() => { setActiveFilter(pill.id); setVisibleCount(15); }}
+              style={{
+                flexShrink: 0,
+                padding: '7px 16px',
+                borderRadius: 'var(--radius-full, 999px)',
+                border: active ? '1px solid var(--color-black)' : '1px solid var(--color-border)',
+                background: active ? 'var(--color-black)' : 'var(--color-white)',
+                color: active ? 'var(--color-white)' : 'var(--color-black)',
+                fontSize: 13, fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'var(--transition-fast)',
+                fontFamily: 'var(--font-sans)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {pill.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px 100px' }}>
+        {/* ── TIENDAS DESTACADAS ── */}
+        {!loading && featured.length > 0 && !searchInput && activeFilter === 'all' && (
+          <section style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: 0, letterSpacing: '0.03em', textTransform: 'uppercase' }}>
+                Tiendas destacadas
+              </h2>
+            </div>
+            <div
+              ref={scrollRef}
+              style={{
+                display: 'flex', gap: 12,
+                overflowX: 'auto', paddingBottom: 4,
+                WebkitOverflowScrolling: 'touch',
+                msOverflowStyle: 'none', scrollbarWidth: 'none',
+              }}
+            >
+              {featured.map(store => (
+                <motion.div
+                  key={store.store_id || store.slug}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <FeaturedStoreCard store={store} />
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── TODAS LAS TIENDAS ── */}
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: 0, letterSpacing: '0.03em', textTransform: 'uppercase' }}>
+              {activeFilter === 'all' ? 'Todas las tiendas' : FILTER_PILLS.find(p => p.id === activeFilter)?.label || 'Tiendas'}
+            </h2>
+            {!loading && (
+              <span style={{ fontSize: 12, color: 'var(--color-stone)' }}>{filtered.length} tiendas</span>
+            )}
           </div>
 
-          {showFilters ? (
-            <div className="mt-3 space-y-3 rounded-3xl border border-stone-100 bg-white p-3 shadow-sm">
-              <PremiumSelect
-                value={selectedCountry}
-                onChange={setSelectedCountry}
-                groups={countryGroups}
-                placeholder={t('stores.filterCountry', 'País')}
-                ariaLabel="Filtrar por país"
-              />
-              <PremiumSelect
-                value={selectedRegion}
-                onChange={setSelectedRegion}
-                options={regionOptions}
-                placeholder={t('stores.filterRegion', 'Región')}
-                disabled={!selectedCountry}
-                ariaLabel="Filtrar por región"
-              />
-              {hasActiveFilters ? (
+          {loading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[0, 1, 2, 3, 4].map(i => <SkeletonRow key={i} />)}
+            </div>
+          ) : filtered.length === 0 ? (
+            /* Empty state */
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: 12, padding: '60px 0',
+            }}>
+              <Store size={56} color="var(--color-stone)" strokeWidth={1} />
+              <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', margin: 0 }}>
+                No se encontraron tiendas
+              </p>
+              {(searchInput || activeFilter !== 'all') && (
                 <button
-                  type="button"
-                  className="w-full rounded-full border border-stone-200 bg-white py-2.5 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50"
-                  onClick={clearFilters}
+                  onClick={() => { setSearchInput(''); setActiveFilter('all'); }}
+                  style={{
+                    padding: '10px 24px', background: 'var(--color-black)',
+                    color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
+                    fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer',
+                  }}
                 >
                   Limpiar filtros
                 </button>
-              ) : null}
+              )}
             </div>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="py-6 md:py-8">
-        <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm text-stone-600 shadow-sm">
-              <Sparkles className="h-4 w-4 text-stone-700" />
-              <span>{filteredStores.length} tiendas visibles</span>
-            </div>
-            {(selectedCountryName || selectedRegionName) ? (
-              <p className="text-sm text-stone-500">
-                {selectedRegionName ? `${selectedRegionName}, ` : ''}
-                {selectedCountryName}
-              </p>
-            ) : null}
-          </div>
-
-          {viewMode === 'map' ? (
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.6fr)_380px]">
-              <div className="h-[320px] md:h-[400px] lg:h-[500px]">
-                <GoogleMapEmbed
-                  stores={filteredStores}
-                  selectedStore={selectedStoreForMap}
-                  countryName={selectedCountryName}
-                  regionName={selectedRegionName}
-                />
-              </div>
-
-              <div className="rounded-3xl border border-stone-100 bg-white p-4 shadow-sm">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg font-semibold text-stone-950">Tiendas destacadas</h2>
-                    <p className="mt-1 text-sm text-stone-500">Selecciona una tarjeta para enfocar el mapa.</p>
-                  </div>
-                </div>
-
-                {loading ? (
-                  <div className="py-16 text-center">
-                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
-                    <p className="text-sm text-stone-500">{t('common.loading', 'Cargando...')}</p>
-                  </div>
-                ) : filteredStores.length === 0 ? (
-                  emptyState
-                ) : (
-                  <div className="max-h-[540px] space-y-4 overflow-y-auto pr-1">
-                    {filteredStores.map((store) => (
-                      <StoreCard
-                        key={store.store_id || store.slug}
-                        store={store}
-                        isActive={highlightedStore === store.store_id || selectedStoreForMap?.store_id === store.store_id}
-                        onHover={() => setHighlightedStore(store.store_id)}
-                        onLeave={() => setHighlightedStore(null)}
-                        onFocusMap={() => setSelectedStoreForMap(store)}
-                        t={t}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : loading ? (
-            <div className="py-16 text-center">
-              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
-              <p className="text-sm text-stone-500">{t('common.loading', 'Cargando...')}</p>
-            </div>
-          ) : filteredStores.length === 0 ? (
-            emptyState
           ) : (
-            <>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {filteredStores.slice(0, visibleCount).map((store) => (
-                  <StoreCard
-                    key={store.store_id || store.slug}
-                    store={store}
-                    isActive={false}
-                    onHover={() => undefined}
-                    onLeave={() => undefined}
-                    onFocusMap={() => setSelectedStoreForMap(store)}
-                    t={t}
-                  />
-                ))}
-              </div>
-              {visibleCount < filteredStores.length && (
-                <div className="mt-8 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount((prev) => prev + 12)}
-                    className="rounded-full border border-stone-200 bg-white px-6 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
-                  >
-                    {t('stores.loadMore', 'Cargar más tiendas')} ({filteredStores.length - visibleCount} {t('stores.remaining', 'restantes')})
-                  </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {filtered.slice(0, visibleCount).map((store, i) => (
+                <motion.div
+                  key={store.store_id || store.slug || i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: Math.min(i * 0.03, 0.3) }}
+                >
+                  <StoreRow store={store} />
+                </motion.div>
+              ))}
+
+              {/* Infinite scroll sentinel */}
+              {visibleCount < filtered.length && (
+                <div ref={sentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>
+                  <Loader2 size={24} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
                 </div>
               )}
-            </>
+            </div>
           )}
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section className="border-t border-stone-200 bg-white">
-        <div className="mx-auto max-w-[1400px] px-4 py-10 text-center sm:px-6">
-          <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
-            ¿Eres productor local?
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-stone-500">
-            Crea un perfil de tienda con una presencia más editorial: catálogo, certificaciones y narrativa propia.
-          </p>
-          <Link
-            to="/productor/registro"
-            className="mt-5 inline-flex items-center rounded-full bg-stone-950 px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-stone-800"
-          >
-            Crear mi tienda
-          </Link>
-        </div>
-      </section>
-
-      <Footer />
+      {/* Pulse + spin keyframes (injected once) */}
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      `}</style>
     </div>
   );
 }
