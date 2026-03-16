@@ -697,7 +697,7 @@ async def admin_finance_dashboard(user: User = Depends(get_current_user)):
     now = datetime.now(timezone.utc)
     month_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc).isoformat()
 
-    monthly_orders = await db.orders.find({'created_at': {'$gte': month_start}}, {'_id': 0, 'total_amount': 1, 'commission_snapshot': 1}).to_list(10000)
+    monthly_orders = await db.orders.find({'created_at': {'$gte': month_start}}, {'_id': 0, 'total_amount': 1, 'commission_snapshot': 1}).to_list(2000)
     gmv_month = round(sum(o.get('total_amount', 0) for o in monthly_orders), 2)
     commission_net = round(sum((o.get('commission_snapshot') or {}).get('platform_fee', 0) for o in monthly_orders), 2)
 

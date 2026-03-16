@@ -62,7 +62,7 @@ async def get_fiscal_stats(user: User = Depends(get_current_user)):
     es_influencers = await db.influencers.find(
         {"fiscal_status.tax_country": "ES", "status": "active"},
         {"_id": 0, "withholding_records": 1},
-    ).to_list(5000)
+    ).to_list(2000)
 
     total_withheld_ytd = 0
     for inf in es_influencers:

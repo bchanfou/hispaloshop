@@ -254,7 +254,7 @@ async def get_public_producer_profile(store_id: str):
     if product_ids:
         reviews = await db.reviews.find(
             {"product_id": {"$in": product_ids}, "approved": True}
-        ).to_list(10000)
+        ).to_list(1000)
         if reviews:
             avg_rating = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
             review_count = len(reviews)

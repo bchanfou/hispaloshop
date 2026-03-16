@@ -1026,7 +1026,7 @@ async def create_checkout(request: Request, input: OrderCreateInput, user: User 
     # Serialize seller_breakdown for Stripe metadata (max 500 chars per value)
     seller_breakdown = {}
     for split in split_details:
-        seller_breakdown[split["producer_id"]] = int(split["gross_amount"] * 100)
+        seller_breakdown[split["producer_id"]] = int(round(split["gross_amount"] * 100))
     
     # Build Stripe Checkout Session — Separate Charges & Transfers
     # Money enters platform account fully. Transfers executed after webhook confirmation.
@@ -1278,7 +1278,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
     success_url = f"{origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin}/products/{input.product_id}"
 
-    seller_breakdown = {producer_id: int(subtotal_amount * 100)}
+    seller_breakdown = {producer_id: int(round(subtotal_amount * 100))}
 
     stripe_params = {
         "mode": "payment",
@@ -1828,7 +1828,7 @@ async def export_commission_audit(
     orders = await db.orders.find(
         {**query, "commission_data": {"$exists": True}},
         {"_id": 0}
-    ).sort("created_at", -1).to_list(5000)
+    ).sort("created_at", -1).to_list(2000)
     
     import csv
     output = io.StringIO()
@@ -1941,7 +1941,7 @@ async def export_financial_report(
     if date_to:
         query.setdefault("created_at", {})["$lte"] = date_to
     
-    entries = await db.financial_ledger.find(query, {"_id": 0}).sort("created_at", 1).to_list(5000)
+    entries = await db.financial_ledger.find(query, {"_id": 0}).sort("created_at", 1).to_list(2000)
 
     # Build lookup maps for seller/influencer names
     seller_ids = {e.get("seller_id") for e in entries if e.get("seller_id")}

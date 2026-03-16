@@ -333,8 +333,8 @@ async def get_influencer_analytics(user: User = Depends(get_current_user), days:
     link_clicks = await db.influencer_link_clicks.find({
         "influencer_id": influencer["influencer_id"],
         "clicked_at": {"$gte": start_date.isoformat()}
-    }, {"_id": 0}).to_list(10000)
-    
+    }, {"_id": 0}).to_list(2000)
+
     # Get code usage stats (clicks tracked when code is applied to cart)
     code_uses = await db.cart_discounts.find({
         "code": discount_code["code"] if discount_code else None,
@@ -639,7 +639,7 @@ async def process_influencer_payout(influencer_id: str, user: User = Depends(get
     try:
         # Create transfer to influencer's Stripe account
         transfer = stripe.Transfer.create(
-            amount=int(available_balance * 100),  # Convert to cents
+            amount=int(round(available_balance * 100)),  # Convert to cents
             currency="eur",
             destination=influencer["stripe_account_id"],
             metadata={
@@ -774,7 +774,7 @@ async def _execute_withdrawal(db, influencer, user, request, now):
     try:
         transfer_id = None
         withdrawal_status = "completed"
-        transfer_amount_cents = int(net_amount * 100)
+        transfer_amount_cents = int(round(net_amount * 100))
         if payout_method == "stripe":
             transfer = stripe.Transfer.create(
                 amount=transfer_amount_cents,
@@ -1289,7 +1289,7 @@ async def update_influencer_tiers():
         comms = await db.influencer_commissions.find({
             "influencer_id": inf_id,
             "created_at": {"$gte": thirty_days_ago},
-        }, {"_id": 0, "order_total": 1}).to_list(10000)
+        }, {"_id": 0, "order_total": 1}).to_list(2000)
         gmv = sum(c.get("order_total", 0) for c in comms)
 
         # Determine new tier

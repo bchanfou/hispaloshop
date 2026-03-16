@@ -44,7 +44,7 @@ async def _build_seller_query(user: User, extra: Optional[Dict[str, Any]] = None
 async def _get_scoped_seller_ids(user: User) -> List[str]:
     """Return seller user_ids (producer/importer) visible for current admin scope."""
     seller_query = await _build_seller_query(user)
-    sellers = await db.users.find(seller_query, {"_id": 0, "user_id": 1}).to_list(10000)
+    sellers = await db.users.find(seller_query, {"_id": 0, "user_id": 1}).to_list(2000)
     return [s.get("user_id") for s in sellers if s.get("user_id")]
 
 # ============================================
@@ -418,7 +418,7 @@ async def get_all_payments_admin(user: User = Depends(get_current_user)):
             scoped_orders = await db.orders.find(
                 {"line_items.producer_id": {"$in": scoped_seller_ids}},
                 {"_id": 0, "order_id": 1}
-            ).to_list(10000)
+            ).to_list(2000)
             scoped_order_ids = [o.get("order_id") for o in scoped_orders if o.get("order_id")]
             if scoped_order_ids:
                 payment_query["order_id"] = {"$in": scoped_order_ids}
@@ -485,7 +485,7 @@ async def get_admin_stats(user: User = Depends(get_current_user)):
     })
     total_producers = await db.users.count_documents(seller_query)
 
-    scoped_sellers = await db.users.find(seller_query, {"_id": 0, "user_id": 1}).to_list(5000)
+    scoped_sellers = await db.users.find(seller_query, {"_id": 0, "user_id": 1}).to_list(2000)
     scoped_seller_ids = [u.get("user_id") for u in scoped_sellers if u.get("user_id")]
 
     product_query: Dict[str, Any] = {}
@@ -929,15 +929,15 @@ async def get_admin_analytics(
     orders = await db.orders.find(
         order_query,
         {"created_at": 1, "total_amount": 1, "shipping_country": 1}
-    ).to_list(10000)
-    
+    ).to_list(2000)
+
     # Build visits query
     visits_query = {"timestamp": {"$gte": start_dt.isoformat(), "$lte": end_dt.isoformat()}}
     if country_filter:
         visits_query["country"] = country_filter
     
     # Get page visits (from analytics collection if exists)
-    visits = await db.page_visits.find(visits_query).to_list(10000)
+    visits = await db.page_visits.find(visits_query).to_list(2000)
     
     # Group by date
     daily_data = {}

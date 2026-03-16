@@ -91,7 +91,7 @@ async def create_post(
         tp["product_name"] = product.get("name")
         tp["product_price_cents"] = product.get("price_cents", 0)
         if tp["product_price_cents"] == 0 and product.get("price"):
-            tp["product_price_cents"] = int(product["price"] * 100)
+            tp["product_price_cents"] = int(round(product["price"] * 100))
         tp["product_image"] = product.get("images", [{}])[0].get("url") if product.get("images") else None
     
     # Score inicial

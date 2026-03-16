@@ -921,7 +921,7 @@ async def get_producer_analytics(user: User = Depends(get_current_user), period:
     all_orders = await db.orders.find(
         {"created_at": {"$gte": cutoff}},
         {"line_items": 1, "source": 1, "total_amount": 1},
-    ).to_list(5000)
+    ).to_list(2000)
 
     # Top products
     product_sales = {}

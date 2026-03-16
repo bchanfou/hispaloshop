@@ -113,8 +113,8 @@ class RegisterInput(BaseModel):
 
 
 class LoginInput(BaseModel):
-    email: str  # Accepts email or @username
-    password: str
+    email: str = Field(min_length=1, max_length=254)  # Accepts email or @username
+    password: str = Field(min_length=1, max_length=128)
 
 
 class ForgotPasswordInput(BaseModel):
@@ -150,17 +150,17 @@ class LocaleUpdateInput(BaseModel):
 
 
 class DeleteAccountRequest(BaseModel):
-    password: str
-    confirmation: str
+    password: str = Field(min_length=1, max_length=128)
+    confirmation: str = Field(min_length=1, max_length=50)
 
 
 class UserStatusUpdate(BaseModel):
-    status: str
+    status: str = Field(pattern="^(active|suspended|banned|pending)$")
 
 
 class UserCredentialsUpdate(BaseModel):
-    email: Optional[str] = None
-    password: Optional[str] = None
+    email: Optional[str] = Field(default=None, max_length=254)
+    password: Optional[str] = Field(default=None, min_length=8, max_length=128)
 
 
 # ── AI / Insights ────────────────────────────────────────────
@@ -581,7 +581,7 @@ class PaymentTransaction(BaseModel):
 
 class CartUpdateInput(BaseModel):
     product_id: str
-    quantity: int
+    quantity: int = Field(ge=1)
     variant_id: Optional[str] = None
     pack_id: Optional[str] = None
 
@@ -603,7 +603,7 @@ class OrderCreateInput(BaseModel):
 
 
 class OrderStatusUpdate(BaseModel):
-    status: str
+    status: str = Field(pattern="^(pending|confirmed|processing|shipped|delivered|cancelled|refunded)$")
     tracking_number: Optional[str] = None
     tracking_url: Optional[str] = None
     shipping_carrier: Optional[str] = None
@@ -614,7 +614,7 @@ class BuyNowInput(BaseModel):
     product_id: str
     variant_id: Optional[str] = None
     pack_id: Optional[str] = None
-    quantity: int = 1
+    quantity: int = Field(default=1, ge=1)
 
 
 class RFQCreateInput(BaseModel):
@@ -816,16 +816,16 @@ class ConversationResponse(BaseModel):
 # ── Admin ────────────────────────────────────────────────────
 
 class AdminCreate(BaseModel):
-    email: str
-    name: str
-    password: str
-    role: str = "admin"
+    email: EmailStr
+    name: str = Field(min_length=1, max_length=100)
+    password: str = Field(min_length=8, max_length=128)
+    role: str = Field(default="admin", pattern="^(admin|super_admin)$")
     permissions: List[str] = []
     assigned_country: Optional[str] = None
 
 
 class AdminStatusUpdate(BaseModel):
-    status: str
+    status: str = Field(pattern="^(active|suspended|banned)$")
 
 
 # ── Translation ──────────────────────────────────────────────

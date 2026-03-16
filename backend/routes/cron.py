@@ -420,7 +420,7 @@ async def process_b2b_scheduled_payments(
             stripe.api_key = STRIPE_SECRET_KEY
 
             transfer = stripe.Transfer.create(
-                amount=int(seller_amount * 100),
+                amount=int(round(seller_amount * 100)),
                 currency=currency.lower(),
                 destination=stripe_account,
                 metadata={

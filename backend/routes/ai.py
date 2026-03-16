@@ -245,18 +245,18 @@ async def get_market_insights(
             for p in cat_products:
                 price = p.get("price_cents", 0)
                 if price == 0:
-                    price = int(p.get("price", 0) * 100)
+                    price = int(round(p.get("price", 0) * 100))
                 prices.append(price)
-            
+
             if prices:
                 avg_price = sum(prices) / len(prices)
-                
+
                 producer_prices = []
                 for p in producer_products:
                     if p.get("category_id") == cat_id:
                         price = p.get("price_cents", 0)
                         if price == 0:
-                            price = int(p.get("price", 0) * 100)
+                            price = int(round(p.get("price", 0) * 100))
                         producer_prices.append(price)
                 
                 producer_avg = sum(producer_prices) / len(producer_prices) if producer_prices else 0
