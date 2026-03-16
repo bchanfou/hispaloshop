@@ -575,10 +575,13 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
         update_data["translated_fields"] = {}  # Clear cached translations
         update_data["source_language"] = input.source_language or product.get("source_language", "es")
     
-    await db.products.update_one(
-        {"product_id": product_id},
-        {"$set": update_data}
-    )
+    # Atomic ownership check at write time to prevent IDOR race condition
+    update_filter = {"product_id": product_id}
+    if user.role in ("producer", "importer"):
+        update_filter["producer_id"] = user.user_id
+    result = await db.products.update_one(update_filter, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=403, detail="Product not found or not authorized")
     
     # Notify wishlist users if price dropped
     if input.price < product.get("price", 0):

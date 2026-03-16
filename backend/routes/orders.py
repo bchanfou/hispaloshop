@@ -484,11 +484,21 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
                       "updated_at": datetime.now(timezone.utc).isoformat()}}
         )
     
-    # 3. Increment discount usage
+    # 3. Atomic discount usage increment — prevents exceeding usage_limit under concurrency
     if order.get("discount_info"):
         code = order["discount_info"].get("code")
         if code:
-            await db.discount_codes.update_one({"code": code}, {"$inc": {"usage_count": 1}})
+            # Only increment if under the limit (atomic check-and-increment)
+            inc_result = await db.discount_codes.update_one(
+                {"code": code, "$or": [
+                    {"usage_limit": None},
+                    {"usage_limit": {"$exists": False}},
+                    {"$expr": {"$lt": [{"$ifNull": ["$usage_count", 0]}, "$usage_limit"]}}
+                ]},
+                {"$inc": {"usage_count": 1}}
+            )
+            if inc_result.matched_count == 0:
+                logger.warning(f"[PAYMENT] Discount code {code} exceeded usage limit for order {order_id}")
     
     # 4. Clear cart — skip for buy-now orders to preserve the user's regular cart
     is_buy_now = order.get("buy_now", False)
@@ -2174,14 +2184,17 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, user: Us
     elif update.status == "delivered":
         update_data["delivered_at"] = datetime.now(timezone.utc).isoformat()
     
-    await db.orders.update_one(
-        {"order_id": order_id},
+    # Atomic status transition: verify current status hasn't changed since we read it
+    result = await db.orders.update_one(
+        {"order_id": order_id, "status": current_status},
         {
             "$set": update_data,
             "$push": {"status_history": status_entry}
         }
     )
-    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=409, detail="Order status changed concurrently. Please refresh and try again.")
+
     # Refresh order with updates
     order.update(update_data)
     

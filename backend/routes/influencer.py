@@ -709,6 +709,31 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
             raise HTTPException(status_code=400, detail="Para transferencia bancaria debes indicar titular e IBAN.")
 
     now = datetime.now(timezone.utc)
+
+    # Atomic lock: prevent concurrent withdrawals by the same influencer.
+    # Only proceeds if no withdrawal is currently being processed.
+    lock_result = await db.influencers.update_one(
+        {"influencer_id": influencer["influencer_id"], "withdrawal_in_progress": {"$ne": True}},
+        {"$set": {"withdrawal_in_progress": True, "withdrawal_lock_at": now.isoformat()}}
+    )
+    if lock_result.matched_count == 0:
+        raise HTTPException(status_code=409, detail="Ya hay un retiro en proceso. Intenta de nuevo en unos segundos.")
+
+    try:
+        return await _execute_withdrawal(db, influencer, user, request, now)
+    finally:
+        # Always release lock
+        await db.influencers.update_one(
+            {"influencer_id": influencer["influencer_id"]},
+            {"$set": {"withdrawal_in_progress": False}}
+        )
+
+
+async def _execute_withdrawal(db, influencer, user, request, now):
+    """Inner withdrawal logic, called under atomic lock."""
+    from routes.influencer import _ensure_stripe_ready, MINIMUM_WITHDRAWAL_AMOUNT
+    payout_method = (request.method or "stripe").strip().lower()
+
     available_commissions = await db.influencer_commissions.find({
         "influencer_id": influencer["influencer_id"],
         "commission_status": "pending"
@@ -788,7 +813,7 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
         }
         await db.influencer_withdrawals.insert_one(withdrawal_record)
 
-        if withdrawal_amount >= available_balance:
+        if gross_amount >= available_balance:
             await db.influencer_commissions.update_many(
                 {"commission_id": {"$in": eligible_commission_ids}},
                 {"$set": {
@@ -798,7 +823,7 @@ async def request_influencer_withdrawal(request: WithdrawalRequest, user: User =
                 }}
             )
         else:
-            remaining = withdrawal_amount
+            remaining = gross_amount
             for comm in available_commissions:
                 if comm["commission_id"] not in eligible_commission_ids or remaining <= 0:
                     continue

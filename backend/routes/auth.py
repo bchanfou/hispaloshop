@@ -840,19 +840,16 @@ async def refresh_token(request: Request, response: Response):
         await db.user_sessions.delete_one({"session_token": session_token})
         raise HTTPException(status_code=401, detail="User not found")
     
-    # Create new session
+    # Create new session BEFORE deleting old one to prevent session loss on crash
     new_session_token = f"session_{uuid.uuid4().hex}"
-    
-    # Delete old session
-    await db.user_sessions.delete_one({"session_token": session_token})
-    
-    # Create new session
     await db.user_sessions.insert_one({
         "user_id": user_doc["user_id"],
         "session_token": new_session_token,
         "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat()
     })
+    # Delete old session after new one is safely persisted
+    await db.user_sessions.delete_one({"session_token": session_token})
     
     # Set new cookie
     _set_session_cookie(response, request, new_session_token)

@@ -34,7 +34,7 @@ export default function UserProfilePage() {
     username: profile.username,
     name: profile.name || profile.full_name,
     bio: profile.bio,
-    profile_image: resolveUserImage(profile),
+    profile_image: resolveUserImage(profile.profile_image),
     website: profile.website,
     location: profile.location || profile.city,
     role: profile.role,
