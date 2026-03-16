@@ -1,47 +1,43 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Search, Users, MapPin, Star, Package, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Search, Users, MapPin, ChevronRight, Package, Store, UtensilsCrossed, ClipboardList } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
+import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
+import { CATEGORIES } from '../constants/categories';
 
 const FILTER_PILLS = [
   { id: 'all', label: 'Todo', emoji: '' },
-  { id: 'eco', label: 'Ecológico', emoji: '🌿' },
+  { id: 'ecologico', label: 'Ecológico', emoji: '🌿' },
   { id: 'aceites', label: 'Aceites', emoji: '🫒' },
   { id: 'lacteos', label: 'Lácteos', emoji: '🧀' },
-  { id: 'dulces', label: 'Dulces', emoji: '🍯' },
+  { id: 'chocolates', label: 'Dulces', emoji: '🍫' },
   { id: 'halal', label: 'Halal', emoji: '☪️' },
   { id: 'vegano', label: 'Vegano', emoji: '🌱' },
-  { id: 'singluten', label: 'Sin gluten', emoji: '' },
+  { id: 'sin-gluten', label: 'Sin gluten', emoji: '🌾' },
 ];
 
-const QUICK_CATEGORIES = [
-  { id: 'snacks', emoji: '🥜', label: 'Snacks' },
-  { id: 'bebidas', emoji: '🧃', label: 'Bebidas' },
-  { id: 'eco', emoji: '🌿', label: 'Eco' },
-  { id: 'gourmet', emoji: '✨', label: 'Gourmet' },
-  { id: 'fitness', emoji: '💪', label: 'Fitness' },
+const SECTION_PILLS = [
+  { id: 'explore', emoji: '📦', label: 'Productos', to: '/explore' },
+  { id: 'stores', emoji: '🏪', label: 'Tiendas', to: '/stores' },
+  { id: 'recipes', emoji: '🍳', label: 'Recetas', to: '/recipes' },
+  { id: 'communities', emoji: '👥', label: 'Comunidad', to: '/communities' },
 ];
-
-const formatPrice = (value) => {
-  const amount = Number(value);
-  if (Number.isNaN(amount)) return '—';
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency', currency: 'EUR', minimumFractionDigits: 2,
-  }).format(amount);
-};
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [communities, setCommunities] = useState([]);
 
   const { products, isLoading: loadingProducts } = useProducts({ limit: '8' });
   const { stores, isLoading: loadingStores } = useStores({});
+
+  const isB2BUser = user?.role === 'producer' || user?.role === 'importer';
 
   useEffect(() => {
     apiClient.get('/communities?limit=4').then((data) => {
@@ -53,8 +49,9 @@ export default function DiscoverPage() {
     if (query.trim()) navigate(`/products?search=${encodeURIComponent(query.trim())}`);
   };
 
-  const handleCategoryClick = (categoryId) => {
-    navigate(`/products?category=${encodeURIComponent(categoryId)}`);
+  const isActivePath = (path) => {
+    if (path === '/explore') return location.pathname === '/explore' || location.pathname === '/discover';
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -100,7 +97,58 @@ export default function DiscoverPage() {
           </div>
         </div>
 
-        {/* Filter pills */}
+        {/* ── Section Pills ── */}
+        <div className="scrollbar-hide" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12, paddingBottom: 2 }}>
+          {SECTION_PILLS.map((pill) => {
+            const active = isActivePath(pill.to);
+            return (
+              <button
+                key={pill.id}
+                onClick={() => navigate(pill.to)}
+                style={{
+                  flexShrink: 0,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '7px 14px',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: 'var(--text-sm, 13px)', fontWeight: 500,
+                  fontFamily: 'var(--font-sans)',
+                  whiteSpace: 'nowrap',
+                  border: active ? 'none' : '1px solid var(--color-border)',
+                  background: active ? 'var(--color-black)' : 'var(--color-white)',
+                  color: active ? '#fff' : 'var(--color-black)',
+                  cursor: 'pointer',
+                  transition: 'var(--transition-fast)',
+                }}
+              >
+                {pill.emoji} {pill.label}
+              </button>
+            );
+          })}
+          {/* B2B pill — only for producer/importer */}
+          {isB2BUser && (
+            <button
+              onClick={() => navigate('/b2b/catalog')}
+              style={{
+                flexShrink: 0,
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px',
+                borderRadius: 'var(--radius-full)',
+                fontSize: 'var(--text-sm, 13px)', fontWeight: 500,
+                fontFamily: 'var(--font-sans)',
+                whiteSpace: 'nowrap',
+                border: isActivePath('/b2b/catalog') ? 'none' : '1px solid var(--color-border)',
+                background: isActivePath('/b2b/catalog') ? 'var(--color-black)' : 'var(--color-white)',
+                color: isActivePath('/b2b/catalog') ? '#fff' : 'var(--color-black)',
+                cursor: 'pointer',
+                transition: 'var(--transition-fast)',
+              }}
+            >
+              📋 Catálogo B2B
+            </button>
+          )}
+        </div>
+
+        {/* ── Filter pills ── */}
         <div className="scrollbar-hide" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 20, paddingBottom: 4 }}>
           {FILTER_PILLS.map((pill) => (
             <button
@@ -130,12 +178,9 @@ export default function DiscoverPage() {
           borderRadius: 'var(--radius-xl)',
           background: 'linear-gradient(135deg, #1c1917 0%, #0A0A0A 100%)',
           padding: '20px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           marginBottom: 24,
-          overflow: 'hidden',
-          position: 'relative',
+          overflow: 'hidden', position: 'relative',
         }}>
           <div style={{ position: 'relative', zIndex: 1 }}>
             <span style={{ fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-sans)' }}>
@@ -160,35 +205,38 @@ export default function DiscoverPage() {
           <span style={{ fontSize: 48, position: 'absolute', right: 20, bottom: 10, opacity: 0.3 }}>🫒</span>
         </div>
 
-        {/* Quick categories */}
+        {/* ── Categories — full horizontal scroll ── */}
         <div style={{ marginBottom: 24 }}>
           <span style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
             Categorías
           </span>
-          <div style={{ display: 'flex', gap: 8, marginTop: 10, overflowX: 'auto' }} className="scrollbar-hide">
-            {QUICK_CATEGORIES.map((cat) => (
+          <div className="scrollbar-hide" style={{ display: 'flex', gap: 8, marginTop: 10, overflowX: 'auto', paddingBottom: 4 }}>
+            {CATEGORIES.map((cat) => (
               <button
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.id)}
+                key={cat.slug}
+                onClick={() => navigate(`/explore/category/${cat.slug}`)}
                 style={{
                   flexShrink: 0,
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                  padding: '10px 8px', minWidth: 60,
-                  borderRadius: 'var(--radius-md)',
-                  background: 'var(--color-white)',
-                  border: '0.5px solid var(--color-border)',
-                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '7px 14px',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: 'var(--text-sm, 13px)', fontWeight: 500,
                   fontFamily: 'var(--font-sans)',
+                  whiteSpace: 'nowrap',
+                  border: '1px solid var(--color-border)',
+                  background: 'var(--color-white)',
+                  color: 'var(--color-black)',
+                  cursor: 'pointer',
+                  transition: 'var(--transition-fast)',
                 }}
               >
-                <span style={{ fontSize: 18 }}>{cat.emoji}</span>
-                <span style={{ fontSize: 9, color: 'var(--color-black)', fontWeight: 500 }}>{cat.label}</span>
+                {cat.emoji} {cat.label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Products masonry grid */}
+        {/* ── Products "Para ti" ── */}
         <div style={{ marginBottom: 32 }}>
           <span style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', display: 'block', marginBottom: 12 }}>
             Para ti
@@ -234,7 +282,7 @@ export default function DiscoverPage() {
           )}
         </div>
 
-        {/* Stores section — horizontal scroll */}
+        {/* ── Stores section ── */}
         {!loadingStores && stores.length > 0 && (
           <div style={{ marginBottom: 32 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -288,7 +336,7 @@ export default function DiscoverPage() {
           </div>
         )}
 
-        {/* Communities section — horizontal scroll */}
+        {/* ── Communities section ── */}
         {communities.length > 0 && (
           <div style={{ marginBottom: 32 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
