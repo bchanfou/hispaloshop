@@ -5,6 +5,7 @@ Fase 0: Configuración robusta para producción.
 import asyncio
 import certifi
 import logging
+from pymongo.errors import OperationFailure
 from motor.motor_asyncio import AsyncIOMotorClient
 from .config import settings
 
@@ -47,6 +48,22 @@ async def disconnect_db():
 def get_db():
     """Retorna la instancia de base de datos."""
     return db
+
+
+async def _safe_create_index(collection, keys, **kwargs):
+    """Create index, dropping and recreating if options conflict."""
+    try:
+        await collection.create_index(keys, **kwargs)
+    except OperationFailure as e:
+        if e.code == 86:  # IndexKeySpecsConflict
+            # Drop the existing index and recreate with new options
+            name = keys if isinstance(keys, str) else "_".join(
+                f"{k}_{v}" for k, v in keys
+            )
+            await collection.drop_index(f"{name}_1" if isinstance(keys, str) else name)
+            await collection.create_index(keys, **kwargs)
+        else:
+            raise
 
 
 async def _create_indexes():
@@ -139,10 +156,10 @@ async def _create_indexes():
     
     # Notifications
     await db.notifications.create_index("user_id")
-    await db.notifications.create_index("producer_id", sparse=True)
+    await _safe_create_index(db.notifications, "producer_id", sparse=True)
     await db.notifications.create_index([("user_id", 1), ("read_at", 1)])
     await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
-    await db.notifications.create_index([("producer_id", 1), ("created_at", -1)], sparse=True)
+    await _safe_create_index(db.notifications, [("producer_id", 1), ("created_at", -1)], sparse=True)
     logger.info("  OK: notifications indexes")
     
     # Discount codes / Influencers
