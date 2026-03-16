@@ -76,6 +76,8 @@ const B2BDisputePage = lazy(() => import('./pages/b2b/B2BDisputePage'));
 const B2BCatalogPage = lazy(() => import('./pages/b2b/B2BCatalogPage'));
 const CertificationsPage = lazy(() => import('./pages/CertificationsPage'));
 const ExploreCategoryPage = lazy(() => import('./pages/ExploreCategoryPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const OrdersPage = lazy(() => import('./pages/OrdersPage'));
 const SignatureSettingsPage = lazy(() => import('./pages/settings/SignatureSettingsPage'));
 const NewConversationPage = lazy(() => import('./pages/chat/NewConversationPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
@@ -243,6 +245,14 @@ function LegacyProfileRedirect() {
 
 const HeroBanner = lazy(() => import('./components/informativas/HeroBanner'));
 
+/** Redirect authenticated users away from login/register */
+function AuthRedirect({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <RouteLoader />;
+  if (user) return <Navigate to="/" replace />;
+  return children;
+}
+
 function HomeRoute() {
   const { user } = useAuth();
   if (user) {
@@ -296,15 +306,15 @@ function AppRouter() {
               <Route path="/info/productor" element={<Navigate to="/productor" replace />} />
               <Route path="/registro/productor" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/vender/registro" element={<Navigate to="/productor/registro" replace />} />
-              <Route path="/vender/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
+              <Route path="/vender/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
               <Route path="/vender/planes" element={<Navigate to="/productor" replace />} />
               <Route path="/influencers" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
               <Route path="/influencer" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
               <Route path="/influencer/aplicar" element={<InfoLayout><InfluencerLandingPage /></InfoLayout>} />
               <Route path="/influencers/aplicar" element={<Navigate to="/influencer/aplicar" replace />} />
               <Route path="/influencers/registro" element={<Navigate to="/influencer/aplicar" replace />} />
-              <Route path="/influencers/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
-              <Route path="/signup" element={<AuthLayout><RegisterPage /></AuthLayout>} />
+              <Route path="/influencers/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
+              <Route path="/signup" element={<AuthRedirect><AuthLayout><RegisterPage /></AuthLayout></AuthRedirect>} />
               <Route path="/recipes" element={<RecipesPage />} />
               <Route path="/recipes/create" element={<CreateRecipePage />} />
               <Route path="/create/post" element={<CreatePostPage />} />
@@ -358,11 +368,11 @@ function AppRouter() {
               <Route path="/importador/onboarding" element={<Navigate to="/importador?onboarding=1&plan=free" replace />} />
               <Route path="/importer/onboarding" element={<Navigate to="/importer?onboarding=1&plan=free" replace />} />
               <Route path="/ser-importador" element={<Navigate to="/importador" replace />} />
-              <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
-              <Route path="/seller/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
-              <Route path="/influencer/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
-              <Route path="/auth/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
-              <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
+              <Route path="/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
+              <Route path="/seller/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
+              <Route path="/influencer/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
+              <Route path="/auth/login" element={<AuthRedirect><AuthLayout><LoginPage /></AuthLayout></AuthRedirect>} />
+              <Route path="/register" element={<AuthRedirect><AuthLayout><RegisterPage /></AuthLayout></AuthRedirect>} />
               <Route path="/register/new" element={<Navigate to="/register" replace />} />
               <Route path="/register/consumer" element={<ConsumerRegister />} />
               <Route path="/register/influencer" element={<Navigate to="/influencer/aplicar" replace />} />
@@ -370,11 +380,11 @@ function AppRouter() {
               <Route path="/register/importer" element={<Navigate to="/importer/onboarding" replace />} />
               <Route path="/seller/register" element={<Navigate to="/productor/registro" replace />} />
               <Route path="/influencer/register" element={<Navigate to="/influencer/aplicar" replace />} />
-              <Route path="/auth/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
+              <Route path="/auth/register" element={<AuthRedirect><AuthLayout><RegisterPage /></AuthLayout></AuthRedirect>} />
               <Route
                 path="/onboarding"
                 element={(
-                  <ProtectedRoute allowedRoles={['customer']} requireOnboarding={false}>
+                  <ProtectedRoute requireOnboarding={false}>
                     <OnboardingPage />
                   </ProtectedRoute>
                 )}
@@ -410,7 +420,7 @@ function AppRouter() {
               <Route path="/b2b/producers" element={<Navigate to="/b2b/marketplace" replace />} />
               <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />
               <Route path="/b2b/chat" element={<B2BChatPage />} />
-              <Route path="/orders" element={<LegacyOrdersRedirect />} />
+              <Route path="/orders" element={<OrdersPage />} />
               <Route path="/profile" element={<LegacyProfileRedirect />} />
               <Route path="/perfil" element={<LegacyProfileRedirect />} />
               <Route path="/profile/edit" element={<Navigate to="/dashboard/profile" replace />} />
@@ -434,6 +444,7 @@ function AppRouter() {
                 )}
               />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
 
               <Route
@@ -672,7 +683,7 @@ function AppRouter() {
               <Route path="/importer/orders/:orderId" element={<Navigate to="/producer/orders" replace />} />
               <Route path="/importer/products/new" element={<Navigate to="/producer/products" replace />} />
               <Route path="/importer/analytics" element={<Navigate to="/producer" replace />} />
-              <Route path="/checkout" element={<Navigate to="/cart" replace />} />
+              {/* /checkout is now a real page, defined above */}
               <Route path="/stories/*" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />

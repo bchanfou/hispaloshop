@@ -6,7 +6,7 @@ import {
   X, Home, Search, Store, ShoppingBag, Users, Award,
   HelpCircle, Sprout, Star, Globe as GlobeIcon,
   LayoutDashboard, Settings, LogOut, ChevronDown, Check,
-  ClipboardList, UtensilsCrossed,
+  ClipboardList, UtensilsCrossed, Package,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocale } from '../../context/LocaleContext';
@@ -332,6 +332,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                   </div>
 
                   <MenuItem to={profileUserId ? `/user/${profileUserId}` : '/profile'} icon={<Settings size={20} />} label="Mi perfil" onClose={onClose} />
+                  <MenuItem to="/orders" icon={<Package size={20} />} label="Mis pedidos" onClose={onClose} />
                   <MenuItem to="/settings/locale" icon={<GlobeIcon size={20} />} label="Configuración" onClose={onClose} />
                   <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />
 

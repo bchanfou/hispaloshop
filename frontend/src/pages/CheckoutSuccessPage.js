@@ -1,195 +1,267 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Check, ArrowLeft, AlertCircle, ShoppingBag, Home } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Check, Loader2, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import apiClient from '../services/api/client';
 
-
-
 export default function CheckoutSuccessPage() {
-  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
-  const [status, setStatus] = useState('checking');
+  const [status, setStatus] = useState('checking'); // checking | success | error | timeout
+  const [order, setOrder] = useState(null);
 
   useEffect(() => {
     if (!sessionId) { setStatus('error'); return; }
 
     let cancelled = false;
     let attempt = 0;
-    const MAX_ATTEMPTS = 8;
-    const INTERVAL_MS = 2500;
+    const MAX = 10;
+    const INTERVAL = 2500;
 
     const poll = async () => {
-      if (cancelled) return;
-      if (attempt >= MAX_ATTEMPTS) {
-        setStatus('timeout');
+      if (cancelled || attempt >= MAX) {
+        if (!cancelled && attempt >= MAX) setStatus('timeout');
         return;
       }
       attempt++;
       try {
         const data = await apiClient.get(`/payments/checkout-status/${sessionId}`);
         if (data.payment_status === 'paid' || data.status === 'paid') {
-          if (!cancelled) setStatus('success');
+          if (!cancelled) {
+            setStatus('success');
+            // Try to fetch order details
+            if (data.order_id) {
+              try {
+                const orderData = await apiClient.get(`/customer/orders/${data.order_id}`);
+                setOrder(orderData);
+              } catch { /* ignore */ }
+            }
+          }
         } else if (!cancelled) {
-          setTimeout(poll, INTERVAL_MS);
+          setTimeout(poll, INTERVAL);
         }
-      } catch (error) {
-        console.error('Error checking payment status:', error);
+      } catch {
         if (!cancelled) setStatus('error');
       }
     };
-
     poll();
     return () => { cancelled = true; };
   }, [sessionId]);
 
-  return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--color-cream)' }}>
-      {/* Main Content - Centered */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8 md:py-16">
-        <div className="w-full max-w-md text-center">
-          {status === 'checking' && (
-            <div
-              data-testid="payment-checking"
-              className="p-6 md:p-8"
-              style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}
-            >
-              <div
-                className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-4 md:mb-6 animate-spin rounded-full"
-                style={{ borderWidth: 2, borderStyle: 'solid', borderColor: 'var(--color-border)', borderTopColor: 'var(--color-black)' }}
-              ></div>
-              <h1
-                className="text-[18px] md:text-[22px] font-semibold mb-2 md:mb-4"
-                style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}
-              >
-                {t('checkout.processing', 'Procesando Pago...')}
-              </h1>
-              <p className="text-sm md:text-base" style={{ color: 'var(--color-stone)' }}>
-                {t('checkout.pleaseWait', 'Por favor espera mientras confirmamos tu pedido')}
-              </p>
-            </div>
-          )}
+  const font = { fontFamily: 'var(--font-sans)' };
 
-          {status === 'success' && (
-            <div
-              data-testid="payment-success"
-              className="p-6 md:p-8"
-              style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}
-            >
-              <div
-                className="flex items-center justify-center mx-auto mb-4 md:mb-6"
-                style={{
-                  width: 64,
-                  height: 64,
-                  background: 'var(--color-green)',
-                  borderRadius: '50%',
-                  boxShadow: '0 0 0 8px var(--color-green-light)',
-                }}
-              >
-                <Check className="w-8 h-8" style={{ color: '#fff' }} strokeWidth={2.5} />
-              </div>
-              <h1
-                className="text-[20px] md:text-[24px] font-semibold mb-2 md:mb-4"
-                style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}
-              >
-                {t('checkout.orderConfirmed', '¡Pedido Confirmado!')}
-              </h1>
-              <p className="text-sm md:text-base mb-6 md:mb-8 px-2" style={{ color: 'var(--color-stone)' }}>
-                {t('checkout.thankYou', 'Gracias por tu compra. Tu pedido ha sido procesado correctamente.')}
-              </p>
+  // Loading state
+  if (status === 'checking') {
+    return (
+      <div style={{
+        minHeight: '100vh', background: 'var(--color-cream)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexDirection: 'column', gap: 16, ...font,
+      }}>
+        <Loader2 size={40} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+        <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Verificando tu pago...</p>
+      </div>
+    );
+  }
 
-              {/* Action buttons - Stack on mobile, inline on desktop */}
-              <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:justify-center">
-                <Link
-                  to="/dashboard/orders"
-                  className="flex w-full items-center justify-center gap-2 py-3 text-[14px] font-semibold transition-colors md:w-auto md:px-6"
-                  style={{
-                    background: 'var(--color-black)',
-                    color: '#fff',
-                    borderRadius: 'var(--radius-full)',
-                  }}
-                  data-testid="view-orders-button"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  {t('checkout.viewOrders', 'Ver Pedidos')}
-                </Link>
-                <Link
-                  to="/products"
-                  className="flex w-full items-center justify-center gap-2 py-3 text-[14px] font-semibold transition-colors md:w-auto md:px-6"
-                  style={{
-                    background: 'var(--color-white)',
-                    color: 'var(--color-black)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-full)',
-                  }}
-                  data-testid="continue-shopping-button"
-                >
-                  {t('checkout.continueShopping', 'Seguir Comprando')}
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {(status === 'error' || status === 'timeout') && (
-            <div
-              data-testid="payment-error"
-              className="p-6 md:p-8"
-              style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}
-            >
-              <div
-                className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mx-auto mb-4 md:mb-6"
-                style={{ background: 'var(--color-surface)', borderRadius: '50%' }}
-              >
-                <AlertCircle className="w-8 h-8 md:w-10 md:h-10" style={{ color: 'var(--color-stone)' }} />
-              </div>
-              <h1
-                className="text-[18px] md:text-[22px] font-semibold mb-2 md:mb-4"
-                style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}
-              >
-                {status === 'timeout'
-                  ? t('checkout.timeout', 'Tiempo de espera agotado')
-                  : t('checkout.error', 'Error en el Pago')
-                }
-              </h1>
-              <p className="text-sm md:text-base mb-6 md:mb-8 px-2" style={{ color: 'var(--color-stone)' }}>
-                {status === 'timeout'
-                  ? t('checkout.timeoutMessage', 'No pudimos confirmar tu pago. Si se realizó el cargo, contacta con soporte.')
-                  : t('checkout.errorMessage', 'Hubo un problema procesando tu pago. Por favor, inténtalo de nuevo.')
-                }
-              </p>
-              <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:justify-center">
-                <Link
-                  to="/cart"
-                  className="flex w-full items-center justify-center gap-2 py-3 text-[14px] font-semibold transition-colors md:w-auto md:px-6"
-                  style={{
-                    background: 'var(--color-black)',
-                    color: '#fff',
-                    borderRadius: 'var(--radius-full)',
-                  }}
-                  data-testid="back-to-cart-button"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  {t('checkout.backToCart', 'Volver al Carrito')}
-                </Link>
-                <Link
-                  to="/"
-                  className="flex w-full items-center justify-center gap-2 py-3 text-[14px] font-semibold transition-colors md:w-auto md:px-6"
-                  style={{
-                    background: 'var(--color-white)',
-                    color: 'var(--color-black)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-full)',
-                  }}
-                  data-testid="go-home-button"
-                >
-                  <Home className="w-4 h-4" />
-                  {t('common.home', 'Inicio')}
-                </Link>
-              </div>
-            </div>
-          )}
+  // Error / Timeout
+  if (status === 'error' || status === 'timeout') {
+    return (
+      <div style={{
+        minHeight: '100vh', background: 'var(--color-cream)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '24px 16px', ...font,
+      }}>
+        <div style={{ textAlign: 'center', maxWidth: 400 }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
+            background: 'var(--color-surface, #f5f5f4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <AlertCircle size={32} color="var(--color-stone)" />
+          </div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-black)', marginBottom: 8 }}>
+            {status === 'timeout' ? 'Verificación lenta' : 'Error de pago'}
+          </h1>
+          <p style={{ fontSize: 15, color: 'var(--color-stone)', lineHeight: 1.5, marginBottom: 24 }}>
+            {status === 'timeout'
+              ? 'La verificación está tardando más de lo esperado. Tu pago puede haber sido procesado correctamente.'
+              : 'Ha ocurrido un error al verificar tu pago.'}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <Link to="/orders" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: 48, background: 'var(--color-black)', color: 'var(--color-white)',
+              borderRadius: 'var(--radius-lg)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
+            }}>
+              Ver mis pedidos
+            </Link>
+            <Link to="/cart" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: 48, background: 'var(--color-white)', color: 'var(--color-black)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-lg)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
+            }}>
+              Volver al carrito
+            </Link>
+          </div>
         </div>
+      </div>
+    );
+  }
+
+  // Success
+  const orderId = order?.order_id || order?.id || sessionId;
+  const orderRef = orderId ? `#HSP-${String(orderId).slice(-8).toUpperCase()}` : '';
+  const totalPaid = order?.total ? `${(order.total / 100).toFixed(2)}€` : order?.total_amount ? `${Number(order.total_amount).toFixed(2)}€` : '';
+  const email = order?.customer_email || order?.email || '';
+  const items = order?.items || order?.line_items || [];
+
+  return (
+    <div style={{
+      minHeight: '100vh', background: 'var(--color-cream)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '24px 16px', ...font,
+    }}>
+      <div style={{ textAlign: 'center', maxWidth: 440, width: '100%' }}>
+        {/* Animated checkmark */}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+          style={{
+            width: 80, height: 80, borderRadius: '50%',
+            background: '#16a34a', margin: '0 auto 24px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 0 8px rgba(22,163,74,0.12)',
+          }}
+        >
+          <Check size={40} color="#fff" strokeWidth={2.5} />
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', marginBottom: 8 }}
+        >
+          ¡Pedido confirmado!
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.35 }}
+          style={{ fontSize: 15, color: 'var(--color-stone)', lineHeight: 1.5, marginBottom: 24 }}
+        >
+          Hemos recibido tu pedido. Recibirás un email con los detalles.
+        </motion.p>
+
+        {/* Order info card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+          style={{
+            background: 'var(--color-surface, #f5f5f4)',
+            borderRadius: 'var(--radius-xl)',
+            padding: 20, textAlign: 'left', marginBottom: 20,
+          }}
+        >
+          {orderRef && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <span style={{ fontSize: 13, color: 'var(--color-stone)' }}>Pedido</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)' }}>{orderRef}</span>
+            </div>
+          )}
+          {totalPaid && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <span style={{ fontSize: 13, color: 'var(--color-stone)' }}>Total pagado</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)' }}>{totalPaid}</span>
+            </div>
+          )}
+          {email && (
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 13, color: 'var(--color-stone)' }}>Email</span>
+              <span style={{ fontSize: 13, color: 'var(--color-black)' }}>{email}</span>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Items list */}
+        {items.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.55 }}
+            style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-xl)',
+              padding: 14, textAlign: 'left', marginBottom: 20,
+            }}
+          >
+            {items.map((item, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '8px 0',
+                borderBottom: i < items.length - 1 ? '1px solid var(--color-border)' : 'none',
+              }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 'var(--radius-md)',
+                  background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
+                }}>
+                  {(item.image || item.product_image) && (
+                    <img src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {item.name || item.product_name}
+                  </p>
+                  <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: 0 }}>x{item.quantity}</p>
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', flexShrink: 0 }}>
+                  {item.price ? `${Number(item.price).toFixed(2)}€` : ''}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* CTA buttons */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.65 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
+        >
+          {orderId && (
+            <Link
+              to={`/dashboard/orders/${orderId}`}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                height: 48, background: 'var(--color-white)',
+                color: 'var(--color-black)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                fontSize: 15, fontWeight: 600, textDecoration: 'none',
+              }}
+            >
+              Ver mi pedido
+            </Link>
+          )}
+          <Link
+            to="/"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: 48, background: 'var(--color-black)', color: 'var(--color-white)',
+              borderRadius: 'var(--radius-lg)',
+              fontSize: 15, fontWeight: 600, textDecoration: 'none',
+            }}
+          >
+            Seguir comprando
+          </Link>
+        </motion.div>
       </div>
     </div>
   );

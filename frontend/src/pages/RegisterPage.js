@@ -1,186 +1,133 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Loader2, Check, X as XIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-import { getAuthErrorMessage } from '../lib/authApi';
+import { authApi, getAuthErrorMessage } from '../lib/authApi';
+import apiClient from '../services/api/client';
 
-const ROLES = [
-  {
-    id: 'customer',
-    emoji: '\uD83D\uDED2',
-    title: 'Comprador',
-    desc: 'Descubre y compra productos artesanales',
-    color: 'var(--color-blue)',
-    colorBg: 'var(--color-blue-light)',
-  },
-  {
-    id: 'producer',
-    emoji: '\uD83E\uDED9',
-    title: 'Productor',
-    desc: 'Vende tus productos en España y exporta',
-    color: 'var(--color-green)',
-    colorBg: 'var(--color-green-light)',
-  },
-  {
-    id: 'influencer',
-    emoji: '\u2B50',
-    title: 'Influencer',
-    desc: 'Comparte y gana comisiones reales',
-    color: 'var(--color-amber)',
-    colorBg: 'var(--color-amber-light)',
-  },
-  {
-    id: 'importer',
-    emoji: '\uD83C\uDF0D',
-    title: 'Importador',
-    desc: 'Importa, distribuye y vende en tu país',
-    color: 'var(--color-blue)',
-    colorBg: 'var(--color-blue-light)',
-  },
-];
-
-const COUNTRY_OPTIONS = [
-  { code: 'ES', flag: '\uD83C\uDDEA\uD83C\uDDF8', name: 'España' },
-  { code: 'DE', flag: '\uD83C\uDDE9\uD83C\uDDEA', name: 'Alemania' },
-  { code: 'FR', flag: '\uD83C\uDDEB\uD83C\uDDF7', name: 'Francia' },
-  { code: 'IT', flag: '\uD83C\uDDEE\uD83C\uDDF9', name: 'Italia' },
-  { code: 'PT', flag: '\uD83C\uDDF5\uD83C\uDDF9', name: 'Portugal' },
-  { code: 'GB', flag: '\uD83C\uDDEC\uD83C\uDDE7', name: 'Reino Unido' },
-  { code: 'US', flag: '\uD83C\uDDFA\uD83C\uDDF8', name: 'Estados Unidos' },
-  { code: 'MX', flag: '\uD83C\uDDF2\uD83C\uDDFD', name: 'México' },
-  { code: 'CO', flag: '\uD83C\uDDE8\uD83C\uDDF4', name: 'Colombia' },
-  { code: 'AR', flag: '\uD83C\uDDE6\uD83C\uDDF7', name: 'Argentina' },
-  { code: 'JP', flag: '\uD83C\uDDEF\uD83C\uDDF5', name: 'Japón' },
-  { code: 'KR', flag: '\uD83C\uDDF0\uD83C\uDDF7', name: 'Corea del Sur' },
-  { code: 'CN', flag: '\uD83C\uDDE8\uD83C\uDDF3', name: 'China' },
-  { code: 'AE', flag: '\uD83C\uDDE6\uD83C\uDDEA', name: 'Emiratos Árabes Unidos' },
-];
-
-const labelStyle = {
-  display: 'block', fontSize: 13, fontWeight: 600,
-  color: 'var(--color-black)', marginBottom: 6,
-};
-
-function ErrorMsg({ children, style }) {
-  if (!children) return null;
-  return (
-    <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4, ...style }}>
-      {children}
-    </p>
-  );
-}
-
-function PasswordInput({ value, onChange, error }) {
-  const [show, setShow] = useState(false);
-  return (
-    <div style={{ position: 'relative' }}>
-      <input
-        className="hs-input"
-        type={show ? 'text' : 'password'}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder="Mínimo 8 caracteres"
-        autoComplete="new-password"
-        style={{
-          paddingRight: 44,
-          ...(error ? { borderColor: 'var(--color-red)' } : {}),
-        }}
-      />
-      <button
-        type="button"
-        onClick={() => setShow(!show)}
-        style={{
-          position: 'absolute', right: 12, top: '50%',
-          transform: 'translateY(-50%)',
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: 'var(--color-stone)', padding: 4,
-        }}
-        tabIndex={-1}
-        aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-      >
-        {show ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
-    </div>
-  );
+/* ── Password strength helper ── */
+function getPasswordStrength(pw) {
+  if (pw.length < 8) return { level: 0, label: 'Muy corta', color: 'var(--color-red, #dc2626)' };
+  const hasUpper = /[A-Z]/.test(pw);
+  const hasNumber = /[0-9]/.test(pw);
+  const hasSpecial = /[^A-Za-z0-9]/.test(pw);
+  if (pw.length >= 12 && hasUpper && hasNumber && hasSpecial)
+    return { level: 3, label: 'Fuerte', color: 'var(--color-green, #16a34a)' };
+  if (hasUpper && hasNumber)
+    return { level: 2, label: 'Buena', color: 'var(--color-green, #16a34a)' };
+  return { level: 1, label: 'Débil', color: '#d97706' };
 }
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const [searchParams] = useSearchParams();
-  const roleParam = searchParams.get('role');
 
-  const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    fullName: '', email: '', password: '', country: '', role: roleParam || '',
+    fullName: '', email: '', username: '', password: '',
     birthDay: '', birthMonth: '', birthYear: '',
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [ageBlocked, setAgeBlocked] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Username availability
+  const [usernameStatus, setUsernameStatus] = useState(null); // null | 'checking' | 'available' | 'taken' | 'short'
+  const usernameTimer = useRef(null);
 
   const updateForm = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: '' }));
   };
 
-  const validateStep1 = () => {
+  // Debounced username check
+  const checkUsername = useCallback(async (value) => {
+    const clean = value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+    if (clean.length < 3) {
+      setUsernameStatus('short');
+      return;
+    }
+    setUsernameStatus('checking');
+    try {
+      const res = await apiClient.get(`/users/check-username/${clean}`);
+      setUsernameStatus(res.data?.available ? 'available' : 'taken');
+    } catch {
+      setUsernameStatus(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (usernameTimer.current) clearTimeout(usernameTimer.current);
+    if (!form.username.trim()) { setUsernameStatus(null); return; }
+    usernameTimer.current = setTimeout(() => checkUsername(form.username), 500);
+    return () => clearTimeout(usernameTimer.current);
+  }, [form.username, checkUsername]);
+
+  // Age validation
+  const checkAge = () => {
+    const y = parseInt(form.birthYear, 10);
+    const m = parseInt(form.birthMonth, 10);
+    const d = parseInt(form.birthDay, 10);
+    if (isNaN(y) || isNaN(m) || isNaN(d)) return false;
+    const birth = new Date(y, m - 1, d);
+    const now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    const monthDiff = now.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())) age--;
+    return age >= 16;
+  };
+
+  const validate = () => {
     const e = {};
     if (!form.fullName.trim()) e.fullName = 'El nombre es obligatorio';
     if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) e.email = 'Email no válido';
+    if (!form.username.trim() || form.username.trim().length < 3) e.username = 'Mínimo 3 caracteres';
+    else if (usernameStatus === 'taken') e.username = 'Este usuario ya está en uso';
     if (form.password.length < 8) e.password = 'Mínimo 8 caracteres';
-    else if (!/[0-9]/.test(form.password)) e.password = 'Debe incluir al menos un número';
-    if (!form.country) e.country = 'Selecciona tu país';
     if (!form.birthDay || !form.birthMonth || !form.birthYear) {
       e.birthDate = 'La fecha de nacimiento es obligatoria';
-    } else {
-      const y = parseInt(form.birthYear, 10);
-      const m = parseInt(form.birthMonth, 10);
-      const d = parseInt(form.birthDay, 10);
-      if (isNaN(y) || isNaN(m) || isNaN(d) || y < 1900 || y > new Date().getFullYear() || m < 1 || m > 12 || d < 1 || d > 31) {
-        e.birthDate = 'Fecha de nacimiento no válida';
-      }
+    } else if (!checkAge()) {
+      setAgeBlocked(true);
+      return false;
     }
+    if (!termsAccepted) e.terms = 'Debes aceptar los términos';
     setErrors(e);
-    if (Object.keys(e).length === 0) setStep(2);
+    return Object.keys(e).length === 0;
   };
 
-  const handleRegister = async () => {
-    if (!form.role) {
-      setErrors({ role: 'Elige cómo quieres usar Hispaloshop' });
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
     setIsLoading(true);
+
     const birthDate = `${form.birthYear}-${form.birthMonth.padStart(2, '0')}-${form.birthDay.padStart(2, '0')}`;
     try {
       const data = await register({
         name: form.fullName,
         email: form.email,
+        username: form.username.trim().toLowerCase().replace(/[^a-z0-9_]/g, ''),
         password: form.password,
-        country: form.country,
-        role: form.role,
         birth_date: birthDate,
+        analytics_consent: true,
+        consent_version: 1,
       });
 
       if (data?.user) {
-        navigate(`/onboarding/${form.role}`, { replace: true });
-      } else {
-        toast.success('Cuenta creada. Revisa tu email para verificar.');
-        navigate(`/onboarding/${form.role}`, { replace: true });
+        navigate('/onboarding', { replace: true });
       }
     } catch (err) {
-      // Check for age requirement error
       const detail = err?.response?.data?.detail;
       if (detail?.error === 'age_requirement' || (typeof detail === 'string' && detail.includes('age_requirement'))) {
         setAgeBlocked(true);
         return;
       }
-      const msg = getAuthErrorMessage(err, 'Error al crear la cuenta. Inténtalo de nuevo.');
+      const msg = getAuthErrorMessage(err, 'Error al crear la cuenta.');
       if (msg.toLowerCase().includes('email')) {
         setErrors({ email: 'Este email ya está registrado' });
-        setStep(1);
+      } else if (msg.toLowerCase().includes('username') || msg.toLowerCase().includes('usuario')) {
+        setErrors({ username: msg });
       } else {
         toast.error(msg);
       }
@@ -189,340 +136,369 @@ export default function RegisterPage() {
     }
   };
 
-  const ProgressBar = () => (
-    <div style={{
-      height: 3, background: 'var(--color-cream)',
-      borderRadius: 2, marginBottom: 32,
-    }}>
-      <div style={{
-        height: '100%', borderRadius: 2,
-        background: 'var(--color-black)',
-        width: step === 1 ? '50%' : '100%',
-        transition: 'width 0.35s ease',
-      }} />
-    </div>
-  );
+  const handleGoogleRegister = async () => {
+    try {
+      const data = await authApi.getGoogleAuthUrl();
+      if (data.auth_url) window.location.href = data.auth_url;
+      else toast.error('Error al conectar con Google.');
+    } catch (error) {
+      toast.error(getAuthErrorMessage(error, 'Error al conectar con Google.'));
+    }
+  };
+
+  const canSubmit = form.fullName && form.email && form.username &&
+    form.password.length >= 8 && form.birthDay && form.birthMonth &&
+    form.birthYear && termsAccepted && usernameStatus !== 'taken' &&
+    usernameStatus !== 'checking';
+
+  const strength = getPasswordStrength(form.password);
+
+  const inputStyle = {
+    width: '100%', height: 48, padding: '0 16px',
+    fontSize: 15, fontFamily: 'var(--font-sans)',
+    border: '1px solid var(--color-border)',
+    borderRadius: 'var(--radius-lg)',
+    background: 'var(--color-white)',
+    color: 'var(--color-black)',
+    outline: 'none',
+    transition: 'var(--transition-fast)',
+    boxSizing: 'border-box',
+  };
+
+  const labelStyle = {
+    display: 'block', fontSize: 13, fontWeight: 600,
+    color: 'var(--color-black)', marginBottom: 6,
+    fontFamily: 'var(--font-sans)',
+  };
 
   // Age-blocked screen
   if (ageBlocked) {
     return (
       <div style={{
-        minHeight: '100dvh', background: 'var(--color-cream)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px',
+        textAlign: 'center', padding: '40px 0',
+        fontFamily: 'var(--font-sans)',
       }}>
         <div style={{
-          width: '100%', maxWidth: 400, textAlign: 'center',
-          background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)',
-          border: '0.5px solid var(--color-divider)', padding: 'clamp(32px, 5vw, 48px)',
-          boxShadow: 'var(--shadow-lg)',
+          width: 72, height: 72, borderRadius: '50%', margin: '0 auto 20px',
+          background: 'var(--color-surface, #f5f5f4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 36,
         }}>
-          <div style={{
-            width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
-            background: '#F0EDE8', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 28,
-          }}>
-            🔒
-          </div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)' }}>
-            Lo sentimos
-          </h1>
-          <p style={{ fontSize: 15, color: 'var(--color-stone)', marginBottom: 8, lineHeight: 1.5 }}>
-            Debes tener al menos 16 años para usar Hispaloshop.
-          </p>
-          <p style={{ fontSize: 13, color: 'var(--color-stone)', marginBottom: 28, lineHeight: 1.5 }}>
-            Si tienes 16 años o más y crees que esto es un error, comprueba que has introducido tu fecha de nacimiento correctamente.
-          </p>
-          <Link
-            to="/"
-            style={{
-              display: 'inline-block', padding: '12px 32px', background: 'var(--color-black)',
-              color: '#fff', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none',
-            }}
-          >
-            Volver
-          </Link>
+          🔒
         </div>
+        <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: 'var(--color-black)' }}>
+          Debes tener al menos 16 años
+        </h1>
+        <p style={{ fontSize: 15, color: 'var(--color-stone)', marginBottom: 24, lineHeight: 1.5 }}>
+          para usar Hispaloshop
+        </p>
+        <button
+          onClick={() => setAgeBlocked(false)}
+          style={{
+            padding: '12px 32px', background: 'var(--color-black)',
+            color: 'var(--color-white)', border: 'none',
+            borderRadius: 'var(--radius-lg)', fontSize: 15, fontWeight: 600,
+            cursor: 'pointer', fontFamily: 'var(--font-sans)',
+          }}
+        >
+          Volver
+        </button>
       </div>
     );
   }
 
   return (
-    <div style={{
-      minHeight: '100dvh',
-      background: 'var(--color-cream)',
-      display: 'flex', alignItems: 'center',
-      justifyContent: 'center', padding: '24px 16px',
-    }}>
-      <div style={{
-        width: '100%', maxWidth: 440,
-        background: 'var(--color-surface)',
-        borderRadius: 'var(--radius-xl)',
-        border: '0.5px solid var(--color-divider)',
-        padding: 'clamp(24px, 5vw, 40px)',
-        boxShadow: 'var(--shadow-lg)',
+    <>
+      {/* Header */}
+      <h1 style={{
+        fontSize: 'var(--text-2xl, 24px)', fontWeight: 600,
+        color: 'var(--color-black)', textAlign: 'center',
+        margin: 0, fontFamily: 'var(--font-sans)',
       }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <span style={{
-            fontSize: 26, fontWeight: 800,
-            letterSpacing: '-0.03em',
-            color: 'var(--color-black)',
-          }}>
-            hispaloshop
-          </span>
-        </div>
+        Crear cuenta
+      </h1>
+      <p style={{
+        fontSize: 'var(--text-base, 16px)', color: 'var(--color-stone)',
+        textAlign: 'center', marginTop: 4, marginBottom: 32,
+        fontFamily: 'var(--font-sans)',
+      }}>
+        Únete a la plataforma artesanal
+      </p>
 
-        <ProgressBar />
+      {/* Google */}
+      <button
+        type="button"
+        onClick={handleGoogleRegister}
+        style={{
+          width: '100%', height: 48,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+          background: 'var(--color-white)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          fontSize: 15, fontWeight: 600,
+          color: 'var(--color-black)',
+          cursor: 'pointer', fontFamily: 'var(--font-sans)',
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+        </svg>
+        Continuar con Google
+      </button>
 
-        {step === 1 ? (
+      {/* Divider */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '20px 0' }}>
+        <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
+        <span style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>o</span>
+        <div style={{ flex: 1, height: 1, background: 'var(--color-border)' }} />
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Name */}
           <div>
-            <h1 style={{
-              fontSize: 24, fontWeight: 700,
-              letterSpacing: '-0.02em', marginBottom: 4,
-            }}>
-              Crear cuenta
-            </h1>
-            <p style={{
-              fontSize: 15, color: 'var(--color-stone)',
-              marginBottom: 28,
-            }}>
-              Ya somos más de 8.000 productores. Únete.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div>
-                <label style={labelStyle}>Nombre completo</label>
-                <input
-                  className="hs-input"
-                  value={form.fullName}
-                  onChange={e => updateForm('fullName', e.target.value)}
-                  placeholder="María García"
-                  autoComplete="name"
-                  style={errors.fullName ? { borderColor: 'var(--color-red)' } : {}}
-                />
-                <ErrorMsg>{errors.fullName}</ErrorMsg>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Email</label>
-                <input
-                  className="hs-input"
-                  type="email"
-                  value={form.email}
-                  onChange={e => updateForm('email', e.target.value)}
-                  placeholder="tu@email.com"
-                  autoComplete="email"
-                  style={errors.email ? { borderColor: 'var(--color-red)' } : {}}
-                />
-                <ErrorMsg>{errors.email}</ErrorMsg>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Contraseña</label>
-                <PasswordInput
-                  value={form.password}
-                  onChange={val => updateForm('password', val)}
-                  error={errors.password}
-                />
-                <p style={{
-                  fontSize: 11, color: 'var(--color-stone)', marginTop: 4,
-                }}>
-                  Mínimo 8 caracteres, 1 número y 1 carácter especial
-                </p>
-                <ErrorMsg>{errors.password}</ErrorMsg>
-              </div>
-
-              <div>
-                <label style={labelStyle}>País</label>
-                <select
-                  className="hs-input"
-                  value={form.country}
-                  onChange={e => updateForm('country', e.target.value)}
-                  style={errors.country ? { borderColor: 'var(--color-red)' } : {}}
-                >
-                  <option value="">Selecciona tu país</option>
-                  {COUNTRY_OPTIONS.map(c => (
-                    <option key={c.code} value={c.code}>
-                      {c.flag} {c.name}
-                    </option>
-                  ))}
-                </select>
-                <ErrorMsg>{errors.country}</ErrorMsg>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Fecha de nacimiento</label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <select
-                    className="hs-input"
-                    value={form.birthDay}
-                    onChange={e => updateForm('birthDay', e.target.value)}
-                    style={{ flex: 1, ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}) }}
-                  >
-                    <option value="">Día</option>
-                    {Array.from({ length: 31 }, (_, i) => (
-                      <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
-                    ))}
-                  </select>
-                  <select
-                    className="hs-input"
-                    value={form.birthMonth}
-                    onChange={e => updateForm('birthMonth', e.target.value)}
-                    style={{ flex: 1.2, ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}) }}
-                  >
-                    <option value="">Mes</option>
-                    {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((m, i) => (
-                      <option key={i + 1} value={String(i + 1)}>{m}</option>
-                    ))}
-                  </select>
-                  <select
-                    className="hs-input"
-                    value={form.birthYear}
-                    onChange={e => updateForm('birthYear', e.target.value)}
-                    style={{ flex: 1.2, ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}) }}
-                  >
-                    <option value="">Año</option>
-                    {Array.from({ length: 100 }, (_, i) => {
-                      const y = new Date().getFullYear() - i;
-                      return <option key={y} value={String(y)}>{y}</option>;
-                    })}
-                  </select>
-                </div>
-                <ErrorMsg>{errors.birthDate}</ErrorMsg>
-              </div>
-            </div>
-
-            <button
-              className="hs-btn-primary"
-              onClick={validateStep1}
-              style={{ width: '100%', marginTop: 24, height: 48 }}
-            >
-              Continuar →
-            </button>
-
-            <p style={{
-              textAlign: 'center', marginTop: 20,
-              fontSize: 14, color: 'var(--color-stone)',
-            }}>
-              ¿Ya tienes cuenta?{' '}
-              <Link to="/login" style={{
-                color: 'var(--color-black)', fontWeight: 600, textDecoration: 'none',
-              }}>
-                Iniciar sesión
-              </Link>
-            </p>
+            <label style={labelStyle}>Nombre completo</label>
+            <input
+              value={form.fullName}
+              onChange={e => updateForm('fullName', e.target.value)}
+              placeholder="María García"
+              autoComplete="name"
+              style={{ ...inputStyle, ...(errors.fullName ? { borderColor: 'var(--color-red, #dc2626)' } : {}) }}
+            />
+            {errors.fullName && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.fullName}</p>}
           </div>
-        ) : (
+
+          {/* Email */}
           <div>
-            <button
-              onClick={() => setStep(1)}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--color-stone)', fontSize: 14,
-                display: 'flex', alignItems: 'center', gap: 6,
-                marginBottom: 20, padding: 0,
-              }}
-            >
-              ← Volver
-            </button>
+            <label style={labelStyle}>Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => updateForm('email', e.target.value)}
+              placeholder="hola@ejemplo.com"
+              autoComplete="email"
+              style={{ ...inputStyle, ...(errors.email ? { borderColor: 'var(--color-red, #dc2626)' } : {}) }}
+            />
+            {errors.email && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.email}</p>}
+          </div>
 
-            <h2 style={{
-              fontSize: 22, fontWeight: 700,
-              letterSpacing: '-0.02em', marginBottom: 6,
-            }}>
-              ¿Cómo quieres usar Hispaloshop?
-            </h2>
-            <p style={{
-              fontSize: 14, color: 'var(--color-stone)', marginBottom: 24,
-            }}>
-              Puedes cambiar esto más adelante desde tu perfil.
-            </p>
-
-            <div style={{
-              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
-            }}>
-              {ROLES.map(role => (
-                <motion.button
-                  key={role.id}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => updateForm('role', role.id)}
-                  style={{
-                    background: form.role === role.id
-                      ? role.colorBg : 'var(--color-surface)',
-                    border: form.role === role.id
-                      ? `2px solid ${role.color}`
-                      : '1.5px solid var(--color-divider)',
-                    borderRadius: 'var(--radius-lg)',
-                    padding: '18px 14px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'var(--transition-base)',
-                  }}
-                >
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>
-                    {role.emoji}
-                  </div>
-                  <p style={{
-                    fontSize: 15, fontWeight: 700,
-                    color: 'var(--color-black)', margin: '0 0 4px',
-                  }}>
-                    {role.title}
-                  </p>
-                  <p style={{
-                    fontSize: 12, color: 'var(--color-stone)',
-                    margin: 0, lineHeight: 1.4,
-                  }}>
-                    {role.desc}
-                  </p>
-                  {form.role === role.id && (
-                    <div style={{
-                      marginTop: 8, fontSize: 11, fontWeight: 700,
-                      color: role.color,
-                    }}>
-                      ✓ Seleccionado
-                    </div>
-                  )}
-                </motion.button>
-              ))}
-            </div>
-            <ErrorMsg style={{ marginTop: 8 }}>{errors.role}</ErrorMsg>
-
-            <p style={{
-              fontSize: 12, color: 'var(--color-stone)',
-              textAlign: 'center', marginTop: 16, lineHeight: 1.5,
-            }}>
-              Todos los planes empiezan gratis. Actualiza cuando estés listo.
-            </p>
-
-            <button
-              className="hs-btn-primary"
-              onClick={handleRegister}
-              disabled={!form.role || isLoading}
-              style={{ width: '100%', marginTop: 16, height: 48 }}
-            >
-              {isLoading ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Creando cuenta...</>
-              ) : (
-                'Crear mi cuenta →'
+          {/* Username */}
+          <div>
+            <label style={labelStyle}>Usuario</label>
+            <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
+                fontSize: 15, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)',
+              }}>@</span>
+              <input
+                value={form.username}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
+                  updateForm('username', val);
+                }}
+                placeholder="tu_usuario"
+                autoComplete="username"
+                style={{
+                  ...inputStyle,
+                  paddingLeft: 32,
+                  paddingRight: 40,
+                  ...(errors.username ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                }}
+              />
+              {/* Status icon */}
+              {form.username.length >= 3 && usernameStatus && usernameStatus !== 'checking' && (
+                <span style={{
+                  position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                  display: 'flex',
+                }}>
+                  {usernameStatus === 'available'
+                    ? <Check size={18} color="var(--color-green, #16a34a)" />
+                    : <XIcon size={18} color="var(--color-red, #dc2626)" />
+                  }
+                </span>
               )}
-            </button>
+              {usernameStatus === 'checking' && (
+                <span style={{
+                  position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                }}>
+                  <Loader2 size={16} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+                </span>
+              )}
+            </div>
+            {usernameStatus === 'taken' && (
+              <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>Este usuario ya está en uso</p>
+            )}
+            {errors.username && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.username}</p>}
+          </div>
 
-            <p style={{
-              fontSize: 11, color: 'var(--color-stone)',
-              textAlign: 'center', marginTop: 14, lineHeight: 1.6,
-            }}>
-              Al crear una cuenta aceptas los{' '}
-              <Link to="/terms" style={{ color: 'var(--color-stone)' }}>
-                Términos de uso
-              </Link>{' '}
-              y la{' '}
-              <Link to="/privacy" style={{ color: 'var(--color-stone)' }}>
+          {/* Password */}
+          <div>
+            <label style={labelStyle}>Contraseña</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={form.password}
+                onChange={e => updateForm('password', e.target.value)}
+                placeholder="Mínimo 8 caracteres"
+                autoComplete="new-password"
+                style={{
+                  ...inputStyle,
+                  paddingRight: 48,
+                  ...(errors.password ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--color-stone)', padding: 4, display: 'flex',
+                }}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Ocultar' : 'Mostrar'}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {/* Strength indicator */}
+            {form.password.length > 0 && (
+              <div style={{ marginTop: 6 }}>
+                <div style={{
+                  height: 3, borderRadius: 2,
+                  background: 'var(--color-surface, #f5f5f4)',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{
+                    height: '100%', borderRadius: 2,
+                    background: strength.color,
+                    width: `${((strength.level + 1) / 4) * 100}%`,
+                    transition: 'width 0.3s ease',
+                  }} />
+                </div>
+                <p style={{ fontSize: 11, color: strength.color, marginTop: 3 }}>{strength.label}</p>
+              </div>
+            )}
+            {errors.password && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.password}</p>}
+          </div>
+
+          {/* Birth date */}
+          <div>
+            <label style={labelStyle}>Fecha de nacimiento</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <select
+                value={form.birthDay}
+                onChange={e => updateForm('birthDay', e.target.value)}
+                style={{
+                  ...inputStyle, flex: 1, padding: '0 8px',
+                  ...(errors.birthDate ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                }}
+              >
+                <option value="">Día</option>
+                {Array.from({ length: 31 }, (_, i) => (
+                  <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
+                ))}
+              </select>
+              <select
+                value={form.birthMonth}
+                onChange={e => updateForm('birthMonth', e.target.value)}
+                style={{
+                  ...inputStyle, flex: 1.3, padding: '0 8px',
+                  ...(errors.birthDate ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                }}
+              >
+                <option value="">Mes</option>
+                {['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'].map((m, i) => (
+                  <option key={i + 1} value={String(i + 1)}>{m}</option>
+                ))}
+              </select>
+              <select
+                value={form.birthYear}
+                onChange={e => updateForm('birthYear', e.target.value)}
+                style={{
+                  ...inputStyle, flex: 1.3, padding: '0 8px',
+                  ...(errors.birthDate ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                }}
+              >
+                <option value="">Año</option>
+                {Array.from({ length: 100 }, (_, i) => {
+                  const y = new Date().getFullYear() - i;
+                  return <option key={y} value={String(y)}>{y}</option>;
+                })}
+              </select>
+            </div>
+            {errors.birthDate && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.birthDate}</p>}
+          </div>
+
+          {/* Terms checkbox */}
+          <label style={{
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+            cursor: 'pointer', fontSize: 13, color: 'var(--color-stone)',
+            fontFamily: 'var(--font-sans)', lineHeight: 1.5,
+          }}>
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={e => {
+                setTermsAccepted(e.target.checked);
+                if (errors.terms) setErrors(prev => ({ ...prev, terms: '' }));
+              }}
+              style={{
+                width: 18, height: 18, marginTop: 2,
+                accentColor: 'var(--color-black)',
+                cursor: 'pointer', flexShrink: 0,
+              }}
+            />
+            <span>
+              Acepto los{' '}
+              <Link to="/terms" style={{ color: 'var(--color-black)', textDecoration: 'underline' }}>
+                Términos y condiciones
+              </Link>
+              {' '}y la{' '}
+              <Link to="/privacy" style={{ color: 'var(--color-black)', textDecoration: 'underline' }}>
                 Política de privacidad
               </Link>
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+            </span>
+          </label>
+          {errors.terms && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: -6 }}>{errors.terms}</p>}
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={!canSubmit || isLoading}
+          style={{
+            width: '100%', height: 48, marginTop: 24,
+            background: canSubmit ? 'var(--color-black)' : 'var(--color-stone)',
+            color: 'var(--color-white)',
+            border: 'none', borderRadius: 'var(--radius-lg)',
+            fontSize: 15, fontWeight: 600,
+            cursor: canSubmit && !isLoading ? 'pointer' : 'not-allowed',
+            opacity: canSubmit ? 1 : 0.5,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            fontFamily: 'var(--font-sans)',
+            transition: 'var(--transition-fast)',
+          }}
+        >
+          {isLoading ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : 'Crear cuenta'}
+        </button>
+      </form>
+
+      {/* Footer */}
+      <p style={{
+        textAlign: 'center', marginTop: 24,
+        fontSize: 'var(--text-sm, 14px)', color: 'var(--color-stone)',
+        fontFamily: 'var(--font-sans)',
+      }}>
+        ¿Ya tienes cuenta?{' '}
+        <Link to="/login" style={{ color: 'var(--color-black)', fontWeight: 600, textDecoration: 'none' }}>
+          Entrar
+        </Link>
+      </p>
+    </>
   );
 }

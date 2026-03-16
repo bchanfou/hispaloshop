@@ -2,35 +2,49 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 import {
-  ArrowLeft, XCircle, Truck, Check, Clock, Package,
-  MapPin, ExternalLink, RotateCcw, Star, MessageSquare, MessageCircle
+  ArrowLeft, Truck, Check, Clock, Package, ExternalLink, Star, MessageCircle, Loader2,
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { asNumber } from '../../utils/safe';
-import ReviewModal from '../../components/ReviewModal';
-import { getStatusLabel, getStatusColor, getStatusIcon } from '../../components/OrderStatusBadge';
-import { useChatContext } from '../../context/chat/ChatProvider';
 
-const statusIcons = {
-  pending: Clock,
-  confirmed: Check,
-  preparing: Package,
-  shipped: Truck,
-  delivered: Check,
-  cancelled: XCircle,
+const STATUS_FLOW = ['confirmed', 'preparing', 'shipped', 'delivered'];
+const STATUS_LABELS = {
+  pending: 'Confirmado', confirmed: 'Confirmado', preparing: 'Preparando',
+  shipped: 'Enviado', in_transit: 'Enviado', delivered: 'Entregado',
+  cancelled: 'Cancelado', refunded: 'Reembolsado',
 };
 
-const STATUS_FLOW = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered'];
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+function formatDateTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} · ${d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`;
+}
+
+function SectionLabel({ children }) {
+  return (
+    <p style={{
+      fontSize: 11, fontWeight: 700, color: 'var(--color-stone)',
+      textTransform: 'uppercase', letterSpacing: '0.08em',
+      margin: '24px 0 8px', fontFamily: 'var(--font-sans)',
+    }}>
+      {children}
+    </p>
+  );
+}
 
 export default function OrderDetailPage() {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { openConversation } = useChatContext();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -38,15 +52,13 @@ export default function OrderDetailPage() {
       setOrder(data);
     } catch {
       toast.error('Error al cargar el pedido');
-      navigate('/dashboard/orders');
+      navigate('/orders');
     } finally {
       setLoading(false);
     }
   }, [orderId, navigate]);
 
-  useEffect(() => {
-    fetchOrder();
-  }, [fetchOrder]);
+  useEffect(() => { fetchOrder(); }, [fetchOrder]);
 
   const cancelOrder = async () => {
     if (!window.confirm('¿Estás seguro de que quieres cancelar este pedido?')) return;
@@ -55,506 +67,411 @@ export default function OrderDetailPage() {
       toast.success('Pedido cancelado');
       fetchOrder();
     } catch (error) {
-      toast.error(error.message || 'No se puede cancelar este pedido');
+      toast.error(error?.message || 'No se puede cancelar este pedido');
     }
   };
 
-  const reorder = async () => {
+  const submitReview = async () => {
+    if (reviewRating === 0) { toast.error('Selecciona una valoración'); return; }
+    setReviewSubmitting(true);
     try {
-      await apiClient.post(`/customer/orders/${orderId}/reorder`, {});
-      toast.success('Productos agregados al carrito');
+      await apiClient.post(`/customer/orders/${orderId}/review`, {
+        rating: reviewRating, comment: reviewText,
+      });
+      toast.success('Reseña publicada');
+      setReviewRating(0);
+      setReviewText('');
     } catch {
-      toast.error('Error al reordenar');
+      toast.error('Error al publicar la reseña');
+    } finally {
+      setReviewSubmitting(false);
     }
   };
 
-  const handleContactProducer = async () => {
-    try {
-      const conv = await openConversation(order.producer_id, 'b2c');
-      if (conv?.id) navigate(`/messages/${conv.id}`);
-    } catch {
-      toast.error('No se pudo abrir el chat');
-    }
-  };
+  const font = { fontFamily: 'var(--font-sans)' };
 
   if (loading) {
     return (
-      <div
-        className="flex justify-center items-center"
-        style={{ background: 'var(--color-cream)', minHeight: '100vh' }}
-      >
-        <div
-          className="w-8 h-8 rounded-full animate-spin"
-          style={{
-            border: '2px solid var(--color-border)',
-            borderTopColor: 'var(--color-black)',
-          }}
-        />
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
       </div>
     );
   }
 
   if (!order) return null;
 
-  const canCancel = ['pending', 'confirmed'].includes(order.status);
-  const isDelivered = ['delivered', 'completed'].includes(order.status);
-  const currentStep = STATUS_FLOW.indexOf(order.status);
-  const StatusIcon = statusIcons[order.status] || Clock;
+  const status = (order.status || 'pending').toLowerCase();
+  const canCancel = ['pending', 'confirmed'].includes(status);
+  const isDelivered = status === 'delivered';
+  const isCancelled = status === 'cancelled' || status === 'refunded';
+  const currentStepIdx = STATUS_FLOW.indexOf(status === 'pending' ? 'confirmed' : status);
+  const ref = `#HSP-${String(order.order_id || orderId).slice(-8).toUpperCase()}`;
+  const items = order.items || order.line_items || [];
+  const subtotal = order.subtotal ? (order.subtotal / 100).toFixed(2) : null;
+  const discount = order.discount ? (order.discount / 100).toFixed(2) : null;
+  const shipping = order.shipping != null ? (order.shipping / 100).toFixed(2) : null;
+  const total = order.total ? (order.total / 100).toFixed(2) : order.total_amount ? Number(order.total_amount).toFixed(2) : '0.00';
 
-  // Build a map of status → timestamp from status_history
   const statusTimestamps = {};
   if (order.status_history) {
-    order.status_history.forEach((entry) => {
-      statusTimestamps[entry.status] = entry.timestamp;
-    });
+    order.status_history.forEach(entry => { statusTimestamps[entry.status] = entry.timestamp; });
   }
 
+  const addr = order.shipping_address || order.address || {};
+
   return (
-    <div
-      style={{
-        background: 'var(--color-cream)',
-        minHeight: '100vh',
-        paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
-      }}
-    >
-      {/* TopBar header */}
-      <div
-        className="sticky top-0 z-30 flex items-center gap-3 px-4 py-3"
-        style={{
-          background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
-        }}
-      >
+    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', paddingBottom: 100, ...font }}>
+      {/* Topbar */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 30,
+        background: 'var(--color-white)',
+        borderBottom: '1px solid var(--color-border)',
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '12px 16px',
+      }}>
         <button
-          onClick={() => navigate('/dashboard/orders')}
-          className="flex items-center justify-center w-8 h-8"
-          style={{ color: 'var(--color-black)' }}
+          onClick={() => navigate('/orders')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft size={22} color="var(--color-black)" />
         </button>
-        <h1
-          className="text-base font-semibold"
-          style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}
-        >
-          Seguimiento #HSP-{String(orderId).slice(-4)}
-        </h1>
+        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>{ref}</span>
       </div>
 
-      <div className="px-4 pt-4 space-y-4">
-        {/* Header card */}
-        <div
-          className="p-5"
-          style={{
+      <div style={{ padding: '16px', maxWidth: 600, margin: '0 auto' }}>
+        {/* ── Status Timeline ── */}
+        {!isCancelled && currentStepIdx >= 0 && (
+          <div style={{
             background: 'var(--color-white)',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-xl)',
-          }}
-        >
-          <div className="flex items-start justify-between">
-            <div>
-              <h2
-                className="text-lg font-bold"
-                style={{ color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}
-              >
-                Pedido #{String(order.order_id).slice(-8)}
-              </h2>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>
-                {new Date(order.created_at).toLocaleDateString('es-ES', {
-                  day: 'numeric', month: 'long', year: 'numeric',
-                })}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <StatusIcon className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
-              <span
-                className="px-3 py-1 rounded-full text-xs font-medium"
-                style={{
-                  background: order.status === 'delivered' ? 'var(--color-green-light)'
-                    : order.status === 'cancelled' ? 'var(--color-red-light)'
-                    : order.status === 'shipped' ? 'var(--color-surface)'
-                    : 'var(--color-surface)',
-                  color: order.status === 'delivered' ? 'var(--color-green)'
-                    : order.status === 'cancelled' ? 'var(--color-red)'
-                    : 'var(--color-black)',
-                }}
-              >
-                {getStatusLabel(order.status)}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* ETA Card */}
-        {order.status !== 'cancelled' && order.status !== 'refunded' && !isDelivered && (
-          <div
-            className="p-4 flex items-center gap-4"
-            style={{
-              background: 'var(--color-black)',
-              borderRadius: 'var(--radius-xl)',
-            }}
-          >
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-              style={{ background: 'rgba(255,255,255,0.15)' }}
-            >
-              <Truck className="w-5 h-5" style={{ color: '#fff' }} />
-            </div>
-            <div>
-              <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                Entrega estimada
-              </p>
-              <p className="text-sm font-semibold" style={{ color: '#fff' }}>
-                {order.estimated_delivery
-                  ? new Date(order.estimated_delivery).toLocaleDateString('es-ES', {
-                      day: 'numeric', month: 'long',
-                    })
-                  : '2-3 días laborables'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Vertical Timeline */}
-        {order.status !== 'cancelled' && order.status !== 'refunded' && currentStep >= 0 && (
-          <div
-            className="p-5"
-            style={{
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-xl)',
-            }}
-          >
-            <div className="relative">
-              {STATUS_FLOW.map((status, index) => {
-                const StepIcon = statusIcons[status];
-                const isCompleted = index < currentStep;
-                const isCurrent = index === currentStep;
-                const isPending = index > currentStep;
-                const isLast = index === STATUS_FLOW.length - 1;
-                const ts = statusTimestamps[status];
+            padding: 20, marginBottom: 16,
+          }}>
+            {/* Horizontal 4-step timeline */}
+            <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+              {STATUS_FLOW.map((s, i) => {
+                const isCompleted = i < currentStepIdx || (i === currentStepIdx && isDelivered);
+                const isActive = i === currentStepIdx && !isDelivered;
+                const isPending = i > currentStepIdx;
+                const isLast = i === STATUS_FLOW.length - 1;
+                const ts = statusTimestamps[s];
 
                 return (
-                  <div key={status} className="flex gap-3" style={{ minHeight: isLast ? 'auto' : 56 }}>
-                    {/* Dot + line column */}
-                    <div className="flex flex-col items-center">
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                        style={{
-                          background: isCurrent
-                            ? 'var(--color-green)'
-                            : isCompleted
-                            ? 'var(--color-black)'
-                            : 'var(--color-border)',
-                          boxShadow: isCurrent ? '0 0 0 4px var(--color-green-light)' : 'none',
-                          transition: 'var(--transition-fast)',
-                        }}
-                      >
-                        <StepIcon
-                          className="w-4 h-4"
-                          style={{ color: isPending ? 'var(--color-stone)' : '#fff' }}
-                        />
+                  <React.Fragment key={s}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: isLast ? '0 0 auto' : 0 }}>
+                      <div style={{
+                        width: 32, height: 32, borderRadius: '50%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: isCompleted ? 'var(--color-black)' : isActive ? '#16a34a' : 'transparent',
+                        border: isPending ? '2px solid var(--color-border)' : 'none',
+                        position: 'relative',
+                      }}>
+                        {isCompleted ? (
+                          <Check size={16} color="#fff" />
+                        ) : (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#fff' : 'var(--color-stone)' }}>
+                            {i + 1}
+                          </span>
+                        )}
+                        {isActive && (
+                          <motion.div
+                            animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            style={{
+                              position: 'absolute', inset: -4,
+                              borderRadius: '50%', border: '2px solid #16a34a',
+                            }}
+                          />
+                        )}
                       </div>
-                      {!isLast && (
-                        <div
-                          className="w-0.5 flex-1 my-1"
-                          style={{
-                            background: index < currentStep
-                              ? 'var(--color-black)'
-                              : 'var(--color-border)',
-                          }}
-                        />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: isActive ? '#16a34a' : isCompleted ? 'var(--color-black)' : 'var(--color-stone)', marginTop: 6, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        {STATUS_LABELS[s] || s}
+                      </span>
+                      {ts && (isCompleted || isActive) && (
+                        <span style={{ fontSize: 9, color: 'var(--color-stone)', marginTop: 2, textAlign: 'center' }}>
+                          {formatDateTime(ts)}
+                        </span>
                       )}
                     </div>
-                    {/* Label column */}
-                    <div className="pt-1 pb-2">
-                      <p
-                        className="text-sm font-medium"
-                        style={{
-                          color: isCurrent
-                            ? 'var(--color-green)'
-                            : isCompleted
-                            ? 'var(--color-black)'
-                            : 'var(--color-stone)',
-                        }}
-                      >
-                        {getStatusLabel(status)}
-                      </p>
-                      {ts && (
-                        <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>
-                          {new Date(ts).toLocaleString('es-ES', {
-                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-                          })}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                    {!isLast && (
+                      <div style={{
+                        flex: 1, height: 2, marginTop: 15,
+                        background: i < currentStepIdx ? 'var(--color-black)' : 'var(--color-border)',
+                      }} />
+                    )}
+                  </React.Fragment>
                 );
               })}
             </div>
           </div>
         )}
 
-        {/* Tracking */}
-        {order.tracking_number && (
-          <div
-            className="p-4"
-            style={{
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-xl)',
-            }}
-          >
-            <h3
-              className="text-sm font-semibold mb-2 flex items-center gap-2"
-              style={{ color: 'var(--color-black)' }}
-            >
-              <Truck className="w-4 h-4" /> Seguimiento
-            </h3>
-            <p
-              className="text-sm"
-              style={{ color: 'var(--color-black)', fontFamily: 'monospace' }}
-            >
-              {order.tracking_number}
-            </p>
+        {/* Tracking card */}
+        {(status === 'shipped' || status === 'in_transit') && (
+          <div style={{
+            background: 'rgba(37,99,235,0.06)',
+            border: '1px solid rgba(37,99,235,0.15)',
+            borderRadius: 'var(--radius-xl)',
+            padding: 14, marginBottom: 16,
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <Truck size={20} color="#2563eb" />
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#2563eb', margin: 0 }}>
+                {order.carrier || 'Transportista'} {order.tracking_number && `· ${order.tracking_number}`}
+              </p>
+            </div>
             {order.tracking_url && (
               <a
                 href={order.tracking_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 mt-2 text-sm font-medium"
-                style={{ color: 'var(--color-black)', textDecoration: 'none' }}
-                onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  fontSize: 13, fontWeight: 600, color: '#2563eb', textDecoration: 'none',
+                }}
               >
-                Rastrear envío <ExternalLink className="w-3.5 h-3.5" />
+                Rastrear <ExternalLink size={14} />
               </a>
             )}
           </div>
         )}
 
-        {/* Products */}
-        <div
-          className="p-4"
-          style={{
-            background: 'var(--color-white)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-xl)',
-          }}
-        >
-          <h3
-            className="text-sm font-semibold mb-3 flex items-center gap-2"
-            style={{ color: 'var(--color-black)' }}
-          >
-            <Package className="w-4 h-4" /> Productos
-          </h3>
-          <div className="space-y-3">
-            {order.line_items?.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3">
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt=""
-                    className="w-12 h-12 object-cover shrink-0"
-                    style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}
-                  />
-                ) : (
-                  <div
-                    className="w-12 h-12 shrink-0"
-                    style={{ borderRadius: 'var(--radius-md)', background: 'var(--color-surface)' }}
-                  />
+        {/* ── Products ── */}
+        <SectionLabel>PRODUCTOS</SectionLabel>
+        <div style={{
+          background: 'var(--color-white)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-xl)',
+          overflow: 'hidden',
+        }}>
+          {items.map((item, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: 14,
+              borderBottom: i < items.length - 1 ? '1px solid var(--color-border)' : 'none',
+            }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 'var(--radius-md)',
+                background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
+              }}>
+                {(item.image || item.product_image) && (
+                  <img src={item.image || item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>
-                    {item.name || item.product_name}
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--color-stone)' }}>x{item.quantity}</p>
-                </div>
-                <p className="text-sm font-semibold shrink-0" style={{ color: 'var(--color-black)' }}>
-                  {asNumber(item.amount || item.price * item.quantity).toFixed(2)}€
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)', margin: 0 }}>
+                  {item.name || item.product_name}
                 </p>
+                <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0' }}>x{item.quantity}</p>
               </div>
-            ))}
-          </div>
-
-          {/* Price breakdown */}
-          <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid var(--color-border)' }}>
-            {order.subtotal != null && (
-              <div className="flex justify-between text-sm">
-                <span style={{ color: 'var(--color-stone)' }}>Subtotal</span>
-                <span style={{ color: 'var(--color-stone)' }}>{asNumber(order.subtotal).toFixed(2)}€</span>
-              </div>
-            )}
-            {order.shipping_cost != null && order.shipping_cost > 0 && (
-              <div className="flex justify-between text-sm">
-                <span style={{ color: 'var(--color-stone)' }}>Envío</span>
-                <span style={{ color: 'var(--color-stone)' }}>{asNumber(order.shipping_cost).toFixed(2)}€</span>
-              </div>
-            )}
-            {order.discount_amount != null && order.discount_amount > 0 && (
-              <div className="flex justify-between text-sm">
-                <span style={{ color: 'var(--color-stone)' }}>Descuento</span>
-                <span style={{ color: 'var(--color-stone)' }}>-{asNumber(order.discount_amount).toFixed(2)}€</span>
-              </div>
-            )}
-            <div className="flex justify-between text-base font-bold pt-1" style={{ color: 'var(--color-black)' }}>
-              <span>Total</span>
-              <span>{asNumber(order.total_amount).toFixed(2)}€</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', flexShrink: 0 }}>
+                {item.price ? `${Number(item.price).toFixed(2)}€` : ''}
+              </span>
             </div>
-          </div>
+          ))}
         </div>
 
-        {/* Shipping address */}
-        {order.shipping_address && (
-          <div
-            className="p-4"
-            style={{
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-xl)',
-            }}
-          >
-            <h3
-              className="text-sm font-semibold mb-2 flex items-center gap-2"
-              style={{ color: 'var(--color-black)' }}
-            >
-              <MapPin className="w-4 h-4" /> Dirección de envío
-            </h3>
-            <p className="text-sm leading-relaxed" style={{ color: 'var(--color-stone)' }}>
-              {order.shipping_address.full_name || order.shipping_address.name}<br />
-              {order.shipping_address.street}<br />
-              {order.shipping_address.city}, {order.shipping_address.postal_code}<br />
-              {order.shipping_address.country}
-            </p>
-            {order.shipping_address.phone && (
-              <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>
-                Tel: {order.shipping_address.phone}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Status history */}
-        {order.status_history?.length > 0 && (
-          <div
-            className="p-4"
-            style={{
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-xl)',
-            }}
-          >
-            <h3
-              className="text-sm font-semibold mb-3"
-              style={{ color: 'var(--color-black)' }}
-            >
-              Historial
-            </h3>
-            <div className="space-y-3">
-              {order.status_history.slice().reverse().map((entry, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <div
-                    className="w-2 h-2 rounded-full mt-1.5 shrink-0"
-                    style={{ background: 'var(--color-border)' }}
-                  />
-                  <div>
-                    <p
-                      className="text-sm font-medium capitalize"
-                      style={{ color: 'var(--color-black)' }}
-                    >
-                      {getStatusLabel(entry.status)}
-                    </p>
-                    <p className="text-xs" style={{ color: 'var(--color-stone)' }}>
-                      {new Date(entry.timestamp).toLocaleString('es-ES')}
-                    </p>
-                    {entry.notes && (
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>
-                        {entry.notes}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex gap-3 pb-4">
-          {canCancel && (
-            <button
-              onClick={cancelOrder}
-              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium"
-              style={{
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-xl)',
-                color: 'var(--color-stone)',
-                transition: 'var(--transition-fast)',
-              }}
-            >
-              <XCircle className="w-4 h-4" />
-              Cancelar pedido
-            </button>
+        {/* ── Shipping Address ── */}
+        <SectionLabel>DIRECCIÓN DE ENVÍO</SectionLabel>
+        <div style={{
+          background: 'var(--color-surface, #f5f5f4)',
+          borderRadius: 'var(--radius-xl)',
+          padding: 16,
+        }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>
+            {addr.full_name || addr.name || ''}
+          </p>
+          <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '4px 0 0', lineHeight: 1.5 }}>
+            {addr.street}{addr.city ? `, ${addr.city}` : ''}{addr.postal_code ? ` ${addr.postal_code}` : ''}
+            {addr.country ? `, ${addr.country}` : ''}
+          </p>
+          {addr.phone && (
+            <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '2px 0 0' }}>{addr.phone}</p>
           )}
-          {isDelivered && (
-            <>
+        </div>
+
+        {/* ── Payment Summary ── */}
+        <SectionLabel>RESUMEN DE PAGO</SectionLabel>
+        <div style={{
+          background: 'var(--color-white)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-xl)',
+          padding: 16,
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {subtotal && <PaymentRow label="Subtotal" value={`${subtotal}€`} />}
+            {discount && Number(discount) > 0 && <PaymentRow label="Descuento" value={`-${discount}€`} color="var(--color-green, #16a34a)" />}
+            {shipping != null && <PaymentRow label="Envío" value={Number(shipping) === 0 ? 'Gratis' : `${shipping}€`} />}
+            <div style={{ height: 1, background: 'var(--color-border)', margin: '4px 0' }} />
+            <PaymentRow label="Total" value={`${total}€`} bold />
+          </div>
+          {order.payment_method && (
+            <p style={{ fontSize: 12, color: 'var(--color-stone)', marginTop: 12 }}>
+              Método: {order.payment_method}
+            </p>
+          )}
+          <p style={{ fontSize: 12, color: 'var(--color-stone)', marginTop: 4 }}>
+            Fecha: {formatDate(order.created_at)}
+          </p>
+        </div>
+
+        {/* ── Sellers ── */}
+        {order.seller_name && (
+          <>
+            <SectionLabel>VENDEDORES</SectionLabel>
+            <div style={{
+              background: 'var(--color-white)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-xl)',
+              padding: 14,
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%',
+                background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {order.seller_avatar ? (
+                  <img src={order.seller_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <Package size={18} color="var(--color-stone)" />
+                )}
+              </div>
+              <span style={{ flex: 1, fontSize: 14, fontWeight: 500, color: 'var(--color-black)' }}>
+                {order.seller_name}
+              </span>
               <button
-                onClick={reorder}
-                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium"
-                style={{
-                  background: 'var(--color-black)',
-                  color: '#fff',
-                  borderRadius: 'var(--radius-xl)',
-                  border: 'none',
-                  transition: 'var(--transition-fast)',
+                onClick={() => {
+                  if (order.producer_id) navigate(`/messages?to=${order.producer_id}`);
                 }}
-              >
-                <RotateCcw className="w-4 h-4" />
-                Repetir pedido
-              </button>
-              <button
-                onClick={() => setReviewOpen(true)}
-                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium"
                 style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '6px 14px',
                   background: 'var(--color-white)',
                   border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-xl)',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: 13, fontWeight: 600,
                   color: 'var(--color-black)',
-                  transition: 'var(--transition-fast)',
+                  cursor: 'pointer',
                 }}
               >
-                <Star className="w-4 h-4" />
-                Valorar
+                <MessageCircle size={14} /> Contactar
               </button>
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
 
-        {/* Contact producer */}
-        {order.producer_id && (
-          <button
-            onClick={handleContactProducer}
-            className="w-full flex items-center justify-center gap-2"
-            style={{
-              height: 44,
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              fontSize: 13,
-              fontWeight: 500,
-              fontFamily: 'var(--font-sans)',
-              color: 'var(--color-black)',
-              cursor: 'pointer',
-              marginBottom: 16,
-            }}
-          >
-            <MessageCircle className="w-4 h-4" />
-            Contactar productor
-          </button>
+        {/* ── Review form (if delivered) ── */}
+        {isDelivered && (
+          <div style={{
+            background: 'rgba(22,163,74,0.04)',
+            border: '1px solid rgba(22,163,74,0.15)',
+            borderRadius: 'var(--radius-xl)',
+            padding: 16, marginTop: 24,
+          }}>
+            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)', marginBottom: 12 }}>
+              ¿Cómo fue tu experiencia?
+            </p>
+            {/* Stars */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+              {[1, 2, 3, 4, 5].map(s => (
+                <button
+                  key={s}
+                  onClick={() => setReviewRating(s)}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 2,
+                  }}
+                >
+                  <Star
+                    size={28}
+                    fill={s <= reviewRating ? '#0c0a09' : 'none'}
+                    color={s <= reviewRating ? '#0c0a09' : 'var(--color-border)'}
+                  />
+                </button>
+              ))}
+            </div>
+            <textarea
+              value={reviewText}
+              onChange={e => setReviewText(e.target.value)}
+              placeholder="Deja una reseña..."
+              rows={3}
+              style={{
+                width: '100%', padding: 12, fontSize: 14,
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                background: 'var(--color-white)',
+                color: 'var(--color-black)',
+                outline: 'none', resize: 'vertical',
+                fontFamily: 'var(--font-sans)',
+                boxSizing: 'border-box',
+              }}
+            />
+            <button
+              onClick={submitReview}
+              disabled={reviewSubmitting}
+              style={{
+                marginTop: 10, padding: '8px 20px',
+                background: '#16a34a', color: '#fff',
+                border: 'none', borderRadius: 'var(--radius-md)',
+                fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              }}
+            >
+              {reviewSubmitting ? 'Publicando...' : 'Publicar reseña'}
+            </button>
+          </div>
+        )}
+
+        {/* ── Actions ── */}
+        {!isCancelled && (
+          <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              onClick={() => navigate('/help')}
+              style={{
+                width: '100%', height: 44,
+                background: 'var(--color-white)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                fontSize: 14, fontWeight: 600,
+                color: 'var(--color-black)',
+                cursor: 'pointer', fontFamily: 'var(--font-sans)',
+              }}
+            >
+              Contactar con soporte
+            </button>
+
+            {canCancel && (
+              <button
+                onClick={cancelOrder}
+                style={{
+                  width: '100%', height: 44,
+                  background: 'transparent',
+                  border: '1px solid rgba(220,38,38,0.3)',
+                  borderRadius: 'var(--radius-lg)',
+                  fontSize: 14, fontWeight: 600,
+                  color: '#dc2626',
+                  cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                }}
+              >
+                Cancelar pedido
+              </button>
+            )}
+          </div>
         )}
       </div>
+    </div>
+  );
+}
 
-      <ReviewModal open={reviewOpen} onClose={() => setReviewOpen(false)} order={order} />
+function PaymentRow({ label, value, bold, color }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <span style={{ fontSize: 13, color: 'var(--color-stone)' }}>{label}</span>
+      <span style={{
+        fontSize: bold ? 18 : 14,
+        fontWeight: bold ? 700 : 500,
+        color: color || 'var(--color-black)',
+      }}>{value}</span>
     </div>
   );
 }

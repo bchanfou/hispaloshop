@@ -874,6 +874,44 @@ async def logout(request: Request):
 
 
 # ============================================================================
+# SET ROLE (Onboarding)
+# ============================================================================
+
+@router.post("/auth/set-role")
+async def set_role(request: Request, user: User = Depends(get_current_user)):
+    """Set user role and food preferences during onboarding."""
+    body = await request.json()
+    role = body.get("role")
+    preferences = body.get("preferences", [])
+
+    valid_roles = ["consumer", "customer", "producer", "influencer", "importer"]
+    if not role or role not in valid_roles:
+        raise HTTPException(status_code=400, detail="Invalid role")
+
+    # Normalize consumer → customer
+    if role == "consumer":
+        role = "customer"
+
+    update_data = {
+        "role": role,
+        "updated_at": datetime.now(timezone.utc),
+    }
+    if preferences:
+        update_data["food_preferences"] = preferences
+
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": update_data}
+    )
+
+    updated_user = await db.users.find_one(
+        {"user_id": user.user_id},
+        {"_id": 0, "password_hash": 0}
+    )
+    return updated_user
+
+
+# ============================================================================
 # GOOGLE OAUTH - Sistema propio
 # ============================================================================
 
