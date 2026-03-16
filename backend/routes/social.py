@@ -592,10 +592,10 @@ async def like_reel_comment(reel_id: str, comment_id: str, user: User = Depends(
 @router.get("/users/{user_id}/profile")
 async def get_user_profile(user_id: str, request: Request):
     """Get public user profile — enhanced with seller stats for producers."""
-    user = await db.users.find_one(
-        {"user_id": user_id},
-        {"_id": 0, "password_hash": 0, "verification_code": 0}
-    )
+    projection = {"_id": 0, "password_hash": 0, "verification_code": 0}
+    user = await db.users.find_one({"user_id": user_id}, projection)
+    if not user:
+        user = await db.users.find_one({"username": user_id}, projection)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -1093,6 +1093,18 @@ async def delete_comment(comment_id: str, user: User = Depends(get_current_user)
     await db.post_comments.delete_one({"comment_id": comment_id})
     await db.user_posts.update_one({"post_id": comment["post_id"]}, {"$inc": {"comments_count": -1}})
     return {"status": "deleted"}
+
+@router.get("/users/by-username/{username}")
+async def get_user_by_username(username: str):
+    """Get public user by username — sanitized (no password_hash, no tokens)."""
+    user = await db.users.find_one(
+        {"username": username},
+        {"_id": 0, "password_hash": 0, "verification_code": 0, "stripe_customer_id": 0, "stripe_connect_id": 0}
+    )
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
 
 @router.get("/users/check-username/{username}")
 async def check_username(username: str):
