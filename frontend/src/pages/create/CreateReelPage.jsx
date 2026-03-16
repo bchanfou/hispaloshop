@@ -52,8 +52,9 @@ export default function CreateReelPage() {
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Revoke previous video blob URL to free memory (video blobs are large)
+    setVideoUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
     setVideoFile(file);
-    setVideoUrl(URL.createObjectURL(file));
     setScreen('edit');
   }, []);
 

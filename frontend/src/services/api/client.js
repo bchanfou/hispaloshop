@@ -13,11 +13,23 @@ function generateRequestId() {
 }
 
 function normalizeApiError(error) {
-  const message =
-    error?.response?.data?.detail ||
-    error?.response?.data?.message ||
-    error?.message ||
-    'API request failed';
+  const detail = error?.response?.data?.detail;
+  let message;
+
+  if (Array.isArray(detail)) {
+    // FastAPI 422 validation errors: [{loc: [...], msg: "...", type: "..."}]
+    message = detail
+      .map((e) => {
+        const field = (e.loc || []).filter((l) => l !== 'body').join('.');
+        return field ? `${field}: ${e.msg}` : e.msg;
+      })
+      .join('. ');
+  } else if (typeof detail === 'object' && detail !== null) {
+    // Structured error: {message: "...", issues: [...]}
+    message = detail.message || JSON.stringify(detail);
+  } else {
+    message = detail || error?.response?.data?.message || error?.message || 'API request failed';
+  }
 
   const apiError = new Error(message);
   apiError.name = 'ApiClientError';

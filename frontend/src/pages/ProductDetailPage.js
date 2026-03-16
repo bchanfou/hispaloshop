@@ -443,6 +443,9 @@ export default function ProductDetailPage() {
           <span style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
             {displayPrice}
           </span>
+          <span style={{ fontSize: 11, color: 'var(--color-stone)', marginLeft: 6, fontFamily: 'var(--font-sans)' }}>
+            {t('productDetail.taxNote', 'IVA no incluido')}
+          </span>
         </div>
 
         {/* Stock warnings */}

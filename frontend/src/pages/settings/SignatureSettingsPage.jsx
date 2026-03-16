@@ -141,6 +141,7 @@ export default function SignatureSettingsPage() {
   const handleSigFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (sigPreview) URL.revokeObjectURL(sigPreview);
     setUploadedSig(file);
     setSigPreview(URL.createObjectURL(file));
   };
@@ -148,6 +149,7 @@ export default function SignatureSettingsPage() {
   const handleStampFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (stampPreview) URL.revokeObjectURL(stampPreview);
     setStampFile(file);
     setStampPreview(URL.createObjectURL(file));
   };

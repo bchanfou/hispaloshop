@@ -75,7 +75,7 @@ export default function CreateStoryPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setImageFile(file);
-    setImagePreviewUrl(URL.createObjectURL(file));
+    setImagePreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
   }, []);
 
   const handleBgSelect = useCallback((bg) => {

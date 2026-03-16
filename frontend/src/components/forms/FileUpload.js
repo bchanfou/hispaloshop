@@ -50,6 +50,8 @@ const FileUpload = ({
   };
 
   const removeFile = (id) => {
+    const toRemove = files.find(f => f.id === id);
+    if (toRemove?.preview) URL.revokeObjectURL(toRemove.preview);
     onChange(files.filter(f => f.id !== id));
   };
 

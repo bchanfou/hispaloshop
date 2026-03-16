@@ -79,6 +79,8 @@ export default function EditProfilePage() {
   const handleAvatarSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Revoke previous preview URL to prevent memory leak
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
