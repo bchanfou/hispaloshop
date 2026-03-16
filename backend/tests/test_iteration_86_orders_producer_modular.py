@@ -32,7 +32,7 @@ import uuid
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    BASE_URL = "https://auth-rework.preview.emergentagent.com"
+    BASE_URL = "http://localhost:8000"
 
 # Test credentials
 SUPER_ADMIN_CREDS = {"email": "admin@hispaloshop.com", "password": "password123"}

@@ -90,11 +90,6 @@ class Settings(BaseSettings):
     PLATFORM_COMMISSION: float = Field(default=0.20)
     
     # ============================================
-    # EMERGENT LLM (para AI features)
-    # ============================================
-    EMERGENT_LLM_KEY: Optional[str] = Field(default=None)
-    
-    # ============================================
     # OPENAI (para embeddings y recomendaciones)
     # ============================================
     OPENAI_API_KEY: Optional[str] = Field(default=None)
@@ -205,6 +200,5 @@ AUTH_BACKEND_URL = settings.AUTH_BACKEND_URL
 GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
 PLATFORM_COMMISSION = settings.PLATFORM_COMMISSION
-EMERGENT_LLM_KEY = settings.EMERGENT_LLM_KEY
 OPENAI_API_KEY = settings.OPENAI_API_KEY
 OPENAI_ORG_ID = settings.OPENAI_ORG_ID

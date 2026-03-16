@@ -8,15 +8,11 @@ import uuid
 from typing import Optional
 from datetime import datetime, timezone
 
-try:
-    from emergentintegrations.llm.chat import LlmChat, UserMessage
-except Exception:
-    LlmChat = None
-    UserMessage = None
+from openai import AsyncOpenAI
 from core.database import db
 
 logger = logging.getLogger(__name__)
-EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 async def infer_user_signals_from_chat(user_id: str, user_message: str, assistant_response: str, ai_action: Optional[str] = None):
     """
@@ -24,8 +20,7 @@ async def infer_user_signals_from_chat(user_id: str, user_message: str, assistan
     NEVER stores raw chat text - only normalized tags with confidence scores.
     Runs as background task to not block chat responses.
     """
-    if not EMERGENT_LLM_KEY or LlmChat is None or UserMessage is None:
-        # Degraded mode: keep API available even if LLM integration is unavailable.
+    if not OPENAI_API_KEY:
         return
 
     try:
@@ -83,15 +78,15 @@ Return ONLY valid JSON:
 If no signals detected, return empty arrays. Be conservative with sensitive signals (fears, allergies)."""
 
         # Call GPT-4o for inference
-        session_id = f"inference_{uuid.uuid4().hex[:8]}"
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=session_id,
-            system_message="You are a signal extraction engine. Return only valid JSON. Never include raw user text in output."
+        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        completion = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a signal extraction engine. Return only valid JSON. Never include raw user text in output."},
+                {"role": "user", "content": inference_prompt},
+            ],
         )
-        chat.with_model("openai", "gpt-4o")
-        
-        response = await chat.send_message(UserMessage(text=inference_prompt))
+        response = completion.choices[0].message.content
         
         # Parse JSON response
         import json

@@ -2360,7 +2360,7 @@ async def send_new_order_email_to_producer(producer_id: str, order: dict, produc
             
             <!-- CTA Button -->
             <div style="text-align: center; margin: 30px 0;">
-                <a href="https://auth-rework.preview.emergentagent.com/producer/orders" 
+                <a href="{FRONTEND_URL}/producer/orders" 
                    style="display: inline-block; background: linear-gradient(135deg, #8B7355 0%, #6B5344 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
                     {msg['go_to_orders']} →
                 </a>

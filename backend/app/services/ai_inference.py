@@ -6,9 +6,12 @@ import json
 from datetime import datetime, timezone
 from typing import Optional
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from openai import AsyncOpenAI
+import os
 
-from ..core.config import db, EMERGENT_LLM_KEY, logger
+from ..core.config import db, logger
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 
 async def infer_user_signals_from_chat(
@@ -77,15 +80,15 @@ Return ONLY valid JSON:
 If no signals detected, return empty arrays. Be conservative with sensitive signals (fears, allergies)."""
 
         # Call GPT-4o for inference
-        session_id = f"inference_{uuid.uuid4().hex[:8]}"
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=session_id,
-            system_message="You are a signal extraction engine. Return only valid JSON. Never include raw user text in output."
+        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        completion = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a signal extraction engine. Return only valid JSON. Never include raw user text in output."},
+                {"role": "user", "content": inference_prompt},
+            ],
         )
-        chat.with_model("openai", "gpt-4o")
-        
-        response = await chat.send_message(UserMessage(text=inference_prompt))
+        response = completion.choices[0].message.content
         
         # Parse JSON response
         try:

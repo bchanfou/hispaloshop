@@ -6,7 +6,7 @@ Multi-role digital supermarket supporting customers, sellers (producers), influe
 ## Architecture
 - **Frontend**: React + Tailwind CSS + Shadcn/UI + i18n (ES, EN, KR + 10 more)
 - **Backend**: FastAPI + MongoDB
-- **Integrations**: Stripe, Cloudinary, pywebpush, bcrypt, Lucide-React, GoogleMapReact, Emergent LLM (OpenAI GPT-5.2)
+- **Integrations**: Stripe, Cloudinary, pywebpush, bcrypt, Lucide-React, GoogleMapReact, OpenAI GPT-4o
 
 ## What's Been Implemented
 
@@ -35,5 +35,5 @@ Multi-role digital supermarket supporting customers, sellers (producers), influe
 - **Influencer:** influencer@test.com / password123
 
 ## Remaining Backlog
-- **P0:** Google Auth Rework — Replace Emergent-managed Google Auth with self-managed Google OAuth2 (user postponed, needs Client ID/Secret)
+- **P0:** Google Auth Rework — Self-managed Google OAuth2 (user postponed, needs Client ID/Secret)
 - **P4:** Final System Re-audit — Comprehensive audit of entire application for stability and i18n coverage

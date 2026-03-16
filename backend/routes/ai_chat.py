@@ -10,7 +10,7 @@ import uuid
 import os
 import logging
 
-# from emergentintegrations.llm.chat import LlmChat, UserMessage
+from openai import AsyncOpenAI
 from core.database import db
 from core.models import (
     User, AIProfileUpdate, AIExecuteActionInput, AISmartCartAction,
@@ -22,7 +22,7 @@ from services.ai_helpers import infer_user_signals_from_chat
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 LANGUAGE_NAMES = {
     "es": "Spanish", "en": "English", "ko": "Korean", "fr": "French",
@@ -806,10 +806,15 @@ DIRECTRICES:
 
     try:
         session_id = f"seller_ai_{user.user_id}_{uuid.uuid4().hex[:8]}"
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message=context)
-        chat.with_model("openai", "gpt-4o")
-        user_message = UserMessage(text=input.message)
-        response = await chat.send_message(user_message)
+        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        completion = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": context},
+                {"role": "user", "content": input.message},
+            ],
+        )
+        response = completion.choices[0].message.content
         
         return {"response": response, "success": True}
     except Exception as e:
@@ -1342,14 +1347,19 @@ FALLBACK BEHAVIORS:
     
     # Send message to AI (for non-cart-action messages)
     try:
-        if not EMERGENT_LLM_KEY:
-            logger.error("[CHAT] EMERGENT_LLM_KEY not configured")
+        if not OPENAI_API_KEY:
+            logger.error("[CHAT] OPENAI_API_KEY not configured")
             raise HTTPException(status_code=500, detail="AI service not configured. Please contact support.")
-        
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message=system_msg)
-        chat.with_model("openai", "gpt-5.2")
-        user_message = UserMessage(text=input.message)
-        response = await chat.send_message(user_message)
+
+        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        completion = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": input.message},
+            ],
+        )
+        response = completion.choices[0].message.content
     except HTTPException:
         raise
     except Exception as e:
@@ -1566,14 +1576,15 @@ EJEMPLOS DE CONTENIDO QUE FUNCIONA:
 
     try:
         session_id = f"influencer_ai_{uuid.uuid4().hex[:8]}"
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=session_id,
-            system_message=context
+        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        completion = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": context},
+                {"role": "user", "content": input.message},
+            ],
         )
-        chat.with_model("openai", "gpt-4o")
-        
-        response = await chat.send_message(UserMessage(text=input.message))
+        response = completion.choices[0].message.content
         
         return {"response": response, "success": True}
     except Exception as e:

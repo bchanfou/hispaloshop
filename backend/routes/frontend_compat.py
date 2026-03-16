@@ -26,7 +26,7 @@ from schemas.frontend_compat import (
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Frontend Compatibility"])
 _LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0"}
-_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com", "vercel.app", "emergentagent.com")
+_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com", "vercel.app")
 
 _EXCHANGE_RATES_CACHE: Dict[str, object] = {"rates": None, "updated_at": None}
 _DEFAULT_EXCHANGE_RATES = {"EUR": 1.0, "USD": 1.08, "GBP": 0.85}

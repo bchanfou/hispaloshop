@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class HispaloshopAPITester:
-    def __init__(self, base_url="https://auth-rework.preview.emergentagent.com/api"):
+    def __init__(self, base_url="http://localhost:8000/api"):
         self.base_url = base_url
         self.session_token = None
         self.user_data = None

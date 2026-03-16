@@ -14,17 +14,9 @@ from ..models.user import User
 
 router = APIRouter(tags=["Payments"])
 
-# Try to import Stripe checkout from emergentintegrations
-try:
-    from emergentintegrations.payments.stripe.checkout import (
-        StripeCheckout, CheckoutSessionRequest
-    )
-    EMERGENT_STRIPE = True
-except ImportError:
-    EMERGENT_STRIPE = False
-    import stripe
-    if STRIPE_API_KEY:
-        stripe.api_key = STRIPE_API_KEY
+import stripe
+if STRIPE_API_KEY:
+    stripe.api_key = STRIPE_API_KEY
 
 
 class OrderCreateInput(BaseModel):
@@ -107,42 +99,23 @@ async def create_checkout(
     
     # Create Stripe session
     try:
-        if EMERGENT_STRIPE:
-            checkout = StripeCheckout(api_key=STRIPE_API_KEY)
-            checkout_request = CheckoutSessionRequest(
-                success_url=f"{FRONTEND_URL}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url=f"{FRONTEND_URL}/checkout/cancel",
-                line_items=[{
-                    "price_data": {
-                        "currency": "eur",
-                        "product_data": {"name": item["name"]},
-                        "unit_amount": int(item["price"] * 100)
-                    },
-                    "quantity": item["quantity"]
-                } for item in line_items],
-                metadata={"order_id": order_id}
-            )
-            session = await checkout.create_session(checkout_request)
-            session_id = session.session_id
-            checkout_url = session.url
-        else:
-            session = stripe.checkout.Session.create(
-                success_url=f"{FRONTEND_URL}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url=f"{FRONTEND_URL}/checkout/cancel",
-                payment_method_types=["card"],
-                line_items=[{
-                    "price_data": {
-                        "currency": "eur",
-                        "product_data": {"name": item["name"]},
-                        "unit_amount": int(item["price"] * 100)
-                    },
-                    "quantity": item["quantity"]
-                } for item in line_items],
-                mode="payment",
-                metadata={"order_id": order_id}
-            )
-            session_id = session.id
-            checkout_url = session.url
+        session = stripe.checkout.Session.create(
+            success_url=f"{FRONTEND_URL}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{FRONTEND_URL}/checkout/cancel",
+            payment_method_types=["card"],
+            line_items=[{
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {"name": item["name"]},
+                    "unit_amount": int(item["price"] * 100)
+                },
+                "quantity": item["quantity"]
+            } for item in line_items],
+            mode="payment",
+            metadata={"order_id": order_id}
+        )
+        session_id = session.id
+        checkout_url = session.url
         
         # Update order with session ID
         await db.orders.update_one(
@@ -235,42 +208,23 @@ async def buy_now_checkout(
     
     # Create Stripe session
     try:
-        if EMERGENT_STRIPE:
-            checkout = StripeCheckout(api_key=STRIPE_API_KEY)
-            checkout_request = CheckoutSessionRequest(
-                success_url=f"{FRONTEND_URL}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url=f"{FRONTEND_URL}/checkout/cancel",
-                line_items=[{
-                    "price_data": {
-                        "currency": "eur",
-                        "product_data": {"name": product["name"]},
-                        "unit_amount": int(price * 100)
-                    },
-                    "quantity": input.quantity
-                }],
-                metadata={"order_id": order_id}
-            )
-            session = await checkout.create_session(checkout_request)
-            session_id = session.session_id
-            checkout_url = session.url
-        else:
-            session = stripe.checkout.Session.create(
-                success_url=f"{FRONTEND_URL}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
-                cancel_url=f"{FRONTEND_URL}/checkout/cancel",
-                payment_method_types=["card"],
-                line_items=[{
-                    "price_data": {
-                        "currency": "eur",
-                        "product_data": {"name": product["name"]},
-                        "unit_amount": int(price * 100)
-                    },
-                    "quantity": input.quantity
-                }],
-                mode="payment",
-                metadata={"order_id": order_id}
-            )
-            session_id = session.id
-            checkout_url = session.url
+        session = stripe.checkout.Session.create(
+            success_url=f"{FRONTEND_URL}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{FRONTEND_URL}/checkout/cancel",
+            payment_method_types=["card"],
+            line_items=[{
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {"name": product["name"]},
+                    "unit_amount": int(price * 100)
+                },
+                "quantity": input.quantity
+            }],
+            mode="payment",
+            metadata={"order_id": order_id}
+        )
+        session_id = session.id
+        checkout_url = session.url
         
         await db.orders.update_one(
             {"order_id": order_id},
@@ -304,13 +258,8 @@ async def checkout_status(
         raise HTTPException(status_code=404, detail="Order not found")
     
     try:
-        if EMERGENT_STRIPE:
-            checkout = StripeCheckout(api_key=STRIPE_API_KEY)
-            status = await checkout.get_session_status(session_id)
-            payment_status = status.status
-        else:
-            session = stripe.checkout.Session.retrieve(session_id)
-            payment_status = session.payment_status
+        session = stripe.checkout.Session.retrieve(session_id)
+        payment_status = session.payment_status
         
         # Update order if paid
         if payment_status == "paid" and order["status"] == "pending":

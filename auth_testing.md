@@ -54,13 +54,13 @@ curl -X GET "$API_URL/api/auth/me" \
 await page.context.add_cookies([{
     "name": "session_token",
     "value": "YOUR_SESSION_TOKEN",
-    "domain": "consent-form-repair.preview.emergentagent.com",
+    "domain": "localhost",
     "path": "/",
     "httpOnly": True,
-    "secure": True,
-    "sameSite": "None"
+    "secure": False,
+    "sameSite": "Lax"
 }])
-await page.goto("https://auth-rework.preview.emergentagent.com/dashboard")
+await page.goto("http://localhost:3000/dashboard")
 ```
 
 ## Quick Debug

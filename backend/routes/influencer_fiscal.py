@@ -20,7 +20,7 @@ from services.fiscal_verification import (
 logger = logging.getLogger(__name__)
 
 stripe.api_key = STRIPE_SECRET_KEY
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://auth-rework.preview.emergentagent.com")
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "https://www.hispaloshop.com")
 
 router = APIRouter()
 

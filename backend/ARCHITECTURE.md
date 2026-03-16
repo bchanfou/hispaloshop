@@ -103,8 +103,8 @@ The backend is a monolithic FastAPI application in `server.py` (~11,000 lines).
 1. **MongoDB** - Primary database (Motor async driver)
 2. **Stripe Connect** - Payment processing
 3. **Resend** - Email delivery
-4. **OpenAI GPT-4o** - AI chat assistant (via Emergent LLM key)
-5. **Google OAuth** - Social login (Emergent managed)
+4. **OpenAI GPT-4o** - AI chat assistant
+5. **Google OAuth** - Social login
 
 ## Environment Variables
 
@@ -113,4 +113,4 @@ See `/backend/.env` for configuration:
 - `DB_NAME` - Database name
 - `STRIPE_SECRET_KEY` - Stripe API key
 - `RESEND_API_KEY` - Email service key
-- `EMERGENT_LLM_KEY` - AI integration key
+- `OPENAI_API_KEY` - AI integration key

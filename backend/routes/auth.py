@@ -24,7 +24,7 @@ from services.auth_helpers import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 _LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0"}
-_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com", "vercel.app", "emergentagent.com")
+_TRUSTED_FRONTEND_SUFFIXES = ("hispaloshop.com", "vercel.app")
 
 
 def _extract_origin(value: Optional[str]) -> Optional[str]:
@@ -719,7 +719,7 @@ async def reset_password(input: ResetPasswordInput):
 
 @router.get("/auth/session")
 async def auth_session(request: Request, response: Response):
-    """Exchange session_id from Emergent Auth for a session token"""
+    """Exchange session_id for a session token (legacy)"""
     session_id = request.headers.get('X-Session-ID')
     if not session_id:
         raise HTTPException(status_code=400, detail="No session ID provided")
@@ -874,7 +874,7 @@ async def logout(request: Request):
 
 
 # ============================================================================
-# GOOGLE OAUTH - Sistema propio (sin Emergent)
+# GOOGLE OAUTH - Sistema propio
 # ============================================================================
 
 @router.get("/auth/google/url")

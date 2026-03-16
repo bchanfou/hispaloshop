@@ -43,19 +43,7 @@ export default function AuthCallback() {
           throw new Error('Google session was not established');
         }
 
-        // Legacy: Extract session_id from URL fragment (old Emergent auth)
-        const hash = location.hash;
-        const hashParams = new URLSearchParams(hash.substring(1));
-        const sessionId = hashParams.get('session_id');
-
-        if (sessionId) {
-          // Legacy Emergent auth - show error as we're moving away from it
-          setError('Sistema de autenticación actualizado. Por favor inicia sesión nuevamente.');
-          setTimeout(() => navigate('/login', { replace: true }), 3000);
-          return;
-        }
-
-        // No token or session found - check if user is already authenticated
+        // No token found - check if user is already authenticated
         const user = await checkAuth();
         if (user) {
           const needsOnboarding = user.role === 'customer' && !user.onboarding_completed;
