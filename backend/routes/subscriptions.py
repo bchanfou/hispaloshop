@@ -259,7 +259,7 @@ async def create_subscription(request: Request, user: User = Depends(get_current
         mode="subscription",
         payment_method_types=["card"],
         line_items=[{"price": plan["stripe_price_id"], "quantity": 1}],
-        subscription_data={"trial_period_days": 30, "metadata": {"user_id": user.user_id, "plan": plan_key}},
+        subscription_data={"trial_period_days": 7, "metadata": {"user_id": user.user_id, "plan": plan_key}},
         success_url=f"{origin}{success_route}?subscription=success",
         cancel_url=f"{origin}{success_route}?subscription=cancel",
         metadata={"user_id": user.user_id, "plan": plan_key},

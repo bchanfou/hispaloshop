@@ -1,21 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronLeft, LayoutDashboard, Share2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-
-const ROLE_DASHBOARD_ROUTE = {
-  producer:   '/producer/overview',
-  importer:   '/importer/dashboard',
-  influencer: '/influencer/dashboard',
-  customer:   '/customer/orders',
-  consumer:   '/customer/orders',
-};
+import { ChevronDown, ChevronLeft, Share2 } from 'lucide-react';
 
 export default function ProfilePageHeader({ username, isOwnProfile, onShare }) {
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
-  const role = currentUser?.role || 'customer';
-  const dashRoute = ROLE_DASHBOARD_ROUTE[role] || '/';
 
   return (
     <header
@@ -55,7 +43,7 @@ export default function ProfilePageHeader({ username, isOwnProfile, onShare }) {
           )}
         </div>
 
-        {/* Right — share (perfiles ajenos) + dashboard */}
+        {/* Right — share */}
         <div className="flex items-center">
           {!isOwnProfile && onShare ? (
             <button
@@ -67,32 +55,8 @@ export default function ProfilePageHeader({ username, isOwnProfile, onShare }) {
             >
               <Share2 className="h-[18px] w-[18px]" strokeWidth={1.8} />
             </button>
-          ) : null}
-          {isOwnProfile ? (
-            <button
-              onClick={() => navigate(dashRoute)}
-              className="flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold"
-              style={{
-                background: 'var(--color-black)',
-                color: '#fff',
-                transition: 'var(--transition-fast)',
-              }}
-              aria-label="Ir al dashboard"
-              data-testid="profile-hamburger-btn"
-            >
-              <LayoutDashboard className="h-4 w-4" strokeWidth={1.8} />
-              Mi dashboard
-            </button>
           ) : (
-            <button
-              onClick={() => navigate(dashRoute)}
-              className="flex h-10 w-10 items-center justify-center rounded-full"
-              style={{ color: 'var(--color-stone)', transition: 'var(--transition-fast)' }}
-              aria-label="Ir al dashboard"
-              data-testid="profile-hamburger-btn"
-            >
-              <LayoutDashboard className="h-5 w-5" strokeWidth={1.8} />
-            </button>
+            <div className="w-10" aria-hidden="true" />
           )}
         </div>
       </div>

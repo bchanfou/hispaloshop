@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, Film, MessageCircle, Plus, User, X } from 'lucide-react';
+import { Home, Compass, MessageCircle, Plus, User, X } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,6 @@ import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
 import { useUnreadNotifications } from '../hooks/api/useNotifications';
-import { useScrollDirection } from '../hooks/useScrollDirection';
 
 const HIDDEN_ON_PATHS = [
   '/login', '/register', '/verify-email', '/forgot-password', '/reset-password',
@@ -47,8 +46,6 @@ const HIDDEN_ON_PREFIXES = [
   '/vender',
 ];
 
-// Routes where the BottomNav should always stay visible (no scroll-hide)
-const ALWAYS_VISIBLE = ['/cart', '/checkout', '/checkout/success'];
 
 export default function BottomNavBar() {
   const { user } = useAuth();
@@ -57,7 +54,6 @@ export default function BottomNavBar() {
   const uploadQueue = useUploadQueue();
   const location = useLocation();
   const navigate = useNavigate();
-  const scrollDirection = useScrollDirection(10);
   const { conversations, reloadConversations } = useInternalChatData();
   const [activePanel, setActivePanel] = useState(null);
   const [initialChatUserId, setInitialChatUserId] = useState(null);
@@ -295,8 +291,6 @@ export default function BottomNavBar() {
     : location.pathname === '/profile';
   const isCreating   = showAdvancedEditor || showCreatorEntry;
 
-  const isAlwaysVisible = ALWAYS_VISIBLE.some((path) => location.pathname.startsWith(path));
-  const scrollHidden = !isAlwaysVisible && scrollDirection === 'down';
 
   return (
     <>
@@ -380,15 +374,9 @@ export default function BottomNavBar() {
         onSelect={handleContentTypeSelect}
       />
 
-      {/* ── Instagram-style flat bottom nav ── */}
-      <motion.nav
-        animate={{
-          y: scrollHidden ? '100%' : 0,
-          opacity: scrollHidden ? 0 : 1,
-        }}
-        transition={{ type: 'tween', duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      {/* ── Instagram-style flat bottom nav — always visible ── */}
+      <nav
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-100 bg-white/98 backdrop-blur-xl"
-        style={{ pointerEvents: scrollHidden ? 'none' : 'auto' }}
         data-testid="bottom-nav-bar"
       >
         <div className="grid h-[50px] grid-cols-5 items-stretch px-1">
@@ -405,13 +393,7 @@ export default function BottomNavBar() {
               className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
               style={{ transform: `translateX(-50%) scaleX(${isHome ? 1 : 0})` }}
             />
-            {isHome ? (
-              <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-              </svg>
-            ) : (
-              <Home className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
-            )}
+            <Home className={`h-[26px] w-[26px] ${isHome ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
           </Link>
 
           {/* 2 — Explore / Buscar */}
@@ -426,13 +408,7 @@ export default function BottomNavBar() {
               className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
               style={{ transform: `translateX(-50%) scaleX(${isExplore ? 1 : 0})` }}
             />
-            {isExplore ? (
-              <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
-                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-              </svg>
-            ) : (
-              <Compass className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
-            )}
+            <Compass className={`h-[26px] w-[26px] ${isExplore ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
           </Link>
 
           {/* 3 — Crear (+) — elevated */}
@@ -471,13 +447,7 @@ export default function BottomNavBar() {
               className="absolute top-0 left-1/2 h-[2px] w-4 rounded-full bg-stone-950 transition-transform duration-200 origin-center"
               style={{ transform: `translateX(-50%) scaleX(${isChatActive ? 1 : 0})` }}
             />
-            {isChatActive ? (
-              <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-              </svg>
-            ) : (
-              <MessageCircle className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
-            )}
+            <MessageCircle className={`h-[26px] w-[26px] ${isChatActive ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             {unreadCount > 0 && (
               <span
                 className="absolute top-1 right-2 flex h-[14px] min-w-[14px] items-center justify-center rounded-full px-0.5"
@@ -514,20 +484,14 @@ export default function BottomNavBar() {
                 />
               </div>
             ) : (
-              isProfile ? (
-                <svg viewBox="0 0 24 24" className="h-[26px] w-[26px] fill-stone-950 text-stone-950" aria-hidden="true">
-                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-                </svg>
-              ) : (
-                <User className="h-[26px] w-[26px] text-stone-400" strokeWidth={1.8} />
-              )
+              <User className={`h-[26px] w-[26px] ${isProfile ? 'text-stone-950' : 'text-stone-400'}`} strokeWidth={1.8} />
             )}
           </Link>
         </div>
 
         {/* Safe area para iPhones con home indicator */}
         <div className="h-[env(safe-area-inset-bottom,0px)]" />
-      </motion.nav>
+      </nav>
 
       {/* Spacer para que el contenido no quede tapado por la nav */}
       <div className="h-[calc(50px+env(safe-area-inset-bottom,0px))]" />

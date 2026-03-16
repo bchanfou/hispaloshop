@@ -234,7 +234,61 @@ export default function DiscoverPage() {
           )}
         </div>
 
-        {/* Communities section */}
+        {/* Stores section — horizontal scroll */}
+        {!loadingStores && stores.length > 0 && (
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                Tiendas
+              </span>
+              <button
+                onClick={() => navigate('/stores')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 2,
+                  fontSize: 11, fontWeight: 500, color: 'var(--color-green)',
+                  background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                }}
+              >
+                Ver todas <ChevronRight size={14} />
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: 12, overflowX: 'auto' }} className="scrollbar-hide">
+              {stores.slice(0, 6).map((store) => {
+                const slug = store.slug || store.store_slug;
+                return (
+                  <button
+                    key={store.id || store.store_id || slug}
+                    onClick={() => slug && navigate(`/store/${slug}`)}
+                    style={{
+                      flexShrink: 0, width: 140, textAlign: 'center',
+                      borderRadius: 'var(--radius-lg)',
+                      background: 'var(--color-white)',
+                      border: '0.5px solid var(--color-border)',
+                      cursor: 'pointer', padding: 16,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                    }}
+                  >
+                    <img
+                      src={store.logo || store.hero_image || '/placeholder-store.png'}
+                      alt={store.name}
+                      loading="lazy"
+                      style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover' }}
+                    />
+                    <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                      {store.name}
+                    </p>
+                    <p style={{ fontSize: 10, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <MapPin size={10} />
+                      {store.location || 'España'}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Communities section — horizontal scroll */}
         {communities.length > 0 && (
           <div style={{ marginBottom: 32 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -296,70 +350,6 @@ export default function DiscoverPage() {
                   </div>
                 </button>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* Stores section */}
-        {!loadingStores && stores.length > 0 && (
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
-                Tiendas
-              </span>
-              <button
-                onClick={() => navigate('/stores')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 2,
-                  fontSize: 11, fontWeight: 500, color: 'var(--color-green)',
-                  background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
-                }}
-              >
-                Ver todas <ChevronRight size={14} />
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {stores.slice(0, 3).map((store) => {
-                const slug = store.slug || store.store_slug;
-                return (
-                  <button
-                    key={store.id || store.store_id || slug}
-                    onClick={() => slug && navigate(`/store/${slug}`)}
-                    style={{
-                      display: 'flex', gap: 12, padding: 12, textAlign: 'left',
-                      borderRadius: 'var(--radius-lg)',
-                      background: 'var(--color-white)',
-                      border: '0.5px solid var(--color-border)',
-                      cursor: 'pointer', width: '100%',
-                    }}
-                  >
-                    <img
-                      src={store.logo || store.hero_image || '/placeholder-store.png'}
-                      alt={store.name}
-                      loading="lazy"
-                      style={{ width: 48, height: 48, borderRadius: 'var(--radius-md)', objectFit: 'cover' }}
-                    />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
-                        {store.name}
-                      </p>
-                      <p style={{ fontSize: 11, color: 'var(--color-stone)', marginTop: 2, fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <MapPin size={10} />
-                        {store.location || 'España'}
-                      </p>
-                      <div style={{ display: 'flex', gap: 10, marginTop: 4, fontSize: 10, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
-                        {store.rating && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                            <Star size={10} fill="var(--color-amber)" stroke="var(--color-amber)" />
-                            {store.rating}
-                          </span>
-                        )}
-                        <span>{store.product_count || 0} productos</span>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
             </div>
           </div>
         )}

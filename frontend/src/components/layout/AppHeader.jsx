@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ShoppingCart, Search, ChevronDown, LogOut, LayoutDashboard, Settings } from 'lucide-react';
+import { Bell, ShoppingCart, Search, ChevronDown, LogOut, LayoutDashboard, Settings, Menu } from 'lucide-react';
+import HamburgerMenu from './HamburgerMenu';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useUnreadNotifications } from '../../hooks/api/useNotifications';
@@ -24,6 +25,7 @@ export default function AppHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const unreadCount = user ? (unreadData?.count ?? 0) : 0;
@@ -101,6 +103,9 @@ export default function AppHeader() {
         fontFamily: 'var(--font-sans)',
       }}
     >
+      {/* Hamburger Menu drawer */}
+      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+
       {/* ── Mobile Header ── */}
       <div className="lg:hidden" style={{
         height: 52,
@@ -109,7 +114,19 @@ export default function AppHeader() {
         justifyContent: 'space-between',
         padding: '0 var(--space-4)',
       }}>
-        {/* Logo */}
+        {/* Hamburger + Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button
+            onClick={() => setMenuOpen(true)}
+            aria-label="Abrir men\u00fa"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 36, height: 36, borderRadius: '50%',
+              border: 'none', background: 'transparent', cursor: 'pointer',
+            }}
+          >
+            <Menu size={22} color="var(--color-black)" strokeWidth={1.8} />
+          </button>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
           <Logo variant="icon" theme="light" size={28} />
           <span style={{
@@ -121,6 +138,7 @@ export default function AppHeader() {
             Hispaloshop
           </span>
         </Link>
+        </div>
 
         {/* Right icons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
