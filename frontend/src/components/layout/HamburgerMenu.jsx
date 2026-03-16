@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -82,12 +83,13 @@ export default function HamburgerMenu({ isOpen, onClose }) {
   const profileImage = user?.profile_image || user?.avatar_url || null;
   const displayName = user?.name || user?.full_name || user?.username || '';
   const username = user?.username || '';
+  const profileUserId = user?.user_id || user?.id || null;
 
   const currentCountry = COUNTRIES.find(c => c.code === locale?.country) || COUNTRIES[0];
   const currentLang = LANGUAGES.find(l => l.code === locale?.language) || LANGUAGES[0];
   const currentCurrency = CURRENCIES.find(c => c.code === locale?.currency) || CURRENCIES[0];
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -100,7 +102,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
             transition={{ duration: 0.2 }}
             onClick={onClose}
             style={{
-              position: 'fixed', inset: 0, zIndex: 'var(--z-modal, 100)',
+              position: 'fixed', inset: 0, zIndex: 9998,
               background: 'rgba(10,10,10,0.5)',
               backdropFilter: 'blur(4px)',
               WebkitBackdropFilter: 'blur(4px)',
@@ -121,7 +123,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
             style={{
               position: 'fixed', top: 0, right: 0, bottom: 0,
               width: 'min(300px, 85vw)',
-              zIndex: 'calc(var(--z-modal, 100) + 1)',
+              zIndex: 9999,
               background: 'var(--color-white)',
               display: 'flex', flexDirection: 'column',
               overflowY: 'auto',
@@ -329,7 +331,8 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     )}
                   </div>
 
-                  <MenuItem to="/settings" icon={<Settings size={20} />} label="Configuración" onClose={onClose} />
+                  <MenuItem to={profileUserId ? `/user/${profileUserId}` : '/profile'} icon={<Settings size={20} />} label="Mi perfil" onClose={onClose} />
+                  <MenuItem to="/settings/locale" icon={<GlobeIcon size={20} />} label="Configuración" onClose={onClose} />
                   <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />
 
                   <Divider />
@@ -383,7 +386,8 @@ export default function HamburgerMenu({ isOpen, onClose }) {
           </motion.aside>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 

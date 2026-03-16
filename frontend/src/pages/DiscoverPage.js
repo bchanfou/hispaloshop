@@ -57,14 +57,7 @@ export default function DiscoverPage() {
   return (
     <div className="min-h-screen pb-28" style={{ background: 'var(--color-cream)' }}>
 
-      {/* TopBar */}
-      <header className="sticky top-0 z-40" style={{ background: 'var(--color-cream)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px' }}>
-        <span style={{ fontSize: 17, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
-          Explorar
-        </span>
-      </header>
-
-      <div style={{ padding: '0 16px' }}>
+      <div style={{ padding: '12px 16px 0' }}>
 
         {/* Search bar with AI pill */}
         <div style={{ position: 'relative', marginBottom: 16 }}>
