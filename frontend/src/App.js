@@ -96,6 +96,8 @@ const ChangePasswordPage = lazy(() => import('./pages/settings/ChangePasswordPag
 const NotificationsSettingsPage = lazy(() => import('./pages/settings/NotificationsSettingsPage'));
 const PlanPage = lazy(() => import('./pages/settings/PlanPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const PayoutSettingsPage = lazy(() => import('./pages/settings/PayoutSettingsPage'));
+const FollowersPage = lazy(() => import('./pages/FollowersPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
 const SuperAdminLayout = lazy(() => import('./components/dashboard/SuperAdminLayoutResponsive'));
@@ -347,6 +349,7 @@ function AppRouter() {
               <Route path="/settings/password" element={<ChangePasswordPage />} />
               <Route path="/settings/notifications" element={<NotificationsSettingsPage />} />
               <Route path="/settings/plan" element={<PlanPage />} />
+              <Route path="/settings/payout" element={<PayoutSettingsPage />} />
               <Route path="/settings/locale" element={<LocaleSettingsPage />} />
               <Route path="/configuracion/idioma" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/configuracion/pais" element={<Navigate to="/settings/locale" replace />} />
@@ -356,6 +359,8 @@ function AppRouter() {
               <Route path="/stores" element={<FeedLayout><StoresListPage /></FeedLayout>} />
               <Route path="/tiendas" element={<Navigate to="/stores" replace />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
+              <Route path="/user/:username/followers" element={<FollowersPage />} />
+              <Route path="/user/:username/following" element={<FollowersPage />} />
               <Route path="/discover" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/explore" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/explore/category/:slug" element={<ExploreCategoryPage />} />

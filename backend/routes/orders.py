@@ -1317,11 +1317,73 @@ async def stripe_webhook(request: Request):
             payment_status = session_obj.get("payment_status")
             metadata = session_obj.get("metadata", {})
             user_id = metadata.get("user_id")
-            
+
             if payment_status == "paid" and session_id:
                 logger.info(f"[WEBHOOK] Processing payment for session {session_id}, order {metadata.get('order_id')}")
                 await process_payment_confirmed(session_id, user_id=user_id)
-        
+
+        elif event_type == "payment_intent.payment_failed":
+            pi_obj = event.get("data", {}).get("object", {})
+            pi_id = pi_obj.get("id")
+            metadata = pi_obj.get("metadata", {})
+            order_id = metadata.get("order_id")
+            user_id = metadata.get("user_id")
+            logger.warning(f"[WEBHOOK] Payment failed: pi={pi_id}, order={order_id}")
+            if order_id:
+                await db.orders.update_one(
+                    {"order_id": order_id},
+                    {"$set": {"status": "payment_failed", "updated_at": datetime.now(timezone.utc)}}
+                )
+            if user_id and order_id:
+                try:
+                    await db.notifications.insert_one({
+                        "user_id": user_id,
+                        "type": "order_payment_failed",
+                        "title": "Pago fallido",
+                        "message": f"El pago de tu pedido #{str(order_id)[-4:].upper()} no se ha completado.",
+                        "data": {"order_id": order_id},
+                        "read": False,
+                        "created_at": datetime.now(timezone.utc),
+                    })
+                except Exception:
+                    pass
+
+        elif event_type == "customer.subscription.created":
+            sub_obj = event.get("data", {}).get("object", {})
+            customer_id = sub_obj.get("customer")
+            plan_amount = sub_obj.get("plan", {}).get("amount", 0)
+            plan_name = "elite" if plan_amount >= 14900 else "pro" if plan_amount >= 7900 else "free"
+            logger.info(f"[WEBHOOK] Subscription created: customer={customer_id}, plan={plan_name}")
+            if customer_id:
+                await db.users.update_one(
+                    {"stripe_customer_id": customer_id},
+                    {"$set": {"subscription_plan": plan_name, "plan": plan_name, "updated_at": datetime.now(timezone.utc)}}
+                )
+
+        elif event_type == "customer.subscription.updated":
+            sub_obj = event.get("data", {}).get("object", {})
+            customer_id = sub_obj.get("customer")
+            status = sub_obj.get("status")
+            plan_amount = sub_obj.get("plan", {}).get("amount", 0)
+            plan_name = "elite" if plan_amount >= 14900 else "pro" if plan_amount >= 7900 else "free"
+            logger.info(f"[WEBHOOK] Subscription updated: customer={customer_id}, plan={plan_name}, status={status}")
+            if customer_id and status == "active":
+                await db.users.update_one(
+                    {"stripe_customer_id": customer_id},
+                    {"$set": {"subscription_plan": plan_name, "plan": plan_name, "updated_at": datetime.now(timezone.utc)}}
+                )
+
+        elif event_type == "customer.subscription.deleted":
+            sub_obj = event.get("data", {}).get("object", {})
+            customer_id = sub_obj.get("customer")
+            logger.info(f"[WEBHOOK] Subscription deleted: customer={customer_id}")
+            if customer_id:
+                await db.users.update_one(
+                    {"stripe_customer_id": customer_id},
+                    {"$set": {"subscription_plan": "free", "plan": "free", "updated_at": datetime.now(timezone.utc)}}
+                )
+
+        # Return 200 for all events (including unhandled ones)
         return {"status": "success"}
     except stripe.error.SignatureVerificationError as e:
         logger.error(f"[WEBHOOK] Signature verification failed: {e}")
