@@ -51,7 +51,6 @@ const CreateRecipePage = lazy(() => import('./pages/CreateRecipePage'));
 const CreatePostPage = lazy(() => import('./pages/create/CreatePostPage'));
 const CreateReelPage = lazy(() => import('./pages/create/CreateReelPage'));
 const CreateStoryPage = lazy(() => import('./pages/create/CreateStoryPage'));
-const CreateTextPostPage = lazy(() => import('./pages/create/CreateTextPostPage'));
 const ProductsPage = lazy(() => import('./pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const StorePage = lazy(() => import('./pages/StorePage'));
@@ -62,7 +61,7 @@ const LocaleSettingsPage = lazy(() => import('./pages/LocaleSettingsPage'));
 const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
-const ReelsPage = lazy(() => import('./components/reels/ReelsContainer'));
+const ReelsPage = lazy(() => import('./pages/ReelsPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ImporterLandingPage = lazy(() => import('./pages/informativas/ForImporters'));
 const B2BMarketplacePage = lazy(() => import('./pages/b2b/B2BMarketplacePage'));
@@ -308,7 +307,7 @@ function AppRouter() {
               <Route path="/create/post" element={<CreatePostPage />} />
               <Route path="/create/reel" element={<CreateReelPage />} />
               <Route path="/create/story" element={<CreateStoryPage />} />
-              <Route path="/create/text" element={<CreateTextPostPage />} />
+              <Route path="/create/text" element={<CreatePostPage />} />
               <Route path="/create/recipe" element={<CreateRecipePage />} />
               <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
               <Route path="/products" element={<ProductsPage />} />

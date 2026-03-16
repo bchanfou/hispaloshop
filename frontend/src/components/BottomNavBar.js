@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Compass, MessageCircle, Plus, User, X } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { Home, Compass, MessageCircle, Plus, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
-import { API } from '../utils/api';
 import InternalChat from './InternalChat';
-import CreatorEntry from './creator/CreatorEntry';
-import AdvancedEditor from './creator/editor/AdvancedEditor';
-import { publishSocialContent } from './creator/publishContent';
-import { useUploadQueue } from '../context/UploadQueueContext';
 import CreateContentSheet from './create/CreateContentSheet';
 import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
@@ -25,6 +18,7 @@ const HIDDEN_ON_PATHS = [
   '/seller/login', '/seller/register', '/influencer/login', '/influencer/register',
   '/chat',
   '/reels',   // full-screen inmersivo — nav oculta
+  '/create/',  // editores fullscreen
 ];
 
 const HIDDEN_ON_PREFIXES = [
@@ -50,8 +44,6 @@ const HIDDEN_ON_PREFIXES = [
 export default function BottomNavBar() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const uploadQueue = useUploadQueue();
   const location = useLocation();
   const navigate = useNavigate();
   const { conversations, reloadConversations } = useInternalChatData();
@@ -59,10 +51,6 @@ export default function BottomNavBar() {
   const [initialChatUserId, setInitialChatUserId] = useState(null);
   const [messageToast, setMessageToast] = useState(null);
   const [showContentSheet,      setShowContentSheet]      = useState(false);
-  const [showCreatorEntry,      setShowCreatorEntry]      = useState(false);
-  const [selectedContentType,   setSelectedContentType]   = useState(null);
-  const [selectedFiles,         setSelectedFiles]         = useState([]);
-  const [showAdvancedEditor,    setShowAdvancedEditor]    = useState(false);
   const [profileAvatarError, setProfileAvatarError] = useState(false);
   const toastTimeoutRef = useRef(null);
   const chatDragControls = useDragControls();
@@ -118,9 +106,10 @@ export default function BottomNavBar() {
       if (!user) { navigate('/login'); return; }
       const mode = e?.detail?.mode;
       if (mode && ['post', 'reel', 'story'].includes(mode)) {
-        setSelectedContentType(mode);
+        navigate(`/create/${mode}`);
+      } else {
+        setShowContentSheet(true);
       }
-      setShowCreatorEntry(true);
     };
 
     window.addEventListener('open-chat-with-user', handleOpenChat);
@@ -217,47 +206,9 @@ export default function BottomNavBar() {
   const handleContentTypeSelect = (type) => {
     setShowContentSheet(false);
     if (type === 'recipe') {
-      navigate('/recipes/create');
-      return;
-    }
-    if (type === 'text') {
-      navigate('/create/text');
-      return;
-    }
-    setSelectedContentType(type);
-    setShowCreatorEntry(true);
-  };
-
-  // Called by CreatorEntry when user taps "Siguiente"
-  const handleCreatorProceed = ({ contentType, files, textOnly }) => {
-    setSelectedContentType(contentType);
-    setSelectedFiles(textOnly ? [] : files);
-    setShowCreatorEntry(false);
-    setShowAdvancedEditor(true);
-  };
-
-  const handleEditorClose = () => {
-    setShowAdvancedEditor(false);
-    setShowCreatorEntry(false);
-    setSelectedContentType(null);
-    setSelectedFiles([]);
-    closePanel();
-  };
-
-  const handlePublish = async (publishData) => {
-    try {
-      // Use background upload queue — closes editor immediately
-      uploadQueue.enqueueAndProcess(publishData);
-      toast.success(t('social.uploading', 'Subiendo en segundo plano…'));
-      handleEditorClose();
-      // Invalidate feed after a delay to give time for upload
-      setTimeout(() => queryClient.invalidateQueries({ queryKey: ['feed'] }), 3000);
-    } catch (error) {
-      if (error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError') {
-        toast('Cancelado');
-        return;
-      }
-      toast.error(error.message || 'Error');
+      navigate('/create/recipe');
+    } else {
+      navigate(`/create/${type}`);
     }
   };
 
@@ -289,35 +240,11 @@ export default function BottomNavBar() {
   const isProfile    = profileUserId
     ? location.pathname === `/user/${profileUserId}`
     : location.pathname === '/profile';
-  const isCreating   = showAdvancedEditor || showCreatorEntry;
 
 
   return (
     <>
       <MessageToast notification={messageToast} onClose={dismissMessageToast} onOpen={openMessageToast} />
-
-      <AnimatePresence>
-        {showCreatorEntry && (
-          <CreatorEntry
-            initialTab={selectedContentType || 'post'}
-            onClose={() => {
-              setShowCreatorEntry(false);
-              setSelectedContentType(null);
-              setSelectedFiles([]);
-            }}
-            onProceed={handleCreatorProceed}
-          />
-        )}
-      </AnimatePresence>
-
-      {showAdvancedEditor && selectedContentType ? (
-        <AdvancedEditor
-          contentType={selectedContentType}
-          files={selectedFiles}
-          onClose={handleEditorClose}
-          onPublish={handlePublish}
-        />
-      ) : null}
 
       <AnimatePresence>
         {activePanel === 'chat' ? (
@@ -420,18 +347,10 @@ export default function BottomNavBar() {
             className="relative flex h-full items-center justify-center active:opacity-60"
           >
             <div
-              className={`flex items-center justify-center rounded-full shadow-md transition-all active:scale-90 ${
-                isCreating
-                  ? 'bg-stone-800'
-                  : 'bg-stone-950'
-              }`}
+              className="flex items-center justify-center rounded-full shadow-md transition-all active:scale-90 bg-stone-950"
               style={{ width: 42, height: 42, marginTop: -12 }}
             >
-              {isCreating ? (
-                <X className="h-5 w-5 text-white" strokeWidth={2.2} />
-              ) : (
-                <Plus className="h-5 w-5 text-white" strokeWidth={2.2} />
-              )}
+              <Plus className="h-5 w-5 text-white" strokeWidth={2.2} />
             </div>
           </button>
 

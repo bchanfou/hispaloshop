@@ -1,5 +1,21 @@
 import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
-import { publishSocialContent } from '../components/creator/publishContent';
+import apiClient from '../services/api/client';
+
+async function publishSocialContent({ publishData, onProgress }) {
+  const fd = new FormData();
+  fd.append('type', publishData.contentType || 'post');
+  if (publishData.caption) fd.append('content', publishData.caption);
+  if (publishData.files) {
+    publishData.files.forEach((f) => fd.append('media', f));
+  }
+  if (publishData.products) {
+    fd.append('products', JSON.stringify(publishData.products));
+  }
+  onProgress?.(50);
+  const res = await apiClient.post('/posts', fd);
+  onProgress?.(100);
+  return res;
+}
 
 const UploadQueueContext = createContext(null);
 

@@ -1,642 +1,859 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  X, Film, ChevronRight, Music, Sparkles, ShoppingBag,
-  Play, Pause, Loader2, Hash, Tag, Image as ImageIcon, Mic,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuth } from '../../context/AuthContext';
+import { X, ChevronLeft, Play, Pause, Search } from 'lucide-react';
 import apiClient from '../../services/api/client';
-import HispalAIPanel from '../../components/creator/HispalAIPanel';
+import { toast } from 'sonner';
 
-/* ─── V2 Design Tokens (inline) ──────────────────────────────── */
-const V2 = {
-  cream:   'var(--color-cream, #F7F6F2)',
-  black:   'var(--color-black, #0A0A0A)',
-  green:   'var(--color-green, #2E7D52)',
-  stone:   'var(--color-stone, #8A8881)',
-  border:  'var(--color-border, #E5E2DA)',
-  surface: 'var(--color-surface, #F0EDE8)',
-  white:   'var(--color-white, #FFFFFF)',
-  radiusMd:   'var(--radius-md, 12px)',
-  radiusFull: 'var(--radius-full, 9999px)',
-  radiusLg:   'var(--radius-lg, 16px)',
-  fontSans:   'var(--font-sans, system-ui, -apple-system, sans-serif)',
-};
+const FILTERS = [
+  { name: 'Normal', value: 'none' },
+  { name: 'Clarendon', value: 'contrast(1.2) saturate(1.35)' },
+  { name: 'Gingham', value: 'brightness(1.05) sepia(0.12)' },
+  { name: 'Moon', value: 'grayscale(1) contrast(1.1) brightness(1.1)' },
+  { name: 'Lark', value: 'contrast(0.9) brightness(1.15) saturate(1.2)' },
+  { name: 'Reyes', value: 'sepia(0.22) brightness(1.1) contrast(0.85)' },
+  { name: 'Juno', value: 'contrast(1.15) saturate(1.4) brightness(1.05)' },
+  { name: 'Ludwig', value: 'contrast(1.05) saturate(0.9) sepia(0.08)' },
+];
 
-/* ─── Product Search Modal (inline) ──────────────────────────── */
-function ProductSearchModal({ open, onClose, onSelect }) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+const SPEED_OPTIONS = [0.3, 0.5, 1, 2, 3];
 
-  const search = useCallback(async (q) => {
-    if (!q.trim()) { setResults([]); return; }
-    setLoading(true);
-    try {
-      const { data } = await apiClient.get(`/products?search=${encodeURIComponent(q)}&limit=10`);
-      setResults(data?.products ?? data ?? []);
-    } catch { setResults([]); }
-    setLoading(false);
-  }, []);
+const FONTS = ['Sans', 'Serif', 'Mono', 'Display'];
+const TEXT_COLORS = ['#000000', '#ffffff', '#facc15', '#22c55e', '#ef4444'];
 
-  useEffect(() => {
-    const t = setTimeout(() => search(query), 350);
-    return () => clearTimeout(t);
-  }, [query, search]);
-
-  if (!open) return null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] flex items-end justify-center"
-      style={{ background: 'rgba(0,0,0,0.5)' }}
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="w-full max-w-lg"
-        style={{
-          background: V2.cream,
-          borderRadius: '16px 16px 0 0',
-          maxHeight: '70vh',
-          fontFamily: V2.fontSans,
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span style={{ fontSize: 15, fontWeight: 600, color: V2.black }}>Etiquetar producto</span>
-            <button onClick={onClose}><X size={20} style={{ color: V2.stone }} /></button>
-          </div>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar productos…"
-            className="w-full px-3 py-2 outline-none"
-            style={{
-              border: `1px solid ${V2.border}`,
-              borderRadius: V2.radiusMd,
-              fontSize: 14,
-              background: V2.surface,
-              color: V2.black,
-              fontFamily: V2.fontSans,
-            }}
-          />
-        </div>
-        <div className="overflow-y-auto px-4 pb-4" style={{ maxHeight: '50vh' }}>
-          {loading && <div className="flex justify-center py-6"><Loader2 size={20} className="animate-spin" style={{ color: V2.stone }} /></div>}
-          {results.map((p) => (
-            <button
-              key={p.id ?? p._id}
-              onClick={() => { onSelect(p); onClose(); }}
-              className="flex items-center gap-3 w-full py-2 px-2 text-left"
-              style={{ borderBottom: `1px solid ${V2.border}` }}
-            >
-              {p.image_url && (
-                <img src={p.image_url} alt="" className="w-10 h-10 object-cover" style={{ borderRadius: V2.radiusMd }} />
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="truncate" style={{ fontSize: 14, fontWeight: 500, color: V2.black }}>{p.name ?? p.title}</div>
-                {p.price != null && <div style={{ fontSize: 12, color: V2.stone }}>{Number(p.price).toFixed(2)} €</div>}
-              </div>
-            </button>
-          ))}
-          {!loading && query && results.length === 0 && (
-            <p className="text-center py-6" style={{ fontSize: 13, color: V2.stone }}>Sin resultados</p>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-/* ─── Duration Pills ─────────────────────────────────────────── */
-const DURATIONS = [15, 30, 60];
-
-function DurationPills({ value, onChange }) {
-  return (
-    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">
-      {DURATIONS.map((d) => {
-        const active = value === d;
-        return (
-          <button
-            key={d}
-            onClick={() => onChange(d)}
-            className="flex items-center justify-center"
-            style={{
-              width: 44,
-              height: 36,
-              borderRadius: V2.radiusFull,
-              fontSize: 13,
-              fontWeight: 600,
-              fontFamily: V2.fontSans,
-              background: active ? '#fff' : 'rgba(255,255,255,0.25)',
-              color: active ? '#000' : '#fff',
-              transition: 'all 0.2s',
-            }}
-          >
-            {d}s
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ─── Right Toolbar (edit step) ──────────────────────────────── */
-function EditToolbar({ onProductTag }) {
-  const tools = [
-    { icon: Music, label: 'Música', action: () => toast('Música — próximamente') },
-    { icon: Sparkles, label: 'Efectos', action: () => toast('Efectos — próximamente') },
-    { icon: ShoppingBag, label: 'Producto', action: onProductTag },
-  ];
-
-  return (
-    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-10">
-      {tools.map((t) => (
-        <button
-          key={t.label}
-          onClick={t.action}
-          className="flex flex-col items-center gap-1"
-        >
-          <div
-            className="flex items-center justify-center"
-            style={{
-              width: 44, height: 44,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.2)',
-            }}
-          >
-            <t.icon size={20} color="#fff" />
-          </div>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>{t.label}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════ */
-/*  CREATE REEL PAGE                                              */
-/* ═══════════════════════════════════════════════════════════════ */
 export default function CreateReelPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const fileInputRef = useRef(null);
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-
-  /* ── state ─────────────────────────────────────────────────── */
-  const [step, setStep] = useState('upload');         // upload | edit | details
+  const [screen, setScreen] = useState('upload');
+  const [uploadTab, setUploadTab] = useState('subir');
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
-  const [duration, setDuration] = useState(30);
-  const [playing, setPlaying] = useState(false);
-  const [caption, setCaption] = useState('');
-  const [taggedProducts, setTaggedProducts] = useState([]);
-  const [publishing, setPublishing] = useState(false);
-  const [productModalOpen, setProductModalOpen] = useState(false);
-  const [coverThumb, setCoverThumb] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showPlayIcon, setShowPlayIcon] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [editTab, setEditTab] = useState('velocidad');
   const [speed, setSpeed] = useState(1);
-  const [showAIPanel, setShowAIPanel] = useState(false);
-  const [activeEditTab, setActiveEditTab] = useState('speed');
+  const [activeFilter, setActiveFilter] = useState('none');
+  const [textOverlays, setTextOverlays] = useState([]);
+  const [textDraft, setTextDraft] = useState('');
+  const [selectedFont, setSelectedFont] = useState('Sans');
+  const [selectedColor, setSelectedColor] = useState('#ffffff');
+  const [textSize, setTextSize] = useState(24);
+  const [showTextInput, setShowTextInput] = useState(false);
+  const [caption, setCaption] = useState('');
+  const [thumbnailIndex, setThumbnailIndex] = useState(0);
+  const [publishing, setPublishing] = useState(false);
 
-  const hasMediaRecorder = typeof MediaRecorder !== 'undefined';
-  const SPEEDS = [0.3, 0.5, 1, 2, 3];
+  const videoRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+  const playIconTimer = useRef(null);
+  const dragRef = useRef(null);
 
-  /* ── helpers ───────────────────────────────────────────────── */
-  const handleFileChange = (e) => {
+  const handleFileSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith('video/')) {
-      toast.error('Selecciona un archivo de vídeo');
-      return;
-    }
     setVideoFile(file);
     setVideoUrl(URL.createObjectURL(file));
-    setStep('edit');
-  };
+    setScreen('edit');
+  }, []);
 
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setPlaying(true);
+  const togglePlay = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      v.play();
+      setIsPlaying(true);
     } else {
-      videoRef.current.pause();
-      setPlaying(false);
+      v.pause();
+      setIsPlaying(false);
     }
-  };
-
-  /* generate cover thumbnail from first frame */
-  const generateCover = useCallback(() => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas) return;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
-    setCoverThumb(canvas.toDataURL('image/jpeg', 0.8));
+    setShowPlayIcon(true);
+    clearTimeout(playIconTimer.current);
+    playIconTimer.current = setTimeout(() => setShowPlayIcon(false), 600);
   }, []);
 
   useEffect(() => {
-    if (step === 'edit' && videoRef.current) {
-      const v = videoRef.current;
-      const onLoaded = () => { generateCover(); };
-      v.addEventListener('loadeddata', onLoaded);
-      return () => v.removeEventListener('loadeddata', onLoaded);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = speed;
     }
-  }, [step, generateCover]);
+  }, [speed]);
 
-  const goToDetails = () => {
-    if (!videoFile) return;
-    generateCover();
-    setStep('details');
+  const handleTimeUpdate = useCallback(() => {
+    if (videoRef.current) setCurrentTime(videoRef.current.currentTime);
+  }, []);
+
+  const handleLoadedMetadata = useCallback(() => {
+    if (videoRef.current) setDuration(videoRef.current.duration);
+  }, []);
+
+  const fmt = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
   };
 
-  const handlePublish = async () => {
+  const addTextOverlay = useCallback(() => {
+    if (!textDraft.trim() || textOverlays.length >= 3) return;
+    setTextOverlays((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        text: textDraft,
+        font: selectedFont,
+        color: selectedColor,
+        size: textSize,
+        x: 50,
+        y: 50,
+      },
+    ]);
+    setTextDraft('');
+    setShowTextInput(false);
+  }, [textDraft, selectedFont, selectedColor, textSize, textOverlays.length]);
+
+  const handleTextDrag = useCallback((id, e) => {
+    const touch = e.touches?.[0] || e;
+    const container = e.currentTarget.parentElement;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const x = ((touch.clientX - rect.left) / rect.width) * 100;
+    const y = ((touch.clientY - rect.top) / rect.height) * 100;
+    setTextOverlays((prev) =>
+      prev.map((t) =>
+        t.id === id ? { ...t, x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) } : t
+      )
+    );
+  }, []);
+
+  const handlePublish = useCallback(async () => {
     if (!videoFile) return;
     setPublishing(true);
     try {
       const fd = new FormData();
-      fd.append('video', videoFile);
+      fd.append('type', 'reel');
+      fd.append('media', videoFile);
       fd.append('caption', caption);
-      fd.append('duration', duration);
-      fd.append('taggedProducts', JSON.stringify(taggedProducts.map((p) => p.id ?? p._id)));
-      await apiClient.post('/reels', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      fd.append(
+        'metadata',
+        JSON.stringify({
+          filter: activeFilter,
+          speed,
+          textOverlays,
+          thumbnailIndex,
+        })
+      );
+      await apiClient.post('/api/posts', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       toast.success('Reel publicado');
-      navigate(-1);
+      navigate('/');
     } catch (err) {
       toast.error('Error al publicar el reel');
+    } finally {
+      setPublishing(false);
     }
-    setPublishing(false);
-  };
+  }, [videoFile, caption, activeFilter, speed, textOverlays, thumbnailIndex, navigate]);
 
-  const removeProduct = (id) => {
-    setTaggedProducts((prev) => prev.filter((p) => (p.id ?? p._id) !== id));
-  };
-
-  /* ── UPLOAD STEP ───────────────────────────────────────────── */
-  if (step === 'upload') {
+  // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
+  if (screen === 'upload') {
     return (
       <div
-        className="fixed inset-0 z-50 flex flex-col"
-        style={{ background: V2.black, fontFamily: V2.fontSans }}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 50,
+          background: '#000',
+          display: 'flex',
+          flexDirection: 'column',
+          fontFamily: 'var(--font-sans)',
+        }}
       >
-        {/* top bar */}
-        <div className="flex items-center justify-between px-4 pt-[env(safe-area-inset-top,0px)]" style={{ height: 56 }}>
-          <button onClick={() => navigate(-1)}>
-            <X size={24} color="#fff" />
+        {/* TopBar */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 16px',
+          }}
+        >
+          <button
+            onClick={() => navigate(-1)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          >
+            <X style={{ color: '#fff', width: 22, height: 22 }} />
           </button>
-          <span style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>Nuevo reel</span>
-          <div style={{ width: 24 }} />
+          <span style={{ color: '#fff', fontSize: 15, fontWeight: 500 }}>Nuevo Reel</span>
+          <div style={{ width: 30 }} />
         </div>
 
-        {/* drop zone */}
-        <div className="flex-1 flex items-center justify-center relative px-4">
-          <DurationPills value={duration} onChange={setDuration} />
+        {/* Tabs */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            justifyContent: 'center',
+            padding: '8px 16px 16px',
+          }}
+        >
+          {['subir', 'grabar'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setUploadTab(tab)}
+              style={{
+                background: uploadTab === tab ? '#fff' : 'transparent',
+                color: uploadTab === tab ? '#000' : '#fff',
+                border: 'none',
+                borderRadius: 'var(--radius-full)',
+                padding: '8px 20px',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'var(--transition-fast)',
+              }}
+            >
+              {tab === 'subir' ? 'Subir' : 'Grabar'}
+            </button>
+          ))}
+        </div>
 
+        {/* Content */}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 16,
+            padding: '0 32px',
+          }}
+        >
+          <span style={{ fontSize: 48 }}>{uploadTab === 'subir' ? '🎬' : '🎥'}</span>
+          <span style={{ fontSize: 16, color: '#fff', fontWeight: 500 }}>
+            {uploadTab === 'subir' ? 'Selecciona un video' : 'Graba un video'}
+          </span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+            Máximo 60 segundos · MP4 o MOV
+          </span>
           <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex flex-col items-center justify-center gap-4"
+            onClick={() =>
+              uploadTab === 'subir' ? fileInputRef.current?.click() : cameraInputRef.current?.click()
+            }
             style={{
-              width: '70%',
-              aspectRatio: '9/16',
-              maxHeight: '60vh',
-              border: '2px dashed rgba(255,255,255,0.3)',
-              borderRadius: V2.radiusLg,
+              background: '#fff',
+              color: '#000',
+              border: 'none',
+              fontSize: 14,
+              fontWeight: 600,
+              padding: '12px 24px',
+              borderRadius: 'var(--radius-full)',
+              cursor: 'pointer',
+              marginTop: 8,
+              transition: 'var(--transition-fast)',
             }}
           >
-            <Film size={48} color="rgba(255,255,255,0.5)" />
-            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', textAlign: 'center', lineHeight: 1.5, padding: '0 16px' }}>
-              Arrastra un vídeo o toca para seleccionar
-            </span>
+            {uploadTab === 'subir' ? 'Elegir de la galería' : 'Abrir cámara'}
           </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="video/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
         </div>
 
-        {/* camera hint */}
-        {hasMediaRecorder && (
-          <div className="pb-6 flex justify-center">
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
-              Grabación de cámara próximamente
-            </span>
-          </div>
-        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="video/*"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+        />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="video/*"
+          capture="environment"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+        />
       </div>
     );
   }
 
-  /* ── EDIT STEP ─────────────────────────────────────────────── */
-  if (step === 'edit') {
+  // ─── SCREEN 2: EDIT ───────────────────────────────────────────
+  if (screen === 'edit') {
     return (
       <div
-        className="fixed inset-0 z-50 flex flex-col"
-        style={{ background: V2.black, fontFamily: V2.fontSans }}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 50,
+          background: '#000',
+          display: 'flex',
+          flexDirection: 'column',
+          fontFamily: 'var(--font-sans)',
+        }}
       >
-        {/* video preview */}
-        <div className="absolute inset-0" onClick={togglePlay}>
+        {/* TopBar */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 16px',
+          }}
+        >
+          <button
+            onClick={() => { setScreen('upload'); setVideoFile(null); setVideoUrl(null); }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          >
+            <X style={{ color: '#fff', width: 22, height: 22 }} />
+          </button>
+          <span style={{ color: '#fff', fontSize: 15, fontWeight: 500 }}>Editar Reel</span>
+          <button
+            onClick={() => setScreen('details')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--color-green)',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            Siguiente →
+          </button>
+        </div>
+
+        {/* Video preview */}
+        <div
+          style={{
+            position: 'relative',
+            aspectRatio: '9/16',
+            maxHeight: '55vh',
+            background: '#000',
+            margin: '0 auto',
+            width: 'auto',
+            overflow: 'hidden',
+            borderRadius: 'var(--radius-lg)',
+          }}
+          onClick={togglePlay}
+        >
           <video
             ref={videoRef}
             src={videoUrl}
-            className="w-full h-full object-contain"
-            playsInline
             loop
-          />
-          <canvas ref={canvasRef} className="hidden" />
-          <AnimatePresence>
-            {!playing && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              >
-                <div
-                  className="flex items-center justify-center"
-                  style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,0,0,0.45)' }}
-                >
-                  <Play size={28} color="#fff" fill="#fff" />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* top bar */}
-        <div className="relative z-10 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,0px)]" style={{ height: 56 }}>
-          <button
-            onClick={() => { setStep('upload'); setVideoFile(null); setVideoUrl(null); setPlaying(false); }}
-            className="flex items-center justify-center"
-            style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }}
-          >
-            <X size={20} color="#fff" />
-          </button>
-          <button
-            onClick={goToDetails}
-            className="flex items-center gap-1 px-4 py-2"
+            playsInline
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
             style={{
-              background: '#fff',
-              color: '#000',
-              borderRadius: V2.radiusFull,
-              fontSize: 14,
-              fontWeight: 600,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: activeFilter === 'none' ? 'none' : activeFilter,
             }}
-          >
-            Siguiente <ChevronRight size={16} />
-          </button>
-        </div>
+          />
 
-        {/* right toolbar */}
-        <EditToolbar onProductTag={() => setProductModalOpen(true)} />
+          {/* Text overlays */}
+          {textOverlays.map((t) => (
+            <div
+              key={t.id}
+              style={{
+                position: 'absolute',
+                left: `${t.x}%`,
+                top: `${t.y}%`,
+                transform: 'translate(-50%, -50%)',
+                fontSize: t.size,
+                color: t.color,
+                fontFamily:
+                  t.font === 'Serif'
+                    ? 'Georgia, serif'
+                    : t.font === 'Mono'
+                    ? 'monospace'
+                    : t.font === 'Display'
+                    ? 'Impact, sans-serif'
+                    : 'var(--font-sans)',
+                fontWeight: 700,
+                textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+                cursor: 'grab',
+                userSelect: 'none',
+                whiteSpace: 'nowrap',
+              }}
+              onTouchMove={(e) => handleTextDrag(t.id, e)}
+              onMouseDown={() => (dragRef.current = t.id)}
+              onMouseMove={(e) => dragRef.current === t.id && handleTextDrag(t.id, e)}
+              onMouseUp={() => (dragRef.current = null)}
+            >
+              {t.text}
+            </div>
+          ))}
 
-        {/* Bottom tool tabs */}
-        <div className="absolute bottom-0 left-0 right-0 z-10" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-          {/* Tab bar */}
-          <div className="flex overflow-x-auto" style={{ gap: 4, padding: '8px 16px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
-            {[
-              { id: 'speed', label: 'Velocidad' },
-              { id: 'music', label: 'Música' },
-              { id: 'text', label: 'Texto' },
-              { id: 'filters', label: 'Filtros' },
-              { id: 'voice', label: 'Voz' },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveEditTab(tab.id)}
+          {/* Play/Pause icon */}
+          {showPlayIcon && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+              }}
+            >
+              <div
                 style={{
-                  padding: '6px 14px', borderRadius: V2.radiusFull, border: 'none',
-                  fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0,
-                  background: activeEditTab === tab.id ? '#fff' : 'transparent',
-                  color: activeEditTab === tab.id ? '#000' : 'rgba(255,255,255,0.6)',
-                  fontFamily: V2.fontSans,
+                  background: 'rgba(0,0,0,0.5)',
+                  borderRadius: '50%',
+                  padding: 16,
                 }}
               >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+                {isPlaying ? (
+                  <Pause style={{ color: '#fff', width: 32, height: 32 }} />
+                ) : (
+                  <Play style={{ color: '#fff', width: 32, height: 32 }} />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
-          {/* Speed pills */}
-          {activeEditTab === 'speed' && (
-            <div className="flex items-center justify-center" style={{ gap: 8, padding: '12px 16px', background: 'rgba(0,0,0,0.6)' }}>
-              {SPEEDS.map(s => (
+        {/* Trim bar */}
+        <div style={{ padding: '8px 16px' }}>
+          <div
+            style={{
+              height: 32,
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: 'var(--radius-md)',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Progress */}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%',
+                background: 'rgba(255,255,255,0.15)',
+              }}
+            />
+            {/* Left handle */}
+            <div
+              style={{
+                width: 12,
+                height: '100%',
+                background: 'var(--color-white)',
+                borderRadius: '4px 0 0 4px',
+                cursor: 'ew-resize',
+                flexShrink: 0,
+              }}
+            />
+            <div style={{ flex: 1 }} />
+            {/* Right handle */}
+            <div
+              style={{
+                width: 12,
+                height: '100%',
+                background: 'var(--color-white)',
+                borderRadius: '0 4px 4px 0',
+                cursor: 'ew-resize',
+                flexShrink: 0,
+              }}
+            />
+          </div>
+          <div
+            style={{
+              textAlign: 'center',
+              color: 'rgba(255,255,255,0.5)',
+              fontSize: 12,
+              marginTop: 4,
+            }}
+          >
+            {fmt(currentTime)} / {fmt(duration)}
+          </div>
+        </div>
+
+        {/* Tool tabs */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 0,
+            overflowX: 'auto',
+            padding: '8px 16px',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
+          }}
+        >
+          {['velocidad', 'texto', 'filtros'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setEditTab(tab)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: editTab === tab ? '#fff' : 'rgba(255,255,255,0.4)',
+                fontSize: 13,
+                fontWeight: editTab === tab ? 600 : 400,
+                padding: '8px 16px',
+                cursor: 'pointer',
+                borderBottom: editTab === tab ? '2px solid #fff' : '2px solid transparent',
+                whiteSpace: 'nowrap',
+                transition: 'var(--transition-fast)',
+              }}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <div style={{ flex: 1, overflow: 'auto', padding: '12px 16px' }}>
+          {/* VELOCIDAD */}
+          {editTab === 'velocidad' && (
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {SPEED_OPTIONS.map((s) => (
                 <button
                   key={s}
-                  onClick={() => {
-                    setSpeed(s);
-                    if (videoRef.current) videoRef.current.playbackRate = s;
-                  }}
+                  onClick={() => setSpeed(s)}
                   style={{
-                    padding: '8px 16px', borderRadius: V2.radiusFull, border: 'none',
-                    fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                    background: speed === s ? '#fff' : 'rgba(255,255,255,0.15)',
-                    color: speed === s ? '#000' : '#fff',
-                    fontFamily: V2.fontSans,
+                    background: speed === s ? 'var(--color-black)' : 'var(--color-surface)',
+                    color: speed === s ? 'var(--color-white)' : 'var(--color-black)',
+                    border: speed === s ? '1px solid var(--color-white)' : '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '8px 18px',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'var(--transition-fast)',
                   }}
                 >
-                  {s}x{s === 1 ? ' ✓' : ''}
+                  {s}x{speed === s ? ' ✓' : ''}
                 </button>
               ))}
             </div>
           )}
 
-          {/* Music placeholder */}
-          {activeEditTab === 'music' && (
-            <div style={{ padding: '20px 16px', background: 'rgba(0,0,0,0.6)', textAlign: 'center' }}>
-              <Music size={24} color="rgba(255,255,255,0.4)" style={{ margin: '0 auto 8px' }} />
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Biblioteca de música próximamente</p>
+          {/* TEXTO */}
+          {editTab === 'texto' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {!showTextInput ? (
+                <button
+                  onClick={() => setShowTextInput(true)}
+                  disabled={textOverlays.length >= 3}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    color: '#fff',
+                    border: '1px dashed rgba(255,255,255,0.3)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '14px',
+                    fontSize: 14,
+                    cursor: textOverlays.length >= 3 ? 'not-allowed' : 'pointer',
+                    opacity: textOverlays.length >= 3 ? 0.4 : 1,
+                  }}
+                >
+                  + Añadir texto {textOverlays.length > 0 && `(${textOverlays.length}/3)`}
+                </button>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <input
+                    value={textDraft}
+                    onChange={(e) => setTextDraft(e.target.value)}
+                    placeholder="Escribe aquí..."
+                    style={{
+                      background: 'rgba(255,255,255,0.1)',
+                      color: '#fff',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '10px 12px',
+                      fontSize: 14,
+                      outline: 'none',
+                    }}
+                    autoFocus
+                  />
+                  {/* Fonts */}
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {FONTS.map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => setSelectedFont(f)}
+                        style={{
+                          background: selectedFont === f ? '#fff' : 'rgba(255,255,255,0.1)',
+                          color: selectedFont === f ? '#000' : '#fff',
+                          border: 'none',
+                          borderRadius: 'var(--radius-full)',
+                          padding: '6px 12px',
+                          fontSize: 12,
+                          fontWeight: 500,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Colors */}
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    {TEXT_COLORS.map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setSelectedColor(c)}
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: '50%',
+                          background: c,
+                          border: selectedColor === c ? '3px solid #fff' : '2px solid rgba(255,255,255,0.3)',
+                          cursor: 'pointer',
+                          padding: 0,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  {/* Size slider */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>A</span>
+                    <input
+                      type="range"
+                      min={14}
+                      max={48}
+                      value={textSize}
+                      onChange={(e) => setTextSize(Number(e.target.value))}
+                      style={{ flex: 1, accentColor: '#fff' }}
+                    />
+                    <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>A</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={() => setShowTextInput(false)}
+                      style={{
+                        flex: 1,
+                        background: 'rgba(255,255,255,0.1)',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '10px',
+                        fontSize: 13,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={addTextOverlay}
+                      style={{
+                        flex: 1,
+                        background: '#fff',
+                        color: '#000',
+                        border: 'none',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '10px',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ✓ Confirmar
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Voice-off placeholder */}
-          {activeEditTab === 'voice' && (
-            <div style={{ padding: '20px 16px', background: 'rgba(0,0,0,0.6)', textAlign: 'center' }}>
-              <Mic size={24} color="rgba(255,255,255,0.4)" style={{ margin: '0 auto 8px' }} />
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Grabación de voz en off próximamente</p>
+          {/* FILTROS */}
+          {editTab === 'filtros' && (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: 8,
+              }}
+            >
+              {FILTERS.map((f) => (
+                <button
+                  key={f.name}
+                  onClick={() => setActiveFilter(f.value)}
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
+                    border:
+                      activeFilter === f.value
+                        ? '2px solid #fff'
+                        : '2px solid transparent',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '10px 4px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 'var(--radius-md)',
+                      background: '#444',
+                      filter: f.value === 'none' ? 'none' : f.value,
+                    }}
+                  />
+                  <span style={{ fontSize: 10, color: '#fff', fontWeight: 500 }}>{f.name}</span>
+                </button>
+              ))}
             </div>
           )}
         </div>
-
-        {/* product search modal */}
-        <AnimatePresence>
-          <ProductSearchModal
-            open={productModalOpen}
-            onClose={() => setProductModalOpen(false)}
-            onSelect={(p) => {
-              if (!taggedProducts.find((t) => (t.id ?? t._id) === (p.id ?? p._id))) {
-                setTaggedProducts((prev) => [...prev, p]);
-              }
-              toast.success(`${p.name ?? p.title} etiquetado`);
-            }}
-          />
-        </AnimatePresence>
       </div>
     );
   }
 
-  /* ── DETAILS STEP ──────────────────────────────────────────── */
+  // ─── SCREEN 3: DETAILS ────────────────────────────────────────
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col overflow-y-auto"
-      style={{ background: V2.cream, fontFamily: V2.fontSans }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        background: 'var(--color-white)',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'var(--font-sans)',
+      }}
     >
-      {/* top bar */}
-      <div className="flex items-center justify-between px-4 pt-[env(safe-area-inset-top,0px)]" style={{ height: 56 }}>
-        <button onClick={() => setStep('edit')}>
-          <X size={24} style={{ color: V2.black }} />
+      {/* TopBar */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 16px',
+          borderBottom: '1px solid var(--color-border)',
+        }}
+      >
+        <button
+          onClick={() => setScreen('edit')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+        >
+          <ChevronLeft style={{ color: 'var(--color-black)', width: 22, height: 22 }} />
         </button>
-        <span style={{ fontSize: 15, fontWeight: 600, color: V2.black }}>Detalles del reel</span>
-        <div style={{ width: 24 }} />
+        <span style={{ color: 'var(--color-black)', fontSize: 15, fontWeight: 600 }}>
+          Detalles del Reel
+        </span>
+        <div style={{ width: 30 }} />
       </div>
 
-      <div className="flex-1 px-4 pb-8">
-        {/* cover thumbnail */}
-        <div className="flex gap-4 mb-6">
-          <div
-            className="relative shrink-0 overflow-hidden"
-            style={{ width: 100, height: 160, borderRadius: V2.radiusMd, background: V2.surface }}
-          >
-            {coverThumb ? (
-              <img src={coverThumb} alt="Cover" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <ImageIcon size={24} style={{ color: V2.stone }} />
-              </div>
-            )}
-            <div
-              className="absolute bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5"
-              style={{ background: 'rgba(0,0,0,0.6)', borderRadius: V2.radiusFull, fontSize: 10, color: '#fff' }}
-            >
-              Portada
-            </div>
-          </div>
-
-          {/* caption */}
-          <div className="flex-1">
-            <textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="Escribe un pie de foto… #hashtags"
-              rows={6}
-              className="w-full resize-none outline-none p-3"
-              style={{
-                border: `1px solid ${V2.border}`,
-                borderRadius: V2.radiusMd,
-                fontSize: 14,
-                background: V2.white,
-                color: V2.black,
-                fontFamily: V2.fontSans,
-              }}
-            />
-          </div>
+      <div style={{ flex: 1, overflow: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Caption */}
+        <div>
+          <textarea
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder="Describe tu reel... 🎬"
+            rows={4}
+            style={{
+              width: '100%',
+              background: 'var(--color-surface)',
+              color: 'var(--color-black)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '12px 14px',
+              fontSize: 14,
+              fontFamily: 'var(--font-sans)',
+              resize: 'none',
+              outline: 'none',
+              boxSizing: 'border-box',
+            }}
+          />
         </div>
 
-        {/* duration badge */}
-        <div className="mb-4 flex items-center gap-2">
-          <span style={{ fontSize: 13, color: V2.stone }}>Duración seleccionada:</span>
-          <span
-            className="px-3 py-1"
+        {/* Thumbnail selector */}
+        <div>
+          <label
             style={{
-              background: V2.surface,
-              borderRadius: V2.radiusFull,
               fontSize: 13,
               fontWeight: 600,
-              color: V2.black,
+              color: 'var(--color-black)',
+              marginBottom: 8,
+              display: 'block',
             }}
           >
-            {duration}s
-          </span>
-        </div>
-
-        {/* tagged products */}
-        {taggedProducts.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Tag size={14} style={{ color: V2.stone }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: V2.black }}>Productos etiquetados</span>
-            </div>
-            <div className="flex flex-col gap-2">
-              {taggedProducts.map((p) => (
-                <div
-                  key={p.id ?? p._id}
-                  className="flex items-center gap-3 px-3 py-2"
-                  style={{ border: `1px solid ${V2.border}`, borderRadius: V2.radiusMd, background: V2.white }}
-                >
-                  {p.image_url && (
-                    <img src={p.image_url} alt="" className="w-8 h-8 object-cover" style={{ borderRadius: 8 }} />
-                  )}
-                  <span className="flex-1 truncate" style={{ fontSize: 13, color: V2.black }}>{p.name ?? p.title}</span>
-                  <button onClick={() => removeProduct(p.id ?? p._id)}>
-                    <X size={16} style={{ color: V2.stone }} />
-                  </button>
-                </div>
-              ))}
-            </div>
+            Portada
+          </label>
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+            {[0, 1, 2, 3, 4].map((i) => (
+              <button
+                key={i}
+                onClick={() => setThumbnailIndex(i)}
+                style={{
+                  width: 56,
+                  height: 80,
+                  borderRadius: 'var(--radius-md)',
+                  background: 'var(--color-stone)',
+                  border:
+                    thumbnailIndex === i
+                      ? '2px solid var(--color-black)'
+                      : '2px solid var(--color-border)',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  justifyContent: 'center',
+                  padding: 4,
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <span style={{ fontSize: 10, color: 'var(--color-black)', opacity: 0.6 }}>
+                  {duration > 0 ? fmt((duration / 5) * i) : `0:${String(i * 12).padStart(2, '0')}`}
+                </span>
+              </button>
+            ))}
           </div>
-        )}
-
-        {/* Hispal AI button */}
-        <div style={{ marginBottom: 16 }}>
-          <button
-            type="button"
-            onClick={() => setShowAIPanel(true)}
-            style={{
-              background: 'var(--color-green-light)',
-              color: 'var(--color-green)',
-              border: '1px solid var(--color-green-border)',
-              borderRadius: V2.radiusFull,
-              fontSize: 'var(--text-sm)', fontWeight: 500,
-              padding: '6px 14px', cursor: 'pointer',
-              fontFamily: V2.fontSans,
-            }}
-          >
-            ✨ Sugerir con Hispal AI
-          </button>
         </div>
 
-        {/* publish button */}
+        {/* Video preview small */}
+        <div
+          style={{
+            aspectRatio: '9/16',
+            maxHeight: 200,
+            background: '#000',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+            alignSelf: 'center',
+          }}
+        >
+          <video
+            src={videoUrl}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              filter: activeFilter === 'none' ? 'none' : activeFilter,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Publish button */}
+      <div style={{ padding: '12px 16px 24px', borderTop: '1px solid var(--color-border)' }}>
         <button
           onClick={handlePublish}
           disabled={publishing}
-          className="w-full flex items-center justify-center gap-2 py-3.5"
           style={{
-            background: publishing ? V2.stone : V2.black,
-            color: V2.white,
-            borderRadius: V2.radiusFull,
+            width: '100%',
+            background: 'var(--color-black)',
+            color: 'var(--color-white)',
+            border: 'none',
+            borderRadius: 'var(--radius-full)',
+            padding: '14px',
             fontSize: 15,
             fontWeight: 600,
-            fontFamily: V2.fontSans,
-            opacity: publishing ? 0.7 : 1,
-            transition: 'opacity 0.2s',
+            cursor: publishing ? 'not-allowed' : 'pointer',
+            opacity: publishing ? 0.6 : 1,
+            transition: 'var(--transition-fast)',
           }}
         >
-          {publishing ? <Loader2 size={18} className="animate-spin" /> : null}
-          {publishing ? 'Publicando…' : 'Publicar reel'}
+          {publishing ? 'Publicando...' : 'Publicar ahora'}
         </button>
       </div>
-
-      <HispalAIPanel
-        isOpen={showAIPanel}
-        onClose={() => setShowAIPanel(false)}
-        contentType="reel"
-        currentText={caption}
-        productIds={taggedProducts.map(p => p.id ?? p._id)}
-        onUseCaption={(text) => { setCaption(text); setShowAIPanel(false); }}
-        onAddHashtags={(tags) => { setCaption(prev => prev + ' ' + tags); setShowAIPanel(false); }}
-      />
     </div>
   );
 }

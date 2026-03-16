@@ -1,2 +1,1 @@
-export { SocialFeed } from './Feed';
-export { PostCard } from './PostCard';
+// Social components (legacy — now in feed/)

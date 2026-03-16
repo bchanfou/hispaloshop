@@ -1,89 +1,85 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
-import Header from '../components/Header';
-import PostViewer from '../components/PostViewer';
-import { useAuth } from '../context/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
+import PostCard from '../components/feed/PostCard';
 import apiClient from '../services/api/client';
 
 export default function PostDetailPage() {
   const { postId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
-
-    const loadPost = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const data = await apiClient.get(`/posts/${postId}`);
-        if (isMounted) {
-          setPost(data);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err?.message || 'No se pudo cargar la publicacion');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    if (postId) {
-      loadPost();
-    }
-
-    return () => {
-      isMounted = false;
-    };
+    apiClient.get(`/posts/${postId}`)
+      .then((data) => setPost(data?.post || data))
+      .catch(() => setPost(null))
+      .finally(() => setLoading(false));
   }, [postId]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <Header />
-        <div className="flex h-[60vh] items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-stone-400" />
-        </div>
+      <div style={{
+        minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'var(--color-cream)',
+      }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: '50%',
+          border: '2px solid var(--color-border)',
+          borderTopColor: 'var(--color-black)',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
-  if (error || !post) {
+  if (!post) {
     return (
-      <div className="min-h-screen bg-stone-50">
-        <Header />
-        <div className="flex h-[60vh] flex-col items-center justify-center gap-3 px-4 text-center">
-          <p className="text-lg font-semibold text-stone-950">Publicacion no disponible</p>
-          <p className="text-sm text-stone-500">{error || 'No se encontro la publicacion solicitada.'}</p>
-          <button
-            onClick={() => navigate(-1)}
-            className="rounded-full bg-stone-950 px-4 py-2 text-sm font-medium text-white hover:bg-stone-800"
-          >
-            Volver
-          </button>
-        </div>
+      <div style={{
+        minHeight: '60vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: 12,
+        background: 'var(--color-cream)', fontFamily: 'var(--font-sans)',
+      }}>
+        <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Post no encontrado</p>
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            padding: '10px 24px', background: 'var(--color-black)', color: '#fff',
+            border: 'none', borderRadius: 'var(--radius-full)',
+            fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          }}
+        >
+          Volver al feed
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <Header />
-      <PostViewer
+    <div style={{ background: 'var(--color-cream)', minHeight: '100vh', paddingBottom: 80 }}>
+      {/* Header */}
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 40,
+        background: 'var(--color-white)',
+        borderBottom: '1px solid var(--color-border)',
+        height: 52, display: 'flex', alignItems: 'center', padding: '0 8px',
+        fontFamily: 'var(--font-sans)',
+      }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'flex' }}
+        >
+          <ChevronLeft size={22} color="var(--color-black)" />
+        </button>
+        <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-black)' }}>Publicación</span>
+      </header>
+
+      <PostCard
         post={post}
-        posts={[post]}
-        profile={null}
-        currentUser={user}
-        onClose={() => navigate(-1)}
-        onNavigate={() => {}}
+        onLike={() => apiClient.post(`/posts/${postId}/like`).catch(() => {})}
+        onComment={() => {}}
+        onSave={() => {}}
       />
     </div>
   );

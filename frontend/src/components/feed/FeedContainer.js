@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import FollowingFeed from './FollowingFeed';
 import ForYouFeed from './ForYouFeed';
-import StoriesCarousel from '../stories/StoriesCarousel';
+import StoriesBar from './StoriesBar';
 
 /**
  * FeedContainer — recibe activeTab desde HomePage (via HomeHeader)
@@ -39,7 +39,7 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
       {/* Stories */}
-      <StoriesCarousel onCreateStory={handleCreateStory} onViewStory={handleViewStory} />
+      <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleViewStory} />
 
       {/* Refresh indicator */}
       <AnimatePresence>

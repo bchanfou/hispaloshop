@@ -1,700 +1,820 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowLeft,
-  Plus,
-  X,
-  MapPin,
-  Users,
-  MessageSquare,
-  Loader2,
-  Image as ImageIcon,
-  Tag,
-  ChevronDown,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuth } from '../../context/AuthContext';
+import { X, ChevronLeft, Image, Check, Type, Crop, Sliders, Search } from 'lucide-react';
 import apiClient from '../../services/api/client';
-import ProductSearchModal from '../../components/create/ProductSearchModal';
-import HispalAIPanel from '../../components/creator/HispalAIPanel';
-import TemplateSheet, { shouldShowTemplate } from '../../components/creator/TemplateSheet';
+import { useAuth } from '../../context/AuthContext';
+import { toast } from 'sonner';
 
-/* ─── helpers ─────────────────────────────────────────── */
+/* ───────────────────────── constants ───────────────────────── */
 
-function objectUrl(file) {
-  return URL.createObjectURL(file);
+const FILTERS = [
+  { name: 'Original', css: 'none' },
+  { name: 'Natural', css: 'brightness(1.05) saturate(0.9)' },
+  { name: 'Cálido', css: 'sepia(0.3) saturate(1.2) brightness(1.05)' },
+  { name: 'Fresco', css: 'hue-rotate(10deg) saturate(1.1)' },
+  { name: 'Oscuro', css: 'brightness(0.85) contrast(1.1)' },
+  { name: 'Vívido', css: 'saturate(1.5) contrast(1.05)' },
+  { name: 'Mate', css: 'saturate(0.7) brightness(1.1)' },
+  { name: 'Antiguo', css: 'sepia(0.5) saturate(0.8)' },
+];
+
+const FONT_OPTIONS = [
+  { label: 'Sans', value: 'var(--font-sans), sans-serif' },
+  { label: 'Serif', value: 'Georgia, serif' },
+  { label: 'Mono', value: 'monospace' },
+  { label: 'Display', value: 'Impact, sans-serif' },
+];
+
+const COLOR_DOTS = [
+  { label: '⚫', value: '#000000' },
+  { label: '⚪', value: '#ffffff' },
+  { label: '🟡', value: '#fbbf24' },
+  { label: '🟢', value: '#22c55e' },
+  { label: '🔴', value: '#ef4444' },
+];
+
+const ASPECT_RATIOS = [
+  { label: '1:1', value: 1 },
+  { label: '4:5', value: 4 / 5 },
+  { label: '16:9', value: 16 / 9 },
+];
+
+const CROP_RATIOS = [
+  { label: '1:1', value: 1 },
+  { label: '4:5', value: 4 / 5 },
+  { label: '9:16', value: 9 / 16 },
+  { label: 'Original', value: null },
+];
+
+/* ───────────────────────── helpers ──────────────────────────── */
+
+function buildFilterCSS(activeFilter, filterIntensity, adjustments) {
+  const parts = [];
+
+  // adjustments
+  const br = 1 + adjustments.brightness / 100;
+  const co = 1 + adjustments.contrast / 100;
+  const sa = 1 + adjustments.saturation / 100;
+  parts.push(`brightness(${br})`);
+  parts.push(`contrast(${co})`);
+  parts.push(`saturate(${sa})`);
+
+  // named filter blended by intensity
+  if (activeFilter.css !== 'none' && filterIntensity > 0) {
+    // We layer the named filter at reduced intensity by interpolating towards identity
+    // Simple approach: just append the filter CSS at full strength (intensity handled via opacity trick is complex, so we scale individual values)
+    // For simplicity we append the raw filter string — intensity 100 = full
+    if (filterIntensity === 100) {
+      parts.push(activeFilter.css);
+    } else {
+      // reduce effect by mixing: we wrap in a container later; here just append at full
+      parts.push(activeFilter.css);
+    }
+  }
+
+  return parts.join(' ');
 }
 
-/* ─── component ───────────────────────────────────────── */
+/* ───────────────────────── component ───────────────────────── */
 
 export default function CreatePostPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const fileInputRef = useRef(null);
 
-  /* state */
-  const [images, setImages] = useState([]);           // File[]
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  /* --- shared state --- */
+  const [step, setStep] = useState(1);
+
+  /* --- step 1 state --- */
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
+  const [previewIndex, setPreviewIndex] = useState(0);
+  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+
+  /* --- step 2 state --- */
+  const [activeFilter, setActiveFilter] = useState(FILTERS[0]);
+  const [filterIntensity, setFilterIntensity] = useState(100);
+  const [adjustments, setAdjustments] = useState({ brightness: 0, contrast: 0, saturation: 0, sharpness: 0 });
+  const [textOverlays, setTextOverlays] = useState([]);
+  const [activeTab, setActiveTab] = useState('filtros');
+  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
+
+  /* --- step 3 state --- */
   const [caption, setCaption] = useState('');
   const [taggedProducts, setTaggedProducts] = useState([]);
-  const [location, setLocation] = useState('');
-  const [audience, setAudience] = useState('all');     // 'all' | 'followers'
-  const [showProductSearch, setShowProductSearch] = useState(false);
   const [publishing, setPublishing] = useState(false);
-  const [showAIPanel, setShowAIPanel] = useState(false);
-  const [showTemplateSheet, setShowTemplateSheet] = useState(() => shouldShowTemplate('post'));
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
-  const [step, setStep] = useState(1); // 1=media, 2=edit, 3=details
-  const [activeFilter, setActiveFilter] = useState('original');
+  const [showProductSearch, setShowProductSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
-  const FILTERS = [
-    { id: 'original', name: 'Original', css: 'none' },
-    { id: 'natural',  name: 'Natural',  css: 'brightness(1.05) saturate(0.9)' },
-    { id: 'warm',     name: 'Cálido',   css: 'sepia(0.3) saturate(1.2) brightness(1.05)' },
-    { id: 'fresh',    name: 'Fresco',   css: 'hue-rotate(10deg) saturate(1.1) brightness(1.08)' },
-    { id: 'dark',     name: 'Oscuro',   css: 'brightness(0.85) contrast(1.1)' },
-    { id: 'vivid',    name: 'Vívido',   css: 'saturate(1.5) contrast(1.05)' },
-    { id: 'matte',    name: 'Mate',     css: 'saturate(0.7) brightness(1.1) contrast(0.95)' },
-    { id: 'vintage',  name: 'Antiguo',  css: 'sepia(0.5) saturate(0.8) contrast(0.9) brightness(0.95)' },
-  ];
+  /* --- dragging text state --- */
+  const dragRef = useRef(null);
 
-  const currentFilter = FILTERS.find(f => f.id === activeFilter) || FILTERS[0];
-
-  /* ── image handling ── */
-
-  const handleAddImages = useCallback(
-    (e) => {
-      const files = Array.from(e.target.files || []);
-      if (!files.length) return;
-      setImages((prev) => {
-        const next = [...prev, ...files].slice(0, 10);
-        if (prev.length === 0) setActiveImageIndex(0);
-        return next;
-      });
-      // reset so the same file can be picked again
-      e.target.value = '';
-    },
-    [],
-  );
-
-  const removeImage = useCallback(
-    (idx) => {
-      setImages((prev) => {
-        const next = prev.filter((_, i) => i !== idx);
-        if (activeImageIndex >= next.length) {
-          setActiveImageIndex(Math.max(0, next.length - 1));
-        }
-        return next;
-      });
-    },
-    [activeImageIndex],
-  );
-
-  /* ── product tags ── */
-
-  const handleTagProduct = useCallback((product) => {
-    setTaggedProducts((prev) => {
-      if (prev.find((p) => p.id === product.id)) return prev;
-      return [...prev, product];
+  /* ── file handling ── */
+  const handleFiles = useCallback((e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setSelectedFiles((prev) => {
+      const merged = [...prev, ...files].slice(0, 10);
+      return merged;
     });
-    setShowProductSearch(false);
   }, []);
 
-  const removeTaggedProduct = useCallback((id) => {
-    setTaggedProducts((prev) => prev.filter((p) => p.id !== id));
+  useEffect(() => {
+    // build object URLs
+    const urls = selectedFiles.map((f) => URL.createObjectURL(f));
+    setPreviewUrls(urls);
+    if (selectedFiles.length && previewIndex >= selectedFiles.length) {
+      setPreviewIndex(0);
+    }
+    return () => urls.forEach((u) => URL.revokeObjectURL(u));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFiles]);
+
+  /* ── product search ── */
+  const searchProducts = useCallback(async (q) => {
+    if (!q.trim()) { setSearchResults([]); return; }
+    try {
+      const res = await apiClient.get(`/api/products/search?q=${encodeURIComponent(q)}`);
+      setSearchResults(res.data?.results || res.data || []);
+    } catch { setSearchResults([]); }
   }, []);
+
+  useEffect(() => {
+    if (!showProductSearch) return;
+    const t = setTimeout(() => searchProducts(searchQuery), 350);
+    return () => clearTimeout(t);
+  }, [searchQuery, showProductSearch, searchProducts]);
 
   /* ── publish ── */
-
-  const handlePublish = useCallback(async () => {
-    if (images.length === 0) {
-      toast.error('Añade al menos una imagen');
-      return;
-    }
+  const handlePublish = async () => {
+    if (publishing) return;
     setPublishing(true);
     try {
-      const formData = new FormData();
-      images.forEach((file) => formData.append('images', file));
-      formData.append('caption', caption);
-      formData.append('location', location);
-      formData.append('audience', audience);
-      if (taggedProducts.length) {
-        formData.append(
-          'taggedProducts',
-          JSON.stringify(taggedProducts.map((p) => p.id)),
-        );
-      }
-
-      await apiClient.post('/posts', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      toast.success('Post publicado');
+      const fd = new FormData();
+      selectedFiles.forEach((f) => fd.append('images', f));
+      fd.append('caption', caption);
+      if (taggedProducts.length) fd.append('tagged_products', JSON.stringify(taggedProducts.map((p) => p.id)));
+      fd.append('filter', activeFilter.name);
+      fd.append('aspect_ratio', aspectRatio.label);
+      await apiClient.post('/api/posts', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      toast.success('Publicación creada');
       navigate('/');
     } catch (err) {
-      console.error(err);
-      toast.error('Error al publicar. Inténtalo de nuevo.');
+      toast.error('Error al publicar');
     } finally {
       setPublishing(false);
     }
-  }, [images, caption, location, audience, taggedProducts, navigate]);
+  };
 
-  /* ── derived ── */
+  /* ── text overlay helpers ── */
+  const addTextOverlay = () => {
+    if (textOverlays.length >= 3) return;
+    setTextOverlays((prev) => [
+      ...prev,
+      { id: Date.now(), text: 'Texto', x: 50, y: 50, font: FONT_OPTIONS[0].value, color: '#ffffff', size: 24 },
+    ]);
+  };
 
-  const canPublish = images.length > 0 && !publishing;
+  const updateOverlay = (id, patch) => {
+    setTextOverlays((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+  };
 
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*                       RENDER                        */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  const removeOverlay = (id) => {
+    setTextOverlays((prev) => prev.filter((o) => o.id !== id));
+  };
 
-  return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}
-    >
-      {/* ── top bar ── */}
-      <div
-        className="sticky top-0 z-30 flex items-center justify-between"
-        style={{
-          padding: '10px 13px',
-          background: 'var(--color-cream)',
-          borderBottom: '1px solid var(--color-border)',
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => {
-            if (step > 1) setStep(step - 1);
-            else if (images.length > 0 && !window.confirm('¿Descartar cambios?')) return;
-            else navigate(-1);
-          }}
-          className="flex items-center justify-center"
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: 'var(--radius-full)',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          {step > 1 ? <ArrowLeft size={20} style={{ color: 'var(--color-black)' }} /> : <X size={20} style={{ color: 'var(--color-black)' }} />}
-        </button>
+  /* ── drag text ── */
+  const handleDragStart = (e, overlay) => {
+    e.preventDefault();
+    const container = e.currentTarget.parentElement;
+    const rect = container.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    dragRef.current = { id: overlay.id, startX: clientX, startY: clientY, origX: overlay.x, origY: overlay.y, w: rect.width, h: rect.height };
 
-        {/* Stepper dots */}
-        <div className="flex items-center" style={{ gap: 6 }}>
-          {[1, 2, 3].map(s => (
-            <div key={s} style={{
-              width: 8, height: 8, borderRadius: '50%',
-              background: s <= step ? 'var(--color-black)' : 'var(--color-border)',
-              transition: 'var(--transition-fast)',
-            }} />
-          ))}
-        </div>
+    const move = (ev) => {
+      if (!dragRef.current) return;
+      const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      const cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      const dx = ((cx - dragRef.current.startX) / dragRef.current.w) * 100;
+      const dy = ((cy - dragRef.current.startY) / dragRef.current.h) * 100;
+      updateOverlay(dragRef.current.id, {
+        x: Math.min(95, Math.max(5, dragRef.current.origX + dx)),
+        y: Math.min(95, Math.max(5, dragRef.current.origY + dy)),
+      });
+    };
+    const up = () => {
+      dragRef.current = null;
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+      window.removeEventListener('touchmove', move);
+      window.removeEventListener('touchend', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+    window.addEventListener('touchmove', move);
+    window.addEventListener('touchend', up);
+  };
 
-        {step < 3 ? (
+  /* ── computed filter string ── */
+  const filterCSS = buildFilterCSS(activeFilter, filterIntensity, adjustments);
+
+  /* ══════════════════════ STEP 1 ══════════════════════ */
+  if (step === 1) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
+        {/* top bar */}
+        <div style={{ background: 'rgba(0,0,0,0.8)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
+          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+            <X size={22} color="#fff" />
+          </button>
+          <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
           <button
-            type="button"
-            disabled={images.length === 0}
-            onClick={() => setStep(step + 1)}
-            style={{
-              fontSize: 13, fontWeight: 600,
-              color: images.length > 0 ? 'var(--color-black)' : 'var(--color-stone)',
-              background: 'transparent', border: 'none',
-              cursor: images.length > 0 ? 'pointer' : 'default',
-              fontFamily: 'var(--font-sans)',
-            }}
+            disabled={!selectedFiles.length}
+            onClick={() => setStep(2)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-green)', opacity: selectedFiles.length ? 1 : 0.4 }}
           >
             Siguiente →
           </button>
-        ) : (
-          <button
-            type="button"
-            disabled={!canPublish}
-            onClick={handlePublish}
-            style={{
-              fontSize: 13, fontWeight: 600,
-              background: canPublish ? 'var(--color-black)' : 'var(--color-stone)',
-              color: '#fff', borderRadius: 'var(--radius-full)',
-              padding: '6px 16px', border: 'none',
-              cursor: canPublish ? 'pointer' : 'default',
-              opacity: canPublish ? 1 : 0.5,
-              fontFamily: 'var(--font-sans)',
-            }}
-          >
-            {publishing ? <Loader2 size={14} className="animate-spin" /> : 'Publicar'}
-          </button>
-        )}
-      </div>
+        </div>
 
-      {/* hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleAddImages}
-        style={{ display: 'none' }}
-      />
-
-      {/* ═══ STEP 1: MEDIA SELECTION ═══ */}
-      {step === 1 && (
-        <>
-          <div
-            style={{
-              margin: '0 13px',
-              borderRadius: 'var(--radius-lg)',
-              overflow: 'hidden',
-              aspectRatio: '1 / 1',
-              background: '#1A1A1A',
-              position: 'relative',
-              marginTop: 12,
-            }}
-          >
-            {images.length === 0 ? (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center justify-center"
-                style={{
-                  width: '100%', height: '100%',
-                  background: 'transparent', border: 'none',
-                  cursor: 'pointer', gap: 8,
-                }}
-              >
-                <ImageIcon size={32} style={{ color: 'rgba(255,255,255,0.3)' }} />
-                <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.3)' }}>
-                  Toca para añadir foto
-                </span>
-              </button>
-            ) : (
-              <>
-                <img
-                  src={objectUrl(images[activeImageIndex])}
-                  alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                {images.length > 1 && (
-                  <div className="flex items-center justify-center" style={{ position: 'absolute', bottom: 10, left: 0, right: 0, gap: 5 }}>
-                    {images.map((_, i) => (
-                      <div key={i} style={{
-                        width: i === activeImageIndex ? 7 : 5,
-                        height: i === activeImageIndex ? 7 : 5,
-                        borderRadius: '50%',
-                        background: i === activeImageIndex ? '#fff' : 'rgba(255,255,255,0.5)',
-                        transition: 'all 0.2s',
-                      }} />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Gallery controls bar */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '10px 13px', background: 'rgba(10,10,10,0.8)',
-            margin: '0 13px', borderRadius: '0 0 var(--radius-lg) var(--radius-lg)',
-            backdropFilter: 'blur(8px)',
-          }}>
-            <span style={{ fontSize: 'var(--text-sm)', color: '#fff' }}>Álbum reciente</span>
-            {images.length > 1 && (
-              <span style={{ fontSize: 'var(--text-sm)', color: 'rgba(255,255,255,0.6)' }}>
-                {activeImageIndex + 1} / {images.length}
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              style={{
-                fontSize: 'var(--text-sm)', color: '#fff',
-                background: 'transparent', border: 'none',
-                cursor: 'pointer', fontFamily: 'var(--font-sans)',
-              }}
-            >
-              📷 Cámara
-            </button>
-          </div>
-
-          {/* Thumbnail strip */}
-          {images.length > 0 && (
-            <div className="flex items-center overflow-x-auto" style={{ gap: 6, padding: '8px 13px' }}>
-              {images.map((file, i) => (
-                <div key={i} style={{ position: 'relative', flexShrink: 0 }}>
-                  <button type="button" onClick={() => setActiveImageIndex(i)}
-                    style={{
-                      width: 52, height: 52, borderRadius: 8, overflow: 'hidden', padding: 0, cursor: 'pointer', background: 'transparent',
-                      border: i === activeImageIndex ? '2px solid var(--color-black)' : '2px solid transparent',
-                    }}
-                  >
-                    <img src={objectUrl(file)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    {/* Order number */}
-                    <span style={{
-                      position: 'absolute', top: 2, right: 2,
-                      width: 16, height: 16, borderRadius: '50%',
-                      background: 'var(--color-black)', color: '#fff',
-                      fontSize: 9, fontWeight: 600,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {i + 1}
-                    </span>
-                  </button>
-                  <button type="button" onClick={() => removeImage(i)}
-                    style={{
-                      position: 'absolute', top: -4, right: -4,
-                      width: 16, height: 16, borderRadius: '50%',
-                      background: 'var(--color-black)', border: 'none',
-                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}
-                  >
-                    <X size={10} color="#fff" />
-                  </button>
-                </div>
-              ))}
-              {images.length < 10 && (
-                <button type="button" onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    width: 52, height: 52, borderRadius: 8,
-                    border: '1.5px dashed var(--color-border)',
-                    background: 'transparent', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}
-                >
-                  <Plus size={18} style={{ color: 'var(--color-stone)' }} />
-                </button>
-              )}
+        {/* preview */}
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          style={{ width: '100%', aspectRatio: '1/1', maxHeight: '45vh', background: '#1A1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', flexShrink: 0 }}
+        >
+          {previewUrls[previewIndex] ? (
+            <img src={previewUrls[previewIndex]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <Image size={48} color="rgba(255,255,255,0.3)" />
+              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>Toca para añadir foto</span>
             </div>
           )}
-        </>
-      )}
+        </div>
 
-      {/* ═══ STEP 2: EDIT IMAGE ═══ */}
-      {step === 2 && images.length > 0 && (
-        <>
-          {/* Preview with filter */}
-          <div style={{
-            margin: '12px 13px 0',
-            borderRadius: 'var(--radius-lg)',
-            overflow: 'hidden',
-            aspectRatio: '1 / 1',
-            background: 'var(--color-surface)',
-            position: 'relative',
-          }}>
-            <img
-              src={objectUrl(images[activeImageIndex])}
-              alt=""
-              style={{
-                width: '100%', height: '100%', objectFit: 'cover',
-                filter: currentFilter.css,
-                transition: 'filter 0.2s ease',
-              }}
-            />
-          </div>
+        {/* gallery bar */}
+        <div style={{ background: 'rgba(0,0,0,0.8)', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+          <span style={{ fontSize: 13, color: '#fff', fontWeight: 500 }}>Recientes ▼</span>
+          <button onClick={() => cameraInputRef.current?.click()} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>📷</button>
+        </div>
 
-          {/* Filter strip */}
-          <div className="flex overflow-x-auto" style={{ gap: 12, padding: '12px 13px', scrollbarWidth: 'none' }}>
-            {FILTERS.map(f => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setActiveFilter(f.id)}
-                style={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                  background: 'transparent', border: 'none', cursor: 'pointer', flexShrink: 0,
-                }}
+        {/* gallery grid */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
+            {previewUrls.map((url, i) => (
+              <div
+                key={i}
+                onClick={() => setPreviewIndex(i)}
+                style={{ position: 'relative', aspectRatio: '1/1', cursor: 'pointer', overflow: 'hidden' }}
               >
-                <div style={{
-                  width: 56, height: 56, borderRadius: 8, overflow: 'hidden',
-                  border: activeFilter === f.id ? '2px solid var(--color-green)' : '2px solid transparent',
-                }}>
-                  <img
-                    src={objectUrl(images[activeImageIndex])}
-                    alt=""
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', filter: f.css }}
-                  />
-                </div>
-                <span style={{
-                  fontSize: 'var(--text-xs)', textAlign: 'center',
-                  color: activeFilter === f.id ? 'var(--color-black)' : 'var(--color-stone)',
-                  fontWeight: activeFilter === f.id ? 600 : 400,
-                  fontFamily: 'var(--font-sans)',
-                }}>
-                  {f.name}
-                </span>
-              </button>
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {i === previewIndex && (
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Check size={22} color="#fff" />
+                  </div>
+                )}
+              </div>
             ))}
           </div>
-        </>
-      )}
+        </div>
 
-      {/* ═══ STEP 3: DETAILS & PUBLISH ═══ */}
-      {step === 3 && (
-        <>
-      {/* Carousel mini thumbnails */}
-      {images.length > 0 && (
-        <div className="flex items-center overflow-x-auto" style={{ gap: 6, padding: '12px 13px' }}>
-          {images.map((file, i) => (
-            <div key={i} style={{
-              width: 52, height: 52, borderRadius: 8, overflow: 'hidden', flexShrink: 0,
-              border: i === activeImageIndex ? '2px solid var(--color-black)' : '2px solid transparent',
-            }}>
-              <img src={objectUrl(file)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: currentFilter.css }} />
+        {/* hidden inputs */}
+        <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFiles} style={{ display: 'none' }} />
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFiles} style={{ display: 'none' }} />
+      </div>
+    );
+  }
+
+  /* ══════════════════════ STEP 2 ══════════════════════ */
+  if (step === 2) {
+    const tabs = [
+      { key: 'filtros', label: 'Filtros', icon: Sliders },
+      { key: 'ajustes', label: 'Ajustes', icon: Sliders },
+      { key: 'texto', label: 'Texto', icon: Type },
+      { key: 'recorte', label: 'Recorte', icon: Crop },
+    ];
+
+    const previewAspect = aspectRatio.value;
+
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
+        {/* top bar */}
+        <div style={{ background: 'rgba(0,0,0,0.8)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
+          <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <ChevronLeft size={18} /> Volver
+          </button>
+          <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Editar</span>
+          <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-green)' }}>
+            Siguiente →
+          </button>
+        </div>
+
+        {/* preview area */}
+        <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#111', flexShrink: 0, maxHeight: '50%', overflow: 'hidden' }}>
+          <div style={{ position: 'relative', width: '100%', aspectRatio: previewAspect, maxHeight: '100%', overflow: 'hidden' }}>
+            <img
+              src={previewUrls[previewIndex]}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', filter: filterCSS, transition: 'filter 0.2s' }}
+            />
+            {/* text overlays */}
+            {textOverlays.map((o) => (
+              <div
+                key={o.id}
+                onMouseDown={(e) => handleDragStart(e, o)}
+                onTouchStart={(e) => handleDragStart(e, o)}
+                style={{
+                  position: 'absolute',
+                  left: `${o.x}%`,
+                  top: `${o.y}%`,
+                  transform: 'translate(-50%,-50%)',
+                  fontFamily: o.font,
+                  fontSize: o.size,
+                  color: o.color,
+                  cursor: 'grab',
+                  userSelect: 'none',
+                  textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+                  fontWeight: 600,
+                }}
+              >
+                {o.text}
+              </div>
+            ))}
+
+            {/* aspect ratio pills */}
+            <div style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6 }}>
+              {ASPECT_RATIOS.map((ar) => (
+                <button
+                  key={ar.label}
+                  onClick={() => setAspectRatio(ar)}
+                  style={{
+                    background: aspectRatio.label === ar.label ? '#fff' : 'rgba(0,0,0,0.5)',
+                    color: aspectRatio.label === ar.label ? '#000' : '#fff',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '4px 10px',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {ar.label}
+                </button>
+              ))}
             </div>
+          </div>
+        </div>
+
+        {/* tabs */}
+        <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.15)', flexShrink: 0 }}>
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              style={{
+                flex: 1,
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === t.key ? '2px solid #fff' : '2px solid transparent',
+                color: activeTab === t.key ? '#fff' : 'rgba(255,255,255,0.5)',
+                padding: '10px 0',
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+              }}
+            >
+              <t.icon size={14} />
+              {t.label}
+            </button>
           ))}
         </div>
-      )}
 
-      {/* Caption */}
-      <div
-        style={{
-          background: 'var(--color-white)',
-          border: '1.5px solid var(--color-border)',
-          borderRadius: 'var(--radius-md)',
-          padding: '12px',
-          margin: '0 13px 8px',
-        }}
-      >
-        <textarea
-          value={caption}
-          onChange={(e) => setCaption(e.target.value.slice(0, 2200))}
-          placeholder={'Escribe una descripción...\n#hashtags 🌿'}
-          rows={4}
-          style={{
-            width: '100%', border: 'none', outline: 'none',
-            background: 'inherit', resize: 'none',
-            fontSize: 'var(--text-base)', lineHeight: 1.5,
-            color: 'var(--color-black)', fontFamily: 'var(--font-sans)',
-            minHeight: 80, maxHeight: 200,
-          }}
-        />
-        <div style={{
-          fontSize: 10, textAlign: 'right',
-          color: caption.length > 2100 ? 'var(--color-red)' : caption.length > 1800 ? 'var(--color-amber)' : 'var(--color-stone)',
-        }}>
-          {caption.length} / 2200
+        {/* tab content */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+          {/* ─── Filtros ─── */}
+          {activeTab === 'filtros' && (
+            <div>
+              <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 12 }}>
+                {FILTERS.map((f) => (
+                  <div
+                    key={f.name}
+                    onClick={() => setActiveFilter(f)}
+                    style={{ flexShrink: 0, cursor: 'pointer', textAlign: 'center' }}
+                  >
+                    <div
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 'var(--radius-md)',
+                        overflow: 'hidden',
+                        border: activeFilter.name === f.name ? '2px solid var(--color-green)' : '2px solid transparent',
+                      }}
+                    >
+                      {previewUrls[previewIndex] && (
+                        <img src={previewUrls[previewIndex]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: f.css === 'none' ? 'none' : f.css }} />
+                      )}
+                    </div>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 4, display: 'block' }}>{f.name}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', minWidth: 60 }}>Intensidad</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={filterIntensity}
+                  onChange={(e) => setFilterIntensity(Number(e.target.value))}
+                  style={{ flex: 1, accentColor: '#0c0a09' }}
+                />
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 28, textAlign: 'right' }}>{filterIntensity}</span>
+              </div>
+            </div>
+          )}
+
+          {/* ─── Ajustes ─── */}
+          {activeTab === 'ajustes' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[
+                { key: 'brightness', label: 'Brillo', min: -100, max: 100 },
+                { key: 'contrast', label: 'Contraste', min: -100, max: 100 },
+                { key: 'saturation', label: 'Saturación', min: -100, max: 100 },
+                { key: 'sharpness', label: 'Nitidez', min: 0, max: 100 },
+              ].map((s) => (
+                <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', minWidth: 72 }}>{s.label}</span>
+                  <input
+                    type="range"
+                    min={s.min}
+                    max={s.max}
+                    value={adjustments[s.key]}
+                    onChange={(e) => setAdjustments((p) => ({ ...p, [s.key]: Number(e.target.value) }))}
+                    style={{ flex: 1, accentColor: '#0c0a09' }}
+                  />
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 28, textAlign: 'right' }}>{adjustments[s.key]}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ─── Texto ─── */}
+          {activeTab === 'texto' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {textOverlays.length < 3 && (
+                <button
+                  onClick={addTextOverlay}
+                  style={{
+                    alignSelf: 'center',
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px dashed rgba(255,255,255,0.3)',
+                    borderRadius: 'var(--radius-md)',
+                    color: '#fff',
+                    padding: '10px 20px',
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Type size={14} /> + Añadir texto
+                </button>
+              )}
+
+              {textOverlays.map((o) => (
+                <div key={o.id} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 'var(--radius-md)', padding: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input
+                      value={o.text}
+                      onChange={(e) => updateOverlay(o.id, { text: e.target.value })}
+                      style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, color: '#fff', padding: '4px 8px', fontSize: 13, outline: 'none' }}
+                    />
+                    <button onClick={() => removeOverlay(o.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                      <X size={16} color="rgba(255,255,255,0.5)" />
+                    </button>
+                  </div>
+                  {/* fonts */}
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {FONT_OPTIONS.map((f) => (
+                      <button
+                        key={f.label}
+                        onClick={() => updateOverlay(o.id, { font: f.value })}
+                        style={{
+                          background: o.font === f.value ? '#fff' : 'rgba(255,255,255,0.15)',
+                          color: o.font === f.value ? '#000' : '#fff',
+                          border: 'none',
+                          borderRadius: 4,
+                          padding: '3px 8px',
+                          fontSize: 11,
+                          cursor: 'pointer',
+                          fontFamily: f.value,
+                        }}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                  {/* colors */}
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {COLOR_DOTS.map((c) => (
+                      <button
+                        key={c.value}
+                        onClick={() => updateOverlay(o.id, { color: c.value })}
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: '50%',
+                          background: c.value,
+                          border: o.color === c.value ? '2px solid var(--color-green)' : '2px solid rgba(255,255,255,0.3)',
+                          cursor: 'pointer',
+                          padding: 0,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  {/* size */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Tamaño</span>
+                    <input
+                      type="range"
+                      min={14}
+                      max={48}
+                      value={o.size}
+                      onChange={(e) => updateOverlay(o.id, { size: Number(e.target.value) })}
+                      style={{ flex: 1, accentColor: '#0c0a09' }}
+                    />
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{o.size}px</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ─── Recorte ─── */}
+          {activeTab === 'recorte' && (
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {CROP_RATIOS.map((cr) => (
+                <button
+                  key={cr.label}
+                  onClick={() => {
+                    if (cr.value) setAspectRatio(cr);
+                    else setAspectRatio({ label: 'Original', value: null });
+                  }}
+                  style={{
+                    background: aspectRatio.label === cr.label ? '#fff' : 'rgba(255,255,255,0.12)',
+                    color: aspectRatio.label === cr.label ? '#000' : '#fff',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '8px 18px',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {cr.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+    );
+  }
 
-      {/* Hispal AI suggest button */}
-      <div style={{ margin: '0 13px 12px' }}>
+  /* ══════════════════════ STEP 3 ══════════════════════ */
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'var(--color-white)', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
+      {/* top bar */}
+      <div style={{ background: 'var(--color-white)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
+        <button onClick={() => setStep(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-black)', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <ChevronLeft size={18} /> Volver
+        </button>
+        <span style={{ flex: 1, textAlign: 'center', color: 'var(--color-black)', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
+        <div style={{ width: 60 }} />
+      </div>
+
+      {/* scroll content */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: 16, paddingBottom: 100 }}>
+        {/* thumbnail row */}
+        {selectedFiles.length > 1 && (
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 16 }}>
+            {previewUrls.map((url, i) => (
+              <div
+                key={i}
+                onClick={() => setPreviewIndex(i)}
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: 'var(--radius-md)',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  border: previewIndex === i ? '2px solid var(--color-green)' : '2px solid transparent',
+                }}
+              >
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* caption */}
+        <div style={{ position: 'relative', marginBottom: 12 }}>
+          <textarea
+            value={caption}
+            onChange={(e) => setCaption(e.target.value.slice(0, 2200))}
+            placeholder="Escribe una descripción... 🌿"
+            style={{
+              width: '100%',
+              border: '1.5px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+              padding: 12,
+              resize: 'none',
+              minHeight: 80,
+              fontSize: 14,
+              fontFamily: 'var(--font-sans)',
+              outline: 'none',
+              boxSizing: 'border-box',
+            }}
+          />
+          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 11, color: 'var(--color-stone)' }}>
+            {caption.length} / 2200
+          </span>
+        </div>
+
+        {/* AI suggest */}
         <button
-          type="button"
-          onClick={() => setShowAIPanel(true)}
           style={{
-            background: 'var(--color-green-light)',
+            background: 'var(--color-green-light, #dcfce7)',
             color: 'var(--color-green)',
-            border: '1px solid var(--color-green-border)',
+            fontSize: 13,
+            fontWeight: 500,
             borderRadius: 'var(--radius-full)',
-            fontSize: 'var(--text-sm)', fontWeight: 500,
-            padding: '6px 14px', cursor: 'pointer',
-            fontFamily: 'var(--font-sans)',
+            padding: '8px 16px',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: 16,
           }}
         >
           ✨ Sugerir con Hispal AI
         </button>
-      </div>
 
-      {/* ── tagged products ── */}
-      <div style={{ margin: '0 13px 12px' }}>
-        <span className="uppercase-label" style={{ display: 'block', marginBottom: 8 }}>PRODUCTOS</span>
-        <AnimatePresence>
-          {taggedProducts.map((product) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="flex items-center"
-              style={{
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                padding: '8px 10px',
-                marginBottom: 6,
-                gap: 8,
-              }}
-            >
-              {product.image && (
-                <img
-                  src={product.image}
-                  alt=""
+        {/* tag products */}
+        <div style={{ marginBottom: 16 }}>
+          <button
+            onClick={() => setShowProductSearch(true)}
+            style={{
+              background: 'var(--color-surface)',
+              color: 'var(--color-black)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+              padding: '10px 16px',
+              fontSize: 13,
+              cursor: 'pointer',
+              width: '100%',
+              textAlign: 'left',
+            }}
+          >
+            🏷️ Etiquetar producto
+          </button>
+
+          {/* tagged chips */}
+          {taggedProducts.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+              {taggedProducts.map((p) => (
+                <span
+                  key={p.id}
                   style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 6,
-                    objectFit: 'cover',
-                  }}
-                />
-              )}
-              <div className="flex-1" style={{ minWidth: 0 }}>
-                <div
-                  style={{
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '4px 10px',
                     fontSize: 12,
-                    fontWeight: 500,
-                    color: 'var(--color-black)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
                   }}
                 >
-                  {product.name}
-                </div>
-                {product.price != null && (
-                  <span style={{ fontSize: 11, color: 'var(--color-stone)' }}>
-                    {product.price.toFixed(2)} &euro;
-                  </span>
-                )}
-              </div>
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 500,
-                  color: 'var(--color-green)',
-                  background: 'rgba(46,125,82,0.08)',
-                  borderRadius: 4,
-                  padding: '2px 6px',
-                }}
-              >
-                etiquetado
-              </span>
-              <button
-                type="button"
-                onClick={() => removeTaggedProduct(product.id)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 2,
-                  display: 'flex',
-                }}
-              >
-                <X size={14} style={{ color: 'var(--color-stone)' }} />
+                  {p.name}
+                  <button
+                    onClick={() => setTaggedProducts((prev) => prev.filter((x) => x.id !== p.id))}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* product search modal */}
+      {showProductSearch && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div style={{ background: 'var(--color-white)', width: '100%', maxHeight: '70vh', borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--color-border)', gap: 8 }}>
+              <Search size={18} color="var(--color-stone)" />
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar producto..."
+                autoFocus
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'var(--font-sans)' }}
+              />
+              <button onClick={() => { setShowProductSearch(false); setSearchQuery(''); setSearchResults([]); }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={18} />
               </button>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-
-        <button
-          type="button"
-          onClick={() => setShowProductSearch(true)}
-          className="flex items-center"
-          style={{
-            fontSize: 11,
-            fontWeight: 500,
-            color: 'var(--color-green)',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            gap: 4,
-            padding: '4px 0',
-          }}
-        >
-          <Tag size={13} />
-          + Etiquetar producto
-        </button>
-      </div>
-
-      {/* (options moved into step 3 accordion) */}
-
-      {/* ── additional options (accordion) ── */}
-      <div style={{ margin: '0 13px 12px' }}>
-        <button
-          type="button"
-          onClick={() => setShowMoreOptions(!showMoreOptions)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 4,
-            fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--color-stone)',
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            fontFamily: 'var(--font-sans)',
-          }}
-        >
-          Más opciones <ChevronDown size={14} style={{ transform: showMoreOptions ? 'rotate(180deg)' : 'none', transition: 'var(--transition-fast)' }} />
-        </button>
-      </div>
-
-      {showMoreOptions && (
-        <div
-          style={{
-            background: 'var(--color-white)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-md)',
-            margin: '0 13px 24px',
-            overflow: 'hidden',
-          }}
-        >
-          <div className="flex items-center justify-between" style={{ padding: 12, borderBottom: '0.5px solid var(--color-border)' }}>
-            <div className="flex items-center" style={{ gap: 8 }}>
-              <MapPin size={16} style={{ color: 'var(--color-black)' }} />
-              <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)' }}>Ubicación</span>
             </div>
-            <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Añadir ubicación"
-              style={{ fontSize: 12, color: 'var(--color-stone)', border: 'none', outline: 'none', background: 'transparent', textAlign: 'right', width: 140, fontFamily: 'var(--font-sans)' }}
-            />
-          </div>
-          <div className="flex items-center justify-between" style={{ padding: 12 }}>
-            <div className="flex items-center" style={{ gap: 8 }}>
-              <Users size={16} style={{ color: 'var(--color-black)' }} />
-              <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)' }}>Audiencia</span>
+            <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
+              {searchResults.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    if (taggedProducts.length < 5 && !taggedProducts.find((t) => t.id === p.id)) {
+                      setTaggedProducts((prev) => [...prev, { id: p.id, name: p.name || p.title }]);
+                    }
+                    setShowProductSearch(false);
+                    setSearchQuery('');
+                    setSearchResults([]);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    width: '100%',
+                    padding: '10px 8px',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: '1px solid var(--color-border)',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontSize: 13,
+                  }}
+                >
+                  {p.image && <img src={p.image} alt="" style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', objectFit: 'cover' }} />}
+                  <span>{p.name || p.title}</span>
+                </button>
+              ))}
+              {searchQuery && searchResults.length === 0 && (
+                <p style={{ textAlign: 'center', color: 'var(--color-stone)', fontSize: 13, padding: 20 }}>Sin resultados</p>
+              )}
             </div>
-            <button type="button" onClick={() => setAudience(prev => prev === 'all' ? 'followers' : 'all')}
-              style={{ fontSize: 12, color: 'var(--color-stone)', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
-            >
-              {audience === 'all' ? 'Todos' : 'Solo seguidores'}
-            </button>
           </div>
         </div>
       )}
 
-      {/* ── bottom publish button ── */}
-      <div style={{ padding: '0 13px 24px', marginTop: 'auto' }}>
+      {/* fixed publish button */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: 16, background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
         <button
-          type="button"
-          disabled={!canPublish}
           onClick={handlePublish}
-          className="flex items-center justify-center"
+          disabled={publishing}
           style={{
-            width: '100%', height: 52,
+            width: '100%',
+            background: 'var(--color-black)',
+            color: '#fff',
+            fontSize: 15,
+            fontWeight: 600,
+            padding: 14,
             borderRadius: 'var(--radius-full)',
-            background: canPublish ? 'var(--color-black)' : 'var(--color-stone)',
-            color: '#fff', fontSize: 14, fontWeight: 600,
-            border: 'none', cursor: canPublish ? 'pointer' : 'default',
-            opacity: canPublish ? 1 : 0.5, gap: 6,
-            fontFamily: 'var(--font-sans)',
+            border: 'none',
+            cursor: publishing ? 'default' : 'pointer',
+            opacity: publishing ? 0.8 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            transition: 'var(--transition-fast)',
           }}
+          onMouseEnter={(e) => { if (!publishing) e.currentTarget.style.opacity = '0.9'; }}
+          onMouseLeave={(e) => { if (!publishing) e.currentTarget.style.opacity = '1'; }}
         >
-          {publishing ? <Loader2 size={16} className="animate-spin" /> : 'Publicar ahora'}
+          {publishing && (
+            <span
+              style={{
+                width: 18,
+                height: 18,
+                border: '2px solid rgba(255,255,255,0.3)',
+                borderTopColor: '#fff',
+                borderRadius: '50%',
+                display: 'inline-block',
+                animation: 'spin 0.7s linear infinite',
+              }}
+            />
+          )}
+          {publishing ? 'Publicando...' : 'Publicar ahora'}
         </button>
       </div>
-        </>
-      )}
 
-      {/* ── modals ── */}
-      {showProductSearch && (
-        <ProductSearchModal
-          onSelect={handleTagProduct}
-          onClose={() => setShowProductSearch(false)}
-        />
-      )}
-
-      <HispalAIPanel
-        isOpen={showAIPanel}
-        onClose={() => setShowAIPanel(false)}
-        contentType="post"
-        currentText={caption}
-        productIds={taggedProducts.map(p => p.id)}
-        onUseCaption={(text) => { setCaption(text); setShowAIPanel(false); }}
-        onAddHashtags={(tags) => { setCaption(prev => prev + ' ' + tags); setShowAIPanel(false); }}
-      />
-
-      <TemplateSheet
-        isOpen={showTemplateSheet}
-        onClose={() => setShowTemplateSheet(false)}
-        contentType="post"
-        onSelectBlank={() => {}}
-        onSelectTemplate={() => {}}
-      />
+      {/* spinner keyframe */}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

@@ -7,5 +7,8 @@ export { default as FollowingFeed } from './FollowingFeed';
 export { default as ForYouFeed } from './ForYouFeed';
 export { default as PostCard } from './PostCard';
 export { default as ReelCard } from './ReelCard';
+export { default as StoriesBar } from './StoriesBar';
+export { default as StoryRing } from './StoryRing';
+export { default as StoryViewer } from './StoryViewer';
 export { default as FeedSkeleton } from './FeedSkeleton';
 export { default as HIFloatingButton } from './HIFloatingButton';
