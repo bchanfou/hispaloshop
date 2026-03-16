@@ -74,12 +74,16 @@ def _calculate_fees(amount: float):
     """
     Calculate Stripe fee (passed to buyer) and platform fee.
     Returns (stripe_fee, platform_fee, buyer_total, seller_amount).
+    Uses Decimal to avoid float drift on large B2B transactions.
     """
-    stripe_fee = round(amount * (STRIPE_FEE_PCT / 100) + STRIPE_FEE_FIXED_EUR, 2)
-    platform_fee = round(amount * (PLATFORM_FEE_PCT / 100), 2)
-    buyer_total = round(amount + stripe_fee, 2)
-    seller_amount = round(amount - platform_fee, 2)
-    return stripe_fee, platform_fee, buyer_total, seller_amount
+    from decimal import Decimal, ROUND_HALF_UP
+    _q = Decimal("0.01")
+    amt = Decimal(str(amount))
+    stripe_fee = (amt * Decimal(str(STRIPE_FEE_PCT)) / Decimal("100") + Decimal(str(STRIPE_FEE_FIXED_EUR))).quantize(_q, rounding=ROUND_HALF_UP)
+    platform_fee = (amt * Decimal(str(PLATFORM_FEE_PCT)) / Decimal("100")).quantize(_q, rounding=ROUND_HALF_UP)
+    buyer_total = (amt + stripe_fee).quantize(_q, rounding=ROUND_HALF_UP)
+    seller_amount = (amt - platform_fee).quantize(_q, rounding=ROUND_HALF_UP)
+    return float(stripe_fee), float(platform_fee), float(buyer_total), float(seller_amount)
 
 
 # ---------------------------------------------------------------------------
@@ -293,7 +297,15 @@ async def stripe_b2b_webhook(request: Request):
             event = _json.loads(payload)
 
         event_type = event.get("type", "unknown")
-        logger.info(f"[B2B WEBHOOK] Event: {event_type}")
+        event_id = event.get("id")
+        logger.info(f"[B2B WEBHOOK] Event: {event_type} (id={event_id})")
+
+        # Idempotency: reject events already processed
+        if event_id:
+            existing = await db.processed_webhook_events.find_one({"event_id": event_id})
+            if existing:
+                logger.info(f"[B2B WEBHOOK] Event {event_id} already processed, skipping")
+                return {"status": "already_processed"}
 
         data_object = event.get("data", {}).get("object", {})
         metadata = data_object.get("metadata", {})
@@ -347,6 +359,15 @@ async def stripe_b2b_webhook(request: Request):
             )
             failure_message = data_object.get("last_payment_error", {}).get("message", "Unknown")
             logger.error(f"[B2B WEBHOOK] Payment failed for operation {operation_id}: {failure_message}")
+
+        # Mark event as processed (idempotency)
+        if event_id:
+            await db.processed_webhook_events.insert_one({
+                "event_id": event_id,
+                "event_type": event_type,
+                "source": "b2b",
+                "processed_at": datetime.now(timezone.utc).isoformat(),
+            })
 
         return {"status": "success"}
 

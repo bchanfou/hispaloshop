@@ -266,8 +266,18 @@ async def calculate_order_commissions(db, order: dict) -> dict:
     """
     Calculate commission split for an order based on seller plan + influencer tier.
     Returns commission breakdown with rate snapshots.
+    Discount is pro-rated across sellers so payouts never exceed what was collected.
     """
     total_net_gmv = order.get("total_amount", 0)
+
+    # Total undiscounted subtotal across all items
+    gross_subtotal = round(sum(
+        item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
+        for item in order.get("line_items", [])
+    ), 2)
+    discount_amount = round(order.get("discount_amount", 0), 2)
+    # Discount ratio: proportion of gross subtotal that was discounted
+    discount_ratio = (discount_amount / gross_subtotal) if gross_subtotal > 0 and discount_amount > 0 else 0.0
 
     # Get seller(s) from line items
     seller_ids = set(item.get("producer_id") for item in order.get("line_items", []))
@@ -280,12 +290,15 @@ async def calculate_order_commissions(db, order: dict) -> dict:
         seller_doc = await db.users.find_one({"user_id": sid}, {"_id": 0, "subscription": 1})
         seller_plan = (seller_doc or {}).get("subscription", {}).get("plan", "FREE")
 
-        # Calculate seller's portion of the order
-        seller_gmv = round(sum(
+        # Calculate seller's portion of the order (undiscounted)
+        seller_gmv_gross = round(sum(
             item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
             for item in order.get("line_items", [])
             if item.get("producer_id") == sid
         ), 2)
+        # Pro-rate discount across sellers proportionally to prevent payout > collected
+        seller_discount = round(seller_gmv_gross * discount_ratio, 2)
+        seller_gmv = round(seller_gmv_gross - seller_discount, 2)
         seller_gmv_cents = int(round(seller_gmv * 100))
 
         # Influencer attribution

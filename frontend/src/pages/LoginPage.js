@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authApi, getAuthErrorMessage } from '../lib/authApi';
+import { setToken } from '../lib/auth';
 
 const ROLE_DESTINATIONS = {
   customer:    '/',
@@ -55,8 +56,9 @@ export default function LoginPage() {
       });
 
       if (data?.user) {
-        // Save token
+        // Save token for API client (hispalo_access_token) + legacy key
         if (data.session_token) {
+          setToken(data.session_token);
           localStorage.setItem('hsp_token', data.session_token);
         }
 

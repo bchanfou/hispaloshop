@@ -10,7 +10,7 @@ const USER_KEY = 'hispalo_user';
  * Obtener token de acceso
  */
 export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(TOKEN_KEY) || localStorage.getItem('hsp_token');
 }
 
 /**
@@ -37,6 +37,8 @@ export function removeToken() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  // Legacy key used by some components
+  localStorage.removeItem('hsp_token');
 }
 
 /**

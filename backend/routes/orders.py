@@ -410,23 +410,49 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         if order.get("transfers_executed"):
             logger.info(f"[PAYMENT] Order {order['order_id']} already fully processed")
             return
-    
+
     order_id = order["order_id"]
-    
-    # 1. Mark order as paid
+
+    # Atomic lock: claim processing ownership to prevent webhook+poll double processing.
+    # Only the first caller that transitions status from 'pending'/'pending_payment' wins.
+    lock_result = await db.orders.update_one(
+        {"order_id": order_id, "status": {"$in": ["pending", "pending_payment"]}},
+        {"$set": {"status": "processing", "_processing_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    if lock_result.matched_count == 0:
+        # Another concurrent call already claimed this order.
+        if order.get("status") not in ("paid", "confirmed", "preparing", "shipped", "delivered"):
+            logger.info(f"[PAYMENT] Order {order_id} status={order.get('status')}, not pending — skipping duplicate processing")
+            return
+        # If already in a terminal paid state, check transfers
+        if order.get("transfers_executed"):
+            return
+
+    # 1. Mark order as paid & store stripe_payment_intent_id for refund lookups
+    stripe_payment_intent_id = None
+    try:
+        _session_obj = stripe.checkout.Session.retrieve(session_id)
+        stripe_payment_intent_id = getattr(_session_obj, "payment_intent", None)
+    except Exception:
+        pass
     await db.payment_transactions.update_one(
         {"session_id": session_id},
-        {"$set": {"status": "paid", "payment_status": "paid", "updated_at": datetime.now(timezone.utc).isoformat()}}
+        {"$set": {"status": "paid", "payment_status": "paid",
+                  **({"stripe_payment_intent_id": stripe_payment_intent_id} if stripe_payment_intent_id else {}),
+                  "updated_at": datetime.now(timezone.utc).isoformat()}}
     )
     await db.orders.update_one(
         {"order_id": order_id},
-        {"$set": {"status": "paid", "updated_at": datetime.now(timezone.utc).isoformat()}}
+        {"$set": {"status": "paid",
+                  **({"stripe_payment_intent_id": stripe_payment_intent_id} if stripe_payment_intent_id else {}),
+                  "updated_at": datetime.now(timezone.utc).isoformat()}}
     )
     
     # Refresh order after update
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     
-    # 2. Atomic stock decrement
+    # 2. Atomic stock decrement — check result to detect oversells
+    stock_issues = []
     for item in order.get("line_items", []):
         product = await db.products.find_one(
             {"product_id": item["product_id"]},
@@ -436,16 +462,27 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
             variant_id = item.get("variant_id")
             pack_id = item.get("pack_id")
             if variant_id and pack_id and product.get("variants"):
-                await db.products.update_one(
+                result = await db.products.update_one(
                     {"product_id": item["product_id"], "variants.variant_id": variant_id, "variants.packs.pack_id": pack_id},
                     {"$inc": {"variants.$[v].packs.$[p].stock": -item["quantity"]}},
                     array_filters=[{"v.variant_id": variant_id}, {"p.pack_id": pack_id}]
                 )
+                if result.matched_count == 0:
+                    stock_issues.append(item.get("product_name", item["product_id"]))
             else:
-                await db.products.update_one(
+                result = await db.products.update_one(
                     {"product_id": item["product_id"], "stock": {"$gte": item["quantity"]}},
                     {"$inc": {"stock": -item["quantity"]}}
                 )
+                if result.matched_count == 0:
+                    stock_issues.append(item.get("product_name", item["product_id"]))
+    if stock_issues:
+        logger.error(f"[PAYMENT] Stock oversell detected for order {order_id}: {stock_issues}")
+        await db.orders.update_one(
+            {"order_id": order_id},
+            {"$set": {"stock_oversell": True, "stock_oversell_items": stock_issues,
+                      "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
     
     # 3. Increment discount usage
     if order.get("discount_info"):
@@ -453,8 +490,9 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         if code:
             await db.discount_codes.update_one({"code": code}, {"$inc": {"usage_count": 1}})
     
-    # 4. Clear cart
-    if user_id:
+    # 4. Clear cart — skip for buy-now orders to preserve the user's regular cart
+    is_buy_now = order.get("buy_now", False)
+    if user_id and not is_buy_now:
         await db.cart_items.delete_many({"user_id": user_id})
         await db.cart_discounts.delete_one({"user_id": user_id})
 
@@ -1107,12 +1145,12 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
                 detail=f"Insufficient stock. Only {current_stock} units available"
             )
     
-    # Calculate total
-    total_amount = unit_price * input.quantity
-    
+    # Calculate subtotal (product price only)
+    subtotal_amount = unit_price * input.quantity
+
     # Generate order ID
     order_id = f"order_{uuid.uuid4().hex[:12]}"
-    
+
     # Create line item
     line_item = {
         "product_id": input.product_id,
@@ -1120,9 +1158,9 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "producer_id": product.get("producer_id", ""),
         "quantity": input.quantity,
         "price": unit_price,
-        "subtotal": total_amount
+        "subtotal": subtotal_amount
     }
-    
+
     # Add variant/pack info
     if input.variant_id:
         line_item["variant_id"] = input.variant_id
@@ -1131,7 +1169,7 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         line_item["pack_id"] = input.pack_id
         line_item["pack_label"] = pack_label
         line_item["pack_units"] = pack_units
-    
+
     # Resolve Stripe Connect account for the producer
     producer_id = product.get("producer_id", "")
     producer_stripe = None
@@ -1139,6 +1177,38 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         producer_stripe = await db.influencers.find_one({"user_id": producer_id}, {"_id": 0, "stripe_account_id": 1, "stripe_onboarding_complete": 1})
         if not producer_stripe:
             producer_stripe = await db.stores.find_one({"user_id": producer_id}, {"_id": 0, "stripe_account_id": 1, "stripe_charges_enabled": 1})
+
+    # Shipping calculation for the producer
+    buy_now_shipping_cents = 0
+    if producer_id:
+        producer_doc = await db.users.find_one(
+            {"user_id": producer_id},
+            {"_id": 0, "shipping_policy_enabled": 1, "shipping_base_cost_cents": 1,
+             "shipping_free_threshold_cents": 1, "shipping_per_item_cents": 1},
+        )
+        if producer_doc:
+            buy_now_policy = ShippingPolicy(
+                enabled=bool(producer_doc.get("shipping_policy_enabled", False)),
+                base_cost_cents=int(producer_doc.get("shipping_base_cost_cents", 0) or 0),
+                per_item_cents=int(producer_doc.get("shipping_per_item_cents", 0) or 0),
+                free_threshold_cents=producer_doc.get("shipping_free_threshold_cents"),
+            )
+            buy_now_shipping_cents = ShippingService.calculate_shipping_cents(
+                policy=buy_now_policy,
+                item_count=input.quantity,
+                subtotal_cents=int(round(subtotal_amount * 100)),
+            )
+
+    # Tax calculation
+    buy_now_tax_rate_bp = ShippingService.get_tax_rate_bp(user_country)
+    buy_now_totals = ShippingService.calculate_order_totals(
+        subtotal_cents=int(round(subtotal_amount * 100)),
+        shipping_cents=buy_now_shipping_cents,
+        tax_rate_bp=buy_now_tax_rate_bp,
+    )
+    shipping_amount = round(buy_now_totals["shipping_cents"] / 100, 2)
+    tax_amount = round(buy_now_totals["tax_cents"] / 100, 2)
+    total_amount = round(buy_now_totals["total_cents"] / 100, 2)
 
     influencer_context = await _get_active_influencer_context(user.user_id, user.email)
     buy_now_commission_seed = {
@@ -1154,15 +1224,15 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
             "charges_enabled": producer_stripe.get("stripe_charges_enabled", producer_stripe.get("stripe_onboarding_complete", False)) if producer_stripe else False,
         }
     })
-    
+
     # Setup Stripe checkout — Separate Charges & Transfers
     host_url = str(request.base_url).rstrip('/')
     origin = request.headers.get('origin', host_url)
     success_url = f"{origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin}/products/{input.product_id}"
-    
-    seller_breakdown = {producer_id: int(total_amount * 100)}
-    
+
+    seller_breakdown = {producer_id: int(subtotal_amount * 100)}
+
     stripe_params = {
         "mode": "payment",
         "success_url": success_url,
@@ -1178,6 +1248,9 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
             "buy_now": "true",
             "seller_breakdown": _json.dumps(seller_breakdown),
             "influencer_id": influencer_context["influencer_id"] if influencer_context else "",
+            "shipping_cents": str(buy_now_totals["shipping_cents"]),
+            "tax_cents": str(buy_now_totals["tax_cents"]),
+            "tax_rate_bp": str(buy_now_tax_rate_bp),
         },
         "line_items": [{
             "price_data": {
@@ -1188,13 +1261,13 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
             "quantity": 1,
         }],
     }
-    
+
     try:
         session = stripe.checkout.Session.create(**stripe_params)
     except stripe.error.StripeError as e:
         logger.error(f"[BUY_NOW] Stripe error: {e}")
         raise HTTPException(status_code=500, detail="Payment processing error. Please try again.")
-    
+
     # Store transaction
     transaction_id = f"txn_{uuid.uuid4().hex[:12]}"
     transaction = {
@@ -1214,14 +1287,18 @@ async def buy_now_checkout(input: BuyNowInput, request: Request, user: User = De
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
     await db.payment_transactions.insert_one(transaction)
-    
+
     # Store pending order
     pending_order = {
         "order_id": order_id,
         "user_id": user.user_id,
         "session_id": session.id,
         "line_items": [line_item],
-        "subtotal": total_amount,
+        "subtotal": subtotal_amount,
+        "subtotal_after_discount": round(subtotal_amount, 2),
+        "shipping_amount": shipping_amount,
+        "tax_amount": tax_amount,
+        "tax_rate_bp": buy_now_tax_rate_bp,
         "total_amount": total_amount,
         "currency": base_currency,
         "country": user_country,
@@ -1376,41 +1453,81 @@ async def stripe_webhook(request: Request):
             amount_refunded = charge_obj.get("amount_refunded", 0)
             refunded_fully = charge_obj.get("refunded", False)
             if payment_intent_id:
-                # Find order by payment intent or session
+                # Find order by stored payment_intent_id
                 order = await db.orders.find_one(
-                    {"$or": [
-                        {"stripe_payment_intent_id": payment_intent_id},
-                        {"payment_session_id": {"$regex": payment_intent_id}},
-                    ]},
+                    {"stripe_payment_intent_id": payment_intent_id},
                     {"_id": 0}
                 )
                 if not order:
-                    # Try to find via payment_transactions
+                    # Resolve session→order via Stripe API: retrieve the PaymentIntent
+                    # to get its checkout session, then match by payment_session_id.
+                    try:
+                        pi = stripe.PaymentIntent.retrieve(payment_intent_id)
+                        # metadata.order_id is set during checkout
+                        meta_order_id = (pi.get("metadata") or {}).get("order_id")
+                        if meta_order_id:
+                            order = await db.orders.find_one({"order_id": meta_order_id}, {"_id": 0})
+                    except Exception as pi_err:
+                        logger.warning(f"[WEBHOOK] Could not retrieve PI {payment_intent_id}: {pi_err}")
+                if not order:
+                    # Last resort: find via payment_transactions
                     tx = await db.payment_transactions.find_one(
                         {"stripe_payment_intent_id": payment_intent_id},
                         {"_id": 0, "order_id": 1}
                     )
+                    if not tx:
+                        # Try matching by order_id from PI metadata stored in transaction
+                        tx = await db.payment_transactions.find_one(
+                            {"order_id": (pi.get("metadata") or {}).get("order_id", "___none___")},
+                            {"_id": 0, "order_id": 1}
+                        ) if 'pi' in dir() else None
                     if tx:
                         order = await db.orders.find_one({"order_id": tx["order_id"]}, {"_id": 0})
 
                 if order:
+                    now_iso = datetime.now(timezone.utc).isoformat()
                     new_status = "refunded" if refunded_fully else "partially_refunded"
                     await db.orders.update_one(
                         {"order_id": order["order_id"]},
                         {"$set": {
                             "status": new_status,
                             "refund_amount_cents": amount_refunded,
-                            "refunded_at": datetime.now(timezone.utc).isoformat(),
-                            "updated_at": datetime.now(timezone.utc).isoformat(),
+                            "refunded_at": now_iso,
+                            "updated_at": now_iso,
                         }}
                     )
-                    # Cancel scheduled influencer payouts for refunded orders
+                    # Handle influencer payouts for refunded orders
                     if refunded_fully:
                         await db.scheduled_payouts.update_many(
                             {"order_id": order["order_id"], "status": "scheduled"},
                             {"$set": {"status": "cancelled", "cancel_reason": "order_refunded",
-                                      "updated_at": datetime.now(timezone.utc).isoformat()}}
+                                      "updated_at": now_iso}}
                         )
+                        # Also update commission record
+                        await db.influencer_commissions.update_many(
+                            {"order_id": order["order_id"], "commission_status": "pending"},
+                            {"$set": {"commission_status": "refunded", "updated_at": now_iso}}
+                        )
+                    else:
+                        # Partial refund: proportionally reduce scheduled influencer payouts
+                        total_amount_cents = int(round(order.get("total_amount", 0) * 100))
+                        if total_amount_cents > 0:
+                            refund_ratio = amount_refunded / total_amount_cents
+                            scheduled = await db.scheduled_payouts.find(
+                                {"order_id": order["order_id"], "status": "scheduled"}, {"_id": 0}
+                            ).to_list(10)
+                            for sp in scheduled:
+                                new_amount = round(sp["amount"] * (1 - refund_ratio), 2)
+                                if new_amount <= 0:
+                                    await db.scheduled_payouts.update_one(
+                                        {"payout_id": sp["payout_id"]},
+                                        {"$set": {"status": "cancelled", "cancel_reason": "partial_refund", "updated_at": now_iso}}
+                                    )
+                                else:
+                                    await db.scheduled_payouts.update_one(
+                                        {"payout_id": sp["payout_id"]},
+                                        {"$set": {"amount": new_amount, "updated_at": now_iso}}
+                                    )
                     logger.info(f"[WEBHOOK] Refund processed for order {order['order_id']}: {new_status}")
                 else:
                     logger.warning(f"[WEBHOOK] charge.refunded: no order found for pi={payment_intent_id}")
