@@ -114,19 +114,7 @@ export default function AppHeader() {
         justifyContent: 'space-between',
         padding: '0 var(--space-4)',
       }}>
-        {/* Hamburger + Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <button
-            onClick={() => setMenuOpen(true)}
-            aria-label="Abrir men\u00fa"
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: 36, height: 36, borderRadius: '50%',
-              border: 'none', background: 'transparent', cursor: 'pointer',
-            }}
-          >
-            <Menu size={22} color="var(--color-black)" strokeWidth={1.8} />
-          </button>
+        {/* Logo */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
           <Logo variant="icon" theme="light" size={28} />
           <span style={{
@@ -138,9 +126,8 @@ export default function AppHeader() {
             Hispaloshop
           </span>
         </Link>
-        </div>
 
-        {/* Right icons */}
+        {/* Right icons: notif + cart + hamburger */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {/* Notification bell */}
           <Link to="/notifications" style={{ position: 'relative', ...iconButtonStyle }}>
@@ -161,6 +148,19 @@ export default function AppHeader() {
               </span>
             )}
           </Link>
+
+          {/* Hamburger — last icon on the right */}
+          <button
+            onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menú"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 38, height: 38, borderRadius: '50%',
+              border: 'none', background: 'transparent', cursor: 'pointer',
+            }}
+          >
+            <Menu size={22} color="var(--color-black)" strokeWidth={1.8} />
+          </button>
         </div>
       </div>
 

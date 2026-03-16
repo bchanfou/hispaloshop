@@ -672,3 +672,104 @@ async def delete_product(product_id: str, user: User = Depends(get_current_user)
     
     logger.info(f"[DELETE] Product {product_id} + all residues deleted by {user.user_id}")
     return {"message": "Product and all related data deleted"}
+
+
+# ---------------------------------------------------------------------------
+# B2B Product Management
+# ---------------------------------------------------------------------------
+
+from pydantic import BaseModel
+
+
+class B2BProductSettings(BaseModel):
+    wholesale_price: float
+    moq: int
+    wholesale_stock: Optional[int] = None
+    use_product_stock: bool = True
+    incoterm: str
+    payment_terms: str
+    description: Optional[str] = None
+    offers_samples: bool = False
+    max_samples: Optional[int] = None
+
+
+@router.get("/products/my-b2b-catalog")
+async def get_my_b2b_catalog(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    user: User = Depends(get_current_user),
+):
+    """Return the authenticated producer/importer's own B2B-enabled products."""
+    await require_role(user, ["producer", "importer"])
+
+    query = {"producer_id": user.user_id, "b2b_enabled": True}
+    total = await db.products.count_documents(query)
+    skip = (page - 1) * limit
+
+    products = (
+        await db.products.find(query, {"_id": 0})
+        .sort("created_at", -1)
+        .skip(skip)
+        .limit(limit)
+        .to_list(limit)
+    )
+
+    return {"products": products, "total": total, "page": page, "limit": limit}
+
+
+@router.put("/products/{product_id}/b2b")
+async def update_b2b_settings(
+    product_id: str,
+    settings: B2BProductSettings,
+    user: User = Depends(get_current_user),
+):
+    """Enable B2B for a product and set wholesale settings. Owner only."""
+    await require_role(user, ["producer", "importer"])
+
+    product = await db.products.find_one(
+        {"product_id": product_id}, {"_id": 0, "producer_id": 1}
+    )
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product["producer_id"] != user.user_id:
+        raise HTTPException(status_code=403, detail="Not your product")
+
+    await db.products.update_one(
+        {"product_id": product_id},
+        {
+            "$set": {
+                "b2b_enabled": True,
+                "b2b_settings": settings.dict(),
+                "b2b_updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        },
+    )
+    return {"message": "B2B settings updated", "product_id": product_id}
+
+
+@router.delete("/products/{product_id}/b2b")
+async def disable_b2b(
+    product_id: str,
+    user: User = Depends(get_current_user),
+):
+    """Disable B2B for a product but keep its settings. Owner only."""
+    await require_role(user, ["producer", "importer"])
+
+    product = await db.products.find_one(
+        {"product_id": product_id}, {"_id": 0, "producer_id": 1}
+    )
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product["producer_id"] != user.user_id:
+        raise HTTPException(status_code=403, detail="Not your product")
+
+    await db.products.update_one(
+        {"product_id": product_id},
+        {
+            "$set": {
+                "b2b_enabled": False,
+                "b2b_updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        },
+    )
+    return {"message": "B2B disabled", "product_id": product_id}

@@ -73,6 +73,8 @@ const B2BPaymentPage = lazy(() => import('./pages/b2b/B2BPaymentPage'));
 const B2BTrackingPage = lazy(() => import('./pages/b2b/B2BTrackingPage'));
 const B2BOperationsDashboard = lazy(() => import('./pages/b2b/B2BOperationsDashboard'));
 const B2BDisputePage = lazy(() => import('./pages/b2b/B2BDisputePage'));
+const B2BCatalogPage = lazy(() => import('./pages/b2b/B2BCatalogPage'));
+const CertificationsPage = lazy(() => import('./pages/CertificationsPage'));
 const SignatureSettingsPage = lazy(() => import('./pages/settings/SignatureSettingsPage'));
 const NewConversationPage = lazy(() => import('./pages/chat/NewConversationPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
@@ -333,6 +335,8 @@ function AppRouter() {
               <Route path="/tiendas" element={<Navigate to="/stores" replace />} />
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/discover" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
+              <Route path="/explore" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
+              <Route path="/certifications" element={<CertificationsPage />} />
               <Route path="/communities" element={<FeedLayout><CommunitiesExplorePage /></FeedLayout>} />
               <Route path="/communities/new" element={<CreateCommunityPage />} />
               <Route path="/communities/:slug" element={<CommunityPage />} />
@@ -399,6 +403,7 @@ function AppRouter() {
               <Route path="/importer/commercial-ai" element={<ProtectedRoute allowedRoles={['importer']} requireOnboarding={false}><CommercialAIPage /></ProtectedRoute>} />
               <Route path="/importer/brands" element={<Navigate to="/producer/store" replace />} />
               <Route path="/importer/quotes" element={<Navigate to="/producer/orders" replace />} />
+              <Route path="/b2b/catalog" element={<B2BCatalogPage />} />
               <Route path="/b2b/marketplace" element={<B2BMarketplacePage />} />
               <Route path="/b2b/producers" element={<Navigate to="/b2b/marketplace" replace />} />
               <Route path="/b2b/quotes" element={<B2BQuotesHistoryPage />} />

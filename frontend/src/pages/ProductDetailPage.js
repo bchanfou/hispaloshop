@@ -21,6 +21,7 @@ import {
 } from '../features/products/hooks';
 import { useChatContext } from '../context/chat/ChatProvider';
 import apiClient from '../services/api/client';
+import B2BProductModal from '../components/b2b/B2BProductModal';
 
 const stripEmoji = (text) => {
   if (typeof text !== 'string') return text;
@@ -113,6 +114,7 @@ export default function ProductDetailPage() {
   const [addedToCart, setAddedToCart] = useState(false);
   const [descExpanded, setDescExpanded] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [showB2BModal, setShowB2BModal] = useState(false);
   const galleryRef = useRef(null);
 
   useEffect(() => {
@@ -963,6 +965,88 @@ export default function ProductDetailPage() {
           </div>
         )}
       </div>
+
+      {/* ── B2B Wholesale Card — only for product owner (producer/importer) ── */}
+      {user && (user.role === 'producer' || user.role === 'importer') &&
+        (user.user_id === product.seller_id || user.id === product.seller_id) && (
+        <div style={{ padding: '0 16px 16px' }}>
+          <div style={{
+            background: 'rgba(59,130,246,0.08)',
+            border: '1px solid rgba(59,130,246,0.2)',
+            borderRadius: 'var(--radius-xl)',
+            padding: 16,
+          }}>
+            <p style={{
+              fontSize: 15, fontWeight: 600, color: 'var(--color-black)',
+              fontFamily: 'var(--font-sans)', margin: '0 0 4px',
+            }}>
+              📋 Oferta mayorista
+            </p>
+            {product.b2b_enabled ? (
+              <>
+                <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap' }}>
+                  {product.b2b_settings?.wholesale_price && (
+                    <div>
+                      <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>Precio mayorista</span>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>
+                        {product.b2b_settings.wholesale_price}€ / ud
+                      </p>
+                    </div>
+                  )}
+                  {product.b2b_settings?.moq && (
+                    <div>
+                      <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>MOQ</span>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>
+                        {product.b2b_settings.moq} unidades
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowB2BModal(true)}
+                  style={{
+                    marginTop: 12, padding: '8px 20px',
+                    background: 'var(--color-black)', color: '#fff',
+                    border: 'none', borderRadius: 'var(--radius-full)',
+                    fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Editar condiciones
+                </button>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: '4px 0 12px' }}>
+                  Añade este producto al catálogo B2B para recibir pedidos mayoristas.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowB2BModal(true)}
+                  style={{
+                    padding: '8px 20px',
+                    background: 'var(--color-black)', color: '#fff',
+                    border: 'none', borderRadius: 'var(--radius-full)',
+                    fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Añadir al catálogo B2B
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* B2B Modal */}
+      <B2BProductModal
+        isOpen={showB2BModal}
+        onClose={() => setShowB2BModal(false)}
+        product={product}
+        onSaved={() => { /* product will refetch via hook */ }}
+      />
 
       {/* ── Related Products ── */}
       {relatedProducts.length > 0 && (
