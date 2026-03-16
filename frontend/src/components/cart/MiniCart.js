@@ -7,10 +7,10 @@ import { useCart } from '../../context/CartContext';
 
 const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { cartItems, addToCart, removeFromCart, loading } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, loading } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const shipping = subtotal > 50 ? 0 : 4.90;
   const total = subtotal + shipping;
@@ -21,18 +21,7 @@ const MiniCart = ({ isOpen, onClose }) => {
   };
 
   const handleUpdateQuantity = async (productId, newQuantity) => {
-    if (newQuantity <= 0) {
-      await removeFromCart(productId);
-      return;
-    }
-    const current = cartItems.find(i => i.product_id === productId);
-    if (!current) return;
-    if (newQuantity > current.quantity) {
-      await addToCart(productId, 1);
-    } else {
-      await removeFromCart(productId);
-      if (newQuantity > 0) await addToCart(productId, newQuantity);
-    }
+    await updateQuantity(productId, newQuantity);
   };
 
   const handleRemove = async (productId) => {

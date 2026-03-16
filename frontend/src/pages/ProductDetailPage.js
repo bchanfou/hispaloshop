@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Share2, Heart, Star, Shield, Truck, ChevronDown,
   Minus, Plus, AlertTriangle, Store, MapPin, Package, Users,
-  CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle,
+  CheckCircle, User, FileCheck, ChevronRight, Leaf, MessageCircle, Check,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -20,6 +20,7 @@ import {
   useStoreFollow,
 } from '../features/products/hooks';
 import { useChatContext } from '../context/chat/ChatProvider';
+import apiClient from '../services/api/client';
 
 const stripEmoji = (text) => {
   if (typeof text !== 'string') return text;
@@ -108,10 +109,34 @@ export default function ProductDetailPage() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const galleryRef = useRef(null);
 
   useEffect(() => {
     if (hasProductError) toast.error(t('errors.notFound'));
   }, [hasProductError, t]);
+
+  // Fetch related products
+  useEffect(() => {
+    if (!product?.category_id) return;
+    apiClient.get(`/products?category=${product.category_id}&limit=8`)
+      .then((res) => {
+        const items = res?.products || res?.items || res || [];
+        setRelatedProducts(items.filter((p) => (p.product_id || p.id) !== productId).slice(0, 6));
+      })
+      .catch(() => {});
+  }, [product?.category_id, productId]);
+
+  // Gallery scroll handler
+  const handleGalleryScroll = useCallback(() => {
+    const el = galleryRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.offsetWidth);
+    setActiveImageIndex(idx);
+  }, []);
 
   const handleFollowStore = async () => {
     if (!user) { toast.error(t('errors.unauthorized', 'Inicia sesión para seguir tiendas')); return; }
@@ -139,19 +164,18 @@ export default function ProductDetailPage() {
   };
 
   const handleAddToCart = async () => {
-    if (!user) {
-      toast.error(t('errors.loginRequired', 'Inicia sesión'), {
-        action: { label: t('auth.login', 'Entrar'), onClick: () => { window.location.href = '/login'; } },
-      });
-      return;
-    }
     if (isOutOfStock) { toast.error(t('productDetail.outOfStock')); return; }
     toast.loading(t('cart.adding', 'Añadiendo...'), { id: 'add-to-cart' });
     const variantId = selectedVariant?.variant_id || null;
     const packId = selectedPack?.pack_id || null;
     const success = await addToCart(productId, quantity, variantId, packId);
-    if (success) toast.success(t('success.added', '¡Añadido!'), { id: 'add-to-cart' });
-    else toast.error(t('errors.generic', 'Error'), { id: 'add-to-cart' });
+    if (success && success !== 'redirect') {
+      toast.success(t('success.added', '¡Añadido!'), { id: 'add-to-cart' });
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 1800);
+    } else if (success !== 'redirect') {
+      toast.error(t('errors.generic', 'Error'), { id: 'add-to-cart' });
+    }
   };
 
   const handleShare = async () => {
@@ -282,22 +306,47 @@ export default function ProductDetailPage() {
         </div>
       </header>
 
-      {/* ── Image Gallery — 4:3 aspect ── */}
-      <div style={{ position: 'relative', width: '100%', paddingTop: '75%', background: 'var(--color-surface)' }}>
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <ProductImage
-            src={primaryImage}
-            productName={product.name}
-            className="h-full w-full"
-            imageClassName=""
-            sizes="100vw"
-          />
+      {/* ── Image Gallery — 1:1 scroll-snap ── */}
+      <div style={{ position: 'relative', width: '100%', background: 'var(--color-surface)' }}>
+        <div
+          ref={galleryRef}
+          onScroll={handleGalleryScroll}
+          style={{
+            display: 'flex',
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          {(images.length > 0 ? images : [primaryImage]).map((img, i) => (
+            <div
+              key={i}
+              style={{
+                flex: '0 0 100%',
+                scrollSnapAlign: 'start',
+                position: 'relative',
+                width: '100%',
+                paddingTop: '100%',
+              }}
+            >
+              <div style={{ position: 'absolute', inset: 0 }}>
+                <ProductImage
+                  src={img}
+                  productName={product.name}
+                  className="h-full w-full"
+                  imageClassName=""
+                  sizes="100vw"
+                />
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Out of stock overlay */}
         {isOutOfStock && (
           <div style={{
-            position: 'absolute', inset: 0,
+            position: 'absolute', inset: 0, pointerEvents: 'none',
             background: 'rgba(0,0,0,0.3)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
@@ -311,18 +360,32 @@ export default function ProductDetailPage() {
           </div>
         )}
 
-        {/* Image dots (if multiple) */}
+        {/* Scroll dots */}
         {images.length > 1 && (
           <div style={{
             position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)',
             display: 'flex', gap: 6,
           }}>
-            {images.slice(0, 5).map((_, i) => (
+            {images.slice(0, 8).map((_, i) => (
               <div key={i} style={{
                 width: 6, height: 6, borderRadius: '50%',
-                background: i === 0 ? 'var(--color-black)' : 'rgba(0,0,0,0.25)',
+                background: i === activeImageIndex ? 'var(--color-black)' : 'rgba(0,0,0,0.25)',
+                transition: 'background 0.2s',
               }} />
             ))}
+          </div>
+        )}
+
+        {/* Counter badge */}
+        {images.length > 1 && (
+          <div style={{
+            position: 'absolute', top: 12, right: 12,
+            background: 'rgba(0,0,0,0.5)', color: '#fff',
+            borderRadius: 'var(--radius-full)',
+            padding: '3px 10px', fontSize: 11, fontWeight: 600,
+            fontFamily: 'var(--font-sans)',
+          }}>
+            {activeImageIndex + 1}/{images.length}
           </div>
         )}
       </div>
@@ -623,9 +686,27 @@ export default function ProductDetailPage() {
       <div style={{ background: 'var(--color-white, #fff)', borderTop: '1px solid var(--color-border)' }}>
         {/* Description */}
         <CollapsibleSection title={t('productDetail.description', 'Descripción')} defaultOpen>
-          <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+          <p style={{
+            fontSize: 13, lineHeight: 1.6, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0,
+            ...(!descExpanded && product.description?.length > 200 ? {
+              display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            } : {}),
+          }}>
             {product.description}
           </p>
+          {product.description?.length > 200 && (
+            <button
+              type="button"
+              onClick={() => setDescExpanded((v) => !v)}
+              style={{
+                background: 'none', border: 'none', padding: 0, marginTop: 6,
+                fontSize: 13, fontWeight: 600, color: 'var(--color-black)',
+                fontFamily: 'var(--font-sans)', cursor: 'pointer',
+              }}
+            >
+              {descExpanded ? t('common.showLess', 'Ver menos') : t('common.showMore', 'Ver más')}
+            </button>
+          )}
           {/* Details */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
             {product.country_origin && (
@@ -669,7 +750,7 @@ export default function ProductDetailPage() {
             <p style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
               {t('productDetail.per100g', 'Por 100g')}
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
               {[
                 ['calories', t('certificate.calories', 'Calorías'), ''],
                 ['protein', t('certificate.protein', 'Proteínas'), 'g'],
@@ -883,7 +964,62 @@ export default function ProductDetailPage() {
         )}
       </div>
 
-      {/* ── Sticky Bottom Bar — BLACK add-to-cart ── */}
+      {/* ── Related Products ── */}
+      {relatedProducts.length > 0 && (
+        <div style={{ padding: '20px 0' }}>
+          <h2 style={{
+            fontSize: 16, fontWeight: 600, color: 'var(--color-black)',
+            fontFamily: 'var(--font-sans)', margin: '0 0 14px 16px',
+          }}>
+            {t('productDetail.relatedProducts', 'Productos relacionados')}
+          </h2>
+          <div style={{
+            display: 'flex', gap: 12, overflowX: 'auto',
+            scrollSnapType: 'x mandatory', scrollbarWidth: 'none',
+            padding: '0 16px',
+          }}>
+            {relatedProducts.map((rp) => {
+              const rpId = rp.product_id || rp.id;
+              const rpImage = rp.images?.[0] || rp.image_url || null;
+              return (
+                <Link
+                  key={rpId}
+                  to={`/producto/${rpId}`}
+                  style={{
+                    flex: '0 0 140px', scrollSnapAlign: 'start',
+                    textDecoration: 'none', color: 'inherit',
+                  }}
+                >
+                  <div style={{
+                    width: 140, height: 140, borderRadius: 'var(--radius-md)',
+                    overflow: 'hidden', background: 'var(--color-surface)',
+                  }}>
+                    {rpImage ? (
+                      <ProductImage src={rpImage} productName={rp.name} className="h-full w-full" imageClassName="" sizes="140px" />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Package size={24} color="var(--color-border)" />
+                      </div>
+                    )}
+                  </div>
+                  <p style={{
+                    fontSize: 12, fontWeight: 500, color: 'var(--color-black)',
+                    fontFamily: 'var(--font-sans)', margin: '6px 0 2px',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {rp.name}
+                  </p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                    {convertAndFormatPrice(rp.price, rp.currency || 'EUR')}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Sticky Bottom Bar — add-to-cart with green animation ── */}
       <div
         style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
@@ -906,25 +1042,41 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* BLACK Add to Cart */}
-          <button
+          {/* Add to Cart — green flash on success */}
+          <motion.button
             type="button"
             onClick={handleAddToCart}
             disabled={isOutOfStock}
+            animate={{
+              background: addedToCart
+                ? 'var(--color-green, #2E7D52)'
+                : isOutOfStock
+                  ? 'var(--color-surface, #f5f5f4)'
+                  : 'var(--color-black, #0c0a09)',
+            }}
+            transition={{ duration: 0.3 }}
             style={{
               height: 44,
-              borderRadius: 'var(--radius-md)',
+              borderRadius: 'var(--radius-full)',
               padding: '0 28px',
               fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)',
               border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-              background: isOutOfStock ? 'var(--color-surface)' : 'var(--color-black)',
               color: isOutOfStock ? 'var(--color-stone)' : '#fff',
-              transition: 'var(--transition-fast)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             }}
             data-testid="mobile-buy-button"
           >
-            {isOutOfStock ? t('products.soldOut', 'Agotado') : t('products.addToCart', 'Añadir al carrito')}
-          </button>
+            {addedToCart ? (
+              <>
+                <Check size={18} strokeWidth={2.5} />
+                {t('success.added', '¡Añadido!')}
+              </>
+            ) : isOutOfStock ? (
+              t('products.soldOut', 'Agotado')
+            ) : (
+              t('products.addToCart', 'Añadir al carrito')
+            )}
+          </motion.button>
         </div>
       </div>
     </div>
