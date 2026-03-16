@@ -144,9 +144,9 @@ export default function CheckoutSuccessPage() {
           transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
           style={{
             width: 80, height: 80, borderRadius: '50%',
-            background: '#16a34a', margin: '0 auto 24px',
+            background: 'var(--color-black)', margin: '0 auto 24px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 0 8px rgba(22,163,74,0.12)',
+            boxShadow: '0 0 0 8px var(--color-surface, #f5f5f4)',
           }}
         >
           <Check size={40} color="#fff" strokeWidth={2.5} />
