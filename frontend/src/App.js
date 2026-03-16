@@ -90,6 +90,12 @@ const ContactPage = lazy(() => import('./pages/informativas/ContactPage'));
 const InfoPricingPage = lazy(() => import('./pages/informativas/PricingPage'));
 const LegalPage = lazy(() => import('./pages/informativas/LegalPage'));
 const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
+const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'));
+const EditProfilePage = lazy(() => import('./pages/settings/EditProfilePage'));
+const ChangePasswordPage = lazy(() => import('./pages/settings/ChangePasswordPage'));
+const NotificationsSettingsPage = lazy(() => import('./pages/settings/NotificationsSettingsPage'));
+const PlanPage = lazy(() => import('./pages/settings/PlanPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const AdminLayout = lazy(() => import('./components/dashboard/AdminLayoutResponsive'));
 const SuperAdminLayout = lazy(() => import('./components/dashboard/SuperAdminLayoutResponsive'));
@@ -336,6 +342,11 @@ function AppRouter() {
               <Route path="/certificado/:productId" element={<CertificatePage />} />
               <Route path="/certificates" element={<CertificatesListPage />} />
               <Route path="/certificados" element={<Navigate to="/certificates" replace />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/settings/profile" element={<EditProfilePage />} />
+              <Route path="/settings/password" element={<ChangePasswordPage />} />
+              <Route path="/settings/notifications" element={<NotificationsSettingsPage />} />
+              <Route path="/settings/plan" element={<PlanPage />} />
               <Route path="/settings/locale" element={<LocaleSettingsPage />} />
               <Route path="/configuracion/idioma" element={<Navigate to="/settings/locale" replace />} />
               <Route path="/configuracion/pais" element={<Navigate to="/settings/locale" replace />} />
@@ -686,7 +697,7 @@ function AppRouter() {
               {/* /checkout is now a real page, defined above */}
               <Route path="/stories/*" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </motion.div>
         </AnimatePresence>

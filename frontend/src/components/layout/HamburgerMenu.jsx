@@ -333,7 +333,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
 
                   <MenuItem to={profileUserId ? `/user/${profileUserId}` : '/profile'} icon={<Settings size={20} />} label="Mi perfil" onClose={onClose} />
                   <MenuItem to="/orders" icon={<Package size={20} />} label="Mis pedidos" onClose={onClose} />
-                  <MenuItem to="/settings/locale" icon={<GlobeIcon size={20} />} label="Configuración" onClose={onClose} />
+                  <MenuItem to="/settings" icon={<Settings size={20} />} label="Configuración" onClose={onClose} />
                   <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />
 
                   <Divider />
