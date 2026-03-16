@@ -439,7 +439,7 @@ async def change_plan(request: Request, user: User = Depends(get_current_user)):
     if new_plan == current_plan:
         raise HTTPException(status_code=400, detail="Ya estas en este plan")
 
-    # Downgrade to FREE
+    # Downgrade to FREE — keep current commission rate until period ends
     if new_plan == "FREE":
         if stripe_sub_id:
             _ensure_stripe_ready()
@@ -447,15 +447,20 @@ async def change_plan(request: Request, user: User = Depends(get_current_user)):
                 stripe.Subscription.modify(stripe_sub_id, cancel_at_period_end=True)
             except Exception as e:
                 logger.error(f"Stripe cancel error: {e}")
+        # Keep the current commission rate active until Stripe subscription period ends.
+        # The rate only downgrades to FREE when the subscription.deleted webhook fires
+        # or the grace period cron runs. This ensures the seller gets the rate they paid for.
         await db.users.update_one(
             {"user_id": user.user_id},
             {"$set": {
-                "subscription.plan": "FREE",
-                "subscription.commission_rate": 0.20,
-                "subscription.plan_status": "canceled",
+                "subscription.cancel_at_period_end": True,
+                "subscription.plan_status": "canceling",
+                "subscription.downgrade_to": "FREE",
+                "subscription.updated_at": datetime.now(timezone.utc).isoformat(),
             }}
         )
-        return {"message": "Plan cambiado a FREE al final del periodo actual"}
+        await record_subscription_event(db, user.user_id, "downgrade_scheduled", {"from": current_plan, "to": "FREE"})
+        return {"message": "Plan cambiado a FREE al final del periodo actual. Mantienes tu tarifa actual hasta entonces."}
 
     if not stripe_sub_id:
         raise HTTPException(status_code=400, detail="No hay una suscripcion Stripe activa para cambiar de plan")
@@ -473,7 +478,8 @@ async def change_plan(request: Request, user: User = Depends(get_current_user)):
                 stripe_sub_id,
                 items=[{"id": sub["items"]["data"][0].id, "price": plan["stripe_price_id"]}],
                 proration_behavior="create_prorations",
-                metadata={"plan": new_plan},
+                # CRITICAL: preserve user_id in metadata — webhook needs it to map payment
+                metadata={"plan": new_plan, "user_id": user.user_id},
             )
         except Exception as e:
             logger.error(f"Stripe plan change error: {e}")
@@ -511,8 +517,15 @@ async def stripe_billing_webhook(request: Request):
         raise HTTPException(status_code=400, detail="Invalid webhook")
 
     event_type = event.get("type", "")
+    event_id = event.get("id")
     data = event.get("data", {}).get("object", {})
-    logger.info(f"[BILLING WEBHOOK] {event_type}")
+    logger.info(f"[BILLING WEBHOOK] {event_type} (id={event_id})")
+
+    # Idempotency: skip already-processed events
+    if event_id:
+        existing = await db.processed_webhook_events.find_one({"event_id": event_id})
+        if existing:
+            return {"status": "already_processed"}
 
     if event_type in ("invoice.paid", "invoice.payment_succeeded"):
         sub_id = data.get("subscription")
@@ -570,6 +583,15 @@ async def stripe_billing_webhook(request: Request):
             )
             logger.info(f"[BILLING] Seller {user_id} downgraded to FREE")
             await record_subscription_event(db, user_id, "downgraded", {"to": "FREE", "subscription_id": sub_id})
+
+    # Mark event as processed (idempotency)
+    if event_id:
+        await db.processed_webhook_events.insert_one({
+            "event_id": event_id,
+            "event_type": event_type,
+            "source": "billing",
+            "processed_at": datetime.now(timezone.utc).isoformat(),
+        })
 
     return {"status": "ok"}
 

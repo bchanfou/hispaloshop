@@ -28,9 +28,8 @@ async def get_importer_stats(user: User = Depends(get_current_user)):
     approved_products = await db.products.count_documents({"producer_id": user.user_id, "approved": True})
     pending_products = await db.products.count_documents({"producer_id": user.user_id, "approved": False})
     
-    # Count orders with importer's products
-    orders = await db.orders.find({}, {"line_items": 1}).to_list(500)
-    order_count = sum(1 for o in orders if any(item.get("producer_id") == user.user_id for item in o.get("line_items", [])))
+    # Count orders with importer's products (DB-level filter)
+    order_count = await db.orders.count_documents({"line_items.producer_id": user.user_id})
     
     # Get store followers count
     store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"store_id": 1})
@@ -223,7 +222,10 @@ async def get_importer_products(user: User = Depends(get_current_user)):
 async def get_importer_orders(user: User = Depends(get_current_user)):
     """Get orders containing importer's products"""
     await require_role(user, ["importer"])
-    orders = await db.orders.find({}, {"_id": 0}).to_list(500)
+    # DB-level filter: only orders containing this importer's items
+    orders = await db.orders.find(
+        {"line_items.producer_id": user.user_id}, {"_id": 0}
+    ).sort("created_at", -1).limit(200).to_list(200)
     importer_orders = []
     for order in orders:
         importer_items = [item for item in order.get("line_items", []) if item.get("producer_id") == user.user_id]
@@ -233,7 +235,7 @@ async def get_importer_orders(user: User = Depends(get_current_user)):
                 "customer_name": order.get("user_name", "Unknown"),
                 "shipping_address": order.get("shipping_address", {}),
                 "items": importer_items,
-                "total": sum(item.get("amount", 0) for item in importer_items),
+                "total": sum(item.get("subtotal", item.get("price", 0) * item.get("quantity", 1)) for item in importer_items),
                 "status": order["status"],
                 "tracking_number": order.get("tracking_number"),
                 "tracking_url": order.get("tracking_url"),

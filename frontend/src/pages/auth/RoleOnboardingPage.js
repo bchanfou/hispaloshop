@@ -246,6 +246,7 @@ function ProducerOnboarding({ step, setStep, onFinish }) {
   const handleLogoChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
     setLogo(file);
     setLogoPreview(URL.createObjectURL(file));
   };

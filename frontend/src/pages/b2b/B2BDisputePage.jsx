@@ -87,7 +87,7 @@ export default function B2BDisputePage() {
     try {
       // In a real app, files would be uploaded first to get URLs
       const evidenceUrls = files.map((f) => URL.createObjectURL(f));
-      await apiClient.post(`/api/b2b/operations/${operationId}/dispute`, {
+      await apiClient.post(`/b2b/operations/${operationId}/dispute`, {
         reason,
         description,
         evidence_urls: evidenceUrls,

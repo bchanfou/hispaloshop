@@ -329,9 +329,8 @@ async def get_producer_stats(user: User = Depends(get_current_user)):
     approved_products = await db.products.count_documents({"producer_id": user.user_id, "approved": True})
     pending_products = await db.products.count_documents({"producer_id": user.user_id, "approved": False})
     
-    # Count orders with producer's products
-    orders = await db.orders.find({}, {"line_items": 1}).to_list(500)
-    order_count = sum(1 for o in orders if any(item.get("producer_id") == user.user_id for item in o.get("line_items", [])))
+    # Count orders with producer's products (DB-level filter, not client-side)
+    order_count = await db.orders.count_documents({"line_items.producer_id": user.user_id})
     
     # Get store followers count
     store = await db.store_profiles.find_one({"producer_id": user.user_id}, {"store_id": 1})
@@ -385,19 +384,21 @@ async def get_producer_health_score(user: User = Depends(get_current_user)):
     from datetime import timedelta
     thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
     
-    orders = await db.orders.find({
-        "created_at": {"$gte": thirty_days_ago}
-    }, {"line_items": 1, "total_amount": 1}).to_list(1000)
-    
-    producer_orders = []
+    # DB-level filter: only orders containing this producer's items
+    producer_order_query = {
+        "line_items.producer_id": user.user_id,
+        "created_at": {"$gte": thirty_days_ago},
+    }
+    producer_orders = await db.orders.find(
+        producer_order_query, {"line_items": 1, "total_amount": 1}
+    ).to_list(500)
+
     total_revenue = 0
-    for order in orders:
+    for order in producer_orders:
         for item in order.get("line_items", []):
             if item.get("producer_id") == user.user_id:
-                producer_orders.append(order)
                 total_revenue += item.get("price", 0) * item.get("quantity", 1)
-                break
-    
+
     order_count = len(producer_orders)
     if order_count >= 20:
         sales_score = 25
@@ -917,9 +918,9 @@ async def get_producer_analytics(user: User = Depends(get_current_user), period:
     days_back = period_map.get(period, 30)
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
 
-    # Get all orders in period that contain this producer's items
+    # Get orders in period that contain this producer's items (DB-level filter)
     all_orders = await db.orders.find(
-        {"created_at": {"$gte": cutoff}},
+        {"created_at": {"$gte": cutoff}, "line_items.producer_id": user.user_id},
         {"line_items": 1, "source": 1, "total_amount": 1},
     ).to_list(2000)
 

@@ -66,7 +66,7 @@ export default function B2BContractPage() {
   /* ── Fetch ──────────────────────────────────────── */
   const fetchOperation = useCallback(async () => {
     try {
-      const { data } = await apiClient.get(`/api/b2b/operations/${operationId}`);
+      const { data } = await apiClient.get(`/b2b/operations/${operationId}`);
       setOperation(data);
       setError(null);
       return data;
@@ -130,7 +130,7 @@ export default function B2BContractPage() {
   const handleSign = async () => {
     setSigning(true);
     try {
-      await apiClient.post(`/api/b2b/operations/${operationId}/sign`);
+      await apiClient.post(`/b2b/operations/${operationId}/sign`);
       toast.success('Contrato firmado correctamente');
       await fetchOperation();
     } catch (err) {

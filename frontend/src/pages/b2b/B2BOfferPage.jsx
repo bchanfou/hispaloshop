@@ -626,9 +626,9 @@ export default function B2BOfferPage() {
 
     try {
       if (isCounteroffer) {
-        await apiClient.post(`/api/b2b/operations/${operationId}/offers`, offer);
+        await apiClient.post(`/b2b/operations/${operationId}/offers`, offer);
       } else {
-        await apiClient.post('/api/b2b/operations', {
+        await apiClient.post('/b2b/operations', {
           conversation_id: conversationId,
           counterpart_id: counterpartId,
           offer,

@@ -135,7 +135,7 @@ export default function CreatePostPage() {
   const searchProducts = useCallback(async (q) => {
     if (!q.trim()) { setSearchResults([]); return; }
     try {
-      const res = await apiClient.get(`/api/products/search?q=${encodeURIComponent(q)}`);
+      const res = await apiClient.get(`/products/search?q=${encodeURIComponent(q)}`);
       setSearchResults(res.data?.results || res.data || []);
     } catch { setSearchResults([]); }
   }, []);
@@ -157,7 +157,7 @@ export default function CreatePostPage() {
       if (taggedProducts.length) fd.append('tagged_products', JSON.stringify(taggedProducts.map((p) => p.id)));
       fd.append('filter', activeFilter.name);
       fd.append('aspect_ratio', aspectRatio.label);
-      await apiClient.post('/api/posts', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await apiClient.post('/posts', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success('Publicación creada');
       navigate('/');
     } catch (err) {

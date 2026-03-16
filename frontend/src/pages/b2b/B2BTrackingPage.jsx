@@ -107,7 +107,7 @@ export default function B2BTrackingPage() {
   /* ── fetch helpers ─────────────────────────────── */
   const fetchOperation = useCallback(async () => {
     try {
-      const { data } = await apiClient.get(`/api/b2b/operations/${operationId}`);
+      const { data } = await apiClient.get(`/b2b/operations/${operationId}`);
       setOperation(data);
     } catch {
       toast.error('Error al cargar la operación');
@@ -118,7 +118,7 @@ export default function B2BTrackingPage() {
 
   const fetchDocuments = useCallback(async () => {
     try {
-      const { data } = await apiClient.get(`/api/b2b/operations/${operationId}/documents`);
+      const { data } = await apiClient.get(`/b2b/operations/${operationId}/documents`);
       setDocuments(Array.isArray(data) ? data : []);
     } catch { /* silent */ }
   }, [operationId]);
@@ -149,7 +149,7 @@ export default function B2BTrackingPage() {
     }
     setSubmitting(true);
     try {
-      await apiClient.post(`/api/b2b/operations/${operationId}/ship`, {
+      await apiClient.post(`/b2b/operations/${operationId}/ship`, {
         tracking_number: trackingNum.trim(),
         carrier: selectedCarrier,
       });
@@ -167,7 +167,7 @@ export default function B2BTrackingPage() {
     fd.append('file', file);
     fd.append('document_type', docName);
     try {
-      await apiClient.post(`/api/b2b/operations/${operationId}/documents`, fd, {
+      await apiClient.post(`/b2b/operations/${operationId}/documents`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Documento subido');
@@ -184,7 +184,7 @@ export default function B2BTrackingPage() {
     fd.append('file', file);
     fd.append('document_type', file.name);
     try {
-      await apiClient.post(`/api/b2b/operations/${operationId}/documents`, fd, {
+      await apiClient.post(`/b2b/operations/${operationId}/documents`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Documento subido');

@@ -202,11 +202,11 @@ export default function ProfileTabs({
   };
 
   const endpointMap = {
-    posts: `/api/users/${userId}/posts`,
-    reels: `/api/users/${userId}/reels`,
-    products: `/api/users/${userId}/products`,
-    recipes: `/api/users/${userId}/recipes`,
-    saved: `/api/users/me/saved`,
+    posts: `/users/${userId}/posts`,
+    reels: `/users/${userId}/reels`,
+    products: `/users/${userId}/products`,
+    recipes: `/users/${userId}/recipes`,
+    saved: `/users/me/saved`,
   };
 
   const fetchTab = useCallback(

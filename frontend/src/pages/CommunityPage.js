@@ -382,7 +382,7 @@ const CommunityPostForm = ({ communityId, onClose, onSuccess }) => {
   const handleImage = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImagePreview(URL.createObjectURL(file));
+    setImagePreview((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
     setIsUploading(true);
     try {
       const formData = new FormData();

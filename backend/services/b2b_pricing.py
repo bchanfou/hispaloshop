@@ -16,12 +16,14 @@ def _to_int(value, default: int = 0) -> int:
 
 
 def compute_b2b_total(items: Iterable[dict]) -> float:
-    total = 0.0
+    """Compute B2B total using Decimal to avoid float drift on large orders."""
+    from decimal import Decimal, ROUND_HALF_UP
+    total = Decimal("0")
     for item in items:
-        unit_price = _to_float(item.get("unit_price_quoted"), 0.0)
+        unit_price = Decimal(str(_to_float(item.get("unit_price_quoted"), 0.0)))
         qty = _to_int(item.get("qty_requested"), 0)
         total += unit_price * qty
-    return round(total, 2)
+    return float(total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
 def select_volume_price(pricing: dict, quantity: int) -> float | None:

@@ -97,6 +97,7 @@ export default function CreateCommunityPage() {
   const handleCover = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
     setCoverPreview(URL.createObjectURL(file));
     setIsUploadingCover(true);
     try {

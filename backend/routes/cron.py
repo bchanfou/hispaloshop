@@ -197,7 +197,19 @@ async def cron_attribution_expiry(user: User = Depends(get_current_user)):
         },
     )
 
-    return {"expired": result.modified_count}
+    # Also expire the customer_influencer_attribution records so new codes can be used
+    attr_result = await db.customer_influencer_attribution.update_many(
+        {
+            "is_active": True,
+            "$or": [
+                {"expires_at": {"$lte": now}},
+                {"attribution_expiry_date": {"$lte": now}},
+            ],
+        },
+        {"$set": {"is_active": False, "expired_at": now}},
+    )
+
+    return {"expired_users": result.modified_count, "expired_attributions": attr_result.modified_count}
 
 
 @router.post("/admin/cron/influencer-tier-sweep")

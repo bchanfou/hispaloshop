@@ -142,7 +142,7 @@ export default function CreateReelPage() {
           thumbnailIndex,
         })
       );
-      await apiClient.post('/api/posts', fd, {
+      await apiClient.post('/posts', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Reel publicado');

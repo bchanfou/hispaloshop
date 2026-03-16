@@ -11,10 +11,11 @@ export default function WishlistPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [loadError, setLoadError] = useState(false);
   useEffect(() => {
     apiClient.get('/wishlist')
       .then(data => setItems(data || []))
-      .catch(() => {})
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -31,6 +32,7 @@ export default function WishlistPage() {
   }
 
   if (loading) return <div className="py-12 text-center text-stone-400">{t('common.loading')}</div>;
+  if (loadError) return <div className="py-12 text-center text-stone-400">{t('errors.loadFailed', 'No se pudo cargar. Intenta de nuevo.')}</div>;
 
   if (items.length === 0) {
     return (

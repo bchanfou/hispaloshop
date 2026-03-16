@@ -74,8 +74,8 @@ export default function B2BPaymentPage() {
     setError(null);
     try {
       const [opRes, piRes] = await Promise.all([
-        apiClient.get(`/api/b2b/operations/${operationId}`),
-        apiClient.get(`/api/b2b/operations/${operationId}/payment-info`),
+        apiClient.get(`/b2b/operations/${operationId}`),
+        apiClient.get(`/b2b/operations/${operationId}/payment-info`),
       ]);
       setOperation(opRes.data);
       setPaymentInfo(piRes.data);
@@ -105,7 +105,7 @@ export default function B2BPaymentPage() {
         const StripeFactory = await loadStripeJs();
         if (cancelled) return;
 
-        const { data } = await apiClient.post(`/api/b2b/operations/${operationId}/pay`, {
+        const { data } = await apiClient.post(`/b2b/operations/${operationId}/pay`, {
           payment_type: paymentType,
         });
         if (cancelled) return;

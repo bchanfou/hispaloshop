@@ -307,7 +307,7 @@ const B2BOperationsDashboard = () => {
     setError(false);
     setLoading(true);
     try {
-      const res = await apiClient.get('/api/b2b/operations');
+      const res = await apiClient.get('/b2b/operations');
       if (!cancelled) setOperations(res.data?.operations || res.data || []);
     } catch (err) {
       console.error('Failed to fetch B2B operations', err);

@@ -13,7 +13,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
 
     async function fetchStories() {
       try {
-        const res = await apiClient.get('/api/stories/feed');
+        const res = await apiClient.get('/stories/feed');
         if (!cancelled) {
           setStories(Array.isArray(res) ? res : res?.data || []);
         }

@@ -155,7 +155,7 @@ export default function CreateStoryPage() {
           stickerOverlays,
         })
       );
-      await apiClient.post('/api/posts', fd, {
+      await apiClient.post('/posts', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Historia publicada');

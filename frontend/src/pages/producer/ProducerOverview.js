@@ -533,10 +533,11 @@ export default function ProducerOverview() {
 
   // Fetch sales chart, alerts, collabs in parallel
   useEffect(() => {
-    apiClient.get('/producer/sales-chart').then(d => setSalesChart(d?.days || [])).catch(() => {});
-    apiClient.get('/producer/alerts').then(d => setAlerts(d || [])).catch(() => {});
-    apiClient.get('/verification/status').then(d => setVerificationStatus(d)).catch(() => {});
-    apiClient.get('/collaborations').then(d => setCollabs(d?.collaborations || [])).catch(() => {});
+    const logErr = (label) => (err) => console.warn(`[ProducerOverview] ${label}:`, err?.message || err);
+    apiClient.get('/producer/sales-chart').then(d => setSalesChart(d?.days || [])).catch(logErr('sales-chart'));
+    apiClient.get('/producer/alerts').then(d => setAlerts(d || [])).catch(logErr('alerts'));
+    apiClient.get('/verification/status').then(d => setVerificationStatus(d)).catch(logErr('verification'));
+    apiClient.get('/collaborations').then(d => setCollabs(d?.collaborations || [])).catch(logErr('collaborations'));
   }, []);
 
   const fetchData = async () => {
