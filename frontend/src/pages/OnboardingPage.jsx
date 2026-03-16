@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Loader2, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 
@@ -80,8 +81,8 @@ export default function OnboardingPage() {
       } else {
         navigate('/', { replace: true });
       }
-    } catch {
-      // If set-role fails, still navigate
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || 'Error al guardar tu perfil. Inténtalo de nuevo.');
       navigate('/', { replace: true });
     } finally {
       setSaving(false);
@@ -96,8 +97,8 @@ export default function OnboardingPage() {
         preferences: selectedPrefs,
       });
       await checkAuth();
-    } catch {
-      // ignore
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || 'Error al guardar. Puedes configurar tu perfil más tarde.');
     }
     navigate('/', { replace: true });
   };
@@ -156,7 +157,7 @@ export default function OnboardingPage() {
         fontSize: 15, color: 'rgba(255,255,255,0.65)',
         textAlign: 'center', marginBottom: 48, lineHeight: 1.5,
       }}>
-        La plataforma de alimentación artesanal local.
+        Conecta directamente con productores locales de alimentación saludable. Sin intermediarios.
         ¿Quién eres tú?
       </p>
 
@@ -265,7 +266,7 @@ export default function OnboardingPage() {
           fontSize: 15, color: 'var(--color-stone)',
           textAlign: 'center', marginBottom: 32,
         }}>
-          Personalizamos tu experiencia
+          Personalizamos tu feed para mostrarte productores y productos que encajan contigo
         </p>
 
         {/* Preference pills */}
@@ -350,7 +351,7 @@ export default function OnboardingPage() {
                 ¡Todo listo!
               </h2>
               <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', lineHeight: 1.5, marginBottom: 32 }}>
-                Ya puedes descubrir los mejores productores artesanales de España.
+                Ya puedes descubrir productores locales de alimentación saludable cerca de ti. Sin intermediarios.
               </p>
               <button
                 onClick={handleFinish}

@@ -15,8 +15,9 @@ export default function CheckoutSuccessPage() {
 
     let cancelled = false;
     let attempt = 0;
-    const MAX = 10;
-    const INTERVAL = 2500;
+    const MAX = 20;
+
+    const getDelay = (n) => Math.min(1000 + n * 500, 5000); // 1s, 1.5s, 2s... max 5s
 
     const poll = async () => {
       if (cancelled || attempt >= MAX) {
@@ -38,7 +39,7 @@ export default function CheckoutSuccessPage() {
             }
           }
         } else if (!cancelled) {
-          setTimeout(poll, INTERVAL);
+          setTimeout(poll, getDelay(attempt));
         }
       } catch {
         if (!cancelled) setStatus('error');
@@ -81,12 +82,12 @@ export default function CheckoutSuccessPage() {
             <AlertCircle size={32} color="var(--color-stone)" />
           </div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-black)', marginBottom: 8 }}>
-            {status === 'timeout' ? 'Verificación lenta' : 'Error de pago'}
+            {status === 'timeout' ? 'Pago procesado' : 'Error de pago'}
           </h1>
           <p style={{ fontSize: 15, color: 'var(--color-stone)', lineHeight: 1.5, marginBottom: 24 }}>
             {status === 'timeout'
-              ? 'La verificación está tardando más de lo esperado. Tu pago puede haber sido procesado correctamente.'
-              : 'Ha ocurrido un error al verificar tu pago.'}
+              ? 'Tu pago se ha procesado correctamente. Recibirás un email de confirmación con los detalles de tu pedido en los próximos minutos.'
+              : 'Ha ocurrido un error al verificar tu pago. Si se ha realizado el cobro, contacta con soporte.'}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <Link to="/orders" style={{
@@ -96,13 +97,23 @@ export default function CheckoutSuccessPage() {
             }}>
               Ver mis pedidos
             </Link>
-            <Link to="/cart" style={{
+            {status === 'error' && (
+              <Link to="/help" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                height: 48, background: 'var(--color-white)', color: 'var(--color-black)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
+              }}>
+                Contactar soporte
+              </Link>
+            )}
+            <Link to="/" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               height: 48, background: 'var(--color-white)', color: 'var(--color-black)',
               border: '1px solid var(--color-border)',
               borderRadius: 'var(--radius-lg)', fontSize: 15, fontWeight: 600, textDecoration: 'none',
             }}>
-              Volver al carrito
+              Seguir comprando
             </Link>
           </div>
         </div>
@@ -111,7 +122,7 @@ export default function CheckoutSuccessPage() {
   }
 
   // Success
-  const orderId = order?.order_id || order?.id || sessionId;
+  const orderId = order?.order_id || order?.id;
   const orderRef = orderId ? `#HSP-${String(orderId).slice(-8).toUpperCase()}` : '';
   const totalPaid = order?.total ? `${(order.total / 100).toFixed(2)}€` : order?.total_amount ? `${Number(order.total_amount).toFixed(2)}€` : '';
   const email = order?.customer_email || order?.email || '';

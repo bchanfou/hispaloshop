@@ -10,7 +10,7 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
   if (showPlaceholder) {
     borderStyle = '2px dashed var(--color-border)';
   } else if (hasUnseenStory) {
-    borderStyle = '2px solid var(--color-green)';
+    borderStyle = '2px solid var(--color-black)';
   } else {
     borderStyle = '2px solid var(--color-border)';
   }

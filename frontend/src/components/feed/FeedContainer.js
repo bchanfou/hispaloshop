@@ -24,8 +24,9 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsRefreshing(false);
+    // Feed components handle their own refetch via usePullToRefresh + React Query.
+    // This refresh indicator is shown during the process.
+    setTimeout(() => setIsRefreshing(false), 600);
   }, []);
 
   const handleCreateStory = () => {

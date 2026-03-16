@@ -34,7 +34,9 @@ export default function DiscoverPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [communities, setCommunities] = useState([]);
 
-  const { products, isLoading: loadingProducts } = useProducts({ limit: '8' });
+  const productParams = { limit: '8' };
+  if (activeFilter !== 'all') productParams.category = activeFilter;
+  const { products, isLoading: loadingProducts } = useProducts(productParams);
   const { stores, isLoading: loadingStores } = useStores({});
 
   const isB2BUser = user?.role === 'producer' || user?.role === 'importer';
@@ -85,7 +87,7 @@ export default function DiscoverPage() {
             background: 'var(--color-black)', borderRadius: 'var(--radius-full)',
             padding: '3px 10px', cursor: 'pointer',
           }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--color-green)' }} />
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#a8a29e' }} />
             <span style={{ fontSize: 10, fontWeight: 500, color: '#fff', fontFamily: 'var(--font-sans)' }}>IA</span>
           </div>
         </div>
@@ -286,7 +288,7 @@ export default function DiscoverPage() {
                 onClick={() => navigate('/stores')}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 2,
-                  fontSize: 11, fontWeight: 500, color: 'var(--color-green)',
+                  fontSize: 11, fontWeight: 500, color: 'var(--color-stone)',
                   background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
               >
@@ -340,7 +342,7 @@ export default function DiscoverPage() {
                 onClick={() => navigate('/communities')}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 2,
-                  fontSize: 11, fontWeight: 500, color: 'var(--color-green)',
+                  fontSize: 11, fontWeight: 500, color: 'var(--color-stone)',
                   background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
               >
@@ -374,8 +376,8 @@ export default function DiscoverPage() {
                   <div style={{ padding: '10px 12px' }}>
                     {community.category && (
                       <span style={{
-                        fontSize: 9, fontWeight: 500, color: 'var(--color-green)',
-                        background: 'var(--color-green-light)', padding: '1px 6px',
+                        fontSize: 9, fontWeight: 500, color: 'var(--color-stone)',
+                        background: 'var(--color-surface, #f5f5f4)', padding: '1px 6px',
                         borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
                       }}>
                         {community.category}

@@ -420,6 +420,49 @@ export default function ProductDetailPage() {
           {product.name}
         </h1>
 
+        {/* Certification badges */}
+        {(product.certifications?.length > 0 || product.is_organic || product.is_gluten_free || product.is_vegan || product.is_halal || product.is_km0) && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+            {product.is_organic && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+                <Leaf size={12} /> Ecológico
+              </span>
+            )}
+            {product.is_gluten_free && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+                <Shield size={12} /> Sin gluten
+              </span>
+            )}
+            {product.is_vegan && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+                <Leaf size={12} /> Vegano
+              </span>
+            )}
+            {product.is_halal && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+                <CheckCircle size={12} /> Halal
+              </span>
+            )}
+            {product.is_km0 && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+                <MapPin size={12} /> Km 0
+              </span>
+            )}
+            {product.certifications?.map((cert, i) => (
+              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+                <FileCheck size={12} /> {cert.name || cert}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Social proof — orders this month */}
+        {product.stats?.orders_count > 0 && (
+          <p style={{ fontSize: 12, color: 'var(--color-stone)', marginTop: 6, fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Users size={12} /> {product.stats.orders_count} personas compraron este mes
+          </p>
+        )}
+
         {/* Rating */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import FocusTrap from 'focus-trap-react';
@@ -7,25 +7,48 @@ import { useCart } from '../../context/CartContext';
 
 const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { cartItems, removeFromCart, updateQuantity, loading } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [shippingData, setShippingData] = useState(null);
 
   const subtotal = cartItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const shipping = subtotal > 50 ? 0 : 4.90;
+
+  // Fetch real shipping estimate
+  useEffect(() => {
+    if (isOpen && cartItems.length > 0) {
+      getShippingPreview().then(setShippingData).catch(() => setShippingData(null));
+    }
+  }, [isOpen, cartItems.length, getShippingPreview]);
+
+  const shipping = shippingData?.total_shipping_cents != null
+    ? shippingData.total_shipping_cents / 100
+    : subtotal > 50 ? 0 : 4.90;
+  const freeShippingThreshold = 50;
   const total = subtotal + shipping;
+
+  // Group items by producer
+  const groupedItems = useMemo(() => {
+    const groups = {};
+    cartItems.forEach(item => {
+      const producerName = item.producer || item.product?.producer?.name || 'Tienda';
+      if (!groups[producerName]) groups[producerName] = [];
+      groups[producerName].push(item);
+    });
+    return groups;
+  }, [cartItems]);
 
   const handleCheckout = () => {
     onClose();
     navigate('/cart');
   };
 
-  const handleUpdateQuantity = async (productId, newQuantity) => {
-    await updateQuantity(productId, newQuantity);
+  const handleUpdateQuantity = async (item, newQuantity) => {
+    await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
   };
 
-  const handleRemove = async (productId) => {
-    await removeFromCart(productId);
+  const handleRemove = async (item) => {
+    await removeFromCart(item.product_id, item.variant_id || null, item.pack_id || null);
   };
 
   return (
@@ -94,65 +117,67 @@ const MiniCart = ({ isOpen, onClose }) => {
                 </div>
               ) : (
                 <div className="p-4 space-y-4">
-                  {cartItems.map((item) => (
-                    <motion.div
-                      key={`${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`}
-                      layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -100 }}
-                      className="flex gap-3 bg-stone-50 rounded-xl p-3"
-                    >
-                      <img
-                        src={item.image || item.product?.image}
-                        alt={item.name || item.product?.name}
-                        className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <h4 className="font-medium text-stone-950 text-sm line-clamp-2">
-                              {item.name || item.product?.name}
-                            </h4>
-                            <p className="text-xs text-stone-500">
-                              {item.producer || item.product?.producer?.name}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => handleRemove(item.product_id)}
-                            className="p-1 hover:bg-stone-200 rounded-full transition-colors"
-                            aria-label={`Eliminar ${item.name || item.product?.name}`}
+                  {Object.entries(groupedItems).map(([producerName, items]) => (
+                    <div key={producerName}>
+                      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">{producerName}</p>
+                      <div className="space-y-3">
+                        {items.map((item) => (
+                          <motion.div
+                            key={`${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`}
+                            layout
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, x: -100 }}
+                            className="flex gap-3 bg-stone-50 rounded-xl p-3"
                           >
-                            <Trash2 className="w-4 h-4 text-stone-500" />
-                          </button>
-                        </div>
-                        
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center bg-white rounded-xl">
-                            <button
-                              onClick={() => handleUpdateQuantity(item.product_id, item.quantity - 1)}
-                              className="p-1.5 hover:bg-stone-100 rounded-l-xl"
-                              aria-label={`Disminuir cantidad de ${item.name || item.product?.name}`}
-                            >
-                              <Minus className="w-4 h-4 text-stone-950" />
-                            </button>
-                            <span className="w-8 text-center text-sm font-medium" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => handleUpdateQuantity(item.product_id, item.quantity + 1)}
-                              className="p-1.5 hover:bg-stone-100 rounded-r-xl"
-                              aria-label={`Aumentar cantidad de ${item.name || item.product?.name}`}
-                            >
-                              <Plus className="w-4 h-4 text-stone-950" />
-                            </button>
-                          </div>
-                          <span className="font-semibold text-stone-950">
-                            €{((item.price || item.product?.price) * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
+                            <img
+                              src={item.image || item.product?.image}
+                              alt={item.name || item.product?.name}
+                              className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <h4 className="font-medium text-stone-950 text-sm line-clamp-2">
+                                  {item.name || item.product?.name}
+                                </h4>
+                                <button
+                                  onClick={() => handleRemove(item)}
+                                  className="p-1 hover:bg-stone-200 rounded-full transition-colors"
+                                  aria-label={`Eliminar ${item.name || item.product?.name}`}
+                                >
+                                  <Trash2 className="w-4 h-4 text-stone-500" />
+                                </button>
+                              </div>
+
+                              <div className="flex items-center justify-between mt-2">
+                                <div className="flex items-center bg-white rounded-xl">
+                                  <button
+                                    onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
+                                    className="p-1.5 hover:bg-stone-100 rounded-l-xl"
+                                    aria-label={`Disminuir cantidad de ${item.name || item.product?.name}`}
+                                  >
+                                    <Minus className="w-4 h-4 text-stone-950" />
+                                  </button>
+                                  <span className="w-8 text-center text-sm font-medium" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>
+                                    {item.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
+                                    className="p-1.5 hover:bg-stone-100 rounded-r-xl"
+                                    aria-label={`Aumentar cantidad de ${item.name || item.product?.name}`}
+                                  >
+                                    <Plus className="w-4 h-4 text-stone-950" />
+                                  </button>
+                                </div>
+                                <span className="font-semibold text-stone-950">
+                                  €{((item.price || item.product?.price) * item.quantity).toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -162,15 +187,15 @@ const MiniCart = ({ isOpen, onClose }) => {
             {!loading && cartItems.length > 0 && (
               <div className="border-t border-stone-200 p-4 space-y-4">
                 {/* Shipping progress */}
-                {subtotal < 50 && (
+                {subtotal < freeShippingThreshold && (
                   <div className="bg-stone-100 rounded-xl p-3 text-sm">
                     <p className="text-stone-950">
-                      Añade <span className="font-semibold text-stone-950">€{(50 - subtotal).toFixed(2)}</span> más para envío gratis
+                      Añade <span className="font-semibold text-stone-950">€{(freeShippingThreshold - subtotal).toFixed(2)}</span> más para envío gratis
                     </p>
                     <div className="mt-2 h-2 bg-white rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-stone-950 rounded-full transition-all"
-                        style={{ width: `${Math.min(100, (subtotal / 50) * 100)}%` }}
+                        style={{ width: `${Math.min(100, (subtotal / freeShippingThreshold) * 100)}%` }}
                       />
                     </div>
                   </div>

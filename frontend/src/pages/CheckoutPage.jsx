@@ -533,15 +533,15 @@ export default function CheckoutPage() {
               <Lock size={12} /> Pago seguro con Stripe
             </p>
 
-            {/* Pay button (GREEN) */}
+            {/* Pay button */}
             <button
               onClick={handlePay}
               disabled={checkoutLoading}
               style={{
                 width: '100%', height: 56,
-                background: '#16a34a',
-                color: '#fff',
-                border: 'none', borderRadius: 'var(--radius-lg)',
+                background: 'var(--color-black)',
+                color: 'var(--color-white)',
+                border: 'none', borderRadius: 'var(--radius-full, 999px)',
                 fontSize: 16, fontWeight: 700,
                 cursor: checkoutLoading ? 'not-allowed' : 'pointer',
                 opacity: checkoutLoading ? 0.6 : 1,

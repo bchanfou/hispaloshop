@@ -304,5 +304,6 @@ export default function CustomerOverview() {
         <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>{t('customerDashboard.discoverNew', 'Descubre productos nuevos')}</p>
       </Link>
     </div>
+    </>
   );
 }

@@ -22,8 +22,15 @@ const AddToCartButton = ({
   useEffect(() => () => { mountedRef.current = false; }, []);
   const productId = getProductId(product);
 
-  // Check if product is already in cart
-  const existingItem = cartItems.find((item) => String(item.product_id) === String(productId));
+  // Check if product is already in cart (match by product + variant + pack)
+  const variantId = product?.selectedVariantId || product?.variant_id || null;
+  const packId = product?.selectedPackId || product?.pack_id || null;
+  const existingItem = cartItems.find((item) => {
+    if (String(item.product_id) !== String(productId)) return false;
+    if (variantId && String(item.variant_id || '') !== String(variantId)) return false;
+    if (packId && String(item.pack_id || '') !== String(packId)) return false;
+    return true;
+  });
   const inCartQuantity = existingItem?.quantity || 0;
 
   const handleAdd = async () => {

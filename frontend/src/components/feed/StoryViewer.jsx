@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
 const STORY_DURATION = 5000;
@@ -15,6 +16,7 @@ function timeAgo(dateStr) {
 }
 
 export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
+  const navigate = useNavigate();
   const [currentUserIndex, setCurrentUserIndex] = useState(initialIndex);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -272,7 +274,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
               onClose();
               const product = currentItem.products[0];
               if (product?.slug || product?.id) {
-                window.location.href = `/product/${product.slug || product.id}`;
+                navigate(`/product/${product.slug || product.id}`);
               }
             }}
             style={{

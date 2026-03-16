@@ -415,61 +415,80 @@ export default function CartPage() {
                   </button>
                 </div>
               )}
-              {cartItems.map((item) => {
-                const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
-                const itemKey = item.variant_id && item.pack_id ? `${item.product_id}-${item.variant_id}-${item.pack_id}` : item.product_id;
-                return (
-                  <div
-                    key={itemKey}
-                    className={`flex items-start gap-3 rounded-xl border bg-white p-3 md:items-center md:gap-6 md:p-6 ${hasStockIssue ? 'border-stone-950 bg-stone-100' : 'border-stone-200'}`}
-                    data-testid={`cart-item-${itemKey}`}
-                  >
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
-                      {item.image && <img src={item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
+              {(() => {
+                // Group items by producer
+                const groups = {};
+                cartItems.forEach(item => {
+                  const producer = item.seller_name || item.producer || item.product?.producer?.name || 'Tienda';
+                  if (!groups[producer]) groups[producer] = [];
+                  groups[producer].push(item);
+                });
+
+                return Object.entries(groups).map(([producerName, items]) => (
+                  <div key={producerName} className="space-y-3">
+                    <div className="flex items-center gap-2 pt-2">
+                      <Package className="w-4 h-4 text-stone-400" />
+                      <span className="text-xs font-semibold text-stone-500 uppercase tracking-wide">{producerName}</span>
+                      <span className="text-xs text-stone-400">· {items.length} {items.length === 1 ? 'producto' : 'productos'}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-stone-950 text-sm md:text-base line-clamp-2">{item.product_name}</h3>
-                      {(item.variant_name || item.pack_label) && (
-                        <p className="text-xs md:text-sm text-stone-500">
-                          {item.variant_name && <span>{item.variant_name}</span>}
-                          {item.variant_name && item.pack_label && <span> · </span>}
-                          {item.pack_label && <span>{item.pack_label}</span>}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between mt-1 md:mt-2">
-                        <div>
-                          <p className="text-xs md:text-sm text-stone-500">{t('cart.quantity', 'Cantidad')}: {item.quantity}</p>
-                          <p className="mt-0.5 text-sm font-bold text-stone-950 md:text-base">
-                            {convertAndFormatPrice(item.price * item.quantity, item.currency || 'EUR')}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleRemoveItem(item)}
-                          className="rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:hidden"
-                          data-testid={`remove-item-${itemKey}-mobile`}
+                    {items.map((item) => {
+                      const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
+                      const itemKey = item.variant_id && item.pack_id ? `${item.product_id}-${item.variant_id}-${item.pack_id}` : item.product_id;
+                      return (
+                        <div
+                          key={itemKey}
+                          className={`flex items-start gap-3 rounded-xl border bg-white p-3 md:items-center md:gap-6 md:p-6 ${hasStockIssue ? 'border-stone-950 bg-stone-100' : 'border-stone-200'}`}
+                          data-testid={`cart-item-${itemKey}`}
                         >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                      {/* Stock hold timer */}
-                      <StockHoldTimer expiresAt={item.hold_expires_at} />
-                      {hasStockIssue && (
-                        <div className="mt-1 flex items-center gap-1 text-xs text-stone-700">
-                          <AlertCircle className="w-3 h-3" />
-                          <span>{stockIssues.find((issue) => issue.product_id === item.product_id)?.message}</span>
+                          <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
+                            {item.image && <img src={item.image} alt={item.product_name} loading="lazy" className="h-full w-full object-cover" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-stone-950 text-sm md:text-base line-clamp-2">{item.product_name}</h3>
+                            {(item.variant_name || item.pack_label) && (
+                              <p className="text-xs md:text-sm text-stone-500">
+                                {item.variant_name && <span>{item.variant_name}</span>}
+                                {item.variant_name && item.pack_label && <span> · </span>}
+                                {item.pack_label && <span>{item.pack_label}</span>}
+                              </p>
+                            )}
+                            <div className="flex items-center justify-between mt-1 md:mt-2">
+                              <div>
+                                <p className="text-xs md:text-sm text-stone-500">{t('cart.quantity', 'Cantidad')}: {item.quantity}</p>
+                                <p className="mt-0.5 text-sm font-bold text-stone-950 md:text-base">
+                                  {convertAndFormatPrice(item.price * item.quantity, item.currency || 'EUR')}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => handleRemoveItem(item)}
+                                className="rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:hidden"
+                                data-testid={`remove-item-${itemKey}-mobile`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                            {/* Stock hold timer */}
+                            <StockHoldTimer expiresAt={item.hold_expires_at} />
+                            {hasStockIssue && (
+                              <div className="mt-1 flex items-center gap-1 text-xs text-stone-700">
+                                <AlertCircle className="w-3 h-3" />
+                                <span>{stockIssues.find((issue) => issue.product_id === item.product_id)?.message}</span>
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleRemoveItem(item)}
+                            className="hidden rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:flex"
+                            data-testid={`remove-item-${itemKey}`}
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
                         </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => handleRemoveItem(item)}
-                      className="hidden rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:flex"
-                      data-testid={`remove-item-${itemKey}`}
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                ));
+              })()}
 
               {/* Per-store shipping progress */}
               {shippingData && shippingData.stores && shippingData.stores.length > 0 && (

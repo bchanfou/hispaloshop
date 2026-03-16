@@ -19,7 +19,7 @@ function clearHistoryStorage() {
   localStorage.removeItem(HISTORY_KEY);
 }
 
-const TRENDING = ['aceite de oliva', 'gazpacho', 'ibérico', 'queso manchego', 'almendra', 'azafrán'];
+const TRENDING_FALLBACK = ['aceite de oliva', 'gazpacho', 'ibérico', 'queso manchego', 'almendra', 'azafrán'];
 
 const TABS = [
   { key: 'all', label: 'Todo' },
@@ -186,10 +186,24 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState(getHistory);
   const [activeTab, setActiveTab] = useState('all');
+  const [sortBy, setSortBy] = useState('relevance'); // relevance | price_asc | price_desc | newest
+  const [trending, setTrending] = useState(TRENDING_FALLBACK);
 
   const isEmpty = !query.trim();
 
   useEffect(() => { inputRef.current?.focus(); }, []);
+
+  // Fetch trending terms from API
+  useEffect(() => {
+    apiClient.get('/discovery/trending', { params: { type: 'products', limit: 8 } })
+      .then((data) => {
+        const terms = (data?.items || data || [])
+          .map(item => item.name || item.title || item.query)
+          .filter(Boolean);
+        if (terms.length > 0) setTrending(terms);
+      })
+      .catch(() => { /* keep fallback */ });
+  }, []);
 
   useEffect(() => {
     if (!query.trim()) { setResults(null); return; }
@@ -338,6 +352,28 @@ export default function SearchPage() {
           </div>
         )}
 
+        {/* ── Sort bar (when products visible) ── */}
+        {!loading && hasResults && (activeTab === 'all' || activeTab === 'products') && counts.products > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '8px 0' }}>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{
+                background: 'var(--color-surface)', border: 'none',
+                borderRadius: 'var(--radius-full, 999px)',
+                padding: '6px 12px', fontSize: 12, fontWeight: 500,
+                color: 'var(--color-black)', cursor: 'pointer', ...font,
+                outline: 'none',
+              }}
+            >
+              <option value="relevance">Relevancia</option>
+              <option value="price_asc">Precio: menor a mayor</option>
+              <option value="price_desc">Precio: mayor a menor</option>
+              <option value="newest">Más recientes</option>
+            </select>
+          </div>
+        )}
+
         {/* ── Loading ── */}
         {loading && (
           <div style={{ paddingTop: 16 }}>
@@ -376,7 +412,12 @@ export default function SearchPage() {
               <section>
                 <SectionHeader icon={ShoppingBag} label="Productos" count={counts.products} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  {results.products.map(p => <ProductCard key={p.product_id} p={p} />)}
+                  {[...results.products].sort((a, b) => {
+                    if (sortBy === 'price_asc') return (a.price || 0) - (b.price || 0);
+                    if (sortBy === 'price_desc') return (b.price || 0) - (a.price || 0);
+                    if (sortBy === 'newest') return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                    return 0; // relevance = API order
+                  }).map(p => <ProductCard key={p.product_id} p={p} />)}
                 </div>
               </section>
             )}
@@ -447,7 +488,7 @@ export default function SearchPage() {
                 <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)' }}>Tendencias</span>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {TRENDING.map(term => (
+                {trending.map(term => (
                   <button
                     key={term}
                     onClick={() => setQuery(term)}

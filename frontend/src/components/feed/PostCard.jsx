@@ -29,7 +29,7 @@ function renderCaption(text) {
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} style={{ color: 'var(--color-green)' }}>{part}</span>
+      <span key={i} style={{ color: 'var(--color-stone)' }}>{part}</span>
     ) : (
       <React.Fragment key={i}>{part}</React.Fragment>
     ),
@@ -125,7 +125,7 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
       borderRadius: 'var(--radius-full)',
       padding: post.has_story ? 2 : 0,
       background: post.has_story
-        ? 'var(--color-green)'
+        ? 'var(--color-black)'
         : 'transparent',
       display: 'flex',
       alignItems: 'center',
@@ -303,30 +303,33 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
     productPill: {
       display: 'flex',
       alignItems: 'center',
-      gap: 6,
+      gap: 8,
       background: 'var(--color-surface)',
       borderRadius: 'var(--radius-full)',
-      padding: '4px 10px',
+      padding: '4px 12px 4px 4px',
       cursor: 'pointer',
       flexShrink: 0,
       border: 'none',
       fontFamily: 'inherit',
     },
     productImg: {
-      width: 20,
-      height: 20,
+      width: 32,
+      height: 32,
       borderRadius: 'var(--radius-full)',
       objectFit: 'cover',
     },
     productName: {
-      fontSize: 11,
+      fontSize: 12,
       fontWeight: 500,
       color: 'var(--color-black)',
       whiteSpace: 'nowrap',
+      maxWidth: 120,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     },
     productPrice: {
-      fontSize: 11,
-      fontWeight: 600,
+      fontSize: 12,
+      fontWeight: 700,
       color: 'var(--color-black)',
       whiteSpace: 'nowrap',
     },
