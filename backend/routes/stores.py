@@ -65,7 +65,9 @@ async def get_all_stores(
     region: Optional[str] = None,
     search: Optional[str] = None,
     seller_id: Optional[str] = None,
-    producer_id: Optional[str] = None
+    producer_id: Optional[str] = None,
+    plan: Optional[str] = None,
+    limit: Optional[int] = None,
 ):
     """Get all public store profiles with optional filtering"""
     # Build query
@@ -74,13 +76,26 @@ async def get_all_stores(
         query["country"] = country.upper()
     if region:
         query["region"] = region.upper()
+    # Filter by subscription plan (e.g. elite)
+    if plan:
+        # Look up users with the given plan, then filter stores
+        plan_users = await db.users.find(
+            {"subscription_plan": plan.lower()},
+            {"_id": 0, "user_id": 1}
+        ).to_list(500)
+        plan_user_ids = [u["user_id"] for u in plan_users]
+        if plan_user_ids:
+            query["producer_id"] = {"$in": plan_user_ids}
+        else:
+            return []
     # Filter by seller/producer ID
     if seller_id:
         query["producer_id"] = seller_id
     elif producer_id:
         query["producer_id"] = producer_id
     
-    stores = await db.store_profiles.find(query, {"_id": 0}).to_list(1000)
+    max_results = min(limit, 1000) if limit else 1000
+    stores = await db.store_profiles.find(query, {"_id": 0}).to_list(max_results)
     
     # Filter by search if provided
     if search:

@@ -245,6 +245,62 @@ async def track_interaction(
     )
 
 
+# ── Suggested Users ───────────────────────────────────────────────────────────
+
+@router.get("/discovery/suggested-users")
+async def get_suggested_users(
+    limit: int = Query(3, le=10),
+    request=None,
+):
+    """Return popular users the caller is not yet following."""
+    from core.auth import get_optional_user
+
+    current_user = None
+    if request:
+        try:
+            auth_header = request.headers.get("authorization")
+            from core.auth import get_current_user as _gc
+            current_user = await _gc(request, authorization=auth_header)
+        except Exception:
+            pass
+
+    db_obj = get_db()
+
+    # IDs the caller already follows
+    exclude_ids = set()
+    if current_user:
+        exclude_ids.add(current_user.user_id)
+        follows = await db_obj.user_follows.find(
+            {"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}
+        ).to_list(500)
+        exclude_ids.update(f["following_id"] for f in follows)
+
+    # Find users with most followers, excluding already-followed
+    pipeline = [
+        {"$group": {"_id": "$following_id", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": limit + len(exclude_ids) + 5},
+    ]
+    top = await db_obj.user_follows.aggregate(pipeline).to_list(limit + len(exclude_ids) + 5)
+
+    result = []
+    for entry in top:
+        uid = entry["_id"]
+        if uid in exclude_ids:
+            continue
+        user_doc = await db_obj.users.find_one(
+            {"user_id": uid},
+            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "bio": 1, "role": 1},
+        )
+        if user_doc:
+            user_doc["followers_count"] = entry["count"]
+            result.append(user_doc)
+        if len(result) >= limit:
+            break
+
+    return {"users": result}
+
+
 # ── Growth Analytics (admin) ───────────────────────────────────────────────────
 
 @router.get("/discovery/growth-analytics")
