@@ -112,7 +112,7 @@ export default function AffiliateLinksPage() {
     const timeout = setTimeout(async () => {
       setSearching(true);
       try {
-        const data = await apiClient.get(`/products?search=${encodeURIComponent(search)}&limit=10`);
+        const data = await apiClient.get(`/products?search=${encodeURIComponent(search)}&limit=10&approved_only=true`);
         setSearchResults(data?.products || data || []);
       } catch {
         setSearchResults([]);

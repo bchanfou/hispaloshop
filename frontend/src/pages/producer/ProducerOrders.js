@@ -267,7 +267,11 @@ export default function ProducerOrders() {
     setShowShipModal(true);
   };
 
+  const [updatingOrderId, setUpdatingOrderId] = useState(null);
+
   const handleUpdateStatus = async (order, newStatus) => {
+    if (updatingOrderId) return; // prevent double-click
+    setUpdatingOrderId(order.order_id);
     try {
       await apiClient.put(`/orders/${order.order_id}/status`, { status: newStatus });
       toast.success(`${t('orders.orderUpdatedTo')}: ${statusLabels[newStatus]}`);
@@ -279,6 +283,8 @@ export default function ProducerOrders() {
     } catch (error) {
       const msg = error.message || t('orders.errorUpdating');
       toast.error(msg);
+    } finally {
+      setUpdatingOrderId(null);
     }
   };
 
@@ -410,20 +416,22 @@ export default function ProducerOrders() {
                         ) : order.status === 'shipped' ? (
                           <button
                             onClick={() => handleUpdateStatus(order, 'delivered')}
+                            disabled={updatingOrderId === order.order_id}
                             className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
                             data-testid={`deliver-order-${order.order_id}`}
                           >
                             <Check className="w-4 h-4" />
-                            {nextLabel}
+                            {updatingOrderId === order.order_id ? 'Actualizando...' : nextLabel}
                           </button>
                         ) : (
                           <button
                             onClick={() => handleUpdateStatus(order, nextStatus)}
+                            disabled={updatingOrderId === order.order_id}
                             className="flex items-center gap-2 px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
                             data-testid={`update-order-${order.order_id}`}
                           >
                             <Package className="w-4 h-4" />
-                            {nextLabel}
+                            {updatingOrderId === order.order_id ? 'Actualizando...' : nextLabel}
                           </button>
                         )}
 

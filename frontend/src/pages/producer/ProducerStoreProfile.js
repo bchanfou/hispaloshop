@@ -204,16 +204,26 @@ export default function ProducerStoreProfile() {
     business_hours: ''
   });
 
+  const [isDirty, setIsDirty] = useState(false);
+
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  // Warn on unsaved changes
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e) => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   const fetchProfile = async () => {
     try {
       const data = await apiClient.get('/producer/store-profile');
       setProfile(data);
     } catch (error) {
-      console.error('Error fetching store profile:', error);
+      toast.error('Error al cargar el perfil de tienda');
     } finally {
       setLoading(false);
     }
@@ -224,6 +234,7 @@ export default function ProducerStoreProfile() {
     try {
       await apiClient.put('/producer/store-profile', profile);
       toast.success('Perfil de tienda actualizado');
+      setIsDirty(false);
     } catch (error) {
       if (error?.response?.status === 409) {
         toast.error('Esta URL de tienda ya está en uso. Elige otra.');
@@ -237,6 +248,7 @@ export default function ProducerStoreProfile() {
 
   const updateField = (field, value) => {
     setProfile(prev => ({ ...prev, [field]: value }));
+    setIsDirty(true);
   };
 
   if (loading) {

@@ -117,6 +117,7 @@ export default function ProductDetailPage() {
   const [showB2BModal, setShowB2BModal] = useState(false);
   const galleryRef = useRef(null);
   const addedTimerRef = useRef(null);
+  const rafRef = useRef(null);
 
   useEffect(() => {
     if (hasProductError) toast.error(t('errors.notFound'));
@@ -133,12 +134,16 @@ export default function ProductDetailPage() {
       .catch(() => {});
   }, [product?.category_id, productId]);
 
-  // Gallery scroll handler
+  // Gallery scroll handler — throttled with rAF to avoid setState on every pixel
   const handleGalleryScroll = useCallback(() => {
-    const el = galleryRef.current;
-    if (!el) return;
-    const idx = Math.round(el.scrollLeft / el.offsetWidth);
-    setActiveImageIndex(idx);
+    if (rafRef.current) return; // already scheduled
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const el = galleryRef.current;
+      if (!el) return;
+      const idx = Math.round(el.scrollLeft / el.offsetWidth);
+      setActiveImageIndex((prev) => (prev !== idx ? idx : prev));
+    });
   }, []);
 
   const handleFollowStore = async () => {
@@ -547,6 +552,7 @@ export default function ProductDetailPage() {
                 <button
                   key={variant.variant_id}
                   onClick={() => handleVariantChange(variant)}
+                  aria-pressed={isSelected}
                   style={{
                     padding: '6px 16px', borderRadius: 'var(--radius-full)',
                     fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)',
