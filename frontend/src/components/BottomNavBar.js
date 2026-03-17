@@ -9,6 +9,7 @@ import CreateContentSheet from './create/CreateContentSheet';
 import MessageToast from './notifications/MessageToast';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
 import { getToken } from '../lib/auth';
+import { getWSUrl } from '../services/api/client';
 import { useUnreadNotifications } from '../hooks/api/useNotifications';
 
 const HIDDEN_ON_PATHS = [
@@ -126,8 +127,7 @@ export default function BottomNavBar() {
     const token = getToken();
     if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat`);
+    const socket = new WebSocket(getWSUrl('/ws/chat'));
     socket.addEventListener('open', () => {
       socket.send(JSON.stringify({ type: 'auth', token }));
     });

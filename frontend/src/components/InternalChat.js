@@ -19,7 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import apiClient from '../services/api/client';
+import apiClient, { getWSUrl } from '../services/api/client';
 import { getToken } from '../lib/auth';
 import { useAuth } from '../context/AuthContext';
 import { useInternalChatData } from '../features/chat/hooks/useInternalChatData';
@@ -1026,8 +1026,7 @@ export default function InternalChat({
     const token = getToken();
     if (!user?.user_id || !token || typeof window === 'undefined') return undefined;
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/chat`);
+    const socket = new WebSocket(getWSUrl('/ws/chat'));
     wsRef.current = socket;
 
     socket.onopen = () => {

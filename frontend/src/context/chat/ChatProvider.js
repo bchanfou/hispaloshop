@@ -261,10 +261,8 @@ export function ChatProvider({ children }) {
       wsRef.current.close();
     }
 
-    // Build WebSocket URL - use same host as API
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = window.location.host;
-    const wsUrl = `${wsProtocol}//${wsHost}/ws/chat`;
+    // Build WebSocket URL - point to backend origin
+    const wsUrl = getWSUrl('/ws/chat');
     
     try {
       const ws = new WebSocket(wsUrl);

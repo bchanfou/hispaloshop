@@ -8,12 +8,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
-import apiClient from '../../services/api/client';
+import apiClient, { getWSUrl } from '../../services/api/client';
 import { Send, ShieldAlert, Lock, RefreshCw, User, ChevronLeft } from 'lucide-react';
 
-const WS_URL = typeof window !== 'undefined'
-  ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
-  : '';
+// WS_URL derived from centralized getWSUrl helper
 
 export default function EscalationChat() {
   const { user } = useAuth();
@@ -67,7 +65,7 @@ export default function EscalationChat() {
   // ── WebSocket real-time ───────────────────────────────────
   useEffect(() => {
     if (!user) return;
-    const ws = new WebSocket(`${WS_URL}/ws/chat/${user.user_id}`);
+    const ws = new WebSocket(getWSUrl(`/ws/chat/${user.user_id}`));
     wsRef.current = ws;
     ws.onmessage = (e) => {
       try {
