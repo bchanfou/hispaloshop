@@ -5,16 +5,6 @@ import { useChatContext } from '@/context/chat/ChatProvider';
 import { useAuth } from '@/context/AuthContext';
 import apiClient from '@/services/api/client';
 
-const CSS_VARS = {
-  cream: '#F7F6F2',
-  black: '#0A0A0A',
-  green: '#0c0a09',
-  stone: '#8A8881',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  white: '#fff',
-};
-
 const ROLE_LABELS = {
   producer: 'Productor',
   influencer: 'Influencer',
@@ -37,6 +27,33 @@ function getChatType(currentUser, targetUser) {
   return 'c2c';
 }
 
+function getInitial(name) {
+  return (name || '?').charAt(0).toUpperCase();
+}
+
+function AvatarFallback({ name, size = 'h-11 w-11', rounded = 'rounded-full' }) {
+  return (
+    <div className={`${size} ${rounded} flex shrink-0 items-center justify-center bg-stone-200 text-sm font-semibold text-stone-700`}>
+      {getInitial(name)}
+    </div>
+  );
+}
+
+function UserAvatar({ src, name, size = 'h-11 w-11', rounded = 'rounded-full' }) {
+  const [error, setError] = useState(false);
+  useEffect(() => setError(false), [src]);
+
+  if (!src || error) return <AvatarFallback name={name} size={size} rounded={rounded} />;
+  return (
+    <img
+      src={src}
+      alt={`Avatar de ${name || 'usuario'}`}
+      className={`${size} ${rounded} shrink-0 object-cover bg-stone-100`}
+      onError={() => setError(true)}
+    />
+  );
+}
+
 export default function NewConversationPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -48,7 +65,6 @@ export default function NewConversationPage() {
   const [selecting, setSelecting] = useState(false);
   const debounceRef = useRef(null);
 
-  // Extract recent contacts from conversations
   const recentContacts = useMemo(() => {
     if (!conversations || !user) return [];
     const seen = new Set();
@@ -66,7 +82,6 @@ export default function NewConversationPage() {
     return contacts;
   }, [conversations, user]);
 
-  // Load followed stores on mount
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -80,7 +95,6 @@ export default function NewConversationPage() {
     return () => { cancelled = true; };
   }, []);
 
-  // Debounced search
   const handleQueryChange = useCallback((value) => {
     setQuery(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -98,26 +112,23 @@ export default function NewConversationPage() {
     }, 300);
   }, []);
 
-  // Cleanup debounce on unmount
   useEffect(() => {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, []);
 
-  // Select a user to start conversation
   const handleSelect = useCallback(async (targetUser) => {
     if (selecting || !user) return;
     setSelecting(true);
 
     const targetId = targetUser.id || targetUser.user_id;
 
-    // Check if conversation already exists
     const existing = conversations.find((c) => {
       const other = c.other_user || c.otherUser;
       return other && (other.id === targetId || other.user_id === targetId);
     });
 
     if (existing) {
-      navigate(`/messages/${existing.id}`);
+      navigate(`/chat/${existing.id}`);
       return;
     }
 
@@ -125,7 +136,7 @@ export default function NewConversationPage() {
     try {
       const newConv = await openConversation(targetId, chatType);
       if (newConv && newConv.id) {
-        navigate(`/messages/${newConv.id}`);
+        navigate(`/chat/${newConv.id}`);
       }
     } finally {
       setSelecting(false);
@@ -135,71 +146,40 @@ export default function NewConversationPage() {
   const showResults = query.length >= 2;
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: CSS_VARS.cream }}>
+    <div className="flex min-h-screen flex-col bg-stone-50 font-apple">
       {/* TopBar */}
-      <div
-        className="sticky top-0 z-30 flex items-center px-4"
-        style={{
-          background: `${CSS_VARS.cream}ee`,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          paddingTop: 'env(safe-area-inset-top, 0px)',
-          height: 56,
-        }}
-      >
+      <div className="sticky top-0 z-30 flex h-14 items-center bg-stone-50/90 px-4 pt-[env(safe-area-inset-top,0px)] backdrop-blur-xl">
         <button
-          className="flex items-center justify-center"
-          style={{ width: 32, height: 32 }}
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-950 active:bg-stone-200"
           onClick={() => navigate(-1)}
           aria-label="Volver"
         >
-          <ArrowLeft size={22} style={{ color: CSS_VARS.black }} />
+          <ArrowLeft size={22} />
         </button>
-        <span
-          className="flex-1 text-center"
-          style={{ fontSize: 17, fontWeight: 600, color: CSS_VARS.black, fontFamily: 'Inter, sans-serif' }}
-        >
+        <span className="flex-1 text-center text-[17px] font-semibold text-stone-950">
           Nuevo mensaje
         </span>
-        {/* Spacer to balance back arrow */}
-        <div style={{ width: 32 }} />
+        <div className="w-11" />
       </div>
 
       {/* Search input */}
       <div className="px-4 py-3">
-        <div
-          className="flex items-center gap-2 px-4"
-          style={{
-            height: 44,
-            background: CSS_VARS.surface,
-            borderRadius: 24,
-          }}
-        >
-          <Search size={18} style={{ color: CSS_VARS.stone, flexShrink: 0 }} />
+        <label className="flex h-11 items-center gap-2 rounded-full bg-stone-200/60 px-4">
+          <Search size={18} className="shrink-0 text-stone-500" />
           <input
             type="text"
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
             placeholder="Buscar persona o tienda..."
-            className="flex-1 outline-none"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: 15,
-              color: CSS_VARS.black,
-              fontFamily: 'Inter, sans-serif',
-            }}
+            className="flex-1 bg-transparent text-[15px] text-stone-950 outline-none placeholder:text-stone-400"
           />
-        </div>
+        </label>
       </div>
 
       {showResults ? (
-        /* Search results */
         <div className="flex-1 overflow-y-auto">
           {searchResults.length === 0 ? (
-            <p className="px-4 py-8 text-center" style={{ color: CSS_VARS.stone, fontSize: 14 }}>
-              Sin resultados
-            </p>
+            <p className="px-4 py-8 text-center text-sm text-stone-500">Sin resultados</p>
           ) : (
             searchResults.map((u, i) => {
               const uid = u.id || u.user_id;
@@ -209,116 +189,61 @@ export default function NewConversationPage() {
               return (
                 <button
                   key={uid || i}
-                  className="flex items-center gap-3 w-full px-4 py-3 text-left"
-                  style={{ background: 'transparent' }}
+                  className="flex w-full items-center gap-3 border-b border-stone-100 px-4 py-3 text-left bg-transparent active:bg-stone-50 disabled:opacity-50"
                   onClick={() => handleSelect(u)}
                   disabled={selecting}
                 >
-                  {/* Avatar */}
-                  <img
-                    src={u.avatar || u.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || '')}&size=88&background=E5E2DA&color=0A0A0A`}
-                    alt=""
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: isStore ? 12 : '50%',
-                      objectFit: 'cover',
-                      flexShrink: 0,
-                      background: CSS_VARS.surface,
-                    }}
+                  <UserAvatar
+                    src={u.avatar || u.profile_image}
+                    name={u.name || u.username}
+                    size="h-11 w-11"
+                    rounded={isStore ? 'rounded-xl' : 'rounded-full'}
                   />
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span
-                        className="truncate"
-                        style={{ fontSize: 15, fontWeight: 500, color: CSS_VARS.black }}
-                      >
+                      <span className="truncate text-[15px] font-medium text-stone-950">
                         {u.name || u.username || 'Usuario'}
                       </span>
                       {badge && (
-                        <span
-                          style={{
-                            fontSize: 10,
-                            color: CSS_VARS.stone,
-                            background: CSS_VARS.surface,
-                            borderRadius: 6,
-                            padding: '2px 6px',
-                            flexShrink: 0,
-                          }}
-                        >
+                        <span className="shrink-0 rounded-md bg-stone-100 px-1.5 py-0.5 text-[10px] text-stone-500">
                           {badge}
                         </span>
                       )}
                     </div>
                     {(u.city || u.description) && (
-                      <p
-                        className="truncate"
-                        style={{ fontSize: 12, color: CSS_VARS.stone, marginTop: 2 }}
-                      >
+                      <p className="mt-0.5 truncate text-xs text-stone-500">
                         {u.city || u.description}
                       </p>
                     )}
                   </div>
-                  {/* Divider */}
-                  {i < searchResults.length - 1 && (
-                    <div
-                      className="absolute left-0 right-0 bottom-0"
-                      style={{
-                        height: 1,
-                        background: CSS_VARS.border,
-                        marginLeft: 60,
-                      }}
-                    />
-                  )}
                 </button>
               );
             })
           )}
         </div>
       ) : (
-        /* Recent contacts + followed stores */
         <div className="flex-1 overflow-y-auto">
-          {/* Recent contacts */}
           {recentContacts.length > 0 && (
             <div className="py-4">
-              <h3
-                className="px-4 pb-3"
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: CSS_VARS.stone,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
+              <h3 className="px-4 pb-3 text-xs font-semibold uppercase tracking-wider text-stone-500">
                 Contactos recientes
               </h3>
-              <div className="flex gap-4 px-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+              <div className="scrollbar-hide flex gap-4 overflow-x-auto px-4">
                 {recentContacts.map((c) => {
                   const cid = c.id || c.user_id;
                   return (
                     <button
                       key={cid}
-                      className="flex flex-col items-center flex-shrink-0"
-                      style={{ width: 56 }}
+                      className="flex w-14 shrink-0 flex-col items-center bg-transparent border-none"
                       onClick={() => handleSelect(c)}
                       disabled={selecting}
                     >
-                      <img
-                        src={c.avatar || c.profile_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name || '')}&size=80&background=E5E2DA&color=0A0A0A`}
-                        alt=""
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: '50%',
-                          objectFit: 'cover',
-                          background: CSS_VARS.surface,
-                        }}
+                      <UserAvatar
+                        src={c.avatar || c.profile_image}
+                        name={c.name || c.username}
+                        size="h-10 w-10"
                       />
-                      <span
-                        className="truncate w-full text-center mt-1"
-                        style={{ fontSize: 11, color: CSS_VARS.black }}
-                      >
+                      <span className="mt-1 w-full truncate text-center text-[11px] text-stone-950">
                         {c.name || c.username || ''}
                       </span>
                     </button>
@@ -328,47 +253,28 @@ export default function NewConversationPage() {
             </div>
           )}
 
-          {/* Followed stores */}
           {followedStores.length > 0 && (
             <div className="py-4">
-              <h3
-                className="px-4 pb-3"
-                style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: CSS_VARS.stone,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
+              <h3 className="px-4 pb-3 text-xs font-semibold uppercase tracking-wider text-stone-500">
                 Tiendas que sigues
               </h3>
-              <div className="flex gap-4 px-4 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+              <div className="scrollbar-hide flex gap-4 overflow-x-auto px-4">
                 {followedStores.map((s) => {
                   const sid = s.id || s.user_id || s.store_id;
                   return (
                     <button
                       key={sid}
-                      className="flex flex-col items-center flex-shrink-0"
-                      style={{ width: 56 }}
+                      className="flex w-14 shrink-0 flex-col items-center bg-transparent border-none"
                       onClick={() => handleSelect(s)}
                       disabled={selecting}
                     >
-                      <img
-                        src={s.avatar || s.profile_image || s.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name || '')}&size=80&background=E5E2DA&color=0A0A0A`}
-                        alt=""
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 12,
-                          objectFit: 'cover',
-                          background: CSS_VARS.surface,
-                        }}
+                      <UserAvatar
+                        src={s.avatar || s.profile_image || s.logo}
+                        name={s.name || s.store_name}
+                        size="h-10 w-10"
+                        rounded="rounded-xl"
                       />
-                      <span
-                        className="truncate w-full text-center mt-1"
-                        style={{ fontSize: 11, color: CSS_VARS.black }}
-                      >
+                      <span className="mt-1 w-full truncate text-center text-[11px] text-stone-950">
                         {s.name || s.store_name || ''}
                       </span>
                     </button>

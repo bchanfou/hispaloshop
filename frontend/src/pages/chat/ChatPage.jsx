@@ -24,32 +24,9 @@ import CollabProposalCard from '@/components/chat/collab/CollabProposalCard';
 import AffiliateLinkCard from '@/components/chat/collab/AffiliateLinkCard';
 import SampleShipmentCard from '@/components/chat/collab/SampleShipmentCard';
 
-/* ────────────────────────────────────────────
-   Design-system V2 CSS variables (inline)
-   ──────────────────────────────────────────── */
-const V = {
-  cream: '#F7F6F2',
-  black: '#0A0A0A',
-  green: '#0c0a09',
-  stone: '#8A8881',
-  border: '#E5E2DA',
-  surface: '#F0EDE8',
-  white: '#FFFFFF',
-  greenLight: '#f5f5f4',
-  greenBorder: '#b6dcc6',
-  fontSans: "'Inter', sans-serif",
-  radiusMd: 12,
-  radiusLg: 16,
-  radiusXl: 20,
-};
-
 /* ────────── Date helpers ────────── */
 function isSameDay(a, b) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
 function formatDateSeparator(date) {
@@ -58,53 +35,26 @@ function formatDateSeparator(date) {
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
   if (isSameDay(date, yesterday)) return 'Ayer';
-  return date.toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'long',
-  });
+  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
 }
 
 function formatTime(date) {
-  return date.toLocaleTimeString('es-ES', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
 
-/* ────────── Online status helper ────────── */
 function formatOnlineStatus(lastSeen) {
   if (!lastSeen) return null;
   const now = new Date();
   const seen = new Date(lastSeen);
-  const diffMs = now - seen;
-  const diffMin = Math.floor(diffMs / 60000);
-
+  const diffMin = Math.floor((now - seen) / 60000);
   if (diffMin < 2) return { text: 'En línea', online: true };
   if (diffMin < 60) return { text: `Hace ${diffMin} min`, online: false };
-
-  const isToday = seen.toDateString() === now.toDateString();
-  if (isToday)
-    return {
-      text: `Hoy a las ${seen.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`,
-      online: false,
-    };
-
+  if (seen.toDateString() === now.toDateString())
+    return { text: `Hoy a las ${seen.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`, online: false };
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
-  if (seen.toDateString() === yesterday.toDateString())
-    return { text: 'Ayer', online: false };
-
-  return {
-    text: seen.toLocaleDateString('es-ES', { weekday: 'short' }),
-    online: false,
-  };
-}
-
-/* ────────── Avatar shape by type ────────── */
-function avatarRadius(type) {
-  if (type === 'group') return '30%';
-  if (type === 'support') return '8px';
-  return '50%';
+  if (seen.toDateString() === yesterday.toDateString()) return { text: 'Ayer', online: false };
+  return { text: seen.toLocaleDateString('es-ES', { weekday: 'short' }), online: false };
 }
 
 /* ================================================================
@@ -115,138 +65,51 @@ function ChatHeader({ conversation, navigate }) {
   const isOnline = conversation?.online || status?.online;
 
   return (
-    <header
-      className="sticky top-0 z-30 flex items-center gap-3 px-4"
-      style={{
-        background: `${V.cream}ee`,
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: `1px solid ${V.border}`,
-        paddingTop: 'max(12px, env(safe-area-inset-top))',
-        paddingBottom: 12,
-        fontFamily: V.fontSans,
-      }}
-    >
-      {/* Back */}
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-stone-200 bg-stone-50/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] font-apple backdrop-blur-xl">
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center justify-center shrink-0"
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: '50%',
-          color: V.black,
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-        }}
+        className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-transparent text-stone-950 active:bg-stone-100"
         aria-label="Volver"
       >
         <ArrowLeft size={22} />
       </button>
 
-      {/* Avatar + info */}
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div
-          className="shrink-0 overflow-hidden"
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: avatarRadius(conversation?.type),
-            background: V.surface,
-          }}
-        >
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-100">
           {conversation?.avatar_url ? (
-            <img
-              src={conversation.avatar_url}
-              alt=""
-              className="w-full h-full object-cover"
-            />
+            <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" />
           ) : (
-            <div
-              className="flex items-center justify-center w-full h-full"
-              style={{
-                fontSize: 15,
-                fontWeight: 600,
-                color: V.stone,
-              }}
-            >
+            <div className="flex h-full w-full items-center justify-center text-[15px] font-semibold text-stone-500">
               {(conversation?.name || '?')[0]?.toUpperCase()}
             </div>
           )}
         </div>
 
         <div className="min-w-0">
-          <p
-            className="truncate"
-            style={{
-              fontSize: 16,
-              fontWeight: 600,
-              color: V.black,
-              lineHeight: '20px',
-              margin: 0,
-            }}
-          >
+          <p className="truncate text-base font-semibold leading-5 text-stone-950">
             {conversation?.name || 'Chat'}
           </p>
-          <div className="flex items-center gap-1" style={{ marginTop: 2 }}>
+          <div className="mt-0.5 flex items-center gap-1">
             {isOnline ? (
               <>
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: '50%',
-                    background: V.green,
-                    display: 'inline-block',
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: 12,
-                    color: V.green,
-                    fontWeight: 500,
-                  }}
-                >
-                  En línea
-                </span>
+                <span className="inline-block h-[7px] w-[7px] rounded-full bg-stone-950" />
+                <span className="text-xs font-medium text-stone-950">En línea</span>
               </>
             ) : (
-              <span style={{ fontSize: 12, color: V.stone }}>
-                {status?.text || ''}
-              </span>
+              <span className="text-xs text-stone-500">{status?.text || ''}</span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Right actions */}
       <button
-        className="flex items-center justify-center shrink-0"
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: '50%',
-          color: V.stone,
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-        }}
+        className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-500 active:bg-stone-100"
         aria-label="Llamar"
       >
         <Phone size={20} />
       </button>
       <button
-        className="flex items-center justify-center shrink-0"
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: '50%',
-          color: V.stone,
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-        }}
+        className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-500 active:bg-stone-100"
         aria-label="Más opciones"
       >
         <MoreVertical size={20} />
@@ -260,29 +123,16 @@ function ChatHeader({ conversation, navigate }) {
    ================================================================ */
 function ContextBanner({ orderId, navigate }) {
   if (!orderId) return null;
-
   return (
     <button
       onClick={() => navigate(`/orders/${orderId}`)}
-      className="flex items-center gap-3 w-full"
-      style={{
-        height: 44,
-        padding: '0 16px',
-        background: V.surface,
-        border: 'none',
-        borderBottom: `1px solid ${V.border}`,
-        cursor: 'pointer',
-        fontFamily: V.fontSans,
-      }}
+      className="flex h-11 w-full items-center gap-3 border-b border-stone-200 bg-stone-100 px-4 font-apple"
     >
-      <Package size={16} style={{ color: V.stone, flexShrink: 0 }} />
-      <span
-        className="flex-1 text-left truncate"
-        style={{ fontSize: 13, fontWeight: 500, color: V.black }}
-      >
+      <Package size={16} className="shrink-0 text-stone-500" />
+      <span className="flex-1 truncate text-left text-[13px] font-medium text-stone-950">
         Pedido #{String(orderId).slice(-8).toUpperCase()}
       </span>
-      <ChevronRight size={16} style={{ color: V.stone, flexShrink: 0 }} />
+      <ChevronRight size={16} className="shrink-0 text-stone-500" />
     </button>
   );
 }
@@ -291,22 +141,13 @@ function ContextBanner({ orderId, navigate }) {
    DateSeparator
    ================================================================ */
 function DateSeparator({ date }) {
-  const label = formatDateSeparator(date);
   return (
-    <div className="flex items-center gap-3 py-4 px-6">
-      <div className="flex-1" style={{ height: 1, background: V.border }} />
-      <span
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          color: V.stone,
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-        }}
-      >
-        {label}
+    <div className="flex items-center gap-3 px-6 py-4">
+      <div className="h-px flex-1 bg-stone-200" />
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-500">
+        {formatDateSeparator(date)}
       </span>
-      <div className="flex-1" style={{ height: 1, background: V.border }} />
+      <div className="h-px flex-1 bg-stone-200" />
     </div>
   );
 }
@@ -316,66 +157,27 @@ function DateSeparator({ date }) {
    ================================================================ */
 function ReadReceiptTicks({ message }) {
   const status = message.status || (message.read ? 'read' : 'sent');
-
-  if (status === 'read') {
-    return (
-      <CheckCheck
-        size={14}
-        style={{ color: V.green, transition: 'color 0.3s ease' }}
-      />
-    );
-  }
-  if (status === 'delivered') {
-    return (
-      <CheckCheck
-        size={14}
-        style={{ color: V.stone, transition: 'color 0.3s ease' }}
-      />
-    );
-  }
-  return (
-    <Check
-      size={14}
-      style={{ color: V.stone, transition: 'color 0.3s ease' }}
-    />
-  );
+  if (status === 'read') return <CheckCheck size={14} className="text-stone-950 transition-colors duration-300" />;
+  if (status === 'delivered') return <CheckCheck size={14} className="text-stone-500 transition-colors duration-300" />;
+  return <Check size={14} className="text-stone-500 transition-colors duration-300" />;
 }
 
 /* ================================================================
    MessageBubble
    ================================================================ */
-function MessageBubble({
-  message,
-  isOwn,
-  isConsecutive,
-  isFirstInGroup,
-  isLastInGroup,
-  isMiddleInGroup,
-  onImageTap,
-  onContextMenu: onCtxMenu,
-}) {
+function MessageBubble({ message, isOwn, isConsecutive, isFirstInGroup, isLastInGroup, isMiddleInGroup, onImageTap, onContextMenu: onCtxMenu }) {
   const ts = new Date(message.created_at || message.timestamp);
   const touchTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(touchTimerRef.current), []);
 
   const gap = isConsecutive && !isFirstInGroup ? 2 : isConsecutive ? 4 : 12;
   const showTimestamp = !isMiddleInGroup;
 
-  /* Border radius for grouping */
-  const sentRadius = isFirstInGroup
-    ? '20px 20px 4px 20px'
-    : isLastInGroup
-      ? '20px 4px 20px 20px'
-      : '20px 4px 4px 20px';
-
-  const receivedRadius = isFirstInGroup
-    ? '20px 20px 20px 4px'
-    : isLastInGroup
-      ? '4px 20px 20px 20px'
-      : '4px 20px 20px 4px';
-
+  const sentRadius = isFirstInGroup ? '20px 20px 4px 20px' : isLastInGroup ? '20px 4px 20px 20px' : '20px 4px 4px 20px';
+  const receivedRadius = isFirstInGroup ? '20px 20px 20px 4px' : isLastInGroup ? '4px 20px 20px 20px' : '4px 20px 20px 4px';
   const bubbleRadius = isOwn ? sentRadius : receivedRadius;
 
-  /* Long-press / context menu handlers */
   const handleContextMenu = (e) => {
     e.preventDefault();
     if (onCtxMenu) {
@@ -384,21 +186,10 @@ function MessageBubble({
     }
   };
   const handleTouchStart = (e) => {
-    const touch = e.touches[0];
-    const startX = touch.clientX;
-    const startY = touch.clientY;
-    touchTimerRef.current = setTimeout(() => {
-      if (onCtxMenu) {
-        onCtxMenu(message, startX, startY);
-      }
-    }, 500);
+    const { clientX, clientY } = e.touches[0];
+    touchTimerRef.current = setTimeout(() => onCtxMenu?.(message, clientX, clientY), 500);
   };
-  const handleTouchEndOrMove = () => {
-    if (touchTimerRef.current) {
-      clearTimeout(touchTimerRef.current);
-      touchTimerRef.current = null;
-    }
-  };
+  const handleTouchEndOrMove = () => clearTimeout(touchTimerRef.current);
 
   const touchProps = {
     onContextMenu: handleContextMenu,
@@ -407,26 +198,11 @@ function MessageBubble({
     onTouchMove: handleTouchEndOrMove,
   };
 
-  /* System message (B2B events) */
+  /* System message */
   if (message.message_type === 'system' || message.sender_id === 'system') {
     return (
-      <div
-        className="flex justify-center px-4"
-        style={{ marginTop: gap }}
-      >
-        <div
-          style={{
-            background: V.surface,
-            border: `1px solid ${V.border}`,
-            borderRadius: V.radiusFull,
-            padding: '4px 12px',
-            fontSize: 11,
-            color: V.stone,
-            fontFamily: V.fontSans,
-            textAlign: 'center',
-            maxWidth: '85%',
-          }}
-        >
+      <div className="flex justify-center px-4" style={{ marginTop: gap }}>
+        <div className="max-w-[85%] rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-center text-[11px] text-stone-500">
           {message.content}
         </div>
       </div>
@@ -436,21 +212,8 @@ function MessageBubble({
   /* Product card placeholder */
   if (message.message_type === 'product_card') {
     return (
-      <div
-        className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-        style={{ marginTop: gap }}
-        {...touchProps}
-      >
-        <div
-          style={{
-            padding: 12,
-            background: V.surface,
-            borderRadius: V.radiusMd,
-            maxWidth: '75%',
-          }}
-        >
-          Producto compartido
-        </div>
+      <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
+        <div className="max-w-[75%] rounded-xl bg-stone-100 p-3">Producto compartido</div>
       </div>
     );
   }
@@ -458,48 +221,24 @@ function MessageBubble({
   /* Image message */
   if (message.message_type === 'image') {
     return (
-      <div
-        className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-        style={{ marginTop: gap }}
-        {...touchProps}
-      >
-        <div style={{ maxWidth: 240 }}>
+      <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
+        <div className="max-w-[240px]">
           <div
-            className="overflow-hidden"
-            style={{
-              borderRadius: bubbleRadius,
-              background: V.surface,
-              cursor: message.image_url ? 'pointer' : 'default',
-            }}
+            className="overflow-hidden bg-stone-100"
+            style={{ borderRadius: bubbleRadius, cursor: message.image_url ? 'pointer' : 'default' }}
             onClick={() => message.image_url && onImageTap?.(message.image_url)}
           >
             {message.image_url ? (
-              <img
-                src={message.image_url}
-                alt=""
-                className="w-full h-auto block"
-                loading="lazy"
-              />
+              <img src={message.image_url} alt="" className="block h-auto w-full" loading="lazy" />
             ) : (
-              <div
-                className="flex items-center justify-center"
-                style={{
-                  width: 240,
-                  height: 180,
-                  color: V.stone,
-                }}
-              >
+              <div className="flex h-[180px] w-[240px] items-center justify-center text-stone-500">
                 <Image size={32} />
               </div>
             )}
           </div>
           {showTimestamp && (
-            <div
-              className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}
-            >
-              <span style={{ fontSize: 11, color: V.stone }}>
-                {formatTime(ts)}
-              </span>
+            <div className={`mt-1 flex items-center gap-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+              <span className="text-[11px] text-stone-500">{formatTime(ts)}</span>
               {isOwn && <ReadReceiptTicks message={message} />}
             </div>
           )}
@@ -508,72 +247,29 @@ function MessageBubble({
     );
   }
 
-  /* Collab proposal card */
-  if (message.message_type === 'collab_proposal' && message.metadata?.collab_id) {
-    return (
-      <CollabProposalMessage
-        message={message}
-        isOwn={isOwn}
-        gap={gap}
-        touchProps={touchProps}
-      />
-    );
-  }
-
-  /* Affiliate link card */
-  if (message.message_type === 'collab_affiliate' && message.metadata?.collab_id) {
-    return (
-      <CollabAffiliateMessage
-        message={message}
-        isOwn={isOwn}
-        gap={gap}
-        touchProps={touchProps}
-      />
-    );
-  }
-
-  /* Sample shipment card */
-  if (message.message_type === 'collab_sample' && message.metadata?.collab_id) {
-    return (
-      <CollabSampleMessage
-        message={message}
-        isOwn={isOwn}
-        gap={gap}
-        touchProps={touchProps}
-      />
-    );
-  }
+  /* Collab cards */
+  if (message.message_type === 'collab_proposal' && message.metadata?.collab_id)
+    return <CollabProposalMessage message={message} isOwn={isOwn} gap={gap} touchProps={touchProps} />;
+  if (message.message_type === 'collab_affiliate' && message.metadata?.collab_id)
+    return <CollabAffiliateMessage message={message} isOwn={isOwn} gap={gap} touchProps={touchProps} />;
+  if (message.message_type === 'collab_sample' && message.metadata?.collab_id)
+    return <CollabSampleMessage message={message} isOwn={isOwn} gap={gap} touchProps={touchProps} />;
 
   /* Default text bubble */
   return (
-    <div
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-      style={{ marginTop: gap }}
-      {...touchProps}
-    >
-      <div style={{ maxWidth: '75%' }}>
+    <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
+      <div className="max-w-[75%]">
         <div
-          style={{
-            padding: '10px 14px',
-            fontSize: 15,
-            lineHeight: '21px',
-            fontFamily: V.fontSans,
-            background: isOwn ? V.black : V.white,
-            color: isOwn ? V.white : V.black,
-            border: isOwn ? 'none' : `1px solid ${V.border}`,
-            borderRadius: bubbleRadius,
-            wordBreak: 'break-word',
-          }}
+          className={`break-words px-3.5 py-2.5 text-[15px] leading-[21px] font-apple ${
+            isOwn ? 'bg-stone-950 text-white' : 'border border-stone-200 bg-white text-stone-950'
+          }`}
+          style={{ borderRadius: bubbleRadius }}
         >
           {message.content}
         </div>
         {showTimestamp && (
-          <div
-            className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}
-          >
-            <span style={{ fontSize: 11, color: V.stone }}>
-              {formatTime(ts)}
-            </span>
+          <div className={`mt-1 flex items-center gap-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+            <span className="text-[11px] text-stone-500">{formatTime(ts)}</span>
             {isOwn && <ReadReceiptTicks message={message} />}
           </div>
         )}
@@ -583,7 +279,7 @@ function MessageBubble({
 }
 
 /* ================================================================
-   Collab message wrappers (fetch real API data)
+   Collab message wrappers
    ================================================================ */
 function CollabProposalMessage({ message, isOwn, gap, touchProps }) {
   const { user } = useAuth();
@@ -626,19 +322,12 @@ function CollabProposalMessage({ message, isOwn, gap, touchProps }) {
 
   return (
     <div
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-      style={{ marginTop: gap, opacity: acting ? 0.6 : 1, pointerEvents: acting ? 'none' : 'auto' }}
+      className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'} ${acting ? 'pointer-events-none opacity-60' : ''}`}
+      style={{ marginTop: gap }}
       {...touchProps}
     >
       <CollabProposalCard
-        proposal={{
-          product_name: proposal.product_name,
-          product_image: proposal.product_image_url,
-          commission_percent: proposal.commission_pct,
-          duration_days: proposal.duration_days,
-          include_sample: proposal.send_sample,
-          status,
-        }}
+        proposal={{ product_name: proposal.product_name, product_image: proposal.product_image_url, commission_percent: proposal.commission_pct, duration_days: proposal.duration_days, include_sample: proposal.send_sample, status }}
         isReceiver={isReceiver}
         onAccept={handleAccept}
         onDecline={handleDecline}
@@ -663,15 +352,8 @@ function CollabAffiliateMessage({ message, isOwn, gap, touchProps }) {
   if (!collab?.affiliate_link?.url) return null;
 
   return (
-    <div
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-      style={{ marginTop: gap }}
-      {...touchProps}
-    >
-      <AffiliateLinkCard
-        link={{ url: collab.affiliate_link.url, code: collab.affiliate_link.code }}
-        stats={stats ? { clicks: stats.clicks, sales: stats.sales } : null}
-      />
+    <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
+      <AffiliateLinkCard link={{ url: collab.affiliate_link.url, code: collab.affiliate_link.code }} stats={stats ? { clicks: stats.clicks, sales: stats.sales } : null} />
     </div>
   );
 }
@@ -694,19 +376,8 @@ function CollabSampleMessage({ message, isOwn, gap, touchProps }) {
   const statusMap = { in_transit: 'shipped', delivered: 'delivered' };
 
   return (
-    <div
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} px-4`}
-      style={{ marginTop: gap }}
-      {...touchProps}
-    >
-      <SampleShipmentCard
-        shipment={{
-          product_name: proposal.product_name,
-          product_image: proposal.product_image_url,
-          tracking_number: shipment.tracking_number,
-          status: statusMap[shipment.status] || 'preparing',
-        }}
-      />
+    <div className={`flex px-4 ${isOwn ? 'justify-end' : 'justify-start'}`} style={{ marginTop: gap }} {...touchProps}>
+      <SampleShipmentCard shipment={{ product_name: proposal.product_name, product_image: proposal.product_image_url, tracking_number: shipment.tracking_number, status: statusMap[shipment.status] || 'preparing' }} />
     </div>
   );
 }
@@ -716,33 +387,14 @@ function CollabSampleMessage({ message, isOwn, gap, touchProps }) {
    ================================================================ */
 function TypingIndicator() {
   return (
-    <div className="flex justify-start px-4" style={{ marginTop: 12 }}>
-      <div
-        className="flex items-center gap-1"
-        style={{
-          padding: '12px 16px',
-          background: V.white,
-          border: `1px solid ${V.border}`,
-          borderRadius: '20px 20px 20px 4px',
-        }}
-      >
+    <div className="mt-3 flex justify-start px-4">
+      <div className="flex items-center gap-1 rounded-[20px] rounded-bl-[4px] border border-stone-200 bg-white px-4 py-3">
         {[0, 1, 2].map((i) => (
           <motion.span
             key={i}
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: V.stone,
-              display: 'block',
-            }}
+            className="block h-[7px] w-[7px] rounded-full bg-stone-500"
             animate={{ y: [0, -5, 0] }}
-            transition={{
-              duration: 0.6,
-              repeat: Infinity,
-              delay: i * 0.15,
-              ease: 'easeInOut',
-            }}
+            transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
           />
         ))}
       </div>
@@ -760,27 +412,9 @@ function NewMessagesPill({ onClick }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 10 }}
       onClick={onClick}
-      className="absolute left-1/2 z-20"
-      style={{
-        transform: 'translateX(-50%)',
-        bottom: 80,
-        height: 32,
-        padding: '0 16px',
-        borderRadius: 999,
-        background: V.black,
-        color: V.white,
-        fontSize: 13,
-        fontWeight: 600,
-        fontFamily: V.fontSans,
-        border: 'none',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 4,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-      }}
+      className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full bg-stone-950 px-4 py-1.5 text-[13px] font-semibold text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
     >
-      <span style={{ fontSize: 15 }}>↓</span> Nuevos mensajes
+      <span className="text-[15px]">↓</span> Nuevos mensajes
     </motion.button>
   );
 }
@@ -790,139 +424,51 @@ function NewMessagesPill({ onClick }) {
    ================================================================ */
 function MessageContextMenu({ contextMenu, onClose, userId }) {
   if (!contextMenu) return null;
-
   const { message, x, y } = contextMenu;
   const isOwnMsg = String(message.sender_id || message.user_id) === String(userId);
   const createdAt = new Date(message.created_at || message.timestamp);
   const canDelete = isOwnMsg && (Date.now() - createdAt.getTime()) < 5 * 60 * 1000;
 
   const options = [
-    {
-      label: 'Copiar',
-      icon: Copy,
-      action: () => {
-        navigator.clipboard?.writeText(message.content || '');
-        onClose();
-      },
-    },
-    {
-      label: 'Reaccionar',
-      icon: null,
-      isReaction: true,
-      action: () => {},
-    },
-    {
-      label: 'Responder',
-      icon: Reply,
-      action: () => {
-        onClose();
-      },
-    },
+    { label: 'Copiar', icon: Copy, action: () => { navigator.clipboard?.writeText(message.content || ''); onClose(); } },
+    { label: 'Reaccionar', icon: null, isReaction: true, action: () => {} },
+    { label: 'Responder', icon: Reply, action: () => onClose() },
   ];
+  if (canDelete) options.push({ label: 'Eliminar', icon: Trash2, danger: true, action: () => onClose() });
 
-  if (canDelete) {
-    options.push({
-      label: 'Eliminar',
-      icon: Trash2,
-      danger: true,
-      action: () => {
-        onClose();
-      },
-    });
-  }
-
-  const reactions = ['\u2764\uFE0F', '\uD83D\uDE02', '\uD83D\uDC4D', '\uD83D\uDE2E', '\uD83D\uDE22', '\uD83D\uDE4F'];
+  const reactions = ['❤️', '😂', '👍', '😮', '😢', '🙏'];
 
   return (
     <>
-      {/* Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 60,
-          background: 'rgba(0,0,0,0.2)',
-        }}
-      />
-      {/* Menu */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-[60] bg-black/20" />
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        style={{
-          position: 'fixed',
-          zIndex: 61,
-          left: Math.min(x - 100, window.innerWidth - 220),
-          top: Math.max(y - 200, 20),
-          width: 200,
-          background: V.white,
-          borderRadius: V.radiusXl,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-          padding: 8,
-          fontFamily: V.fontSans,
-        }}
+        className="fixed z-[61] w-[200px] rounded-[20px] bg-white p-2 shadow-[0_8px_32px_rgba(0,0,0,0.15)] font-apple"
+        style={{ left: Math.min(x - 100, window.innerWidth - 220), top: Math.max(y - 200, 20) }}
       >
         {options.map((opt) => {
           if (opt.isReaction) {
             return (
-              <div
-                key="reactions"
-                className="flex items-center justify-between"
-                style={{ height: 40, padding: '0 8px' }}
-              >
+              <div key="reactions" className="flex h-10 items-center justify-between px-2">
                 {reactions.map((emoji) => (
-                  <button
-                    key={emoji}
-                    onClick={() => {
-                      onClose();
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      fontSize: 20,
-                      cursor: 'pointer',
-                      padding: 2,
-                      borderRadius: '50%',
-                      lineHeight: 1,
-                    }}
-                  >
+                  <button key={emoji} onClick={onClose} className="rounded-full bg-transparent p-0.5 text-xl leading-none hover:bg-stone-100">
                     {emoji}
                   </button>
                 ))}
               </div>
             );
           }
-
           const Icon = opt.icon;
           return (
             <button
               key={opt.label}
               onClick={opt.action}
-              className="flex items-center w-full"
-              style={{
-                height: 40,
-                gap: 10,
-                padding: '0 8px',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                borderRadius: 8,
-                fontSize: 13,
-                fontWeight: 500,
-                color: opt.danger ? 'var(--color-red)' : V.black,
-                fontFamily: V.fontSans,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = V.surface;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'none';
-              }}
+              className={`flex h-10 w-full items-center gap-2.5 rounded-lg px-2 text-[13px] font-medium transition-colors hover:bg-stone-50 ${
+                opt.danger ? 'text-red-600' : 'text-stone-950'
+              }`}
             >
               {Icon && <Icon size={16} />}
               <span>{opt.label}</span>
@@ -939,78 +485,18 @@ function MessageContextMenu({ contextMenu, onClose, userId }) {
    ================================================================ */
 function ImageLightbox({ src, onClose }) {
   if (!src) return null;
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        background: 'rgba(0,0,0,0.95)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Close button */}
-      <div className="flex justify-end" style={{ padding: 16 }}>
-        <button
-          onClick={onClose}
-          className="flex items-center justify-center"
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            background: 'transparent',
-            border: 'none',
-            color: V.white,
-            cursor: 'pointer',
-          }}
-          aria-label="Cerrar"
-        >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex flex-col bg-black/95">
+      <div className="flex justify-end p-4">
+        <button onClick={onClose} className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white" aria-label="Cerrar">
           <X size={24} />
         </button>
       </div>
-
-      {/* Image */}
-      <div
-        className="flex-1 flex items-center justify-center"
-        style={{ padding: 16, overflow: 'hidden' }}
-        onClick={onClose}
-      >
-        <img
-          src={src}
-          alt=""
-          style={{
-            maxWidth: '100%',
-            maxHeight: '100%',
-            objectFit: 'contain',
-          }}
-          onClick={(e) => e.stopPropagation()}
-        />
+      <div className="flex flex-1 items-center justify-center overflow-hidden p-4" onClick={onClose}>
+        <img src={src} alt="" className="max-h-full max-w-full object-contain" onClick={(e) => e.stopPropagation()} />
       </div>
-
-      {/* Download button */}
-      <div className="flex justify-center" style={{ padding: 16 }}>
-        <a
-          href={src}
-          download
-          className="flex items-center justify-center"
-          style={{
-            color: V.white,
-            fontSize: 14,
-            fontWeight: 500,
-            fontFamily: V.fontSans,
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            textDecoration: 'none',
-            padding: '8px 20px',
-            borderRadius: 999,
-          }}
-        >
+      <div className="flex justify-center p-4">
+        <a href={src} download className="rounded-full px-5 py-2 text-sm font-medium text-white">
           Descargar
         </a>
       </div>
@@ -1022,118 +508,43 @@ function ImageLightbox({ src, onClose }) {
    EmptyConversation
    ================================================================ */
 const SUGGESTION_PILLS = {
-  b2c: [
-    '\u00BFHac\u00E9is env\u00EDos a...?',
-    '\u00BFTen\u00E9is stock de...?',
-    '\u00BFCu\u00E1l es el plazo de entrega?',
-  ],
-  b2b: [
-    'Estamos interesados en...',
-    '\u00BFTienen precio mayorista para...?',
-    '\u00BFPueden enviar muestras?',
-  ],
-  c2c: [
-    '\u00A1Hola!',
-    '\u00BFD\u00F3nde compraste...?',
-    'Te vi en el feed y...',
-  ],
-  collab: [
-    'Hola, me gustar\u00EDa colaborar...',
-    'Vi tu tienda y...',
-    '\u00BFEnvi\u00E1is muestras?',
-  ],
+  b2c: ['¿Hacéis envíos a...?', '¿Tenéis stock de...?', '¿Cuál es el plazo de entrega?'],
+  b2b: ['Estamos interesados en...', '¿Tienen precio mayorista para...?', '¿Pueden enviar muestras?'],
+  c2c: ['¡Hola!', '¿Dónde compraste...?', 'Te vi en el feed y...'],
+  collab: ['Hola, me gustaría colaborar...', 'Vi tu tienda y...', '¿Enviáis muestras?'],
 };
 
 function EmptyConversation({ conversation, onSendSuggestion }) {
   const type = conversation?.type || 'c2c';
   const suggestions = SUGGESTION_PILLS[type] || SUGGESTION_PILLS.c2c;
   const name = conversation?.name || 'Chat';
-  const initial = (name[0] || '?').toUpperCase();
 
   return (
-    <div
-      className="flex flex-col items-center justify-center"
-      style={{ padding: '48px 24px', fontFamily: V.fontSans }}
-    >
-      {/* Avatar */}
-      <div
-        className="overflow-hidden flex items-center justify-center"
-        style={{
-          width: 64,
-          height: 64,
-          borderRadius: '50%',
-          background: V.surface,
-          marginBottom: 12,
-        }}
-      >
+    <div className="flex flex-col items-center justify-center px-6 py-12 font-apple">
+      <div className="mb-3 h-16 w-16 overflow-hidden rounded-full bg-stone-100">
         {conversation?.avatar_url ? (
-          <img
-            src={conversation.avatar_url}
-            alt=""
-            className="w-full h-full object-cover"
-          />
+          <img src={conversation.avatar_url} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span
-            style={{
-              fontSize: 24,
-              fontWeight: 600,
-              color: V.stone,
-            }}
-          >
-            {initial}
-          </span>
+          <div className="flex h-full w-full items-center justify-center text-2xl font-semibold text-stone-500">
+            {(name[0] || '?').toUpperCase()}
+          </div>
         )}
       </div>
 
-      {/* Name + badge */}
-      <p
-        style={{
-          fontSize: 18,
-          fontWeight: 600,
-          color: V.black,
-          margin: 0,
-          marginBottom: 4,
-        }}
-      >
-        {name}
-      </p>
+      <p className="text-lg font-semibold text-stone-950">{name}</p>
       {conversation?.role && (
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 500,
-            color: V.stone,
-            background: V.surface,
-            padding: '2px 10px',
-            borderRadius: 999,
-            marginBottom: 8,
-          }}
-        >
+        <span className="mb-2 mt-1 rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-500">
           {conversation.role}
         </span>
       )}
+      <p className="mt-2 text-[13px] text-stone-500">Inicia la conversación</p>
 
-      <p style={{ fontSize: 13, color: V.stone, margin: '8px 0 20px' }}>
-        Inicia la conversaci&oacute;n
-      </p>
-
-      {/* Suggestion pills */}
-      <div className="flex flex-wrap justify-center gap-2">
+      <div className="mt-5 flex flex-wrap justify-center gap-2">
         {suggestions.map((text) => (
           <button
             key={text}
             onClick={() => onSendSuggestion(text)}
-            style={{
-              background: V.surface,
-              borderRadius: 999,
-              padding: '8px 16px',
-              fontSize: 13,
-              fontWeight: 500,
-              color: V.black,
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: V.fontSans,
-            }}
+            className="rounded-full bg-stone-100 px-4 py-2 text-[13px] font-medium text-stone-950 active:bg-stone-200"
           >
             {text}
           </button>
@@ -1151,17 +562,15 @@ function MessageInput({ onSend, onTyping, onAttach }) {
   const textareaRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
+  useEffect(() => () => clearTimeout(typingTimeoutRef.current), []);
+
   const handleChange = (e) => {
     setText(e.target.value);
-
-    // Auto-grow
     const ta = textareaRef.current;
     if (ta) {
       ta.style.height = 'auto';
       ta.style.height = `${Math.min(ta.scrollHeight, 120)}px`;
     }
-
-    // Typing indicator
     onTyping(true);
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => onTyping(false), 2000);
@@ -1172,60 +581,31 @@ function MessageInput({ onSend, onTyping, onAttach }) {
     if (!trimmed) return;
     onSend(trimmed);
     setText('');
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-    }
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     onTyping(false);
   }, [text, onSend, onTyping]);
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
-
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    };
-  }, []);
 
   const hasText = text.trim().length > 0;
 
   return (
     <div
-      className="flex items-end gap-2 px-3 shrink-0"
-      style={{
-        background: V.cream,
-        borderTop: `1px solid ${V.border}`,
-        paddingTop: 8,
-        paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
-        fontFamily: V.fontSans,
-      }}
+      className="flex shrink-0 items-end gap-2 border-t border-stone-200 bg-stone-50 px-3 pt-2 font-apple"
+      style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}
     >
-      {/* Attach button */}
       <button
         onClick={onAttach}
-        className="flex items-center justify-center shrink-0"
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: '50%',
-          background: V.surface,
-          color: V.stone,
-          border: 'none',
-          cursor: 'pointer',
-          marginBottom: 4,
-        }}
+        className="mb-1 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-500 active:bg-stone-200"
         aria-label="Adjuntar"
       >
         <Plus size={20} />
       </button>
 
-      {/* Textarea */}
-      <div className="flex-1 relative" style={{ minHeight: 44 }}>
+      <div className="min-h-[44px] flex-1">
         <textarea
           ref={textareaRef}
           value={text}
@@ -1233,23 +613,10 @@ function MessageInput({ onSend, onTyping, onAttach }) {
           onKeyDown={handleKeyDown}
           placeholder="Mensaje..."
           rows={1}
-          className="w-full resize-none outline-none"
-          style={{
-            background: V.surface,
-            borderRadius: 24,
-            border: 'none',
-            padding: '10px 16px',
-            fontSize: 15,
-            lineHeight: '22px',
-            fontFamily: V.fontSans,
-            color: V.black,
-            minHeight: 44,
-            maxHeight: 120,
-          }}
+          className="w-full min-h-[44px] max-h-[120px] resize-none rounded-3xl bg-stone-100 px-4 py-2.5 text-[15px] leading-[22px] text-stone-950 outline-none placeholder:text-stone-400"
         />
       </div>
 
-      {/* Send button */}
       <AnimatePresence>
         {hasText && (
           <motion.button
@@ -1258,17 +625,7 @@ function MessageInput({ onSend, onTyping, onAttach }) {
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 400, damping: 20 }}
             onClick={handleSend}
-            className="flex items-center justify-center shrink-0"
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              background: V.black,
-              color: V.white,
-              border: 'none',
-              cursor: 'pointer',
-              marginBottom: 2,
-            }}
+            className="mb-0.5 flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-950 text-white active:opacity-75"
             aria-label="Enviar"
           >
             <ArrowUp size={20} />
@@ -1286,15 +643,7 @@ export default function ChatPage() {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const {
-    messages,
-    loadMessages,
-    sendMessage,
-    sendTyping,
-    markAsRead,
-    typingUsers,
-    conversations,
-  } = useChatContext();
+  const { messages, loadMessages, sendMessage, sendTyping, markAsRead, typingUsers, conversations } = useChatContext();
 
   const [localMessages, setLocalMessages] = useState([]);
   const [showNewPill, setShowNewPill] = useState(false);
@@ -1308,129 +657,68 @@ export default function ChatPage() {
   const isNearBottomRef = useRef(true);
   const prevMsgCountRef = useRef(0);
 
-  /* Current conversation object */
   const conversation = useMemo(
     () => conversations.find((c) => String(c.id) === String(conversationId)),
     [conversations, conversationId],
   );
 
-  /* Typing state for this conversation */
-  const isTyping = useMemo(
-    () => !!typingUsers[conversationId],
-    [typingUsers, conversationId],
-  );
+  const isTyping = useMemo(() => !!typingUsers[conversationId], [typingUsers, conversationId]);
 
-  /* Load messages on mount / conversation change */
-  useEffect(() => {
-    if (conversationId) {
-      loadMessages(conversationId);
-    }
-  }, [conversationId, loadMessages]);
+  useEffect(() => { if (conversationId) loadMessages(conversationId); }, [conversationId, loadMessages]);
+  useEffect(() => { setLocalMessages(messages); }, [messages]);
 
-  /* Sync context messages to local state */
-  useEffect(() => {
-    setLocalMessages(messages);
-  }, [messages]);
-
-  /* Auto-scroll to bottom on new messages (or show pill) */
   useEffect(() => {
     if (localMessages.length === 0) return;
-
     if (localMessages.length > prevMsgCountRef.current) {
-      if (isNearBottomRef.current) {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        setShowNewPill(true);
-      }
+      if (isNearBottomRef.current) bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      else setShowNewPill(true);
     }
     prevMsgCountRef.current = localMessages.length;
   }, [localMessages]);
 
-  /* Initial scroll to bottom */
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'auto' });
-  }, [conversationId]);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'auto' }); }, [conversationId]);
 
-  /* Virtual keyboard height tracking */
   useEffect(() => {
     if (!window.visualViewport) return;
-    const handler = () => {
-      const kh = window.innerHeight - window.visualViewport.height;
-      setKeyboardHeight(Math.max(0, kh));
-    };
+    const handler = () => setKeyboardHeight(Math.max(0, window.innerHeight - window.visualViewport.height));
     window.visualViewport.addEventListener('resize', handler);
     return () => window.visualViewport?.removeEventListener('resize', handler);
   }, []);
 
-  /* Scroll listener for "near bottom" detection */
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const threshold = 120;
-    isNearBottomRef.current =
-      el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+    isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
     if (isNearBottomRef.current) setShowNewPill(false);
   }, []);
 
-  /* Mark unread messages as read */
   useEffect(() => {
     if (!user || !conversationId) return;
     const unread = localMessages
-      .filter(
-        (m) =>
-          !m.read &&
-          String(m.sender_id || m.user_id) !== String(user.id),
-      )
+      .filter((m) => !m.read && String(m.sender_id || m.user_id) !== String(user.id))
       .map((m) => m.message_id || m.id);
-
-    if (unread.length > 0) {
-      markAsRead(conversationId, unread);
-    }
+    if (unread.length > 0) markAsRead(conversationId, unread);
   }, [localMessages, user, conversationId, markAsRead]);
 
-  /* Send handler (optimistic) */
-  const handleSend = useCallback(
-    (content) => {
-      const optimistic = {
-        id: `temp-${Date.now()}`,
-        message_id: `temp-${Date.now()}`,
-        sender_id: user?.id,
-        content,
-        message_type: 'text',
-        created_at: new Date().toISOString(),
-        read: false,
-      };
-      setLocalMessages((prev) => [...prev, optimistic]);
-      sendMessage(conversationId, content);
+  const handleSend = useCallback((content) => {
+    const optimistic = {
+      id: `temp-${Date.now()}`,
+      message_id: `temp-${Date.now()}`,
+      sender_id: user?.id,
+      content,
+      message_type: 'text',
+      created_at: new Date().toISOString(),
+      read: false,
+    };
+    setLocalMessages((prev) => [...prev, optimistic]);
+    sendMessage(conversationId, content);
+    requestAnimationFrame(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }));
+  }, [conversationId, sendMessage, user]);
 
-      // Scroll to bottom after sending
-      requestAnimationFrame(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-      });
-    },
-    [conversationId, sendMessage, user],
-  );
+  const handleTyping = useCallback((typing) => sendTyping(conversationId, typing), [conversationId, sendTyping]);
+  const scrollToBottom = useCallback(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); setShowNewPill(false); }, []);
+  const handleContextMenu = useCallback((message, x, y) => setContextMenu({ message, x, y }), []);
 
-  /* Typing handler */
-  const handleTyping = useCallback(
-    (isTyping) => {
-      sendTyping(conversationId, isTyping);
-    },
-    [conversationId, sendTyping],
-  );
-
-  /* Scroll-to-bottom from pill */
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    setShowNewPill(false);
-  }, []);
-
-  /* Context menu handler */
-  const handleContextMenu = useCallback((message, x, y) => {
-    setContextMenu({ message, x, y });
-  }, []);
-
-  /* Group messages with date separators, consecutive & timing-based grouping */
   const groupedMessages = useMemo(() => {
     const result = [];
     let lastDate = null;
@@ -1441,7 +729,6 @@ export default function ChatPage() {
       const msg = localMessages[i];
       const msgDate = new Date(msg.created_at || msg.timestamp);
 
-      // Date separator
       if (!lastDate || !isSameDay(lastDate, msgDate)) {
         result.push({ type: 'date', date: msgDate, key: `date-${i}` });
         lastSender = null;
@@ -1449,38 +736,21 @@ export default function ChatPage() {
       }
 
       const senderId = String(msg.sender_id || msg.user_id || '');
-      const withinGroup =
-        senderId === lastSender &&
-        lastTime &&
-        msgDate.getTime() - lastTime.getTime() < 60000;
-      const isConsecutive = senderId === lastSender;
+      const withinGroup = senderId === lastSender && lastTime && msgDate.getTime() - lastTime.getTime() < 60000;
 
-      // Look ahead for next message grouping
       const nextMsg = localMessages[i + 1];
-      const nextSenderId = nextMsg
-        ? String(nextMsg.sender_id || nextMsg.user_id || '')
-        : null;
-      const nextDate = nextMsg
-        ? new Date(nextMsg.created_at || nextMsg.timestamp)
-        : null;
-      const nextWithinGroup =
-        nextSenderId === senderId &&
-        nextDate &&
-        nextDate.getTime() - msgDate.getTime() < 60000 &&
-        (!lastDate || isSameDay(msgDate, nextDate));
-
-      const isFirstInGroup = !withinGroup;
-      const isLastInGroup = !nextWithinGroup;
-      const isMiddleInGroup = !isFirstInGroup && !isLastInGroup;
+      const nextSenderId = nextMsg ? String(nextMsg.sender_id || nextMsg.user_id || '') : null;
+      const nextDate = nextMsg ? new Date(nextMsg.created_at || nextMsg.timestamp) : null;
+      const nextWithinGroup = nextSenderId === senderId && nextDate && nextDate.getTime() - msgDate.getTime() < 60000 && (!lastDate || isSameDay(msgDate, nextDate));
 
       result.push({
         type: 'message',
         message: msg,
-        isOwn: String(senderId) === String(user?.id),
-        isConsecutive,
-        isFirstInGroup,
-        isLastInGroup,
-        isMiddleInGroup,
+        isOwn: senderId === String(user?.id),
+        isConsecutive: senderId === lastSender,
+        isFirstInGroup: !withinGroup,
+        isLastInGroup: !nextWithinGroup,
+        isMiddleInGroup: withinGroup && nextWithinGroup,
         key: msg.message_id || msg.id || `msg-${i}`,
       });
 
@@ -1488,103 +758,45 @@ export default function ChatPage() {
       lastSender = senderId;
       lastTime = msgDate;
     }
-
     return result;
   }, [localMessages, user]);
 
   return (
     <div
-      className="flex flex-col"
-      style={{
-        height: '100dvh',
-        background: V.cream,
-        fontFamily: V.fontSans,
-        position: 'fixed',
-        inset: 0,
-        zIndex: 40,
-        paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined,
-      }}
+      className="fixed inset-0 z-40 flex flex-col bg-stone-50 font-apple"
+      style={{ paddingBottom: keyboardHeight > 0 ? keyboardHeight : undefined }}
     >
-      {/* Header */}
       <ChatHeader conversation={conversation} navigate={navigate} />
-
-      {/* Context banner */}
       <ContextBanner orderId={conversation?.order_id} navigate={navigate} />
 
-      {/* Message list */}
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="flex-1 overflow-y-auto relative"
-        style={{ background: V.cream, WebkitOverflowScrolling: 'touch' }}
-      >
+      <div ref={scrollRef} onScroll={handleScroll} className="relative flex-1 overflow-y-auto overscroll-none bg-stone-50">
         <div className="pb-4 pt-2">
-          {/* Empty state */}
           {localMessages.length === 0 && (
-            <EmptyConversation
-              conversation={conversation}
-              onSendSuggestion={handleSend}
-            />
+            <EmptyConversation conversation={conversation} onSendSuggestion={handleSend} />
           )}
 
-          {groupedMessages.map((item) => {
-            if (item.type === 'date') {
-              return <DateSeparator key={item.key} date={item.date} />;
-            }
-            return (
-              <MessageBubble
-                key={item.key}
-                message={item.message}
-                isOwn={item.isOwn}
-                isConsecutive={item.isConsecutive}
-                isFirstInGroup={item.isFirstInGroup}
-                isLastInGroup={item.isLastInGroup}
-                isMiddleInGroup={item.isMiddleInGroup}
-                onImageTap={setLightboxImage}
-                onContextMenu={handleContextMenu}
-              />
-            );
-          })}
+          {groupedMessages.map((item) =>
+            item.type === 'date'
+              ? <DateSeparator key={item.key} date={item.date} />
+              : <MessageBubble key={item.key} message={item.message} isOwn={item.isOwn} isConsecutive={item.isConsecutive} isFirstInGroup={item.isFirstInGroup} isLastInGroup={item.isLastInGroup} isMiddleInGroup={item.isMiddleInGroup} onImageTap={setLightboxImage} onContextMenu={handleContextMenu} />
+          )}
 
-          {/* Typing indicator */}
           {isTyping && <TypingIndicator />}
-
-          {/* Scroll anchor */}
           <div ref={bottomRef} />
         </div>
 
-        {/* New messages pill */}
         <AnimatePresence>
           {showNewPill && <NewMessagesPill onClick={scrollToBottom} />}
         </AnimatePresence>
       </div>
 
-      {/* Input */}
-      <MessageInput
-        onSend={handleSend}
-        onTyping={handleTyping}
-        onAttach={() => setShowAttachSheet(true)}
-      />
+      <MessageInput onSend={handleSend} onTyping={handleTyping} onAttach={() => setShowAttachSheet(true)} />
 
-      {/* Context menu overlay */}
       <AnimatePresence>
-        {contextMenu && (
-          <MessageContextMenu
-            contextMenu={contextMenu}
-            onClose={() => setContextMenu(null)}
-            userId={user?.id}
-          />
-        )}
+        {contextMenu && <MessageContextMenu contextMenu={contextMenu} onClose={() => setContextMenu(null)} userId={user?.id} />}
       </AnimatePresence>
-
-      {/* Image lightbox */}
       <AnimatePresence>
-        {lightboxImage && (
-          <ImageLightbox
-            src={lightboxImage}
-            onClose={() => setLightboxImage(null)}
-          />
-        )}
+        {lightboxImage && <ImageLightbox src={lightboxImage} onClose={() => setLightboxImage(null)} />}
       </AnimatePresence>
     </div>
   );

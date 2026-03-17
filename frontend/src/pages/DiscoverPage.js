@@ -27,7 +27,7 @@ const ELITE_FADE_MS = 400;
 
 /* ── pill classes ── */
 const pillCls = (active) =>
-  `flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors ${
+  `flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors ${
     active
       ? 'border-stone-950 bg-stone-950 text-white'
       : 'border-stone-200 bg-white text-stone-950'
@@ -438,7 +438,7 @@ export default function DiscoverPage() {
                     </Link>
                     <button
                       onClick={() => toggleFollow(uid)}
-                      className={`shrink-0 rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors ${
+                      className={`shrink-0 cursor-pointer rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors ${
                         isFollowing
                           ? 'border border-stone-200 bg-white text-stone-950'
                           : 'border border-stone-950 bg-stone-950 text-white'

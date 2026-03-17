@@ -1,6 +1,9 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, Pencil, Trash2, X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../services/api/client';
+import { toast } from 'sonner';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -56,8 +59,9 @@ function renderCaption(text) {
 // PostCard
 // ---------------------------------------------------------------------------
 
-export default function PostCard({ post, onLike, onComment, onShare, onSave, priority = false }) {
+export default function PostCard({ post, onLike, onComment, onShare, onSave, onDelete, priority = false }) {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
 
   // Local optimistic state — accept both prop schemas
   const [liked, setLiked] = useState(post.liked ?? post.is_liked ?? false);
@@ -66,10 +70,18 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
   const [expanded, setExpanded] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showEditCaption, setShowEditCaption] = useState(false);
+  const [editCaption, setEditCaption] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleted, setDeleted] = useState(false);
 
   const lastTapRef = useRef(0);
   const heartTimerRef = useRef(null);
   const scrollRef = useRef(null);
+  const undoTimerRef = useRef(null);
+
+  const isOwner = currentUser?.id && (currentUser.id === (post.user?.id || post.user_id));
 
   // ---- handlers -----------------------------------------------------------
 
@@ -107,6 +119,43 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
     setCarouselIndex(idx);
   }, []);
 
+  const handleEditSave = useCallback(async () => {
+    try {
+      await apiClient.patch(`/posts/${post.id}`, { caption: editCaption });
+      post.content = editCaption;
+      post.caption = editCaption;
+      post.edited = true;
+      setShowEditCaption(false);
+      toast.success('Publicación editada');
+    } catch {
+      toast.error('Error al editar');
+    }
+  }, [editCaption, post]);
+
+  const handleDelete = useCallback(() => {
+    setDeleted(true);
+    setShowDeleteConfirm(false);
+    toast('Post eliminado', {
+      action: {
+        label: 'Deshacer',
+        onClick: () => {
+          clearTimeout(undoTimerRef.current);
+          setDeleted(false);
+        },
+      },
+      duration: 5000,
+    });
+    undoTimerRef.current = setTimeout(async () => {
+      try {
+        await apiClient.delete(`/posts/${post.id}`);
+        onDelete?.(post.id);
+      } catch {
+        setDeleted(false);
+        toast.error('Error al eliminar');
+      }
+    }, 5500);
+  }, [post.id, onDelete]);
+
   // ---- derived (accept both prop schemas) --------------------------------
 
   const images = (() => {
@@ -126,12 +175,98 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
     ? post.products
     : post.productTag ? [post.productTag] : [];
 
-  const shouldClamp = !expanded && captionText && captionText.length > 140;
+  const shouldClamp = !expanded && captionText && captionText.length > 120;
 
   // ---- render -------------------------------------------------------------
 
+  if (deleted) return null;
+
   return (
-    <article className="border-b border-stone-200 bg-white font-sans">
+    <article className="border-b border-stone-200 bg-white font-sans relative">
+      {/* ---- Options menu ---- */}
+      {showMenu && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+          <div className="absolute right-4 top-12 z-50 bg-white rounded-xl shadow-lg border border-stone-200 py-1 min-w-[180px]">
+            {isOwner && (
+              <>
+                <button
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  onClick={() => { setEditCaption(captionText); setShowEditCaption(true); setShowMenu(false); }}
+                >
+                  <Pencil size={16} /> Editar
+                </button>
+                <button
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
+                >
+                  <Trash2 size={16} /> Eliminar
+                </button>
+              </>
+            )}
+            <button
+              className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+              onClick={() => {
+                navigator.clipboard?.writeText(`${window.location.origin}/posts/${post.id}`);
+                toast.success('Enlace copiado');
+                setShowMenu(false);
+              }}
+            >
+              Copiar enlace
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* ---- Edit caption modal ---- */}
+      {showEditCaption && (
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowEditCaption(false)}>
+          <div className="bg-white w-full max-w-lg rounded-t-2xl p-4 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-stone-950">Editar publicación</span>
+              <button className="bg-transparent border-none cursor-pointer p-1" onClick={() => setShowEditCaption(false)} aria-label="Cerrar"><X size={18} /></button>
+            </div>
+            <textarea
+              value={editCaption}
+              onChange={(e) => setEditCaption(e.target.value.slice(0, 2200))}
+              className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm font-sans resize-none outline-none focus:border-stone-400 min-h-[80px] box-border"
+              aria-label="Editar descripción"
+            />
+            <p className="text-[11px] text-stone-400">La imagen no se puede cambiar tras publicar.</p>
+            <button
+              onClick={handleEditSave}
+              className="w-full bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer hover:bg-stone-800 transition-colors"
+            >
+              Guardar cambios
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ---- Delete confirmation ---- */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-end justify-center" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="bg-white w-full max-w-lg rounded-t-2xl p-5 flex flex-col gap-3 text-center" onClick={(e) => e.stopPropagation()}>
+            <p className="text-base font-semibold text-stone-950">¿Eliminar este post?</p>
+            <p className="text-sm text-stone-500">Se eliminará permanentemente junto con sus comentarios y likes. Esta acción no se puede deshacer.</p>
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 bg-stone-100 text-stone-950 border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 bg-stone-950 text-white border-none rounded-full py-3 text-sm font-semibold cursor-pointer"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ---- Header ---- */}
       <div className="flex items-center gap-2.5 px-4 py-3">
         <div
@@ -167,11 +302,15 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
               <span className="text-[11px] text-stone-500 whitespace-nowrap">{timeAgo(createdAt)}</span>
             </>
           )}
+          {(post.edited || post.is_edited) && (
+            <span className="text-[10px] text-stone-400 italic">· editado</span>
+          )}
         </div>
 
         <button
           className="flex shrink-0 items-center justify-center min-w-[44px] min-h-[44px] p-3 bg-transparent border-none cursor-pointer text-stone-500"
           aria-label="Opciones"
+          onClick={() => setShowMenu((v) => !v)}
         >
           <MoreHorizontal size={20} />
         </button>
@@ -199,6 +338,17 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
               </div>
             ))}
           </div>
+
+          {/* Price pill overlay */}
+          {normalizedProducts.length > 0 && normalizedProducts[0].price != null && (
+            <button
+              className="absolute top-3 right-3 z-[1] flex items-center gap-1 rounded-full bg-stone-950/70 backdrop-blur-sm px-2.5 py-1 border-none cursor-pointer"
+              onClick={(e) => { e.stopPropagation(); navigate(`/product/${normalizedProducts[0].id || normalizedProducts[0].product_id}`); }}
+              aria-label={`Ver producto ${formatPrice(normalizedProducts[0].price)}`}
+            >
+              <span className="text-[11px] font-bold text-white">{formatPrice(normalizedProducts[0].price)}</span>
+            </button>
+          )}
 
           {/* Heart animation overlay */}
           {showHeartAnim && (

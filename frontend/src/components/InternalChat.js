@@ -175,6 +175,9 @@ function MessageBubble({ message, isOwn, onReply }) {
   const pressTimerRef                 = useRef(null);
   const { elRef, handlers: swipeHandlers } = useSwipeToReply(() => onReply?.(message));
 
+  // Cleanup long-press timer on unmount
+  useEffect(() => () => clearTimeout(pressTimerRef.current), []);
+
   const handlePointerDown = () => {
     pressTimerRef.current = setTimeout(() => {
       setShowPicker(true);
@@ -418,15 +421,16 @@ function ComposerActionButton({ icon: Icon, label, onClick, disabled = false, ba
   );
 }
 
+const sharedPriceFormatter = new Intl.NumberFormat('es-ES', {
+  style: 'currency',
+  currency: 'EUR',
+  minimumFractionDigits: 2,
+});
+
 function formatSharedPrice(value) {
   const amount = Number(value);
   if (Number.isNaN(amount)) return null;
-
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(amount);
+  return sharedPriceFormatter.format(amount);
 }
 
 function SharedItemCard({ item, compact = false }) {
@@ -750,6 +754,8 @@ export default function InternalChat({
   const activeConversationRef = useRef(null);
   const messagesCacheRef = useRef(new Map());
   const conversationsReloadTimeoutRef = useRef(null);
+  const markIncomingReadRef = useRef(null);
+  const scheduleReloadRef = useRef(null);
 
   const deferredSearchValue = useDeferredValue(searchValue);
   const deferredDirectorySearchValue = useDeferredValue(directorySearchValue);
@@ -905,6 +911,10 @@ export default function InternalChat({
   useEffect(() => {
     activeConversationRef.current = selectedConversationId;
   }, [selectedConversationId]);
+
+  // Keep refs in sync — avoids WebSocket effect depending on callback identity
+  useEffect(() => { markIncomingReadRef.current = markIncomingMessagesAsRead; }, [markIncomingMessagesAsRead]);
+  useEffect(() => { scheduleReloadRef.current = scheduleReloadConversations; }, [scheduleReloadConversations]);
 
   useEffect(() => {
     if (!selectedConversationId && sortedConversations.length > 0 && !initialChatUserId) {
@@ -1064,7 +1074,7 @@ export default function InternalChat({
               return nextMessages;
             });
           }
-          scheduleReloadConversations();
+          scheduleReloadRef.current?.();
           return;
         }
 
@@ -1072,7 +1082,7 @@ export default function InternalChat({
           const incomingMessage = payload.message;
           const incomingConversation = payload.conversation_id;
 
-          scheduleReloadConversations();
+          scheduleReloadRef.current?.();
 
           if (incomingConversation === activeConversationRef.current && incomingMessage) {
             setMessages((current) => {
@@ -1085,12 +1095,12 @@ export default function InternalChat({
             });
 
             if (incomingMessage.sender_id !== user.user_id) {
-              await markIncomingMessagesAsRead([incomingMessage], incomingConversation);
+              markIncomingReadRef.current?.([incomingMessage], incomingConversation);
             }
           }
         }
-      } catch (error) {
-        console.error('[InternalChat] Error procesando WebSocket', error);
+      } catch {
+        // WebSocket message processing error — silently ignored in production
       }
     };
 
@@ -1102,7 +1112,7 @@ export default function InternalChat({
       socket.close();
       wsRef.current = null;
     };
-  }, [markIncomingMessagesAsRead, scheduleReloadConversations, user?.user_id]);
+  }, [user?.user_id]);
 
   useEffect(() => {
     if (virtuosoRef.current && messages.length > 0) {

@@ -56,7 +56,7 @@ export default function CommunitiesExplorePage() {
     <div className="min-h-screen bg-stone-50">
       {/* ── Topbar ── */}
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
-        <button onClick={() => navigate(-1)} className="flex p-1" aria-label="Volver">
+        <button onClick={() => navigate(-1)} className="flex h-11 w-11 items-center justify-center" aria-label="Volver">
           <ArrowLeft size={22} className="text-stone-950" />
         </button>
         <span className="flex-1 text-[17px] font-bold text-stone-950">Comunidades</span>
@@ -80,10 +80,12 @@ export default function CommunitiesExplorePage() {
           {searchInput && (
             <button
               onClick={() => setSearchInput('')}
-              className="absolute right-3 top-1/2 flex h-5.5 w-5.5 -translate-y-1/2 items-center justify-center rounded-full bg-stone-100"
+              className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center"
               aria-label="Limpiar búsqueda"
             >
-              <X size={13} className="text-stone-500" />
+              <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-stone-100">
+                <X size={13} className="text-stone-500" />
+              </span>
             </button>
           )}
         </div>
@@ -97,7 +99,7 @@ export default function CommunitiesExplorePage() {
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors ${
+              className={`shrink-0 cursor-pointer whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors ${
                 active
                   ? 'border-stone-950 bg-stone-950 text-white'
                   : 'border-stone-200 bg-white text-stone-950'
@@ -215,7 +217,7 @@ const MyCommunityPill = ({ community }) => (
       community.cover_image ? 'bg-stone-100' : stoneBg(community.name)
     }`}>
       {community.cover_image ? (
-        <img src={community.cover_image} alt={community.name || ''} className="h-full w-full object-cover" />
+        <img src={community.cover_image} alt={community.name || ''} loading="lazy" className="h-full w-full object-cover" />
       ) : (
         <span className="text-2xl">{community.emoji || '🌿'}</span>
       )}
@@ -255,7 +257,7 @@ const CommunityCard = ({ community }) => {
         {/* Cover */}
         <div className="relative aspect-[16/7] overflow-hidden">
           {community.cover_image ? (
-            <img src={community.cover_image} alt={community.name || ''} className="block h-full w-full object-cover" />
+            <img src={community.cover_image} alt={community.name || ''} loading="lazy" className="block h-full w-full object-cover" />
           ) : (
             <div className={`flex h-full w-full items-center justify-center text-[32px] ${stoneBg(community.name)}`}>
               {community.emoji || '🌿'}
@@ -285,7 +287,7 @@ const CommunityCard = ({ community }) => {
             whileTap={{ scale: 0.92 }}
             onClick={toggle}
             disabled={isToggling}
-            className={`w-full rounded-full border py-1.5 text-xs font-semibold transition-colors ${
+            className={`w-full cursor-pointer rounded-full border py-1.5 text-xs font-semibold transition-colors ${
               joined
                 ? 'border-stone-200 bg-white text-stone-500'
                 : 'border-stone-950 bg-stone-950 text-white'
@@ -306,7 +308,7 @@ const CommunityRow = ({ community }) => (
       community.cover_image ? 'bg-stone-100' : stoneBg(community.name)
     }`}>
       {community.cover_image ? (
-        <img src={community.cover_image} alt={community.name || ''} className="h-full w-full object-cover" />
+        <img src={community.cover_image} alt={community.name || ''} loading="lazy" className="h-full w-full object-cover" />
       ) : (community.emoji || '🌿')}
     </div>
     <div className="min-w-0 flex-1">

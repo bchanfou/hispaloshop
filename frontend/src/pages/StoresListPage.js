@@ -102,9 +102,14 @@ const sLabel = {
    Map Component (Leaflet)
    ══════════════════════════════════════════ */
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function StoreMap({ stores, onStoreClick }) {
   const mapRef = useRef(null);
-  const [mapReady, setMapReady] = useState(false);
+  const mapInstanceRef = useRef(null);
   const [L, setL] = useState(null);
 
   // Dynamic import of Leaflet (avoid SSR issues)
@@ -120,7 +125,13 @@ function StoreMap({ stores, onStoreClick }) {
   }, []);
 
   useEffect(() => {
-    if (!L || !mapRef.current || mapReady) return;
+    if (!L || !mapRef.current) return;
+
+    // Remove previous map instance when stores change
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
 
     const storesWithCoords = stores.filter(s => s.coordinates?.lat && s.coordinates?.lng);
     const center = storesWithCoords.length > 0
@@ -147,7 +158,7 @@ function StoreMap({ stores, onStoreClick }) {
         return L.divIcon({
           className: '',
           html: `<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:2px solid var(--color-black);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2)">
-            <img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover" />
+            <img src="${escapeHtml(logoUrl)}" style="width:100%;height:100%;object-fit:cover" alt="" />
           </div>`,
           iconSize: [36, 36],
           iconAnchor: [18, 18],
@@ -170,9 +181,9 @@ function StoreMap({ stores, onStoreClick }) {
       const slug = store.slug || store.store_slug;
       marker.bindPopup(`
         <div style="font-family:var(--font-sans);min-width:160px">
-          <p style="font-size:14px;font-weight:600;margin:0 0 4px">${store.name}</p>
-          <p style="font-size:11px;color:#78716c;margin:0 0 8px">${store.location || ''}</p>
-          <a href="/store/${slug}" style="font-size:12px;font-weight:600;color:#0c0a09;text-decoration:none">Ver tienda →</a>
+          <p style="font-size:14px;font-weight:600;margin:0 0 4px">${escapeHtml(store.name)}</p>
+          <p style="font-size:11px;color:#78716c;margin:0 0 8px">${escapeHtml(store.location || '')}</p>
+          <a href="/store/${encodeURIComponent(slug)}" style="font-size:12px;font-weight:600;color:#0c0a09;text-decoration:none">Ver tienda →</a>
         </div>
       `, { closeButton: false, className: 'store-popup' });
     });
@@ -183,8 +194,8 @@ function StoreMap({ stores, onStoreClick }) {
       map.fitBounds(bounds, { padding: [40, 40] });
     }
 
-    setMapReady(true);
-    return () => { map.remove(); setMapReady(false); };
+    mapInstanceRef.current = map;
+    return () => { map.remove(); mapInstanceRef.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [L, stores]);
 
@@ -215,11 +226,12 @@ function StoreCard({ store }) {
   return (
     <Link
       to={`/store/${slug}`}
+      aria-label={`Tienda ${store.name}`}
       style={{
         display: 'block', textDecoration: 'none',
         borderRadius: 'var(--radius-xl)', overflow: 'hidden',
         background: 'var(--color-white)',
-        border: '0.5px solid var(--color-border)',
+        border: '1px solid var(--color-border)',
         transition: 'var(--transition-fast)',
       }}
     >
@@ -277,6 +289,7 @@ function FeaturedCard({ store }) {
   return (
     <Link
       to={`/store/${slug}`}
+      aria-label={`Tienda destacada: ${store.name}`}
       style={{
         flexShrink: 0, width: 260, textDecoration: 'none',
         borderRadius: 'var(--radius-xl)', overflow: 'hidden',
@@ -342,12 +355,15 @@ export default function StoresListPage() {
 
   /* ── fetch elite stores ── */
   useEffect(() => {
+    let active = true;
     apiClient.get(`/stores?plan=elite&country=${userCountry}&limit=10`)
       .then(data => {
+        if (!active) return;
         const list = Array.isArray(data) ? data : data?.stores || [];
         setEliteStores(list);
       })
-      .catch(() => {});
+      .catch(() => { /* elite section gracefully hidden */ });
+    return () => { active = false; };
   }, [userCountry]);
 
   /* ── infinite scroll ── */
@@ -483,7 +499,7 @@ export default function StoresListPage() {
             onChange={e => setSearchQuery(e.target.value)}
             style={{
               width: '100%', height: 44, borderRadius: 'var(--radius-full)',
-              border: '0.5px solid var(--color-border)', background: 'var(--color-white)',
+              border: '1px solid var(--color-border)', background: 'var(--color-white)',
               paddingLeft: 42, paddingRight: searchQuery ? 40 : 16,
               fontSize: 14, fontFamily: 'var(--font-sans)', color: 'var(--color-black)', outline: 'none',
             }}
@@ -501,11 +517,11 @@ export default function StoresListPage() {
 
         {/* ── REGION PILLS ── */}
         <div className="scrollbar-hide" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 8, paddingBottom: 4, scrollbarWidth: 'none' }}>
-          <button onClick={() => { setActiveRegion(null); setActiveCountry(null); }} style={pill(!activeRegion)}>
+          <button onClick={() => { setActiveRegion(null); setActiveCountry(null); }} aria-pressed={!activeRegion} style={pill(!activeRegion)}>
             Todas
           </button>
           {availableRegions.map(r => (
-            <button key={r.id} onClick={() => handleRegionClick(r.id)} style={pill(activeRegion === r.id)}>
+            <button key={r.id} onClick={() => handleRegionClick(r.id)} aria-pressed={activeRegion === r.id} style={pill(activeRegion === r.id)}>
               {r.emoji} {r.label}
             </button>
           ))}
@@ -518,12 +534,13 @@ export default function StoresListPage() {
               <button
                 key={c.code}
                 onClick={() => handleCountryClick(c.code)}
+                aria-pressed={activeCountry === c.code}
                 style={{
                   flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4,
                   padding: '5px 12px', borderRadius: 'var(--radius-full)',
                   fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-sans)',
                   cursor: 'pointer', transition: 'var(--transition-fast)',
-                  border: activeCountry === c.code ? 'none' : '0.5px solid var(--color-border)',
+                  border: activeCountry === c.code ? 'none' : '1px solid var(--color-border)',
                   background: activeCountry === c.code ? 'var(--color-black)' : 'var(--color-surface)',
                   color: activeCountry === c.code ? '#fff' : 'var(--color-black)',
                 }}
@@ -546,10 +563,10 @@ export default function StoresListPage() {
                   {filteredStores.slice(0, 8).map(store => {
                     const slug = store.slug || store.store_slug;
                     return (
-                      <Link key={store.store_id || slug} to={`/store/${slug}`} style={{
+                      <Link key={store.store_id || slug} to={`/store/${slug}`} aria-label={`Tienda ${store.name}`} style={{
                         display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px',
                         background: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
-                        border: '0.5px solid var(--color-border)', textDecoration: 'none',
+                        border: '1px solid var(--color-border)', textDecoration: 'none',
                       }}>
                         {store.logo ? (
                           <img src={store.logo} alt={store.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />

@@ -40,7 +40,7 @@ function FollowedStoreCard({ store, onUnfollow }) {
         )}
         {/* Logo */}
         {store.logo_url && (
-          <div className="absolute -bottom-6 left-4 w-12 h-12 rounded-full border-3 border-white bg-white overflow-hidden shadow-sm">
+          <div className="absolute -bottom-6 left-4 w-12 h-12 rounded-full border-[3px] border-white bg-white overflow-hidden shadow-sm">
             <img src={store.logo_url} alt={store.name} className="w-full h-full object-cover" />
           </div>
         )}
@@ -123,19 +123,13 @@ export default function CustomerFollowedStores() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchFollowedStores();
-  }, []);
-
-  const fetchFollowedStores = async () => {
-    try {
-      const data = await apiClient.get('/customer/followed-stores');
-      setStores(data || []);
-    } catch (error) {
-      toast.error(t('common.error'));
-    } finally {
-      setLoading(false);
-    }
-  };
+    let active = true;
+    apiClient.get('/customer/followed-stores')
+      .then(data => { if (active) setStores(data || []); })
+      .catch(() => { if (active) toast.error(t('common.error')); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [t]);
 
   const handleUnfollow = (storeId) => {
     setStores(prev => prev.filter(s => s.store_id !== storeId));

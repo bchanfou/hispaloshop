@@ -25,7 +25,7 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
       role="button"
       tabIndex={0}
       aria-label={isSelf ? 'Crear tu historia' : `Ver historia de ${label}`}
-      className="flex flex-col items-center gap-1 cursor-pointer w-[68px] shrink-0"
+      className="flex flex-col items-center gap-1 cursor-pointer w-[68px] shrink-0 transition-transform duration-150 hover:scale-105 active:scale-95"
     >
       <div
         className={`w-[62px] h-[62px] rounded-full overflow-hidden flex items-center justify-center ${ringClass}`}

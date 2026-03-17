@@ -799,8 +799,7 @@ export default function CustomerProfile() {
               </div>
               {user?.capabilities?.includes('affiliate') ? (
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                    style={{ background: 'var(--color-surface)', color: 'var(--color-black)' }}>
+                  <span className="inline-flex items-center rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-semibold text-stone-950">
                     ✓ Activado
                   </span>
                   <a href="/influencer/dashboard" className="text-sm font-medium text-stone-950 hover:underline">

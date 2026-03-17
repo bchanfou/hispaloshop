@@ -1,18 +1,18 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, Play, Pause } from 'lucide-react';
+import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
 const FILTERS = [
-  { name: 'Normal', value: 'none' },
-  { name: 'Clarendon', value: 'contrast(1.2) saturate(1.35)' },
-  { name: 'Gingham', value: 'brightness(1.05) sepia(0.12)' },
-  { name: 'Moon', value: 'grayscale(1) contrast(1.1) brightness(1.1)' },
-  { name: 'Lark', value: 'contrast(0.9) brightness(1.15) saturate(1.2)' },
-  { name: 'Reyes', value: 'sepia(0.22) brightness(1.1) contrast(0.85)' },
-  { name: 'Juno', value: 'contrast(1.15) saturate(1.4) brightness(1.05)' },
-  { name: 'Ludwig', value: 'contrast(1.05) saturate(0.9) sepia(0.08)' },
+  { name: 'Natural', emoji: '✨', value: 'none' },
+  { name: 'Amanecer', emoji: '🌅', value: 'sepia(0.25) saturate(1.3) brightness(1.08)' },
+  { name: 'Lonja', emoji: '🌊', value: 'hue-rotate(10deg) saturate(1.15) brightness(1.05) contrast(1.05)' },
+  { name: 'Huerta', emoji: '🌿', value: 'saturate(1.35) contrast(1.05) brightness(1.03)' },
+  { name: 'Miel', emoji: '🍯', value: 'sepia(0.2) saturate(1.2) brightness(1.1)' },
+  { name: 'Trufa', emoji: '🌑', value: 'contrast(1.25) brightness(0.88) saturate(1.1)' },
+  { name: 'Mate', emoji: '🪨', value: 'saturate(0.75) brightness(1.1) contrast(0.95)' },
+  { name: 'Antiguo', emoji: '📜', value: 'sepia(0.45) saturate(0.8) brightness(1.05)' },
 ];
 
 const SPEED_OPTIONS = [0.3, 0.5, 1, 2, 3];
@@ -50,6 +50,10 @@ export default function CreateReelPage() {
   const [caption, setCaption] = useState('');
   const [thumbnailIndex, setThumbnailIndex] = useState(0);
   const [publishing, setPublishing] = useState(false);
+  const [location, setLocation] = useState('');
+  const [audience, setAudience] = useState('public');
+
+  const [isMuted, setIsMuted] = useState(true);
 
   const videoRef = useRef(null);
   const videoPreviewRef = useRef(null);
@@ -182,6 +186,8 @@ export default function CreateReelPage() {
       fd.append('type', 'reel');
       fd.append('media', videoFile);
       fd.append('caption', caption);
+      if (location.trim()) fd.append('location', location.trim());
+      fd.append('audience', audience);
       fd.append(
         'metadata',
         JSON.stringify({
@@ -324,7 +330,7 @@ export default function CreateReelPage() {
             src={videoUrl}
             loop
             playsInline
-            muted
+            muted={isMuted}
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             className="w-full h-full object-cover"
@@ -332,6 +338,15 @@ export default function CreateReelPage() {
               filter: activeFilter === 'none' ? 'none' : activeFilter,
             }}
           />
+
+          {/* Mute toggle */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setIsMuted((m) => !m); }}
+            className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/50 border-none cursor-pointer flex items-center justify-center"
+            aria-label={isMuted ? 'Activar audio' : 'Silenciar audio'}
+          >
+            {isMuted ? <VolumeX size={16} className="text-white" /> : <Volume2 size={16} className="text-white" />}
+          </button>
 
           {/* Text overlays */}
           {textOverlays.map((t) => (
@@ -549,7 +564,7 @@ export default function CreateReelPage() {
                     className="w-10 h-10 rounded-lg bg-stone-600"
                     style={{ filter: f.value === 'none' ? 'none' : f.value }}
                   />
-                  <span className="text-[10px] text-white font-medium">{f.name}</span>
+                  <span className="text-[10px] text-white font-medium">{f.emoji} {f.name}</span>
                 </button>
               ))}
             </div>
@@ -616,6 +631,42 @@ export default function CreateReelPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Location */}
+        <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5">
+          <MapPin size={16} className="text-stone-400 shrink-0" />
+          <input
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Añadir ubicación..."
+            aria-label="Ubicación"
+            className="flex-1 bg-transparent border-none outline-none text-[13px] font-sans text-stone-950 placeholder:text-stone-400"
+          />
+        </div>
+
+        {/* Audience toggle */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setAudience('public')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-medium cursor-pointer transition-all ${
+              audience === 'public'
+                ? 'bg-stone-950 text-white border-2 border-stone-950'
+                : 'bg-transparent text-stone-950 border-[1.5px] border-stone-200'
+            }`}
+          >
+            <Globe size={14} /> Público
+          </button>
+          <button
+            onClick={() => setAudience('followers')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full text-[13px] font-medium cursor-pointer transition-all ${
+              audience === 'followers'
+                ? 'bg-stone-950 text-white border-2 border-stone-950'
+                : 'bg-transparent text-stone-950 border-[1.5px] border-stone-200'
+            }`}
+          >
+            <Lock size={14} /> Solo seguidores
+          </button>
         </div>
 
         {/* Video preview small */}

@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Search, SlidersHorizontal, Truck, X } from 'lucide-react';
-import BackButton from '../components/BackButton';
 import Breadcrumbs from '../components/Breadcrumbs';
 import CategoryNav from '../components/CategoryNav';
-import Footer from '../components/Footer';
-import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
 import { getCategoryLabel, productMatchesCategory } from '../config/categories';
 import { useLocale } from '../context/LocaleContext';
@@ -95,6 +93,22 @@ export default function ProductsPage() {
     };
   }, [showMobileFilters]);
 
+  // Debounce search URL sync
+  const searchTimerRef = useRef(null);
+  const debouncedSearchSync = useCallback((value) => {
+    clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      const nextParams = new URLSearchParams(searchParams);
+      if (value) nextParams.set('search', value);
+      else nextParams.delete('search');
+      setSearchParams(nextParams);
+    }, 350);
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    return () => clearTimeout(searchTimerRef.current);
+  }, []);
+
   const queryFilters = useMemo(
     () => ({
       country,
@@ -132,7 +146,7 @@ export default function ProductsPage() {
     label: t(`certifications.${id}`, id),
   }));
   const allCountries = COUNTRY_GROUPS.flatMap((group) => group.countries);
-  const currencySymbol = currency === 'USD' ? '$' : currency === 'KRW' ? 'KRW' : 'EUR';
+  const currencySymbol = currency === 'USD' ? '$' : currency === 'KRW' ? '₩' : '€';
 
   const updateSearchParams = (updates) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -201,10 +215,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      <Header />
-
       <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
-        <BackButton />
         <Breadcrumbs className="mb-4" />
 
         <section className="mb-8 rounded-[28px] border border-stone-100 bg-white px-5 py-5 shadow-sm md:px-6">
@@ -215,7 +226,7 @@ export default function ProductsPage() {
                 {t('products.title', 'Productos')}
               </h1>
               <p className="mt-2 text-sm text-stone-500">
-                Descubrimiento limpio, filtros serenos y producto presentado con más aire.
+                {t('products.subtitle', 'Alimentación saludable y local de productores verificados.')}
               </p>
             </div>
 
@@ -230,7 +241,7 @@ export default function ProductsPage() {
                     onChange={(event) => {
                       const nextValue = event.target.value;
                       setFilters((prev) => ({ ...prev, search: nextValue }));
-                      updateSearchParams({ search: nextValue });
+                      debouncedSearchSync(nextValue);
                     }}
                     className="h-11 rounded-full border border-stone-200 bg-stone-50 pl-9 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 focus:ring-1 focus:ring-stone-300 w-full"
                     aria-label={t('products.searchPlaceholder', 'Buscar productos')}
@@ -371,26 +382,26 @@ export default function ProductsPage() {
         {hasActiveFilters ? (
           <div className="mb-4 flex flex-wrap gap-2">
             {filters.category ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700">
+              <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700">
                 {getCategoryLabel(filters.category)}
-                <button type="button" onClick={() => setCategoryFilter(filters.category)} className="rounded-full p-0.5 hover:bg-stone-100" aria-label="Quitar filtro de categoría">
+                <button type="button" onClick={() => setCategoryFilter(filters.category)} className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-stone-100" aria-label="Quitar filtro de categoría">
                   <X className="h-3 w-3" />
                 </button>
               </span>
             ) : null}
             {filters.freeShipping ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1.5 text-xs font-medium text-white">
+              <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-stone-950 px-3 py-1.5 text-xs font-medium text-white">
                 <Truck className="h-3 w-3" />
                 {t('products.freeShipping', 'Envío gratis')}
-                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, freeShipping: false }))} className="rounded-full p-0.5 hover:bg-white/10" aria-label="Quitar filtro de envío gratis">
+                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, freeShipping: false }))} className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-white/10" aria-label="Quitar filtro de envío gratis">
                   <X className="h-3 w-3" />
                 </button>
               </span>
             ) : null}
             {filters.origin_country ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700">
+              <span className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700">
                 {allCountries.find((item) => item.code === filters.origin_country)?.name || filters.origin_country}
-                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, origin_country: '' }))} className="rounded-full p-0.5 hover:bg-stone-100" aria-label="Quitar filtro de país">
+                <button type="button" onClick={() => setFilters((prev) => ({ ...prev, origin_country: '' }))} className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-stone-100" aria-label="Quitar filtro de país">
                   <X className="h-3 w-3" />
                 </button>
               </span>
@@ -450,18 +461,57 @@ export default function ProductsPage() {
         )}
       </div>
 
+      <AnimatePresence>
       {showMobileFilters ? (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowMobileFilters(false)} />
-          <div className="absolute bottom-0 right-0 top-0 flex w-[320px] max-w-[85vw] flex-col bg-white shadow-2xl">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowMobileFilters(false)}
+          />
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="absolute bottom-0 right-0 top-0 flex w-[320px] max-w-[85vw] flex-col bg-white shadow-2xl"
+          >
             <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
               <h2 className="text-lg font-semibold text-stone-950">{t('products.filters', 'Filtros')}</h2>
-              <button type="button" onClick={() => setShowMobileFilters(false)} className="rounded-full p-1.5 transition-colors hover:bg-stone-100" aria-label="Cerrar filtros">
+              <button type="button" onClick={() => setShowMobileFilters(false)} className="flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-stone-100" aria-label="Cerrar filtros">
                 <X className="h-5 w-5 text-stone-500" />
               </button>
             </div>
 
             <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
+              {/* Sort (mobile only) */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
+                  {t('products.sortLabel', 'Ordenar')}
+                </p>
+                <div className="relative">
+                  <select
+                    value={filters.sort}
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setFilters((prev) => ({ ...prev, sort: nextValue }));
+                      updateSearchParams({ sort: nextValue === 'relevance' ? '' : nextValue });
+                    }}
+                    className="w-full appearance-none rounded-full border border-stone-200 bg-white px-4 py-2.5 pr-8 text-sm outline-none focus:border-stone-950"
+                    aria-label={t('products.sortLabel', 'Ordenar productos')}
+                  >
+                    {SORT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {t(`products.sort.${option.value}`, option.label)}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={() => setFilters((prev) => ({ ...prev, freeShipping: !prev.freeShipping }))}
@@ -526,11 +576,11 @@ export default function ProductsPage() {
                 {t('products.applyFilters', 'Aplicar')} ({products.length})
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       ) : null}
+      </AnimatePresence>
 
-      <Footer />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Type, Tag, Check } from 'lucide-react';
+import { X, Type, Tag, Check, Search, ShoppingBag } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -57,6 +57,9 @@ export default function CreateStoryPage() {
   const [textSize, setTextSize] = useState(24);
   const [stickerTab, setStickerTab] = useState('culinarios');
   const [publishing, setPublishing] = useState(false);
+  const [productQuery, setProductQuery] = useState('');
+  const [productResults, setProductResults] = useState([]);
+  const [productSearching, setProductSearching] = useState(false);
 
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);

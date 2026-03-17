@@ -306,13 +306,12 @@ export default function ProductDetailPage() {
         <div
           ref={galleryRef}
           onScroll={handleGalleryScroll}
-          className="flex overflow-x-auto [scroll-snap-type:x_mandatory] [scrollbar-width:none] [-webkit-overflow-scrolling:touch]"
+          className="flex overflow-x-auto scrollbar-hide [scroll-snap-type:x_mandatory] [-webkit-overflow-scrolling:touch]"
         >
           {(images.length > 0 ? images : [primaryImage]).map((img, i) => (
             <div
               key={img || i}
-              className="relative w-full flex-[0_0_100%] [scroll-snap-align:start]"
-              style={{ paddingTop: '100%' }}
+              className="relative aspect-square w-full flex-[0_0_100%] [scroll-snap-align:start]"
             >
               <div className="absolute inset-0">
                 <ProductImage
@@ -931,7 +930,7 @@ export default function ProductDetailPage() {
           <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">
             {t('productDetail.relatedProducts', 'Productos relacionados')}
           </h2>
-          <div className="flex gap-3 overflow-x-auto px-4 [scroll-snap-type:x_mandatory] [scrollbar-width:none]">
+          <div className="flex gap-3 overflow-x-auto px-4 scrollbar-hide [scroll-snap-type:x_mandatory]">
             {relatedProducts.map((rp) => {
               const rpId = rp.product_id || rp.id;
               const rpImage = rp.images?.[0] || rp.image_url || null;

@@ -17,21 +17,11 @@ export default function EditProfilePage() {
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [usernameStatus, setUsernameStatus] = useState(null); // null | 'checking' | 'available' | 'taken'
+  const [usernameStatus, setUsernameStatus] = useState(null);
   const usernameTimerRef = useRef(null);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
-  const font = { fontFamily: 'var(--font-sans)' };
-
-  useEffect(() => {
-    const id = 'hsp-spin-keyframes';
-    if (!document.getElementById(id)) {
-      const s = document.createElement('style');
-      s.id = id;
-      s.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
-      document.head.appendChild(s);
-    }
-  }, []);
+  const canSave = hasChanges() && !saving && usernameStatus !== 'taken';
 
   /* cleanup username debounce timer on unmount */
   useEffect(() => {
@@ -55,7 +45,7 @@ export default function EditProfilePage() {
 
   const originalUsername = user?.username || '';
 
-  const hasChanges = () => {
+  function hasChanges() {
     if (avatarFile) return true;
     if (form.name !== (user?.name || user?.full_name || '')) return true;
     if (form.username !== originalUsername) return true;
@@ -67,7 +57,7 @@ export default function EditProfilePage() {
       if (form.store_description !== (user?.store_description || '')) return true;
     }
     return false;
-  };
+  }
 
   const handleUsernameChange = useCallback((val) => {
     const clean = val.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
@@ -93,7 +83,6 @@ export default function EditProfilePage() {
   const handleAvatarSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Revoke previous blob preview URL to prevent memory leak
     if (avatarPreview && avatarPreview.startsWith('blob:')) URL.revokeObjectURL(avatarPreview);
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
@@ -112,7 +101,6 @@ export default function EditProfilePage() {
     try {
       let avatarUrl = user?.avatar_url || user?.avatar;
 
-      // Upload avatar if changed
       if (avatarFile) {
         const formData = new FormData();
         formData.append('file', avatarFile);
@@ -148,117 +136,97 @@ export default function EditProfilePage() {
     }
   };
 
+  const usernameBorderClass = usernameStatus === 'taken'
+    ? 'border-stone-500'
+    : usernameStatus === 'available'
+      ? 'border-stone-950'
+      : 'border-stone-200';
+
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div className="min-h-screen bg-stone-50">
       {/* Topbar */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
-        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-      }}>
-        <button onClick={() => navigate('/settings')}
+      <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
+        <button
+          onClick={() => navigate('/settings')}
           aria-label="Volver a ajustes"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 11, display: 'flex' }}>
-          <ArrowLeft size={22} color="var(--color-black)" />
+          className="flex p-2.5"
+        >
+          <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1, textAlign: 'center' }}>
+        <span className="flex-1 text-center text-[17px] font-bold text-stone-950">
           Editar perfil
         </span>
         <button
           onClick={handleSave}
-          disabled={!hasChanges() || saving || usernameStatus === 'taken'}
-          style={{
-            padding: '6px 16px', borderRadius: 'var(--radius-full, 999px)',
-            background: hasChanges() && !saving && usernameStatus !== 'taken' ? 'var(--color-black)' : 'var(--color-surface)',
-            color: hasChanges() && !saving && usernameStatus !== 'taken' ? 'var(--color-white)' : 'var(--color-stone)',
-            fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer', ...font,
-          }}
+          disabled={!canSave}
+          className={`rounded-full px-4 py-1.5 text-[13px] font-semibold transition-all duration-150 ${
+            canSave
+              ? 'bg-stone-950 text-white'
+              : 'bg-stone-100 text-stone-500'
+          } disabled:opacity-50`}
         >
-          {saving ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : 'Guardar'}
+          {saving ? <Loader2 size={16} className="animate-spin" /> : 'Guardar'}
         </button>
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px 100px' }}>
+      <div className="mx-auto max-w-[600px] px-4 pb-24 pt-6">
         {/* ── Avatar ── */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+        <div className="mb-8 flex justify-center">
           <div
             onClick={() => fileRef.current?.click()}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileRef.current?.click(); } }}
             role="button"
             tabIndex={0}
             aria-label="Cambiar foto de perfil"
-            style={{
-              width: 88, height: 88, borderRadius: '50%',
-              background: 'var(--color-surface)', overflow: 'hidden',
-              position: 'relative', cursor: 'pointer',
-            }}
+            className="group relative h-[88px] w-[88px] cursor-pointer overflow-hidden rounded-full bg-stone-100"
           >
             {avatarPreview ? (
-              <img src={avatarPreview} alt="Foto de perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={avatarPreview} alt="Foto de perfil" className="h-full w-full object-cover" />
             ) : (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Camera size={28} color="var(--color-stone)" />
+              <div className="flex h-full w-full items-center justify-center">
+                <Camera size={28} className="text-stone-500" />
               </div>
             )}
-            {/* Overlay */}
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '50%',
-              background: 'rgba(0,0,0,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              opacity: 0, transition: 'opacity 200ms',
-            }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '1'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '0'}
-            >
-              <Camera size={24} color="var(--color-white)" />
+            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <Camera size={24} className="text-white" />
             </div>
           </div>
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarSelect} style={{ display: 'none' }} />
+          <input ref={fileRef} type="file" accept="image/*" onChange={handleAvatarSelect} className="hidden" />
         </div>
 
         {/* ── Form Fields ── */}
         <FormField label="Nombre completo" value={form.name}
           onChange={v => setForm(f => ({ ...f, name: v }))} />
 
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, display: 'block', ...font }}>
+        <div className="mb-5">
+          <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">
             Usuario
           </label>
-          <div style={{ position: 'relative' }}>
-            <span style={{
-              position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
-              fontSize: 14, color: 'var(--color-stone)', pointerEvents: 'none',
-            }}>@</span>
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-stone-500">@</span>
             <input
               value={form.username}
               onChange={e => handleUsernameChange(e.target.value)}
               maxLength={30}
-              style={{
-                width: '100%', height: 44, paddingLeft: 30, paddingRight: 36,
-                border: `1px solid ${usernameStatus === 'taken' ? 'var(--color-stone)' : usernameStatus === 'available' ? 'var(--color-black)' : 'var(--color-border)'}`,
-                borderRadius: 'var(--radius-lg)',
-                fontSize: 14, color: 'var(--color-black)',
-                outline: 'none', boxSizing: 'border-box', ...font,
-              }}
+              className={`h-11 w-full rounded-lg border pl-[30px] pr-9 text-sm text-stone-950 outline-none ${usernameBorderClass}`}
             />
             {usernameStatus === 'checking' && (
-              <Loader2 size={16} color="var(--color-stone)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', animation: 'spin 1s linear infinite' }} />
+              <Loader2 size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin text-stone-500" />
             )}
             {usernameStatus === 'available' && (
-              <Check size={16} color="var(--color-black)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
+              <Check size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-950" />
             )}
             {usernameStatus === 'taken' && (
-              <X size={16} color="var(--color-stone)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
+              <X size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
             )}
           </div>
           {usernameStatus === 'taken' && (
-            <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '4px 0 0', ...font }}>Este usuario ya está en uso</p>
+            <p className="mt-1 text-xs text-stone-500">Este usuario ya está en uso</p>
           )}
         </div>
 
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, display: 'block', ...font }}>
+        <div className="mb-5">
+          <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">
             Biografía
           </label>
           <textarea
@@ -267,16 +235,9 @@ export default function EditProfilePage() {
             maxLength={150}
             placeholder="Cuéntanos sobre ti..."
             rows={3}
-            style={{
-              width: '100%', padding: '10px 14px',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-lg)',
-              fontSize: 14, color: 'var(--color-black)',
-              outline: 'none', resize: 'none', boxSizing: 'border-box',
-              lineHeight: 1.5, ...font,
-            }}
+            className="w-full resize-none rounded-lg border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
           />
-          <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '4px 0 0', textAlign: 'right', ...font }}>
+          <p className="mt-1 text-right text-[11px] text-stone-500">
             {form.bio.length}/150
           </p>
         </div>
@@ -290,11 +251,8 @@ export default function EditProfilePage() {
         {/* ── Producer Fields ── */}
         {isProducer && (
           <>
-            <div style={{
-              borderTop: '1px solid var(--color-border)',
-              marginTop: 8, paddingTop: 20,
-            }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-stone)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 16px', ...font }}>
+            <div className="mt-2 border-t border-stone-200 pt-5">
+              <p className="mb-4 text-[11px] font-bold uppercase tracking-widest text-stone-500">
                 Datos de empresa
               </p>
             </div>
@@ -302,15 +260,11 @@ export default function EditProfilePage() {
             <FormField label="Nombre de la empresa" value={form.company_name}
               onChange={v => setForm(f => ({ ...f, company_name: v }))} />
 
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8, ...font }}>
+            <div className="mb-5">
+              <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-stone-950">
                 CIF/NIF empresa
                 {user?.is_verified && (
-                  <span style={{
-                    fontSize: 10, fontWeight: 700, padding: '2px 8px',
-                    borderRadius: 'var(--radius-full, 999px)',
-                    background: 'var(--color-surface)', color: 'var(--color-black)',
-                  }}>
+                  <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold text-stone-950">
                     Verificado ✓
                   </span>
                 )}
@@ -318,19 +272,16 @@ export default function EditProfilePage() {
               <input
                 value={form.company_cif}
                 readOnly={!!user?.is_verified}
-                style={{
-                  width: '100%', height: 44, padding: '0 14px',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-lg)',
-                  fontSize: 14, color: user?.is_verified ? 'var(--color-stone)' : 'var(--color-black)',
-                  outline: 'none', boxSizing: 'border-box',
-                  background: user?.is_verified ? 'var(--color-surface)' : 'var(--color-white)', ...font,
-                }}
+                className={`h-11 w-full rounded-lg border border-stone-200 px-3.5 text-sm outline-none ${
+                  user?.is_verified
+                    ? 'bg-stone-100 text-stone-500'
+                    : 'bg-white text-stone-950'
+                }`}
               />
             </div>
 
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, display: 'block', ...font }}>
+            <div className="mb-5">
+              <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">
                 Descripción de la tienda
               </label>
               <textarea
@@ -339,31 +290,23 @@ export default function EditProfilePage() {
                 maxLength={500}
                 placeholder="Describe tu tienda, tus productos, tu historia..."
                 rows={4}
-                style={{
-                  width: '100%', padding: '10px 14px',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-lg)',
-                  fontSize: 14, color: 'var(--color-black)',
-                  outline: 'none', resize: 'none', boxSizing: 'border-box',
-                  lineHeight: 1.5, ...font,
-                }}
+                className="w-full resize-none rounded-lg border border-stone-200 px-3.5 py-2.5 text-sm leading-relaxed text-stone-950 outline-none placeholder:text-stone-400"
               />
-              <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '4px 0 0', textAlign: 'right', ...font }}>
+              <p className="mt-1 text-right text-[11px] text-stone-500">
                 {form.store_description.length}/500
               </p>
             </div>
           </>
         )}
       </div>
-
     </div>
   );
 }
 
 function FormField({ label, value, onChange, type = 'text', placeholder }) {
   return (
-    <div style={{ marginBottom: 20 }}>
-      <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', marginBottom: 6, display: 'block', fontFamily: 'var(--font-sans)' }}>
+    <div className="mb-5">
+      <label className="mb-1.5 block text-[13px] font-semibold text-stone-950">
         {label}
       </label>
       <input
@@ -371,14 +314,7 @@ function FormField({ label, value, onChange, type = 'text', placeholder }) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        style={{
-          width: '100%', height: 44, padding: '0 14px',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
-          fontSize: 14, color: 'var(--color-black)',
-          outline: 'none', boxSizing: 'border-box',
-          fontFamily: 'var(--font-sans)',
-        }}
+        className="h-11 w-full rounded-lg border border-stone-200 px-3.5 text-sm text-stone-950 outline-none placeholder:text-stone-400"
       />
     </div>
   );

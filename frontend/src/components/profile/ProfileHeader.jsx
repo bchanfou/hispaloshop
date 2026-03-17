@@ -90,7 +90,6 @@ export default function ProfileHeader({
     } catch {
       /* ignore */
     }
-    // Fallback: show current user only
     return [
       {
         token: localStorage.getItem('hsp_token') || '',
@@ -133,123 +132,62 @@ export default function ProfileHeader({
 
   /* ── derived ───────────────────────────────────────────────────── */
 
-  const showStoreButton =
-    !isOwn && (user?.role === 'producer' || user?.role === 'importer');
+  const showStoreButton = !isOwn && (user?.role === 'producer' || user?.role === 'importer');
   const roleLabel = ROLE_LABELS[user?.role];
   const bioTruncated =
     user?.bio && user.bio.length > 150 && !bioExpanded
       ? user.bio.slice(0, 150) + '...'
       : user?.bio;
 
-  /* ── highlights placeholder ────────────────────────────────────── */
-
-  const highlights = []; // TODO: fetch or receive via props
+  const highlights = [];
 
   /* ================================================================
      RENDER
      ================================================================ */
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)' }}>
+    <div>
       {/* ── 1. TOPBAR ────────────────────────────────────────────── */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 40,
-          height: 52,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 12px',
-          background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
-        }}
-      >
+      <div className="sticky top-0 z-40 flex h-[52px] items-center justify-between border-b border-stone-200 bg-white px-3">
         {isOwn ? (
           <>
-            {/* spacer */}
-            <div style={{ width: 40 }} />
-
-            {/* username dropdown */}
+            <div className="w-10" />
             <button
               onClick={() => setShowAccountSwitcher(true)}
               aria-label="Cambiar cuenta"
               aria-expanded={showAccountSwitcher}
               aria-haspopup="dialog"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: 15,
-                fontWeight: 600,
-                color: 'var(--color-black)',
-                fontFamily: 'var(--font-sans)',
-              }}
+              className="flex items-center gap-1 text-[15px] font-semibold text-stone-950"
             >
               @{user?.username}
               <ChevronDown size={14} />
             </button>
-
-            {/* settings */}
             <button
               onClick={() => navigate('/settings')}
               aria-label="Ajustes"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 11,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className="flex items-center justify-center p-2.5"
             >
-              <Settings size={22} color="var(--color-stone)" />
+              <Settings size={22} className="text-stone-500" />
             </button>
           </>
         ) : (
           <>
-            {/* back */}
             <button
               onClick={() => navigate(-1)}
               aria-label="Volver"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 11,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className="flex items-center justify-center p-2.5"
             >
-              <ChevronLeft size={22} color="var(--color-black)" />
+              <ChevronLeft size={22} className="text-stone-950" />
             </button>
-
-            {/* username */}
-            <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>
+            <span className="text-[15px] font-semibold text-stone-950">
               @{user?.username}
             </span>
-
-            {/* more */}
             <button
               onClick={() => setShowOptionsSheet(true)}
               aria-label="Más opciones"
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 11,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className="flex items-center justify-center p-2.5"
             >
-              <MoreHorizontal size={22} color="var(--color-black)" />
+              <MoreHorizontal size={22} className="text-stone-950" />
             </button>
           </>
         )}
@@ -266,12 +204,7 @@ export default function ProfileHeader({
               animate="visible"
               exit="hidden"
               onClick={() => setShowAccountSwitcher(false)}
-              style={{
-                position: 'fixed',
-                inset: 0,
-                background: 'rgba(0,0,0,0.4)',
-                zIndex: 9998,
-              }}
+              className="fixed inset-0 z-[9998] bg-black/40"
             />
             <motion.div
               key="as-sheet"
@@ -282,29 +215,10 @@ export default function ProfileHeader({
               role="dialog"
               aria-modal="true"
               aria-label="Cambiar cuenta"
-              style={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                zIndex: 9999,
-                background: 'var(--color-white)',
-                borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
-                padding: '16px 20px 32px',
-              }}
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white px-5 pb-8 pt-4"
             >
-              {/* handle */}
-              <div
-                style={{
-                  width: 36,
-                  height: 4,
-                  background: 'var(--color-border)',
-                  borderRadius: 'var(--radius-full)',
-                  margin: '0 auto 20px',
-                }}
-              />
-
-              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>Cuentas</div>
+              <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
+              <div className="mb-4 text-base font-semibold">Cuentas</div>
 
               {accounts.map((acc) => {
                 const isActive = acc.user_id === currentUserId;
@@ -318,92 +232,35 @@ export default function ProfileHeader({
                       }
                       setShowAccountSwitcher(false);
                     }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      width: '100%',
-                      padding: '10px 0',
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      fontFamily: 'var(--font-sans)',
-                    }}
+                    className="flex w-full items-center gap-3 py-2.5 text-left"
                   >
                     <img
                       src={acc.avatar_url || '/default-avatar.png'}
                       alt={acc.username}
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                      }}
+                      className="h-11 w-11 rounded-full object-cover"
                     />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: 'var(--color-black)',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {acc.name}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--color-stone)' }}>
-                        @{acc.username}
-                      </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-stone-950">{acc.name}</div>
+                      <div className="text-xs text-stone-500">@{acc.username}</div>
                     </div>
                     {acc.role && (
-                      <span
-                        style={{
-                          fontSize: 10,
-                          background: 'var(--color-surface)',
-                          padding: '2px 8px',
-                          borderRadius: 'var(--radius-full)',
-                          textTransform: 'uppercase',
-                          color: 'var(--color-stone)',
-                          fontWeight: 500,
-                        }}
-                      >
+                      <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium uppercase text-stone-500">
                         {ROLE_LABELS[acc.role] || acc.role}
                       </span>
                     )}
-                    {isActive && <Check size={18} color="var(--color-black)" />}
+                    {isActive && <Check size={18} className="text-stone-950" />}
                   </button>
                 );
               })}
 
-              <div
-                style={{
-                  height: 1,
-                  background: 'var(--color-border)',
-                  margin: '12px 0',
-                }}
-              />
+              <div className="my-3 h-px bg-stone-200" />
 
               <button
                 onClick={() => {
                   setShowAccountSwitcher(false);
                   navigate('/login?add_account=true');
                 }}
-                style={{
-                  width: '100%',
-                  padding: 14,
-                  background: 'var(--color-surface)',
-                  border: 'none',
-                  borderRadius: 'var(--radius-xl)',
-                  fontSize: 14,
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  color: 'var(--color-black)',
-                  fontFamily: 'var(--font-sans)',
-                }}
+                className="w-full rounded-xl bg-stone-100 py-3.5 text-center text-sm font-medium text-stone-950"
               >
                 + Agregar cuenta
               </button>
@@ -413,19 +270,15 @@ export default function ProfileHeader({
       </AnimatePresence>
 
       {/* ── 3. AVATAR + STATS ROW ────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 20, alignItems: 'center', padding: 16 }}>
+      <div className="flex items-center gap-5 p-4">
         {/* avatar */}
-        <div style={{ position: 'relative', width: 84, height: 84, flexShrink: 0 }}>
+        <div className="relative h-[84px] w-[84px] shrink-0">
           <img
             src={user?.profile_image || user?.avatar_url || '/default-avatar.png'}
             alt={user?.name}
-            style={{
-              width: 84,
-              height: 84,
-              borderRadius: '50%',
-              border: `2px solid ${user?.has_active_story ? 'var(--color-black)' : 'var(--color-border)'}`,
-              objectFit: 'cover',
-            }}
+            className={`h-[84px] w-[84px] rounded-full object-cover ring-2 ${
+              user?.has_active_story ? 'ring-stone-950' : 'ring-stone-200'
+            }`}
           />
           {isOwn && (
             <>
@@ -434,38 +287,15 @@ export default function ProfileHeader({
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarFile}
-                style={{ display: 'none' }}
+                className="hidden"
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Cambiar foto de perfil"
-                style={{
-                  position: 'absolute',
-                  bottom: -6,
-                  right: -6,
-                  width: 44,
-                  height: 44,
-                  borderRadius: '50%',
-                  background: 'transparent',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  padding: 0,
-                }}
+                className="absolute -bottom-1.5 -right-1.5 flex h-11 w-11 items-center justify-center rounded-full"
               >
-                <span style={{
-                  width: 26,
-                  height: 26,
-                  borderRadius: '50%',
-                  background: 'var(--color-black)',
-                  border: '2px solid var(--color-white)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <Camera size={12} color="var(--color-white)" />
+                <span className="flex h-[26px] w-[26px] items-center justify-center rounded-full border-2 border-white bg-stone-950">
+                  <Camera size={12} className="text-white" />
                 </span>
               </button>
             </>
@@ -473,14 +303,7 @@ export default function ProfileHeader({
         </div>
 
         {/* stats */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'space-around',
-            textAlign: 'center',
-          }}
-        >
+        <div className="flex flex-1 justify-around text-center">
           {[
             { value: user?.posts_count, label: 'Publicaciones', link: null },
             { value: user?.followers_count, label: 'Seguidores', link: `/user/${user?.username}/followers` },
@@ -492,62 +315,31 @@ export default function ProfileHeader({
               role={stat.link ? 'button' : undefined}
               tabIndex={stat.link ? 0 : undefined}
               onKeyDown={stat.link ? (e) => { if (e.key === 'Enter') navigate(stat.link); } : undefined}
-              style={{ cursor: stat.link ? 'pointer' : 'default' }}
+              className={stat.link ? 'cursor-pointer' : ''}
             >
-              <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--color-black)' }}>
-                {formatCount(stat.value)}
-              </div>
-              <div
-                style={{
-                  fontSize: 10,
-                  color: 'var(--color-stone)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.03em',
-                }}
-              >
-                {stat.label}
-              </div>
+              <div className="text-lg font-semibold text-stone-950">{formatCount(stat.value)}</div>
+              <div className="text-[10px] uppercase tracking-wide text-stone-500">{stat.label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── 4. INFO SECTION ──────────────────────────────────────── */}
-      <div style={{ padding: '0 16px 12px' }}>
+      <div className="px-4 pb-3">
         {/* name + badges */}
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', marginBottom: 2 }}>
-          <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>
-            {user?.name}
-          </span>
+        <div className="mb-0.5 flex flex-wrap items-center">
+          <span className="text-[15px] font-semibold text-stone-950">{user?.name}</span>
           {roleLabel && (
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                background: user?.role === 'influencer' ? 'var(--color-black)' : 'var(--color-surface)',
-                color: user?.role === 'influencer' ? 'var(--color-white)' : 'var(--color-stone)',
-                padding: '3px 10px',
-                borderRadius: 'var(--radius-full)',
-                marginLeft: 6,
-              }}
-            >
+            <span className={`ml-1.5 rounded-full px-2.5 py-[3px] text-[10px] font-bold uppercase tracking-wide ${
+              user?.role === 'influencer'
+                ? 'bg-stone-950 text-white'
+                : 'bg-stone-100 text-stone-500'
+            }`}>
               {roleLabel}
             </span>
           )}
           {user?.is_verified && (
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                background: 'var(--color-surface)',
-                color: 'var(--color-black)',
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-full)',
-                marginLeft: 4,
-              }}
-            >
+            <span className="ml-1 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-950">
               ✓ Verificado
             </span>
           )}
@@ -555,22 +347,12 @@ export default function ProfileHeader({
 
         {/* bio */}
         {user?.bio && (
-          <div style={{ fontSize: 14, color: 'var(--color-black)', lineHeight: 1.5, marginTop: 4 }}>
+          <div className="mt-1 text-sm leading-relaxed text-stone-950">
             {bioTruncated}
             {user.bio.length > 150 && !bioExpanded && (
               <button
                 onClick={() => setBioExpanded(true)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--color-stone)',
-                  fontSize: 14,
-                  fontWeight: 500,
-                  padding: 0,
-                  marginLeft: 2,
-                  fontFamily: 'var(--font-sans)',
-                }}
+                className="ml-0.5 text-sm font-medium text-stone-500"
               >
                 Ver más
               </button>
@@ -580,29 +362,19 @@ export default function ProfileHeader({
 
         {/* Influencer public stats + discount code */}
         {user?.role === 'influencer' && (user?.sales_count > 0 || user?.discount_code) && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginTop: 8 }}>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             {user?.sales_count > 0 && (
-              <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
-                {user.sales_count} ventas generadas
-              </span>
+              <span className="text-xs text-stone-500">{user.sales_count} ventas generadas</span>
             )}
             {user?.producers_count > 0 && (
-              <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
-                · {user.producers_count} productores apoyados
-              </span>
+              <span className="text-xs text-stone-500">· {user.producers_count} productores apoyados</span>
             )}
             {user?.discount_code && (
               <button
                 onClick={async () => {
                   try { await navigator.clipboard.writeText(user.discount_code); toast.success('Código copiado: ' + user.discount_code); } catch { toast.error('No se pudo copiar'); }
                 }}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  fontSize: 11, fontWeight: 600,
-                  background: 'var(--color-black)', color: 'var(--color-white)',
-                  padding: '4px 12px', borderRadius: 'var(--radius-full)',
-                  border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
-                }}
+                className="inline-flex items-center gap-1 rounded-full bg-stone-950 px-3 py-1 text-[11px] font-semibold text-white"
               >
                 <Copy size={10} />
                 {user.discount_code}
@@ -613,20 +385,9 @@ export default function ProfileHeader({
 
         {/* website */}
         {user?.website && /^https?:\/\//i.test(user.website) && (
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}
-          >
-            <ExternalLink size={12} color="var(--color-stone)" />
-            <a
-              href={user.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontSize: 13,
-                color: 'var(--color-stone)',
-                textDecoration: 'none',
-              }}
-            >
+          <div className="mt-1 flex items-center gap-1">
+            <ExternalLink size={12} className="text-stone-500" />
+            <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-[13px] text-stone-500 no-underline">
               {user.website.replace(/^https?:\/\//, '')}
             </a>
           </div>
@@ -634,136 +395,49 @@ export default function ProfileHeader({
 
         {/* location */}
         {user?.location && (
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}
-          >
-            <MapPin size={12} color="var(--color-stone)" />
-            <span style={{ fontSize: 13, color: 'var(--color-stone)' }}>{user.location}</span>
+          <div className="mt-0.5 flex items-center gap-1">
+            <MapPin size={12} className="text-stone-500" />
+            <span className="text-[13px] text-stone-500">{user.location}</span>
           </div>
         )}
       </div>
 
       {/* ── 5. ACTION BUTTONS ────────────────────────────────────── */}
-      <div style={{ padding: '0 16px 16px', display: 'flex', gap: 8 }}>
+      <div className="flex gap-2 px-4 pb-4">
         {isOwn ? (
           <>
-            <button
-              onClick={onEditProfile}
-              style={{
-                flex: 1,
-                padding: '10px 8px',
-                minHeight: 44,
-                fontSize: 13,
-                fontWeight: 600,
-                background: 'var(--color-surface)',
-                color: 'var(--color-black)',
-                border: 'none',
-                borderRadius: 'var(--radius-xl)',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
-              }}
-            >
+            <button onClick={onEditProfile} className="min-h-[44px] flex-1 rounded-xl bg-stone-100 px-2 py-2.5 text-[13px] font-semibold text-stone-950">
               Editar perfil
             </button>
-            <button
-              onClick={shareProfile}
-              style={{
-                flex: 1,
-                padding: '10px 8px',
-                minHeight: 44,
-                fontSize: 13,
-                fontWeight: 600,
-                background: 'var(--color-surface)',
-                color: 'var(--color-black)',
-                border: 'none',
-                borderRadius: 'var(--radius-xl)',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
-              }}
-            >
+            <button onClick={shareProfile} className="min-h-[44px] flex-1 rounded-xl bg-stone-100 px-2 py-2.5 text-[13px] font-semibold text-stone-950">
               Compartir perfil
             </button>
           </>
         ) : (
           <>
-            {/* follow */}
             <button
               onClick={onFollowToggle}
               aria-label={user?.is_following ? `Dejar de seguir a ${user?.name}` : `Seguir a ${user?.name}`}
-              style={{
-                flex: 1,
-                padding: '10px 12px',
-                minHeight: 44,
-                fontSize: 13,
-                fontWeight: 600,
-                borderRadius: 'var(--radius-xl)',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
-                ...(user?.is_following
-                  ? {
-                      background: 'var(--color-white)',
-                      color: 'var(--color-black)',
-                      border: '1.5px solid var(--color-border)',
-                    }
-                  : {
-                      background: 'var(--color-black)',
-                      color: 'var(--color-white)',
-                      border: 'none',
-                    }),
-              }}
+              className={`min-h-[44px] flex-1 rounded-xl px-3 py-2.5 text-[13px] font-semibold ${
+                user?.is_following
+                  ? 'border-[1.5px] border-stone-200 bg-white text-stone-950'
+                  : 'bg-stone-950 text-white'
+              }`}
             >
               {user?.is_following ? 'Siguiendo' : 'Seguir'}
             </button>
-
-            {/* message */}
             <button
               onClick={onMessage}
               aria-label="Enviar mensaje"
-              style={{
-                flex: 1,
-                padding: '10px 12px',
-                minHeight: 44,
-                fontSize: 13,
-                fontWeight: 600,
-                background: 'var(--color-white)',
-                color: 'var(--color-black)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-xl)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                fontFamily: 'var(--font-sans)',
-              }}
+              className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-stone-950"
             >
               <MessageCircle size={16} />
               {!showStoreButton && 'Mensaje'}
             </button>
-
-            {/* store */}
             {showStoreButton && (
               <button
-                onClick={() =>
-                  navigate(`/store/${user?.store_slug || user?.username}`)
-                }
-                style={{
-                  flex: 1,
-                  padding: '10px 12px',
-                  minHeight: 44,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  background: 'var(--color-white)',
-                  color: 'var(--color-black)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-xl)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  fontFamily: 'var(--font-sans)',
-                }}
+                onClick={() => navigate(`/store/${user?.store_slug || user?.username}`)}
+                className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-stone-950"
               >
                 <Store size={16} />
                 Tienda
@@ -775,81 +449,28 @@ export default function ProfileHeader({
 
       {/* ── 6. HIGHLIGHTS ────────────────────────────────────────── */}
       {(isOwn || highlights.length > 0) && (
-        <div
-          style={{
-            padding: '0 16px 8px',
-            display: 'flex',
-            gap: 12,
-            overflowX: 'auto',
-            scrollbarWidth: 'none',
-          }}
-        >
+        <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-none">
           {isOwn && (
-            <div
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}
-            >
+            <div className="flex flex-col items-center gap-1">
               <button
                 onClick={() => toast('Próximamente')}
                 aria-label="Crear historia destacada"
-                style={{
-                  width: 62,
-                  height: 62,
-                  borderRadius: '50%',
-                  border: '2px dashed var(--color-border)',
-                  background: 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  padding: 0,
-                  flexShrink: 0,
-                }}
+                className="flex h-[62px] w-[62px] shrink-0 items-center justify-center rounded-full border-2 border-dashed border-stone-200"
               >
-                <Plus size={20} color="var(--color-stone)" />
+                <Plus size={20} className="text-stone-500" />
               </button>
-              <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>Nueva</span>
+              <span className="text-[10px] text-stone-500">Nueva</span>
             </div>
           )}
 
           {highlights.map((hl, i) => (
-            <div
-              key={hl.id || i}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 4,
-                flexShrink: 0,
-              }}
-            >
-              <div
-                style={{
-                  width: 62,
-                  height: 62,
-                  borderRadius: '50%',
-                  background: 'var(--color-surface)',
-                  overflow: 'hidden',
-                }}
-              >
+            <div key={hl.id || i} className="flex shrink-0 flex-col items-center gap-1">
+              <div className="h-[62px] w-[62px] overflow-hidden rounded-full bg-stone-100">
                 {hl.image && (
-                  <img
-                    src={hl.image}
-                    alt={hl.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
+                  <img src={hl.image} alt={hl.title} className="h-full w-full object-cover" />
                 )}
               </div>
-              <span
-                style={{
-                  fontSize: 10,
-                  textAlign: 'center',
-                  color: 'var(--color-black)',
-                  maxWidth: 62,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <span className="max-w-[62px] truncate text-[10px] text-stone-950">
                 {hl.title?.slice(0, 8)}
               </span>
             </div>
@@ -868,12 +489,7 @@ export default function ProfileHeader({
               animate="visible"
               exit="hidden"
               onClick={() => setShowOptionsSheet(false)}
-              style={{
-                position: 'fixed',
-                inset: 0,
-                background: 'rgba(0,0,0,0.4)',
-                zIndex: 9998,
-              }}
+              className="fixed inset-0 z-[9998] bg-black/40"
             />
             <motion.div
               key="opt-sheet"
@@ -884,87 +500,24 @@ export default function ProfileHeader({
               role="dialog"
               aria-modal="true"
               aria-label="Opciones de perfil"
-              style={{
-                position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                zIndex: 9999,
-                background: 'var(--color-white)',
-                borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
-                padding: '16px 0 32px',
-              }}
+              className="fixed bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white pb-8 pt-4"
             >
-              {/* handle */}
-              <div
-                style={{
-                  width: 36,
-                  height: 4,
-                  background: 'var(--color-border)',
-                  borderRadius: 'var(--radius-full)',
-                  margin: '0 auto 20px',
-                }}
-              />
+              <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
 
               {showStoreButton && (
                 <>
-                  <OptionRow
-                    icon={<Store size={20} />}
-                    label="Visitar tienda"
-                    onClick={() => {
-                      setShowOptionsSheet(false);
-                      navigate(`/store/${user?.store_slug || user?.username}`);
-                    }}
-                  />
-                  <OptionRow
-                    icon={<Package size={20} />}
-                    label="Ver productos"
-                    onClick={() => setShowOptionsSheet(false)}
-                  />
+                  <OptionRow icon={<Store size={20} />} label="Visitar tienda" onClick={() => { setShowOptionsSheet(false); navigate(`/store/${user?.store_slug || user?.username}`); }} />
+                  <OptionRow icon={<Package size={20} />} label="Ver productos" onClick={() => setShowOptionsSheet(false)} />
                 </>
               )}
 
-              <OptionRow
-                icon={<Copy size={20} />}
-                label="Copiar enlace del perfil"
-                onClick={() => {
-                  copyProfileLink();
-                  setShowOptionsSheet(false);
-                }}
-              />
-              <OptionRow
-                icon={<Share2 size={20} />}
-                label="Compartir perfil"
-                onClick={() => {
-                  shareProfile();
-                  setShowOptionsSheet(false);
-                }}
-              />
+              <OptionRow icon={<Copy size={20} />} label="Copiar enlace del perfil" onClick={() => { copyProfileLink(); setShowOptionsSheet(false); }} />
+              <OptionRow icon={<Share2 size={20} />} label="Compartir perfil" onClick={() => { shareProfile(); setShowOptionsSheet(false); }} />
 
-              <div
-                style={{
-                  height: 1,
-                  background: 'var(--color-border)',
-                  margin: '12px 0',
-                }}
-              />
+              <div className="my-3 h-px bg-stone-200" />
 
-              <OptionRow
-                label={`Bloquear a @${user?.username}`}
-                color="var(--color-stone)"
-                onClick={() => {
-                  toast('Próximamente');
-                  setShowOptionsSheet(false);
-                }}
-              />
-              <OptionRow
-                label="Reportar cuenta"
-                color="var(--color-stone)"
-                onClick={() => {
-                  toast('Próximamente');
-                  setShowOptionsSheet(false);
-                }}
-              />
+              <OptionRow label={`Bloquear a @${user?.username}`} muted onClick={() => { toast('Próximamente'); setShowOptionsSheet(false); }} />
+              <OptionRow label="Reportar cuenta" muted onClick={() => { toast('Próximamente'); setShowOptionsSheet(false); }} />
             </motion.div>
           </>
         )}
@@ -975,28 +528,13 @@ export default function ProfileHeader({
 
 /* ── Option row for the bottom sheet ─────────────────────────────── */
 
-function OptionRow({ icon, label, onClick, color }) {
+function OptionRow({ icon, label, onClick, muted }) {
   return (
     <button
       onClick={onClick}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        width: '100%',
-        padding: '14px 20px',
-        background: 'transparent',
-        border: 'none',
-        cursor: 'pointer',
-        textAlign: 'left',
-        fontSize: 15,
-        fontWeight: 500,
-        color: color || 'var(--color-black)',
-        fontFamily: 'var(--font-sans)',
-        transition: 'var(--transition-fast)',
-      }}
-      onPointerEnter={(e) => { e.currentTarget.style.background = 'var(--color-surface)'; }}
-      onPointerLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+      className={`flex w-full items-center gap-3 px-5 py-3.5 text-left text-[15px] font-medium transition-all duration-150 hover:bg-stone-50 ${
+        muted ? 'text-stone-500' : 'text-stone-950'
+      }`}
     >
       {icon}
       {label}

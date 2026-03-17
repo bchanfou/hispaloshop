@@ -188,21 +188,21 @@ const CategoryPage = () => {
                 type="button"
                 onClick={() => setViewMode('grid')}
                 aria-label="Vista cuadrícula"
-                className={`flex h-8 w-8 items-center justify-center transition-colors ${
+                className={`flex h-11 w-11 items-center justify-center transition-colors ${
                   viewMode === 'grid' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'
                 }`}
               >
-                <Grid3X3 className="h-3.5 w-3.5" />
+                <Grid3X3 className="h-4 w-4" />
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('list')}
                 aria-label="Vista lista"
-                className={`flex h-8 w-8 items-center justify-center transition-colors ${
+                className={`flex h-11 w-11 items-center justify-center transition-colors ${
                   viewMode === 'list' ? 'bg-stone-950 text-white' : 'text-stone-500 hover:bg-stone-100'
                 }`}
               >
-                <List className="h-3.5 w-3.5" />
+                <List className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -216,7 +216,7 @@ const CategoryPage = () => {
                 key={feature}
                 type="button"
                 onClick={() => toggleFeature(feature)}
-                className="flex shrink-0 items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-700"
+                className="flex min-h-[44px] shrink-0 items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-700"
               >
                 {feature}
                 <X className="h-3 w-3" />
@@ -226,7 +226,7 @@ const CategoryPage = () => {
               <button
                 type="button"
                 onClick={() => setActivePrice('')}
-                className="flex shrink-0 items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-700"
+                className="flex min-h-[44px] shrink-0 items-center gap-1 rounded-full border border-stone-200 bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-700"
               >
                 {activePrice}
                 <X className="h-3 w-3" />
@@ -352,7 +352,7 @@ const CategoryPage = () => {
                     return (
                       <label
                         key={feature}
-                        className="flex cursor-pointer items-center gap-3"
+                        className="flex min-h-[44px] cursor-pointer items-center gap-3"
                       >
                         <input
                           type="checkbox"

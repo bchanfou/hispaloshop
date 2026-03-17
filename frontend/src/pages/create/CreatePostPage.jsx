@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, Image, Check, Type, Crop, Sliders, Search } from 'lucide-react';
+import { X, ChevronLeft, Image, Check, Type, Crop, Sliders, Search, MapPin, Globe, Lock } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
@@ -8,14 +8,14 @@ import { toast } from 'sonner';
 /* ───────────────────────── constants ───────────────────────── */
 
 const FILTERS = [
-  { name: 'Original', css: 'none' },
-  { name: 'Natural', css: 'brightness(1.05) saturate(0.9)' },
-  { name: 'Cálido', css: 'sepia(0.3) saturate(1.2) brightness(1.05)' },
-  { name: 'Fresco', css: 'hue-rotate(10deg) saturate(1.1)' },
-  { name: 'Oscuro', css: 'brightness(0.85) contrast(1.1)' },
-  { name: 'Vívido', css: 'saturate(1.5) contrast(1.05)' },
-  { name: 'Mate', css: 'saturate(0.7) brightness(1.1)' },
-  { name: 'Antiguo', css: 'sepia(0.5) saturate(0.8)' },
+  { name: 'Natural', emoji: '✨', css: 'none' },
+  { name: 'Amanecer', emoji: '🌅', css: 'sepia(0.25) saturate(1.3) brightness(1.08)' },
+  { name: 'Lonja', emoji: '🌊', css: 'hue-rotate(10deg) saturate(1.15) brightness(1.05) contrast(1.05)' },
+  { name: 'Huerta', emoji: '🌿', css: 'saturate(1.35) contrast(1.05) brightness(1.03)' },
+  { name: 'Miel', emoji: '🍯', css: 'sepia(0.2) saturate(1.2) brightness(1.1)' },
+  { name: 'Trufa', emoji: '🌑', css: 'contrast(1.25) brightness(0.88) saturate(1.1)' },
+  { name: 'Mate', emoji: '🪨', css: 'saturate(0.75) brightness(1.1) contrast(0.95)' },
+  { name: 'Antiguo', emoji: '📜', css: 'sepia(0.45) saturate(0.8) brightness(1.05)' },
 ];
 
 const FONT_OPTIONS = [
@@ -26,11 +26,11 @@ const FONT_OPTIONS = [
 ];
 
 const COLOR_DOTS = [
-  { label: '⚫', value: '#000000' },
-  { label: '⚪', value: '#ffffff' },
-  { label: '🟡', value: '#fbbf24' },
-  { label: '🟢', value: '#22c55e' },
-  { label: '🔴', value: '#ef4444' },
+  { label: 'Negro', value: '#0c0a09' },
+  { label: 'Blanco', value: '#ffffff' },
+  { label: 'Piedra', value: '#a8a29e' },
+  { label: 'Grafito', value: '#44403c' },
+  { label: 'Crema', value: '#fafaf9' },
 ];
 
 const ASPECT_RATIOS = [
@@ -51,7 +51,7 @@ const CROP_RATIOS = [
 function buildFilterCSS(activeFilter, filterIntensity, adjustments) {
   const parts = [];
 
-  // adjustments
+  // core adjustments
   const br = 1 + adjustments.brightness / 100;
   const co = 1 + adjustments.contrast / 100;
   const sa = 1 + adjustments.saturation / 100;
@@ -59,16 +59,21 @@ function buildFilterCSS(activeFilter, filterIntensity, adjustments) {
   parts.push(`contrast(${co})`);
   parts.push(`saturate(${sa})`);
 
+  // warmth via sepia + hue-rotate
+  if (adjustments.warmth > 0) {
+    parts.push(`sepia(${(adjustments.warmth / 200).toFixed(3)})`);
+  } else if (adjustments.warmth < 0) {
+    parts.push(`hue-rotate(${Math.round(adjustments.warmth * 0.2)}deg)`);
+  }
+
   // named filter blended by intensity (scale individual filter values)
   if (activeFilter.css !== 'none' && filterIntensity > 0) {
     const ratio = filterIntensity / 100;
-    // Parse and scale each filter function towards its identity value
     const scaled = activeFilter.css.replace(
       /(\w+)\(([^)]+)\)/g,
       (_, fn, val) => {
         const num = parseFloat(val);
         if (isNaN(num)) return `${fn}(${val})`;
-        // Identity values: brightness=1, contrast=1, saturate=1, sepia=0, hue-rotate=0deg
         const identity = fn === 'sepia' || fn === 'hue-rotate' ? 0 : 1;
         const blended = identity + (num - identity) * ratio;
         const unit = val.includes('deg') ? 'deg' : '';
@@ -79,6 +84,15 @@ function buildFilterCSS(activeFilter, filterIntensity, adjustments) {
   }
 
   return parts.join(' ');
+}
+
+function buildVignetteStyle(vignette) {
+  if (!vignette) return {};
+  const strength = vignette / 100;
+  return {
+    boxShadow: `inset 0 0 ${60 + strength * 80}px ${10 + strength * 30}px rgba(0,0,0,${(strength * 0.6).toFixed(2)})`,
+    pointerEvents: 'none',
+  };
 }
 
 /* ───────────────────────── component ───────────────────────── */
@@ -100,7 +114,7 @@ export default function CreatePostPage() {
   /* --- step 2 state --- */
   const [activeFilter, setActiveFilter] = useState(FILTERS[0]);
   const [filterIntensity, setFilterIntensity] = useState(100);
-  const [adjustments, setAdjustments] = useState({ brightness: 0, contrast: 0, saturation: 0, sharpness: 0 });
+  const [adjustments, setAdjustments] = useState({ brightness: 0, contrast: 0, saturation: 0, warmth: 0, shadows: 0, highlights: 0, sharpness: 0, vignette: 0 });
   const [textOverlays, setTextOverlays] = useState([]);
   const [activeTab, setActiveTab] = useState('filtros');
   const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
@@ -112,6 +126,8 @@ export default function CreatePostPage() {
   const [showProductSearch, setShowProductSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [location, setLocation] = useState('');
+  const [audience, setAudience] = useState('public'); // 'public' | 'followers'
 
   /* --- dragging text state --- */
   const dragRef = useRef(null);
@@ -163,6 +179,8 @@ export default function CreatePostPage() {
       if (taggedProducts.length) fd.append('tagged_products', JSON.stringify(taggedProducts.map((p) => p.id)));
       fd.append('filter', activeFilter.name);
       fd.append('aspect_ratio', aspectRatio.label);
+      if (location.trim()) fd.append('location', location.trim());
+      fd.append('audience', audience);
       await apiClient.post('/posts', fd);
       toast.success('Publicación creada');
       navigate('/');
@@ -232,7 +250,12 @@ export default function CreatePostPage() {
       <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
         {/* top bar */}
         <div style={{ background: 'rgba(0,0,0,0.8)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
-          <button onClick={() => navigate(-1)} aria-label="Cerrar" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+          <button onClick={() => {
+            if (selectedFiles.length > 0 || caption.trim()) {
+              if (!window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
+            }
+            navigate(-1);
+          }} aria-label="Cerrar" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
             <X size={22} color="#fff" />
           </button>
           <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
@@ -325,6 +348,10 @@ export default function CreatePostPage() {
               alt=""
               style={{ width: '100%', height: '100%', objectFit: 'cover', filter: filterCSS, transition: 'filter 0.2s' }}
             />
+            {/* vignette overlay */}
+            {adjustments.vignette > 0 && (
+              <div style={{ position: 'absolute', inset: 0, ...buildVignetteStyle(adjustments.vignette) }} />
+            )}
             {/* text overlays */}
             {textOverlays.map((o) => (
               <div
@@ -426,7 +453,7 @@ export default function CreatePostPage() {
                         <img src={previewUrls[previewIndex]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: f.css === 'none' ? 'none' : f.css }} />
                       )}
                     </div>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 4, display: 'block' }}>{f.name}</span>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 4, display: 'block' }}>{f.emoji} {f.name}</span>
                   </div>
                 ))}
               </div>
@@ -452,7 +479,11 @@ export default function CreatePostPage() {
                 { key: 'brightness', label: 'Brillo', min: -100, max: 100 },
                 { key: 'contrast', label: 'Contraste', min: -100, max: 100 },
                 { key: 'saturation', label: 'Saturación', min: -100, max: 100 },
+                { key: 'warmth', label: 'Temperatura', min: -100, max: 100 },
+                { key: 'shadows', label: 'Sombras', min: -100, max: 100 },
+                { key: 'highlights', label: 'Altas luces', min: -100, max: 100 },
                 { key: 'sharpness', label: 'Nitidez', min: 0, max: 100 },
+                { key: 'vignette', label: 'Viñeteado', min: 0, max: 100 },
               ].map((s) => (
                 <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', minWidth: 72 }}>{s.label}</span>
@@ -462,6 +493,8 @@ export default function CreatePostPage() {
                     max={s.max}
                     value={adjustments[s.key]}
                     onChange={(e) => setAdjustments((p) => ({ ...p, [s.key]: Number(e.target.value) }))}
+                    onDoubleClick={() => setAdjustments((p) => ({ ...p, [s.key]: 0 }))}
+                    title="Doble clic para resetear"
                     style={{ flex: 1, accentColor: '#0c0a09' }}
                   />
                   <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', minWidth: 28, textAlign: 'right' }}>{adjustments[s.key]}</span>
@@ -635,9 +668,15 @@ export default function CreatePostPage() {
         <div style={{ position: 'relative', marginBottom: 12 }}>
           <textarea
             value={caption}
-            onChange={(e) => setCaption(e.target.value.slice(0, 2200))}
+            onChange={(e) => {
+              const v = e.target.value.slice(0, 2200);
+              setCaption(v);
+              // auto-resize
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
             aria-label="Descripción de la publicación"
-            placeholder="Escribe una descripción... 🌿"
+            placeholder="Escribe una descripción..."
             style={{
               width: '100%',
               border: '1.5px solid var(--color-border)',
@@ -649,9 +688,10 @@ export default function CreatePostPage() {
               fontFamily: 'var(--font-sans)',
               outline: 'none',
               boxSizing: 'border-box',
+              overflow: 'hidden',
             }}
           />
-          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 11, color: 'var(--color-stone)' }}>
+          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 11, color: caption.length > 2000 ? '#0c0a09' : 'var(--color-stone)', fontWeight: caption.length > 2000 ? 600 : 400 }}>
             {caption.length} / 2200
           </span>
         </div>
@@ -721,6 +761,68 @@ export default function CreatePostPage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* location */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '10px 12px' }}>
+            <MapPin size={16} color="var(--color-stone)" style={{ flexShrink: 0 }} />
+            <input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Añadir ubicación... (ej. Galicia, Costa Brava)"
+              aria-label="Ubicación"
+              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontFamily: 'var(--font-sans)', background: 'transparent' }}
+            />
+          </div>
+        </div>
+
+        {/* audience toggle */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setAudience('public')}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                padding: '10px 0',
+                borderRadius: 'var(--radius-full)',
+                border: audience === 'public' ? '2px solid var(--color-black)' : '1.5px solid var(--color-border)',
+                background: audience === 'public' ? 'var(--color-black)' : 'transparent',
+                color: audience === 'public' ? '#fff' : 'var(--color-black)',
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              <Globe size={14} /> Público
+            </button>
+            <button
+              onClick={() => setAudience('followers')}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                padding: '10px 0',
+                borderRadius: 'var(--radius-full)',
+                border: audience === 'followers' ? '2px solid var(--color-black)' : '1.5px solid var(--color-border)',
+                background: audience === 'followers' ? 'var(--color-black)' : 'transparent',
+                color: audience === 'followers' ? '#fff' : 'var(--color-black)',
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              <Lock size={14} /> Solo seguidores
+            </button>
+          </div>
         </div>
       </div>
 

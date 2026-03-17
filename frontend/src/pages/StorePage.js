@@ -147,7 +147,7 @@ export default function StorePage() {
   /* ── Loading ── */
   if (storeQuery.isLoading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: F }}>
+      <div aria-busy="true" aria-label="Cargando tienda" style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: F }}>
         <div style={{ width: '100%', aspectRatio: '3/1', background: 'var(--color-surface)' }} />
         <div style={{ padding: '0 16px', marginTop: -40 }}>
           <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-lg)', background: 'var(--color-surface)', border: '3px solid var(--color-white)' }} />
@@ -168,7 +168,7 @@ export default function StorePage() {
         <Store size={64} color="var(--color-stone)" strokeWidth={1.2} />
         <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--color-black)', marginTop: 16 }}>Tienda no encontrada</p>
         <p style={{ fontSize: 14, color: 'var(--color-stone)', marginTop: 4 }}>Esta tienda no existe o ha sido eliminada.</p>
-        <button onClick={() => navigate('/stores')} style={{ marginTop: 16, background: 'var(--color-black)', color: '#fff', border: 'none', borderRadius: 'var(--radius-full)', padding: '10px 24px', fontSize: 14, fontWeight: 600, fontFamily: F, cursor: 'pointer' }}>
+        <button onClick={() => navigate('/stores')} style={{ marginTop: 16, background: 'var(--color-black)', color: '#fff', border: 'none', borderRadius: 'var(--radius-full)', padding: '12px 24px', minHeight: 44, fontSize: 14, fontWeight: 600, fontFamily: F, cursor: 'pointer' }}>
           Explorar tiendas
         </button>
       </div>
@@ -445,9 +445,9 @@ export default function StorePage() {
                 <p style={{ fontSize: 48, fontWeight: 700, color: 'var(--color-black)', fontFamily: F, margin: 0, lineHeight: 1 }}>
                   {Number(avgRating || 0).toFixed(1)}
                 </p>
-                <div style={{ display: 'flex', gap: 3, justifyContent: 'center', marginTop: 8 }}>
+                <div role="img" aria-label={`Valoración: ${Number(avgRating || 0).toFixed(1)} de 5 estrellas`} style={{ display: 'flex', gap: 3, justifyContent: 'center', marginTop: 8 }}>
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={18}
+                    <Star key={i} size={18} aria-hidden="true"
                       fill={i < Math.round(avgRating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
                       stroke={i < Math.round(avgRating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
                     />
@@ -492,9 +492,9 @@ export default function StorePage() {
                         <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: F, margin: 0 }}>
                           {review.user_name || review.username || 'Anónimo'}
                         </p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginTop: 2 }}>
+                        <div role="img" aria-label={`${review.rating || 0} de 5 estrellas`} style={{ display: 'flex', alignItems: 'center', gap: 2, marginTop: 2 }}>
                           {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} size={11}
+                            <Star key={i} size={11} aria-hidden="true"
                               fill={i < (review.rating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
                               stroke={i < (review.rating || 0) ? 'var(--color-black)' : 'var(--color-border)'}
                             />

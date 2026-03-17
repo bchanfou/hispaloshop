@@ -267,7 +267,7 @@ export default function SearchPage() {
             type="button"
             onClick={() => { window.history.length > 1 ? navigate(-1) : navigate('/discover'); }}
             aria-label="Volver"
-            className="flex shrink-0 p-1"
+            className="flex h-11 w-11 shrink-0 items-center justify-center"
           >
             <ArrowLeft size={22} className="text-stone-950" />
           </button>
@@ -293,7 +293,7 @@ export default function SearchPage() {
                   type="button"
                   aria-label="Limpiar búsqueda"
                   onClick={() => { setQuery(''); setResults(null); setSearchParams({}); inputRef.current?.focus(); }}
-                  className="flex shrink-0"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center"
                 >
                   <X size={16} className="text-stone-500" />
                 </motion.button>
@@ -316,7 +316,7 @@ export default function SearchPage() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-1 whitespace-nowrap border-b-2 px-3.5 py-2.5 text-[13px] ${
+                  className={`flex cursor-pointer items-center gap-1 whitespace-nowrap border-b-2 px-3.5 py-2.5 text-[13px] ${
                     active
                       ? 'border-stone-950 font-bold text-stone-950'
                       : 'border-transparent font-medium text-stone-500'
@@ -434,7 +434,7 @@ export default function SearchPage() {
                     <Clock size={16} className="text-stone-500" />
                     <span className="text-[13px] font-bold text-stone-950">Recientes</span>
                   </div>
-                  <button onClick={handleClearHistory} className="text-xs text-stone-500">
+                  <button onClick={handleClearHistory} className="min-h-[44px] px-2 text-xs text-stone-500">
                     Borrar
                   </button>
                 </div>
@@ -443,7 +443,7 @@ export default function SearchPage() {
                     <button
                       key={term}
                       onClick={() => handleHistoryClick(term)}
-                      className="flex items-center gap-1.5 rounded-full border-none bg-stone-100 px-3.5 py-1.5 text-[13px] text-stone-950"
+                      className="flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-full border-none bg-stone-100 px-3.5 py-2.5 text-[13px] text-stone-950"
                     >
                       <Clock size={12} className="text-stone-500" />
                       {term}
@@ -463,7 +463,7 @@ export default function SearchPage() {
                   <button
                     key={term}
                     onClick={() => setQuery(term)}
-                    className="rounded-full border border-stone-200 bg-white px-3.5 py-1.5 text-[13px] capitalize text-stone-950"
+                    className="min-h-[44px] cursor-pointer rounded-full border border-stone-200 bg-white px-3.5 py-2.5 text-[13px] capitalize text-stone-950"
                   >
                     {term}
                   </button>

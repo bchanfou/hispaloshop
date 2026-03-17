@@ -98,59 +98,39 @@ export default function UserProfilePage() {
     try { await navigator.clipboard.writeText(url); toast.success('Enlace copiado'); } catch { /* fallback silently */ }
   }, [user]);
 
+  /* ── Loading skeleton ── */
   if (isLoading) {
     return (
-      <div aria-busy="true" aria-label="Cargando perfil" style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}>
-        {/* Header skeleton */}
-        <div style={{ height: 52, background: 'var(--color-white)', borderBottom: '1px solid var(--color-border)' }} />
-        <div style={{ padding: 16 }}>
-          <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-            <div style={{ width: 84, height: 84, borderRadius: '50%', background: 'var(--color-surface)' }} />
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'space-around' }}>
+      <div aria-busy="true" aria-label="Cargando perfil" className="min-h-screen bg-stone-50">
+        <div className="h-[52px] bg-white border-b border-stone-200" />
+        <div className="p-4">
+          <div className="flex items-center gap-5">
+            <div className="w-[84px] h-[84px] rounded-full bg-stone-100 animate-pulse" />
+            <div className="flex flex-1 justify-around">
               {[1, 2, 3].map(i => (
-                <div key={i} style={{ textAlign: 'center' }}>
-                  <div style={{ width: 30, height: 18, background: 'var(--color-surface)', borderRadius: 4, margin: '0 auto 4px' }} />
-                  <div style={{ width: 50, height: 10, background: 'var(--color-surface)', borderRadius: 4 }} />
+                <div key={i} className="text-center">
+                  <div className="w-[30px] h-[18px] bg-stone-100 rounded mx-auto mb-1 animate-pulse" />
+                  <div className="w-[50px] h-[10px] bg-stone-100 rounded animate-pulse" />
                 </div>
               ))}
             </div>
           </div>
-          <div style={{ marginTop: 12, height: 14, width: '40%', background: 'var(--color-surface)', borderRadius: 4 }} />
-          <div style={{ marginTop: 8, height: 12, width: '70%', background: 'var(--color-surface)', borderRadius: 4 }} />
+          <div className="mt-3 h-3.5 w-2/5 bg-stone-100 rounded animate-pulse" />
+          <div className="mt-2 h-3 w-[70%] bg-stone-100 rounded animate-pulse" />
         </div>
       </div>
     );
   }
 
+  /* ── 404 state ── */
   if (!user && !isLoading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'var(--color-cream)',
-        fontFamily: 'var(--font-sans)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 16,
-        padding: 24,
-      }}>
-        <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--color-black)' }}>Usuario no encontrado</p>
-        <p style={{ fontSize: 14, color: 'var(--color-stone)' }}>Este perfil no existe o ha sido eliminado.</p>
+      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center gap-4 p-6">
+        <p className="text-lg font-semibold text-stone-950">Usuario no encontrado</p>
+        <p className="text-sm text-stone-500">Este perfil no existe o ha sido eliminado.</p>
         <button
           onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
-          style={{
-            marginTop: 8,
-            padding: '10px 24px',
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--color-black)',
-            color: 'var(--color-white)',
-            fontSize: 14,
-            fontWeight: 600,
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'var(--transition-fast)',
-          }}
+          className="mt-2 px-6 py-2.5 rounded-full bg-stone-950 text-white text-sm font-semibold transition-all duration-150 hover:bg-stone-800 active:scale-95"
         >
           Volver
         </button>
@@ -159,7 +139,7 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)', paddingBottom: 80 }}>
+    <div className="min-h-screen bg-stone-50 pb-20">
       <ProfileHeader
         user={user}
         isOwn={isOwn}
@@ -178,7 +158,6 @@ export default function UserProfilePage() {
         onProductClick={(product) => setSelectedProduct(product)}
       />
 
-      {/* Edit Profile Sheet */}
       {showEditProfile && (
         <EditProfileSheet
           isOpen={showEditProfile}
@@ -188,7 +167,6 @@ export default function UserProfilePage() {
         />
       )}
 
-      {/* Post Viewer Overlay */}
       {selectedPost && (
         <OverlayErrorBoundary overlayKey={selectedPost?.post_id || selectedPost?.id} onClose={() => setSelectedPost(null)}>
           <PostViewer
@@ -200,7 +178,6 @@ export default function UserProfilePage() {
         </OverlayErrorBoundary>
       )}
 
-      {/* Product Overlay */}
       {selectedProduct && (
         <ProductDetailOverlay
           product={selectedProduct}

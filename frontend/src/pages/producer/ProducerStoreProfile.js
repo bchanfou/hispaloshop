@@ -36,8 +36,7 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
       
       const response = await apiClient.post(
         `/producer/store-profile/upload-image?image_type=${type}`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        formData
       );
 
       const imageUrl = resolveApiAssetUrl(response.url);
@@ -61,7 +60,8 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
             <button
               type="button"
               onClick={() => onChange('')}
-              className="absolute top-2 right-2 p-1 bg-stone-950 text-white rounded-full hover:bg-stone-800"
+              aria-label={`Eliminar ${label}`}
+              className="absolute top-2 right-2 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center bg-stone-950 text-white rounded-full hover:bg-stone-800"
             >
               <X className="w-4 h-4" />
             </button>
@@ -71,6 +71,7 @@ function ImageUploader({ label, value, onChange, type = "gallery", aspectRatio =
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
+            aria-label={`Subir ${label}`}
             className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-stone-400 hover:text-stone-950 transition-colors"
           >
             {uploading ? (
@@ -110,8 +111,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
       
       const response = await apiClient.post(
         `/producer/store-profile/upload-image?image_type=gallery`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
+        formData
       );
 
       const imageUrl = resolveApiAssetUrl(response.url);
@@ -142,7 +142,8 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
             <button
               type="button"
               onClick={() => removeImage(idx)}
-              className="absolute top-1 right-1 p-1 bg-stone-950 text-white rounded-full hover:bg-stone-800"
+              aria-label={`Eliminar imagen ${idx + 1}`}
+              className="absolute top-1 right-1 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-stone-950 text-white rounded-full hover:bg-stone-800"
             >
               <X className="w-3 h-3" />
             </button>
@@ -153,6 +154,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
+            aria-label="Añadir foto a la galería"
             className="aspect-square rounded-xl border-2 border-dashed border-stone-200 flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-stone-950 hover:border-stone-950 transition-colors"
           >
             {uploading ? (
@@ -207,7 +209,12 @@ export default function ProducerStoreProfile() {
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    fetchProfile();
+    let active = true;
+    apiClient.get('/producer/store-profile')
+      .then(data => { if (active) setProfile(data); })
+      .catch(() => { if (active) toast.error('Error al cargar el perfil de tienda'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   // Warn on unsaved changes
@@ -217,17 +224,6 @@ export default function ProducerStoreProfile() {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [isDirty]);
-
-  const fetchProfile = async () => {
-    try {
-      const data = await apiClient.get('/producer/store-profile');
-      setProfile(data);
-    } catch (error) {
-      toast.error('Error al cargar el perfil de tienda');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -272,11 +268,9 @@ export default function ProducerStoreProfile() {
         </div>
         <div className="flex items-center gap-3">
           {profile.slug && (
-            <Link to={`/store/${profile.slug}`} target="_blank">
-              <button type="button" className="flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-xl text-sm text-stone-700 hover:bg-stone-50 transition-colors">
-                <Eye className="w-4 h-4" />
-                Ver tienda
-              </button>
+            <Link to={`/store/${profile.slug}`} target="_blank" className="flex items-center gap-2 px-4 py-2.5 min-h-[44px] border border-stone-200 rounded-xl text-sm text-stone-700 hover:bg-stone-50 transition-colors no-underline">
+              <Eye className="w-4 h-4" />
+              Ver tienda
             </Link>
           )}
           <button

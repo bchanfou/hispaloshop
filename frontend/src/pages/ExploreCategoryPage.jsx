@@ -74,7 +74,7 @@ export default function ExploreCategoryPage() {
       <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button
           onClick={() => navigate('/explore')}
-          className="flex p-1"
+          className="flex h-11 w-11 items-center justify-center"
           aria-label="Volver"
         >
           <ArrowLeft size={22} className="text-stone-950" />
@@ -98,7 +98,7 @@ export default function ExploreCategoryPage() {
                 key={cat.slug}
                 onClick={() => setActiveSubSlug(cat.slug)}
                 aria-pressed={isActive}
-                className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-colors ${
+                className={`flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-colors ${
                   isActive
                     ? 'border-stone-950 bg-stone-950 text-white'
                     : 'border-stone-200 bg-white text-stone-950'

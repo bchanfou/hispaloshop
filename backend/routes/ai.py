@@ -3,7 +3,7 @@ Endpoints de IA para recomendaciones personalizadas y asistente nutricional.
 Fase 1: AI Recommendations
 """
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 
