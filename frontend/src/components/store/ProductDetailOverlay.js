@@ -113,6 +113,9 @@ export default function ProductDetailOverlay({
   const { convertAndFormatPrice } = useLocale();
   const productId = product?.product_id || product?.id;
 
+  // Reset image index when product changes
+  useEffect(() => { setImageIndex(0); setDescExpanded(false); }, [productId]);
+
   const { reviews: fetchedReviews } = useProductReviewsHook(reviews.length === 0 ? productId : null);
   const { data: certData } = useProductCertificate(certificates.length === 0 ? productId : null);
 
@@ -183,7 +186,7 @@ export default function ProductDetailOverlay({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-500 transition-colors hover:bg-stone-100 active:bg-stone-200"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-stone-500 transition-colors hover:bg-stone-100 active:bg-stone-200"
             aria-label="Cerrar"
           >
             <X className="h-[18px] w-[18px]" strokeWidth={2} />
@@ -210,7 +213,7 @@ export default function ProductDetailOverlay({
                     <button
                       type="button"
                       onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
-                      className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 shadow-sm transition hover:bg-white"
+                      className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 shadow-sm transition hover:bg-white"
                       aria-label="Imagen anterior"
                     >
                       <ChevronLeft className="h-4 w-4" />
@@ -218,7 +221,7 @@ export default function ProductDetailOverlay({
                     <button
                       type="button"
                       onClick={() => setImageIndex((i) => (i + 1) % images.length)}
-                      className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 shadow-sm transition hover:bg-white"
+                      className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-stone-700 shadow-sm transition hover:bg-white"
                       aria-label="Imagen siguiente"
                     >
                       <ChevronRight className="h-4 w-4" />
@@ -287,7 +290,7 @@ export default function ProductDetailOverlay({
                 {/* Botón único añadir */}
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <span className="text-[13px] text-stone-500">Añadir al carrito</span>
-                  <AddButton onAdd={handleAddToCart} isDisabled={false} />
+                  <AddButton onAdd={handleAddToCart} isDisabled={product?.stock === 0 || product?.is_out_of_stock} />
                 </div>
               </div>
 

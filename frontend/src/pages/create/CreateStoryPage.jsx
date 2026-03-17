@@ -60,6 +60,7 @@ export default function CreateStoryPage() {
 
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
+  const canvasRef = useRef(null);
   const dragRef = useRef({ type: null, id: null, active: false });
 
   // Cleanup object URL on unmount to prevent memory leak
@@ -129,8 +130,6 @@ export default function CreateStoryPage() {
       },
     ]);
   }, []);
-
-  const canvasRef = useRef(null);
 
   const handleOverlayDrag = useCallback((setCollection, id, e) => {
     const touch = e.touches?.[0] || e;

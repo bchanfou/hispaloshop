@@ -59,17 +59,23 @@ function buildFilterCSS(activeFilter, filterIntensity, adjustments) {
   parts.push(`contrast(${co})`);
   parts.push(`saturate(${sa})`);
 
-  // named filter blended by intensity
+  // named filter blended by intensity (scale individual filter values)
   if (activeFilter.css !== 'none' && filterIntensity > 0) {
-    // We layer the named filter at reduced intensity by interpolating towards identity
-    // Simple approach: just append the filter CSS at full strength (intensity handled via opacity trick is complex, so we scale individual values)
-    // For simplicity we append the raw filter string — intensity 100 = full
-    if (filterIntensity === 100) {
-      parts.push(activeFilter.css);
-    } else {
-      // reduce effect by mixing: we wrap in a container later; here just append at full
-      parts.push(activeFilter.css);
-    }
+    const ratio = filterIntensity / 100;
+    // Parse and scale each filter function towards its identity value
+    const scaled = activeFilter.css.replace(
+      /(\w+)\(([^)]+)\)/g,
+      (_, fn, val) => {
+        const num = parseFloat(val);
+        if (isNaN(num)) return `${fn}(${val})`;
+        // Identity values: brightness=1, contrast=1, saturate=1, sepia=0, hue-rotate=0deg
+        const identity = fn === 'sepia' || fn === 'hue-rotate' ? 0 : 1;
+        const blended = identity + (num - identity) * ratio;
+        const unit = val.includes('deg') ? 'deg' : '';
+        return `${fn}(${blended.toFixed(3)}${unit})`;
+      }
+    );
+    parts.push(scaled);
   }
 
   return parts.join(' ');
@@ -136,7 +142,7 @@ export default function CreatePostPage() {
     if (!q.trim()) { setSearchResults([]); return; }
     try {
       const res = await apiClient.get(`/products/search?q=${encodeURIComponent(q)}`);
-      setSearchResults(res.data?.results || res.data || []);
+      setSearchResults(res?.results || res?.data?.results || res?.data || (Array.isArray(res) ? res : []));
     } catch { setSearchResults([]); }
   }, []);
 
@@ -157,7 +163,7 @@ export default function CreatePostPage() {
       if (taggedProducts.length) fd.append('tagged_products', JSON.stringify(taggedProducts.map((p) => p.id)));
       fd.append('filter', activeFilter.name);
       fd.append('aspect_ratio', aspectRatio.label);
-      await apiClient.post('/posts', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await apiClient.post('/posts', fd);
       toast.success('Publicación creada');
       navigate('/');
     } catch (err) {
@@ -496,7 +502,7 @@ export default function CreatePostPage() {
                       onChange={(e) => updateOverlay(o.id, { text: e.target.value })}
                       style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, color: '#fff', padding: '4px 8px', fontSize: 13, outline: 'none' }}
                     />
-                    <button onClick={() => removeOverlay(o.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <button onClick={() => removeOverlay(o.id)} aria-label="Eliminar texto" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                       <X size={16} color="rgba(255,255,255,0.5)" />
                     </button>
                   </div>
@@ -630,6 +636,7 @@ export default function CreatePostPage() {
           <textarea
             value={caption}
             onChange={(e) => setCaption(e.target.value.slice(0, 2200))}
+            aria-label="Descripción de la publicación"
             placeholder="Escribe una descripción... 🌿"
             style={{
               width: '100%',
@@ -705,6 +712,7 @@ export default function CreatePostPage() {
                   {p.name}
                   <button
                     onClick={() => setTaggedProducts((prev) => prev.filter((x) => x.id !== p.id))}
+                    aria-label={`Quitar ${p.name}`}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1 }}
                   >
                     <X size={12} />
@@ -726,10 +734,11 @@ export default function CreatePostPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar producto..."
+                aria-label="Buscar producto para etiquetar"
                 autoFocus
                 style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, fontFamily: 'var(--font-sans)' }}
               />
-              <button onClick={() => { setShowProductSearch(false); setSearchQuery(''); setSearchResults([]); }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button onClick={() => { setShowProductSearch(false); setSearchQuery(''); setSearchResults([]); }} aria-label="Cerrar búsqueda" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>

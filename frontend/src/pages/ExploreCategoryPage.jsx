@@ -90,7 +90,7 @@ export default function ExploreCategoryPage() {
       </div>
 
       {/* Subcategory pills */}
-      {subcategories.length > 0 && (
+      {subcategories.length > 1 && (
         <div style={{
           display: 'flex', gap: 8, overflowX: 'auto',
           padding: '12px 16px', WebkitOverflowScrolling: 'touch',
@@ -102,6 +102,7 @@ export default function ExploreCategoryPage() {
               <button
                 key={cat.slug}
                 onClick={() => setActiveSubSlug(cat.slug)}
+                aria-pressed={isActive}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: '7px 14px', borderRadius: 'var(--radius-full)',
@@ -159,7 +160,7 @@ export default function ExploreCategoryPage() {
             className="explore-cat-grid"
           >
             {products.map((product) => (
-              <ProductCard key={product._id || product.id} product={product} />
+              <ProductCard key={product.product_id || product._id || product.id} product={product} />
             ))}
           </motion.div>
         )}

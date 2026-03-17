@@ -16,10 +16,6 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
   });
 
   const activeTab = tabProp ?? localTab;
-  const setActiveTab = onTabChange ?? ((t) => {
-    setLocalTab(t);
-    localStorage.setItem('feedTab', t);
-  });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const refreshTimerRef = useRef(null);

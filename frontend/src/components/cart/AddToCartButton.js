@@ -34,12 +34,12 @@ const AddToCartButton = ({
   const inCartQuantity = existingItem?.quantity || 0;
 
   const handleAdd = async () => {
-    if (state === 'loading' || !productId) return;
-    
+    if (state === 'loading' || !productId) return false;
+
     setState('loading');
-    
+
     try {
-      await addToCart(productId, quantity);
+      await addToCart(productId, quantity, variantId, packId);
       setState('success');
       if (onAdd) onAdd(product);
       setTimeout(() => {
@@ -48,15 +48,17 @@ const AddToCartButton = ({
           setQuantity(1);
         }
       }, 2000);
+      return true;
     } catch (error) {
       if (mountedRef.current) setState('idle');
       toast.error('Error al añadir el producto al carrito');
+      return false;
     }
   };
 
   const handleBuyNow = async () => {
-    await handleAdd();
-    navigate('/cart');
+    const success = await handleAdd();
+    if (success) navigate('/cart');
   };
 
   const variants = {

@@ -300,7 +300,7 @@ async def get_community_posts(
         p["is_liked"] = False
         if user_id:
             like = await db.community_post_likes.find_one(
-                {"post_id": str(p["_id"]), "user_id": user_id}
+                {"post_id": str(p["id"]), "user_id": user_id}
             )
             p["is_liked"] = like is not None
         posts.append(p)

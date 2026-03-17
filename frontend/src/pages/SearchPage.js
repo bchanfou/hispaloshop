@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp } from 'lucide-react';
 import apiClient from '../services/api/client';
 import SEO from '../components/SEO';
+import { toast } from 'sonner';
 
 const font = { fontFamily: 'var(--font-sans)' };
 const HISTORY_KEY = 'hispal_search_history';
@@ -82,7 +83,7 @@ function ProductCard({ p }) {
           </p>
           {p.price != null && (
             <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)', margin: '4px 0 0' }}>
-              {p.price.toFixed(2)} {p.currency || 'EUR'}
+              {Number(p.price).toFixed(2)} {p.currency || 'EUR'}
             </p>
           )}
         </div>
@@ -215,8 +216,9 @@ export default function SearchPage() {
         const data = await apiClient.get('/search', { params: { q: query.trim(), limit: 8, sort: sortParam } });
         setResults(data);
         setSearchParams({ q: query.trim() }, { replace: true });
-      } catch {
+      } catch (err) {
         setResults(null);
+        toast.error('Error al buscar. Inténtalo de nuevo.');
       } finally {
         setLoading(false);
       }
@@ -302,6 +304,7 @@ export default function SearchPage() {
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
                   type="button"
+                  aria-label="Limpiar búsqueda"
                   onClick={() => { setQuery(''); setResults(null); setSearchParams({}); inputRef.current?.focus(); }}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexShrink: 0 }}
                 >
@@ -362,6 +365,7 @@ export default function SearchPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
+              aria-label="Ordenar resultados"
               style={{
                 background: 'var(--color-surface)', border: 'none',
                 borderRadius: 'var(--radius-full, 999px)',

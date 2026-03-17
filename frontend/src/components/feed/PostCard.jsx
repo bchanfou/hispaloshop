@@ -96,7 +96,12 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
 
   // ---- derived (accept both prop schemas) --------------------------------
 
-  const images = post.images ?? (Array.isArray(post.media) ? post.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean) : []);
+  const images = (() => {
+    if (Array.isArray(post.images) && post.images.length > 0) return post.images;
+    if (Array.isArray(post.media) && post.media.length > 0) return post.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean);
+    if (post.image_url) return [post.image_url];
+    return [];
+  })();
   const hasMultiple = images.length > 1;
   const user = post.user ?? {};
   const avatarUrl = user.avatar_url || user.avatar || user.profile_image;
@@ -178,11 +183,14 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
     moreBtn: {
       background: 'none',
       border: 'none',
-      padding: 4,
+      padding: 12,
+      minWidth: 44,
+      minHeight: 44,
       cursor: 'pointer',
       color: 'var(--color-stone)',
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'center',
       flexShrink: 0,
     },
 
@@ -257,7 +265,8 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
     actionBtn: {
       background: 'none',
       border: 'none',
-      padding: 0,
+      padding: '10px 0',
+      minHeight: 44,
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
@@ -273,7 +282,8 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
     bookmarkBtn: {
       background: 'none',
       border: 'none',
-      padding: 0,
+      padding: '10px 0',
+      minHeight: 44,
       cursor: 'pointer',
       marginLeft: 'auto',
       display: 'flex',
@@ -305,7 +315,8 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
       cursor: 'pointer',
       background: 'none',
       border: 'none',
-      padding: 0,
+      padding: '4px 0',
+      minHeight: 44,
       fontSize: 14,
       fontFamily: 'inherit',
     },
@@ -366,18 +377,16 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
 
   return (
     <article style={S.container}>
-      {/* Inline keyframe — only rendered when animating */}
-      {showHeartAnim && (
-        <style>{`
-          @keyframes postcard-heart-pop {
-            0%   { opacity: 0; transform: scale(0.5); }
-            15%  { opacity: 1; transform: scale(1.3); }
-            30%  { opacity: 1; transform: scale(1); }
-            70%  { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(1); }
-          }
-        `}</style>
-      )}
+      {/* Stable keyframe — always present to avoid DOM thrashing */}
+      <style>{`
+        @keyframes postcard-heart-pop {
+          0%   { opacity: 0; transform: scale(0.5); }
+          15%  { opacity: 1; transform: scale(1.3); }
+          30%  { opacity: 1; transform: scale(1); }
+          70%  { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(1); }
+        }
+      `}</style>
 
       {/* ---- Header ---- */}
       <div style={S.header}>

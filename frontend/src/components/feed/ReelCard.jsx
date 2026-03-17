@@ -28,6 +28,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   // Clean up play icon timer on unmount
   useEffect(() => {
@@ -55,6 +56,34 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
     observer.observe(container);
     return () => observer.disconnect();
+  }, []);
+
+  // Pause on tab switch (visibilitychange)
+  useEffect(() => {
+    const handleVisibility = () => {
+      const video = videoRef.current;
+      if (!video) return;
+      if (document.hidden) {
+        video.pause();
+        setPlaying(false);
+      } else if (isActive) {
+        video.play().catch(() => {});
+        setPlaying(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isActive]);
+
+  // Track video progress
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const onTime = () => {
+      if (video.duration > 0) setProgress(video.currentTime / video.duration);
+    };
+    video.addEventListener('timeupdate', onTime);
+    return () => video.removeEventListener('timeupdate', onTime);
   }, []);
 
   // External isActive control
@@ -175,10 +204,12 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
             }}
           />
           <button
-            className="absolute -bottom-2.5 w-11 h-11 rounded-full bg-black border-none flex items-center justify-center"
+            className="absolute -bottom-3 w-11 h-11 rounded-full bg-transparent border-none flex items-center justify-center"
             aria-label="Seguir"
           >
-            <Plus size={14} className="text-white" strokeWidth={3} />
+            <span className="w-5 h-5 rounded-full bg-black flex items-center justify-center">
+              <Plus size={12} className="text-white" strokeWidth={3} />
+            </span>
           </button>
         </div>
 
@@ -227,7 +258,9 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       {/* Info bottom-left */}
       <div
         className={`absolute left-4 right-20 z-[2] ${
-          embedded ? 'bottom-[50px]' : 'bottom-20'
+          embedded
+            ? product ? 'bottom-[76px]' : 'bottom-[50px]'
+            : product ? 'bottom-[76px]' : 'bottom-20'
         }`}
       >
         <div className="text-[15px] font-semibold text-white font-sans mb-1.5">
@@ -248,29 +281,39 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       {/* Product CTA */}
       {product && (
         <div className="absolute bottom-4 left-4 right-4 bg-white/15 backdrop-blur-xl rounded-full p-2 flex items-center z-[2]">
-          {product.image && (
+          {(product.image || product.thumbnail) && (
             <img
-              src={product.image}
-              alt={product.name}
+              src={product.image || product.thumbnail}
+              alt={product.name || product.title}
               className="w-9 h-9 rounded-lg object-cover shrink-0"
             />
           )}
           <div className="flex-1 mx-2.5 min-w-0">
             <div className="text-[13px] font-semibold text-white font-sans truncate">
-              {product.name}
+              {product.name || product.title}
             </div>
-            <div className="text-xs text-white/85 font-sans">
-              {formatPrice(product.price)}
-            </div>
+            {product.price != null && (
+              <div className="text-xs text-white/85 font-sans">
+                {formatPrice(product.price)}
+              </div>
+            )}
           </div>
           <button
             className="bg-white text-stone-950 text-[13px] font-semibold font-sans py-2 px-4 rounded-full border-none cursor-pointer shrink-0 hover:bg-stone-100 active:bg-stone-200 transition-colors"
-            onClick={() => navigate(`/product/${product.id}`)}
+            onClick={() => navigate(`/product/${product.id || product.product_id}`)}
           >
             Añadir
           </button>
         </div>
       )}
+
+      {/* Progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/20 z-[3]">
+        <div
+          className="h-full bg-white/80 transition-[width] duration-200 ease-linear"
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
     </div>
   );
 }

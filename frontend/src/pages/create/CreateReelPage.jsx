@@ -44,6 +44,7 @@ export default function CreateReelPage() {
   const [publishing, setPublishing] = useState(false);
 
   const videoRef = useRef(null);
+  const videoPreviewRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const playIconTimer = useRef(null);
@@ -121,8 +122,6 @@ export default function CreateReelPage() {
     setTextDraft('');
     setShowTextInput(false);
   }, [textDraft, selectedFont, selectedColor, textSize, textOverlays.length]);
-
-  const videoPreviewRef = useRef(null);
 
   const handleTextDrag = useCallback((id, e) => {
     const touch = e.touches?.[0] || e;
@@ -277,7 +276,18 @@ export default function CreateReelPage() {
         {/* TopBar */}
         <div className="flex items-center justify-between px-4 py-3">
           <button
-            onClick={() => { setScreen('upload'); setVideoFile(null); setVideoUrl(null); }}
+            onClick={() => {
+              videoRef.current?.pause();
+              setScreen('upload');
+              setVideoFile(null);
+              setVideoUrl(null);
+              setSpeed(1);
+              setActiveFilter('none');
+              setTextOverlays([]);
+              setIsPlaying(false);
+              setCurrentTime(0);
+              setDuration(0);
+            }}
             className="bg-transparent border-none cursor-pointer p-1"
             aria-label="Volver"
           >
@@ -307,6 +317,7 @@ export default function CreateReelPage() {
             src={videoUrl}
             loop
             playsInline
+            muted
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             className="w-full h-full object-cover"
@@ -563,12 +574,16 @@ export default function CreateReelPage() {
         <div>
           <textarea
             value={caption}
-            onChange={(e) => setCaption(e.target.value)}
+            onChange={(e) => { if (e.target.value.length <= 2200) setCaption(e.target.value); }}
             placeholder="Describe tu reel..."
             rows={4}
+            maxLength={2200}
             className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border"
             aria-label="Descripción del reel"
           />
+          <div className={`text-right text-xs mt-1 ${caption.length > 2000 ? 'text-stone-950' : 'text-stone-400'}`}>
+            {caption.length}/2200
+          </div>
         </div>
 
         {/* Thumbnail selector */}

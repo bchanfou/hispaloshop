@@ -78,7 +78,7 @@ export default function ReelsPage() {
 
   if (loading && reels.length === 0) {
     return (
-      <div className="h-dvh bg-black flex items-center justify-center">
+      <div className="h-dvh bg-black flex items-center justify-center" role="status" aria-label="Cargando reels">
         <Loader2 className="w-8 h-8 text-white/30 animate-spin" />
       </div>
     );

@@ -81,7 +81,7 @@ export default function CommunitiesExplorePage() {
       </div>
 
       {/* ── Search ── */}
-      <div style={{ padding: '12px 16px 0', maxWidth: 600, margin: '0 auto' }}>
+      <div role="search" aria-label="Buscar comunidades" style={{ padding: '12px 16px 0', maxWidth: 600, margin: '0 auto' }}>
         <div style={{ position: 'relative' }}>
           <Search size={18} color="var(--color-stone)"
             style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
@@ -299,7 +299,7 @@ const MyCommunityPill = ({ community }) => (
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
       {community.cover_image ? (
-        <img src={community.cover_image} alt=""
+        <img src={community.cover_image} alt={community.name || ''}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       ) : (
         <span style={{ fontSize: 24 }}>{community.emoji || '🌿'}</span>
@@ -351,7 +351,7 @@ const CommunityCard = ({ community }) => {
         {/* Cover */}
         <div style={{ aspectRatio: '16/7', position: 'relative', overflow: 'hidden' }}>
           {community.cover_image ? (
-            <img src={community.cover_image} alt=""
+            <img src={community.cover_image} alt={community.name || ''}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           ) : (
             <div style={{
@@ -439,7 +439,7 @@ const CommunityRow = ({ community }) => (
       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
     }}>
       {community.cover_image ? (
-        <img src={community.cover_image} alt=""
+        <img src={community.cover_image} alt={community.name || ''}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       ) : (community.emoji || '🌿')}
     </div>

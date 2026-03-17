@@ -264,7 +264,7 @@ const CategoryPage = () => {
             ) : null}
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.product_id || product.id}
@@ -381,7 +381,9 @@ const CategoryPage = () => {
               onClick={() => setShowFilters(false)}
               className="mt-6 w-full rounded-full bg-stone-950 py-3 text-sm font-medium text-white transition-colors hover:bg-stone-800"
             >
-              Aplicar filtros
+              {hasActiveFilters
+                ? `Ver ${filteredProducts.length} producto${filteredProducts.length !== 1 ? 's' : ''}`
+                : 'Aplicar filtros'}
             </button>
           </motion.div>
         </div>

@@ -33,6 +33,11 @@ export default function EditProfilePage() {
     }
   }, []);
 
+  /* cleanup username debounce timer on unmount */
+  useEffect(() => {
+    return () => { if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current); };
+  }, []);
+
   useEffect(() => {
     if (!user) return;
     setForm({
@@ -226,7 +231,7 @@ export default function EditProfilePage() {
               maxLength={30}
               style={{
                 width: '100%', height: 44, paddingLeft: 30, paddingRight: 36,
-                border: `1px solid ${usernameStatus === 'taken' ? 'var(--color-red)' : usernameStatus === 'available' ? 'var(--color-black)' : 'var(--color-border)'}`,
+                border: `1px solid ${usernameStatus === 'taken' ? 'var(--color-stone)' : usernameStatus === 'available' ? 'var(--color-black)' : 'var(--color-border)'}`,
                 borderRadius: 'var(--radius-lg)',
                 fontSize: 14, color: 'var(--color-black)',
                 outline: 'none', boxSizing: 'border-box', ...font,
@@ -239,11 +244,11 @@ export default function EditProfilePage() {
               <Check size={16} color="var(--color-black)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
             )}
             {usernameStatus === 'taken' && (
-              <X size={16} color="var(--color-red)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
+              <X size={16} color="var(--color-stone)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
             )}
           </div>
           {usernameStatus === 'taken' && (
-            <p style={{ fontSize: 12, color: 'var(--color-red)', margin: '4px 0 0', ...font }}>Este usuario ya está en uso</p>
+            <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '4px 0 0', ...font }}>Este usuario ya está en uso</p>
           )}
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -315,6 +315,16 @@ export default function CartPage() {
     await refetchPricing();
   };
 
+  const groupedItems = useMemo(() => {
+    const groups = {};
+    cartItems.forEach(item => {
+      const producer = item.seller_name || item.producer || item.product?.producer?.name || 'Tienda';
+      if (!groups[producer]) groups[producer] = [];
+      groups[producer].push(item);
+    });
+    return Object.entries(groups);
+  }, [cartItems]);
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-stone-50">
@@ -439,7 +449,7 @@ export default function CartPage() {
                     </div>
                     {items.map((item) => {
                       const hasStockIssue = stockIssues.some((issue) => issue.product_id === item.product_id);
-                      const itemKey = item.variant_id && item.pack_id ? `${item.product_id}-${item.variant_id}-${item.pack_id}` : item.product_id;
+                      const itemKey = `${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`;
                       return (
                         <div
                           key={itemKey}

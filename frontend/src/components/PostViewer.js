@@ -57,9 +57,12 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
 
   if (!currentPost) return null;
 
-  const images = currentPost.images
-    || (Array.isArray(currentPost.media) ? currentPost.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean) : [])
-    || (currentPost.image_url ? [currentPost.image_url] : []);
+  const images = (() => {
+    if (Array.isArray(currentPost.images) && currentPost.images.length > 0) return currentPost.images;
+    if (Array.isArray(currentPost.media) && currentPost.media.length > 0) return currentPost.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean);
+    if (currentPost.image_url) return [currentPost.image_url];
+    return [];
+  })();
   const user = currentPost.user || profile || {};
   const avatarUrl = user.profile_image || user.avatar_url || user.avatar;
   const caption = currentPost.content ?? currentPost.caption ?? '';
@@ -142,7 +145,7 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
               <button
                 onClick={() => setImageIndex((i) => i - 1)}
                 aria-label="Imagen anterior"
-                style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
               >
                 <ChevronLeft size={18} color="var(--color-white)" />
               </button>
@@ -151,7 +154,7 @@ export default function PostViewer({ post, posts = [], profile, onClose, onLike,
               <button
                 onClick={() => setImageIndex((i) => i + 1)}
                 aria-label="Imagen siguiente"
-                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
               >
                 <ChevronRight size={18} color="var(--color-white)" />
               </button>

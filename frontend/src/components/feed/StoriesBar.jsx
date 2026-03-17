@@ -29,62 +29,41 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
   }, []);
 
   return (
-    <>
-      <div
-        className="scrollbar-hide"
-        role="region"
-        aria-label="Historias"
-        tabIndex={0}
-        style={{
-          display: 'flex',
-          gap: 12,
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          padding: '12px 16px',
-        }}
-      >
-        {/* Self ring */}
-        <StoryRing
-          user={currentUser}
-          isSelf
-          hasUnseenStory={false}
-          onClick={onCreateStory}
-        />
+    <div
+      className="scrollbar-hide flex gap-3 overflow-x-auto px-4 py-3"
+      role="region"
+      aria-label="Historias"
+      tabIndex={0}
+    >
+      {/* Self ring */}
+      <StoryRing
+        user={currentUser}
+        isSelf
+        hasUnseenStory={false}
+        onClick={onCreateStory}
+      />
 
-        {loading
-          ? Array.from({ length: 5 }).map((_, i) => (
+      {loading
+        ? Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex shrink-0 flex-col items-center gap-1"
+              style={{ width: 68 }}
+            >
               <div
-                key={i}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 4,
-                  flexShrink: 0,
-                  width: 68,
-                }}
-              >
-                <div
-                  className="animate-pulse-slow"
-                  style={{
-                    width: 62,
-                    height: 62,
-                    borderRadius: '50%',
-                    background: 'var(--color-surface)',
-                  }}
-                />
-              </div>
-            ))
-          : stories.map((story, idx) => (
-              <StoryRing
-                key={story.user?.id || idx}
-                user={story.user}
-                isSelf={false}
-                hasUnseenStory={story.has_unseen !== false}
-                onClick={() => onStoryClick && onStoryClick(stories, idx)}
+                className="animate-pulse-slow h-[62px] w-[62px] rounded-full bg-[var(--color-surface)]"
               />
-            ))}
-      </div>
-    </>
+            </div>
+          ))
+        : stories.map((story, idx) => (
+            <StoryRing
+              key={story.user?.id || idx}
+              user={story.user}
+              isSelf={false}
+              hasUnseenStory={story.has_unseen !== false}
+              onClick={() => onStoryClick && onStoryClick(stories, idx)}
+            />
+          ))}
+    </div>
   );
 }

@@ -21,7 +21,7 @@ const SECTION_PILLS = [
 ];
 
 const DIFFICULTY_MAP = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' };
-const DIFFICULTY_COLOR = { easy: '#44403c', medium: '#44403c', hard: '#44403c' };
+const DIFFICULTY_COLOR = 'var(--color-stone)';
 
 const ELITE_ROTATE_MS = 6000;
 const ELITE_FADE_MS = 400;
@@ -297,15 +297,20 @@ export default function DiscoverPage() {
           return (
             <div style={{ marginBottom: 24 }}>
               <div
+                role="link"
+                tabIndex={0}
+                aria-label={`Tienda destacada: ${store.name}`}
                 onMouseEnter={() => { elitePaused.current = true; }}
                 onMouseLeave={() => { elitePaused.current = false; }}
                 onTouchStart={() => { elitePaused.current = true; }}
                 onTouchEnd={() => { elitePaused.current = false; }}
                 onClick={() => navigate(`/store/${store.slug || store.store_slug}`)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/store/${store.slug || store.store_slug}`); } }}
                 style={{
                   position: 'relative', borderRadius: 'var(--radius-xl)',
                   overflow: 'hidden', cursor: 'pointer',
                   aspectRatio: '16/9', background: 'var(--color-black)',
+                  outline: 'none',
                 }}
               >
                 {/* hero image */}
@@ -425,10 +430,10 @@ export default function DiscoverPage() {
                   >
                     {/* hero image */}
                     <div style={{ height: 90, background: 'var(--color-surface)', position: 'relative' }}>
-                      {hero && <img src={hero} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                      {hero && <img src={hero} alt={store.name || ''} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                       {/* logo overlap */}
                       {store.logo && (
-                        <img src={store.logo} alt="" style={{
+                        <img src={store.logo} alt={`Logo de ${store.name || 'tienda'}`} style={{
                           position: 'absolute', bottom: -16, left: 12,
                           width: 36, height: 36, borderRadius: '50%', objectFit: 'cover',
                           border: '2px solid var(--color-white)',
@@ -479,13 +484,13 @@ export default function DiscoverPage() {
                     }}
                   >
                     <div style={{ aspectRatio: '3/4', background: 'var(--color-surface)', position: 'relative' }}>
-                      {img && <img src={img} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                      {img && <img src={img} alt={recipe.title || recipe.name || ''} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                       {/* difficulty badge */}
                       <span style={{
                         position: 'absolute', top: 8, left: 8,
                         fontSize: 9, fontWeight: 600,
                         padding: '2px 8px', borderRadius: 'var(--radius-full)',
-                        background: 'rgba(255,255,255,0.9)', color: DIFFICULTY_COLOR[diff] || '#44403c',
+                        background: 'rgba(255,255,255,0.9)', color: DIFFICULTY_COLOR,
                         backdropFilter: 'blur(4px)',
                       }}>
                         {DIFFICULTY_MAP[diff] || diff}

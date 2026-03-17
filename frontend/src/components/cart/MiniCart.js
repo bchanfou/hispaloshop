@@ -8,7 +8,6 @@ import { useCart } from '../../context/CartContext';
 const MiniCart = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { cartItems, removeFromCart, updateQuantity, getShippingPreview, loading } = useCart();
-  const [isProcessing, setIsProcessing] = useState(false);
   const [shippingData, setShippingData] = useState(null);
 
   const subtotal = cartItems.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
@@ -177,7 +176,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   </button>
                                 </div>
                                 <span className="font-semibold text-stone-950">
-                                  €{((item.price || item.product?.price) * item.quantity).toFixed(2)}
+                                  €{((item.price || item.product?.price || 0) * item.quantity).toFixed(2)}
                                 </span>
                               </div>
                             </div>
@@ -230,8 +229,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 {/* Actions */}
                 <button
                   onClick={handleCheckout}
-                  disabled={isProcessing}
-                  className="w-full py-3 bg-stone-950 text-white rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50"
+                  className="w-full py-3 bg-stone-950 text-white rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors"
                 >
                   Pagar ahora
                   <ArrowRight className="w-5 h-5" />

@@ -110,18 +110,16 @@ export default function ProfileHeader({
 
   const profileUrl = `https://hispaloshop.com/user/${user?.username}`;
 
-  const shareProfile = useCallback(() => {
+  const shareProfile = useCallback(async () => {
     if (navigator.share) {
-      navigator.share({ title: user?.name, text: user?.bio, url: profileUrl });
+      try { await navigator.share({ title: user?.name, text: user?.bio, url: profileUrl }); } catch { /* user cancelled */ }
     } else {
-      navigator.clipboard.writeText(profileUrl);
-      toast('Enlace copiado');
+      try { await navigator.clipboard.writeText(profileUrl); toast('Enlace copiado'); } catch { toast.error('No se pudo copiar el enlace'); }
     }
   }, [user, profileUrl]);
 
-  const copyProfileLink = useCallback(() => {
-    navigator.clipboard.writeText(profileUrl);
-    toast('Enlace copiado');
+  const copyProfileLink = useCallback(async () => {
+    try { await navigator.clipboard.writeText(profileUrl); toast('Enlace copiado'); } catch { toast.error('No se pudo copiar el enlace'); }
   }, [profileUrl]);
 
   /* ── derived ───────────────────────────────────────────────────── */
@@ -383,7 +381,7 @@ export default function ProfileHeader({
                   padding: 14,
                   background: 'var(--color-surface)',
                   border: 'none',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-xl)',
                   fontSize: 14,
                   fontWeight: 500,
                   cursor: 'pointer',
@@ -469,11 +467,18 @@ export default function ProfileHeader({
           }}
         >
           {[
-            { value: user?.posts_count, label: 'Publicaciones' },
-            { value: user?.followers_count, label: 'Seguidores' },
-            { value: user?.following_count, label: 'Seguidos' },
+            { value: user?.posts_count, label: 'Publicaciones', link: null },
+            { value: user?.followers_count, label: 'Seguidores', link: `/user/${user?.username}/followers` },
+            { value: user?.following_count, label: 'Seguidos', link: `/user/${user?.username}/following` },
           ].map((stat) => (
-            <div key={stat.label}>
+            <div
+              key={stat.label}
+              onClick={stat.link ? () => navigate(stat.link) : undefined}
+              role={stat.link ? 'button' : undefined}
+              tabIndex={stat.link ? 0 : undefined}
+              onKeyDown={stat.link ? (e) => { if (e.key === 'Enter') navigate(stat.link); } : undefined}
+              style={{ cursor: stat.link ? 'pointer' : 'default' }}
+            >
               <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--color-black)' }}>
                 {formatCount(stat.value)}
               </div>
@@ -638,7 +643,7 @@ export default function ProfileHeader({
                 background: 'var(--color-surface)',
                 color: 'var(--color-black)',
                 border: 'none',
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'var(--radius-xl)',
                 cursor: 'pointer',
                 fontFamily: 'var(--font-sans)',
               }}
@@ -655,7 +660,7 @@ export default function ProfileHeader({
                 background: 'var(--color-surface)',
                 color: 'var(--color-black)',
                 border: 'none',
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'var(--radius-xl)',
                 cursor: 'pointer',
                 fontFamily: 'var(--font-sans)',
               }}
@@ -674,7 +679,7 @@ export default function ProfileHeader({
                 padding: '8px 12px',
                 fontSize: 13,
                 fontWeight: 600,
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'var(--radius-xl)',
                 cursor: 'pointer',
                 fontFamily: 'var(--font-sans)',
                 ...(user?.is_following
@@ -704,7 +709,7 @@ export default function ProfileHeader({
                 background: 'var(--color-white)',
                 color: 'var(--color-black)',
                 border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'var(--radius-xl)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -731,7 +736,7 @@ export default function ProfileHeader({
                   background: 'var(--color-white)',
                   color: 'var(--color-black)',
                   border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-xl)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',

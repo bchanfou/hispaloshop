@@ -142,7 +142,7 @@ function FollowingFeed() {
 
             if (isReel) {
               return (
-                <div style={{ paddingBottom: 0 }}>
+                <div>
                   <motion.div
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -177,7 +177,7 @@ function FollowingFeed() {
             }
 
             return (
-              <div style={{ paddingBottom: 0 }}>
+              <div>
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}

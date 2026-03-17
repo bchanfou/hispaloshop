@@ -1,19 +1,22 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 
+const ringClasses = {
+  placeholder: 'border-2 border-dashed border-stone-300 bg-stone-50',
+  unseen: 'border-2 border-solid border-stone-950',
+  seen: 'border-2 border-solid border-stone-300',
+};
+
 export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
   const label = isSelf ? 'Tu historia' : (user?.name || user?.username || '');
-  const avatarUrl = user?.avatar_url || user?.profile_image;
+  const avatarUrl = user?.avatar_url || user?.avatar || user?.profile_image;
   const showPlaceholder = isSelf && !hasUnseenStory;
 
-  let borderStyle;
-  if (showPlaceholder) {
-    borderStyle = '2px dashed var(--color-border)';
-  } else if (hasUnseenStory) {
-    borderStyle = '2px solid var(--color-black)';
-  } else {
-    borderStyle = '2px solid var(--color-border)';
-  }
+  const ringClass = showPlaceholder
+    ? ringClasses.placeholder
+    : hasUnseenStory
+    ? ringClasses.unseen
+    : ringClasses.seen;
 
   return (
     <div
@@ -22,56 +25,25 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
       role="button"
       tabIndex={0}
       aria-label={isSelf ? 'Crear tu historia' : `Ver historia de ${label}`}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 4,
-        cursor: 'pointer',
-        width: 68,
-        flexShrink: 0,
-      }}
+      className="flex flex-col items-center gap-1 cursor-pointer w-[68px] shrink-0"
     >
       <div
-        style={{
-          width: 62,
-          height: 62,
-          borderRadius: '50%',
-          overflow: 'hidden',
-          border: borderStyle,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: showPlaceholder ? 'var(--color-surface)' : 'transparent',
-        }}
+        className={`w-[62px] h-[62px] rounded-full overflow-hidden flex items-center justify-center ${ringClass}`}
       >
         {showPlaceholder ? (
-          <Plus size={18} color="var(--color-black)" />
+          <Plus size={18} className="text-stone-950" />
         ) : (
           <img
             src={avatarUrl}
             alt={label}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
+            className="w-full h-full object-cover"
           />
         )}
       </div>
 
       <span
         title={label}
-        style={{
-          fontSize: 10,
-          color: 'var(--color-black)',
-          fontFamily: 'var(--font-sans)',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          maxWidth: 60,
-          textAlign: 'center',
-        }}
+        className="text-[10px] text-stone-950 font-apple overflow-hidden text-ellipsis whitespace-nowrap max-w-[60px] text-center"
       >
         {label}
       </span>

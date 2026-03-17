@@ -330,8 +330,11 @@ export default function ProfileTabs({
           const hasMultiple = post.images && post.images.length > 1;
           return (
             <div
-              key={post.id || i}
+              key={post.id || post.post_id || i}
               onClick={() => onPostClick?.(post)}
+              onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(post); }}
+              role="button"
+              tabIndex={0}
               style={{
                 position: 'relative',
                 aspectRatio: '1/1',
@@ -341,7 +344,7 @@ export default function ProfileTabs({
             >
               <img
                 src={src}
-                alt=""
+                alt={post.caption ? post.caption.slice(0, 80) : 'Publicación'}
                 loading="lazy"
                 style={{
                   width: '100%',
@@ -386,8 +389,11 @@ export default function ProfileTabs({
             reel.thumbnail_url || reel.cover_url || reel.image_url || '';
           return (
             <div
-              key={reel.id || i}
+              key={reel.id || reel.reel_id || i}
               onClick={() => navigate(`/reels?user=${userId}`)}
+              onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/reels?user=${userId}`); }}
+              role="button"
+              tabIndex={0}
               style={{
                 position: 'relative',
                 aspectRatio: '1/1',
@@ -397,7 +403,7 @@ export default function ProfileTabs({
             >
               <img
                 src={src}
-                alt=""
+                alt={reel.caption ? reel.caption.slice(0, 80) : 'Reel'}
                 loading="lazy"
                 style={{
                   width: '100%',
@@ -477,16 +483,17 @@ export default function ProfileTabs({
             product.image_url ||
             (product.images && product.images[0]) ||
             '';
+          const handleProductClick = () =>
+            onProductClick
+              ? onProductClick(product)
+              : navigate(`/products/${product.id || product.product_id}`);
           return (
             <div
               key={product.id || product.product_id || i}
-              onClick={() =>
-                onProductClick
-                  ? onProductClick(product)
-                  : navigate(
-                      `/products/${product.id || product.product_id}`,
-                    )
-              }
+              onClick={handleProductClick}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleProductClick(); }}
+              role="button"
+              tabIndex={0}
               style={{
                 background: 'var(--color-white)',
                 borderRadius: 'var(--radius-lg)',
@@ -497,7 +504,7 @@ export default function ProfileTabs({
             >
               <img
                 src={src}
-                alt=""
+                alt={product.name || product.title || 'Producto'}
                 loading="lazy"
                 style={{
                   width: '100%',
@@ -568,12 +575,14 @@ export default function ProfileTabs({
             recipe.image_url ||
             (recipe.images && recipe.images[0]) ||
             '';
+          const recipeUrl = `/recipes/${recipe.id || recipe.recipe_id}`;
           return (
             <div
               key={recipe.id || recipe.recipe_id || i}
-              onClick={() =>
-                navigate(`/recipes/${recipe.id || recipe.recipe_id}`)
-              }
+              onClick={() => navigate(recipeUrl)}
+              onKeyDown={(e) => { if (e.key === 'Enter') navigate(recipeUrl); }}
+              role="button"
+              tabIndex={0}
               style={{
                 background: 'var(--color-white)',
                 borderRadius: 'var(--radius-lg)',
@@ -584,7 +593,7 @@ export default function ProfileTabs({
             >
               <img
                 src={src}
-                alt=""
+                alt={recipe.name || recipe.title || 'Receta'}
                 loading="lazy"
                 style={{
                   width: '100%',
@@ -649,8 +658,11 @@ export default function ProfileTabs({
             item.image_url;
           return (
             <div
-              key={item.id || i}
+              key={item.id || item.post_id || i}
               onClick={() => onPostClick?.(item)}
+              onKeyDown={(e) => { if (e.key === 'Enter') onPostClick?.(item); }}
+              role="button"
+              tabIndex={0}
               style={{
                 position: 'relative',
                 aspectRatio: '1/1',
@@ -660,7 +672,7 @@ export default function ProfileTabs({
             >
               <img
                 src={src}
-                alt=""
+                alt="Publicación guardada"
                 loading="lazy"
                 style={{
                   width: '100%',

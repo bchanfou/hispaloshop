@@ -267,10 +267,10 @@ export default function CustomerProfile() {
     setSaving(true);
     try {
       await apiClient.put('/customer/profile', profileData);
-      toast.success('Profile updated');
+      toast.success(t('success.saved', 'Perfil actualizado'));
       checkAuth(); // Refresh user data
     } catch (error) {
-      toast.error('Failed to update profile');
+      toast.error(t('errors.generic', 'Error al actualizar el perfil'));
     } finally {
       setSaving(false);
     }
@@ -279,11 +279,11 @@ export default function CustomerProfile() {
   const changePassword = async (e) => {
     e.preventDefault();
     if (passwordData.new_password !== passwordData.confirm_password) {
-      toast.error('Passwords do not match');
+      toast.error(t('errors.passwordMismatch', 'Las contraseñas no coinciden'));
       return;
     }
     if (passwordData.new_password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error(t('errors.passwordTooShort', 'La contraseña debe tener al menos 6 caracteres'));
       return;
     }
 
@@ -293,10 +293,10 @@ export default function CustomerProfile() {
         current_password: passwordData.current_password,
         new_password: passwordData.new_password
       });
-      toast.success('Password changed');
+      toast.success(t('success.saved', 'Contraseña actualizada'));
       setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
     } catch (error) {
-      toast.error(error.message || 'Failed to change password');
+      toast.error(error.message || t('errors.generic', 'Error al cambiar la contraseña'));
     } finally {
       setSaving(false);
     }
@@ -306,9 +306,9 @@ export default function CustomerProfile() {
     setSaving(true);
     try {
       await apiClient.post('/preferences', preferences);
-      toast.success('Dietary preferences saved');
+      toast.success(t('success.saved', 'Preferencias guardadas'));
     } catch (error) {
-      toast.error('Failed to save preferences');
+      toast.error(t('errors.generic', 'Error al guardar preferencias'));
     } finally {
       setSaving(false);
     }
@@ -333,7 +333,13 @@ export default function CustomerProfile() {
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-stone-500">Loading...</div>;
+    return (
+      <div className="py-12 space-y-4 max-w-xl animate-pulse">
+        <div className="h-8 w-48 bg-stone-100 rounded-lg" />
+        <div className="h-4 w-72 bg-stone-100 rounded" />
+        <div className="h-48 bg-stone-100 rounded-xl mt-6" />
+      </div>
+    );
   }
 
   return (

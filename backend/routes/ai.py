@@ -297,6 +297,36 @@ async def get_market_insights(
     }
 
 
+@router.post("/suggest-content")
+async def suggest_content(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Sugiere caption y hashtags para publicaciones de creadores.
+    """
+    body = await request.json()
+    content_type = body.get("content_type", "post")
+
+    suggestions = {
+        "post": {
+            "caption": "Comparte tu pasión por el aceite de oliva virgen extra 🫒 ¿Cuál es tu variedad favorita?",
+            "hashtags": ["#AOVE", "#AceiteDeOliva", "#HispaloShop", "#Gourmet", "#ProductoLocal"],
+        },
+        "reel": {
+            "caption": "Descubre los sabores que te transportan al campo andaluz 🌿✨",
+            "hashtags": ["#Reels", "#AOVE", "#Foodie", "#HispaloShop", "#SpanishFood"],
+        },
+        "story": {
+            "caption": "Hoy probamos algo especial... 🫒🔥",
+            "hashtags": ["#Story", "#AOVE", "#HispaloShop", "#Delicioso"],
+        },
+    }
+
+    result = suggestions.get(content_type, suggestions["post"])
+    return result
+
+
 @router.get("/semantic-search")
 async def semantic_search(
     q: str = Query(..., min_length=2, max_length=100),

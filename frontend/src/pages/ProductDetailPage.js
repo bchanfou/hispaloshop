@@ -230,7 +230,6 @@ export default function ProductDetailPage() {
     product?.currency || 'EUR'
   );
   const isFreeShipping = !product?.shipping_cost || product?.shipping_cost === 0;
-  const certs = product?.certifications || [];
   const images = product?.images || [];
   const primaryImage = images[0] || product?.image_url || null;
 
@@ -290,7 +289,7 @@ export default function ProductDetailPage() {
           <button
             type="button" onClick={() => navigate(-1)}
             style={{
-              width: 36, height: 36, borderRadius: '50%',
+              width: 44, height: 44, borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
             }}
@@ -303,7 +302,7 @@ export default function ProductDetailPage() {
             <button
               type="button" onClick={handleShare}
               style={{
-                width: 36, height: 36, borderRadius: '50%',
+                width: 44, height: 44, borderRadius: '50%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
               }}
@@ -314,7 +313,7 @@ export default function ProductDetailPage() {
             <button
               type="button" onClick={toggleWishlist} disabled={wishlistLoading}
               style={{
-                width: 36, height: 36, borderRadius: '50%',
+                width: 44, height: 44, borderRadius: '50%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
               }}
@@ -331,7 +330,7 @@ export default function ProductDetailPage() {
       </header>
 
       {/* ── Image Gallery — 1:1 scroll-snap ── */}
-      <div style={{ position: 'relative', width: '100%', background: 'var(--color-surface)' }}>
+      <section aria-label="Galería de imágenes del producto" style={{ position: 'relative', width: '100%', background: 'var(--color-surface)' }}>
         <div
           ref={galleryRef}
           onScroll={handleGalleryScroll}
@@ -400,11 +399,18 @@ export default function ProductDetailPage() {
                 }}
                 aria-label={`Ir a imagen ${i + 1}`}
                 style={{
-                  width: 8, height: 8, borderRadius: '50%', padding: 0, border: 'none', cursor: 'pointer',
+                  width: 24, height: 24, borderRadius: '50%',
+                  padding: 0, border: 'none', cursor: 'pointer',
+                  background: 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%', display: 'block',
                   background: i === activeImageIndex ? 'var(--color-black)' : 'rgba(0,0,0,0.25)',
                   transition: 'background 0.2s',
-                }}
-              />
+                }} />
+              </button>
             ))}
           </div>
         )}
@@ -421,7 +427,7 @@ export default function ProductDetailPage() {
             {activeImageIndex + 1}/{images.length}
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── Product Header ── */}
       <div style={{ padding: '16px 16px 0' }}>
@@ -577,7 +583,7 @@ export default function ProductDetailPage() {
       )}
 
       {/* ── Packs Selector ── */}
-      {((selectedVariant?.packs?.length > 1) || (product.packs?.length > 0)) && (
+      {((selectedVariant?.packs?.length > 0) || (product.packs?.length > 0)) && (
         <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)' }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
             {t('productDetail.selectPack', 'Pack')}
@@ -735,15 +741,14 @@ export default function ProductDetailPage() {
           <button
             type="button"
             onClick={handleAskProducer}
+            className="hover:underline"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               fontSize: 13, fontWeight: 500, color: 'var(--color-black)',
               fontFamily: 'var(--font-sans)',
               background: 'none', border: 'none', cursor: 'pointer',
-              padding: 0, textDecoration: 'none',
+              padding: '8px 0', textDecoration: 'none',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
           >
             <MessageCircle size={14} /> Preguntar al productor
           </button>
