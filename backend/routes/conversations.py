@@ -5,6 +5,7 @@ Extracted from server.py.
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from typing import Optional
 from datetime import datetime, timezone
+import html as html_module
 import re
 import uuid
 import logging
@@ -179,7 +180,7 @@ async def send_message(conversation_id: str, input: MessageInput, background_tas
                         </p>
                         <div style="background-color: white; border-radius: 8px; padding: 15px; border-left: 4px solid #1C1C1C;">
                             <p style="color: #1C1C1C; font-size: 14px; margin: 0; font-style: italic;">
-                                "{input.content[:200]}{'...' if len(input.content) > 200 else ''}"
+                                "{html_module.escape(input.content[:200])}{'...' if len(input.content) > 200 else ''}"
                             </p>
                         </div>
                     </div>

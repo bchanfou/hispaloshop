@@ -16,6 +16,7 @@ import qrcode
 from core.database import db
 from core.auth import get_current_user, get_optional_user, require_role
 from core.models import User, ProductInput
+from core.sanitize import strip_mongo_operators
 from core.constants import SUPPORTED_LANGUAGES
 from services.markets import get_product_target_markets, is_product_available_in_country, normalize_market_code, normalize_markets
 from services.translation import TranslationService
@@ -436,6 +437,7 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         "seller_type": seller_type,
         "origin_country": input.country_origin if seller_type == "importer" else None,
     }
+    product = strip_mongo_operators(product)
     await db.products.insert_one(product)
     product.pop("_id", None)
 

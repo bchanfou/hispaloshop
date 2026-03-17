@@ -112,6 +112,7 @@ async def _create_indexes():
     await db.orders.create_index("influencer_discount_code", sparse=True)
     await db.orders.create_index([("user_id", 1), ("created_at", -1)])
     await db.orders.create_index([("producer_id", 1), ("created_at", -1)])
+    await db.orders.create_index("payment_session_id", sparse=True)
     logger.info("  OK: orders indexes")
     
     # Cart - índices para operaciones rápidas
