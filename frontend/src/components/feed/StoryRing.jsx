@@ -18,6 +18,10 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
+      role="button"
+      tabIndex={0}
+      aria-label={isSelf ? 'Crear tu historia' : `Ver historia de ${label}`}
       style={{
         display: 'flex',
         flexDirection: 'column',

@@ -78,24 +78,28 @@ function FollowingFeed() {
   const handleShare = async (postId) => {
     const postUrl = `${window.location.origin}/posts/${postId}`;
 
-    if (navigator.share) {
-      await navigator.share({
-        title: 'Hispaloshop',
-        text: t('feed.sharePrompt', 'Mira esta publicación en Hispaloshop'),
-        url: postUrl,
-      });
-      return;
-    }
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Hispaloshop',
+          text: t('feed.sharePrompt', 'Mira esta publicación en Hispaloshop'),
+          url: postUrl,
+        });
+        return;
+      }
 
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(postUrl);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(postUrl);
+      }
+    } catch {
+      // User cancelled share dialog — ignore
     }
   };
 
   if (error) {
     return (
       <div className="flex flex-col items-center px-6 py-16 text-center">
-        <AlertCircle className="mb-3 h-8 w-8 text-stone-300" />
+        <AlertCircle className="mb-3 h-8 w-8 text-stone-400" />
         <p className="text-[14px] font-medium text-stone-700">
           {t('feed.error', 'Error al cargar el feed')}
         </p>
@@ -122,7 +126,7 @@ function FollowingFeed() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      style={{ position: 'relative', overscrollBehavior: 'none' }}
+      className="relative overscroll-none"
       {...handlers}
     >
       <PullIndicator progress={progress} isRefreshing={refreshing} />

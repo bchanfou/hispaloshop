@@ -21,22 +21,34 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
-  const timerRef = useRef(null);
-  const touchStartY = useRef(null);
+  const [videoDuration, setVideoDuration] = useState(null);
+  const longPressRef = useRef(null);
   const intervalRef = useRef(null);
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+  const touchStartTime = useRef(null);
+  const videoRef = useRef(null);
+  const handledByTouch = useRef(false);
 
   const currentStory = stories[currentUserIndex];
   const items = currentStory?.items || [];
   const currentItem = items[currentItemIndex];
 
+  // Determine effective duration: video real duration or default 5s for images
+  const effectiveDuration = currentItem?.video_url
+    ? (videoDuration || STORY_DURATION)
+    : STORY_DURATION;
+
   const goNext = useCallback(() => {
     if (currentItemIndex < items.length - 1) {
       setCurrentItemIndex((i) => i + 1);
       setProgress(0);
+      setVideoDuration(null);
     } else if (currentUserIndex < stories.length - 1) {
       setCurrentUserIndex((u) => u + 1);
       setCurrentItemIndex(0);
       setProgress(0);
+      setVideoDuration(null);
     } else {
       onClose();
     }
@@ -46,40 +58,124 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     if (currentItemIndex > 0) {
       setCurrentItemIndex((i) => i - 1);
       setProgress(0);
+      setVideoDuration(null);
     } else if (currentUserIndex > 0) {
       setCurrentUserIndex((u) => u - 1);
       setCurrentItemIndex(0);
       setProgress(0);
+      setVideoDuration(null);
+    }
+  }, [currentItemIndex, currentUserIndex]);
+
+  const goNextUser = useCallback(() => {
+    if (currentUserIndex < stories.length - 1) {
+      setCurrentUserIndex((u) => u + 1);
+      setCurrentItemIndex(0);
+      setProgress(0);
+      setVideoDuration(null);
     } else {
       onClose();
     }
-  }, [currentItemIndex, currentUserIndex, onClose]);
+  }, [currentUserIndex, stories.length, onClose]);
 
-  // Timer
+  const goPrevUser = useCallback(() => {
+    if (currentUserIndex > 0) {
+      setCurrentUserIndex((u) => u - 1);
+      setCurrentItemIndex(0);
+      setProgress(0);
+      setVideoDuration(null);
+    }
+  }, [currentUserIndex]);
+
+  // Timer — progress bar
   useEffect(() => {
     if (paused || !items.length) return;
+    // For video stories, wait until we know the duration
+    if (currentItem?.video_url && !videoDuration) return;
 
     const tick = 50;
     let elapsed = 0;
 
     intervalRef.current = setInterval(() => {
       elapsed += tick;
-      setProgress(Math.min(elapsed / STORY_DURATION, 1));
-      if (elapsed >= STORY_DURATION) {
+      setProgress(Math.min(elapsed / effectiveDuration, 1));
+      if (elapsed >= effectiveDuration) {
         clearInterval(intervalRef.current);
         goNext();
       }
     }, tick);
 
     return () => clearInterval(intervalRef.current);
-  }, [currentUserIndex, currentItemIndex, paused, items.length, goNext]);
+  }, [currentUserIndex, currentItemIndex, paused, items.length, goNext, effectiveDuration, videoDuration, currentItem?.video_url]);
 
   // Reset progress on item change
   useEffect(() => {
     setProgress(0);
   }, [currentUserIndex, currentItemIndex]);
 
-  const handleTap = (e) => {
+  // Cleanup long-press timer on unmount
+  useEffect(() => {
+    return () => {
+      clearTimeout(longPressRef.current);
+      clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  // Keyboard: Escape to close, Arrow keys to navigate
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      else if (e.key === 'ArrowRight') goNext();
+      else if (e.key === 'ArrowLeft') goPrev();
+      else if (e.key === ' ') {
+        e.preventDefault();
+        setPaused((p) => !p);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose, goNext, goPrev]);
+
+  // Preload next story image
+  useEffect(() => {
+    let nextItem = null;
+    if (currentItemIndex < items.length - 1) {
+      nextItem = items[currentItemIndex + 1];
+    } else if (currentUserIndex < stories.length - 1) {
+      const nextUserStory = stories[currentUserIndex + 1];
+      nextItem = nextUserStory?.items?.[0];
+    }
+    if (nextItem?.image_url && !nextItem.video_url) {
+      const img = new Image();
+      img.src = nextItem.image_url;
+    }
+  }, [currentItemIndex, currentUserIndex, items, stories]);
+
+  // Sync video play/pause with paused state
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (paused) {
+      video.pause();
+    } else {
+      video.play().catch(() => {});
+    }
+  }, [paused]);
+
+  // Video metadata handler
+  const handleVideoLoaded = useCallback((e) => {
+    const dur = e.target.duration;
+    if (dur && isFinite(dur)) {
+      setVideoDuration(dur * 1000); // convert to ms
+    }
+  }, []);
+
+  // Click handler for mouse-only (desktop). Skipped on touch to prevent double-fire.
+  const handleClick = (e) => {
+    if (handledByTouch.current) {
+      handledByTouch.current = false;
+      return;
+    }
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const threshold = rect.width * 0.4;
@@ -90,30 +186,67 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     }
   };
 
+  // Touch handlers — horizontal swipe between users, vertical swipe to close, long-press to pause
   const handleTouchStart = (e) => {
+    handledByTouch.current = true;
+    touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
-    timerRef.current = setTimeout(() => setPaused(true), 200);
+    touchStartTime.current = Date.now();
+    longPressRef.current = setTimeout(() => setPaused(true), 200);
   };
 
   const handleTouchEnd = (e) => {
-    clearTimeout(timerRef.current);
+    clearTimeout(longPressRef.current);
     setPaused(false);
 
-    if (touchStartY.current !== null) {
-      const deltaY = e.changedTouches[0].clientY - touchStartY.current;
-      if (deltaY > 100) {
-        onClose();
+    if (touchStartX.current === null) return;
+
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    const elapsed = Date.now() - (touchStartTime.current || 0);
+
+    // Swipe down to close
+    if (deltaY > 100 && Math.abs(deltaX) < 80) {
+      onClose();
+      touchStartX.current = null;
+      touchStartY.current = null;
+      return;
+    }
+
+    // Horizontal swipe between users (fast, >60px)
+    if (Math.abs(deltaX) > 60 && elapsed < 400 && Math.abs(deltaY) < 80) {
+      if (deltaX < 0) {
+        goNextUser();
+      } else {
+        goPrevUser();
+      }
+      touchStartX.current = null;
+      touchStartY.current = null;
+      return;
+    }
+
+    // If no significant swipe, treat as tap (only for quick taps)
+    if (elapsed < 200 && Math.abs(deltaX) < 15 && Math.abs(deltaY) < 15) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.changedTouches[0].clientX - rect.left;
+      const threshold = rect.width * 0.4;
+      if (x < threshold) {
+        goPrev();
+      } else {
+        goNext();
       }
     }
+
+    touchStartX.current = null;
     touchStartY.current = null;
   };
 
   const handleMouseDown = () => {
-    timerRef.current = setTimeout(() => setPaused(true), 200);
+    longPressRef.current = setTimeout(() => setPaused(true), 200);
   };
 
   const handleMouseUp = () => {
-    clearTimeout(timerRef.current);
+    clearTimeout(longPressRef.current);
     setPaused(false);
   };
 
@@ -123,25 +256,20 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        background: '#000',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+      className="fixed inset-0 z-[9999] flex flex-col bg-black"
+      role="dialog"
+      aria-label={`Historia de ${user?.name || user?.username || 'usuario'}`}
+      aria-modal="true"
     >
       {/* Progress bars */}
       <div
-        style={{
-          display: 'flex',
-          padding: '8px 8px 0',
-          paddingTop: 'calc(env(safe-area-inset-top, 8px) + 8px)',
-          gap: 4,
-        }}
+        className="flex gap-1 px-2 pt-[calc(env(safe-area-inset-top,8px)+8px)]"
+        role="progressbar"
+        aria-valuenow={Math.round(progress * 100)}
+        aria-valuemin={0}
+        aria-valuemax={100}
       >
-        {items.map((_, i) => {
+        {items.map((item, i) => {
           let fillWidth;
           if (i < currentItemIndex) fillWidth = '100%';
           else if (i === currentItemIndex) fillWidth = `${progress * 100}%`;
@@ -149,20 +277,13 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
           return (
             <div
-              key={i}
-              style={{
-                flex: 1,
-                height: 2,
-                background: 'rgba(255,255,255,0.3)',
-                borderRadius: 2,
-                overflow: 'hidden',
-              }}
+              key={item.id || item._id || `story-seg-${i}`}
+              className="flex-1 h-0.5 rounded-full overflow-hidden bg-white/30"
             >
               <div
+                className="h-full bg-white"
                 style={{
-                  height: '100%',
                   width: fillWidth,
-                  background: '#fff',
                   transition: i === currentItemIndex ? 'none' : 'width 0.1s',
                 }}
               />
@@ -172,97 +293,62 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       </div>
 
       {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: '8px 16px',
-          gap: 8,
-        }}
-      >
+      <div className="flex items-center gap-2 px-4 py-2">
         <img
           src={user?.avatar_url || user?.profile_image}
-          alt=""
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            objectFit: 'cover',
-          }}
+          alt={`Avatar de ${user?.name || user?.username || 'usuario'}`}
+          className="w-8 h-8 rounded-full object-cover"
         />
-        <span
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: '#fff',
-            fontFamily: 'var(--font-sans)',
-          }}
-        >
+        <span className="text-sm font-semibold text-white font-apple">
           {user?.name || user?.username}
         </span>
-        <span
-          style={{
-            fontSize: 12,
-            color: 'rgba(255,255,255,0.6)',
-            fontFamily: 'var(--font-sans)',
-          }}
-        >
+        <span className="text-xs text-white/60 font-apple">
           {timeAgo(currentItem?.created_at)}
         </span>
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
+        {/* Paused indicator */}
+        {paused && (
+          <span className="text-[10px] text-white/40 font-apple mr-1">En pausa</span>
+        )}
         <button
           onClick={onClose}
-          style={{
-            background: 'none',
-            border: 'none',
-            padding: 4,
-            cursor: 'pointer',
-            display: 'flex',
-          }}
+          className="p-1 bg-transparent border-none cursor-pointer flex"
+          aria-label="Cerrar historia"
         >
-          <X size={24} color="#fff" />
+          <X size={24} className="text-white" />
         </button>
       </div>
 
-      {/* Story content + tap zones */}
+      {/* Story content + tap/swipe zones */}
       <div
-        style={{
-          flex: 1,
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-        }}
-        onClick={handleTap}
+        className="flex-1 relative flex items-center justify-center overflow-hidden"
+        onClick={handleClick}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
       >
+        {/* Bottom gradient for text legibility */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/60 to-transparent z-[1] pointer-events-none" />
+
         {currentItem?.video_url ? (
           <video
+            ref={videoRef}
             key={currentItem.video_url}
             src={currentItem.video_url}
             autoPlay
             muted
             playsInline
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
+            onLoadedMetadata={handleVideoLoaded}
+            className="w-full h-full object-cover"
           />
         ) : (
           <img
             key={currentItem?.image_url}
             src={currentItem?.image_url}
-            alt=""
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
+            alt={currentItem?.caption || 'Contenido de la historia'}
+            className="w-full h-full object-cover"
+            draggable={false}
           />
         )}
 
@@ -277,57 +363,22 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 navigate(`/product/${product.slug || product.id}`);
               }
             }}
-            style={{
-              position: 'absolute',
-              bottom: 40,
-              left: 16,
-              right: 16,
-              background: 'rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              borderRadius: 'var(--radius-full)',
-              padding: '8px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-            }}
+            className="absolute bottom-10 left-4 right-4 z-[2] flex items-center gap-2 px-3 py-2 rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
+            role="link"
+            aria-label={`Ver producto: ${currentItem.products[0]?.name}`}
           >
             {currentItem.products[0]?.thumbnail && (
               <img
                 src={currentItem.products[0].thumbnail}
                 alt=""
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 'var(--radius-md)',
-                  objectFit: 'cover',
-                }}
+                className="w-7 h-7 rounded-hs-md object-cover"
               />
             )}
-            <span
-              style={{
-                fontSize: 13,
-                color: '#fff',
-                fontFamily: 'var(--font-sans)',
-                flex: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
+            <span className="text-[13px] text-white font-apple flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
               {currentItem.products[0]?.name}
             </span>
-            <span
-              style={{
-                fontSize: 13,
-                color: '#fff',
-                fontWeight: 600,
-                fontFamily: 'var(--font-sans)',
-                flexShrink: 0,
-              }}
-            >
-              {'Ver \u2192'}
+            <span className="text-[13px] text-white font-semibold font-apple shrink-0">
+              {'Ver →'}
             </span>
           </div>
         )}

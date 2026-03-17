@@ -103,8 +103,8 @@ export default function CustomerProfile() {
       }
       // Check consent status
       setHasConsent(data.consent?.analytics_consent || false);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    } catch {
+      toast.error('Error al cargar el perfil');
     } finally {
       setLoading(false);
     }
@@ -114,8 +114,8 @@ export default function CustomerProfile() {
     try {
       const data = await apiClient.get('/customer/addresses');
       setAddresses(data.addresses || []);
-    } catch (error) {
-      console.error('Error fetching addresses:', error);
+    } catch {
+      toast.error('Error al cargar las direcciones');
     }
   };
 

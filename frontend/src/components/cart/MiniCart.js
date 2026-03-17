@@ -131,11 +131,17 @@ const MiniCart = ({ isOpen, onClose }) => {
                             exit={{ opacity: 0, x: -100 }}
                             className="flex gap-3 bg-stone-50 rounded-xl p-3"
                           >
-                            <img
-                              src={item.image || item.product?.image}
-                              alt={item.name || item.product?.name}
-                              className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
-                            />
+                            {(item.image || item.product?.image) ? (
+                              <img
+                                src={item.image || item.product?.image}
+                                alt={item.name || item.product?.name}
+                                className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 rounded-xl bg-stone-100 flex-shrink-0 flex items-center justify-center">
+                                <ShoppingBag className="w-6 h-6 text-stone-400" />
+                              </div>
+                            )}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
                                 <h4 className="font-medium text-stone-950 text-sm line-clamp-2">
@@ -154,7 +160,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                 <div className="flex items-center bg-white rounded-xl">
                                   <button
                                     onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                                    className="p-1.5 hover:bg-stone-100 rounded-l-xl"
+                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-l-xl transition-colors"
                                     aria-label={`Disminuir cantidad de ${item.name || item.product?.name}`}
                                   >
                                     <Minus className="w-4 h-4 text-stone-950" />
@@ -164,7 +170,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                   </span>
                                   <button
                                     onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                                    className="p-1.5 hover:bg-stone-100 rounded-r-xl"
+                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-r-xl transition-colors"
                                     aria-label={`Aumentar cantidad de ${item.name || item.product?.name}`}
                                   >
                                     <Plus className="w-4 h-4 text-stone-950" />

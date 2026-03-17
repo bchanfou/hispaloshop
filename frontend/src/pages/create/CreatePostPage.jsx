@@ -226,14 +226,14 @@ export default function CreatePostPage() {
       <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: '#000', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
         {/* top bar */}
         <div style={{ background: 'rgba(0,0,0,0.8)', height: 52, display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
-          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+          <button onClick={() => navigate(-1)} aria-label="Cerrar" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
             <X size={22} color="#fff" />
           </button>
           <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Nueva publicación</span>
           <button
             disabled={!selectedFiles.length}
             onClick={() => setStep(2)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-black)', opacity: selectedFiles.length ? 1 : 0.4 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-white)', opacity: selectedFiles.length ? 1 : 0.4 }}
           >
             Siguiente →
           </button>
@@ -257,7 +257,7 @@ export default function CreatePostPage() {
         {/* gallery bar */}
         <div style={{ background: 'rgba(0,0,0,0.8)', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <span style={{ fontSize: 13, color: '#fff', fontWeight: 500 }}>Recientes ▼</span>
-          <button onClick={() => cameraInputRef.current?.click()} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>📷</button>
+          <button onClick={() => cameraInputRef.current?.click()} aria-label="Abrir cámara" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>📷</button>
         </div>
 
         {/* gallery grid */}
@@ -271,8 +271,8 @@ export default function CreatePostPage() {
               >
                 <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 {i === previewIndex && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Check size={22} color="#fff" />
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,10,10,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Check size={22} color="var(--color-white)" />
                   </div>
                 )}
               </div>
@@ -306,7 +306,7 @@ export default function CreatePostPage() {
             <ChevronLeft size={18} /> Volver
           </button>
           <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Editar</span>
-          <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-black)' }}>
+          <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-white)' }}>
             Siguiente →
           </button>
         </div>
@@ -413,7 +413,7 @@ export default function CreatePostPage() {
                         height: 56,
                         borderRadius: 'var(--radius-md)',
                         overflow: 'hidden',
-                        border: activeFilter.name === f.name ? '2px solid var(--color-black)' : '2px solid transparent',
+                        border: activeFilter.name === f.name ? '2px solid var(--color-white)' : '2px solid transparent',
                       }}
                     >
                       {previewUrls[previewIndex] && (
@@ -532,7 +532,7 @@ export default function CreatePostPage() {
                           height: 22,
                           borderRadius: '50%',
                           background: c.value,
-                          border: o.color === c.value ? '2px solid var(--color-black)' : '2px solid rgba(255,255,255,0.3)',
+                          border: o.color === c.value ? '2px solid var(--color-white)' : '2px solid rgba(255,255,255,0.3)',
                           cursor: 'pointer',
                           padding: 0,
                         }}

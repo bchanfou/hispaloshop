@@ -185,6 +185,16 @@ export default function ProfileTabs({
 
   const [loading, setLoading] = useState({});
 
+  /* reset cached data when userId changes */
+  useEffect(() => {
+    setPostsData(null);
+    setReelsData(null);
+    setProductsData(null);
+    setRecipesData(null);
+    setSavedData(null);
+    setLoading({});
+  }, [userId]);
+
   const dataMap = {
     posts: postsData,
     reels: reelsData,
@@ -252,6 +262,9 @@ export default function ProfileTabs({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
+            aria-label={tab.label}
+            aria-selected={isActive}
+            role="tab"
             style={{
               flex: 1,
               display: 'flex',

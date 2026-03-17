@@ -105,16 +105,18 @@ const AddToCartButton = ({
         <div className="flex items-center bg-stone-100 rounded-xl">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="p-2 hover:bg-stone-100 rounded-l-xl transition-colors"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-l-xl transition-colors"
             disabled={state === 'loading'}
+            aria-label="Disminuir cantidad"
           >
             <Minus className="w-4 h-4 text-stone-950" />
           </button>
-          <span className="w-10 text-center font-medium text-stone-950">{quantity}</span>
+          <span className="w-10 text-center font-medium text-stone-950" aria-live="polite">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="p-2 hover:bg-stone-100 rounded-r-xl transition-colors"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-r-xl transition-colors"
             disabled={state === 'loading'}
+            aria-label="Aumentar cantidad"
           >
             <Plus className="w-4 h-4 text-stone-950" />
           </button>

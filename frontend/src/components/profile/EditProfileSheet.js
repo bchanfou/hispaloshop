@@ -251,7 +251,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                       </span>
                     )}
                     {usernameStatus === 'taken' && (
-                      <span className="flex items-center gap-1 text-[11px] font-medium text-red-500">
+                      <span className="flex items-center gap-1 text-[11px] font-medium text-stone-950">
                         <X className="h-3 w-3" /> No disponible
                       </span>
                     )}

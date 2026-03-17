@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, Users, MapPin, ChevronRight, Star, Clock, UserPlus } from 'lucide-react';
+import { Search, Users, MapPin, ChevronRight, Star, Clock } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -94,6 +94,7 @@ export default function DiscoverPage() {
   const [eliteIdx, setEliteIdx] = useState(0);
   const [eliteFading, setEliteFading] = useState(false);
   const eliteTimer = useRef(null);
+  const eliteFadeTimer = useRef(null);
   const elitePaused = useRef(false);
 
   /* ── fetch data ── */
@@ -140,7 +141,7 @@ export default function DiscoverPage() {
   const advanceElite = useCallback(() => {
     if (eliteStores.length <= 1) return;
     setEliteFading(true);
-    setTimeout(() => {
+    eliteFadeTimer.current = setTimeout(() => {
       setEliteIdx(prev => (prev + 1) % eliteStores.length);
       setEliteFading(false);
     }, ELITE_FADE_MS);
@@ -152,7 +153,10 @@ export default function DiscoverPage() {
       if (!elitePaused.current) advanceElite();
     };
     eliteTimer.current = setInterval(tick, ELITE_ROTATE_MS);
-    return () => clearInterval(eliteTimer.current);
+    return () => {
+      clearInterval(eliteTimer.current);
+      clearTimeout(eliteFadeTimer.current);
+    };
   }, [eliteStores.length, advanceElite]);
 
   /* ── follow toggle ── */
@@ -172,10 +176,9 @@ export default function DiscoverPage() {
     }
   }, [user, followingIds, navigate]);
 
-  /* ── sponsored product injection ── */
-  const buildProductGrid = () => {
-    if (!products || !products.length) return [];
-    // find elite store products from the main list
+  /* ── sponsored product injection (memoized) ── */
+  const productGrid = useMemo(() => {
+    if (loadingProducts || !products || !products.length) return [];
     const eliteIds = new Set(eliteStores.map(s => s.producer_id || s.user_id));
     const sponsored = products.filter(p => eliteIds.has(p.producer_id));
     const regular = products.filter(p => !eliteIds.has(p.producer_id));
@@ -184,26 +187,20 @@ export default function DiscoverPage() {
     let regIdx = 0;
     let sponIdx = 0;
 
-    // first 4 regular
     for (let i = 0; i < 4 && regIdx < regular.length; i++) {
       grid.push({ ...regular[regIdx++], _sponsored: false });
     }
-    // 1 sponsored (if available)
     if (sponIdx < sponsored.length) {
       grid.push({ ...sponsored[sponIdx++], _sponsored: true });
     }
-    // rest regular
     while (regIdx < regular.length) {
       grid.push({ ...regular[regIdx++], _sponsored: false });
-      // every 12, inject another sponsored
       if ((grid.length % 13 === 0) && sponIdx < sponsored.length) {
         grid.push({ ...sponsored[sponIdx++], _sponsored: true });
       }
     }
     return grid;
-  };
-
-  const productGrid = loadingProducts ? [] : buildProductGrid();
+  }, [loadingProducts, products, eliteStores]);
 
   /* ── render ── */
   return (
@@ -221,13 +218,17 @@ export default function DiscoverPage() {
       <div style={{ padding: '12px 16px 0' }}>
 
         {/* ─── SEARCH BAR ─── */}
-        <div
+        <button
           onClick={() => navigate('/search')}
+          aria-label="Buscar productos, tiendas, recetas"
+          role="search"
           style={{
             position: 'relative', marginBottom: 16, cursor: 'pointer',
+            width: '100%', display: 'block', background: 'none', border: 'none', padding: 0,
+            textAlign: 'left',
           }}
         >
-          <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-stone)' }} />
+          <Search size={18} aria-hidden="true" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-stone)' }} />
           <div style={{
             width: '100%', height: 44,
             borderRadius: 'var(--radius-full)',
@@ -236,10 +237,11 @@ export default function DiscoverPage() {
             paddingLeft: 42, paddingRight: 16,
             fontSize: 14, color: 'var(--color-stone)',
             display: 'flex', alignItems: 'center',
+            fontFamily: 'var(--font-sans)',
           }}>
             Buscar productos, tiendas, recetas…
           </div>
-        </div>
+        </button>
 
         {/* ─── SECTION PILLS ─── */}
         <div className="scrollbar-hide" style={{ ...hScroll, gap: 8, marginBottom: 20, paddingBottom: 2 }}>
@@ -364,10 +366,13 @@ export default function DiscoverPage() {
 
               {/* dots indicator */}
               {eliteStores.length > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 10 }}>
-                  {eliteStores.map((_, i) => (
+                <div role="tablist" aria-label="Tiendas destacadas" style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 10 }}>
+                  {eliteStores.map((s, i) => (
                     <button
-                      key={i}
+                      key={s.store_id || s.id || i}
+                      role="tab"
+                      aria-selected={i === eliteIdx}
+                      aria-label={`Tienda ${i + 1}: ${s.name || ''}`}
                       onClick={(e) => { e.stopPropagation(); setEliteIdx(i); }}
                       style={{
                         width: i === eliteIdx ? 16 : 6, height: 6,

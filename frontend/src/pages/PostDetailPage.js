@@ -137,6 +137,7 @@ export default function PostDetailPage() {
       }}>
         <button
           onClick={() => navigate(-1)}
+          aria-label="Volver"
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
         >
           <ArrowLeft size={22} color="var(--color-black)" />
@@ -147,9 +148,18 @@ export default function PostDetailPage() {
       {/* ── Post ── */}
       <PostCard
         post={post}
-        onLike={() => apiClient.post(`/posts/${postId}/like`).catch(() => {})}
+        onLike={() => apiClient.post(`/posts/${postId}/like`).catch((err) => toast.error('Error al dar me gusta'))}
         onComment={() => inputRef.current?.focus()}
-        onSave={() => {}}
+        onSave={() => apiClient.post(`/posts/${postId}/save`).catch((err) => toast.error('Error al guardar'))}
+        onShare={async () => {
+          const postUrl = `${window.location.origin}/posts/${postId}`;
+          if (navigator.share) {
+            await navigator.share({ title: 'Hispaloshop', text: 'Mira esta publicación', url: postUrl }).catch(() => {});
+          } else if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(postUrl);
+            toast.success('Enlace copiado');
+          }
+        }}
       />
 
       {/* ── Comments Section ── */}
@@ -258,6 +268,7 @@ export default function PostDetailPage() {
                   {isOwn && (
                     <button
                       onClick={() => handleDeleteComment(c.comment_id)}
+                      aria-label="Eliminar comentario"
                       style={{
                         background: 'none', border: 'none', cursor: 'pointer',
                         padding: 4, alignSelf: 'flex-start', opacity: 0.4,
@@ -304,6 +315,7 @@ export default function PostDetailPage() {
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Añade un comentario..."
+            aria-label="Escribe un comentario"
             maxLength={500}
             style={{
               flex: 1, height: 40, padding: '0 14px',
@@ -318,6 +330,7 @@ export default function PostDetailPage() {
           <button
             onClick={handleSendComment}
             disabled={!newComment.trim() || sending}
+            aria-label="Enviar comentario"
             style={{
               width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
               background: newComment.trim() ? 'var(--color-black)' : 'var(--color-surface)',

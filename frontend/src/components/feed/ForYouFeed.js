@@ -49,17 +49,21 @@ export default function ForYouFeed() {
   const handleShare = async (postId) => {
     const postUrl = `${window.location.origin}/posts/${postId}`;
 
-    if (navigator.share) {
-      await navigator.share({
-        title: 'Hispaloshop',
-        text: t('feed.sharePrompt', 'Mira esta publicación en Hispaloshop'),
-        url: postUrl,
-      });
-      return;
-    }
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Hispaloshop',
+          text: t('feed.sharePrompt', 'Mira esta publicación en Hispaloshop'),
+          url: postUrl,
+        });
+        return;
+      }
 
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(postUrl);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(postUrl);
+      }
+    } catch {
+      // User cancelled share dialog — ignore
     }
   };
 
@@ -89,8 +93,7 @@ export default function ForYouFeed() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
-      className=""
-      style={{ position: 'relative', overscrollBehavior: 'none' }}
+      className="relative overscroll-none"
       {...handlers}
     >
       <PullIndicator progress={progress} isRefreshing={refreshing} />

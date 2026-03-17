@@ -40,18 +40,19 @@ function renderCaption(text) {
 // PostCard
 // ---------------------------------------------------------------------------
 
-export default function PostCard({ post, onLike, onComment, onSave }) {
+export default function PostCard({ post, onLike, onComment, onShare, onSave, priority = false }) {
   const navigate = useNavigate();
 
-  // Local optimistic state
-  const [liked, setLiked] = useState(post.is_liked);
-  const [likesCount, setLikesCount] = useState(post.likes_count ?? 0);
-  const [saved, setSaved] = useState(post.is_saved);
+  // Local optimistic state — accept both prop schemas
+  const [liked, setLiked] = useState(post.liked ?? post.is_liked ?? false);
+  const [likesCount, setLikesCount] = useState(post.likes ?? post.likes_count ?? 0);
+  const [saved, setSaved] = useState(post.saved ?? post.is_saved ?? false);
   const [expanded, setExpanded] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [showHeartAnim, setShowHeartAnim] = useState(false);
 
   const lastTapRef = useRef(0);
+  const heartTimerRef = useRef(null);
   const scrollRef = useRef(null);
   const captionRef = useRef(null);
 
@@ -75,7 +76,8 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
       }
       // Trigger animation
       setShowHeartAnim(true);
-      setTimeout(() => setShowHeartAnim(false), 900);
+      clearTimeout(heartTimerRef.current);
+      heartTimerRef.current = setTimeout(() => setShowHeartAnim(false), 900);
     }
     lastTapRef.current = now;
   }, [liked, onLike, post.id]);
@@ -92,15 +94,22 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
     setCarouselIndex(idx);
   }, []);
 
-  // ---- derived ------------------------------------------------------------
+  // ---- derived (accept both prop schemas) --------------------------------
 
-  const images = post.images ?? [];
+  const images = post.images ?? (Array.isArray(post.media) ? post.media.map((m) => (typeof m === 'string' ? m : m?.url)).filter(Boolean) : []);
   const hasMultiple = images.length > 1;
   const user = post.user ?? {};
-  const avatarUrl = user.avatar_url || user.profile_image;
+  const avatarUrl = user.avatar_url || user.avatar || user.profile_image;
+  const captionText = post.content ?? post.caption ?? '';
+  const commentsCount = post.comments_count ?? post.comments ?? 0;
+  const createdAt = post.created_at ?? post.timestamp;
+  const hasStory = user.has_story ?? post.has_story ?? false;
+  const normalizedProducts = Array.isArray(post.products) && post.products.length > 0
+    ? post.products
+    : post.productTag ? [post.productTag] : [];
 
   // Caption line-clamp check (approximate: >3 lines → clamp)
-  const shouldClamp = !expanded && post.content && post.content.length > 140;
+  const shouldClamp = !expanded && captionText && captionText.length > 140;
 
   // ---- styles -------------------------------------------------------------
 
@@ -123,8 +132,8 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
       width: 36,
       height: 36,
       borderRadius: 'var(--radius-full)',
-      padding: post.has_story ? 2 : 0,
-      background: post.has_story
+      padding: hasStory ? 2 : 0,
+      background: hasStory
         ? 'var(--color-black)'
         : 'transparent',
       display: 'flex',
@@ -132,11 +141,11 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
       justifyContent: 'center',
     },
     avatar: {
-      width: post.has_story ? 30 : 36,
-      height: post.has_story ? 30 : 36,
+      width: hasStory ? 30 : 36,
+      height: hasStory ? 30 : 36,
       borderRadius: 'var(--radius-full)',
       objectFit: 'cover',
-      border: post.has_story ? '2px solid var(--color-white)' : 'none',
+      border: hasStory ? '2px solid var(--color-white)' : 'none',
     },
     headerInfo: {
       flex: 1,
@@ -208,14 +217,23 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
       padding: '8px 0',
     },
     dot: (active) => ({
+      width: 24,
+      height: 24,
+      borderRadius: 'var(--radius-full)',
+      background: 'transparent',
+      border: 'none',
+      padding: 0,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }),
+    dotInner: (active) => ({
       width: 6,
       height: 6,
       borderRadius: 'var(--radius-full)',
       background: active ? 'var(--color-black)' : 'var(--color-border)',
       transition: 'var(--transition-fast)',
-      border: 'none',
-      padding: 0,
-      cursor: 'pointer',
     }),
 
     // Heart animation overlay
@@ -379,10 +397,10 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
         <div style={S.headerInfo}>
           <span style={S.name}>{user.name}</span>
           {user.username && <span style={S.handle}>@{user.username}</span>}
-          {post.created_at && (
+          {createdAt && (
             <>
               <span style={S.sep}>&middot;</span>
-              <span style={S.time}>{timeAgo(post.created_at)}</span>
+              <span style={S.time}>{timeAgo(createdAt)}</span>
             </>
           )}
         </div>
@@ -402,12 +420,12 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
             onClick={handleDoubleTap}
           >
             {images.map((src, i) => (
-              <div key={i} style={S.slide}>
+              <div key={typeof src === 'string' ? src : i} style={S.slide}>
                 <img
                   src={src}
                   alt={`Post ${post.id} imagen ${i + 1}`}
                   style={S.img}
-                  loading="lazy"
+                  loading={i === 0 && priority ? 'eager' : 'lazy'}
                 />
               </div>
             ))}
@@ -432,14 +450,16 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
                 <button
                   key={i}
                   style={S.dot(i === carouselIndex)}
-                  aria-label={`Imagen ${i + 1}`}
+                  aria-label={`Imagen ${i + 1} de ${images.length}`}
                   onClick={() => {
                     scrollRef.current?.scrollTo({
                       left: i * scrollRef.current.clientWidth,
                       behavior: 'smooth',
                     });
                   }}
-                />
+                >
+                  <span style={S.dotInner(i === carouselIndex)} />
+                </button>
               ))}
             </div>
           )}
@@ -454,7 +474,7 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
             color: liked ? 'var(--color-black)' : 'var(--color-stone)',
           }}
           onClick={handleLike}
-          aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
+          aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
         >
           <Heart
             size={24}
@@ -467,15 +487,15 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
         <button
           style={S.actionBtn}
           onClick={() => onComment?.(post.id)}
-          aria-label="Comentar"
+          aria-label={`Comentar · ${commentsCount}`}
         >
           <MessageCircle size={24} />
-          {post.comments_count > 0 && (
-            <span style={S.actionCount}>{post.comments_count}</span>
+          {commentsCount > 0 && (
+            <span style={S.actionCount}>{commentsCount}</span>
           )}
         </button>
 
-        <button style={S.actionBtn} aria-label="Compartir">
+        <button style={S.actionBtn} onClick={() => onShare?.(post.id)} aria-label="Compartir">
           <Share2 size={24} />
         </button>
 
@@ -496,11 +516,11 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
       </div>
 
       {/* ---- Caption ---- */}
-      {post.content && (
+      {captionText && (
         <div style={S.caption}>
           <div style={S.captionText} ref={captionRef}>
             <span style={S.captionName}>{user.name}</span>
-            {renderCaption(post.content)}
+            {renderCaption(captionText)}
           </div>
           {shouldClamp && (
             <button style={S.verMas} onClick={() => setExpanded(true)}>
@@ -511,23 +531,23 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
       )}
 
       {/* ---- Tagged products ---- */}
-      {post.products?.length > 0 && (
+      {normalizedProducts.length > 0 && (
         <div style={S.productsRow}>
-          {post.products.map((product) => (
+          {normalizedProducts.map((product) => (
             <button
-              key={product.id}
+              key={product.id || product.product_id}
               style={S.productPill}
-              onClick={() => navigate(`/product/${product.id}`)}
+              onClick={() => navigate(`/product/${product.id || product.product_id}`)}
             >
-              {product.image && (
+              {(product.image || product.thumbnail) && (
                 <img
-                  src={product.image}
-                  alt={product.name}
+                  src={product.image || product.thumbnail}
+                  alt={product.name || product.title}
                   style={S.productImg}
                 />
               )}
-              <span style={S.productName}>{product.name}</span>
-              <span style={S.productPrice}>{formatPrice(product.price)}</span>
+              <span style={S.productName}>{product.name || product.title}</span>
+              {product.price != null && <span style={S.productPrice}>{formatPrice(product.price)}</span>}
             </button>
           ))}
         </div>

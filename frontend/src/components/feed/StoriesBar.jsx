@@ -28,18 +28,13 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
     return () => { cancelled = true; };
   }, []);
 
-  const skeletonKeyframes = `
-    @keyframes storyPulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
-  `;
-
   return (
     <>
-      {loading && <style>{skeletonKeyframes}</style>}
       <div
         className="scrollbar-hide"
+        role="region"
+        aria-label="Historias"
+        tabIndex={0}
         style={{
           display: 'flex',
           gap: 12,
@@ -49,14 +44,12 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
         }}
       >
         {/* Self ring */}
-        <div role="button" aria-label="Crear historia">
-          <StoryRing
-            user={currentUser}
-            isSelf
-            hasUnseenStory={false}
-            onClick={onCreateStory}
-          />
-        </div>
+        <StoryRing
+          user={currentUser}
+          isSelf
+          hasUnseenStory={false}
+          onClick={onCreateStory}
+        />
 
         {loading
           ? Array.from({ length: 5 }).map((_, i) => (
@@ -72,25 +65,24 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
                 }}
               >
                 <div
+                  className="animate-pulse-slow"
                   style={{
                     width: 62,
                     height: 62,
                     borderRadius: '50%',
                     background: 'var(--color-surface)',
-                    animation: 'storyPulse 1.5s ease-in-out infinite',
                   }}
                 />
               </div>
             ))
           : stories.map((story, idx) => (
-              <div role="button" aria-label={`Ver historia de ${story.user?.name || story.user?.username || 'usuario'}`} key={story.user?.id || idx}>
-                <StoryRing
-                  user={story.user}
-                  isSelf={false}
-                  hasUnseenStory={story.has_unseen !== false}
-                  onClick={() => onStoryClick && onStoryClick(stories, idx)}
-                />
-              </div>
+              <StoryRing
+                key={story.user?.id || idx}
+                user={story.user}
+                isSelf={false}
+                hasUnseenStory={story.has_unseen !== false}
+                onClick={() => onStoryClick && onStoryClick(stories, idx)}
+              />
             ))}
       </div>
     </>

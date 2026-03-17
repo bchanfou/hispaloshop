@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Type, Tag, Check } from 'lucide-react';
 import apiClient from '../../services/api/client';
@@ -10,8 +10,8 @@ const BG_OPTIONS = [
   { id: 'black', label: '■', type: 'color', value: '#000000' },
   { id: 'white', label: '□', type: 'color', value: '#ffffff' },
   { id: 'crema', label: '■', type: 'color', value: '#faf5f0' },
-  { id: 'verde', label: '■', type: 'color', value: '#1a2e1a' },
-  { id: 'grad-green', label: '∇', type: 'gradient', value: 'linear-gradient(135deg, #1a2e1a, #2d5a2d)' },
+  { id: 'oscuro', label: '■', type: 'color', value: '#1c1917' },
+  { id: 'grad-stone', label: '∇', type: 'gradient', value: 'linear-gradient(135deg, #1c1917, #57534e)' },
   { id: 'grad-tierra', label: '∇', type: 'gradient', value: 'linear-gradient(135deg, #78716c, #d6d3d1)' },
 ];
 
@@ -40,7 +40,7 @@ const FONTS_MAP = {
   Display: 'Impact, sans-serif',
 };
 
-const COLOR_DOTS = ['#000000', '#ffffff', '#facc15', '#22c55e', '#ef4444'];
+const COLOR_DOTS = ['#000000', '#ffffff', '#a8a29e', '#78716c', '#44403c'];
 
 export default function CreateStoryPage() {
   const navigate = useNavigate();
@@ -61,6 +61,13 @@ export default function CreateStoryPage() {
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const dragRef = useRef({ type: null, id: null, active: false });
+
+  // Cleanup object URL on unmount to prevent memory leak
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    };
+  }, [imagePreviewUrl]);
 
   const selectedBg = BG_OPTIONS.find((b) => b.id === background);
 
@@ -123,9 +130,11 @@ export default function CreateStoryPage() {
     ]);
   }, []);
 
-  const handleOverlayDrag = useCallback((collection, setCollection, id, e) => {
+  const canvasRef = useRef(null);
+
+  const handleOverlayDrag = useCallback((setCollection, id, e) => {
     const touch = e.touches?.[0] || e;
-    const canvas = e.currentTarget.closest('[data-canvas]');
+    const canvas = canvasRef.current || e.currentTarget?.closest('[data-canvas]');
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     const x = ((touch.clientX - rect.left) / rect.width) * 100;
@@ -138,6 +147,25 @@ export default function CreateStoryPage() {
       )
     );
   }, []);
+
+  // Global mouse listeners for drag so it works even when cursor leaves the element
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      if (!dragRef.current.active) return;
+      const { type, id } = dragRef.current;
+      const setFn = type === 'text' ? setTextOverlays : setStickerOverlays;
+      handleOverlayDrag(setFn, id, e);
+    };
+    const handleGlobalMouseUp = () => {
+      dragRef.current = { type: null, id: null, active: false };
+    };
+    document.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [handleOverlayDrag]);
 
   const handlePublish = useCallback(async () => {
     setPublishing(true);
@@ -212,6 +240,7 @@ export default function CreateStoryPage() {
       >
         <button
           onClick={() => navigate(-1)}
+          aria-label="Cerrar editor de historia"
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
         >
           <X style={{ color: '#fff', width: 22, height: 22 }} />
@@ -279,7 +308,7 @@ export default function CreateStoryPage() {
               padding: 0,
             }}
           >
-            {bg.type === 'action' ? bg.label : bg.type !== 'gradient' ? bg.label : bg.label}
+            {bg.label}
           </button>
         ))}
       </div>
@@ -296,6 +325,7 @@ export default function CreateStoryPage() {
       >
         <div
           data-canvas
+          ref={canvasRef}
           style={{
             position: 'relative',
             aspectRatio: '9/16',
@@ -326,17 +356,9 @@ export default function CreateStoryPage() {
                 whiteSpace: 'nowrap',
                 zIndex: 5,
               }}
-              onTouchMove={(e) => handleOverlayDrag(textOverlays, setTextOverlays, t.id, e)}
+              onTouchMove={(e) => handleOverlayDrag(setTextOverlays, t.id, e)}
               onMouseDown={() => {
                 dragRef.current = { type: 'text', id: t.id, active: true };
-              }}
-              onMouseMove={(e) => {
-                if (dragRef.current.active && dragRef.current.id === t.id) {
-                  handleOverlayDrag(textOverlays, setTextOverlays, t.id, e);
-                }
-              }}
-              onMouseUp={() => {
-                dragRef.current = { type: null, id: null, active: false };
               }}
             >
               {t.text}
@@ -364,17 +386,9 @@ export default function CreateStoryPage() {
                 fontWeight: 500,
                 backdropFilter: s.type !== 'emoji' ? 'blur(4px)' : 'none',
               }}
-              onTouchMove={(e) => handleOverlayDrag(stickerOverlays, setStickerOverlays, s.id, e)}
+              onTouchMove={(e) => handleOverlayDrag(setStickerOverlays, s.id, e)}
               onMouseDown={() => {
                 dragRef.current = { type: 'sticker', id: s.id, active: true };
-              }}
-              onMouseMove={(e) => {
-                if (dragRef.current.active && dragRef.current.id === s.id) {
-                  handleOverlayDrag(stickerOverlays, setStickerOverlays, s.id, e);
-                }
-              }}
-              onMouseUp={() => {
-                dragRef.current = { type: null, id: null, active: false };
               }}
             >
               {s.content}
@@ -416,6 +430,8 @@ export default function CreateStoryPage() {
       >
         <button
           onClick={() => setActivePanel(activePanel === 'text' ? null : 'text')}
+          aria-label="Añadir texto"
+          aria-pressed={activePanel === 'text'}
           style={{
             width: 44,
             height: 44,
@@ -432,6 +448,8 @@ export default function CreateStoryPage() {
         </button>
         <button
           onClick={() => setActivePanel(activePanel === 'sticker' ? null : 'sticker')}
+          aria-label="Añadir sticker"
+          aria-pressed={activePanel === 'sticker'}
           style={{
             width: 44,
             height: 44,
@@ -449,6 +467,8 @@ export default function CreateStoryPage() {
         </button>
         <button
           onClick={() => setActivePanel(activePanel === 'product' ? null : 'product')}
+          aria-label="Etiquetar producto"
+          aria-pressed={activePanel === 'product'}
           style={{
             width: 44,
             height: 44,

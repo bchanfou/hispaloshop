@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, Play, Pause, Search } from 'lucide-react';
+import { X, ChevronLeft, Play, Pause } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -18,7 +18,7 @@ const FILTERS = [
 const SPEED_OPTIONS = [0.3, 0.5, 1, 2, 3];
 
 const FONTS = ['Sans', 'Serif', 'Mono', 'Display'];
-const TEXT_COLORS = ['#000000', '#ffffff', '#facc15', '#22c55e', '#ef4444'];
+const TEXT_COLORS = ['#ffffff', '#0c0a09', '#78716c', '#d6d3d1', '#a8a29e'];
 
 export default function CreateReelPage() {
   const navigate = useNavigate();
@@ -49,20 +49,31 @@ export default function CreateReelPage() {
   const playIconTimer = useRef(null);
   const dragRef = useRef(null);
 
+  // Revoke blob URL on unmount to free memory
+  useEffect(() => {
+    return () => {
+      clearTimeout(playIconTimer.current);
+      if (videoUrl) URL.revokeObjectURL(videoUrl);
+    };
+  }, [videoUrl]);
+
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Revoke previous video blob URL to free memory (video blobs are large)
-    setVideoUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(file); });
+    setVideoUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
     setVideoFile(file);
     setScreen('edit');
+    e.target.value = '';
   }, []);
 
   const togglePlay = useCallback(() => {
     const v = videoRef.current;
     if (!v) return;
     if (v.paused) {
-      v.play();
+      v.play().catch(() => {});
       setIsPlaying(true);
     } else {
       v.pause();
@@ -111,9 +122,11 @@ export default function CreateReelPage() {
     setShowTextInput(false);
   }, [textDraft, selectedFont, selectedColor, textSize, textOverlays.length]);
 
+  const videoPreviewRef = useRef(null);
+
   const handleTextDrag = useCallback((id, e) => {
     const touch = e.touches?.[0] || e;
-    const container = e.currentTarget.parentElement;
+    const container = videoPreviewRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
     const x = ((touch.clientX - rect.left) / rect.width) * 100;
@@ -123,6 +136,34 @@ export default function CreateReelPage() {
         t.id === id ? { ...t, x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) } : t
       )
     );
+  }, []);
+
+  const startMouseDrag = useCallback((id) => {
+    dragRef.current = id;
+    const handleMove = (e) => {
+      if (dragRef.current !== id) return;
+      const container = videoPreviewRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setTextOverlays((prev) =>
+        prev.map((t) =>
+          t.id === id ? { ...t, x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) } : t
+        )
+      );
+    };
+    const handleUp = () => {
+      dragRef.current = null;
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleUp);
+    };
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleUp);
+  }, []);
+
+  const removeTextOverlay = useCallback((id) => {
+    setTextOverlays((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const handlePublish = useCallback(async () => {
@@ -157,60 +198,31 @@ export default function CreateReelPage() {
   // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
   if (screen === 'upload') {
     return (
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 50,
-          background: '#000',
-          display: 'flex',
-          flexDirection: 'column',
-          fontFamily: 'var(--font-sans)',
-        }}
-      >
+      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans">
         {/* TopBar */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '12px 16px',
-          }}
-        >
+        <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => navigate(-1)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+            className="bg-transparent border-none cursor-pointer p-1"
+            aria-label="Cerrar"
           >
-            <X style={{ color: '#fff', width: 22, height: 22 }} />
+            <X className="text-white w-5.5 h-5.5" />
           </button>
-          <span style={{ color: '#fff', fontSize: 15, fontWeight: 500 }}>Nuevo Reel</span>
-          <div style={{ width: 30 }} />
+          <span className="text-white text-[15px] font-medium">Nuevo Reel</span>
+          <div className="w-[30px]" />
         </div>
 
         {/* Tabs */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 8,
-            justifyContent: 'center',
-            padding: '8px 16px 16px',
-          }}
-        >
+        <div className="flex gap-2 justify-center px-4 pb-4 pt-2">
           {['subir', 'grabar'].map((tab) => (
             <button
               key={tab}
               onClick={() => setUploadTab(tab)}
-              style={{
-                background: uploadTab === tab ? '#fff' : 'transparent',
-                color: uploadTab === tab ? '#000' : '#fff',
-                border: 'none',
-                borderRadius: 'var(--radius-full)',
-                padding: '8px 20px',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'var(--transition-fast)',
-              }}
+              className={`border-none rounded-full px-5 py-2 text-[13px] font-semibold cursor-pointer transition-colors ${
+                uploadTab === tab
+                  ? 'bg-white text-black'
+                  : 'bg-transparent text-white'
+              }`}
             >
               {tab === 'subir' ? 'Subir' : 'Grabar'}
             </button>
@@ -218,40 +230,22 @@ export default function CreateReelPage() {
         </div>
 
         {/* Content */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 16,
-            padding: '0 32px',
-          }}
-        >
-          <span style={{ fontSize: 48 }}>{uploadTab === 'subir' ? '🎬' : '🎥'}</span>
-          <span style={{ fontSize: 16, color: '#fff', fontWeight: 500 }}>
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 px-8">
+          <span className="text-[48px]" role="img" aria-hidden="true">
+            {uploadTab === 'subir' ? '🎬' : '🎥'}
+          </span>
+          <span className="text-base text-white font-medium">
             {uploadTab === 'subir' ? 'Selecciona un video' : 'Graba un video'}
           </span>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+          <span className="text-xs text-white/50">
             Máximo 60 segundos · MP4 o MOV
           </span>
           <button
             onClick={() =>
               uploadTab === 'subir' ? fileInputRef.current?.click() : cameraInputRef.current?.click()
             }
-            style={{
-              background: '#fff',
-              color: '#000',
-              border: 'none',
-              fontSize: 14,
-              fontWeight: 600,
-              padding: '12px 24px',
-              borderRadius: 'var(--radius-full)',
-              cursor: 'pointer',
-              marginTop: 8,
-              transition: 'var(--transition-fast)',
-            }}
+            className="bg-white text-black border-none text-sm font-semibold py-3 px-6 rounded-full cursor-pointer mt-2 transition-colors hover:bg-stone-100 active:bg-stone-200"
+            aria-label={uploadTab === 'subir' ? 'Elegir video de la galería' : 'Abrir cámara para grabar'}
           >
             {uploadTab === 'subir' ? 'Elegir de la galería' : 'Abrir cámara'}
           </button>
@@ -262,7 +256,7 @@ export default function CreateReelPage() {
           type="file"
           accept="video/*"
           onChange={handleFileSelect}
-          style={{ display: 'none' }}
+          className="hidden"
         />
         <input
           ref={cameraInputRef}
@@ -270,7 +264,7 @@ export default function CreateReelPage() {
           accept="video/*"
           capture="environment"
           onChange={handleFileSelect}
-          style={{ display: 'none' }}
+          className="hidden"
         />
       </div>
     );
@@ -279,43 +273,20 @@ export default function CreateReelPage() {
   // ─── SCREEN 2: EDIT ───────────────────────────────────────────
   if (screen === 'edit') {
     return (
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 50,
-          background: '#000',
-          display: 'flex',
-          flexDirection: 'column',
-          fontFamily: 'var(--font-sans)',
-        }}
-      >
+      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans">
         {/* TopBar */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '12px 16px',
-          }}
-        >
+        <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => { setScreen('upload'); setVideoFile(null); setVideoUrl(null); }}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+            className="bg-transparent border-none cursor-pointer p-1"
+            aria-label="Volver"
           >
-            <X style={{ color: '#fff', width: 22, height: 22 }} />
+            <X className="text-white w-5.5 h-5.5" />
           </button>
-          <span style={{ color: '#fff', fontSize: 15, fontWeight: 500 }}>Editar Reel</span>
+          <span className="text-white text-[15px] font-medium">Editar Reel</span>
           <button
-            onClick={() => setScreen('details')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--color-black)',
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
+            onClick={() => { videoRef.current?.pause(); setIsPlaying(false); setScreen('details'); }}
+            className="bg-transparent border-none text-white text-sm font-semibold cursor-pointer"
           >
             Siguiente →
           </button>
@@ -323,17 +294,13 @@ export default function CreateReelPage() {
 
         {/* Video preview */}
         <div
-          style={{
-            position: 'relative',
-            aspectRatio: '9/16',
-            maxHeight: '55vh',
-            background: '#000',
-            margin: '0 auto',
-            width: 'auto',
-            overflow: 'hidden',
-            borderRadius: 'var(--radius-lg)',
-          }}
+          ref={videoPreviewRef}
+          className="relative aspect-[9/16] max-h-[55vh] bg-black mx-auto w-auto overflow-hidden rounded-xl"
           onClick={togglePlay}
+          role="button"
+          tabIndex={0}
+          aria-label={isPlaying ? 'Pausar vídeo' : 'Reproducir vídeo'}
+          onKeyDown={(e) => e.key === ' ' && togglePlay()}
         >
           <video
             ref={videoRef}
@@ -342,10 +309,8 @@ export default function CreateReelPage() {
             playsInline
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
+            className="w-full h-full object-cover"
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
               filter: activeFilter === 'none' ? 'none' : activeFilter,
             }}
           />
@@ -354,8 +319,8 @@ export default function CreateReelPage() {
           {textOverlays.map((t) => (
             <div
               key={t.id}
+              className="absolute font-bold select-none cursor-grab whitespace-nowrap group"
               style={{
-                position: 'absolute',
                 left: `${t.x}%`,
                 top: `${t.y}%`,
                 transform: 'translate(-50%, -50%)',
@@ -369,44 +334,30 @@ export default function CreateReelPage() {
                     : t.font === 'Display'
                     ? 'Impact, sans-serif'
                     : 'var(--font-sans)',
-                fontWeight: 700,
                 textShadow: '0 1px 4px rgba(0,0,0,0.6)',
-                cursor: 'grab',
-                userSelect: 'none',
-                whiteSpace: 'nowrap',
               }}
               onTouchMove={(e) => handleTextDrag(t.id, e)}
-              onMouseDown={() => (dragRef.current = t.id)}
-              onMouseMove={(e) => dragRef.current === t.id && handleTextDrag(t.id, e)}
-              onMouseUp={() => (dragRef.current = null)}
+              onMouseDown={(e) => { e.stopPropagation(); startMouseDrag(t.id); }}
             >
               {t.text}
+              <button
+                className="absolute -top-3 -right-3 w-6 h-6 rounded-full bg-black/70 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border-none cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); removeTextOverlay(t.id); }}
+                aria-label={`Eliminar texto "${t.text}"`}
+              >
+                ×
+              </button>
             </div>
           ))}
 
           {/* Play/Pause icon */}
           {showPlayIcon && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                pointerEvents: 'none',
-              }}
-            >
-              <div
-                style={{
-                  background: 'rgba(0,0,0,0.5)',
-                  borderRadius: '50%',
-                  padding: 16,
-                }}
-              >
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none motion-reduce:hidden">
+              <div className="bg-black/50 rounded-full p-4">
                 {isPlaying ? (
-                  <Pause style={{ color: '#fff', width: 32, height: 32 }} />
+                  <Pause className="text-white w-8 h-8" />
                 ) : (
-                  <Play style={{ color: '#fff', width: 32, height: 32 }} />
+                  <Play className="text-white w-8 h-8" />
                 )}
               </div>
             </div>
@@ -414,91 +365,35 @@ export default function CreateReelPage() {
         </div>
 
         {/* Trim bar */}
-        <div style={{ padding: '8px 16px' }}>
-          <div
-            style={{
-              height: 32,
-              background: 'rgba(255,255,255,0.1)',
-              borderRadius: 'var(--radius-md)',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              overflow: 'hidden',
-            }}
-          >
+        <div className="px-4 py-2">
+          <div className="h-8 bg-white/10 rounded-lg relative flex items-center overflow-hidden">
             {/* Progress */}
             <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%',
-                background: 'rgba(255,255,255,0.15)',
-              }}
+              className="absolute left-0 top-0 bottom-0 bg-white/15"
+              style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
             />
             {/* Left handle */}
-            <div
-              style={{
-                width: 12,
-                height: '100%',
-                background: 'var(--color-white)',
-                borderRadius: '4px 0 0 4px',
-                cursor: 'ew-resize',
-                flexShrink: 0,
-              }}
-            />
-            <div style={{ flex: 1 }} />
+            <div className="w-3 h-full bg-white rounded-l cursor-ew-resize shrink-0" />
+            <div className="flex-1" />
             {/* Right handle */}
-            <div
-              style={{
-                width: 12,
-                height: '100%',
-                background: 'var(--color-white)',
-                borderRadius: '0 4px 4px 0',
-                cursor: 'ew-resize',
-                flexShrink: 0,
-              }}
-            />
+            <div className="w-3 h-full bg-white rounded-r cursor-ew-resize shrink-0" />
           </div>
-          <div
-            style={{
-              textAlign: 'center',
-              color: 'rgba(255,255,255,0.5)',
-              fontSize: 12,
-              marginTop: 4,
-            }}
-          >
+          <div className="text-center text-white/50 text-xs mt-1">
             {fmt(currentTime)} / {fmt(duration)}
           </div>
         </div>
 
         {/* Tool tabs */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 0,
-            overflowX: 'auto',
-            padding: '8px 16px',
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-          }}
-        >
+        <div className="flex overflow-x-auto px-4 py-2 border-b border-white/10">
           {['velocidad', 'texto', 'filtros'].map((tab) => (
             <button
               key={tab}
               onClick={() => setEditTab(tab)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: editTab === tab ? '#fff' : 'rgba(255,255,255,0.4)',
-                fontSize: 13,
-                fontWeight: editTab === tab ? 600 : 400,
-                padding: '8px 16px',
-                cursor: 'pointer',
-                borderBottom: editTab === tab ? '2px solid #fff' : '2px solid transparent',
-                whiteSpace: 'nowrap',
-                transition: 'var(--transition-fast)',
-              }}
+              className={`bg-transparent border-none text-[13px] py-2 px-4 cursor-pointer whitespace-nowrap transition-colors border-b-2 ${
+                editTab === tab
+                  ? 'text-white font-semibold border-white'
+                  : 'text-white/40 font-normal border-transparent'
+              }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -506,25 +401,21 @@ export default function CreateReelPage() {
         </div>
 
         {/* Tab content */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '12px 16px' }}>
+        <div className="flex-1 overflow-auto px-4 py-3">
           {/* VELOCIDAD */}
           {editTab === 'velocidad' && (
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="flex gap-2 justify-center flex-wrap">
               {SPEED_OPTIONS.map((s) => (
                 <button
                   key={s}
                   onClick={() => setSpeed(s)}
-                  style={{
-                    background: speed === s ? 'var(--color-black)' : 'var(--color-surface)',
-                    color: speed === s ? 'var(--color-white)' : 'var(--color-black)',
-                    border: speed === s ? '1px solid var(--color-white)' : '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-full)',
-                    padding: '8px 18px',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'var(--transition-fast)',
-                  }}
+                  className={`rounded-full px-5 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors ${
+                    speed === s
+                      ? 'bg-white text-black border border-white'
+                      : 'bg-stone-900 text-white border border-stone-700'
+                  }`}
+                  aria-label={`Velocidad ${s}x`}
+                  aria-pressed={speed === s}
                 >
                   {s}x{speed === s ? ' ✓' : ''}
                 </button>
@@ -534,122 +425,85 @@ export default function CreateReelPage() {
 
           {/* TEXTO */}
           {editTab === 'texto' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="flex flex-col gap-3">
               {!showTextInput ? (
                 <button
                   onClick={() => setShowTextInput(true)}
                   disabled={textOverlays.length >= 3}
-                  style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    color: '#fff',
-                    border: '1px dashed rgba(255,255,255,0.3)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '14px',
-                    fontSize: 14,
-                    cursor: textOverlays.length >= 3 ? 'not-allowed' : 'pointer',
-                    opacity: textOverlays.length >= 3 ? 0.4 : 1,
-                  }}
+                  className={`bg-white/10 text-white border border-dashed border-white/30 rounded-xl py-3.5 text-sm cursor-pointer ${
+                    textOverlays.length >= 3 ? 'opacity-40 cursor-not-allowed' : ''
+                  }`}
+                  aria-label="Añadir texto al vídeo"
                 >
                   + Añadir texto {textOverlays.length > 0 && `(${textOverlays.length}/3)`}
                 </button>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div className="flex flex-col gap-2.5">
                   <input
                     value={textDraft}
                     onChange={(e) => setTextDraft(e.target.value)}
                     placeholder="Escribe aquí..."
-                    style={{
-                      background: 'rgba(255,255,255,0.1)',
-                      color: '#fff',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: '10px 12px',
-                      fontSize: 14,
-                      outline: 'none',
-                    }}
+                    className="bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/40"
                     autoFocus
+                    aria-label="Texto para el overlay"
                   />
                   {/* Fonts */}
-                  <div style={{ display: 'flex', gap: 6 }}>
+                  <div className="flex gap-1.5">
                     {FONTS.map((f) => (
                       <button
                         key={f}
                         onClick={() => setSelectedFont(f)}
-                        style={{
-                          background: selectedFont === f ? '#fff' : 'rgba(255,255,255,0.1)',
-                          color: selectedFont === f ? '#000' : '#fff',
-                          border: 'none',
-                          borderRadius: 'var(--radius-full)',
-                          padding: '6px 12px',
-                          fontSize: 12,
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                        }}
+                        className={`rounded-full px-3 py-2.5 text-xs font-medium cursor-pointer min-h-[44px] ${
+                          selectedFont === f
+                            ? 'bg-white text-black'
+                            : 'bg-white/10 text-white'
+                        }`}
+                        aria-label={`Fuente ${f}`}
+                        aria-pressed={selectedFont === f}
                       >
                         {f}
                       </button>
                     ))}
                   </div>
                   {/* Colors */}
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div className="flex gap-2 items-center">
                     {TEXT_COLORS.map((c) => (
                       <button
                         key={c}
                         onClick={() => setSelectedColor(c)}
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: '50%',
-                          background: c,
-                          border: selectedColor === c ? '3px solid #fff' : '2px solid rgba(255,255,255,0.3)',
-                          cursor: 'pointer',
-                          padding: 0,
-                        }}
+                        className={`w-11 h-11 rounded-full cursor-pointer p-0 shrink-0 ${
+                          selectedColor === c ? 'ring-2 ring-white ring-offset-2 ring-offset-black' : 'border-2 border-white/30'
+                        }`}
+                        style={{ background: c }}
+                        aria-label={`Color ${c}`}
+                        aria-pressed={selectedColor === c}
                       />
                     ))}
                   </div>
                   {/* Size slider */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>A</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/50 text-[11px]">A</span>
                     <input
                       type="range"
                       min={14}
                       max={48}
                       value={textSize}
                       onChange={(e) => setTextSize(Number(e.target.value))}
-                      style={{ flex: 1, accentColor: '#fff' }}
+                      className="flex-1 accent-stone-50"
+                      aria-label="Tamaño de texto"
                     />
-                    <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>A</span>
+                    <span className="text-white text-sm font-semibold">A</span>
                   </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div className="flex gap-2">
                     <button
                       onClick={() => setShowTextInput(false)}
-                      style={{
-                        flex: 1,
-                        background: 'rgba(255,255,255,0.1)',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 'var(--radius-md)',
-                        padding: '10px',
-                        fontSize: 13,
-                        cursor: 'pointer',
-                      }}
+                      className="flex-1 bg-white/10 text-white border-none rounded-xl py-2.5 text-[13px] cursor-pointer"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={addTextOverlay}
-                      style={{
-                        flex: 1,
-                        background: '#fff',
-                        color: '#000',
-                        border: 'none',
-                        borderRadius: 'var(--radius-md)',
-                        padding: '10px',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                      }}
+                      className="flex-1 bg-white text-black border-none rounded-xl py-2.5 text-[13px] font-semibold cursor-pointer"
                     >
                       ✓ Confirmar
                     </button>
@@ -661,42 +515,22 @@ export default function CreateReelPage() {
 
           {/* FILTROS */}
           {editTab === 'filtros' && (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: 8,
-              }}
-            >
+            <div className="grid grid-cols-4 gap-2">
               {FILTERS.map((f) => (
                 <button
                   key={f.name}
                   onClick={() => setActiveFilter(f.value)}
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    border:
-                      activeFilter === f.value
-                        ? '2px solid #fff'
-                        : '2px solid transparent',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '10px 4px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 4,
-                  }}
+                  className={`bg-white/[0.08] rounded-xl py-2.5 px-1 cursor-pointer flex flex-col items-center gap-1 border-2 ${
+                    activeFilter === f.value ? 'border-white' : 'border-transparent'
+                  }`}
+                  aria-label={`Filtro ${f.name}`}
+                  aria-pressed={activeFilter === f.value}
                 >
                   <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 'var(--radius-md)',
-                      background: '#444',
-                      filter: f.value === 'none' ? 'none' : f.value,
-                    }}
+                    className="w-10 h-10 rounded-lg bg-stone-600"
+                    style={{ filter: f.value === 'none' ? 'none' : f.value }}
                   />
-                  <span style={{ fontSize: 10, color: '#fff', fontWeight: 500 }}>{f.name}</span>
+                  <span className="text-[10px] text-white font-medium">{f.name}</span>
                 </button>
               ))}
             </div>
@@ -708,101 +542,52 @@ export default function CreateReelPage() {
 
   // ─── SCREEN 3: DETAILS ────────────────────────────────────────
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        background: 'var(--color-white)',
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: 'var(--font-sans)',
-      }}
-    >
+    <div className="fixed inset-0 z-50 bg-white flex flex-col font-sans">
       {/* TopBar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 16px',
-          borderBottom: '1px solid var(--color-border)',
-        }}
-      >
+      <div className="flex items-center justify-between px-4 py-3 border-b border-stone-200">
         <button
           onClick={() => setScreen('edit')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          className="bg-transparent border-none cursor-pointer p-1"
+          aria-label="Volver al editor"
         >
-          <ChevronLeft style={{ color: 'var(--color-black)', width: 22, height: 22 }} />
+          <ChevronLeft className="text-stone-950 w-5.5 h-5.5" />
         </button>
-        <span style={{ color: 'var(--color-black)', fontSize: 15, fontWeight: 600 }}>
+        <span className="text-stone-950 text-[15px] font-semibold">
           Detalles del Reel
         </span>
-        <div style={{ width: 30 }} />
+        <div className="w-[30px]" />
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="flex-1 overflow-auto p-4 flex flex-col gap-5">
         {/* Caption */}
         <div>
           <textarea
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            placeholder="Describe tu reel... 🎬"
+            placeholder="Describe tu reel..."
             rows={4}
-            style={{
-              width: '100%',
-              background: 'var(--color-surface)',
-              color: 'var(--color-black)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '12px 14px',
-              fontSize: 14,
-              fontFamily: 'var(--font-sans)',
-              resize: 'none',
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
+            className="w-full bg-stone-50 text-stone-950 border border-stone-200 rounded-xl px-3.5 py-3 text-sm font-sans resize-none outline-none focus:border-stone-400 transition-colors box-border"
+            aria-label="Descripción del reel"
           />
         </div>
 
         {/* Thumbnail selector */}
         <div>
-          <label
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: 'var(--color-black)',
-              marginBottom: 8,
-              display: 'block',
-            }}
-          >
+          <label className="text-[13px] font-semibold text-stone-950 mb-2 block">
             Portada
           </label>
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+          <div className="flex gap-2 overflow-x-auto">
             {[0, 1, 2, 3, 4].map((i) => (
               <button
                 key={i}
                 onClick={() => setThumbnailIndex(i)}
-                style={{
-                  width: 56,
-                  height: 80,
-                  borderRadius: 'var(--radius-md)',
-                  background: 'var(--color-stone)',
-                  border:
-                    thumbnailIndex === i
-                      ? '2px solid var(--color-black)'
-                      : '2px solid var(--color-border)',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'flex-end',
-                  justifyContent: 'center',
-                  padding: 4,
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
+                className={`w-14 h-20 rounded-xl bg-stone-100 shrink-0 flex items-end justify-center p-1 overflow-hidden relative border-2 cursor-pointer ${
+                  thumbnailIndex === i ? 'border-stone-950' : 'border-stone-200'
+                }`}
+                aria-label={`Portada ${i + 1}`}
+                aria-pressed={thumbnailIndex === i}
               >
-                <span style={{ fontSize: 10, color: 'var(--color-black)', opacity: 0.6 }}>
+                <span className="text-[10px] text-stone-950/60">
                   {duration > 0 ? fmt((duration / 5) * i) : `0:${String(i * 12).padStart(2, '0')}`}
                 </span>
               </button>
@@ -811,46 +596,26 @@ export default function CreateReelPage() {
         </div>
 
         {/* Video preview small */}
-        <div
-          style={{
-            aspectRatio: '9/16',
-            maxHeight: 200,
-            background: '#000',
-            borderRadius: 'var(--radius-lg)',
-            overflow: 'hidden',
-            alignSelf: 'center',
-          }}
-        >
+        <div className="aspect-[9/16] max-h-[200px] bg-black rounded-xl overflow-hidden self-center">
           <video
             src={videoUrl}
+            className="w-full h-full object-cover"
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
               filter: activeFilter === 'none' ? 'none' : activeFilter,
             }}
+            aria-hidden="true"
           />
         </div>
       </div>
 
       {/* Publish button */}
-      <div style={{ padding: '12px 16px 24px', borderTop: '1px solid var(--color-border)' }}>
+      <div className="px-4 pt-3 pb-6 border-t border-stone-200">
         <button
           onClick={handlePublish}
           disabled={publishing}
-          style={{
-            width: '100%',
-            background: 'var(--color-black)',
-            color: 'var(--color-white)',
-            border: 'none',
-            borderRadius: 'var(--radius-full)',
-            padding: '14px',
-            fontSize: 15,
-            fontWeight: 600,
-            cursor: publishing ? 'not-allowed' : 'pointer',
-            opacity: publishing ? 0.6 : 1,
-            transition: 'var(--transition-fast)',
-          }}
+          className={`w-full bg-stone-950 text-white border-none rounded-full py-3.5 text-[15px] font-semibold cursor-pointer transition-colors hover:bg-stone-800 ${
+            publishing ? 'opacity-60 cursor-not-allowed' : ''
+          }`}
         >
           {publishing ? 'Publicando...' : 'Publicar ahora'}
         </button>

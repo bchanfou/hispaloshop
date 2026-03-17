@@ -295,7 +295,7 @@ const MyCommunityPill = ({ community }) => (
       overflow: 'hidden', border: '2px solid var(--color-border)',
       background: community.cover_image
         ? 'var(--color-surface)'
-        : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][community.name.charCodeAt(0) % 5],
+        : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
       {community.cover_image ? (
@@ -356,7 +356,7 @@ const CommunityCard = ({ community }) => {
           ) : (
             <div style={{
               width: '100%', height: '100%',
-              background: ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][community.name.charCodeAt(0) % 5],
+              background: ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32,
             }}>
               {community.emoji || '🌿'}
@@ -435,7 +435,7 @@ const CommunityRow = ({ community }) => (
       overflow: 'hidden', flexShrink: 0,
       background: community.cover_image
         ? 'var(--color-surface)'
-        : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][community.name.charCodeAt(0) % 5],
+        : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
     }}>
       {community.cover_image ? (

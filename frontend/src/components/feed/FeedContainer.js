@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import FollowingFeed from './FollowingFeed';
 import ForYouFeed from './ForYouFeed';
@@ -10,9 +10,10 @@ import StoriesBar from './StoriesBar';
  */
 function FeedContainer({ activeTab: tabProp, onTabChange }) {
   // Fallback: estado propio si no llega prop (ej. uso fuera de HomePage)
-  const [localTab, setLocalTab] = useState(
-    () => localStorage.getItem('feedTab') || 'foryou'
-  );
+  const [localTab, setLocalTab] = useState(() => {
+    try { return localStorage.getItem('feedTab') || 'foryou'; }
+    catch { return 'foryou'; }
+  });
 
   const activeTab = tabProp ?? localTab;
   const setActiveTab = onTabChange ?? ((t) => {
@@ -30,6 +31,9 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
     refreshTimerRef.current = setTimeout(() => setIsRefreshing(false), 600);
   }, []);
 
+  // Cleanup timer on unmount
+  useEffect(() => () => clearTimeout(refreshTimerRef.current), []);
+
   const handleCreateStory = () => {
     window.dispatchEvent(new CustomEvent('open-creator', { detail: { mode: 'story' } }));
   };
@@ -39,7 +43,7 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--color-cream)' }}>
+    <div className="min-h-screen bg-[var(--color-cream)]">
       {/* Stories */}
       <StoriesBar onCreateStory={handleCreateStory} onStoryClick={handleViewStory} />
 

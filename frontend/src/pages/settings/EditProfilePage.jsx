@@ -18,10 +18,20 @@ export default function EditProfilePage() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [usernameStatus, setUsernameStatus] = useState(null); // null | 'checking' | 'available' | 'taken'
-  const [usernameTimer, setUsernameTimer] = useState(null);
+  const usernameTimerRef = useRef(null);
 
   const isProducer = user?.role === 'producer' || user?.role === 'importer';
   const font = { fontFamily: 'var(--font-sans)' };
+
+  useEffect(() => {
+    const id = 'hsp-spin-keyframes';
+    if (!document.getElementById(id)) {
+      const s = document.createElement('style');
+      s.id = id;
+      s.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+      document.head.appendChild(s);
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -58,14 +68,14 @@ export default function EditProfilePage() {
     const clean = val.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
     setForm(f => ({ ...f, username: clean }));
 
-    if (usernameTimer) clearTimeout(usernameTimer);
+    if (usernameTimerRef.current) clearTimeout(usernameTimerRef.current);
     if (clean === originalUsername || clean.length < 3) {
       setUsernameStatus(null);
       return;
     }
 
     setUsernameStatus('checking');
-    const timer = setTimeout(async () => {
+    usernameTimerRef.current = setTimeout(async () => {
       try {
         const res = await apiClient.get(`/users/check-username/${clean}`);
         setUsernameStatus(res.available ? 'available' : 'taken');
@@ -73,14 +83,13 @@ export default function EditProfilePage() {
         setUsernameStatus(null);
       }
     }, 500);
-    setUsernameTimer(timer);
-  }, [originalUsername, usernameTimer]);
+  }, [originalUsername]);
 
   const handleAvatarSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Revoke previous preview URL to prevent memory leak
-    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    // Revoke previous blob preview URL to prevent memory leak
+    if (avatarPreview && avatarPreview.startsWith('blob:')) URL.revokeObjectURL(avatarPreview);
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
@@ -165,6 +174,10 @@ export default function EditProfilePage() {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
           <div
             onClick={() => fileRef.current?.click()}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileRef.current?.click(); } }}
+            role="button"
+            tabIndex={0}
+            aria-label="Cambiar foto de perfil"
             style={{
               width: 88, height: 88, borderRadius: '50%',
               background: 'var(--color-surface)', overflow: 'hidden',
@@ -333,7 +346,6 @@ export default function EditProfilePage() {
         )}
       </div>
 
-      <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
     </div>
   );
 }

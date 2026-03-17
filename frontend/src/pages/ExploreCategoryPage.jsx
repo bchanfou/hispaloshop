@@ -35,7 +35,10 @@ export default function ExploreCategoryPage() {
     apiClient
       .get('/products', { params: { category: categoryParam, limit: 40 } })
       .then((res) => {
-        if (!cancelled) setProducts(res.data?.products || res.data || []);
+        if (!cancelled) {
+          const list = res?.items || res?.products || (Array.isArray(res) ? res : res?.data?.products || res?.data || []);
+          setProducts(Array.isArray(list) ? list : []);
+        }
       })
       .catch(() => {
         if (!cancelled) setProducts([]);
@@ -78,7 +81,12 @@ export default function ExploreCategoryPage() {
           <ArrowLeft size={22} color="var(--color-black)" />
         </button>
         <span style={{ fontSize: 22 }}>{group.emoji}</span>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>{group.label}</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1 }}>{group.label}</span>
+        {!loading && products.length > 0 && (
+          <span style={{ fontSize: 12, color: 'var(--color-stone)' }}>
+            {products.length} producto{products.length !== 1 ? 's' : ''}
+          </span>
+        )}
       </div>
 
       {/* Subcategory pills */}
@@ -113,16 +121,23 @@ export default function ExploreCategoryPage() {
         </div>
       )}
 
+      <style>{`
+        .explore-cat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+        @media(min-width:640px){ .explore-cat-grid { grid-template-columns: repeat(3,1fr); } }
+        @media(min-width:1024px){ .explore-cat-grid { grid-template-columns: repeat(4,1fr); gap: 16px; } }
+        @keyframes ecPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+      `}</style>
+
       {/* Product grid */}
       <div style={{ padding: '8px 16px 80px' }}>
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+          <div className="explore-cat-grid">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} style={{
                 background: 'var(--color-surface, #f5f5f4)',
                 borderRadius: 'var(--radius-xl)',
                 aspectRatio: '3/4',
-                animation: 'pulse 1.5s ease-in-out infinite',
+                animation: 'ecPulse 1.5s ease-in-out infinite',
               }} />
             ))}
           </div>
@@ -141,7 +156,7 @@ export default function ExploreCategoryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}
+            className="explore-cat-grid"
           >
             {products.map((product) => (
               <ProductCard key={product._id || product.id} product={product} />

@@ -187,6 +187,7 @@ export default function ProfileHeader({
             {/* settings */}
             <button
               onClick={() => navigate('/settings')}
+              aria-label="Ajustes"
               style={{
                 background: 'none',
                 border: 'none',
@@ -205,6 +206,7 @@ export default function ProfileHeader({
             {/* back */}
             <button
               onClick={() => navigate(-1)}
+              aria-label="Volver"
               style={{
                 background: 'none',
                 border: 'none',
@@ -226,6 +228,7 @@ export default function ProfileHeader({
             {/* more */}
             <button
               onClick={() => setShowOptionsSheet(true)}
+              aria-label="Más opciones"
               style={{
                 background: 'none',
                 border: 'none',
@@ -422,10 +425,24 @@ export default function ProfileHeader({
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
+                aria-label="Cambiar foto de perfil"
                 style={{
                   position: 'absolute',
-                  bottom: 0,
-                  right: 0,
+                  bottom: -6,
+                  right: -6,
+                  width: 44,
+                  height: 44,
+                  borderRadius: '50%',
+                  background: 'transparent',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                <span style={{
                   width: 26,
                   height: 26,
                   borderRadius: '50%',
@@ -434,11 +451,9 @@ export default function ProfileHeader({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
-                  padding: 0,
-                }}
-              >
-                <Camera size={12} color="var(--color-white)" />
+                }}>
+                  <Camera size={12} color="var(--color-white)" />
+                </span>
               </button>
             </>
           )}
@@ -492,7 +507,7 @@ export default function ProfileHeader({
                 textTransform: 'uppercase',
                 letterSpacing: '0.04em',
                 background: user?.role === 'influencer' ? 'var(--color-black)' : 'var(--color-surface)',
-                color: user?.role === 'influencer' ? '#fff' : 'var(--color-stone)',
+                color: user?.role === 'influencer' ? 'var(--color-white)' : 'var(--color-stone)',
                 padding: '3px 10px',
                 borderRadius: 'var(--radius-full)',
                 marginLeft: 6,
@@ -565,7 +580,7 @@ export default function ProfileHeader({
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 4,
                   fontSize: 11, fontWeight: 600,
-                  background: 'var(--color-black)', color: '#fff',
+                  background: 'var(--color-black)', color: 'var(--color-white)',
                   padding: '4px 12px', borderRadius: 'var(--radius-full)',
                   border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
@@ -653,6 +668,7 @@ export default function ProfileHeader({
             {/* follow */}
             <button
               onClick={onFollowToggle}
+              aria-label={user?.is_following ? `Dejar de seguir a ${user?.name}` : `Seguir a ${user?.name}`}
               style={{
                 flex: 1,
                 padding: '8px 12px',
@@ -906,7 +922,7 @@ export default function ProfileHeader({
 
               <OptionRow
                 label={`Bloquear a @${user?.username}`}
-                color="red"
+                color="var(--color-stone)"
                 onClick={() => {
                   toast('Próximamente');
                   setShowOptionsSheet(false);
@@ -914,7 +930,7 @@ export default function ProfileHeader({
               />
               <OptionRow
                 label="Reportar cuenta"
-                color="red"
+                color="var(--color-stone)"
                 onClick={() => {
                   toast('Próximamente');
                   setShowOptionsSheet(false);

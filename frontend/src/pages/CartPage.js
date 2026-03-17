@@ -11,7 +11,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLocale } from '../context/LocaleContext';
 import { toast } from 'sonner';
-import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Check, Clock, RefreshCw, Truck, Package } from 'lucide-react';
+import { Trash2, Mail, CheckCircle, AlertTriangle, Tag, X, AlertCircle, MapPin, Plus, Minus, Check, Clock, RefreshCw, Truck, Package } from 'lucide-react';
 import { useCartAddresses, useCartCheckout, useCartPricing, useCartVerification } from '../features/cart/hooks';
 
 /* ── ShippingProgressBar — per-store free-shipping progress ── */
@@ -119,6 +119,7 @@ export default function CartPage() {
   const {
     cartItems,
     removeFromCart,
+    updateQuantity,
     getTotalPrice,
     loading: cartLoading,
     appliedDiscount,
@@ -211,7 +212,7 @@ export default function CartPage() {
 
   const handleResendVerification = async () => {
     try {
-      const response = await resendVerification();
+      await resendVerification();
       toast.success(t('checkout.verificationSent') || 'Codigo enviado. Revisa tu email.');
     } catch (error) {
       toast.error(error?.message || t('checkout.failedResend'));
@@ -302,6 +303,11 @@ export default function CartPage() {
         toast.error(error?.message || t('checkout.checkoutFailed'));
       }
     }
+  };
+
+  const handleUpdateQuantity = async (item, newQuantity) => {
+    await updateQuantity(item.product_id, newQuantity, item.variant_id || null, item.pack_id || null);
+    await refetchPricing();
   };
 
   const handleRemoveItem = async (item) => {
@@ -453,15 +459,34 @@ export default function CartPage() {
                               </p>
                             )}
                             <div className="flex items-center justify-between mt-1 md:mt-2">
-                              <div>
-                                <p className="text-xs md:text-sm text-stone-500">{t('cart.quantity', 'Cantidad')}: {item.quantity}</p>
-                                <p className="mt-0.5 text-sm font-bold text-stone-950 md:text-base">
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center bg-stone-100 rounded-xl">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
+                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-l-xl transition-colors"
+                                    aria-label={`Disminuir cantidad de ${item.product_name}`}
+                                  >
+                                    <Minus className="w-4 h-4 text-stone-950" />
+                                  </button>
+                                  <span className="w-8 text-center text-sm font-medium text-stone-950" aria-live="polite" aria-label={`Cantidad: ${item.quantity}`}>{item.quantity}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
+                                    className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-200 rounded-r-xl transition-colors"
+                                    aria-label={`Aumentar cantidad de ${item.product_name}`}
+                                  >
+                                    <Plus className="w-4 h-4 text-stone-950" />
+                                  </button>
+                                </div>
+                                <p className="text-sm font-bold text-stone-950 md:text-base">
                                   {convertAndFormatPrice(item.price * item.quantity, item.currency || 'EUR')}
                                 </p>
                               </div>
                               <button
                                 onClick={() => handleRemoveItem(item)}
                                 className="rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:hidden"
+                                aria-label={`Eliminar ${item.product_name}`}
                                 data-testid={`remove-item-${itemKey}-mobile`}
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -479,6 +504,7 @@ export default function CartPage() {
                           <button
                             onClick={() => handleRemoveItem(item)}
                             className="hidden rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-100 md:flex"
+                            aria-label={`Eliminar ${item.product_name}`}
                             data-testid={`remove-item-${itemKey}`}
                           >
                             <Trash2 className="w-5 h-5" />
@@ -644,7 +670,7 @@ export default function CartPage() {
               <div className="mb-4 md:mb-6">
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
-                    <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" data-testid="discount-code-input" />
+                    <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" aria-label={t('cart.discountCode')} data-testid="discount-code-input" />
                     <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50" data-testid="apply-discount-btn">
                       {discountLoading ? t('common.loading') : t('cart.apply')}
                     </button>

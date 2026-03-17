@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-import { useUserProfile, useUserFollow, useUserAvatar } from '../features/user/hooks';
+import { useUserProfile, useUserFollow } from '../features/user/hooks';
 import { resolveUserImage } from '../features/user/queries';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileTabs from '../components/profile/ProfileTabs';
@@ -47,19 +47,17 @@ export default function UserProfilePage() {
     store_slug: profile.store_slug || profile.username,
   } : null;
 
+  const { toggleFollow, followLoading } = useUserFollow(user?.user_id, profile);
+
   const handleFollowToggle = useCallback(async () => {
-    if (!user) return;
+    if (!user || followLoading) return;
     try {
-      if (user.is_following) {
-        await apiClient.delete(`/users/${user.user_id}/follow`);
-      } else {
-        await apiClient.post(`/users/${user.user_id}/follow`);
-      }
+      await toggleFollow();
       refetch();
     } catch {
       toast.error('Error al actualizar');
     }
-  }, [user, refetch]);
+  }, [user, followLoading, toggleFollow, refetch]);
 
   const handleAvatarChange = useCallback(async (file) => {
     try {
@@ -184,6 +182,7 @@ export default function UserProfilePage() {
           isOpen={showEditProfile}
           onClose={() => { setShowEditProfile(false); refetch(); }}
           profile={profile}
+          userId={user.user_id}
         />
       )}
 

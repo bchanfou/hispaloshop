@@ -12,41 +12,27 @@ export default function HomeHeader({ activeTab, onTabChange }) {
 
   return (
     <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '8px 16px 4px',
-        background: 'var(--color-cream)',
-      }}
+      className="flex items-center justify-center bg-[var(--color-cream)] px-4 pb-1 pt-2"
       data-testid="home-header"
     >
-      <div
-        className="flex items-center p-[3px]"
-        style={{ borderRadius: 'var(--radius-full)', background: 'var(--color-surface)' }}
-      >
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => onTabChange(tab.id)}
-            className="transition-all duration-200"
-            style={{
-              borderRadius: 'var(--radius-full)',
-              padding: '5px 16px',
-              fontSize: 13,
-              fontWeight: activeTab === tab.id ? 600 : 400,
-              fontFamily: 'var(--font-sans)',
-              background: activeTab === tab.id ? 'var(--color-white)' : 'transparent',
-              color: activeTab === tab.id ? 'var(--color-black)' : 'var(--color-stone)',
-              boxShadow: activeTab === tab.id ? 'var(--shadow-sm)' : 'none',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex items-center rounded-full bg-[var(--color-surface)] p-[3px]">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => onTabChange(tab.id)}
+              className={`min-h-[44px] rounded-full px-4 text-[13px] font-sans transition-all duration-200 ${
+                isActive
+                  ? 'bg-[var(--color-white)] font-semibold text-[var(--color-black)] shadow-sm'
+                  : 'bg-transparent font-normal text-[var(--color-stone)]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

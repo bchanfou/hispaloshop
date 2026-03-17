@@ -86,7 +86,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
           <>
             <button
               onClick={goToPrev}
-              className={`absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 md:hidden rounded-full bg-white/90 shadow-md flex items-center justify-center transition-opacity ${
+              className={`absolute left-2 top-1/2 -translate-y-1/2 w-11 h-11 md:hidden rounded-full bg-white/90 shadow-md flex items-center justify-center transition-opacity ${
                 selectedImageIndex === 0 ? 'opacity-30' : 'opacity-100'
               }`}
               disabled={selectedImageIndex === 0}
@@ -96,7 +96,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
             </button>
             <button
               onClick={goToNext}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 md:hidden rounded-full bg-white/90 shadow-md flex items-center justify-center transition-opacity ${
+              className={`absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 md:hidden rounded-full bg-white/90 shadow-md flex items-center justify-center transition-opacity ${
                 selectedImageIndex === productImages.length - 1 ? 'opacity-30' : 'opacity-100'
               }`}
               disabled={selectedImageIndex === productImages.length - 1}

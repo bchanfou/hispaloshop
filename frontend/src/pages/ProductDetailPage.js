@@ -119,9 +119,24 @@ export default function ProductDetailPage() {
   const addedTimerRef = useRef(null);
   const rafRef = useRef(null);
 
+  // Reset image index & scroll to top when product changes
+  useEffect(() => {
+    setActiveImageIndex(0);
+    setDescExpanded(false);
+    window.scrollTo(0, 0);
+  }, [productId]);
+
   useEffect(() => {
     if (hasProductError) toast.error(t('errors.notFound'));
   }, [hasProductError, t]);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      clearTimeout(addedTimerRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   // Fetch related products
   useEffect(() => {
@@ -131,7 +146,7 @@ export default function ProductDetailPage() {
         const items = res?.products || res?.items || res || [];
         setRelatedProducts(items.filter((p) => (p.product_id || p.id) !== productId).slice(0, 6));
       })
-      .catch(() => {});
+      .catch(() => setRelatedProducts([]));
   }, [product?.category_id, productId]);
 
   // Gallery scroll handler — throttled with rAF to avoid setState on every pixel
@@ -330,7 +345,7 @@ export default function ProductDetailPage() {
         >
           {(images.length > 0 ? images : [primaryImage]).map((img, i) => (
             <div
-              key={i}
+              key={img || i}
               style={{
                 flex: '0 0 100%',
                 scrollSnapAlign: 'start',
@@ -376,11 +391,20 @@ export default function ProductDetailPage() {
             display: 'flex', gap: 6,
           }}>
             {images.slice(0, 8).map((_, i) => (
-              <div key={i} style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: i === activeImageIndex ? 'var(--color-black)' : 'rgba(0,0,0,0.25)',
-                transition: 'background 0.2s',
-              }} />
+              <button
+                key={i}
+                type="button"
+                onClick={() => {
+                  const el = galleryRef.current;
+                  if (el) el.scrollTo({ left: el.offsetWidth * i, behavior: 'smooth' });
+                }}
+                aria-label={`Ir a imagen ${i + 1}`}
+                style={{
+                  width: 8, height: 8, borderRadius: '50%', padding: 0, border: 'none', cursor: 'pointer',
+                  background: i === activeImageIndex ? 'var(--color-black)' : 'rgba(0,0,0,0.25)',
+                  transition: 'background 0.2s',
+                }}
+              />
             ))}
           </div>
         )}
@@ -401,24 +425,6 @@ export default function ProductDetailPage() {
 
       {/* ── Product Header ── */}
       <div style={{ padding: '16px 16px 0' }}>
-        {/* Certifications */}
-        {certs.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-            {certs.map((cert, idx) => (
-              <span key={idx} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 4,
-                background: 'var(--color-surface)',
-                color: 'var(--color-black)',
-                fontSize: 10, fontWeight: 500, padding: '3px 8px',
-                borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
-              }}>
-                <Shield size={10} />
-                {cert}
-              </span>
-            ))}
-          </div>
-        )}
-
         {/* Name */}
         <h1 style={{
           fontSize: 20, fontWeight: 600, color: 'var(--color-black)',
@@ -642,25 +648,31 @@ export default function ProductDetailPage() {
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             disabled={isOutOfStock}
+            aria-label="Reducir cantidad"
             style={{
-              width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: 'none', border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
               color: 'var(--color-stone)',
             }}
           >
             <Minus size={16} />
           </button>
-          <span style={{
-            minWidth: 36, textAlign: 'center', fontSize: 14, fontWeight: 600,
-            color: 'var(--color-black)', fontFamily: 'var(--font-sans)',
-          }}>
+          <span
+            aria-live="polite"
+            aria-label={`Cantidad: ${quantity}`}
+            style={{
+              minWidth: 36, textAlign: 'center', fontSize: 14, fontWeight: 600,
+              color: 'var(--color-black)', fontFamily: 'var(--font-sans)',
+            }}
+          >
             {quantity}
           </span>
           <button
             onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
             disabled={isOutOfStock}
+            aria-label="Aumentar cantidad"
             style={{
-              width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: 'none', border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
               color: 'var(--color-stone)',
             }}
@@ -906,10 +918,13 @@ export default function ProductDetailPage() {
             <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 12 }}>
               {t('productDetail.yourReview', 'Tu reseña')}
             </p>
-            <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+            <div role="radiogroup" aria-label="Puntuación" style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
               {[1,2,3,4,5,6,7,8,9,10].map((num) => (
                 <button
                   key={num} onClick={() => setReviewRating(num)}
+                  role="radio"
+                  aria-checked={num === reviewRating}
+                  aria-label={`${num} de 10`}
                   style={{
                     width: 30, height: 30, borderRadius: '50%',
                     fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)',
@@ -926,6 +941,7 @@ export default function ProductDetailPage() {
               value={reviewComment}
               onChange={(e) => setReviewComment(e.target.value)}
               placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia...')}
+              aria-label="Comentario de la reseña"
               rows={3}
               style={{
                 width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
@@ -964,8 +980,8 @@ export default function ProductDetailPage() {
         {/* Reviews List */}
         {reviews.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {reviews.slice(0, 3).map((review, idx) => (
-              <div key={idx} style={{
+            {reviews.slice(0, 3).map((review) => (
+              <div key={review.review_id || `${review.user_id}-${review.created_at}`} style={{
                 background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
                 border: '1px solid var(--color-border)', padding: 14,
               }}>
@@ -1122,7 +1138,7 @@ export default function ProductDetailPage() {
               return (
                 <Link
                   key={rpId}
-                  to={`/producto/${rpId}`}
+                  to={`/products/${rpId}`}
                   style={{
                     flex: '0 0 140px', scrollSnapAlign: 'start',
                     textDecoration: 'none', color: 'inherit',

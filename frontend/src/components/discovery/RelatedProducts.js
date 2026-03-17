@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import apiClient from '../../services/api/client';
+import ProductImage from '../ui/ProductImage.tsx';
 
 const getProductId = (product) => product?.product_id || product?.id || null;
 
@@ -73,11 +74,11 @@ export default function RelatedProducts({ productId, title = 'Productos relacion
                 }}
                 className="min-w-[148px] shrink-0 overflow-hidden rounded-[20px] border border-stone-200 bg-white text-left shadow-sm transition-shadow hover:shadow-md md:min-w-0"
               >
-                <img
-                  src={product.image_url || product.images?.[0] || '/placeholder-product.png'}
-                  alt={product.name}
-                  loading="lazy"
-                  className="h-32 w-full object-cover"
+                <ProductImage
+                  src={product.image_url || product.images?.[0] || null}
+                  productName={product.name}
+                  className="h-32 w-full"
+                  sizes="148px"
                 />
                 <div className="p-3">
                   <p className="line-clamp-2 text-xs font-semibold text-stone-950">{product.name}</p>

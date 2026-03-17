@@ -142,7 +142,7 @@ function PersonRow({ person, linkBase }) {
         ) : isStore ? (
           <Store size={18} color="var(--color-stone)" />
         ) : (
-          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-stone)' }}>{name[0].toUpperCase()}</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-stone)' }}>{(name[0] || '?').toUpperCase()}</span>
         )}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -266,10 +266,11 @@ export default function SearchPage() {
         borderBottom: '1px solid var(--color-border)',
         padding: '10px 16px',
       }}>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <form onSubmit={handleSubmit} role="search" aria-label="Buscar en Hispaloshop" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => { window.history.length > 1 ? navigate(-1) : navigate('/discover'); }}
+            aria-label="Volver"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', flexShrink: 0 }}
           >
             <ArrowLeft size={22} color="var(--color-black)" />
@@ -377,10 +378,15 @@ export default function SearchPage() {
           </div>
         )}
 
+        {/* ── Live region for screen readers ── */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
+          {!loading && results && (hasResults ? `${totalCount} resultados encontrados` : `Sin resultados para ${query}`)}
+        </div>
+
         {/* ── Loading ── */}
         {loading && (
           <div style={{ paddingTop: 16 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+            <div className="search-grid-2" style={{ marginBottom: 20 }}>
               {[0, 1, 2, 3].map(i => <CardSkeleton key={i} />)}
             </div>
             {[0, 1, 2].map(i => <RowSkeleton key={i} />)}
@@ -414,7 +420,7 @@ export default function SearchPage() {
             {showProducts && (
               <section>
                 <SectionHeader icon={ShoppingBag} label="Productos" count={counts.products} />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="search-grid-2">
                   {[...results.products].sort((a, b) => {
                     if (sortBy === 'price_asc') return (a.price || 0) - (b.price || 0);
                     if (sortBy === 'price_desc') return (b.price || 0) - (a.price || 0);
@@ -427,7 +433,7 @@ export default function SearchPage() {
             {showRecipes && (
               <section>
                 <SectionHeader icon={ChefHat} label="Recetas" count={counts.recipes} />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="search-grid-2">
                   {results.recipes.map(r => <RecipeCard key={r.recipe_id} r={r} />)}
                 </div>
               </section>
@@ -512,7 +518,11 @@ export default function SearchPage() {
         )}
       </div>
 
-      <style>{`@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }`}</style>
+      <style>{`
+        @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
+        .search-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        @media(min-width:480px){ .search-grid-2 { grid-template-columns:repeat(3,1fr); } }
+      `}</style>
     </div>
   );
 }

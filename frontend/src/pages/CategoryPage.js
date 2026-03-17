@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Grid3X3,
@@ -30,7 +30,12 @@ const FILTER_FEATURES = [
   'Novedad',
 ];
 
-const PRICE_RANGES = ['€0–10', '€10–25', '€25–50', '€50+'];
+const PRICE_RANGES = [
+  { label: '€0–10', min: 0, max: 10 },
+  { label: '€10–25', min: 10, max: 25 },
+  { label: '€25–50', min: 25, max: 50 },
+  { label: '€50+', min: 50, max: Infinity },
+];
 
 const CategoryPage = () => {
   const { categoryId } = useParams();
@@ -48,6 +53,34 @@ const CategoryPage = () => {
     category: categoryId,
     sort: sortBy,
   });
+
+  const filteredProducts = useMemo(() => {
+    let list = products;
+    if (activePrice) {
+      const range = PRICE_RANGES.find((r) => r.label === activePrice);
+      if (range) {
+        list = list.filter((p) => {
+          const price = p.price ?? 0;
+          return price >= range.min && price < range.max;
+        });
+      }
+    }
+    if (activeFeatures.length > 0) {
+      list = list.filter((p) => {
+        const tags = [
+          ...(p.tags || []),
+          ...(p.certifications || []),
+          p.is_bio && 'Producto BIO',
+          p.free_shipping && 'Envío gratis',
+          p.is_new && 'Novedad',
+          p.has_discount && 'Con descuento',
+          p.is_local && 'De mi zona',
+        ].filter(Boolean);
+        return activeFeatures.every((f) => tags.includes(f));
+      });
+    }
+    return list;
+  }, [products, activePrice, activeFeatures]);
 
   const toggleFeature = (feature) => {
     setActiveFeatures((prev) =>
@@ -128,7 +161,7 @@ const CategoryPage = () => {
         {/* Controls row */}
         <div className="flex items-center justify-between border-t border-stone-100 px-4 py-2">
           <p className="text-xs text-stone-500">
-            {isLoading ? 'Cargando…' : `${products.length} producto${products.length !== 1 ? 's' : ''}`}
+            {isLoading ? 'Cargando…' : `${filteredProducts.length} producto${filteredProducts.length !== 1 ? 's' : ''}`}
           </p>
           <div className="flex items-center gap-2">
             {/* Sort */}
@@ -211,7 +244,7 @@ const CategoryPage = () => {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-7 w-7 animate-spin text-stone-400" />
           </div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
               <Search className="h-7 w-7 text-stone-400" />
@@ -232,7 +265,7 @@ const CategoryPage = () => {
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {products.map((product, index) => (
+            {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.product_id || product.id}
                 initial={{ opacity: 0, y: 12 }}
@@ -245,7 +278,7 @@ const CategoryPage = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {products.map((product, index) => (
+            {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.product_id || product.id}
                 initial={{ opacity: 0, x: -12 }}
@@ -260,14 +293,16 @@ const CategoryPage = () => {
       </div>
 
       {/* Filter sheet */}
+      <AnimatePresence>
       {showFilters ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm" onClick={() => setShowFilters(false)}>
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
             className="max-h-[80vh] w-full overflow-y-auto rounded-t-3xl bg-white p-6"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between">
               <h3 className="text-base font-semibold text-stone-950">Filtrar</h3>
@@ -288,16 +323,16 @@ const CategoryPage = () => {
                 <div className="flex flex-wrap gap-2">
                   {PRICE_RANGES.map((range) => (
                     <button
-                      key={range}
+                      key={range.label}
                       type="button"
-                      onClick={() => setActivePrice((prev) => (prev === range ? '' : range))}
+                      onClick={() => setActivePrice((prev) => (prev === range.label ? '' : range.label))}
                       className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                        activePrice === range
+                        activePrice === range.label
                           ? 'border-stone-950 bg-stone-950 text-white'
                           : 'border-stone-200 bg-white text-stone-700 hover:border-stone-400'
                       }`}
                     >
-                      {range}
+                      {range.label}
                     </button>
                   ))}
                 </div>
@@ -314,22 +349,24 @@ const CategoryPage = () => {
                         key={feature}
                         className="flex cursor-pointer items-center gap-3"
                       >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleFeature(feature)}
+                          className="sr-only peer"
+                        />
                         <div
-                          className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-colors ${
+                          className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-stone-950/30 ${
                             isChecked ? 'border-stone-950 bg-stone-950' : 'border-stone-300'
                           }`}
-                          onClick={() => toggleFeature(feature)}
                         >
                           {isChecked ? (
-                            <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none">
+                            <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                               <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                           ) : null}
                         </div>
-                        <span
-                          className="text-sm text-stone-700"
-                          onClick={() => toggleFeature(feature)}
-                        >
+                        <span className="text-sm text-stone-700">
                           {feature}
                         </span>
                       </label>
@@ -349,6 +386,7 @@ const CategoryPage = () => {
           </motion.div>
         </div>
       ) : null}
+      </AnimatePresence>
     </div>
   );
 };
