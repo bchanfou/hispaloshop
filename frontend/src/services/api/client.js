@@ -131,6 +131,14 @@ httpClient.interceptors.response.use(
       }
 
       removeToken();
+      // Redirect to login if session is truly expired (refresh failed)
+      // Only redirect for non-GET requests or protected routes to avoid redirect loops
+      const isProtectedRoute = !['/', '/products', '/login', '/register', '/auth'].some(
+        (p) => window.location.pathname.startsWith(p) && window.location.pathname.length <= p.length + 1
+      );
+      if (isProtectedRoute && typeof window !== 'undefined') {
+        window.location.href = `/login?expired=1&redirect=${encodeURIComponent(window.location.pathname)}`;
+      }
     }
 
     return Promise.reject(normalizeApiError(error));

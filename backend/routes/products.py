@@ -351,7 +351,8 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         "tags": input.certifications or [],
         "price": input.price,
     })
-    if mod_result.get("decision") == "blocked":
+    mod_decision = mod_result.get("decision") or mod_result.get("action")
+    if mod_decision == "blocked":
         return JSONResponse(
             status_code=422,
             content={
@@ -361,6 +362,8 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
                 "violation_type": mod_result.get("violation_type"),
             },
         )
+    # If moderation returned "review" (e.g., API failure), mark product for manual review
+    needs_manual_review = mod_decision == "review"
 
     product_id = f"prod_{uuid.uuid4().hex[:12]}"
     slug = input.name.lower().replace(' ', '-')
@@ -404,8 +407,8 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         "ingredients": input.ingredients,
         "allergens": input.allergens,
         "certifications": input.certifications,
-        "approved": True,  # Products are auto-approved (marketplace model)
-        "status": "active",  # active = visible everywhere
+        "approved": not needs_manual_review,  # Hold for review if moderation uncertain
+        "status": "pending_review" if needs_manual_review else "active",
         "featured": False,  # Only affects "Best Products" section
         "created_at": datetime.now(timezone.utc).isoformat(),
         # Stock management fields

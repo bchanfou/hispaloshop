@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Query
 import re
 
 from core.database import db
-from core.auth import get_current_user
+from core.auth import get_current_user, require_role
 from core.models import User, ReviewCreateInput
 
 logger = logging.getLogger(__name__)
@@ -360,6 +360,14 @@ async def create_review(input: ReviewCreateInput, user: User = Depends(get_curre
     }
     await db.reviews.insert_one(review)
     review.pop("_id", None)
+
+    # Trigger badge check after review creation
+    try:
+        from routes.badges import check_and_award_badges
+        await check_and_award_badges(user.user_id)
+    except Exception:
+        pass  # Badge failure should never block review creation
+
     return review
 
 @router.get("/reviews/can-review/{product_id}")

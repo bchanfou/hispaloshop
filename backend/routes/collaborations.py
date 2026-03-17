@@ -231,6 +231,22 @@ async def decline_collaboration(collab_id: str, body: DeclineBody, current_user=
         }},
     )
 
+    # Cleanup: close the collaboration conversation so it's not cluttering the chat list
+    conv_id = collab.get("conversation_id")
+    if conv_id:
+        await db.internal_conversations.update_one(
+            {"conversation_id": conv_id},
+            {"$set": {"status": "closed", "closed_reason": "collab_declined", "updated_at": now}},
+        )
+
+    # Cleanup: deactivate any discount code created during acceptance that was never used
+    discount_code_id = collab.get("discount_code_id")
+    if discount_code_id:
+        await db.discount_codes.update_one(
+            {"code_id": discount_code_id},
+            {"$set": {"active": False}},
+        )
+
     await create_notification(
         user_id=collab["producer_id"],
         title="Colaboración rechazada",

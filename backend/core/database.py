@@ -170,11 +170,12 @@ async def _create_indexes():
     await db.influencers.create_index("stripe_account_id", sparse=True)
     logger.info("  OK: discount_codes/influencers indexes")
     
-    # Reviews
+    # Reviews — unique constraint prevents duplicate reviews per user per product
     await db.reviews.create_index("review_id", unique=True, sparse=True)
     await db.reviews.create_index("product_id")
     await db.reviews.create_index("user_id")
     await db.reviews.create_index([("product_id", 1), ("created_at", -1)])
+    await _safe_create_index(db.reviews, [("product_id", 1), ("user_id", 1)], unique=True)
     logger.info("  OK: reviews indexes")
 
     # Communities
@@ -205,6 +206,10 @@ async def _create_indexes():
     await db.b2b_requests.create_index([("producer_id", 1), ("status", 1)])
     await db.b2b_requests.create_index("importer_id")
     logger.info("  OK: b2b indexes")
+
+    # Internal chat: prevent duplicate conversations between same pair of users
+    await _safe_create_index(db.internal_conversations, "_pair_key", unique=True, sparse=True)
+    logger.info("  OK: internal_conversations unique pair index")
 
     # Social: follows and likes — unique constraints prevent duplicates
     await db.user_follows.create_index(

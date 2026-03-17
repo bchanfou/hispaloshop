@@ -196,6 +196,11 @@ export default function CheckoutPage() {
 
   const handlePay = async () => {
     if (checkoutLoading) return;
+    if (!cartItems || cartItems.length === 0) {
+      toast.error('Tu carrito está vacío');
+      navigate('/cart');
+      return;
+    }
     const addr = selectedAddress;
     if (!addr) { toast.error('Selecciona una dirección'); return; }
     try {

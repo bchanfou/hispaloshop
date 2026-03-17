@@ -120,14 +120,20 @@ async def send_internal_message(
     conversation_id = input.conversation_id
     
     if not conversation_id and input.recipient_id:
-        # Check if conversation already exists between these users
-        existing = await db.internal_conversations.find_one({
-            "$and": [
-                {"participants.user_id": user.user_id},
-                {"participants.user_id": input.recipient_id}
-            ]
-        })
-        
+        # Atomic find-or-create: prevents duplicate conversations from concurrent requests
+        # Sort participant IDs to create a deterministic pair key
+        pair_key = ":".join(sorted([user.user_id, input.recipient_id]))
+        existing = await db.internal_conversations.find_one({"_pair_key": pair_key})
+
+        if not existing:
+            # Also check legacy conversations without _pair_key
+            existing = await db.internal_conversations.find_one({
+                "$and": [
+                    {"participants.user_id": user.user_id},
+                    {"participants.user_id": input.recipient_id}
+                ]
+            })
+
         if existing:
             conversation_id = existing["conversation_id"]
         else:
@@ -135,23 +141,24 @@ async def send_internal_message(
             recipient = await db.users.find_one({"user_id": input.recipient_id})
             if not recipient:
                 raise HTTPException(status_code=404, detail="Recipient not found")
-            
+
             conversation_id = f"conv_{uuid.uuid4().hex[:12]}"
-            
+
             # Get user avatar/logo
             sender_avatar = None
             recipient_avatar = None
-            
+
             if user.role == "producer":
                 store = await db.stores.find_one({"producer_id": user.user_id})
                 sender_avatar = store.get("logo") if store else None
-            
+
             if recipient.get("role") == "producer":
                 store = await db.stores.find_one({"producer_id": recipient["user_id"]})
                 recipient_avatar = store.get("logo") if store else None
-            
+
             new_conv = {
                 "conversation_id": conversation_id,
+                "_pair_key": pair_key,
                 "status": "pending",
                 "participants": [
                     {
@@ -170,7 +177,13 @@ async def send_internal_message(
                 "created_at": now,
                 "updated_at": now
             }
-            await db.internal_conversations.insert_one(new_conv)
+            try:
+                await db.internal_conversations.insert_one(new_conv)
+            except Exception:
+                # Unique index violation → concurrent request created it first
+                existing = await db.internal_conversations.find_one({"_pair_key": pair_key})
+                if existing:
+                    conversation_id = existing["conversation_id"]
     
     if not conversation_id:
         raise HTTPException(status_code=400, detail="Either conversation_id or recipient_id is required")

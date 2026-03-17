@@ -561,6 +561,13 @@ async def process_payment_confirmed(session_id: str, user_id: str = None):
         status="completed",
     )
     
+    # 4c. Trigger badge evaluation for the buyer (non-blocking)
+    try:
+        from routes.badges import check_and_award_badges
+        await check_and_award_badges(order.get("user_id", ""))
+    except Exception as badge_err:
+        logger.warning(f"[BADGES] Failed for user {order.get('user_id')}: {badge_err}")
+
     commission_data = await _get_order_commission_data(order)
 
     # 5. Execute seller transfers (Separate Charges & Transfers)
