@@ -80,9 +80,9 @@ const carrierTrackingUrl = (carrier, code) => {
 /* ── Pulse keyframe style (injected once) ─────────── */
 const PULSE_CSS = `
 @keyframes b2b-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(46,125,82,.45); }
-  70%  { box-shadow: 0 0 0 8px rgba(46,125,82,0); }
-  100% { box-shadow: 0 0 0 0 rgba(46,125,82,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(12,10,9,.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(12,10,9,0); }
+  100% { box-shadow: 0 0 0 0 rgba(12,10,9,0); }
 }
 `;
 

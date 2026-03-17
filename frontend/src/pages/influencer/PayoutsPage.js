@@ -164,8 +164,7 @@ export default function PayoutsPage() {
               Aún no tienes pagos. Comparte tu código y empieza a ganar.
             </p>
           </div>
-        ) : (
-          <>
+        ) : (<>
           <div className="divide-y divide-stone-100">
             {payouts.slice((payoutPage - 1) * PAYOUTS_PER_PAGE, payoutPage * PAYOUTS_PER_PAGE).map((payout) => (
               <div

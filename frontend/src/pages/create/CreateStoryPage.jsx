@@ -221,7 +221,7 @@ export default function CreateStoryPage() {
           onClick={handlePublish}
           disabled={publishing}
           style={{
-            background: 'var(--color-green)',
+            background: 'var(--color-black)',
             color: '#fff',
             border: 'none',
             fontSize: 13,

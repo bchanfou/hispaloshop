@@ -286,7 +286,7 @@ export default function EditProfilePage() {
                   <span style={{
                     fontSize: 10, fontWeight: 700, padding: '2px 8px',
                     borderRadius: 'var(--radius-full, 999px)',
-                    background: 'rgba(22,163,74,0.1)', color: 'var(--color-black)',
+                    background: 'var(--color-surface-alt, #f5f5f4)', color: 'var(--color-black)',
                   }}>
                     Verificado ✓
                   </span>
