@@ -98,7 +98,9 @@ export default function ForYouFeed() {
     >
       <PullIndicator progress={progress} isRefreshing={refreshing} />
       {isLoading && allPosts.length === 0 ? (
-        <FeedSkeleton count={3} />
+        <div aria-busy="true" aria-label="Cargando publicaciones">
+          <FeedSkeleton count={3} />
+        </div>
       ) : allPosts.length === 0 ? (
         <div className="flex flex-col items-center px-6 py-16 text-center">
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
@@ -150,7 +152,7 @@ export default function ForYouFeed() {
                         comments: post.comments_count,
                         shares: post.shares_count || 0,
                         productTag: post.product_tag,
-                        timestamp: new Date(post.created_at).getTime(),
+                        timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                       }}
                       onLike={() => handleLike(post.id)}
                       onComment={() => handleComment(post.id)}
@@ -185,7 +187,7 @@ export default function ForYouFeed() {
                       liked: post.is_liked,
                       comments: post.comments_count,
                       productTag: post.product_tag,
-                      timestamp: new Date(post.created_at).getTime(),
+                      timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                     }}
                     onLike={() => handleLike(post.id)}
                     onComment={() => handleComment(post.id)}

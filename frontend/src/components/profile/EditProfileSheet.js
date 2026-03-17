@@ -14,15 +14,16 @@ function useCheckUsername(username, currentUsername) {
   const timerRef = useRef(null);
 
   useEffect(() => {
+    let mounted = true;
     const trimmed = (username || '').trim().toLowerCase().replace(/\s+/g, '_');
 
     if (!trimmed || trimmed.length < 3) {
       setStatus(trimmed.length > 0 ? 'invalid' : 'idle');
-      return;
+      return () => { mounted = false; };
     }
     if (trimmed === (currentUsername || '').toLowerCase()) {
       setStatus('idle');
-      return;
+      return () => { mounted = false; };
     }
 
     setStatus('checking');
@@ -30,13 +31,13 @@ function useCheckUsername(username, currentUsername) {
     timerRef.current = setTimeout(async () => {
       try {
         const res = await apiClient.get(`/users/check-username/${encodeURIComponent(trimmed)}`);
-        setStatus(res.available ? 'available' : 'taken');
+        if (mounted) setStatus(res.available ? 'available' : 'taken');
       } catch {
-        setStatus('taken');
+        if (mounted) setStatus('taken');
       }
     }, 500);
 
-    return () => clearTimeout(timerRef.current);
+    return () => { mounted = false; clearTimeout(timerRef.current); };
   }, [username, currentUsername]);
 
   return status;
@@ -106,6 +107,10 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
       toast.error('El nombre de usuario debe tener al menos 3 caracteres');
       return;
     }
+    if (draft.website && !/^https?:\/\//i.test(draft.website)) {
+      toast.error('El enlace web debe empezar por http:// o https://');
+      return;
+    }
 
     mutate(draft, {
       onSuccess: () => {
@@ -141,6 +146,9 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 380, damping: 38, mass: 0.8 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Editar perfil"
             className="fixed bottom-0 left-0 right-0 z-[101] flex h-[95vh] flex-col overflow-hidden rounded-t-[20px] bg-white md:bottom-auto md:left-1/2 md:right-auto md:top-1/2 md:h-[85vh] md:max-h-[700px] md:w-[480px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-[20px]"
           >
             {/* Handle */}

@@ -4,11 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'sonner';
 import { User, Lock, Leaf, MapPin, Plus, Trash2, Star, Edit2, X, AlertTriangle, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ConsentSettings, ConsentSummary, ConsentFullDisclosure } from '../../components/ConsentLayers';
+import { ConsentSettings } from '../../components/ConsentLayers';
 import apiClient from '../../services/api/client';
 import FocusTrap from 'focus-trap-react';
-
-
 
 const DIET_OPTIONS = [
   'Vegan',
@@ -82,33 +80,25 @@ export default function CustomerProfile() {
   const [hasConsent, setHasConsent] = useState(false);
 
   useEffect(() => {
-    fetchProfile();
-    fetchAddresses();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      const data = await apiClient.get('/customer/profile');
-      setProfileData({
-        name: data.name || '',
-        country: data.country || '',
-        username: data.username || ''
-      });
-      if (data.preferences) {
-        setPreferences({
-          diet_preferences: data.preferences.diet_preferences || [],
-          allergens: data.preferences.allergens || [],
-          goals: data.preferences.goals || ''
-        });
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await apiClient.get('/customer/profile');
+        if (!mounted) return;
+        setProfileData({ name: data.name || '', country: data.country || '', username: data.username || '' });
+        if (data.preferences) {
+          setPreferences({ diet_preferences: data.preferences.diet_preferences || [], allergens: data.preferences.allergens || [], goals: data.preferences.goals || '' });
+        }
+        setHasConsent(data.consent?.analytics_consent || false);
+      } catch {
+        if (mounted) toast.error('Error al cargar el perfil');
+      } finally {
+        if (mounted) setLoading(false);
       }
-      // Check consent status
-      setHasConsent(data.consent?.analytics_consent || false);
-    } catch {
-      toast.error('Error al cargar el perfil');
-    } finally {
-      setLoading(false);
-    }
-  };
+    })();
+    fetchAddresses();
+    return () => { mounted = false; };
+  }, []);
 
   const fetchAddresses = async () => {
     try {
@@ -406,15 +396,15 @@ export default function CustomerProfile() {
       {/* Profile Tab */}
       {activeTab === 'profile' && (
         <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-xl">
-          <h2 className="font-medium text-stone-950 mb-4">Personal Information</h2>
+          <h2 className="font-medium text-stone-950 mb-4">{t('profile.personalInfo', 'Información personal')}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Email</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('common.email', 'Email')}</label>
               <input value={user?.email || ''} disabled readOnly className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950 bg-stone-50" />
-              <p className="text-xs text-stone-500 mt-1">Email cannot be changed</p>
+              <p className="text-xs text-stone-500 mt-1">{t('profile.emailReadonly', 'El email no se puede cambiar')}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('checkout.fullName', 'Nombre completo')}</label>
               <input
                 value={profileData.name}
                 onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
@@ -423,7 +413,7 @@ export default function CustomerProfile() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Username</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('profile.username', 'Usuario')}</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm">@</span>
                 <input
@@ -437,7 +427,7 @@ export default function CustomerProfile() {
               <p className="text-xs text-stone-400 mt-1">Letras, numeros, puntos y guiones bajos. Min 3 caracteres.</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Country</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('checkout.country', 'País')}</label>
               <input
                 value={profileData.country}
                 onChange={(e) => setProfileData({ ...profileData, country: e.target.value })}
@@ -445,7 +435,7 @@ export default function CustomerProfile() {
               />
             </div>
             <button onClick={saveProfile} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors">
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? t('common.loading', 'Guardando...') : t('common.save', 'Guardar cambios')}
             </button>
           </div>
         </div>
@@ -454,10 +444,10 @@ export default function CustomerProfile() {
       {/* Password Tab */}
       {activeTab === 'password' && (
         <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-xl">
-          <h2 className="font-medium text-stone-950 mb-4">Change Password</h2>
+          <h2 className="font-medium text-stone-950 mb-4">{t('profile.changePassword', 'Cambiar contraseña')}</h2>
           <form onSubmit={changePassword} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Current Password</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('profile.currentPassword', 'Contraseña actual')}</label>
               <input
                 type="password"
                 value={passwordData.current_password}
@@ -467,7 +457,7 @@ export default function CustomerProfile() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">New Password</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('profile.newPassword', 'Nueva contraseña')}</label>
               <input
                 type="password"
                 value={passwordData.new_password}
@@ -478,7 +468,7 @@ export default function CustomerProfile() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-600 mb-1">Confirm New Password</label>
+              <label className="block text-sm font-medium text-stone-600 mb-1">{t('profile.confirmPassword', 'Confirmar nueva contraseña')}</label>
               <input
                 type="password"
                 value={passwordData.confirm_password}
@@ -488,7 +478,7 @@ export default function CustomerProfile() {
               />
             </div>
             <button type="submit" disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors">
-              {saving ? 'Changing...' : 'Change Password'}
+              {saving ? t('common.loading', 'Cambiando...') : t('profile.changePassword', 'Cambiar contraseña')}
             </button>
           </form>
         </div>
@@ -497,13 +487,13 @@ export default function CustomerProfile() {
       {/* Preferences Tab */}
       {activeTab === 'preferences' && (
         <div className="bg-white rounded-xl border border-stone-200 p-6 max-w-2xl">
-          <h2 className="font-medium text-stone-950 mb-4">Dietary Preferences</h2>
+          <h2 className="font-medium text-stone-950 mb-4">{t('profile.dietaryPreferences', 'Preferencias dietéticas')}</h2>
           <p className="text-sm text-stone-500 mb-6">
-            These preferences help our AI assistant recommend products that match your dietary needs.
+            {t('profile.dietaryDescription', 'Estas preferencias ayudan a nuestro asistente a recomendarte productos que se adapten a tus necesidades.')}
           </p>
 
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-stone-600 mb-3">Diet Types</h3>
+            <h3 className="text-sm font-medium text-stone-600 mb-3">{t('profile.dietTypes', 'Tipos de dieta')}</h3>
             <div className="flex flex-wrap gap-2">
               {DIET_OPTIONS.map((diet) => (
                 <button
@@ -522,7 +512,7 @@ export default function CustomerProfile() {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-stone-600 mb-3">Allergens to Avoid</h3>
+            <h3 className="text-sm font-medium text-stone-600 mb-3">{t('profile.allergensToAvoid', 'Alérgenos a evitar')}</h3>
             <div className="flex flex-wrap gap-2">
               {ALLERGEN_OPTIONS.map((allergen) => (
                 <button
@@ -541,17 +531,17 @@ export default function CustomerProfile() {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-stone-600 mb-3">Health Goals (Optional)</h3>
+            <h3 className="text-sm font-medium text-stone-600 mb-3">{t('profile.healthGoals', 'Objetivos de salud (opcional)')}</h3>
             <textarea
               value={preferences.goals}
               onChange={(e) => setPreferences({ ...preferences, goals: e.target.value })}
               className="w-full px-4 py-2 rounded-xl border border-stone-200 min-h-[100px]"
-              placeholder="e.g., Weight loss, muscle building, heart health..."
+              placeholder={t('profile.healthGoalsPlaceholder', 'Ej: pérdida de peso, ganar músculo, salud cardiovascular...')}
             />
           </div>
 
           <button onClick={savePreferences} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors">
-            {saving ? 'Saving...' : 'Save Preferences'}
+            {saving ? t('common.loading', 'Guardando...') : t('common.save', 'Guardar preferencias')}
           </button>
         </div>
       )}
@@ -751,8 +741,9 @@ export default function CustomerProfile() {
                       {!address.is_default && (
                         <button
                           onClick={() => handleSetDefault(address.address_id)}
-                          className="p-1 text-stone-500 hover:text-stone-950 transition-colors"
+                          className="p-2.5 text-stone-500 hover:text-stone-950 transition-colors"
                           title={t('profile.setAsDefault', 'Set as default')}
+                          aria-label={t('profile.setAsDefault', 'Set as default')}
                           data-testid={`set-default-${address.address_id}`}
                         >
                           <Star className="w-4 h-4" />
@@ -760,14 +751,16 @@ export default function CustomerProfile() {
                       )}
                       <button
                         onClick={() => handleEditAddress(address)}
-                        className="p-1 text-stone-500 hover:text-stone-950 transition-colors"
+                        className="p-2.5 text-stone-500 hover:text-stone-950 transition-colors"
+                        aria-label={t('common.edit', 'Edit')}
                         data-testid={`edit-address-${address.address_id}`}
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteAddress(address.address_id)}
-                        className="p-1 text-stone-500 hover:text-stone-950 transition-colors"
+                        className="p-2.5 text-stone-500 hover:text-stone-950 transition-colors"
+                        aria-label={t('common.delete', 'Delete')}
                         data-testid={`delete-address-${address.address_id}`}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -867,9 +860,9 @@ export default function CustomerProfile() {
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
-        <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
+        <FocusTrap focusTrapOptions={{ escapeDeactivates: true, allowOutsideClick: true, returnFocusOnDeactivate: true, onDeactivate: () => { setShowDeleteModal(false); setDeletePassword(''); setDeleteConfirmation(''); } }}>
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" role="dialog" aria-modal="true" aria-label={t('profile.confirmDeleteTitle', 'Delete Account')}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-stone-100 rounded-full">
                 <AlertTriangle className="w-6 h-6 text-stone-700" />

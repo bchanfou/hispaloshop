@@ -9,7 +9,7 @@ const BG_OPTIONS = [
   { id: 'gallery', label: '🖼️', type: 'action' },
   { id: 'black', label: '■', type: 'color', value: '#000000' },
   { id: 'white', label: '□', type: 'color', value: '#ffffff' },
-  { id: 'crema', label: '■', type: 'color', value: '#faf5f0' },
+  { id: 'crema', label: '■', type: 'color', value: '#fafaf9' },
   { id: 'oscuro', label: '■', type: 'color', value: '#1c1917' },
   { id: 'grad-stone', label: '∇', type: 'gradient', value: 'linear-gradient(135deg, #1c1917, #57534e)' },
   { id: 'grad-tierra', label: '∇', type: 'gradient', value: 'linear-gradient(135deg, #78716c, #d6d3d1)' },
@@ -182,9 +182,7 @@ export default function CreateStoryPage() {
           stickerOverlays,
         })
       );
-      await apiClient.post('/posts', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await apiClient.post('/posts', fd);
       toast.success('Historia publicada');
       navigate('/');
     } catch (err) {
@@ -195,24 +193,14 @@ export default function CreateStoryPage() {
   }, [imageFile, background, textOverlays, stickerOverlays, navigate]);
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 50,
-        background: '#000',
-        fontFamily: 'var(--font-sans)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div className="fixed inset-0 z-50 bg-black font-sans flex flex-col">
       {/* Hidden inputs */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
-        style={{ display: 'none' }}
+        className="hidden"
       />
       <input
         ref={cameraInputRef}
@@ -220,91 +208,47 @@ export default function CreateStoryPage() {
         accept="image/*"
         capture="environment"
         onChange={handleFileSelect}
-        style={{ display: 'none' }}
+        className="hidden"
       />
 
       {/* TopBar */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 16px',
-        }}
-      >
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
         <button
           onClick={() => navigate(-1)}
           aria-label="Cerrar editor de historia"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          className="w-11 h-11 bg-transparent border-none cursor-pointer flex items-center justify-center"
         >
-          <X style={{ color: '#fff', width: 22, height: 22 }} />
+          <X size={22} className="text-white" />
         </button>
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Story · 24h</span>
+        <span className="text-[13px] text-white/50">Story · 24h</span>
         <button
           onClick={handlePublish}
           disabled={publishing}
-          style={{
-            background: 'var(--color-black)',
-            color: '#fff',
-            border: 'none',
-            fontSize: 13,
-            fontWeight: 600,
-            padding: '8px 16px',
-            borderRadius: 'var(--radius-full)',
-            cursor: publishing ? 'not-allowed' : 'pointer',
-            opacity: publishing ? 0.6 : 1,
-            transition: 'var(--transition-fast)',
-          }}
+          className={`bg-stone-950 text-white border-none text-[13px] font-semibold px-4 py-2 rounded-full transition-opacity ${
+            publishing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-stone-800'
+          }`}
         >
           {publishing ? '...' : 'Publicar'}
         </button>
       </div>
 
       {/* Background selector */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 52,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          display: 'flex',
-          gap: 8,
-          overflowX: 'auto',
-          padding: '8px 16px',
-          background: 'rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-        }}
-      >
+      <div className="absolute top-[52px] left-0 right-0 z-10 flex gap-2 overflow-x-auto px-4 py-2 bg-black/60 backdrop-blur-lg">
         {BG_OPTIONS.map((bg) => (
           <button
             key={bg.id}
             onClick={() => handleBgSelect(bg)}
+            aria-label={`Fondo: ${bg.id}`}
+            className={`w-11 h-11 rounded-hs-sm shrink-0 flex items-center justify-center p-0 cursor-pointer border-2 ${
+              background === bg.id ? 'border-white' : 'border-transparent'
+            } ${bg.type === 'action' ? 'text-xl' : 'text-base'} ${
+              bg.id === 'white' || bg.id === 'crema' ? 'text-black' : 'text-white'
+            }`}
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 8,
-              border: background === bg.id ? '2px solid #fff' : '2px solid transparent',
               background:
-                bg.type === 'color'
-                  ? bg.value
-                  : bg.type === 'gradient'
+                bg.type === 'color' || bg.type === 'gradient'
                   ? bg.value
                   : 'rgba(255,255,255,0.1)',
-              cursor: 'pointer',
-              flexShrink: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: bg.type === 'action' ? 20 : 16,
-              color: bg.id === 'white' || bg.id === 'crema' ? '#000' : '#fff',
-              padding: 0,
             }}
           >
             {bg.label}
@@ -313,47 +257,25 @@ export default function CreateStoryPage() {
       </div>
 
       {/* Canvas */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '104px 16px 16px',
-        }}
-      >
+      <div className="flex-1 flex items-center justify-center pt-[104px] px-4 pb-4">
         <div
           data-canvas
           ref={canvasRef}
-          style={{
-            position: 'relative',
-            aspectRatio: '9/16',
-            maxHeight: '80vh',
-            width: 'auto',
-            height: '100%',
-            borderRadius: 'var(--radius-xl)',
-            overflow: 'hidden',
-            ...getCanvasBg(),
-          }}
+          className="relative aspect-[9/16] max-h-[80vh] w-auto h-full rounded-hs-xl overflow-hidden"
+          style={getCanvasBg()}
         >
-          {/* Text overlays */}
+          {/* Text overlays — positions must be inline (dynamic %) */}
           {textOverlays.map((t) => (
             <div
               key={t.id}
+              className="absolute -translate-x-1/2 -translate-y-1/2 font-bold cursor-grab select-none whitespace-nowrap z-[5]"
               style={{
-                position: 'absolute',
                 left: `${t.x}%`,
                 top: `${t.y}%`,
-                transform: 'translate(-50%, -50%)',
                 fontSize: t.size,
                 color: t.color,
                 fontFamily: FONTS_MAP[t.font] || 'var(--font-sans)',
-                fontWeight: 700,
                 textShadow: '0 1px 4px rgba(0,0,0,0.5)',
-                cursor: 'grab',
-                userSelect: 'none',
-                whiteSpace: 'nowrap',
-                zIndex: 5,
               }}
               onTouchMove={(e) => handleOverlayDrag(setTextOverlays, t.id, e)}
               onMouseDown={() => {
@@ -364,26 +286,18 @@ export default function CreateStoryPage() {
             </div>
           ))}
 
-          {/* Sticker overlays */}
+          {/* Sticker overlays — positions must be inline (dynamic %) */}
           {stickerOverlays.map((s) => (
             <div
               key={s.id}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none whitespace-nowrap z-[5] font-medium ${
+                s.type !== 'emoji'
+                  ? 'bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm'
+                  : 'text-4xl'
+              }`}
               style={{
-                position: 'absolute',
                 left: `${s.x}%`,
                 top: `${s.y}%`,
-                transform: 'translate(-50%, -50%)',
-                fontSize: s.type === 'emoji' ? 36 : 14,
-                background: s.type !== 'emoji' ? 'rgba(0,0,0,0.6)' : 'transparent',
-                color: '#fff',
-                padding: s.type !== 'emoji' ? '6px 12px' : 0,
-                borderRadius: s.type !== 'emoji' ? 'var(--radius-full)' : 0,
-                cursor: 'grab',
-                userSelect: 'none',
-                whiteSpace: 'nowrap',
-                zIndex: 5,
-                fontWeight: 500,
-                backdropFilter: s.type !== 'emoji' ? 'blur(4px)' : 'none',
               }}
               onTouchMove={(e) => handleOverlayDrag(setStickerOverlays, s.id, e)}
               onMouseDown={() => {
@@ -396,17 +310,8 @@ export default function CreateStoryPage() {
 
           {/* Empty state */}
           {!imagePreviewUrl && textOverlays.length === 0 && stickerOverlays.length === 0 && (
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                pointerEvents: 'none',
-              }}
-            >
-              <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14 }}>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="text-white/20 text-sm">
                 Añade contenido a tu historia
               </span>
             </div>
@@ -415,186 +320,96 @@ export default function CreateStoryPage() {
       </div>
 
       {/* Right toolbar */}
-      <div
-        style={{
-          position: 'absolute',
-          right: 12,
-          top: '50%',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-          zIndex: 10,
-        }}
-      >
-        <button
-          onClick={() => setActivePanel(activePanel === 'text' ? null : 'text')}
-          aria-label="Añadir texto"
-          aria-pressed={activePanel === 'text'}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: activePanel === 'text' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.4)',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Type style={{ color: '#fff', width: 20, height: 20 }} />
-        </button>
-        <button
-          onClick={() => setActivePanel(activePanel === 'sticker' ? null : 'sticker')}
-          aria-label="Añadir sticker"
-          aria-pressed={activePanel === 'sticker'}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: activePanel === 'sticker' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.4)',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 20,
-          }}
-        >
-          🌿
-        </button>
-        <button
-          onClick={() => setActivePanel(activePanel === 'product' ? null : 'product')}
-          aria-label="Etiquetar producto"
-          aria-pressed={activePanel === 'product'}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: activePanel === 'product' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.4)',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Tag style={{ color: '#fff', width: 20, height: 20 }} />
-        </button>
+      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
+        {[
+          { key: 'text', icon: <Type size={20} className="text-white" />, label: 'Añadir texto' },
+          { key: 'sticker', icon: <span className="text-xl">🌿</span>, label: 'Añadir sticker' },
+          { key: 'product', icon: <Tag size={20} className="text-white" />, label: 'Etiquetar producto' },
+        ].map((tool) => (
+          <button
+            key={tool.key}
+            onClick={() => setActivePanel(activePanel === tool.key ? null : tool.key)}
+            aria-label={tool.label}
+            aria-pressed={activePanel === tool.key}
+            className={`w-11 h-11 rounded-full border-none cursor-pointer flex items-center justify-center ${
+              activePanel === tool.key ? 'bg-white/30' : 'bg-black/40'
+            }`}
+          >
+            {tool.icon}
+          </button>
+        ))}
       </div>
 
       {/* Text panel */}
       {activePanel === 'text' && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'rgba(0,0,0,0.8)',
-            padding: 16,
-            borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
-            zIndex: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-          }}
-        >
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 rounded-t-hs-xl z-20 flex flex-col gap-3">
           <textarea
             value={textDraft}
             onChange={(e) => setTextDraft(e.target.value)}
             placeholder="Escribe aquí..."
             rows={2}
-            style={{
-              background: 'transparent',
-              color: '#fff',
-              border: 'none',
-              fontSize: 18,
-              outline: 'none',
-              resize: 'none',
-              fontFamily: 'var(--font-sans)',
-              width: '100%',
-            }}
+            aria-label="Texto para la historia"
+            className="bg-transparent text-white border-none text-lg outline-none resize-none font-sans w-full placeholder:text-white/30"
             autoFocus
           />
 
           {/* Font pills */}
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div className="flex gap-1.5">
             {Object.keys(FONTS_MAP).map((f) => (
               <button
                 key={f}
                 onClick={() => setSelectedFont(f)}
-                style={{
-                  background: selectedFont === f ? '#fff' : 'rgba(255,255,255,0.15)',
-                  color: selectedFont === f ? '#000' : '#fff',
-                  border: 'none',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '6px 14px',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  fontFamily: FONTS_MAP[f],
-                }}
+                aria-label={`Fuente ${f}`}
+                aria-pressed={selectedFont === f}
+                className={`border-none rounded-full px-3.5 py-2.5 text-xs font-medium cursor-pointer min-h-[44px] ${
+                  selectedFont === f ? 'bg-white text-black' : 'bg-white/15 text-white'
+                }`}
+                style={{ fontFamily: FONTS_MAP[f] }}
               >
                 {f}
               </button>
             ))}
           </div>
 
-          {/* Color dots */}
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          {/* Color dots — background must be inline (dynamic hex) */}
+          <div className="flex gap-1 items-center">
             {COLOR_DOTS.map((c) => (
               <button
                 key={c}
                 onClick={() => setSelectedColor(c)}
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '50%',
-                  background: c,
-                  border: selectedColor === c ? '3px solid #fff' : '2px solid rgba(255,255,255,0.3)',
-                  cursor: 'pointer',
-                  padding: 0,
-                  flexShrink: 0,
-                }}
-              />
+                aria-label={`Color ${c}`}
+                className="w-11 h-11 rounded-full cursor-pointer p-0 shrink-0 flex items-center justify-center bg-transparent border-none"
+              >
+                <span
+                  className={`w-7 h-7 rounded-full shrink-0 ${
+                    selectedColor === c ? 'ring-[3px] ring-white ring-offset-2 ring-offset-black' : 'border-2 border-white/30'
+                  }`}
+                  style={{ background: c }}
+                />
+              </button>
             ))}
           </div>
 
           {/* Size slider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>A</span>
+          <div className="flex items-center gap-2">
+            <span className="text-white/50 text-[11px]">A</span>
             <input
               type="range"
               min={14}
               max={48}
               value={textSize}
               onChange={(e) => setTextSize(Number(e.target.value))}
-              style={{ flex: 1, accentColor: '#fff' }}
+              className="flex-1 accent-white"
             />
-            <span style={{ color: '#fff', fontSize: 16, fontWeight: 700 }}>A</span>
+            <span className="text-white text-base font-bold">A</span>
           </div>
 
           {/* Confirm button */}
           <button
             onClick={addTextOverlay}
-            style={{
-              background: '#fff',
-              color: '#000',
-              border: 'none',
-              borderRadius: 'var(--radius-full)',
-              padding: '12px',
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-            }}
+            className="bg-white text-black border-none rounded-full py-3 text-sm font-semibold cursor-pointer flex items-center justify-center gap-1.5"
           >
-            <Check style={{ width: 16, height: 16 }} />
+            <Check size={16} />
             Confirmar
           </button>
         </div>
@@ -602,25 +417,9 @@ export default function CreateStoryPage() {
 
       {/* Sticker panel */}
       {activePanel === 'sticker' && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'rgba(0,0,0,0.8)',
-            padding: 16,
-            borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
-            zIndex: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-            maxHeight: '50vh',
-            overflow: 'auto',
-          }}
-        >
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 rounded-t-hs-xl z-20 flex flex-col gap-3 max-h-[50vh] overflow-auto">
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid rgba(255,255,255,0.15)' }}>
+          <div className="flex border-b border-white/15" role="tablist" aria-label="Tipo de sticker">
             {[
               { key: 'culinarios', label: 'Culinarios' },
               { key: 'certificaciones', label: 'Certificaciones' },
@@ -628,17 +427,14 @@ export default function CreateStoryPage() {
             ].map((tab) => (
               <button
                 key={tab.key}
+                role="tab"
+                aria-selected={stickerTab === tab.key}
                 onClick={() => setStickerTab(tab.key)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: stickerTab === tab.key ? '#fff' : 'rgba(255,255,255,0.4)',
-                  fontSize: 13,
-                  fontWeight: stickerTab === tab.key ? 600 : 400,
-                  padding: '8px 14px',
-                  cursor: 'pointer',
-                  borderBottom: stickerTab === tab.key ? '2px solid #fff' : '2px solid transparent',
-                }}
+                className={`bg-transparent border-none text-[13px] px-3.5 py-2 cursor-pointer border-b-2 ${
+                  stickerTab === tab.key
+                    ? 'text-white font-semibold border-white'
+                    : 'text-white/40 font-normal border-transparent'
+                }`}
               >
                 {tab.label}
               </button>
@@ -647,26 +443,12 @@ export default function CreateStoryPage() {
 
           {/* Culinarios grid */}
           {stickerTab === 'culinarios' && (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(6, 1fr)',
-                gap: 8,
-              }}
-            >
+            <div className="grid grid-cols-6 gap-2">
               {EMOJIS_CULINARIOS.map((emoji) => (
                 <button
                   key={emoji}
                   onClick={() => addSticker(emoji, 'emoji')}
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    border: 'none',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '10px 0',
-                    fontSize: 28,
-                    cursor: 'pointer',
-                    transition: 'var(--transition-fast)',
-                  }}
+                  className="bg-white/[0.08] border-none rounded-hs-md py-2.5 text-[28px] cursor-pointer transition-colors hover:bg-white/15"
                 >
                   {emoji}
                 </button>
@@ -676,22 +458,12 @@ export default function CreateStoryPage() {
 
           {/* Certificaciones pills */}
           {stickerTab === 'certificaciones' && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div className="flex flex-wrap gap-2">
               {CERTIFICACIONES.map((cert) => (
                 <button
                   key={cert}
                   onClick={() => addSticker(cert, 'badge')}
-                  style={{
-                    background: 'rgba(255,255,255,0.12)',
-                    color: '#fff',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: 'var(--radius-full)',
-                    padding: '8px 14px',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'var(--transition-fast)',
-                  }}
+                  className="bg-white/[0.12] text-white border border-white/20 rounded-full px-3.5 py-2 text-[13px] cursor-pointer whitespace-nowrap transition-colors hover:bg-white/20"
                 >
                   {cert}
                 </button>
@@ -701,22 +473,12 @@ export default function CreateStoryPage() {
 
           {/* Frases list */}
           {stickerTab === 'frases' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div className="flex flex-col gap-1.5">
               {FRASES.map((frase) => (
                 <button
                   key={frase}
                   onClick={() => addSticker(frase, 'phrase')}
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '12px 14px',
-                    fontSize: 14,
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transition: 'var(--transition-fast)',
-                  }}
+                  className="bg-white/[0.08] text-white border-none rounded-hs-md px-3.5 py-3 text-sm text-left cursor-pointer transition-colors hover:bg-white/15"
                 >
                   "{frase}"
                 </button>
@@ -728,27 +490,12 @@ export default function CreateStoryPage() {
 
       {/* Product panel (placeholder) */}
       {activePanel === 'product' && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'rgba(0,0,0,0.8)',
-            padding: 16,
-            borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
-            zIndex: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
-          <Tag style={{ color: 'rgba(255,255,255,0.4)', width: 32, height: 32 }} />
-          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 rounded-t-hs-xl z-20 flex flex-col items-center gap-3">
+          <Tag size={32} className="text-white/40" />
+          <span className="text-white/50 text-sm">
             Etiqueta un producto de tu tienda
           </span>
-          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>
+          <span className="text-white/30 text-xs">
             Próximamente
           </span>
         </div>

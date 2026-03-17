@@ -47,7 +47,6 @@ function CategoryPills({ selectedCategory, onSelect }) {
       <div
         ref={scrollRef}
         className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 scrollbar-hide scroll-smooth"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {CATEGORIES.map((category) => {
           const Icon = category.icon;

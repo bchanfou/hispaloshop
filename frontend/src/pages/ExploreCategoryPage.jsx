@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -20,17 +20,19 @@ export default function ExploreCategoryPage() {
     return getCategoriesByGroup(group.slug);
   }, [group]);
 
-  // Reset active sub when group changes
-  useEffect(() => {
-    setActiveSubSlug(null);
-  }, [slug]);
-
-  // Fetch products — by subcategory if selected, otherwise by first subcategory or group slug
+  // Reset active sub and fetch products when group changes
+  const prevSlugRef = useRef(slug);
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    let effectiveActiveSubSlug = activeSubSlug;
+    if (prevSlugRef.current !== slug) {
+      setActiveSubSlug(null);
+      effectiveActiveSubSlug = null;
+      prevSlugRef.current = slug;
+    }
 
-    const categoryParam = activeSubSlug || (subcategories.length > 0 ? subcategories[0].slug : slug);
+    setLoading(true);
+    const categoryParam = effectiveActiveSubSlug || (subcategories.length > 0 ? subcategories[0].slug : slug);
 
     apiClient
       .get('/products', { params: { category: categoryParam, limit: 40 } })
@@ -51,10 +53,13 @@ export default function ExploreCategoryPage() {
 
   if (!group) {
     return (
-      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12, fontFamily: 'var(--font-sans)' }}>
-        <span style={{ fontSize: 48 }}>🔍</span>
-        <p style={{ color: 'var(--color-stone)', fontSize: 15 }}>Categoría no encontrada</p>
-        <button onClick={() => navigate('/explore')} style={{ color: 'var(--color-black)', fontWeight: 600, fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3">
+        <span className="text-5xl">🔍</span>
+        <p className="text-[15px] text-stone-500">Categoría no encontrada</p>
+        <button
+          onClick={() => navigate('/explore')}
+          className="border-none bg-transparent text-sm font-semibold text-stone-950 underline"
+        >
           Volver a Explorar
         </button>
       </div>
@@ -64,26 +69,20 @@ export default function ExploreCategoryPage() {
   const effectiveSubSlug = activeSubSlug || (subcategories.length > 0 ? subcategories[0].slug : null);
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)', minHeight: '100vh', background: 'var(--color-white)' }}>
+    <div className="min-h-screen bg-white">
       {/* Topbar */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '12px 16px',
-      }}>
+      <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
         <button
           onClick={() => navigate('/explore')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+          className="flex p-1"
           aria-label="Volver"
         >
-          <ArrowLeft size={22} color="var(--color-black)" />
+          <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 22 }}>{group.emoji}</span>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1 }}>{group.label}</span>
+        <span className="text-[22px]">{group.emoji}</span>
+        <span className="flex-1 text-[17px] font-bold text-stone-950">{group.label}</span>
         {!loading && products.length > 0 && (
-          <span style={{ fontSize: 12, color: 'var(--color-stone)' }}>
+          <span className="text-xs text-stone-500">
             {products.length} producto{products.length !== 1 ? 's' : ''}
           </span>
         )}
@@ -91,11 +90,7 @@ export default function ExploreCategoryPage() {
 
       {/* Subcategory pills */}
       {subcategories.length > 1 && (
-        <div style={{
-          display: 'flex', gap: 8, overflowX: 'auto',
-          padding: '12px 16px', WebkitOverflowScrolling: 'touch',
-          scrollbarWidth: 'none',
-        }}>
+        <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
           {subcategories.map((cat) => {
             const isActive = cat.slug === effectiveSubSlug;
             return (
@@ -103,16 +98,11 @@ export default function ExploreCategoryPage() {
                 key={cat.slug}
                 onClick={() => setActiveSubSlug(cat.slug)}
                 aria-pressed={isActive}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  padding: '7px 14px', borderRadius: 'var(--radius-full)',
-                  border: '1px solid ' + (isActive ? 'var(--color-black)' : 'var(--color-border)'),
-                  background: isActive ? 'var(--color-black)' : 'var(--color-white)',
-                  color: isActive ? 'var(--color-white)' : 'var(--color-black)',
-                  fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap',
-                  cursor: 'pointer', transition: 'var(--transition-fast)',
-                  fontFamily: 'var(--font-sans)',
-                }}
+                className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold whitespace-nowrap transition-colors ${
+                  isActive
+                    ? 'border-stone-950 bg-stone-950 text-white'
+                    : 'border-stone-200 bg-white text-stone-950'
+                }`}
               >
                 <span>{cat.emoji}</span>
                 <span>{cat.label}</span>
@@ -122,33 +112,18 @@ export default function ExploreCategoryPage() {
         </div>
       )}
 
-      <style>{`
-        .explore-cat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
-        @media(min-width:640px){ .explore-cat-grid { grid-template-columns: repeat(3,1fr); } }
-        @media(min-width:1024px){ .explore-cat-grid { grid-template-columns: repeat(4,1fr); gap: 16px; } }
-        @keyframes ecPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-      `}</style>
-
       {/* Product grid */}
-      <div style={{ padding: '8px 16px 80px' }}>
+      <div className="px-4 pt-2 pb-20">
         {loading ? (
-          <div className="explore-cat-grid">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} style={{
-                background: 'var(--color-surface, #f5f5f4)',
-                borderRadius: 'var(--radius-xl)',
-                aspectRatio: '3/4',
-                animation: 'ecPulse 1.5s ease-in-out infinite',
-              }} />
+              <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-stone-100" />
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', gap: 12, padding: '60px 0',
-          }}>
-            <span style={{ fontSize: 48 }}>📦</span>
-            <p style={{ color: 'var(--color-stone)', fontSize: 15, textAlign: 'center' }}>
+          <div className="flex flex-col items-center justify-center gap-3 py-16">
+            <span className="text-5xl">📦</span>
+            <p className="text-center text-[15px] text-stone-500">
               No hay productos en esta categoría todavía
             </p>
           </div>
@@ -157,7 +132,7 @@ export default function ExploreCategoryPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="explore-cat-grid"
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4"
           >
             {products.map((product) => (
               <ProductCard key={product.product_id || product._id || product.id} product={product} />

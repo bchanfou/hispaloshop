@@ -83,7 +83,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
   const profileImage = user?.profile_image || user?.avatar_url || null;
   const displayName = user?.name || user?.full_name || user?.username || '';
   const username = user?.username || '';
-  const profileUserId = user?.user_id || user?.id || null;
+  const profileUserId = user?.user_id || user?.id || user?.username || null;
 
   const currentCountry = COUNTRIES.find(c => c.code === locale?.country) || COUNTRIES[0];
   const currentLang = LANGUAGES.find(l => l.code === locale?.language) || LANGUAGES[0];

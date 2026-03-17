@@ -43,14 +43,14 @@ function Stepper({ current }) {
 /* ── Order Summary Card ── */
 function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel }) {
   const subtotal = cartSummary?.subtotal_cents ? cartSummary.subtotal_cents / 100 : 0;
-  const discount = cartSummary?.discount_cents ? cartSummary.discount_cents / 100 : 0;
+  const discount = (appliedDiscount?.discount_cents || 0) / 100;
   const shipping = cartSummary?.shipping_cents ? cartSummary.shipping_cents / 100 : 0;
   const total = cartSummary?.total_cents ? cartSummary.total_cents / 100 : subtotal - discount + shipping;
 
   return (
     <div className="bg-stone-100 rounded-xl p-4">
       {cartItems.slice(0, 5).map((item) => (
-        <div key={item.product_id + (item.variant_id || '')} className="flex items-center gap-2.5 pb-2.5 mb-2.5 border-b border-stone-200">
+        <div key={`${item.product_id}-${item.variant_id || ''}-${item.pack_id || ''}`} className="flex items-center gap-2.5 pb-2.5 mb-2.5 border-b border-stone-200">
           <div className="w-11 h-11 rounded-lg bg-stone-200 overflow-hidden flex-shrink-0">
             {item.image && <img src={item.image} alt={item.name || item.product_name || ''} className="w-full h-full object-cover" />}
           </div>
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
       <div className="sticky top-0 z-40 bg-white flex items-center justify-between px-4 py-3 border-b border-stone-200">
         <button
           onClick={() => navigate('/cart')}
-          className="p-1 flex"
+          className="p-2.5 -ml-1 flex items-center justify-center min-w-[44px] min-h-[44px]"
           aria-label="Volver al carrito"
         >
           <X className="w-[22px] h-[22px] text-stone-950" />

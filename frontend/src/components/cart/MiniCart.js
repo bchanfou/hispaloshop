@@ -62,6 +62,7 @@ const MiniCart = ({ isOpen, onClose }) => {
             exit={{ opacity: 0 }}
             onClick={onClose}
             className="fixed inset-0 bg-black/40 z-50"
+            aria-hidden="true"
           />
           
           {/* Drawer */}
@@ -84,7 +85,7 @@ const MiniCart = ({ isOpen, onClose }) => {
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-stone-100 rounded-full transition-colors"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-full transition-colors"
                 aria-label="Cerrar carrito"
               >
                 <X className="w-5 h-5 text-stone-950" />
@@ -148,7 +149,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                 </h4>
                                 <button
                                   onClick={() => handleRemove(item)}
-                                  className="p-1 hover:bg-stone-100 rounded-full transition-colors"
+                                  className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-stone-100 rounded-full transition-colors"
                                   aria-label={`Eliminar ${item.name || item.product?.name}`}
                                 >
                                   <Trash2 className="w-4 h-4 text-stone-500" />

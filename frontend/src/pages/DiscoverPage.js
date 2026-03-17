@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, Users, MapPin, ChevronRight, Star, Clock } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Star, Clock } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
@@ -21,50 +21,17 @@ const SECTION_PILLS = [
 ];
 
 const DIFFICULTY_MAP = { easy: 'Fácil', medium: 'Media', hard: 'Difícil' };
-const DIFFICULTY_COLOR = 'var(--color-stone)';
 
 const ELITE_ROTATE_MS = 6000;
 const ELITE_FADE_MS = 400;
 
-/* ── shared styles ── */
-
-const sectionLabel = {
-  fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
-  letterSpacing: '0.06em', color: 'var(--color-stone)',
-  fontFamily: 'var(--font-sans)', display: 'block', marginBottom: 12,
-};
-
-const seeAll = {
-  display: 'flex', alignItems: 'center', gap: 2,
-  fontSize: 11, fontWeight: 500, color: 'var(--color-stone)',
-  background: 'none', border: 'none', cursor: 'pointer',
-  fontFamily: 'var(--font-sans)', textDecoration: 'none',
-};
-
-const pillStyle = (active) => ({
-  flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
-  padding: '7px 14px', borderRadius: 'var(--radius-full)',
-  fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)',
-  whiteSpace: 'nowrap', cursor: 'pointer', transition: 'var(--transition-fast)',
-  border: active ? 'none' : '1px solid var(--color-border)',
-  background: active ? 'var(--color-black)' : 'var(--color-white)',
-  color: active ? '#fff' : 'var(--color-black)',
-});
-
-const hScroll = { display: 'flex', overflowX: 'auto', scrollbarWidth: 'none' };
-
-/* ── skeleton helper ── */
-
-function Skeleton({ width, height, radius = 8, style }) {
-  return (
-    <div style={{
-      width, height, borderRadius: radius,
-      background: 'var(--color-surface)',
-      animation: 'discoverPulse 1.5s ease-in-out infinite',
-      ...style,
-    }} />
-  );
-}
+/* ── pill classes ── */
+const pillCls = (active) =>
+  `flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors ${
+    active
+      ? 'border-stone-950 bg-stone-950 text-white'
+      : 'border-stone-200 bg-white text-stone-950'
+  }`;
 
 /* ══════════════════════════════════════════
    DiscoverPage
@@ -101,22 +68,19 @@ export default function DiscoverPage() {
   useEffect(() => {
     let active = true;
 
-    // trending products
-    apiClient.get('/discovery/trending?type=products&limit=4')
+    apiClient.get('/discovery/trending', { params: { type: 'products', limit: 4 } })
       .then(data => { if (active) setTrending(Array.isArray(data) ? data.slice(0, 4) : data?.products?.slice(0, 4) || []); })
       .catch(() => {})
       .finally(() => { if (active) setLoadingTrending(false); });
 
-    // elite stores (same country)
-    apiClient.get(`/stores?plan=elite&country=${userCountry}&limit=10`)
+    apiClient.get('/stores', { params: { plan: 'elite', country: userCountry, limit: 10 } })
       .then(data => {
         const list = Array.isArray(data) ? data : data?.stores || [];
         if (active) setEliteStores(list);
       })
       .catch(() => {});
 
-    // popular recipes
-    apiClient.get('/recipes?sort=popular&limit=6')
+    apiClient.get('/recipes', { params: { sort: 'popular', limit: 6 } })
       .then(data => {
         const list = Array.isArray(data) ? data : data?.recipes || [];
         if (active) setRecipes(list.slice(0, 6));
@@ -124,9 +88,8 @@ export default function DiscoverPage() {
       .catch(() => {})
       .finally(() => { if (active) setLoadingRecipes(false); });
 
-    // suggested users
     if (user) {
-      apiClient.get('/discovery/suggested-users?limit=3')
+      apiClient.get('/discovery/suggested-users', { params: { limit: 3 } })
         .then(data => {
           const list = Array.isArray(data) ? data : data?.users || [];
           if (active) setSuggestedUsers(list.slice(0, 3));
@@ -149,9 +112,7 @@ export default function DiscoverPage() {
 
   useEffect(() => {
     if (eliteStores.length <= 1) return;
-    const tick = () => {
-      if (!elitePaused.current) advanceElite();
-    };
+    const tick = () => { if (!elitePaused.current) advanceElite(); };
     eliteTimer.current = setInterval(tick, ELITE_ROTATE_MS);
     return () => {
       clearInterval(eliteTimer.current);
@@ -182,106 +143,76 @@ export default function DiscoverPage() {
     const eliteIds = new Set(eliteStores.map(s => s.producer_id || s.user_id));
     const sponsored = products.filter(p => eliteIds.has(p.producer_id));
     const regular = products.filter(p => !eliteIds.has(p.producer_id));
-
     const grid = [];
     let regIdx = 0;
     let sponIdx = 0;
-
-    for (let i = 0; i < 4 && regIdx < regular.length; i++) {
-      grid.push({ ...regular[regIdx++], _sponsored: false });
-    }
-    if (sponIdx < sponsored.length) {
-      grid.push({ ...sponsored[sponIdx++], _sponsored: true });
-    }
+    for (let i = 0; i < 4 && regIdx < regular.length; i++) grid.push({ ...regular[regIdx++], _sponsored: false });
+    if (sponIdx < sponsored.length) grid.push({ ...sponsored[sponIdx++], _sponsored: true });
     while (regIdx < regular.length) {
       grid.push({ ...regular[regIdx++], _sponsored: false });
-      if ((grid.length % 13 === 0) && sponIdx < sponsored.length) {
-        grid.push({ ...sponsored[sponIdx++], _sponsored: true });
-      }
+      if ((grid.length % 13 === 0) && sponIdx < sponsored.length) grid.push({ ...sponsored[sponIdx++], _sponsored: true });
     }
     return grid;
   }, [loadingProducts, products, eliteStores]);
 
   /* ── render ── */
   return (
-    <div style={{ minHeight: '100vh', paddingBottom: 80, background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}>
+    <div className="min-h-screen bg-stone-50 pb-20">
       <SEO title="Explorar — Hispaloshop" description="Descubre productos artesanales, tiendas verificadas y recetas de la comunidad." />
 
-      {/* pulse animation */}
-      <style>{`
-        @keyframes discoverPulse { 0%,100%{opacity:.4} 50%{opacity:1} }
-        .discover-grid { display:grid; gap:12px; grid-template-columns:repeat(2,1fr); }
-        @media(min-width:600px){ .discover-grid{grid-template-columns:repeat(3,1fr);gap:14px} }
-        @media(min-width:1024px){ .discover-grid{grid-template-columns:repeat(4,1fr);gap:16px} }
-      `}</style>
-
-      <div style={{ padding: '12px 16px 0' }}>
+      <div className="px-4 pt-3">
 
         {/* ─── SEARCH BAR ─── */}
         <button
           onClick={() => navigate('/search')}
           aria-label="Buscar productos, tiendas, recetas"
           role="search"
-          style={{
-            position: 'relative', marginBottom: 16, cursor: 'pointer',
-            width: '100%', display: 'block', background: 'none', border: 'none', padding: 0,
-            textAlign: 'left',
-          }}
+          className="relative mb-4 block w-full text-left"
         >
-          <Search size={18} aria-hidden="true" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-stone)' }} />
-          <div style={{
-            width: '100%', height: 44,
-            borderRadius: 'var(--radius-full)',
-            border: '0.5px solid var(--color-border)',
-            background: 'var(--color-white)',
-            paddingLeft: 42, paddingRight: 16,
-            fontSize: 14, color: 'var(--color-stone)',
-            display: 'flex', alignItems: 'center',
-            fontFamily: 'var(--font-sans)',
-          }}>
+          <Search size={18} aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
+          <div className="flex h-11 w-full items-center rounded-full border border-stone-200 bg-white pl-10 pr-4 text-sm text-stone-500">
             Buscar productos, tiendas, recetas…
           </div>
         </button>
 
         {/* ─── SECTION PILLS ─── */}
-        <div className="scrollbar-hide" style={{ ...hScroll, gap: 8, marginBottom: 20, paddingBottom: 2 }}>
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
           {SECTION_PILLS.map(pill => (
-            <button key={pill.id} onClick={() => navigate(pill.to)} style={pillStyle(false)}>
+            <button key={pill.id} onClick={() => navigate(pill.to)} className={pillCls(false)}>
               {pill.emoji} {pill.label}
             </button>
           ))}
           {isB2BUser && (
-            <button onClick={() => navigate('/b2b/catalog')} style={pillStyle(false)}>
+            <button onClick={() => navigate('/b2b/catalog')} className={pillCls(false)}>
               📋 Catálogo B2B
             </button>
           )}
         </div>
 
         {/* ─── ① TENDENCIAS HOY ─── */}
-        <div style={{ marginBottom: 24 }}>
-          <span style={sectionLabel}>Tendencias hoy</span>
+        <div className="mb-6">
+          <span className="mb-3 block text-[10px] font-semibold uppercase tracking-wider text-stone-500">Tendencias hoy</span>
           {loadingTrending ? (
-            <div className="discover-grid" style={{ gridTemplateColumns: 'repeat(2,1fr)' }}>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
               {[1,2,3,4].map(i => (
-                <div key={i} style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: 'var(--color-white)', border: '0.5px solid var(--color-border)' }}>
-                  <Skeleton width="100%" height={0} style={{ paddingBottom: '100%' }} radius={0} />
-                  <div style={{ padding: 12 }}>
-                    <Skeleton width="70%" height={12} />
-                    <Skeleton width="40%" height={10} style={{ marginTop: 6 }} />
+                <div key={i} className="overflow-hidden rounded-lg border border-stone-200 bg-white">
+                  <div className="aspect-square animate-pulse bg-stone-100" />
+                  <div className="p-3">
+                    <div className="mb-1.5 h-3 w-[70%] animate-pulse rounded bg-stone-100" />
+                    <div className="h-2.5 w-[40%] animate-pulse rounded bg-stone-100" />
                   </div>
                 </div>
               ))}
             </div>
           ) : trending.length > 0 ? (
-            <div className="discover-grid" style={{ gridTemplateColumns: 'repeat(2,1fr)' }}>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
               {trending.map(p => (
                 <ProductCard key={p.product_id || p.id} product={p} />
               ))}
             </div>
           ) : (
-            /* fallback: show first 4 products */
             !loadingProducts && products.length > 0 && (
-              <div className="discover-grid" style={{ gridTemplateColumns: 'repeat(2,1fr)' }}>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
                 {products.slice(0, 4).map(p => (
                   <ProductCard key={p.product_id || p.id} product={p} />
                 ))}
@@ -294,8 +225,9 @@ export default function DiscoverPage() {
         {eliteStores.length > 0 && (() => {
           const store = eliteStores[eliteIdx];
           const heroImg = store.hero_image || store.cover_image || store.logo;
+          const fadeStyle = { opacity: eliteFading ? 0 : 1, transition: `opacity ${ELITE_FADE_MS}ms ease` };
           return (
-            <div style={{ marginBottom: 24 }}>
+            <div className="mb-6">
               <div
                 role="link"
                 tabIndex={0}
@@ -306,72 +238,37 @@ export default function DiscoverPage() {
                 onTouchEnd={() => { elitePaused.current = false; }}
                 onClick={() => navigate(`/store/${store.slug || store.store_slug}`)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/store/${store.slug || store.store_slug}`); } }}
-                style={{
-                  position: 'relative', borderRadius: 'var(--radius-xl)',
-                  overflow: 'hidden', cursor: 'pointer',
-                  aspectRatio: '16/9', background: 'var(--color-black)',
-                  outline: 'none',
-                }}
+                className="relative aspect-video cursor-pointer overflow-hidden rounded-xl bg-stone-950 outline-none"
               >
-                {/* hero image */}
                 {heroImg && (
-                  <img
-                    src={heroImg} alt={store.name} loading="lazy"
-                    style={{
-                      position: 'absolute', inset: 0, width: '100%', height: '100%',
-                      objectFit: 'cover',
-                      opacity: eliteFading ? 0 : 1,
-                      transition: `opacity ${ELITE_FADE_MS}ms ease`,
-                    }}
-                  />
+                  <img src={heroImg} alt={store.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" style={fadeStyle} />
                 )}
-                {/* gradient overlay */}
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)',
-                }} />
-                {/* content */}
-                <div style={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0,
-                  padding: '16px 20px',
-                  opacity: eliteFading ? 0 : 1,
-                  transition: `opacity ${ELITE_FADE_MS}ms ease`,
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 px-5 py-4" style={fadeStyle}>
+                  <div className="mb-1.5 flex items-center gap-2.5">
                     {store.logo && (
-                      <img src={store.logo} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.3)' }} />
+                      <img src={store.logo} alt="" className="h-9 w-9 rounded-full border-2 border-white/30 object-cover" />
                     )}
                     <div>
-                      <p style={{ fontSize: 16, fontWeight: 600, color: '#fff', margin: 0 }}>{store.name}</p>
+                      <p className="text-base font-semibold text-white">{store.name}</p>
                       {store.location && (
-                        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', margin: 0, display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <p className="flex items-center gap-1 text-[11px] text-white/70">
                           <MapPin size={10} /> {store.location}
                         </p>
                       )}
                     </div>
                   </div>
                   {store.tagline && (
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: 1.4 }}>
-                      {store.tagline}
-                    </p>
+                    <p className="text-xs leading-relaxed text-white/80">{store.tagline}</p>
                   )}
                 </div>
-                {/* "Destacado" pill */}
-                <span style={{
-                  position: 'absolute', top: 12, left: 12,
-                  fontSize: 9, fontWeight: 600, letterSpacing: '0.05em',
-                  color: 'rgba(255,255,255,0.8)', background: 'rgba(0,0,0,0.4)',
-                  backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                  padding: '3px 10px', borderRadius: 'var(--radius-full)',
-                  textTransform: 'uppercase',
-                }}>
+                <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white/80 backdrop-blur-md">
                   Destacado ✦
                 </span>
               </div>
 
-              {/* dots indicator */}
               {eliteStores.length > 1 && (
-                <div role="tablist" aria-label="Tiendas destacadas" style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 10 }}>
+                <div role="tablist" aria-label="Tiendas destacadas" className="mt-2.5 flex justify-center gap-1.5">
                   {eliteStores.map((s, i) => (
                     <button
                       key={s.store_id || s.id || i}
@@ -379,14 +276,12 @@ export default function DiscoverPage() {
                       aria-selected={i === eliteIdx}
                       aria-label={`Tienda ${i + 1}: ${s.name || ''}`}
                       onClick={(e) => { e.stopPropagation(); setEliteIdx(i); }}
-                      style={{
-                        width: i === eliteIdx ? 16 : 6, height: 6,
-                        borderRadius: 'var(--radius-full)',
-                        background: i === eliteIdx ? 'var(--color-black)' : 'var(--color-border)',
-                        border: 'none', cursor: 'pointer', padding: 0,
-                        transition: 'all 300ms ease',
-                      }}
-                    />
+                      className="flex h-11 w-11 items-center justify-center"
+                    >
+                      <span className={`block h-1.5 rounded-full transition-all duration-300 ${
+                        i === eliteIdx ? 'w-4 bg-stone-950' : 'w-1.5 bg-stone-300'
+                      }`} />
+                    </button>
                   ))}
                 </div>
               )}
@@ -395,11 +290,11 @@ export default function DiscoverPage() {
         })()}
 
         {/* ─── ③ CATEGORÍAS ─── */}
-        <div style={{ marginBottom: 24 }}>
-          <span style={sectionLabel}>Categorías</span>
-          <div className="scrollbar-hide" style={{ ...hScroll, gap: 8, paddingBottom: 4 }}>
+        <div className="mb-6">
+          <span className="mb-3 block text-[10px] font-semibold uppercase tracking-wider text-stone-500">Categorías</span>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {CATEGORY_GROUPS.map(grp => (
-              <button key={grp.slug} onClick={() => navigate(`/explore/category/${grp.slug}`)} style={pillStyle(false)}>
+              <button key={grp.slug} onClick={() => navigate(`/explore/category/${grp.slug}`)} className={pillCls(false)}>
                 {grp.emoji} {grp.label}
               </button>
             ))}
@@ -408,12 +303,12 @@ export default function DiscoverPage() {
 
         {/* ─── ④ TIENDAS QUE TE GUSTARÁN ─── */}
         {!loadingStores && stores.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={sectionLabel}>Tiendas que te gustarán</span>
-              <Link to="/stores" style={seeAll}>Ver todas <ChevronRight size={14} /></Link>
+          <div className="mb-6">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Tiendas que te gustarán</span>
+              <Link to="/stores" className="flex items-center gap-0.5 text-[11px] font-medium text-stone-500 no-underline">Ver todas <ChevronRight size={14} /></Link>
             </div>
-            <div className="scrollbar-hide" style={{ ...hScroll, gap: 12 }}>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide">
               {stores.slice(0, 8).map(store => {
                 const slug = store.slug || store.store_slug;
                 const hero = store.hero_image || store.logo;
@@ -421,35 +316,22 @@ export default function DiscoverPage() {
                   <Link
                     key={store.id || store.store_id || slug}
                     to={`/store/${slug}`}
-                    style={{
-                      flexShrink: 0, width: 180, textDecoration: 'none',
-                      borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-                      background: 'var(--color-white)',
-                      border: '0.5px solid var(--color-border)',
-                    }}
+                    className="w-[180px] shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white no-underline"
                   >
-                    {/* hero image */}
-                    <div style={{ height: 90, background: 'var(--color-surface)', position: 'relative' }}>
-                      {hero && <img src={hero} alt={store.name || ''} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                      {/* logo overlap */}
+                    <div className="relative h-[90px] bg-stone-100">
+                      {hero && <img src={hero} alt={store.name || ''} loading="lazy" className="h-full w-full object-cover" />}
                       {store.logo && (
-                        <img src={store.logo} alt={`Logo de ${store.name || 'tienda'}`} style={{
-                          position: 'absolute', bottom: -16, left: 12,
-                          width: 36, height: 36, borderRadius: '50%', objectFit: 'cover',
-                          border: '2px solid var(--color-white)',
-                        }} />
+                        <img src={store.logo} alt={`Logo de ${store.name || 'tienda'}`} className="absolute -bottom-4 left-3 h-9 w-9 rounded-full border-2 border-white object-cover" />
                       )}
                     </div>
-                    <div style={{ padding: '20px 12px 12px' }}>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>
-                        {store.name}
-                      </p>
-                      <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '2px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <div className="px-3 pb-3 pt-5">
+                      <p className="text-[13px] font-semibold text-stone-950">{store.name}</p>
+                      <p className="mt-0.5 flex items-center gap-1 text-[11px] text-stone-500">
                         <MapPin size={10} /> {store.location || 'España'}
                       </p>
                       {store.rating > 0 && (
-                        <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '2px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
-                          <Star size={10} style={{ fill: 'var(--color-black)', color: 'var(--color-black)' }} />
+                        <p className="mt-0.5 flex items-center gap-1 text-[11px] text-stone-500">
+                          <Star size={10} className="fill-stone-950 text-stone-950" />
                           {store.rating?.toFixed?.(1) || store.rating}
                         </p>
                       )}
@@ -463,12 +345,12 @@ export default function DiscoverPage() {
 
         {/* ─── ⑤ RECETAS POPULARES ─── */}
         {!loadingRecipes && recipes.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={sectionLabel}>Recetas populares</span>
-              <Link to="/recipes" style={seeAll}>Ver todas <ChevronRight size={14} /></Link>
+          <div className="mb-6">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Recetas populares</span>
+              <Link to="/recipes" className="flex items-center gap-0.5 text-[11px] font-medium text-stone-500 no-underline">Ver todas <ChevronRight size={14} /></Link>
             </div>
-            <div className="scrollbar-hide" style={{ ...hScroll, gap: 12 }}>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide">
               {recipes.map(recipe => {
                 const img = recipe.image_url || recipe.cover_image || (recipe.images && recipe.images[0]);
                 const diff = recipe.difficulty || 'easy';
@@ -476,35 +358,18 @@ export default function DiscoverPage() {
                   <Link
                     key={recipe.recipe_id || recipe.id || recipe._id}
                     to={`/recipes/${recipe.recipe_id || recipe.id || recipe._id}`}
-                    style={{
-                      flexShrink: 0, width: 160, textDecoration: 'none',
-                      borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-                      background: 'var(--color-white)',
-                      border: '0.5px solid var(--color-border)',
-                    }}
+                    className="w-40 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-white no-underline"
                   >
-                    <div style={{ aspectRatio: '3/4', background: 'var(--color-surface)', position: 'relative' }}>
-                      {img && <img src={img} alt={recipe.title || recipe.name || ''} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                      {/* difficulty badge */}
-                      <span style={{
-                        position: 'absolute', top: 8, left: 8,
-                        fontSize: 9, fontWeight: 600,
-                        padding: '2px 8px', borderRadius: 'var(--radius-full)',
-                        background: 'rgba(255,255,255,0.9)', color: DIFFICULTY_COLOR,
-                        backdropFilter: 'blur(4px)',
-                      }}>
+                    <div className="relative aspect-[3/4] bg-stone-100">
+                      {img && <img src={img} alt={recipe.title || recipe.name || ''} loading="lazy" className="h-full w-full object-cover" />}
+                      <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[9px] font-semibold text-stone-500 backdrop-blur-sm">
                         {DIFFICULTY_MAP[diff] || diff}
                       </span>
                     </div>
-                    <div style={{ padding: '10px 12px' }}>
-                      <p style={{
-                        fontSize: 13, fontWeight: 500, color: 'var(--color-black)', margin: 0,
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {recipe.title || recipe.name}
-                      </p>
+                    <div className="px-3 py-2.5">
+                      <p className="truncate text-[13px] font-medium text-stone-950">{recipe.title || recipe.name}</p>
                       {recipe.prep_time_minutes != null && (
-                        <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <p className="mt-1 flex items-center gap-1 text-[11px] text-stone-500">
                           <Clock size={10} /> {recipe.prep_time_minutes || recipe.prep_time} min
                         </p>
                       )}
@@ -517,33 +382,30 @@ export default function DiscoverPage() {
         )}
 
         {/* ─── ⑥ PRODUCTOS PARA TI (grid with sponsored) ─── */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <span style={sectionLabel}>Productos para ti</span>
-            <Link to="/products" style={seeAll}>Ver todos <ChevronRight size={14} /></Link>
+        <div className="mb-6">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Productos para ti</span>
+            <Link to="/products" className="flex items-center gap-0.5 text-[11px] font-medium text-stone-500 no-underline">Ver todos <ChevronRight size={14} /></Link>
           </div>
           {loadingProducts ? (
-            <div className="discover-grid">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: 'var(--color-white)', border: '0.5px solid var(--color-border)' }}>
-                  <Skeleton width="100%" height={0} style={{ paddingBottom: '100%' }} radius={0} />
-                  <div style={{ padding: 12 }}><Skeleton width="70%" height={12} /><Skeleton width="40%" height={10} style={{ marginTop: 6 }} /></div>
+                <div key={i} className="overflow-hidden rounded-lg border border-stone-200 bg-white">
+                  <div className="aspect-square animate-pulse bg-stone-100" />
+                  <div className="p-3">
+                    <div className="mb-1.5 h-3 w-[70%] animate-pulse rounded bg-stone-100" />
+                    <div className="h-2.5 w-[40%] animate-pulse rounded bg-stone-100" />
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="discover-grid">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
               {productGrid.map((product, idx) => (
-                <div key={product.product_id || product.id || idx} style={{ position: 'relative' }}>
+                <div key={product.product_id || product.id || idx} className="relative">
                   <ProductCard product={product} />
                   {product._sponsored && (
-                    <span style={{
-                      position: 'absolute', top: 8, right: 8, zIndex: 2,
-                      fontSize: 9, fontWeight: 500, letterSpacing: '0.04em',
-                      color: 'var(--color-stone)', background: 'rgba(255,255,255,0.85)',
-                      backdropFilter: 'blur(4px)', padding: '2px 8px',
-                      borderRadius: 'var(--radius-full)',
-                    }}>
+                    <span className="absolute right-2 top-2 z-[2] rounded-full bg-white/85 px-2 py-0.5 text-[9px] font-medium tracking-wide text-stone-500 backdrop-blur-sm">
                       Patrocinado
                     </span>
                   )}
@@ -555,50 +417,32 @@ export default function DiscoverPage() {
 
         {/* ─── ⑦ CREADORES A SEGUIR ─── */}
         {suggestedUsers.length > 0 && (
-          <div style={{ marginBottom: 32 }}>
-            <span style={sectionLabel}>Creadores a seguir</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="mb-8">
+            <span className="mb-3 block text-[10px] font-semibold uppercase tracking-wider text-stone-500">Creadores a seguir</span>
+            <div className="flex flex-col gap-3">
               {suggestedUsers.map(u => {
                 const uid = u.user_id || u.id;
                 const isFollowing = followingIds.has(uid);
                 return (
-                  <div
-                    key={uid}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '12px 16px', borderRadius: 'var(--radius-xl)',
-                      background: 'var(--color-white)',
-                      border: '0.5px solid var(--color-border)',
-                    }}
-                  >
-                    <Link to={`/user/${uid}`} style={{ flexShrink: 0 }}>
+                  <div key={uid} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3">
+                    <Link to={`/user/${uid}`} className="shrink-0">
                       <img
                         src={u.profile_image || '/default-avatar.png'}
                         alt={u.name} loading="lazy"
-                        style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }}
+                        className="h-11 w-11 rounded-full object-cover"
                       />
                     </Link>
-                    <Link to={`/user/${uid}`} style={{ flex: 1, minWidth: 0, textDecoration: 'none' }}>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>{u.name}</p>
-                      <p style={{
-                        fontSize: 12, color: 'var(--color-stone)', margin: '1px 0 0',
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {u.bio || `@${u.username}`}
-                      </p>
+                    <Link to={`/user/${uid}`} className="min-w-0 flex-1 no-underline">
+                      <p className="text-sm font-semibold text-stone-950">{u.name}</p>
+                      <p className="mt-px truncate text-xs text-stone-500">{u.bio || `@${u.username}`}</p>
                     </Link>
                     <button
                       onClick={() => toggleFollow(uid)}
-                      style={{
-                        flexShrink: 0, padding: '7px 18px',
-                        borderRadius: 'var(--radius-full)',
-                        fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                        fontFamily: 'var(--font-sans)',
-                        transition: 'var(--transition-fast)',
-                        ...(isFollowing
-                          ? { background: 'var(--color-white)', color: 'var(--color-black)', border: '1px solid var(--color-border)' }
-                          : { background: 'var(--color-black)', color: '#fff', border: 'none' }),
-                      }}
+                      className={`shrink-0 rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors ${
+                        isFollowing
+                          ? 'border border-stone-200 bg-white text-stone-950'
+                          : 'border border-stone-950 bg-stone-950 text-white'
+                      }`}
                     >
                       {isFollowing ? 'Siguiendo' : 'Seguir'}
                     </button>

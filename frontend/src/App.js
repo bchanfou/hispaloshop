@@ -244,11 +244,9 @@ function LegacyProfileRedirect() {
 
   if (loading) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role === 'producer' || user.role === 'importer') return <Navigate to="/producer/profile" replace />;
-  if (user.role === 'influencer') return <Navigate to="/influencer/dashboard" replace />;
-  if (user.role === 'admin') return <Navigate to="/admin" replace />;
-  if (user.role === 'super_admin') return <Navigate to="/super-admin" replace />;
-  return <Navigate to="/dashboard/profile" replace />;
+  const userId = user.user_id || user.id || user.username;
+  if (userId) return <Navigate to={`/user/${userId}`} replace />;
+  return <Navigate to="/" replace />;
 }
 
 const HeroBanner = lazy(() => import('./components/informativas/HeroBanner'));

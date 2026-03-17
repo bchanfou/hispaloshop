@@ -104,6 +104,10 @@ export default function EditProfilePage() {
       toast.error('El nombre de usuario no está disponible');
       return;
     }
+    if (form.website && !/^https?:\/\//i.test(form.website)) {
+      toast.error('El enlace web debe empezar por http:// o https://');
+      return;
+    }
     setSaving(true);
     try {
       let avatarUrl = user?.avatar_url || user?.avatar;
@@ -154,7 +158,8 @@ export default function EditProfilePage() {
         display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
       }}>
         <button onClick={() => navigate('/settings')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
+          aria-label="Volver a ajustes"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 11, display: 'flex' }}>
           <ArrowLeft size={22} color="var(--color-black)" />
         </button>
         <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1, textAlign: 'center' }}>
@@ -190,7 +195,7 @@ export default function EditProfilePage() {
             }}
           >
             {avatarPreview ? (
-              <img src={avatarPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={avatarPreview} alt="Foto de perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Camera size={28} color="var(--color-stone)" />
@@ -304,7 +309,7 @@ export default function EditProfilePage() {
                   <span style={{
                     fontSize: 10, fontWeight: 700, padding: '2px 8px',
                     borderRadius: 'var(--radius-full, 999px)',
-                    background: 'var(--color-surface-alt, #f5f5f4)', color: 'var(--color-black)',
+                    background: 'var(--color-surface)', color: 'var(--color-black)',
                   }}>
                     Verificado ✓
                   </span>

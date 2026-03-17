@@ -454,7 +454,7 @@ export default function StoresListPage() {
         padding: '0 16px', background: 'var(--color-white)',
         borderBottom: '1px solid var(--color-border)',
       }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
+        <button onClick={() => navigate(-1)} aria-label="Volver" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <ArrowLeft size={22} color="var(--color-black)" />
         </button>
         <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)' }}>Tiendas</span>
@@ -478,6 +478,7 @@ export default function StoresListPage() {
           <input
             type="text"
             placeholder="Buscar tiendas…"
+            aria-label="Buscar tiendas"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             style={{
@@ -490,7 +491,8 @@ export default function StoresListPage() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex' }}
+              aria-label="Borrar búsqueda"
+              style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 10, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               <X size={16} color="var(--color-stone)" />
             </button>
@@ -549,7 +551,13 @@ export default function StoresListPage() {
                         background: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
                         border: '0.5px solid var(--color-border)', textDecoration: 'none',
                       }}>
-                        <img src={store.logo || '/default-avatar.png'} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                        {store.logo ? (
+                          <img src={store.logo} alt={store.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--color-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, color: 'var(--color-stone)' }}>
+                            {(store.name || '?')[0].toUpperCase()}
+                          </div>
+                        )}
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>{store.name}</p>
                           <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '1px 0 0' }}>{store.location || ''}</p>
@@ -595,9 +603,9 @@ export default function StoresListPage() {
               </div>
 
               {loading ? (
-                <div className="stores-grid">
+                <div className="stores-grid" aria-busy="true" aria-label="Cargando tiendas">
                   {[1,2,3,4,5,6].map(i => (
-                    <div key={i} style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', background: 'var(--color-white)', border: '0.5px solid var(--color-border)' }}>
+                    <div key={i} aria-hidden="true" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', background: 'var(--color-white)', border: '1px solid var(--color-border)' }}>
                       <div style={{ aspectRatio: '16/10', background: 'var(--color-surface)', animation: 'storesPulse 1.5s ease-in-out infinite' }} />
                       <div style={{ padding: '18px 12px 12px' }}>
                         <div style={{ height: 12, width: '60%', background: 'var(--color-surface)', borderRadius: 4, animation: 'storesPulse 1.5s ease-in-out infinite' }} />

@@ -12,7 +12,6 @@ export default function ReelsPage() {
   const [hasMore, setHasMore] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef(null);
-  const observerRef = useRef(null);
   const fetchingRef = useRef(false);
 
   const fetchReels = useCallback(async (p) => {
@@ -52,7 +51,6 @@ export default function ReelsPage() {
       { root: container, threshold: 0.8 }
     );
 
-    observerRef.current = observer;
     const children = container.querySelectorAll('[data-reel-item]');
     children.forEach((child) => observer.observe(child));
 
@@ -67,6 +65,27 @@ export default function ReelsPage() {
       fetchReels(nextPage);
     }
   }, [activeIndex, reels.length, hasMore, loading, page, fetchReels]);
+
+  // Keyboard navigation between reels
+  useEffect(() => {
+    const handleKey = (e) => {
+      const container = containerRef.current;
+      if (!container) return;
+      const tag = e.target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault();
+        const next = container.querySelector(`[data-index="${activeIndex + 1}"]`);
+        next?.scrollIntoView({ behavior: 'smooth' });
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault();
+        const prev = container.querySelector(`[data-index="${Math.max(0, activeIndex - 1)}"]`);
+        prev?.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [activeIndex]);
 
   const handleLike = useCallback(async (reelId) => {
     try {
@@ -89,7 +108,7 @@ export default function ReelsPage() {
       <div className="h-dvh bg-black flex flex-col items-center justify-center gap-4 px-8">
         <button
           onClick={() => navigate(-1)}
-          className="fixed top-4 left-4 z-[100] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
+          className="fixed top-[max(1rem,env(safe-area-inset-top))] left-4 z-[100] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
           aria-label="Volver"
         >
           <ChevronLeft className="w-5.5 h-5.5 text-white" />
@@ -98,7 +117,7 @@ export default function ReelsPage() {
           No hay reels disponibles ahora mismo
         </span>
         <button
-          onClick={() => { setLoading(true); setPage(1); fetchReels(1); }}
+          onClick={() => { setLoading(true); setPage(1); setHasMore(true); fetchReels(1); }}
           className="text-white text-sm font-semibold font-sans bg-white/10 rounded-full px-5 py-2.5 border-none cursor-pointer hover:bg-white/20 transition-colors"
         >
           Reintentar
@@ -115,7 +134,7 @@ export default function ReelsPage() {
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
-        className="fixed top-4 left-4 z-[100] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
+        className="fixed top-[max(1rem,env(safe-area-inset-top))] left-4 z-[100] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
         aria-label="Volver"
       >
         <ChevronLeft className="w-5.5 h-5.5 text-white" />

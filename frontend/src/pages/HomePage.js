@@ -11,7 +11,7 @@ export default function HomePage() {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    localStorage.setItem('feedTab', tab);
+    try { localStorage.setItem('feedTab', tab); } catch { /* restricted context */ }
   };
 
   const structuredData = useMemo(

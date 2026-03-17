@@ -1,32 +1,37 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductImage from './ui/ProductImage.tsx';
 
 export default function ProductImageGallery({ images, productName, isOutOfStock }) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
+  const touchStartRef = useRef(null);
+  const touchEndRef = useRef(null);
   const galleryRef = useRef(null);
 
   const productImages = images && images.length > 0
     ? images.slice(0, 7).filter(Boolean)
     : [null];
 
+  // Reset index when images change
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [images]);
+
   const showThumbnails = productImages.length > 1;
   const minSwipeDistance = 50;
 
   const onTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
+    touchEndRef.current = null;
+    touchStartRef.current = e.targetTouches[0].clientX;
   };
 
   const onTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    touchEndRef.current = e.targetTouches[0].clientX;
   };
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
+    if (!touchStartRef.current || !touchEndRef.current) return;
+    const distance = touchStartRef.current - touchEndRef.current;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
@@ -65,7 +70,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
         )}
 
         <div
-          className={`aspect-square rounded-xl md:rounded-xl overflow-hidden bg-white border border-stone-200 transition-opacity duration-300 ${isOutOfStock ? 'opacity-60' : ''}`}
+          className={`aspect-square rounded-xl overflow-hidden bg-white border border-stone-200 transition-opacity duration-300 ${isOutOfStock ? 'opacity-60' : ''}`}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -74,7 +79,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
           <ProductImage
             src={productImages[selectedImageIndex]}
             productName={productName}
-            alt={`${productName} - Image ${selectedImageIndex + 1}`}
+            alt={`${productName} - Imagen ${selectedImageIndex + 1}`}
             className="h-full w-full"
             imageClassName="transition-opacity duration-300"
             preferThumbnail={false}
@@ -90,7 +95,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
                 selectedImageIndex === 0 ? 'opacity-30' : 'opacity-100'
               }`}
               disabled={selectedImageIndex === 0}
-              aria-label="Previous image"
+              aria-label="Imagen anterior"
             >
               <ChevronLeft className="w-5 h-5 text-stone-950" />
             </button>
@@ -100,7 +105,7 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
                 selectedImageIndex === productImages.length - 1 ? 'opacity-30' : 'opacity-100'
               }`}
               disabled={selectedImageIndex === productImages.length - 1}
-              aria-label="Next image"
+              aria-label="Imagen siguiente"
             >
               <ChevronRight className="w-5 h-5 text-stone-950" />
             </button>
@@ -108,16 +113,20 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
         )}
 
         {showThumbnails && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 md:hidden">
             {productImages.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedImageIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  selectedImageIndex === idx ? 'bg-stone-950 w-4' : 'bg-white/70'
-                }`}
-                aria-label={`Go to image ${idx + 1}`}
-              />
+                className="flex items-center justify-center w-6 h-6"
+                aria-label={`Ir a imagen ${idx + 1}`}
+              >
+                <span
+                  className={`block rounded-full transition-all ${
+                    selectedImageIndex === idx ? 'bg-stone-950 w-4 h-2' : 'bg-white/70 w-2 h-2'
+                  }`}
+                />
+              </button>
             ))}
           </div>
         )}
@@ -138,12 +147,12 @@ export default function ProductImageGallery({ images, productName, isOutOfStock 
                 }
               `}
               data-testid={`product-thumbnail-${idx}`}
-              aria-label={`View image ${idx + 1}`}
+              aria-label={`Ver imagen ${idx + 1}`}
             >
               <ProductImage
                 src={img}
                 productName={productName}
-                alt={`${productName} thumbnail ${idx + 1}`}
+                alt={`${productName} miniatura ${idx + 1}`}
                 className="h-full w-full"
                 sizes="80px"
               />

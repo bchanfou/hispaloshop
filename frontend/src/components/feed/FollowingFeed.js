@@ -131,7 +131,9 @@ function FollowingFeed() {
     >
       <PullIndicator progress={progress} isRefreshing={refreshing} />
       {isLoading && allPosts.length === 0 ? (
-        <FeedSkeleton count={3} />
+        <div aria-busy="true" aria-label="Cargando publicaciones">
+          <FeedSkeleton count={3} />
+        </div>
       ) : (
         <Virtuoso
           data={allPosts}
@@ -164,7 +166,7 @@ function FollowingFeed() {
                         comments: post.comments_count,
                         shares: post.shares_count || 0,
                         productTag: post.product_tag,
-                        timestamp: new Date(post.created_at).getTime(),
+                        timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                       }}
                       onLike={() => handleLike(post.id)}
                       onComment={() => handleComment(post.id)}
@@ -199,7 +201,7 @@ function FollowingFeed() {
                       liked: post.is_liked,
                       comments: post.comments_count,
                       productTag: post.product_tag,
-                      timestamp: new Date(post.created_at).getTime(),
+                      timestamp: post.created_at ? new Date(post.created_at).getTime() : null,
                     }}
                     onLike={() => handleLike(post.id)}
                     onComment={() => handleComment(post.id)}

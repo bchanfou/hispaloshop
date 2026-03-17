@@ -2,9 +2,9 @@ import React from 'react';
 import { Plus } from 'lucide-react';
 
 const ringClasses = {
-  placeholder: 'border-2 border-dashed border-stone-300 bg-stone-50',
+  placeholder: 'border-2 border-dashed border-stone-200 bg-stone-50',
   unseen: 'border-2 border-solid border-stone-950',
-  seen: 'border-2 border-solid border-stone-300',
+  seen: 'border-2 border-solid border-stone-200',
 };
 
 export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
@@ -32,18 +32,22 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
       >
         {showPlaceholder ? (
           <Plus size={18} className="text-stone-950" />
-        ) : (
+        ) : avatarUrl ? (
           <img
             src={avatarUrl}
             alt={label}
             className="w-full h-full object-cover"
           />
+        ) : (
+          <span className="text-stone-500 text-lg font-semibold">
+            {(label || '?').charAt(0).toUpperCase()}
+          </span>
         )}
       </div>
 
       <span
         title={label}
-        className="text-[10px] text-stone-950 font-apple overflow-hidden text-ellipsis whitespace-nowrap max-w-[60px] text-center"
+        className="text-[10px] text-stone-950 font-sans overflow-hidden text-ellipsis whitespace-nowrap max-w-[60px] text-center"
       >
         {label}
       </span>

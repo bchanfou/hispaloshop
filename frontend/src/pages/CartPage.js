@@ -28,7 +28,7 @@ function ShippingProgressBar({ store }) {
           )}
           <span className="text-sm text-stone-950 truncate">{store.seller_name}</span>
         </div>
-        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{(store.shipping_cents / 100).toFixed(2)} €</span>
+        <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toFixed(2)} €</span>
       </div>
     );
   }
@@ -50,7 +50,7 @@ function ShippingProgressBar({ store }) {
         {store.is_free ? (
           <span className="text-xs font-bold text-stone-950 flex-shrink-0">Envio gratis</span>
         ) : (
-          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{(store.shipping_cents / 100).toFixed(2)} €</span>
+          <span className="text-sm font-semibold text-stone-950 flex-shrink-0">{((store.shipping_cents || 0) / 100).toFixed(2)} €</span>
         )}
       </div>
       <div className="h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
@@ -94,7 +94,7 @@ function StockHoldTimer({ expiresAt }) {
 
   return (
     <div className={`flex items-center gap-1 text-[11px] font-semibold mt-1 ${
-      expired ? 'text-stone-700' : isExpiring ? 'text-stone-700' : 'text-stone-500'
+      expired ? 'text-stone-950' : isExpiring ? 'text-stone-700' : 'text-stone-500'
     }`}>
       <Clock className="w-3 h-3" />
       {expired ? 'Reserva expirada' : `Reservado ${remaining}`}
@@ -369,6 +369,7 @@ export default function CartPage() {
                       value={verificationToken}
                       onChange={(event) => setVerificationToken(event.target.value)}
                       className="flex-1 max-w-xs h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors"
+                      aria-label={t('checkout.verificationCodePlaceholder')}
                       data-testid="verification-input"
                     />
                     <button type="button" onClick={handleVerifyEmail} disabled={verifying} className="rounded-xl bg-stone-950 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-50" data-testid="verify-button">
@@ -431,16 +432,7 @@ export default function CartPage() {
                   </button>
                 </div>
               )}
-              {(() => {
-                // Group items by producer
-                const groups = {};
-                cartItems.forEach(item => {
-                  const producer = item.seller_name || item.producer || item.product?.producer?.name || 'Tienda';
-                  if (!groups[producer]) groups[producer] = [];
-                  groups[producer].push(item);
-                });
-
-                return Object.entries(groups).map(([producerName, items]) => (
+              {groupedItems.map(([producerName, items]) => (
                   <div key={producerName} className="space-y-3">
                     <div className="flex items-center gap-2 pt-2">
                       <Package className="w-4 h-4 text-stone-400" />
@@ -490,7 +482,7 @@ export default function CartPage() {
                                   </button>
                                 </div>
                                 <p className="text-sm font-bold text-stone-950 md:text-base">
-                                  {convertAndFormatPrice(item.price * item.quantity, item.currency || 'EUR')}
+                                  {convertAndFormatPrice((item.price || 0) * item.quantity, item.currency || 'EUR')}
                                 </p>
                               </div>
                               <button
@@ -523,8 +515,7 @@ export default function CartPage() {
                       );
                     })}
                   </div>
-                ));
-              })()}
+                ))}
 
               {/* Per-store shipping progress */}
               {shippingData && shippingData.stores && shippingData.stores.length > 0 && (
@@ -698,7 +689,7 @@ export default function CartPage() {
                             : t('checkout.freeShipping')}
                       </span>
                     </div>
-                    <button onClick={handleRemoveDiscount} className="p-1 text-stone-700 hover:text-stone-950" data-testid="remove-discount-btn">
+                    <button onClick={handleRemoveDiscount} className="p-1 text-stone-700 hover:text-stone-950" aria-label="Eliminar descuento" data-testid="remove-discount-btn">
                       <X className="w-4 h-4" />
                     </button>
                   </div>

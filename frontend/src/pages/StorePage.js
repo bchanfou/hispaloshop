@@ -204,7 +204,7 @@ export default function StorePage() {
       {/* ── Hero Banner 3:1 ── */}
       <div style={{ position: 'relative', width: '100%', aspectRatio: '3/1', background: 'linear-gradient(135deg, #1c1917 0%, #0c0a09 100%)' }}>
         {store.hero_image && (
-          <img src={store.hero_image} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={store.hero_image} alt={`Banner de ${store.name}`} loading="eager" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
       </div>
@@ -259,7 +259,7 @@ export default function StorePage() {
           </p>
         )}
         {showVerMas && (
-          <button onClick={() => setDescExpanded(!descExpanded)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-black)', padding: 0, marginTop: 2, fontFamily: F }}>
+          <button onClick={() => setDescExpanded(!descExpanded)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-black)', padding: '4px 0', minHeight: 44, marginTop: 2, fontFamily: F }}>
             {descExpanded ? 'Ver menos' : 'Ver más'}
           </button>
         )}
@@ -277,7 +277,7 @@ export default function StorePage() {
         {/* 3 Action buttons */}
         <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
           <button type="button" onClick={handleToggleFollow} disabled={followLoading} style={{
-            flex: 1, height: 40, borderRadius: 'var(--radius-full)',
+            flex: 1, height: 44, borderRadius: 'var(--radius-full)',
             fontSize: 13, fontWeight: 600, fontFamily: F,
             border: isFollowing ? '1px solid var(--color-border)' : 'none',
             background: isFollowing ? 'var(--color-white)' : 'var(--color-black)',
@@ -288,7 +288,7 @@ export default function StorePage() {
             {followLoading ? '...' : isFollowing ? 'Siguiendo' : 'Seguir'}
           </button>
           <button type="button" onClick={handleChat} style={{
-            flex: 1, height: 40, borderRadius: 'var(--radius-full)',
+            flex: 1, height: 44, borderRadius: 'var(--radius-full)',
             fontSize: 13, fontWeight: 600, fontFamily: F,
             border: '1px solid var(--color-border)', background: 'var(--color-white)', color: 'var(--color-black)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -296,7 +296,7 @@ export default function StorePage() {
             <MessageCircle size={15} /> Mensaje
           </button>
           <button type="button" onClick={handleShare} style={{
-            flex: 1, height: 40, borderRadius: 'var(--radius-full)',
+            flex: 1, height: 44, borderRadius: 'var(--radius-full)',
             fontSize: 13, fontWeight: 600, fontFamily: F,
             border: '1px solid var(--color-border)', background: 'var(--color-white)', color: 'var(--color-black)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -321,10 +321,10 @@ export default function StorePage() {
 
       {/* ── Sticky Tab Bar ── */}
       <div className="sticky top-0 z-40" style={{ background: 'var(--color-cream)', borderBottom: '1px solid var(--color-border)', marginTop: 16 }}>
-        <div style={{ display: 'flex', overflowX: 'auto', padding: '0 16px', scrollbarWidth: 'none' }}>
+        <div role="tablist" aria-label="Secciones de la tienda" style={{ display: 'flex', overflowX: 'auto', padding: '0 16px', scrollbarWidth: 'none' }}>
           {tabs.map((tab) => (
-            <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} style={{
-              padding: '12px 16px', whiteSpace: 'nowrap',
+            <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)} style={{
+              padding: '12px 16px', whiteSpace: 'nowrap', minHeight: 44,
               fontSize: 13, fontWeight: activeTab === tab.id ? 600 : 400, fontFamily: F,
               color: activeTab === tab.id ? 'var(--color-black)' : 'var(--color-stone)',
               background: 'none', border: 'none', cursor: 'pointer',
@@ -348,7 +348,7 @@ export default function StorePage() {
               <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12, paddingBottom: 4, scrollbarWidth: 'none' }}>
                 {productCategories.map(cat => (
                   <button key={cat} onClick={() => setCategoryFilter(cat)} style={{
-                    flexShrink: 0, padding: '6px 14px', borderRadius: 'var(--radius-full)',
+                    flexShrink: 0, padding: '10px 14px', minHeight: 44, borderRadius: 'var(--radius-full)',
                     fontSize: 12, fontWeight: 600, fontFamily: F, cursor: 'pointer',
                     border: categoryFilter === cat ? 'none' : '1px solid var(--color-border)',
                     background: categoryFilter === cat ? 'var(--color-black)' : 'var(--color-white)',
@@ -367,8 +367,9 @@ export default function StorePage() {
                 <input
                   value={productSearch} onChange={e => setProductSearch(e.target.value)}
                   placeholder="Buscar en esta tienda..."
+                  aria-label="Buscar productos en esta tienda"
                   style={{
-                    width: '100%', height: 38, paddingLeft: 36, paddingRight: 12,
+                    width: '100%', height: 44, paddingLeft: 36, paddingRight: 12,
                     fontSize: 13, fontFamily: F, color: 'var(--color-black)',
                     background: 'var(--color-surface)', border: 'none',
                     borderRadius: 'var(--radius-full)', outline: 'none',
@@ -652,7 +653,7 @@ export default function StorePage() {
 /* ── Helpers ── */
 
 const pillBtnStyle = {
-  width: 36, height: 36, borderRadius: '50%',
+  width: 44, height: 44, borderRadius: '50%',
   background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)',
   border: 'none', cursor: 'pointer',
   display: 'flex', alignItems: 'center', justifyContent: 'center',

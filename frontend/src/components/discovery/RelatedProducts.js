@@ -37,12 +37,14 @@ export default function RelatedProducts({ productId, title = 'Productos relacion
 
   useEffect(() => {
     if (!productId) return;
+    let cancelled = false;
     setLoading(true);
     apiClient
       .get(`/discovery/related-products/${productId}?limit=6`)
-      .then((data) => setProducts(data?.products || []))
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
+      .then((data) => { if (!cancelled) setProducts(data?.products || []); })
+      .catch(() => { if (!cancelled) setProducts([]); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [productId]);
 
   if (!loading && products.length === 0) return null;
@@ -52,6 +54,7 @@ export default function RelatedProducts({ productId, title = 'Productos relacion
       <div className="mb-4 flex items-center justify-between gap-4">
         <h2 className="text-base font-semibold text-stone-950">{title}</h2>
         <button
+          type="button"
           onClick={() => navigate('/products')}
           className="flex items-center gap-1 text-sm font-medium text-stone-500 hover:text-stone-950"
         >

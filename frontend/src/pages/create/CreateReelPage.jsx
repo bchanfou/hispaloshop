@@ -20,6 +20,14 @@ const SPEED_OPTIONS = [0.3, 0.5, 1, 2, 3];
 const FONTS = ['Sans', 'Serif', 'Mono', 'Display'];
 const TEXT_COLORS = ['#ffffff', '#0c0a09', '#78716c', '#d6d3d1', '#a8a29e'];
 
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
+const fmt = (s) => {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+};
+
 export default function CreateReelPage() {
   const navigate = useNavigate();
   const [screen, setScreen] = useState('upload');
@@ -55,12 +63,19 @@ export default function CreateReelPage() {
     return () => {
       clearTimeout(playIconTimer.current);
       if (videoUrl) URL.revokeObjectURL(videoUrl);
+      // Clean up any lingering document drag listeners
+      dragRef.current = null;
     };
   }, [videoUrl]);
 
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('El vídeo es demasiado grande (máx. 100 MB)');
+      e.target.value = '';
+      return;
+    }
     setVideoUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
@@ -98,12 +113,6 @@ export default function CreateReelPage() {
   const handleLoadedMetadata = useCallback(() => {
     if (videoRef.current) setDuration(videoRef.current.duration);
   }, []);
-
-  const fmt = (s) => {
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-  };
 
   const addTextOverlay = useCallback(() => {
     if (!textDraft.trim() || textOverlays.length >= 3) return;
@@ -182,9 +191,7 @@ export default function CreateReelPage() {
           thumbnailIndex,
         })
       );
-      await apiClient.post('/posts', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await apiClient.post('/posts', fd);
       toast.success('Reel publicado');
       navigate('/');
     } catch (err) {
@@ -197,7 +204,7 @@ export default function CreateReelPage() {
   // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
   if (screen === 'upload') {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans">
+      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         {/* TopBar */}
         <div className="flex items-center justify-between px-4 py-3">
           <button
@@ -217,7 +224,7 @@ export default function CreateReelPage() {
             <button
               key={tab}
               onClick={() => setUploadTab(tab)}
-              className={`border-none rounded-full px-5 py-2 text-[13px] font-semibold cursor-pointer transition-colors ${
+              className={`border-none rounded-full px-5 py-2.5 text-[13px] font-semibold cursor-pointer transition-colors min-h-[44px] ${
                 uploadTab === tab
                   ? 'bg-white text-black'
                   : 'bg-transparent text-white'
@@ -272,7 +279,7 @@ export default function CreateReelPage() {
   // ─── SCREEN 2: EDIT ───────────────────────────────────────────
   if (screen === 'edit') {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans">
+      <div className="fixed inset-0 z-50 bg-black flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         {/* TopBar */}
         <div className="flex items-center justify-between px-4 py-3">
           <button
@@ -310,7 +317,7 @@ export default function CreateReelPage() {
           role="button"
           tabIndex={0}
           aria-label={isPlaying ? 'Pausar vídeo' : 'Reproducir vídeo'}
-          onKeyDown={(e) => e.key === ' ' && togglePlay()}
+          onKeyDown={(e) => { if (e.key === ' ') { e.preventDefault(); togglePlay(); } }}
         >
           <video
             ref={videoRef}
@@ -380,8 +387,8 @@ export default function CreateReelPage() {
           <div className="h-8 bg-white/10 rounded-lg relative flex items-center overflow-hidden">
             {/* Progress */}
             <div
-              className="absolute left-0 top-0 bottom-0 bg-white/15"
-              style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+              className="absolute left-0 top-0 bottom-0 w-full bg-white/15 origin-left"
+              style={{ transform: `scaleX(${duration > 0 ? currentTime / duration : 0})` }}
             />
             {/* Left handle */}
             <div className="w-3 h-full bg-white rounded-l cursor-ew-resize shrink-0" />
@@ -453,6 +460,7 @@ export default function CreateReelPage() {
                   <input
                     value={textDraft}
                     onChange={(e) => setTextDraft(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && addTextOverlay()}
                     placeholder="Escribe aquí..."
                     className="bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/40"
                     autoFocus
@@ -508,13 +516,13 @@ export default function CreateReelPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setShowTextInput(false)}
-                      className="flex-1 bg-white/10 text-white border-none rounded-xl py-2.5 text-[13px] cursor-pointer"
+                      className="flex-1 bg-white/10 text-white border-none rounded-xl py-3 text-[13px] cursor-pointer min-h-[44px]"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={addTextOverlay}
-                      className="flex-1 bg-white text-black border-none rounded-xl py-2.5 text-[13px] font-semibold cursor-pointer"
+                      className="flex-1 bg-white text-black border-none rounded-xl py-3 text-[13px] font-semibold cursor-pointer min-h-[44px]"
                     >
                       ✓ Confirmar
                     </button>
@@ -553,7 +561,7 @@ export default function CreateReelPage() {
 
   // ─── SCREEN 3: DETAILS ────────────────────────────────────────
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col font-sans">
+    <div className="fixed inset-0 z-50 bg-white flex flex-col font-sans pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       {/* TopBar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-stone-200">
         <button

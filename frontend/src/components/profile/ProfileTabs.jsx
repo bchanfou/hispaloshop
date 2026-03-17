@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Grid3X3,
@@ -7,7 +7,6 @@ import {
   Package,
   BookOpen,
   Camera,
-  Plus,
   Film,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
@@ -139,7 +138,7 @@ function MultiImageBadge() {
     position: 'absolute',
     width: 14,
     height: 14,
-    border: '1.5px solid white',
+    border: '1.5px solid var(--color-white)',
     borderRadius: 2,
     background: 'transparent',
   };
@@ -185,6 +184,8 @@ export default function ProfileTabs({
 
   const [loading, setLoading] = useState({});
 
+  const fetchedRef = useRef(new Set());
+
   /* reset cached data when userId changes */
   useEffect(() => {
     setPostsData(null);
@@ -193,6 +194,7 @@ export default function ProfileTabs({
     setRecipesData(null);
     setSavedData(null);
     setLoading({});
+    fetchedRef.current = new Set();
   }, [userId]);
 
   const dataMap = {
@@ -221,7 +223,8 @@ export default function ProfileTabs({
 
   const fetchTab = useCallback(
     async (tabId) => {
-      if (dataMap[tabId] !== null) return;
+      if (fetchedRef.current.has(tabId)) return;
+      fetchedRef.current.add(tabId);
       setLoading((prev) => ({ ...prev, [tabId]: true }));
       try {
         const res = await apiClient.get(endpointMap[tabId]);
@@ -234,7 +237,7 @@ export default function ProfileTabs({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [userId, postsData, reelsData, productsData, recipesData, savedData],
+    [userId],
   );
 
   /* fetch on mount (posts) and on tab change */
@@ -245,6 +248,7 @@ export default function ProfileTabs({
   /* ── Tab bar ── */
   const tabBar = (
     <div
+      role="tablist"
       style={{
         position: 'sticky',
         top: 52,
@@ -425,7 +429,7 @@ export default function ProfileTabs({
                 <PlaySquare
                   size={24}
                   style={{
-                    color: 'white',
+                    color: 'var(--color-white)',
                     filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.5))',
                   }}
                 />
@@ -439,7 +443,7 @@ export default function ProfileTabs({
                     left: 6,
                     fontSize: 11,
                     fontWeight: 600,
-                    color: 'white',
+                    color: 'var(--color-white)',
                     textShadow: '0 1px 2px rgba(0,0,0,0.6)',
                   }}
                 >
@@ -699,7 +703,7 @@ export default function ProfileTabs({
   return (
     <div>
       {tabBar}
-      <div>{renderers[activeTab]?.()}</div>
+      <div role="tabpanel" aria-label={ALL_TABS.find(t => t.id === activeTab)?.label}>{renderers[activeTab]?.()}</div>
     </div>
   );
 }

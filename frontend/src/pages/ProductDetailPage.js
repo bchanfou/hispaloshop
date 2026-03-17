@@ -17,7 +17,6 @@ import {
   useProductDetail,
   useProductPurchaseOptions,
   useProductReviews as useProductReviewsHook,
-  useStoreFollow,
 } from '../features/products/hooks';
 import { useChatContext } from '../context/chat/ChatProvider';
 import apiClient from '../services/api/client';
@@ -32,26 +31,20 @@ const stripEmoji = (text) => {
 function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div style={{ borderBottom: '1px solid var(--color-border)' }}>
+    <div className="border-b border-stone-200">
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer',
-        }}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between px-4 py-3.5"
       >
-        <span style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          fontSize: 14, fontWeight: 600, color: 'var(--color-black)',
-          fontFamily: 'var(--font-sans)',
-        }}>
+        <span className="flex items-center gap-2 text-sm font-semibold text-stone-950">
           {icon}
           {title}
         </span>
         <ChevronDown
-          size={18} color="var(--color-stone)"
-          style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'none' }}
+          size={18}
+          className={`text-stone-500 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
       <AnimatePresence initial={false}>
@@ -61,9 +54,9 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false }) {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            style={{ overflow: 'hidden' }}
+            className="overflow-hidden"
           >
-            <div style={{ padding: '0 16px 16px' }}>
+            <div className="px-4 pb-4">
               {children}
             </div>
           </motion.div>
@@ -91,7 +84,7 @@ export default function ProductDetailPage() {
   const {
     quantity, setQuantity, selectedVariant, selectedPack, setSelectedPack,
     hasVariants, currentPrice, currentIngredients, currentNutritionalInfo,
-    currentAllergens, trackStock, stock, isOutOfStock, isLowStock,
+    currentAllergens, stock, isOutOfStock, isLowStock,
     maxQuantity, handleVariantChange, calculateSavings,
   } = useProductPurchaseOptions(productId);
 
@@ -99,10 +92,6 @@ export default function ProductDetailPage() {
     reviews, averageRating, totalReviews, canReview, reviewOrderId,
     isSubmitting: submittingReview, submitReview,
   } = useProductReviewsHook(productId);
-
-  const {
-    isFollowing, followLoading, handleFollowStore: toggleStoreFollow,
-  } = useStoreFollow(storeInfo?.slug || storeInfo?.store_slug);
 
   const storeSlug = storeInfo?.slug || storeInfo?.store_slug || null;
   const normalizedAverageRating = Number(averageRating || 0);
@@ -119,12 +108,16 @@ export default function ProductDetailPage() {
   const addedTimerRef = useRef(null);
   const rafRef = useRef(null);
 
-  // Reset image index & scroll to top when product changes
+  // Reset transient UI state when navigating between products
   useEffect(() => {
     setActiveImageIndex(0);
     setDescExpanded(false);
+    setQuantity(1);
+    setShowReviewForm(false);
+    setReviewComment('');
+    setReviewRating(5);
     window.scrollTo(0, 0);
-  }, [productId]);
+  }, [productId, setQuantity]);
 
   useEffect(() => {
     if (hasProductError) toast.error(t('errors.notFound'));
@@ -141,17 +134,20 @@ export default function ProductDetailPage() {
   // Fetch related products
   useEffect(() => {
     if (!product?.category_id) return;
+    let cancelled = false;
     apiClient.get(`/products?category=${product.category_id}&limit=8`)
       .then((res) => {
+        if (cancelled) return;
         const items = res?.products || res?.items || res || [];
         setRelatedProducts(items.filter((p) => (p.product_id || p.id) !== productId).slice(0, 6));
       })
-      .catch(() => setRelatedProducts([]));
+      .catch(() => { if (!cancelled) setRelatedProducts([]); });
+    return () => { cancelled = true; };
   }, [product?.category_id, productId]);
 
   // Gallery scroll handler — throttled with rAF to avoid setState on every pixel
   const handleGalleryScroll = useCallback(() => {
-    if (rafRef.current) return; // already scheduled
+    if (rafRef.current) return;
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = null;
       const el = galleryRef.current;
@@ -160,14 +156,6 @@ export default function ProductDetailPage() {
       setActiveImageIndex((prev) => (prev !== idx ? idx : prev));
     });
   }, []);
-
-  const handleFollowStore = async () => {
-    if (!user) { toast.error(t('errors.unauthorized', 'Inicia sesión para seguir tiendas')); return; }
-    try {
-      await toggleStoreFollow();
-      toast.success(isFollowing ? t('store.unfollowed', 'Has dejado de seguir la tienda') : t('store.followed', 'Ahora sigues esta tienda'));
-    } catch { toast.error(t('errors.generic', 'Error')); }
-  };
 
   const handleSubmitReview = async () => {
     if (!reviewComment.trim()) { toast.error('Escribe un comentario'); return; }
@@ -189,15 +177,19 @@ export default function ProductDetailPage() {
   const handleAddToCart = async () => {
     if (isOutOfStock) { toast.error(t('productDetail.outOfStock')); return; }
     toast.loading(t('cart.adding', 'Añadiendo...'), { id: 'add-to-cart' });
-    const variantId = selectedVariant?.variant_id || null;
-    const packId = selectedPack?.pack_id || null;
-    const success = await addToCart(productId, quantity, variantId, packId);
-    if (success && success !== 'redirect') {
-      toast.success(t('success.added', '¡Añadido!'), { id: 'add-to-cart' });
-      setAddedToCart(true);
-      clearTimeout(addedTimerRef.current);
-      addedTimerRef.current = setTimeout(() => setAddedToCart(false), 1800);
-    } else if (success !== 'redirect') {
+    try {
+      const variantId = selectedVariant?.variant_id || null;
+      const packId = selectedPack?.pack_id || null;
+      const success = await addToCart(productId, quantity, variantId, packId);
+      if (success && success !== 'redirect') {
+        toast.success(t('success.added', '¡Añadido!'), { id: 'add-to-cart' });
+        setAddedToCart(true);
+        clearTimeout(addedTimerRef.current);
+        addedTimerRef.current = setTimeout(() => setAddedToCart(false), 1800);
+      } else if (success !== 'redirect') {
+        toast.error(t('errors.generic', 'Error'), { id: 'add-to-cart' });
+      }
+    } catch {
       toast.error(t('errors.generic', 'Error'), { id: 'add-to-cart' });
     }
   };
@@ -236,8 +228,8 @@ export default function ProductDetailPage() {
   // ── Loading state ──
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="h-8 w-8 animate-spin rounded-full border-2" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-black)' }} />
+      <div role="status" aria-label="Cargando producto" className="flex min-h-screen items-center justify-center bg-[var(--color-cream)]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-stone-950" />
       </div>
     );
   }
@@ -245,21 +237,14 @@ export default function ProductDetailPage() {
   // ── Not found ──
   if (!product) {
     return (
-      <div style={{
-        minHeight: '100vh', background: 'var(--color-cream)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: 32, textAlign: 'center',
-      }}>
-        <p style={{ fontSize: 16, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginBottom: 16 }}>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--color-cream)] p-8 text-center">
+        <p className="mb-4 text-base text-stone-500">
           {t('productDetail.notFound')}
         </p>
         <button
+          type="button"
           onClick={() => navigate('/products')}
-          style={{
-            background: 'var(--color-black)', color: '#fff', border: 'none',
-            borderRadius: 'var(--radius-md)', padding: '10px 24px',
-            fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer',
-          }}
+          className="rounded-xl bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white"
         >
           {t('productDetail.backToProducts')}
         </button>
@@ -268,7 +253,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', paddingBottom: 100 }}>
+    <div className="min-h-screen bg-[var(--color-cream)] pb-[100px]">
       <SEO
         title={product.name || 'Producto'}
         description={product.description?.slice(0, 160) || ''}
@@ -278,51 +263,38 @@ export default function ProductDetailPage() {
       />
 
       {/* ── TopBar ── */}
-      <header
-        className="sticky top-0 z-50"
-        style={{ background: 'var(--color-cream)' }}
-      >
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          height: 52, padding: '0 16px',
-        }}>
+      <header className="sticky top-0 z-50 bg-[var(--color-cream)]">
+        <div className="flex h-[52px] items-center justify-between px-4">
           <button
-            type="button" onClick={() => navigate(-1)}
-            style={{
-              width: 44, height: 44, borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
-            }}
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
             aria-label="Volver"
           >
-            <ChevronLeft size={20} strokeWidth={2} color="var(--color-black)" />
+            <ChevronLeft size={20} strokeWidth={2} className="text-stone-950" />
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="flex items-center gap-2">
             <button
-              type="button" onClick={handleShare}
-              style={{
-                width: 44, height: 44, borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
-              }}
+              type="button"
+              onClick={handleShare}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
               aria-label="Compartir"
             >
-              <Share2 size={18} strokeWidth={1.8} color="var(--color-black)" />
+              <Share2 size={18} strokeWidth={1.8} className="text-stone-950" />
             </button>
             <button
-              type="button" onClick={toggleWishlist} disabled={wishlistLoading}
-              style={{
-                width: 44, height: 44, borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
-              }}
+              type="button"
+              onClick={toggleWishlist}
+              disabled={wishlistLoading}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100"
               aria-label={inWishlist ? 'En tu lista' : 'Guardar'}
             >
               <Heart
-                size={18} strokeWidth={inWishlist ? 0 : 1.8}
-                fill={inWishlist ? 'var(--color-black)' : 'none'}
-                color="var(--color-black)"
+                size={18}
+                strokeWidth={inWishlist ? 0 : 1.8}
+                fill={inWishlist ? 'currentColor' : 'none'}
+                className="text-stone-950"
               />
             </button>
           </div>
@@ -330,30 +302,19 @@ export default function ProductDetailPage() {
       </header>
 
       {/* ── Image Gallery — 1:1 scroll-snap ── */}
-      <section aria-label="Galería de imágenes del producto" style={{ position: 'relative', width: '100%', background: 'var(--color-surface)' }}>
+      <section aria-label="Galería de imágenes del producto" className="relative w-full bg-stone-100">
         <div
           ref={galleryRef}
           onScroll={handleGalleryScroll}
-          style={{
-            display: 'flex',
-            overflowX: 'auto',
-            scrollSnapType: 'x mandatory',
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch',
-          }}
+          className="flex overflow-x-auto [scroll-snap-type:x_mandatory] [scrollbar-width:none] [-webkit-overflow-scrolling:touch]"
         >
           {(images.length > 0 ? images : [primaryImage]).map((img, i) => (
             <div
               key={img || i}
-              style={{
-                flex: '0 0 100%',
-                scrollSnapAlign: 'start',
-                position: 'relative',
-                width: '100%',
-                paddingTop: '100%',
-              }}
+              className="relative w-full flex-[0_0_100%] [scroll-snap-align:start]"
+              style={{ paddingTop: '100%' }}
             >
-              <div style={{ position: 'absolute', inset: 0 }}>
+              <div className="absolute inset-0">
                 <ProductImage
                   src={img}
                   productName={product.name}
@@ -368,16 +329,8 @@ export default function ProductDetailPage() {
 
         {/* Out of stock overlay */}
         {isOutOfStock && (
-          <div style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            background: 'rgba(0,0,0,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{
-              background: 'var(--color-black)', color: '#fff',
-              padding: '6px 16px', borderRadius: 'var(--radius-full)',
-              fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
-            }}>
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center bg-black/30">
+            <span className="rounded-full bg-stone-950 px-4 py-1.5 text-[13px] font-semibold text-white">
               Agotado
             </span>
           </div>
@@ -385,10 +338,7 @@ export default function ProductDetailPage() {
 
         {/* Scroll dots */}
         {images.length > 1 && (
-          <div style={{
-            position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)',
-            display: 'flex', gap: 6,
-          }}>
+          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
             {images.slice(0, 8).map((_, i) => (
               <button
                 key={i}
@@ -398,18 +348,11 @@ export default function ProductDetailPage() {
                   if (el) el.scrollTo({ left: el.offsetWidth * i, behavior: 'smooth' });
                 }}
                 aria-label={`Ir a imagen ${i + 1}`}
-                style={{
-                  width: 24, height: 24, borderRadius: '50%',
-                  padding: 0, border: 'none', cursor: 'pointer',
-                  background: 'transparent',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-transparent"
               >
-                <span style={{
-                  width: 8, height: 8, borderRadius: '50%', display: 'block',
-                  background: i === activeImageIndex ? 'var(--color-black)' : 'rgba(0,0,0,0.25)',
-                  transition: 'background 0.2s',
-                }} />
+                <span className={`block h-2 w-2 rounded-full transition-colors duration-200 ${
+                  i === activeImageIndex ? 'bg-stone-950' : 'bg-black/25'
+                }`} />
               </button>
             ))}
           </div>
@@ -417,58 +360,49 @@ export default function ProductDetailPage() {
 
         {/* Counter badge */}
         {images.length > 1 && (
-          <div style={{
-            position: 'absolute', top: 12, right: 12,
-            background: 'rgba(0,0,0,0.5)', color: '#fff',
-            borderRadius: 'var(--radius-full)',
-            padding: '3px 10px', fontSize: 11, fontWeight: 600,
-            fontFamily: 'var(--font-sans)',
-          }}>
+          <div className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-0.5 text-[11px] font-semibold text-white">
             {activeImageIndex + 1}/{images.length}
           </div>
         )}
       </section>
 
       {/* ── Product Header ── */}
-      <div style={{ padding: '16px 16px 0' }}>
+      <div className="px-4 pt-4">
         {/* Name */}
-        <h1 style={{
-          fontSize: 20, fontWeight: 600, color: 'var(--color-black)',
-          fontFamily: 'var(--font-sans)', lineHeight: 1.3, margin: 0,
-        }}>
+        <h1 className="text-xl font-semibold leading-tight text-stone-950">
           {product.name}
         </h1>
 
         {/* Certification badges */}
         {(product.certifications?.length > 0 || product.is_organic || product.is_gluten_free || product.is_vegan || product.is_halal || product.is_km0) && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             {product.is_organic && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+              <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-950">
                 <Leaf size={12} /> Ecológico
               </span>
             )}
             {product.is_gluten_free && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+              <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-950">
                 <Shield size={12} /> Sin gluten
               </span>
             )}
             {product.is_vegan && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+              <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-950">
                 <Leaf size={12} /> Vegano
               </span>
             )}
             {product.is_halal && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+              <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-950">
                 <CheckCircle size={12} /> Halal
               </span>
             )}
             {product.is_km0 && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+              <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-950">
                 <MapPin size={12} /> Km 0
               </span>
             )}
             {product.certifications?.map((cert, i) => (
-              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--color-black)', background: 'var(--color-surface, #f5f5f4)', borderRadius: 'var(--radius-full, 999px)', padding: '4px 10px', fontFamily: 'var(--font-sans)' }}>
+              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-950">
                 <FileCheck size={12} /> {cert.name || cert}
               </span>
             ))}
@@ -477,72 +411,61 @@ export default function ProductDetailPage() {
 
         {/* Social proof — orders this month */}
         {product.stats?.orders_count > 0 && (
-          <p style={{ fontSize: 12, color: 'var(--color-stone)', marginTop: 6, fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <p className="mt-1.5 flex items-center gap-1 text-xs text-stone-500">
             <Users size={12} /> {product.stats.orders_count} personas compraron este mes
           </p>
         )}
 
         {/* Rating */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Star size={16} fill="var(--color-black)" stroke="var(--color-black)" />
-            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+        <div className="mt-2 flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Star size={16} className="fill-stone-950 text-stone-950" />
+            <span className="text-sm font-semibold text-stone-950">
               {Number.isFinite(normalizedAverageRating) ? normalizedAverageRating.toFixed(1) : '0.0'}
             </span>
           </div>
-          <span style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+          <span className="text-[13px] text-stone-500">
             ({totalReviews} {t('productDetail.reviews', 'reseñas')})
           </span>
           {product.units_sold > 0 && (
-            <span style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+            <span className="text-[13px] text-stone-500">
               · {product.units_sold} vendidos
             </span>
           )}
         </div>
 
         {/* Price */}
-        <div style={{ marginTop: 12 }}>
-          <span style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+        <div className="mt-3">
+          <span className="text-2xl font-bold text-stone-950">
             {displayPrice}
           </span>
-          <span style={{ fontSize: 11, color: 'var(--color-stone)', marginLeft: 6, fontFamily: 'var(--font-sans)' }}>
+          <span className="ml-1.5 text-[11px] text-stone-500">
             {t('productDetail.taxNote', 'IVA no incluido')}
           </span>
         </div>
 
         {/* Stock warnings */}
         {isOutOfStock && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
-            padding: '10px 12px', marginTop: 12,
-          }}>
-            <AlertTriangle size={16} color="var(--color-stone)" />
-            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+          <div className="mt-3 flex items-center gap-2 rounded-xl bg-stone-100 px-3 py-2.5">
+            <AlertTriangle size={16} className="text-stone-500" />
+            <span className="text-[13px] font-medium text-stone-500">
               {t('productDetail.outOfStock')}
             </span>
           </div>
         )}
         {isLowStock && !isOutOfStock && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
-            padding: '10px 12px', marginTop: 12,
-          }}>
-            <AlertTriangle size={16} color="var(--color-stone)" />
-            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+          <div className="mt-3 flex items-center gap-2 rounded-xl bg-stone-100 px-3 py-2.5">
+            <AlertTriangle size={16} className="text-stone-500" />
+            <span className="text-[13px] font-medium text-stone-500">
               {t('productDetail.lowStockWarning', { count: stock })}
             </span>
           </div>
         )}
 
         {/* Shipping */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          marginTop: 12, padding: '10px 0',
-        }}>
-          <Truck size={16} color={isFreeShipping ? 'var(--color-black)' : 'var(--color-stone)'} />
-          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+        <div className="mt-3 flex items-center gap-2 py-2.5">
+          <Truck size={16} className={isFreeShipping ? 'text-stone-950' : 'text-stone-500'} />
+          <span className="text-[13px] font-medium text-stone-950">
             {isFreeShipping
               ? t('products.freeShipping', 'Envío gratis')
               : `${t('products.shippingCost', 'Envío')}: ${convertAndFormatPrice(product.shipping_cost, 'EUR')}`
@@ -553,26 +476,24 @@ export default function ProductDetailPage() {
 
       {/* ── Variant Selector ── */}
       {hasVariants && product.variants?.length > 1 && (
-        <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)' }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+        <div className="border-t border-stone-200 px-4 py-3">
+          <p className="mb-2.5 text-[13px] font-semibold text-stone-950">
             {t('productDetail.selectVariant', 'Variante')}
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <div className="flex flex-wrap gap-2">
             {product.variants.map((variant) => {
               const isSelected = selectedVariant?.variant_id === variant.variant_id;
               return (
                 <button
                   key={variant.variant_id}
+                  type="button"
                   onClick={() => handleVariantChange(variant)}
                   aria-pressed={isSelected}
-                  style={{
-                    padding: '6px 16px', borderRadius: 'var(--radius-full)',
-                    fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)',
-                    border: isSelected ? '1.5px solid var(--color-black)' : '1px solid var(--color-border)',
-                    background: isSelected ? 'var(--color-black)' : 'var(--color-white, #fff)',
-                    color: isSelected ? '#fff' : 'var(--color-black)',
-                    cursor: 'pointer', transition: 'var(--transition-fast)',
-                  }}
+                  className={`min-h-[44px] rounded-full px-4 py-2.5 text-[13px] font-medium transition-all duration-150 ${
+                    isSelected
+                      ? 'border-[1.5px] border-stone-950 bg-stone-950 text-white'
+                      : 'border border-stone-200 bg-white text-stone-950'
+                  }`}
                 >
                   {variant.name}
                 </button>
@@ -584,52 +505,44 @@ export default function ProductDetailPage() {
 
       {/* ── Packs Selector ── */}
       {((selectedVariant?.packs?.length > 0) || (product.packs?.length > 0)) && (
-        <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)' }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+        <div className="border-t border-stone-200 px-4 py-3">
+          <p className="mb-2.5 text-[13px] font-semibold text-stone-950">
             {t('productDetail.selectPack', 'Pack')}
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div className="flex flex-col gap-2">
             {(selectedVariant?.packs || product.packs || []).map((pack, idx) => {
               const isSelected = selectedPack?.pack_id === pack.pack_id;
               return (
                 <button
                   key={pack.pack_id || idx}
+                  type="button"
                   onClick={() => setSelectedPack(isSelected ? null : pack)}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 14px', borderRadius: 'var(--radius-md)',
-                    border: isSelected ? '1.5px solid var(--color-black)' : '1px solid var(--color-border)',
-                    background: isSelected ? 'var(--color-surface)' : 'var(--color-white, #fff)',
-                    cursor: 'pointer', transition: 'var(--transition-fast)',
-                  }}
+                  className={`flex items-center justify-between rounded-xl px-3.5 py-3 transition-all duration-150 ${
+                    isSelected
+                      ? 'border-[1.5px] border-stone-950 bg-stone-100'
+                      : 'border border-stone-200 bg-white'
+                  }`}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{
-                      width: 20, height: 20, borderRadius: 6,
-                      border: isSelected ? '2px solid var(--color-black)' : '2px solid var(--color-border)',
-                      background: isSelected ? 'var(--color-black)' : 'transparent',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
+                  <div className="flex items-center gap-2">
+                    <div className={`flex h-5 w-5 items-center justify-center rounded-md border-2 ${
+                      isSelected ? 'border-stone-950 bg-stone-950' : 'border-stone-200 bg-transparent'
+                    }`}>
                       {isSelected && (
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M5 13l4 4L19 7" />
                         </svg>
                       )}
                     </div>
-                    <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                    <span className="text-sm font-medium text-stone-950">
                       {pack.label || `${pack.units || pack.quantity || 1} unidades`}
                     </span>
                     {calculateSavings(pack, selectedVariant) && (
-                      <span style={{
-                        fontSize: 10, fontWeight: 600, color: '#fff',
-                        background: 'var(--color-black)', borderRadius: 'var(--radius-full)',
-                        padding: '2px 8px', fontFamily: 'var(--font-sans)',
-                      }}>
+                      <span className="rounded-full bg-stone-950 px-2 py-0.5 text-[10px] font-semibold text-white">
                         Ahorra {convertAndFormatPrice(calculateSavings(pack, selectedVariant), 'EUR')}
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                  <span className="text-sm font-semibold text-stone-950">
                     {convertAndFormatPrice(pack.price, 'EUR')}
                   </span>
                 </button>
@@ -640,48 +553,33 @@ export default function ProductDetailPage() {
       )}
 
       {/* ── Quantity Selector ── */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '14px 16px', borderTop: '1px solid var(--color-border)',
-      }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+      <div className="flex items-center justify-between border-t border-stone-200 px-4 py-3.5">
+        <span className="text-sm font-semibold text-stone-950">
           {t('productDetail.quantity', 'Cantidad')}
         </span>
-        <div style={{
-          display: 'flex', alignItems: 'center',
-          border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)',
-        }}>
+        <div className="flex items-center rounded-xl border border-stone-200">
           <button
+            type="button"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             disabled={isOutOfStock}
             aria-label="Reducir cantidad"
-            style={{
-              width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'none', border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-              color: 'var(--color-stone)',
-            }}
+            className="flex h-11 w-11 items-center justify-center text-stone-500 disabled:cursor-not-allowed"
           >
             <Minus size={16} />
           </button>
           <span
             aria-live="polite"
             aria-label={`Cantidad: ${quantity}`}
-            style={{
-              minWidth: 36, textAlign: 'center', fontSize: 14, fontWeight: 600,
-              color: 'var(--color-black)', fontFamily: 'var(--font-sans)',
-            }}
+            className="min-w-[36px] text-center text-sm font-semibold text-stone-950"
           >
             {quantity}
           </span>
           <button
+            type="button"
             onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
             disabled={isOutOfStock}
             aria-label="Aumentar cantidad"
-            style={{
-              width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'none', border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-              color: 'var(--color-stone)',
-            }}
+            className="flex h-11 w-11 items-center justify-center text-stone-500 disabled:cursor-not-allowed"
           >
             <Plus size={16} />
           </button>
@@ -692,63 +590,45 @@ export default function ProductDetailPage() {
       {storeInfo && (
         <Link
           to={storeSlug ? `/store/${storeSlug}` : '/stores'}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 12,
-            padding: '14px 16px', textDecoration: 'none',
-            borderTop: '1px solid var(--color-border)',
-          }}
+          className="flex items-center gap-3 border-t border-stone-200 px-4 py-3.5 no-underline"
         >
-          <div style={{
-            width: 48, height: 48, borderRadius: '50%', overflow: 'hidden',
-            background: 'var(--color-surface)', border: '1px solid var(--color-border)',
-            flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-stone-200 bg-stone-100">
             {storeInfo.logo ? (
-              <img src={storeInfo.logo} alt={storeInfo.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={storeInfo.logo} alt={storeInfo.name} className="h-full w-full object-cover" />
             ) : (
-              <Store size={20} color="var(--color-stone)" />
+              <Store size={20} className="text-stone-500" />
             )}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{
-              fontSize: 14, fontWeight: 600, color: 'var(--color-black)',
-              fontFamily: 'var(--font-sans)', margin: 0,
-            }}>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-stone-950">
               {storeInfo.name}
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+            <div className="mt-0.5 flex items-center gap-2">
               {storeInfo.location && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+                <span className="flex items-center gap-1 text-xs text-stone-500">
                   <MapPin size={11} /> {storeInfo.location}
                 </span>
               )}
-              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
-                <Star size={11} fill="var(--color-stone)" stroke="var(--color-stone)" />
+              <span className="flex items-center gap-1 text-xs text-stone-500">
+                <Star size={11} className="fill-stone-500 text-stone-500" />
                 {Number.isFinite(normalizedStoreRating) ? normalizedStoreRating.toFixed(1) : '—'}
               </span>
-              <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+              <span className="text-xs text-stone-500">
                 {storeInfo.product_count || 0} productos
               </span>
             </div>
           </div>
-          <ChevronRight size={18} color="var(--color-stone)" />
+          <ChevronRight size={18} className="text-stone-500" />
         </Link>
       )}
 
       {/* Ask producer */}
       {product.producer_id && (
-        <div style={{ padding: '0 16px 12px' }}>
+        <div className="px-4 pb-3">
           <button
             type="button"
             onClick={handleAskProducer}
-            className="hover:underline"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              fontSize: 13, fontWeight: 500, color: 'var(--color-black)',
-              fontFamily: 'var(--font-sans)',
-              background: 'none', border: 'none', cursor: 'pointer',
-              padding: '8px 0', textDecoration: 'none',
-            }}
+            className="inline-flex items-center gap-1.5 py-2 text-[13px] font-medium text-stone-950 hover:underline"
           >
             <MessageCircle size={14} /> Preguntar al productor
           </button>
@@ -756,42 +636,35 @@ export default function ProductDetailPage() {
       )}
 
       {/* ── Collapsible Sections ── */}
-      <div style={{ background: 'var(--color-white, #fff)', borderTop: '1px solid var(--color-border)' }}>
+      <div className="border-t border-stone-200 bg-white">
         {/* Description */}
         <CollapsibleSection title={t('productDetail.description', 'Descripción')} defaultOpen>
-          <p style={{
-            fontSize: 13, lineHeight: 1.6, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0,
-            ...(!descExpanded && product.description?.length > 200 ? {
-              display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-            } : {}),
-          }}>
+          <p className={`text-[13px] leading-relaxed text-stone-500 ${
+            !descExpanded && product.description?.length > 200 ? 'line-clamp-4' : ''
+          }`}>
             {product.description}
           </p>
           {product.description?.length > 200 && (
             <button
               type="button"
               onClick={() => setDescExpanded((v) => !v)}
-              style={{
-                background: 'none', border: 'none', padding: 0, marginTop: 6,
-                fontSize: 13, fontWeight: 600, color: 'var(--color-black)',
-                fontFamily: 'var(--font-sans)', cursor: 'pointer',
-              }}
+              className="mt-1 py-2 text-[13px] font-semibold text-stone-950"
             >
               {descExpanded ? t('common.showLess', 'Ver menos') : t('common.showMore', 'Ver más')}
             </button>
           )}
           {/* Details */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
+          <div className="mt-3.5 grid grid-cols-2 gap-3">
             {product.country_origin && (
               <div>
-                <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>{t('productDetail.origin', 'Origen')}</span>
-                <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>{product.country_origin}</p>
+                <span className="text-[11px] text-stone-500">{t('productDetail.origin', 'Origen')}</span>
+                <p className="mt-0.5 text-[13px] font-medium text-stone-950">{product.country_origin}</p>
               </div>
             )}
             {product.category_id && (
               <div>
-                <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>{t('productDetail.category', 'Categoría')}</span>
-                <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '2px 0 0', textTransform: 'capitalize' }}>
+                <span className="text-[11px] text-stone-500">{t('productDetail.category', 'Categoría')}</span>
+                <p className="mt-0.5 text-[13px] font-medium capitalize text-stone-950">
                   {product.category_id.replace('cat_', '').replace(/-/g, ' ')}
                 </p>
               </div>
@@ -801,15 +674,10 @@ export default function ProductDetailPage() {
 
         {/* Ingredients */}
         {currentIngredients?.length > 0 && (
-          <CollapsibleSection title={t('productDetail.ingredients', 'Ingredientes')} icon={<Leaf size={16} color="var(--color-stone)" />}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <CollapsibleSection title={t('productDetail.ingredients', 'Ingredientes')} icon={<Leaf size={16} className="text-stone-500" />}>
+            <div className="flex flex-wrap gap-1.5">
               {currentIngredients.map((ingredient, idx) => (
-                <span key={idx} style={{
-                  fontSize: 12, padding: '4px 10px',
-                  borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-surface)', color: 'var(--color-black)',
-                  fontFamily: 'var(--font-sans)',
-                }}>
+                <span key={idx} className="rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-950">
                   {typeof ingredient === 'object' ? stripEmoji(ingredient.name) : stripEmoji(ingredient)}
                 </span>
               ))}
@@ -820,10 +688,10 @@ export default function ProductDetailPage() {
         {/* Nutritional Info */}
         {currentNutritionalInfo && Object.keys(currentNutritionalInfo).length > 0 && (
           <CollapsibleSection title={t('productDetail.nutritionalInfo', 'Info Nutricional')}>
-            <p style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginBottom: 10 }}>
+            <p className="mb-2.5 text-[11px] text-stone-500">
               {t('productDetail.per100g', 'Por 100g')}
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {[
                 ['calories', t('certificate.calories', 'Calorías'), ''],
                 ['protein', t('certificate.protein', 'Proteínas'), 'g'],
@@ -835,14 +703,11 @@ export default function ProductDetailPage() {
                 ['sodium', t('certificate.sodium', 'Sodio'), 'mg'],
                 ['salt', t('certificate.salt', 'Sal'), 'g'],
               ].filter(([key]) => currentNutritionalInfo[key] !== undefined).map(([key, label, unit]) => (
-                <div key={key} style={{
-                  background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
-                  padding: '8px', textAlign: 'center',
-                }}>
-                  <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                <div key={key} className="rounded-xl bg-stone-100 p-2 text-center">
+                  <p className="text-base font-semibold text-stone-950">
                     {currentNutritionalInfo[key]}{unit}
                   </p>
-                  <p style={{ fontSize: 10, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>{label}</p>
+                  <p className="mt-0.5 text-[10px] text-stone-500">{label}</p>
                 </div>
               ))}
             </div>
@@ -851,15 +716,10 @@ export default function ProductDetailPage() {
 
         {/* Allergens */}
         {currentAllergens?.length > 0 && (
-          <CollapsibleSection title={t('productDetail.allergens', 'Alérgenos')} icon={<AlertTriangle size={16} color="var(--color-stone)" />}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <CollapsibleSection title={t('productDetail.allergens', 'Alérgenos')} icon={<AlertTriangle size={16} className="text-stone-500" />}>
+            <div className="flex flex-wrap gap-1.5">
               {currentAllergens.map((allergen, idx) => (
-                <span key={idx} style={{
-                  fontSize: 12, fontWeight: 500, padding: '4px 10px',
-                  borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-surface)', color: 'var(--color-black)',
-                  fontFamily: 'var(--font-sans)',
-                }}>
+                <span key={idx} className="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-950">
                   {allergen}
                 </span>
               ))}
@@ -871,43 +731,35 @@ export default function ProductDetailPage() {
         {certificate && (
           <Link
             to={`/certificate/${productId}`}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '14px 16px', textDecoration: 'none',
-              borderBottom: '1px solid var(--color-border)',
-            }}
+            className="flex items-center justify-between border-b border-stone-200 px-4 py-3.5 no-underline"
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <FileCheck size={18} color="var(--color-black)" />
+            <div className="flex items-center gap-2.5">
+              <FileCheck size={18} className="text-stone-950" />
               <div>
-                <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                <p className="text-sm font-semibold text-stone-950">
                   {t('productDetail.viewCertificate', 'Ver certificado')}
                 </p>
-                <p style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>
+                <p className="mt-0.5 text-xs text-stone-500">
                   {t('productDetail.verifiedProduct', 'Producto verificado')}
                 </p>
               </div>
             </div>
-            <ChevronRight size={18} color="var(--color-stone)" />
+            <ChevronRight size={18} className="text-stone-500" />
           </Link>
         )}
       </div>
 
       {/* ── Reviews Preview ── */}
-      <div style={{ padding: '20px 16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+      <div className="px-4 py-5">
+        <div className="mb-3.5 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-stone-950">
             {t('productDetail.customerReviews', 'Reseñas')} ({totalReviews})
           </h2>
           {canReview && !showReviewForm && (
             <button
-              type="button" onClick={() => setShowReviewForm(true)}
-              style={{
-                fontSize: 13, fontWeight: 500, color: 'var(--color-black)',
-                background: 'none', border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-full)', padding: '6px 14px',
-                cursor: 'pointer', fontFamily: 'var(--font-sans)',
-              }}
+              type="button"
+              onClick={() => setShowReviewForm(true)}
+              className="min-h-[44px] rounded-full border border-stone-200 px-3.5 py-2.5 text-[13px] font-medium text-stone-950"
             >
               {t('productDetail.writeReview', 'Escribir reseña')}
             </button>
@@ -916,27 +768,24 @@ export default function ProductDetailPage() {
 
         {/* Review Form */}
         {showReviewForm && (
-          <div style={{
-            background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)', padding: 16, marginBottom: 16,
-          }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', marginBottom: 12 }}>
+          <div className="mb-4 rounded-xl border border-stone-200 bg-white p-4">
+            <p className="mb-3 text-sm font-semibold text-stone-950">
               {t('productDetail.yourReview', 'Tu reseña')}
             </p>
-            <div role="radiogroup" aria-label="Puntuación" style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+            <div role="radiogroup" aria-label="Puntuación" className="mb-3 flex gap-1">
               {[1,2,3,4,5,6,7,8,9,10].map((num) => (
                 <button
-                  key={num} onClick={() => setReviewRating(num)}
+                  key={num}
+                  type="button"
+                  onClick={() => setReviewRating(num)}
                   role="radio"
                   aria-checked={num === reviewRating}
                   aria-label={`${num} de 10`}
-                  style={{
-                    width: 30, height: 30, borderRadius: '50%',
-                    fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)',
-                    background: num <= reviewRating ? 'var(--color-black)' : 'var(--color-surface)',
-                    color: num <= reviewRating ? '#fff' : 'var(--color-stone)',
-                    border: 'none', cursor: 'pointer',
-                  }}
+                  className={`flex h-[30px] w-[30px] items-center justify-center rounded-full text-xs font-semibold ${
+                    num <= reviewRating
+                      ? 'bg-stone-950 text-white'
+                      : 'bg-stone-100 text-stone-500'
+                  }`}
                 >
                   {num}
                 </button>
@@ -948,33 +797,21 @@ export default function ProductDetailPage() {
               placeholder={t('productDetail.reviewPlaceholder', 'Comparte tu experiencia...')}
               aria-label="Comentario de la reseña"
               rows={3}
-              style={{
-                width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)', fontSize: 13, fontFamily: 'var(--font-sans)',
-                color: 'var(--color-black)', resize: 'none', outline: 'none',
-                background: 'var(--color-surface)',
-              }}
+              className="w-full resize-none rounded-xl border border-stone-200 bg-stone-100 px-3 py-2.5 text-[13px] text-stone-950 outline-none"
             />
-            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+            <div className="mt-3 flex gap-2">
               <button
-                onClick={handleSubmitReview} disabled={submittingReview}
-                style={{
-                  background: 'var(--color-black)', color: '#fff', border: 'none',
-                  borderRadius: 'var(--radius-md)', padding: '8px 20px',
-                  fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
-                  cursor: 'pointer', opacity: submittingReview ? 0.5 : 1,
-                }}
+                type="button"
+                onClick={handleSubmitReview}
+                disabled={submittingReview}
+                className="min-h-[44px] rounded-xl bg-stone-950 px-5 py-2 text-[13px] font-semibold text-white disabled:opacity-50"
               >
                 {submittingReview ? 'Enviando...' : t('productDetail.submitReview', 'Enviar')}
               </button>
               <button
+                type="button"
                 onClick={() => setShowReviewForm(false)}
-                style={{
-                  background: 'none', color: 'var(--color-stone)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-md)', padding: '8px 20px',
-                  fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer',
-                }}
+                className="min-h-[44px] rounded-xl border border-stone-200 px-5 py-2 text-[13px] font-medium text-stone-500"
               >
                 {t('common.cancel', 'Cancelar')}
               </button>
@@ -984,57 +821,42 @@ export default function ProductDetailPage() {
 
         {/* Reviews List */}
         {reviews.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="flex flex-col gap-2.5">
             {reviews.slice(0, 3).map((review) => (
-              <div key={review.review_id || `${review.user_id}-${review.created_at}`} style={{
-                background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)', padding: 14,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{
-                      width: 32, height: 32, borderRadius: '50%',
-                      background: 'var(--color-surface)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <User size={16} color="var(--color-stone)" />
+              <div key={review.review_id || `${review.user_id}-${review.created_at}`} className="rounded-xl border border-stone-200 bg-white p-3.5">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100">
+                      <User size={16} className="text-stone-500" />
                     </div>
                     <div>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                      <p className="text-[13px] font-semibold text-stone-950">
                         {review.user_name || 'Cliente'}
                       </p>
                       {review.verified_purchase && (
-                        <p style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                        <p className="flex items-center gap-1 text-[11px] text-stone-500">
                           <CheckCircle size={10} /> Compra verificada
                         </p>
                       )}
                     </div>
                   </div>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 4,
-                    background: 'var(--color-surface)', borderRadius: 'var(--radius-full)',
-                    padding: '3px 8px',
-                  }}>
-                    <Star size={12} fill="var(--color-black)" stroke="var(--color-black)" />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+                  <div className="flex items-center gap-1 rounded-full bg-stone-100 px-2 py-0.5">
+                    <Star size={12} className="fill-stone-950 text-stone-950" />
+                    <span className="text-xs font-semibold text-stone-950">
                       {review.rating}
                     </span>
                   </div>
                 </div>
-                <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', lineHeight: 1.5, margin: 0 }}>
+                <p className="text-[13px] leading-relaxed text-stone-500">
                   {review.comment}
                 </p>
               </div>
             ))}
           </div>
         ) : (
-          <div style={{
-            textAlign: 'center', padding: '32px 16px',
-            background: 'var(--color-white, #fff)', borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-          }}>
-            <Star size={32} color="var(--color-border)" style={{ margin: '0 auto 12px' }} />
-            <p style={{ fontSize: 14, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
+          <div className="rounded-xl border border-stone-200 bg-white p-8 text-center">
+            <Star size={32} className="mx-auto mb-3 text-stone-200" />
+            <p className="text-sm text-stone-500">
               {t('productDetail.noReviews', 'Aún no hay reseñas')}
             </p>
           </div>
@@ -1044,34 +866,26 @@ export default function ProductDetailPage() {
       {/* ── B2B Wholesale Card — only for product owner (producer/importer) ── */}
       {user && (user.role === 'producer' || user.role === 'importer') &&
         (user.user_id === product.seller_id || user.id === product.seller_id) && (
-        <div style={{ padding: '0 16px 16px' }}>
-          <div style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-xl)',
-            padding: 16,
-          }}>
-            <p style={{
-              fontSize: 15, fontWeight: 600, color: 'var(--color-black)',
-              fontFamily: 'var(--font-sans)', margin: '0 0 4px',
-            }}>
-              📋 Oferta mayorista
+        <div className="px-4 pb-4">
+          <div className="rounded-2xl border border-stone-200 bg-stone-100 p-4">
+            <p className="mb-1 text-[15px] font-semibold text-stone-950">
+              Oferta mayorista
             </p>
             {product.b2b_enabled ? (
               <>
-                <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap' }}>
+                <div className="mt-2 flex flex-wrap gap-4">
                   {product.b2b_settings?.wholesale_price && (
                     <div>
-                      <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>Precio mayorista</span>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>
-                        {product.b2b_settings.wholesale_price}€ / ud
+                      <span className="text-[11px] text-stone-500">Precio mayorista</span>
+                      <p className="mt-0.5 text-sm font-semibold text-stone-950">
+                        {convertAndFormatPrice(product.b2b_settings.wholesale_price, product.currency || 'EUR')} / ud
                       </p>
                     </div>
                   )}
                   {product.b2b_settings?.moq && (
                     <div>
-                      <span style={{ fontSize: 11, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>MOQ</span>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: '2px 0 0' }}>
+                      <span className="text-[11px] text-stone-500">MOQ</span>
+                      <p className="mt-0.5 text-sm font-semibold text-stone-950">
                         {product.b2b_settings.moq} unidades
                       </p>
                     </div>
@@ -1080,32 +894,20 @@ export default function ProductDetailPage() {
                 <button
                   type="button"
                   onClick={() => setShowB2BModal(true)}
-                  style={{
-                    marginTop: 12, padding: '8px 20px',
-                    background: 'var(--color-black)', color: '#fff',
-                    border: 'none', borderRadius: 'var(--radius-full)',
-                    fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
-                    cursor: 'pointer',
-                  }}
+                  className="mt-3 rounded-full bg-stone-950 px-5 py-2 text-[13px] font-semibold text-white"
                 >
                   Editar condiciones
                 </button>
               </>
             ) : (
               <>
-                <p style={{ fontSize: 13, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', margin: '4px 0 12px' }}>
+                <p className="my-1 mb-3 text-[13px] text-stone-500">
                   Añade este producto al catálogo B2B para recibir pedidos mayoristas.
                 </p>
                 <button
                   type="button"
                   onClick={() => setShowB2BModal(true)}
-                  style={{
-                    padding: '8px 20px',
-                    background: 'var(--color-black)', color: '#fff',
-                    border: 'none', borderRadius: 'var(--radius-full)',
-                    fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)',
-                    cursor: 'pointer',
-                  }}
+                  className="rounded-full bg-stone-950 px-5 py-2 text-[13px] font-semibold text-white"
                 >
                   Añadir al catálogo B2B
                 </button>
@@ -1125,18 +927,11 @@ export default function ProductDetailPage() {
 
       {/* ── Related Products ── */}
       {relatedProducts.length > 0 && (
-        <div style={{ padding: '20px 0' }}>
-          <h2 style={{
-            fontSize: 16, fontWeight: 600, color: 'var(--color-black)',
-            fontFamily: 'var(--font-sans)', margin: '0 0 14px 16px',
-          }}>
+        <div className="py-5">
+          <h2 className="mb-3.5 ml-4 text-base font-semibold text-stone-950">
             {t('productDetail.relatedProducts', 'Productos relacionados')}
           </h2>
-          <div style={{
-            display: 'flex', gap: 12, overflowX: 'auto',
-            scrollSnapType: 'x mandatory', scrollbarWidth: 'none',
-            padding: '0 16px',
-          }}>
+          <div className="flex gap-3 overflow-x-auto px-4 [scroll-snap-type:x_mandatory] [scrollbar-width:none]">
             {relatedProducts.map((rp) => {
               const rpId = rp.product_id || rp.id;
               const rpImage = rp.images?.[0] || rp.image_url || null;
@@ -1144,31 +939,21 @@ export default function ProductDetailPage() {
                 <Link
                   key={rpId}
                   to={`/products/${rpId}`}
-                  style={{
-                    flex: '0 0 140px', scrollSnapAlign: 'start',
-                    textDecoration: 'none', color: 'inherit',
-                  }}
+                  className="w-[140px] shrink-0 [scroll-snap-align:start] no-underline"
                 >
-                  <div style={{
-                    width: 140, height: 140, borderRadius: 'var(--radius-md)',
-                    overflow: 'hidden', background: 'var(--color-surface)',
-                  }}>
+                  <div className="h-[140px] w-[140px] overflow-hidden rounded-xl bg-stone-100">
                     {rpImage ? (
                       <ProductImage src={rpImage} productName={rp.name} className="h-full w-full" imageClassName="" sizes="140px" />
                     ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Package size={24} color="var(--color-border)" />
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Package size={24} className="text-stone-200" />
                       </div>
                     )}
                   </div>
-                  <p style={{
-                    fontSize: 12, fontWeight: 500, color: 'var(--color-black)',
-                    fontFamily: 'var(--font-sans)', margin: '6px 0 2px',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
+                  <p className="mt-1.5 truncate text-xs font-medium text-stone-950">
                     {rp.name}
                   </p>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)', margin: 0 }}>
+                  <p className="text-[13px] font-bold text-stone-950">
                     {convertAndFormatPrice(rp.price, rp.currency || 'EUR')}
                   </p>
                 </Link>
@@ -1178,50 +963,37 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {/* ── Sticky Bottom Bar — add-to-cart with green animation ── */}
-      <div
-        style={{
-          position: 'fixed', bottom: 'calc(50px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0, zIndex: 40,
-          background: 'var(--color-white, #fff)',
-          borderTop: '1px solid var(--color-border)',
-          padding: '12px 16px',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      {/* ── Sticky Bottom Bar ── */}
+      <div className="fixed bottom-[calc(50px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-40 border-t border-stone-200 bg-white px-4 py-3">
+        <div className="flex items-center gap-3">
           {/* Price */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
+          <div className="min-w-0 flex-1">
+            <span className="text-lg font-bold text-stone-950">
               {totalPrice}
             </span>
             {quantity > 1 && (
-              <span style={{ fontSize: 12, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', marginLeft: 4 }}>
+              <span className="ml-1 text-xs text-stone-500">
                 × {quantity}
               </span>
             )}
           </div>
 
-          {/* Add to Cart — green flash on success */}
+          {/* Add to Cart */}
           <motion.button
             type="button"
             onClick={handleAddToCart}
             disabled={isOutOfStock}
             animate={{
               background: addedToCart
-                ? 'var(--color-black, #0c0a09)'
+                ? '#0c0a09'
                 : isOutOfStock
-                  ? 'var(--color-surface, #f5f5f4)'
-                  : 'var(--color-black, #0c0a09)',
+                  ? '#f5f5f4'
+                  : '#0c0a09',
             }}
             transition={{ duration: 0.3 }}
-            style={{
-              height: 44,
-              borderRadius: 'var(--radius-full)',
-              padding: '0 28px',
-              fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)',
-              border: 'none', cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-              color: isOutOfStock ? 'var(--color-stone)' : '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            }}
+            className={`flex h-11 items-center justify-center gap-2 rounded-full px-7 text-sm font-semibold ${
+              isOutOfStock ? 'cursor-not-allowed text-stone-500' : 'text-white'
+            }`}
             data-testid="mobile-buy-button"
           >
             {addedToCart ? (

@@ -12,27 +12,33 @@ import {
   VolumeX,
 } from 'lucide-react';
 
-const formatPrice = (price) =>
-  new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
-    price
-  );
+const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+const formatPrice = (price) => priceFormatter.format(price);
 
 export default function ReelCard({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false }) {
   const navigate = useNavigate();
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const playIconTimer = useRef(null);
+  const lastTapRef = useRef(0);
+  const singleTapTimer = useRef(null);
 
   const [liked, setLiked] = useState(reel.liked ?? reel.is_liked ?? false);
   const [likesCount, setLikesCount] = useState(reel.likes ?? reel.likes_count ?? 0);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
   const [showPlayIcon, setShowPlayIcon] = useState(false);
+  const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
   const [progress, setProgress] = useState(0);
+  const doubleTapHeartTimer = useRef(null);
 
-  // Clean up play icon timer on unmount
+  // Clean up timers on unmount
   useEffect(() => {
-    return () => clearTimeout(playIconTimer.current);
+    return () => {
+      clearTimeout(playIconTimer.current);
+      clearTimeout(singleTapTimer.current);
+      clearTimeout(doubleTapHeartTimer.current);
+    };
   }, []);
 
   // IntersectionObserver auto play/pause
@@ -128,6 +134,29 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     onLike?.(reel.id, next);
   }, [liked, reel.id, onLike]);
 
+  // Single tap = play/pause (250ms debounce), double-tap = like
+  const handleVideoTap = useCallback(() => {
+    const now = Date.now();
+    const isDoubleTap = now - lastTapRef.current < 300;
+    lastTapRef.current = now;
+
+    if (isDoubleTap) {
+      clearTimeout(singleTapTimer.current);
+      if (!liked) {
+        setLiked(true);
+        setLikesCount((c) => c + 1);
+        onLike?.(reel.id, true);
+      }
+      setShowDoubleTapHeart(true);
+      clearTimeout(doubleTapHeartTimer.current);
+      doubleTapHeartTimer.current = setTimeout(() => setShowDoubleTapHeart(false), 800);
+    } else {
+      singleTapTimer.current = setTimeout(() => {
+        togglePlay();
+      }, 250);
+    }
+  }, [liked, reel.id, onLike, togglePlay]);
+
   const videoUrl = reel.video_url || reel.videoUrl;
   const thumbnailUrl = reel.thumbnail_url || reel.thumbnail;
   const avatarUrl = reel.user?.avatar_url || reel.user?.avatar || reel.user?.profile_image;
@@ -151,7 +180,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         playsInline
         muted={muted}
         preload={priority ? 'auto' : 'none'}
-        onClick={togglePlay}
+        onClick={handleVideoTap}
         aria-label={playing ? 'Pausar vídeo' : 'Reproducir vídeo'}
       />
 
@@ -170,13 +199,29 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         )}
       </div>
 
+      {/* Stable keyframe — always present to avoid DOM thrashing */}
+      <style>{`@keyframes heartPop { 0% { transform: scale(0); opacity: 1; } 30% { transform: scale(1.2); } 50% { transform: scale(0.95); } 70% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }`}</style>
+
+      {/* Double-tap heart */}
+      {showDoubleTapHeart && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[5] motion-reduce:hidden">
+          <Heart
+            size={80}
+            className="text-white fill-white"
+            style={{
+              animation: 'heartPop 0.8s ease-out forwards',
+            }}
+          />
+        </div>
+      )}
+
       {/* Gradient */}
       <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent pointer-events-none" />
 
       {/* Mute toggle */}
       <button
         onClick={toggleMute}
-        className="absolute top-4 right-4 z-10 w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
+        className="absolute top-[max(1rem,env(safe-area-inset-top))] right-4 z-10 w-11 h-11 rounded-full bg-black/40 flex items-center justify-center"
         aria-label={muted ? 'Activar sonido' : 'Silenciar'}
       >
         {muted ? (
@@ -194,15 +239,17 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       >
         {/* Avatar + follow */}
         <div className="relative flex flex-col items-center">
-          <img
-            src={avatarUrl || ''}
-            alt={reel.user?.name || 'Usuario'}
-            className="w-10 h-10 rounded-full object-cover border-2 border-white bg-stone-800"
-            onError={(e) => {
-              e.currentTarget.src = '';
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={reel.user?.name || 'Usuario'}
+              className="w-10 h-10 rounded-full object-cover border-2 border-white bg-stone-800"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full border-2 border-white bg-stone-800 flex items-center justify-center text-sm font-bold text-white">
+              {(reel.user?.name || '?')[0].toUpperCase()}
+            </div>
+          )}
           <button
             className="absolute -bottom-3 w-11 h-11 rounded-full bg-transparent border-none flex items-center justify-center"
             aria-label="Seguir"
@@ -215,9 +262,9 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
         {/* Like */}
         <button
-          className="flex flex-col items-center gap-1 bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
+          className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
           onClick={handleLike}
-          aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
+          aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
           aria-pressed={liked}
         >
           <Heart
@@ -229,7 +276,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
         {/* Comment */}
         <button
-          className="flex flex-col items-center gap-1 bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
+          className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
           onClick={() => onComment?.(reel.id)}
           aria-label="Comentar"
         >
@@ -239,7 +286,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
         {/* Share */}
         <button
-          className="flex flex-col items-center gap-1 bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
+          className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
           onClick={() => onShare?.(reel.id)}
           aria-label="Compartir"
         >
@@ -248,7 +295,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
 
         {/* Bookmark */}
         <button
-          className="flex flex-col items-center gap-1 bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
+          className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
           aria-label="Guardar"
         >
           <Bookmark size={28} className="text-white" />
@@ -263,9 +310,13 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
             : product ? 'bottom-[76px]' : 'bottom-20'
         }`}
       >
-        <div className="text-[15px] font-semibold text-white font-sans mb-1.5">
+        <button
+          className="text-[15px] font-semibold text-white font-sans mb-1.5 bg-transparent border-none p-0 cursor-pointer text-left"
+          onClick={() => reel.user?.id && navigate(`/profile/${reel.user.id}`)}
+          aria-label={`Ver perfil de ${reel.user?.name || 'usuario'}`}
+        >
           {reel.user?.name}
-        </div>
+        </button>
         {reel.caption && (
           <div className="text-[13px] text-white/85 font-sans line-clamp-2 leading-[1.4] mb-1.5">
             {reel.caption}
@@ -285,7 +336,8 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
             <img
               src={product.image || product.thumbnail}
               alt={product.name || product.title}
-              className="w-9 h-9 rounded-lg object-cover shrink-0"
+              className="w-9 h-9 rounded-lg object-cover shrink-0 bg-stone-700"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           )}
           <div className="flex-1 mx-2.5 min-w-0">
@@ -310,8 +362,8 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
       {/* Progress bar */}
       <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/20 z-[3]">
         <div
-          className="h-full bg-white/80 transition-[width] duration-200 ease-linear"
-          style={{ width: `${progress * 100}%` }}
+          className="h-full w-full bg-white/80 origin-left"
+          style={{ transform: `scaleX(${progress})` }}
         />
       </div>
     </div>

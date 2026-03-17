@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Search, ChevronRight, Users, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, ChevronRight, Users, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
@@ -17,6 +17,9 @@ const FILTERS = [
   { id: 'diet',      label: 'Dieta' },
   { id: 'local',     label: 'Local' },
 ];
+
+const STONE_BG = ['bg-stone-300','bg-stone-400','bg-stone-500','bg-stone-600','bg-stone-700'];
+function stoneBg(name) { return STONE_BG[((name || 'C').charCodeAt(0)) % 5]; }
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value);
@@ -49,124 +52,75 @@ export default function CommunitiesExplorePage() {
   const communities = data?.communities || [];
   const myCommunities = myData?.communities || [];
 
-  const font = { fontFamily: 'var(--font-sans)' };
-
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div className="min-h-screen bg-stone-50">
       {/* ── Topbar ── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '12px 16px',
-      }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
-          aria-label="Volver"
-        >
-          <ArrowLeft size={22} color="var(--color-black)" />
+      <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
+        <button onClick={() => navigate(-1)} className="flex p-1" aria-label="Volver">
+          <ArrowLeft size={22} className="text-stone-950" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1 }}>Comunidades</span>
+        <span className="flex-1 text-[17px] font-bold text-stone-950">Comunidades</span>
         {canCreate && (
-          <Link to="/communities/new" style={{
-            padding: '6px 14px', borderRadius: 'var(--radius-full, 999px)',
-            background: 'var(--color-black)', color: 'var(--color-white)',
-            fontSize: 13, fontWeight: 600, textDecoration: 'none',
-          }}>
+          <Link to="/communities/new" className="rounded-full bg-stone-950 px-3.5 py-1.5 text-[13px] font-semibold text-white no-underline">
             + Crear
           </Link>
         )}
       </div>
 
       {/* ── Search ── */}
-      <div role="search" aria-label="Buscar comunidades" style={{ padding: '12px 16px 0', maxWidth: 600, margin: '0 auto' }}>
-        <div style={{ position: 'relative' }}>
-          <Search size={18} color="var(--color-stone)"
-            style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+      <div role="search" aria-label="Buscar comunidades" className="mx-auto max-w-[600px] px-4 pt-3">
+        <div className="relative">
+          <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
           <input
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
             placeholder="Buscar comunidades..."
-            style={{
-              width: '100%', height: 44, paddingLeft: 42,
-              paddingRight: searchInput ? 36 : 14,
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-full, 999px)',
-              background: 'var(--color-white)',
-              fontSize: 14, color: 'var(--color-black)',
-              outline: 'none', boxSizing: 'border-box', ...font,
-            }}
+            className="h-11 w-full rounded-full border border-stone-200 bg-white py-0 pl-10 pr-3.5 text-sm text-stone-950 outline-none"
           />
           {searchInput && (
-            <button onClick={() => setSearchInput('')}
-              style={{
-                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
-                borderRadius: '50%', width: 22, height: 22,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
+            <button
+              onClick={() => setSearchInput('')}
+              className="absolute right-3 top-1/2 flex h-5.5 w-5.5 -translate-y-1/2 items-center justify-center rounded-full bg-stone-100"
               aria-label="Limpiar búsqueda"
             >
-              <X size={13} color="var(--color-stone)" />
+              <X size={13} className="text-stone-500" />
             </button>
           )}
         </div>
       </div>
 
       {/* ── Filter Pills ── */}
-      <div style={{
-        display: 'flex', gap: 8, padding: '12px 16px',
-        overflowX: 'auto', maxWidth: 600, margin: '0 auto',
-        WebkitOverflowScrolling: 'touch',
-        msOverflowStyle: 'none', scrollbarWidth: 'none',
-      }}>
+      <div className="mx-auto flex max-w-[600px] gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
         {FILTERS.map(f => {
           const active = filter === f.id;
           return (
-            <button key={f.id} onClick={() => setFilter(f.id)}
-              style={{
-                flexShrink: 0,
-                padding: '7px 16px',
-                borderRadius: 'var(--radius-full, 999px)',
-                border: active ? '1px solid var(--color-black)' : '1px solid var(--color-border)',
-                background: active ? 'var(--color-black)' : 'var(--color-white)',
-                color: active ? 'var(--color-white)' : 'var(--color-black)',
-                fontSize: 13, fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'var(--transition-fast)',
-                whiteSpace: 'nowrap', ...font,
-              }}>
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors ${
+                active
+                  ? 'border-stone-950 bg-stone-950 text-white'
+                  : 'border-stone-200 bg-white text-stone-950'
+              }`}
+            >
               {f.label}
             </button>
           );
         })}
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px 100px' }}>
+      <div className="mx-auto max-w-[600px] px-4 pb-24">
 
         {/* ── Mis comunidades (horizontal scroll) ── */}
         {user && myCommunities.length > 0 && filter !== 'joined' && !searchInput && (
-          <section style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: 0, letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-                Mis comunidades
-              </h2>
-              <button onClick={() => setFilter('joined')}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: 13, fontWeight: 600, color: 'var(--color-stone)',
-                  display: 'flex', alignItems: 'center', gap: 2, ...font,
-                }}>
+          <section className="mb-6">
+            <div className="mb-2.5 flex items-center justify-between">
+              <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">Mis comunidades</h2>
+              <button onClick={() => setFilter('joined')} className="flex items-center gap-0.5 text-[13px] font-semibold text-stone-500">
                 Ver todas <ChevronRight size={14} />
               </button>
             </div>
-            <div style={{
-              display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4,
-              WebkitOverflowScrolling: 'touch',
-              msOverflowStyle: 'none', scrollbarWidth: 'none',
-            }}>
+            <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
               {myCommunities.slice(0, 8).map(c => (
                 <MyCommunityPill key={c.id || c._id} community={c} />
               ))}
@@ -176,17 +130,15 @@ export default function CommunitiesExplorePage() {
 
         {/* ── "Mis comunidades" full list (when filter=joined) ── */}
         {filter === 'joined' && (
-          <section style={{ marginBottom: 20 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, color: 'var(--color-black)', margin: '0 0 10px', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-              Mis comunidades
-            </h2>
+          <section className="mb-5">
+            <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Mis comunidades</h2>
             {myCommunities.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-stone)' }}>
-                <Users size={48} color="var(--color-stone)" strokeWidth={1} />
-                <p style={{ fontSize: 15, marginTop: 12 }}>No te has unido a ninguna comunidad</p>
+              <div className="py-10 text-center text-stone-500">
+                <Users size={48} className="mx-auto text-stone-500" strokeWidth={1} />
+                <p className="mt-3 text-[15px]">No te has unido a ninguna comunidad</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="flex flex-col gap-2">
                 {myCommunities.map(c => (
                   <CommunityRow key={c.id || c._id} community={c} />
                 ))}
@@ -197,12 +149,12 @@ export default function CommunitiesExplorePage() {
 
         {/* ── Section label ── */}
         {filter !== 'joined' && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: 0, letterSpacing: '0.03em', textTransform: 'uppercase' }}>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-base font-bold uppercase tracking-wide text-stone-950">
               {filter === 'popular' ? 'Comunidades populares' : 'Comunidades'}
             </h2>
             {!isLoading && (
-              <span style={{ fontSize: 12, color: 'var(--color-stone)' }}>{communities.length} resultados</span>
+              <span className="text-xs text-stone-500">{communities.length} resultados</span>
             )}
           </div>
         )}
@@ -210,36 +162,25 @@ export default function CommunitiesExplorePage() {
         {/* ── Grid ── */}
         {filter !== 'joined' && (
           isLoading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
+            <div className="grid grid-cols-2 gap-2.5">
               {Array(6).fill(0).map((_, i) => (
-                <div key={i} style={{
-                  height: 200, borderRadius: 'var(--radius-xl)',
-                  background: 'var(--color-surface)',
-                  animation: 'pulse 1.5s ease-in-out infinite',
-                }} />
+                <div key={i} className="h-[200px] animate-pulse rounded-xl bg-stone-100" />
               ))}
             </div>
           ) : communities.length === 0 ? (
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              justifyContent: 'center', gap: 12, padding: '60px 0',
-            }}>
-              <Users size={56} color="var(--color-stone)" strokeWidth={1} />
-              <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', margin: 0 }}>
+            <div className="flex flex-col items-center justify-center gap-3 py-16">
+              <Users size={56} className="text-stone-500" strokeWidth={1} />
+              <p className="text-center text-[15px] text-stone-500">
                 {searchInput ? 'Sin resultados' : 'Sin comunidades todavía'}
               </p>
               {canCreate && !searchInput && (
-                <Link to="/communities/new" style={{
-                  padding: '10px 24px', background: 'var(--color-black)',
-                  color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
-                  fontSize: 14, fontWeight: 600, textDecoration: 'none',
-                }}>
+                <Link to="/communities/new" className="rounded-lg bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white no-underline">
                   Crea la primera
                 </Link>
               )}
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
+            <div className="grid grid-cols-2 gap-2.5">
               {communities.map((c, i) => (
                 <motion.div
                   key={c.id || c._id}
@@ -256,61 +197,30 @@ export default function CommunitiesExplorePage() {
 
         {/* ── CTA if can't create ── */}
         {!canCreate && filter !== 'joined' && communities.length > 0 && (
-          <div style={{
-            marginTop: 20, padding: 16,
-            background: 'var(--color-surface)',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid var(--color-border)',
-            textAlign: 'center',
-          }}>
-            <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, color: 'var(--color-black)', margin: '0 0 4px' }}>
-              ¿Quieres crear tu comunidad?
-            </p>
-            <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: '0 0 4px' }}>
-              Consigue 100 seguidores o verifica tu cuenta de vendedor
-            </p>
-            <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: 0 }}>
-              Tienes {user?.follower_count || 0}/100 seguidores
-            </p>
+          <div className="mt-5 rounded-xl border border-stone-200 bg-stone-100 p-4 text-center">
+            <p className="mb-1 text-sm font-bold text-stone-950">¿Quieres crear tu comunidad?</p>
+            <p className="mb-1 text-[13px] text-stone-500">Consigue 100 seguidores o verifica tu cuenta de vendedor</p>
+            <p className="text-xs text-stone-500">Tienes {user?.follower_count || 0}/100 seguidores</p>
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-      `}</style>
     </div>
   );
 }
 
 /* ── My Community Pill (horizontal scroll) ── */
 const MyCommunityPill = ({ community }) => (
-  <Link to={`/communities/${community.slug}`}
-    style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-      width: 72, flexShrink: 0, textDecoration: 'none',
-    }}>
-    <div style={{
-      width: 56, height: 56, borderRadius: 'var(--radius-full, 999px)',
-      overflow: 'hidden', border: '2px solid var(--color-border)',
-      background: community.cover_image
-        ? 'var(--color-surface)'
-        : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
+  <Link to={`/communities/${community.slug}`} className="flex w-[72px] shrink-0 flex-col items-center gap-1.5 no-underline">
+    <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-stone-200 ${
+      community.cover_image ? 'bg-stone-100' : stoneBg(community.name)
+    }`}>
       {community.cover_image ? (
-        <img src={community.cover_image} alt={community.name || ''}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src={community.cover_image} alt={community.name || ''} className="h-full w-full object-cover" />
       ) : (
-        <span style={{ fontSize: 24 }}>{community.emoji || '🌿'}</span>
+        <span className="text-2xl">{community.emoji || '🌿'}</span>
       )}
     </div>
-    <span style={{
-      fontSize: 11, color: 'var(--color-black)', fontWeight: 500,
-      maxWidth: 72, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-      textAlign: 'center',
-      fontFamily: 'var(--font-sans)',
-    }}>
+    <span className="max-w-[72px] truncate text-center text-[11px] font-medium text-stone-950">
       {community.name}
     </span>
   </Link>
@@ -340,61 +250,34 @@ const CommunityCard = ({ community }) => {
   };
 
   return (
-    <Link to={`/communities/${community.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-      <div style={{
-        background: 'var(--color-white)',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--color-border)',
-        overflow: 'hidden',
-        transition: 'var(--transition-fast)',
-      }}>
+    <Link to={`/communities/${community.slug}`} className="block no-underline">
+      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white transition-colors">
         {/* Cover */}
-        <div style={{ aspectRatio: '16/7', position: 'relative', overflow: 'hidden' }}>
+        <div className="relative aspect-[16/7] overflow-hidden">
           {community.cover_image ? (
-            <img src={community.cover_image} alt={community.name || ''}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src={community.cover_image} alt={community.name || ''} className="block h-full w-full object-cover" />
           ) : (
-            <div style={{
-              width: '100%', height: '100%',
-              background: ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32,
-            }}>
+            <div className={`flex h-full w-full items-center justify-center text-[32px] ${stoneBg(community.name)}`}>
               {community.emoji || '🌿'}
             </div>
           )}
           {community.category && (
-            <span style={{
-              position: 'absolute', top: 6, left: 6,
-              fontSize: 9, fontWeight: 800,
-              background: 'rgba(0,0,0,0.6)', color: 'var(--color-white)',
-              padding: '2px 7px', borderRadius: 4,
-              textTransform: 'uppercase', letterSpacing: '0.05em',
-              fontFamily: 'var(--font-sans)',
-            }}>
+            <span className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-white">
               {community.category}
             </span>
           )}
         </div>
 
-        <div style={{ padding: 10 }}>
-          <p style={{
-            fontSize: 13, fontWeight: 600, margin: '0 0 2px',
-            lineHeight: 1.3, color: 'var(--color-black)',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-            fontFamily: 'var(--font-sans)',
-          }}>
+        <div className="p-2.5">
+          <p className="truncate text-[13px] font-semibold leading-tight text-stone-950">
             {community.name}
           </p>
           {community.description && (
-            <p style={{
-              fontSize: 11, color: 'var(--color-stone)', margin: '0 0 6px',
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              fontFamily: 'var(--font-sans)',
-            }}>
+            <p className="mb-1.5 truncate text-[11px] text-stone-500">
               {community.description}
             </p>
           )}
-          <p style={{ fontSize: 10, color: 'var(--color-stone)', margin: '0 0 8px', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <p className="mb-2 flex items-center gap-1 text-[10px] text-stone-500">
             <Users size={10} />
             {community.member_count?.toLocaleString()} miembros
           </p>
@@ -402,16 +285,12 @@ const CommunityCard = ({ community }) => {
             whileTap={{ scale: 0.92 }}
             onClick={toggle}
             disabled={isToggling}
-            style={{
-              width: '100%', padding: 6,
-              borderRadius: 'var(--radius-full, 999px)',
-              border: joined ? '1px solid var(--color-border)' : '1px solid var(--color-black)',
-              background: joined ? 'var(--color-white)' : 'var(--color-black)',
-              color: joined ? 'var(--color-stone)' : 'var(--color-white)',
-              fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              transition: 'var(--transition-fast)',
-              fontFamily: 'var(--font-sans)',
-            }}>
+            className={`w-full rounded-full border py-1.5 text-xs font-semibold transition-colors ${
+              joined
+                ? 'border-stone-200 bg-white text-stone-500'
+                : 'border-stone-950 bg-stone-950 text-white'
+            }`}
+          >
             {isToggling ? '...' : joined ? 'Unida' : 'Unirse'}
           </motion.button>
         </div>
@@ -422,40 +301,23 @@ const CommunityCard = ({ community }) => {
 
 /* ── Row for "my communities" list ── */
 const CommunityRow = ({ community }) => (
-  <Link to={`/communities/${community.slug}`}
-    style={{
-      display: 'flex', gap: 12, alignItems: 'center',
-      padding: 14, background: 'var(--color-white)',
-      borderRadius: 'var(--radius-xl)',
-      border: '1px solid var(--color-border)',
-      textDecoration: 'none', color: 'inherit',
-    }}>
-    <div style={{
-      width: 48, height: 48, borderRadius: 'var(--radius-full, 999px)',
-      overflow: 'hidden', flexShrink: 0,
-      background: community.cover_image
-        ? 'var(--color-surface)'
-        : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(community.name || 'C').charCodeAt(0) % 5],
-      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-    }}>
+  <Link to={`/communities/${community.slug}`} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-3.5 no-underline">
+    <div className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full text-[22px] ${
+      community.cover_image ? 'bg-stone-100' : stoneBg(community.name)
+    }`}>
       {community.cover_image ? (
-        <img src={community.cover_image} alt={community.name || ''}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src={community.cover_image} alt={community.name || ''} className="h-full w-full object-cover" />
       ) : (community.emoji || '🌿')}
     </div>
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <p style={{ fontSize: 15, fontWeight: 600, margin: '0 0 2px', color: 'var(--color-black)', fontFamily: 'var(--font-sans)' }}>
-        {community.name}
-      </p>
-      <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: 0, fontFamily: 'var(--font-sans)' }}>
+    <div className="min-w-0 flex-1">
+      <p className="mb-0.5 text-[15px] font-semibold text-stone-950">{community.name}</p>
+      <p className="text-xs text-stone-500">
         {community.member_count?.toLocaleString()} miembros
         {community.unread_posts > 0 && (
-          <span style={{ marginLeft: 8, color: 'var(--color-black)', fontWeight: 700 }}>
-            · {community.unread_posts} nuevos
-          </span>
+          <span className="ml-2 font-bold text-stone-950">· {community.unread_posts} nuevos</span>
         )}
       </p>
     </div>
-    <ChevronRight size={16} color="var(--color-stone)" />
+    <ChevronRight size={16} className="text-stone-500" />
   </Link>
 );

@@ -22,8 +22,8 @@ export default function UserProfilePage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const isOwn = currentUser && (
-    currentUser.user_id === userId ||
-    currentUser.id === userId ||
+    String(currentUser.user_id) === String(userId) ||
+    String(currentUser.id) === String(userId) ||
     currentUser.username === userId
   );
 
@@ -45,6 +45,9 @@ export default function UserProfilePage() {
     is_following: profile.is_following,
     has_active_story: profile.has_active_story,
     store_slug: profile.store_slug || profile.username,
+    sales_count: profile.sales_count,
+    producers_count: profile.producers_count,
+    discount_code: profile.discount_code,
   } : null;
 
   const { toggleFollow, followLoading } = useUserFollow(user?.user_id, profile);
@@ -92,13 +95,12 @@ export default function UserProfilePage() {
       }
       return;
     }
-    await navigator.clipboard.writeText(url);
-    toast.success('Enlace copiado');
+    try { await navigator.clipboard.writeText(url); toast.success('Enlace copiado'); } catch { /* fallback silently */ }
   }, [user]);
 
   if (isLoading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}>
+      <div aria-busy="true" aria-label="Cargando perfil" style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)' }}>
         {/* Header skeleton */}
         <div style={{ height: 52, background: 'var(--color-white)', borderBottom: '1px solid var(--color-border)' }} />
         <div style={{ padding: 16 }}>
@@ -136,7 +138,7 @@ export default function UserProfilePage() {
         <p style={{ fontSize: 18, fontWeight: 600, color: 'var(--color-black)' }}>Usuario no encontrado</p>
         <p style={{ fontSize: 14, color: 'var(--color-stone)' }}>Este perfil no existe o ha sido eliminado.</p>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
           style={{
             marginTop: 8,
             padding: '10px 24px',

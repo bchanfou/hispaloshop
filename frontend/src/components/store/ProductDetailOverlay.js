@@ -28,12 +28,18 @@ function formatDate(value) {
 // ── + button con feedback ✓ ───────────────────────────────────────────────────
 function AddButton({ onAdd, isDisabled }) {
   const [confirmed, setConfirmed] = useState(false);
+  const timerRef = React.useRef(null);
+
+  React.useEffect(() => {
+    return () => clearTimeout(timerRef.current);
+  }, []);
 
   const handleClick = async () => {
     if (confirmed || isDisabled) return;
     await onAdd();
     setConfirmed(true);
-    setTimeout(() => setConfirmed(false), 1200);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setConfirmed(false), 1200);
   };
 
   return (
@@ -160,13 +166,17 @@ export default function ProductDetailOverlay({
       toast.error('Inicia sesión para añadir productos');
       return;
     }
-    const success = await addToCart(productId, 1);
-    if (!success) toast.error('No hemos podido completar la acción');
+    try {
+      const success = await addToCart(productId, 1);
+      if (!success) toast.error('No hemos podido completar la acción');
+    } catch {
+      toast.error('No hemos podido completar la acción');
+    }
   };
 
   return (
     <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
+    <div role="dialog" aria-modal="true" aria-label={product.name} className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
       {/* Backdrop */}
       <button
         type="button"
@@ -325,7 +335,7 @@ export default function ProductDetailOverlay({
                     className="inline-flex items-center gap-1.5 rounded-full border border-stone-100 bg-stone-50 px-2.5 py-1 text-[11px] text-stone-600"
                   >
                     <Award className="h-3 w-3 text-stone-400" />
-                    {cert.product_name || product.name}
+                    {cert.certificate_type || cert.name || cert.product_name || 'Certificado'}
                   </span>
                 ))}
               </div>

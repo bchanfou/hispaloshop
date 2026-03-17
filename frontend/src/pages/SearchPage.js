@@ -6,7 +6,6 @@ import apiClient from '../services/api/client';
 import SEO from '../components/SEO';
 import { toast } from 'sonner';
 
-const font = { fontFamily: 'var(--font-sans)' };
 const HISTORY_KEY = 'hispal_search_history';
 const MAX_HISTORY = 8;
 
@@ -34,14 +33,11 @@ const TABS = [
 /* ── Skeleton ── */
 function CardSkeleton() {
   return (
-    <div style={{
-      borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-      background: 'var(--color-surface)',
-    }}>
-      <div style={{ aspectRatio: '1', background: 'var(--color-border)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-      <div style={{ padding: 12 }}>
-        <div style={{ height: 12, borderRadius: 6, background: 'var(--color-border)', width: '75%', marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
-        <div style={{ height: 12, borderRadius: 6, background: 'var(--color-surface)', width: '33%', animation: 'pulse 1.5s ease-in-out infinite' }} />
+    <div className="overflow-hidden rounded-xl bg-stone-100">
+      <div className="aspect-square animate-pulse bg-stone-200" />
+      <div className="p-3">
+        <div className="mb-2 h-3 w-3/4 animate-pulse rounded-md bg-stone-200" />
+        <div className="h-3 w-1/3 animate-pulse rounded-md bg-stone-100" />
       </div>
     </div>
   );
@@ -49,11 +45,11 @@ function CardSkeleton() {
 
 function RowSkeleton() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0' }}>
-      <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--color-border)', flexShrink: 0, animation: 'pulse 1.5s ease-in-out infinite' }} />
-      <div style={{ flex: 1 }}>
-        <div style={{ height: 14, borderRadius: 6, background: 'var(--color-border)', width: '66%', marginBottom: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
-        <div style={{ height: 12, borderRadius: 6, background: 'var(--color-surface)', width: '33%', animation: 'pulse 1.5s ease-in-out infinite' }} />
+    <div className="flex items-center gap-3 py-2.5">
+      <div className="h-11 w-11 shrink-0 animate-pulse rounded-full bg-stone-200" />
+      <div className="flex-1">
+        <div className="mb-1.5 h-3.5 w-2/3 animate-pulse rounded-md bg-stone-200" />
+        <div className="h-3 w-1/3 animate-pulse rounded-md bg-stone-100" />
       </div>
     </div>
   );
@@ -62,27 +58,23 @@ function RowSkeleton() {
 /* ── Result Components ── */
 function ProductCard({ p }) {
   return (
-    <Link to={`/products/${p.product_id}`} style={{ textDecoration: 'none' }}>
-      <div style={{
-        borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-        border: '1px solid var(--color-border)', background: 'var(--color-white)',
-        transition: 'box-shadow 0.2s',
-      }}>
-        <div style={{ aspectRatio: '1', background: 'var(--color-surface)', overflow: 'hidden' }}>
+    <Link to={`/products/${p.product_id}`} className="block no-underline">
+      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white transition-shadow">
+        <div className="aspect-square overflow-hidden bg-stone-100">
           {p.images?.[0] ? (
-            <img src={p.images[0]} alt={p.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={p.images[0]} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
           ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShoppingBag size={32} color="var(--color-stone)" />
+            <div className="flex h-full w-full items-center justify-center">
+              <ShoppingBag size={32} className="text-stone-500" />
             </div>
           )}
         </div>
-        <div style={{ padding: 12 }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', margin: 0, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <div className="p-3">
+          <p className="line-clamp-2 text-[13px] font-medium leading-tight text-stone-950">
             {p.name}
           </p>
           {p.price != null && (
-            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)', margin: '4px 0 0' }}>
+            <p className="mt-1 text-[13px] font-bold text-stone-950">
               {Number(p.price).toFixed(2)} {p.currency || 'EUR'}
             </p>
           )}
@@ -94,26 +86,23 @@ function ProductCard({ p }) {
 
 function RecipeCard({ r }) {
   return (
-    <Link to={`/recipes/${r.recipe_id}`} style={{ textDecoration: 'none' }}>
-      <div style={{
-        borderRadius: 'var(--radius-xl)', overflow: 'hidden',
-        border: '1px solid var(--color-border)', background: 'var(--color-white)',
-      }}>
-        <div style={{ aspectRatio: '1', background: 'var(--color-surface)', overflow: 'hidden' }}>
+    <Link to={`/recipes/${r.recipe_id}`} className="block no-underline">
+      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
+        <div className="aspect-square overflow-hidden bg-stone-100">
           {r.cover_image ? (
-            <img src={r.cover_image} alt={r.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={r.cover_image} alt={r.title} loading="lazy" className="h-full w-full object-cover" />
           ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ChefHat size={32} color="var(--color-stone)" />
+            <div className="flex h-full w-full items-center justify-center">
+              <ChefHat size={32} className="text-stone-500" />
             </div>
           )}
         </div>
-        <div style={{ padding: 12 }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-black)', margin: 0, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <div className="p-3">
+          <p className="line-clamp-2 text-[13px] font-medium leading-tight text-stone-950">
             {r.title}
           </p>
           {r.prep_time_minutes && (
-            <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '4px 0 0' }}>{r.prep_time_minutes} min</p>
+            <p className="mt-1 text-xs text-stone-500">{r.prep_time_minutes} min</p>
           )}
         </div>
       </div>
@@ -129,35 +118,22 @@ function PersonRow({ person, linkBase }) {
   const isStore = !!person.store_id;
 
   return (
-    <Link to={`${linkBase}${person.slug || person.store_slug || id}`} style={{
-      display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
-      textDecoration: 'none', borderBottom: '1px solid var(--color-border)',
-    }}>
-      <div style={{
-        width: 44, height: 44, borderRadius: isStore ? 'var(--radius-lg)' : '50%',
-        background: 'var(--color-surface)', flexShrink: 0, overflow: 'hidden',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
+    <Link to={`${linkBase}${person.slug || person.store_slug || id}`} className="flex items-center gap-3 border-b border-stone-200 py-2.5 no-underline">
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden bg-stone-100 ${isStore ? 'rounded-lg' : 'rounded-full'}`}>
         {img ? (
-          <img src={img} alt={name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={img} alt={name} loading="lazy" className="h-full w-full object-cover" />
         ) : isStore ? (
-          <Store size={18} color="var(--color-stone)" />
+          <Store size={18} className="text-stone-500" />
         ) : (
-          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-stone)' }}>{(name[0] || '?').toUpperCase()}</span>
+          <span className="text-sm font-semibold text-stone-500">{(name[0] || '?').toUpperCase()}</span>
         )}
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {name}
-        </p>
-        {sub && (
-          <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {sub}
-          </p>
-        )}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-stone-950">{name}</p>
+        {sub && <p className="mt-0.5 truncate text-xs text-stone-500">{sub}</p>}
       </div>
       {person.followers_count > 0 && (
-        <span style={{ fontSize: 12, color: 'var(--color-stone)', flexShrink: 0 }}>{person.followers_count} seg.</span>
+        <span className="shrink-0 text-xs text-stone-500">{person.followers_count} seg.</span>
       )}
     </Link>
   );
@@ -165,13 +141,13 @@ function PersonRow({ person, linkBase }) {
 
 function SectionHeader({ icon: Icon, label, count }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 0 10px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Icon size={16} color="var(--color-stone)" />
-        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)' }}>{label}</span>
+    <div className="flex items-center justify-between pb-2.5 pt-5">
+      <div className="flex items-center gap-2">
+        <Icon size={16} className="text-stone-500" />
+        <span className="text-[13px] font-bold text-stone-950">{label}</span>
       </div>
       {count > 0 && (
-        <span style={{ fontSize: 12, color: 'var(--color-stone)' }}>{count} resultados</span>
+        <span className="text-xs text-stone-500">{count} resultados</span>
       )}
     </div>
   );
@@ -188,14 +164,14 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState(getHistory);
   const [activeTab, setActiveTab] = useState('all');
-  const [sortBy, setSortBy] = useState('relevance'); // relevance | price_asc | price_desc | newest
+  const [sortBy, setSortBy] = useState('relevance');
   const [trending, setTrending] = useState(TRENDING_FALLBACK);
+  const searchIdRef = useRef(0);
 
   const isEmpty = !query.trim();
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
-  // Fetch trending terms from API
   useEffect(() => {
     apiClient.get('/discovery/trending', { params: { type: 'products', limit: 8 } })
       .then((data) => {
@@ -204,34 +180,56 @@ export default function SearchPage() {
           .filter(Boolean);
         if (terms.length > 0) setTrending(terms);
       })
-      .catch(() => { /* keep fallback */ });
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     if (!query.trim()) { setResults(null); return; }
+    const reqId = ++searchIdRef.current;
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
         const sortParam = sortBy !== 'relevance' ? sortBy : undefined;
         const data = await apiClient.get('/search', { params: { q: query.trim(), limit: 8, sort: sortParam } });
+        if (reqId !== searchIdRef.current) return;
         setResults(data);
         setSearchParams({ q: query.trim() }, { replace: true });
       } catch (err) {
+        if (reqId !== searchIdRef.current) return;
         setResults(null);
         toast.error('Error al buscar. Inténtalo de nuevo.');
       } finally {
-        setLoading(false);
+        if (reqId === searchIdRef.current) setLoading(false);
       }
     }, 320);
     return () => clearTimeout(timer);
   }, [query, sortBy, setSearchParams]);
+
+  const executeSearch = useCallback(async (q) => {
+    const reqId = ++searchIdRef.current;
+    setLoading(true);
+    try {
+      const sortParam = sortBy !== 'relevance' ? sortBy : undefined;
+      const data = await apiClient.get('/search', { params: { q, limit: 8, sort: sortParam } });
+      if (reqId !== searchIdRef.current) return;
+      setResults(data);
+      setSearchParams({ q }, { replace: true });
+    } catch {
+      if (reqId !== searchIdRef.current) return;
+      setResults(null);
+      toast.error('Error al buscar. Inténtalo de nuevo.');
+    } finally {
+      if (reqId === searchIdRef.current) setLoading(false);
+    }
+  }, [sortBy, setSearchParams]);
 
   const handleSubmit = useCallback((e) => {
     e?.preventDefault();
     if (!query.trim()) return;
     saveHistory(query.trim());
     setHistory(getHistory());
-  }, [query]);
+    executeSearch(query.trim());
+  }, [query, executeSearch]);
 
   const handleHistoryClick = (term) => {
     setQuery(term);
@@ -259,31 +257,23 @@ export default function SearchPage() {
   const showCreators = (activeTab === 'all' || activeTab === 'creators') && counts.creators > 0;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div className="min-h-screen bg-stone-50">
       <SEO title="Buscar — Hispaloshop" description="Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local." />
+
       {/* ── Search Bar ── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
-        padding: '10px 16px',
-      }}>
-        <form onSubmit={handleSubmit} role="search" aria-label="Buscar en Hispaloshop" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="sticky top-0 z-40 border-b border-stone-200 bg-white px-4 py-2.5">
+        <form onSubmit={handleSubmit} role="search" aria-label="Buscar en Hispaloshop" className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => { window.history.length > 1 ? navigate(-1) : navigate('/discover'); }}
             aria-label="Volver"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', flexShrink: 0 }}
+            className="flex shrink-0 p-1"
           >
-            <ArrowLeft size={22} color="var(--color-black)" />
+            <ArrowLeft size={22} className="text-stone-950" />
           </button>
 
-          <div style={{
-            flex: 1, display: 'flex', alignItems: 'center', gap: 8,
-            background: 'var(--color-surface)', borderRadius: 'var(--radius-full, 999px)',
-            padding: '8px 14px',
-          }}>
-            <Search size={16} color="var(--color-stone)" style={{ flexShrink: 0 }} />
+          <div className="flex flex-1 items-center gap-2 rounded-full bg-stone-100 px-3.5 py-2">
+            <Search size={16} className="shrink-0 text-stone-500" />
             <input
               ref={inputRef}
               type="search"
@@ -291,10 +281,7 @@ export default function SearchPage() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar productos, recetas, tiendas..."
               autoComplete="off"
-              style={{
-                flex: 1, background: 'transparent', border: 'none', outline: 'none',
-                fontSize: 14, color: 'var(--color-black)', ...font,
-              }}
+              className="flex-1 bg-transparent text-sm text-stone-950 outline-none placeholder:text-stone-400"
             />
             <AnimatePresence>
               {query && (
@@ -306,9 +293,9 @@ export default function SearchPage() {
                   type="button"
                   aria-label="Limpiar búsqueda"
                   onClick={() => { setQuery(''); setResults(null); setSearchParams({}); inputRef.current?.focus(); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexShrink: 0 }}
+                  className="flex shrink-0"
                 >
-                  <X size={16} color="var(--color-stone)" />
+                  <X size={16} className="text-stone-500" />
                 </motion.button>
               )}
             </AnimatePresence>
@@ -316,14 +303,11 @@ export default function SearchPage() {
         </form>
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px' }}>
+      <div className="mx-auto max-w-[600px] px-4">
 
-        {/* ── Tabs (when results exist) ── */}
+        {/* ── Tabs ── */}
         {!loading && hasResults && (
-          <div style={{
-            display: 'flex', gap: 0, borderBottom: '1px solid var(--color-border)',
-            overflowX: 'auto', marginTop: 4,
-          }}>
+          <div className="mt-1 flex overflow-x-auto border-b border-stone-200">
             {TABS.map(tab => {
               const active = activeTab === tab.key;
               const count = tab.key === 'all' ? totalCount : counts[tab.key] || 0;
@@ -332,24 +316,17 @@ export default function SearchPage() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    padding: '10px 14px', fontSize: 13, fontWeight: active ? 700 : 500,
-                    color: active ? 'var(--color-black)' : 'var(--color-stone)',
-                    borderBottom: active ? '2px solid var(--color-black)' : '2px solid transparent',
-                    whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4,
-                    ...font,
-                  }}
+                  className={`flex items-center gap-1 whitespace-nowrap border-b-2 px-3.5 py-2.5 text-[13px] ${
+                    active
+                      ? 'border-stone-950 font-bold text-stone-950'
+                      : 'border-transparent font-medium text-stone-500'
+                  }`}
                 >
                   {tab.label}
                   {count > 0 && (
-                    <span style={{
-                      fontSize: 10, fontWeight: 700,
-                      background: active ? 'var(--color-black)' : 'var(--color-surface)',
-                      color: active ? 'var(--color-white)' : 'var(--color-stone)',
-                      borderRadius: 'var(--radius-full, 999px)',
-                      padding: '1px 6px', minWidth: 18, textAlign: 'center',
-                    }}>
+                    <span className={`min-w-[18px] rounded-full px-1.5 py-px text-center text-[10px] font-bold ${
+                      active ? 'bg-stone-950 text-white' : 'bg-stone-100 text-stone-500'
+                    }`}>
                       {count}
                     </span>
                   )}
@@ -359,20 +336,14 @@ export default function SearchPage() {
           </div>
         )}
 
-        {/* ── Sort bar (when products visible) ── */}
+        {/* ── Sort bar ── */}
         {!loading && hasResults && (activeTab === 'all' || activeTab === 'products') && counts.products > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '8px 0' }}>
+          <div className="flex items-center justify-end py-2">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               aria-label="Ordenar resultados"
-              style={{
-                background: 'var(--color-surface)', border: 'none',
-                borderRadius: 'var(--radius-full, 999px)',
-                padding: '6px 12px', fontSize: 12, fontWeight: 500,
-                color: 'var(--color-black)', cursor: 'pointer', ...font,
-                outline: 'none',
-              }}
+              className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-medium text-stone-950 outline-none"
             >
               <option value="relevance">Relevancia</option>
               <option value="price_asc">Precio: menor a mayor</option>
@@ -383,14 +354,14 @@ export default function SearchPage() {
         )}
 
         {/* ── Live region for screen readers ── */}
-        <div aria-live="polite" aria-atomic="true" className="sr-only" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
           {!loading && results && (hasResults ? `${totalCount} resultados encontrados` : `Sin resultados para ${query}`)}
         </div>
 
         {/* ── Loading ── */}
         {loading && (
-          <div style={{ paddingTop: 16 }}>
-            <div className="search-grid-2" style={{ marginBottom: 20 }}>
+          <div className="pt-4">
+            <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {[0, 1, 2, 3].map(i => <CardSkeleton key={i} />)}
             </div>
             {[0, 1, 2].map(i => <RowSkeleton key={i} />)}
@@ -402,17 +373,13 @@ export default function SearchPage() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 20px', textAlign: 'center' }}
+            className="flex flex-col items-center px-5 py-16 text-center"
           >
-            <div style={{
-              width: 56, height: 56, borderRadius: '50%',
-              background: 'var(--color-surface)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
-            }}>
-              <Search size={24} color="var(--color-stone)" />
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
+              <Search size={24} className="text-stone-500" />
             </div>
-            <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)', margin: '0 0 4px' }}>Sin resultados</p>
-            <p style={{ fontSize: 14, color: 'var(--color-stone)', margin: 0, lineHeight: 1.5 }}>
+            <p className="mb-1 text-base font-semibold text-stone-950">Sin resultados</p>
+            <p className="text-sm leading-relaxed text-stone-500">
               No encontramos nada para <strong>"{query}"</strong>. Prueba con otro término.
             </p>
           </motion.div>
@@ -420,16 +387,16 @@ export default function SearchPage() {
 
         {/* ── Results ── */}
         {!loading && hasResults && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: 80 }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pb-20">
             {showProducts && (
               <section>
                 <SectionHeader icon={ShoppingBag} label="Productos" count={counts.products} />
-                <div className="search-grid-2">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {[...results.products].sort((a, b) => {
                     if (sortBy === 'price_asc') return (a.price || 0) - (b.price || 0);
                     if (sortBy === 'price_desc') return (b.price || 0) - (a.price || 0);
                     if (sortBy === 'newest') return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-                    return 0; // relevance = API order
+                    return 0;
                   }).map(p => <ProductCard key={p.product_id} p={p} />)}
                 </div>
               </section>
@@ -437,7 +404,7 @@ export default function SearchPage() {
             {showRecipes && (
               <section>
                 <SectionHeader icon={ChefHat} label="Recetas" count={counts.recipes} />
-                <div className="search-grid-2">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {results.recipes.map(r => <RecipeCard key={r.recipe_id} r={r} />)}
                 </div>
               </section>
@@ -459,35 +426,26 @@ export default function SearchPage() {
 
         {/* ── Empty state: history + trending ── */}
         {!loading && isEmpty && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: 80 }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pb-20">
             {history.length > 0 && (
-              <section style={{ paddingTop: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Clock size={16} color="var(--color-stone)" />
-                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)' }}>Recientes</span>
+              <section className="pt-5">
+                <div className="mb-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} className="text-stone-500" />
+                    <span className="text-[13px] font-bold text-stone-950">Recientes</span>
                   </div>
-                  <button
-                    onClick={handleClearHistory}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--color-stone)', ...font }}
-                  >
+                  <button onClick={handleClearHistory} className="text-xs text-stone-500">
                     Borrar
                   </button>
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <div className="flex flex-wrap gap-2">
                   {history.map(term => (
                     <button
                       key={term}
                       onClick={() => handleHistoryClick(term)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        padding: '7px 14px', background: 'var(--color-surface)',
-                        borderRadius: 'var(--radius-full, 999px)',
-                        border: 'none', fontSize: 13, color: 'var(--color-black)',
-                        cursor: 'pointer', ...font,
-                      }}
+                      className="flex items-center gap-1.5 rounded-full border-none bg-stone-100 px-3.5 py-1.5 text-[13px] text-stone-950"
                     >
-                      <Clock size={12} color="var(--color-stone)" />
+                      <Clock size={12} className="text-stone-500" />
                       {term}
                     </button>
                   ))}
@@ -495,23 +453,17 @@ export default function SearchPage() {
               </section>
             )}
 
-            <section style={{ paddingTop: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                <TrendingUp size={16} color="var(--color-stone)" />
-                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-black)' }}>Tendencias</span>
+            <section className="pt-6">
+              <div className="mb-2.5 flex items-center gap-2">
+                <TrendingUp size={16} className="text-stone-500" />
+                <span className="text-[13px] font-bold text-stone-950">Tendencias</span>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div className="flex flex-wrap gap-2">
                 {trending.map(term => (
                   <button
                     key={term}
                     onClick={() => setQuery(term)}
-                    style={{
-                      padding: '7px 14px', background: 'var(--color-white)',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: 'var(--radius-full, 999px)',
-                      fontSize: 13, color: 'var(--color-black)',
-                      cursor: 'pointer', textTransform: 'capitalize', ...font,
-                    }}
+                    className="rounded-full border border-stone-200 bg-white px-3.5 py-1.5 text-[13px] capitalize text-stone-950"
                   >
                     {term}
                   </button>
@@ -521,12 +473,6 @@ export default function SearchPage() {
           </motion.div>
         )}
       </div>
-
-      <style>{`
-        @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
-        .search-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-        @media(min-width:480px){ .search-grid-2 { grid-template-columns:repeat(3,1fr); } }
-      `}</style>
     </div>
   );
 }

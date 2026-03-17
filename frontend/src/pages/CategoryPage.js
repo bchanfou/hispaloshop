@@ -150,10 +150,15 @@ const CategoryPage = () => {
             <button
               type="button"
               onClick={() => setShowFilters(true)}
-              aria-label="Filtros"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-stone-700 transition-colors hover:bg-stone-100"
+              aria-label={`Filtros${hasActiveFilters ? ` (${activeFeatures.length + (activePrice ? 1 : 0)} activos)` : ''}`}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-700 transition-colors hover:bg-stone-100"
             >
               <SlidersHorizontal className="h-[18px] w-[18px]" />
+              {hasActiveFilters && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-stone-950 text-[9px] font-bold text-white">
+                  {activeFeatures.length + (activePrice ? 1 : 0)}
+                </span>
+              )}
             </button>
           </div>
         </div>

@@ -229,7 +229,7 @@ export default function BottomNavBar() {
     }
   };
 
-  const profileUserId = user?.user_id || user?.id || null;
+  const profileUserId = user?.user_id || user?.id || user?.username || null;
   const profileUrl   = profileUserId ? `/user/${profileUserId}` : (user ? '/profile' : '/login');
   const profileImage = user?.profile_image || user?.avatar_url || null;
 

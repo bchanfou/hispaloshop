@@ -82,22 +82,21 @@ function FollowedStoreCard({ store, onUnfollow }) {
         {/* Actions */}
         <div className="flex items-center gap-2 mt-4">
           {storeSlug ? (
-            <Link to={`/store/${storeSlug}`} className="flex-1">
-              <button className="w-full px-3 py-1.5 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-xs flex items-center justify-center">
-                <ExternalLink className="w-3 h-3 mr-1" />
-                {t('followedStores.visitStore', 'Ver tienda')}
-              </button>
-            </Link>
-          ) : (
-            <button className="flex-1 px-3 py-1.5 border border-stone-200 text-stone-600 rounded-xl text-xs flex items-center justify-center opacity-50" disabled>
+            <Link to={`/store/${storeSlug}`} className="flex-1 px-3 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-xs flex items-center justify-center no-underline">
               <ExternalLink className="w-3 h-3 mr-1" />
               {t('followedStores.visitStore', 'Ver tienda')}
-            </button>
+            </Link>
+          ) : (
+            <span className="flex-1 px-3 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-xl text-xs flex items-center justify-center opacity-50">
+              <ExternalLink className="w-3 h-3 mr-1" />
+              {t('followedStores.visitStore', 'Ver tienda')}
+            </span>
           )}
           <button
             onClick={handleUnfollow}
             disabled={unfollowing}
-            className="p-2 text-stone-500 hover:text-stone-950 hover:bg-stone-100 rounded-xl transition-colors disabled:opacity-50"
+            aria-label={`Dejar de seguir ${store.name}`}
+            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 hover:text-stone-950 hover:bg-stone-100 rounded-xl transition-colors disabled:opacity-50"
           >
             {unfollowing ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -132,7 +131,6 @@ export default function CustomerFollowedStores() {
       const data = await apiClient.get('/customer/followed-stores');
       setStores(data || []);
     } catch (error) {
-      console.error('Error fetching followed stores:', error);
       toast.error(t('common.error'));
     } finally {
       setLoading(false);
@@ -175,11 +173,9 @@ export default function CustomerFollowedStores() {
             <p className="text-sm text-stone-500 mb-6 max-w-sm mx-auto">
               {t('followedStores.noStoresDesc', 'Explora nuestras tiendas y sigue a tus favoritas para recibir notificaciones de nuevos productos.')}
             </p>
-            <Link to="/stores">
-              <button className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center gap-2 mx-auto">
-                <Store className="w-4 h-4" />
-                {t('followedStores.exploreStores', 'Explorar tiendas')}
-              </button>
+            <Link to="/stores" className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors mx-auto no-underline">
+              <Store className="w-4 h-4" />
+              {t('followedStores.exploreStores', 'Explorar tiendas')}
             </Link>
           </div>
         </div>
@@ -202,10 +198,8 @@ export default function CustomerFollowedStores() {
                     </p>
                   </div>
                 </div>
-                <Link to="/stores">
-                  <button className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-sm">
-                    {t('followedStores.discoverMore', 'Descubrir más')}
-                  </button>
+                <Link to="/stores" className="inline-flex items-center px-4 py-2.5 min-h-[44px] border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-sm no-underline">
+                  {t('followedStores.discoverMore', 'Descubrir más')}
                 </Link>
               </div>
             </div>

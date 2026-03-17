@@ -47,11 +47,11 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
         ? Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="flex shrink-0 flex-col items-center gap-1"
-              style={{ width: 68 }}
+              className="flex shrink-0 flex-col items-center gap-1 w-[68px]"
+              aria-hidden="true"
             >
               <div
-                className="animate-pulse-slow h-[62px] w-[62px] rounded-full bg-[var(--color-surface)]"
+                className="animate-pulse-slow h-[62px] w-[62px] rounded-full bg-stone-100"
               />
             </div>
           ))

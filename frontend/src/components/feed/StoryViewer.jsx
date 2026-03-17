@@ -34,6 +34,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const items = currentStory?.items || [];
   const currentItem = items[currentItemIndex];
 
+  // Respect prefers-reduced-motion: auto-advance still works but without smooth progress
+  const prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
   // Determine effective duration: video real duration or default 5s for images
   const effectiveDuration = currentItem?.video_url
     ? (videoDuration || STORY_DURATION)
@@ -60,12 +64,14 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
       setProgress(0);
       setVideoDuration(null);
     } else if (currentUserIndex > 0) {
+      const prevUserItems = stories[currentUserIndex - 1]?.items || [];
       setCurrentUserIndex((u) => u - 1);
-      setCurrentItemIndex(0);
+      // Land on last story of previous user (IG behavior)
+      setCurrentItemIndex(Math.max(0, prevUserItems.length - 1));
       setProgress(0);
       setVideoDuration(null);
     }
-  }, [currentItemIndex, currentUserIndex]);
+  }, [currentItemIndex, currentUserIndex, stories]);
 
   const goNextUser = useCallback(() => {
     if (currentUserIndex < stories.length - 1) {
@@ -113,9 +119,12 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     setProgress(0);
   }, [currentUserIndex, currentItemIndex]);
 
-  // Cleanup long-press timer on unmount
+  // Lock body scroll while viewer is open + cleanup timers on unmount
   useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     return () => {
+      document.body.style.overflow = prev;
       clearTimeout(longPressRef.current);
       clearInterval(intervalRef.current);
     };
@@ -284,7 +293,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 className="h-full bg-white"
                 style={{
                   width: fillWidth,
-                  transition: i === currentItemIndex ? 'none' : 'width 0.1s',
+                  transition: prefersReducedMotion ? 'none' : (i === currentItemIndex ? 'none' : 'width 0.1s'),
                 }}
               />
             </div>
@@ -294,25 +303,31 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
 
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2">
-        <img
-          src={user?.avatar_url || user?.profile_image}
-          alt={`Avatar de ${user?.name || user?.username || 'usuario'}`}
-          className="w-8 h-8 rounded-full object-cover"
-        />
-        <span className="text-sm font-semibold text-white font-apple">
+        {(user?.avatar_url || user?.avatar || user?.profile_image) ? (
+          <img
+            src={user.avatar_url || user.avatar || user.profile_image}
+            alt={`Avatar de ${user?.name || user?.username || 'usuario'}`}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center text-white text-xs font-semibold">
+            {(user?.name || user?.username || '?').charAt(0).toUpperCase()}
+          </div>
+        )}
+        <span className="text-sm font-semibold text-white font-sans">
           {user?.name || user?.username}
         </span>
-        <span className="text-xs text-white/60 font-apple">
+        <span className="text-xs text-white/60 font-sans">
           {timeAgo(currentItem?.created_at)}
         </span>
         <div className="flex-1" />
         {/* Paused indicator */}
         {paused && (
-          <span className="text-[10px] text-white/40 font-apple mr-1">En pausa</span>
+          <span className="text-[10px] text-white/40 font-sans mr-1">En pausa</span>
         )}
         <button
           onClick={onClose}
-          className="p-1 bg-transparent border-none cursor-pointer flex"
+          className="w-11 h-11 bg-transparent border-none cursor-pointer flex items-center justify-center"
           aria-label="Cerrar historia"
         >
           <X size={24} className="text-white" />
@@ -363,8 +378,20 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 navigate(`/product/${product.slug || product.id}`);
               }
             }}
-            className="absolute bottom-10 left-4 right-4 z-[2] flex items-center gap-2 px-3 py-2 rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+                const product = currentItem.products[0];
+                if (product?.slug || product?.id) {
+                  navigate(`/product/${product.slug || product.id}`);
+                }
+              }
+            }}
+            className="absolute bottom-10 left-4 right-4 z-[2] flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
             role="link"
+            tabIndex={0}
             aria-label={`Ver producto: ${currentItem.products[0]?.name}`}
           >
             {currentItem.products[0]?.thumbnail && (
@@ -374,10 +401,10 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
                 className="w-7 h-7 rounded-hs-md object-cover"
               />
             )}
-            <span className="text-[13px] text-white font-apple flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+            <span className="text-[13px] text-white font-sans flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
               {currentItem.products[0]?.name}
             </span>
-            <span className="text-[13px] text-white font-semibold font-apple shrink-0">
+            <span className="text-[13px] text-white font-semibold font-sans shrink-0">
               {'Ver →'}
             </span>
           </div>

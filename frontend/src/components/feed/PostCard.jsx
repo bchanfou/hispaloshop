@@ -20,16 +20,32 @@ function timeAgo(dateString) {
   return `hace ${diffD}d`;
 }
 
-const formatPrice = (price) =>
-  new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price);
+const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
+const formatPrice = (price) => priceFormatter.format(price);
 
-// Regex to split caption into segments of plain text vs hashtags
+// Inject keyframe once at module level (idempotent)
+if (typeof document !== 'undefined' && !document.getElementById('postcard-heart-keyframe')) {
+  const style = document.createElement('style');
+  style.id = 'postcard-heart-keyframe';
+  style.textContent = `
+    @keyframes postcard-heart-pop {
+      0%   { opacity: 0; transform: scale(0.5); }
+      15%  { opacity: 1; transform: scale(1.3); }
+      30%  { opacity: 1; transform: scale(1); }
+      70%  { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1); }
+    }
+    .postcard-heart-active { animation: postcard-heart-pop 0.9s ease forwards; }
+  `;
+  document.head.appendChild(style);
+}
+
 function renderCaption(text) {
   if (!text) return null;
   const parts = text.split(/(#\w+)/g);
   return parts.map((part, i) =>
     part.startsWith('#') ? (
-      <span key={i} style={{ color: 'var(--color-stone)' }}>{part}</span>
+      <span key={i} className="text-stone-500">{part}</span>
     ) : (
       <React.Fragment key={i}>{part}</React.Fragment>
     ),
@@ -54,7 +70,6 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
   const lastTapRef = useRef(0);
   const heartTimerRef = useRef(null);
   const scrollRef = useRef(null);
-  const captionRef = useRef(null);
 
   // ---- handlers -----------------------------------------------------------
 
@@ -68,13 +83,11 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
   const handleDoubleTap = useCallback(() => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
-      // Double tap — always like (never unlike)
       if (!liked) {
         setLiked(true);
         setLikesCount((c) => c + 1);
         onLike?.(post.id);
       }
-      // Trigger animation
       setShowHeartAnim(true);
       clearTimeout(heartTimerRef.current);
       heartTimerRef.current = setTimeout(() => setShowHeartAnim(false), 900);
@@ -113,327 +126,74 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
     ? post.products
     : post.productTag ? [post.productTag] : [];
 
-  // Caption line-clamp check (approximate: >3 lines → clamp)
   const shouldClamp = !expanded && captionText && captionText.length > 140;
-
-  // ---- styles -------------------------------------------------------------
-
-  const S = {
-    container: {
-      background: 'var(--color-white)',
-      borderBottom: '1px solid var(--color-border)',
-      fontFamily: 'var(--font-sans)',
-    },
-
-    // Header
-    header: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '12px 16px',
-      gap: 10,
-    },
-    avatarWrap: {
-      flexShrink: 0,
-      width: 36,
-      height: 36,
-      borderRadius: 'var(--radius-full)',
-      padding: hasStory ? 2 : 0,
-      background: hasStory
-        ? 'var(--color-black)'
-        : 'transparent',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    avatar: {
-      width: hasStory ? 30 : 36,
-      height: hasStory ? 30 : 36,
-      borderRadius: 'var(--radius-full)',
-      objectFit: 'cover',
-      border: hasStory ? '2px solid var(--color-white)' : 'none',
-    },
-    headerInfo: {
-      flex: 1,
-      minWidth: 0,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 4,
-      flexWrap: 'wrap',
-    },
-    name: {
-      fontSize: 14,
-      fontWeight: 600,
-      color: 'var(--color-black)',
-      whiteSpace: 'nowrap',
-    },
-    handle: {
-      fontSize: 12,
-      color: 'var(--color-stone)',
-      whiteSpace: 'nowrap',
-    },
-    sep: {
-      fontSize: 11,
-      color: 'var(--color-stone)',
-    },
-    time: {
-      fontSize: 11,
-      color: 'var(--color-stone)',
-      whiteSpace: 'nowrap',
-    },
-    moreBtn: {
-      background: 'none',
-      border: 'none',
-      padding: 12,
-      minWidth: 44,
-      minHeight: 44,
-      cursor: 'pointer',
-      color: 'var(--color-stone)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0,
-    },
-
-    // Media
-    mediaWrap: {
-      position: 'relative',
-      width: '100%',
-      overflow: 'hidden',
-    },
-    scrollContainer: {
-      display: 'flex',
-      overflowX: hasMultiple ? 'auto' : 'hidden',
-      scrollSnapType: hasMultiple ? 'x mandatory' : undefined,
-      WebkitOverflowScrolling: 'touch',
-      scrollbarWidth: 'none',
-      msOverflowStyle: 'none',
-    },
-    slide: {
-      minWidth: '100%',
-      scrollSnapAlign: 'start',
-    },
-    img: {
-      width: '100%',
-      aspectRatio: '1 / 1',
-      objectFit: 'cover',
-      display: 'block',
-    },
-    dots: {
-      display: 'flex',
-      justifyContent: 'center',
-      gap: 4,
-      padding: '8px 0',
-    },
-    dot: (active) => ({
-      width: 24,
-      height: 24,
-      borderRadius: 'var(--radius-full)',
-      background: 'transparent',
-      border: 'none',
-      padding: 0,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }),
-    dotInner: (active) => ({
-      width: 6,
-      height: 6,
-      borderRadius: 'var(--radius-full)',
-      background: active ? 'var(--color-black)' : 'var(--color-border)',
-      transition: 'var(--transition-fast)',
-    }),
-
-    // Heart animation overlay
-    heartOverlay: {
-      position: 'absolute',
-      inset: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      pointerEvents: 'none',
-      zIndex: 2,
-    },
-
-    // Actions
-    actions: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '8px 12px',
-      gap: 16,
-    },
-    actionBtn: {
-      background: 'none',
-      border: 'none',
-      padding: '10px 0',
-      minHeight: 44,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 4,
-      color: 'var(--color-stone)',
-      transition: 'transform 0.15s ease',
-    },
-    actionCount: {
-      fontSize: 13,
-      fontWeight: 600,
-      color: 'var(--color-black)',
-    },
-    bookmarkBtn: {
-      background: 'none',
-      border: 'none',
-      padding: '10px 0',
-      minHeight: 44,
-      cursor: 'pointer',
-      marginLeft: 'auto',
-      display: 'flex',
-      alignItems: 'center',
-      color: 'var(--color-stone)',
-    },
-
-    // Caption
-    caption: {
-      padding: '0 16px 8px',
-      fontSize: 14,
-      lineHeight: 1.45,
-      color: 'var(--color-black)',
-    },
-    captionName: {
-      fontWeight: 600,
-      marginRight: 4,
-    },
-    captionText: shouldClamp
-      ? {
-          display: '-webkit-box',
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-        }
-      : {},
-    verMas: {
-      color: 'var(--color-stone)',
-      cursor: 'pointer',
-      background: 'none',
-      border: 'none',
-      padding: '4px 0',
-      minHeight: 44,
-      fontSize: 14,
-      fontFamily: 'inherit',
-    },
-
-    // Products
-    productsRow: {
-      display: 'flex',
-      overflowX: 'auto',
-      gap: 8,
-      padding: '0 16px 12px',
-      scrollbarWidth: 'none',
-      msOverflowStyle: 'none',
-    },
-    productPill: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      background: 'var(--color-surface)',
-      borderRadius: 'var(--radius-full)',
-      padding: '4px 12px 4px 4px',
-      cursor: 'pointer',
-      flexShrink: 0,
-      border: 'none',
-      fontFamily: 'inherit',
-    },
-    productImg: {
-      width: 32,
-      height: 32,
-      borderRadius: 'var(--radius-full)',
-      objectFit: 'cover',
-    },
-    productName: {
-      fontSize: 12,
-      fontWeight: 500,
-      color: 'var(--color-black)',
-      whiteSpace: 'nowrap',
-      maxWidth: 120,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
-    productPrice: {
-      fontSize: 12,
-      fontWeight: 700,
-      color: 'var(--color-black)',
-      whiteSpace: 'nowrap',
-    },
-  };
-
-  // ---- keyframes (injected once) ------------------------------------------
-
-  const heartAnimStyle = showHeartAnim
-    ? {
-        animation: 'postcard-heart-pop 0.9s ease forwards',
-      }
-    : { opacity: 0 };
 
   // ---- render -------------------------------------------------------------
 
   return (
-    <article style={S.container}>
-      {/* Stable keyframe — always present to avoid DOM thrashing */}
-      <style>{`
-        @keyframes postcard-heart-pop {
-          0%   { opacity: 0; transform: scale(0.5); }
-          15%  { opacity: 1; transform: scale(1.3); }
-          30%  { opacity: 1; transform: scale(1); }
-          70%  { opacity: 1; transform: scale(1); }
-          100% { opacity: 0; transform: scale(1); }
-        }
-      `}</style>
-
+    <article className="border-b border-stone-200 bg-white font-sans">
       {/* ---- Header ---- */}
-      <div style={S.header}>
-        <div style={S.avatarWrap}>
+      <div className="flex items-center gap-2.5 px-4 py-3">
+        <div
+          className={`flex shrink-0 items-center justify-center rounded-full ${
+            hasStory ? 'h-9 w-9 bg-stone-950 p-0.5' : 'h-9 w-9'
+          }`}
+        >
           {avatarUrl ? (
-            <img src={avatarUrl} alt={user.name} style={S.avatar} />
+            <img
+              src={avatarUrl}
+              alt={user.name}
+              className={`rounded-full object-cover ${
+                hasStory ? 'h-[30px] w-[30px] border-2 border-white' : 'h-9 w-9'
+              }`}
+            />
           ) : (
             <div
-              style={{
-                ...S.avatar,
-                background: 'var(--color-border)',
-              }}
+              className={`rounded-full bg-stone-200 ${
+                hasStory ? 'h-[30px] w-[30px] border-2 border-white' : 'h-9 w-9'
+              }`}
             />
           )}
         </div>
 
-        <div style={S.headerInfo}>
-          <span style={S.name}>{user.name}</span>
-          {user.username && <span style={S.handle}>@{user.username}</span>}
+        <div className="flex flex-1 flex-wrap items-center gap-1 min-w-0">
+          <span className="text-sm font-semibold text-stone-950 whitespace-nowrap">{user.name}</span>
+          {user.username && (
+            <span className="text-xs text-stone-500 whitespace-nowrap">@{user.username}</span>
+          )}
           {createdAt && (
             <>
-              <span style={S.sep}>&middot;</span>
-              <span style={S.time}>{timeAgo(createdAt)}</span>
+              <span className="text-[11px] text-stone-500">&middot;</span>
+              <span className="text-[11px] text-stone-500 whitespace-nowrap">{timeAgo(createdAt)}</span>
             </>
           )}
         </div>
 
-        <button style={S.moreBtn} aria-label="Opciones">
+        <button
+          className="flex shrink-0 items-center justify-center min-w-[44px] min-h-[44px] p-3 bg-transparent border-none cursor-pointer text-stone-500"
+          aria-label="Opciones"
+        >
           <MoreHorizontal size={20} />
         </button>
       </div>
 
       {/* ---- Media ---- */}
       {images.length > 0 && (
-        <div style={S.mediaWrap}>
+        <div className="relative w-full overflow-hidden">
           <div
             ref={scrollRef}
-            style={S.scrollContainer}
+            className={`scrollbar-hide flex ${
+              hasMultiple ? 'snap-x snap-mandatory overflow-x-auto' : 'overflow-hidden'
+            }`}
             onScroll={handleScroll}
             onClick={handleDoubleTap}
           >
             {images.map((src, i) => (
-              <div key={typeof src === 'string' ? src : i} style={S.slide}>
+              <div key={typeof src === 'string' ? src : i} className="min-w-full snap-start">
                 <img
                   src={src}
                   alt={`Post ${post.id} imagen ${i + 1}`}
-                  style={S.img}
+                  className="block w-full aspect-square object-cover"
                   loading={i === 0 && priority ? 'eager' : 'lazy'}
                 />
               </div>
@@ -442,23 +202,21 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
 
           {/* Heart animation overlay */}
           {showHeartAnim && (
-            <div style={S.heartOverlay}>
+            <div className="absolute inset-0 z-[2] flex items-center justify-center pointer-events-none">
               <Heart
                 size={72}
-                fill="var(--color-black)"
-                color="var(--color-black)"
-                style={heartAnimStyle}
+                className={`fill-stone-950 text-stone-950 ${showHeartAnim ? 'postcard-heart-active' : 'opacity-0'}`}
               />
             </div>
           )}
 
           {/* Dots */}
           {hasMultiple && (
-            <div style={S.dots}>
+            <div className="flex justify-center gap-1 py-2">
               {images.map((_, i) => (
                 <button
                   key={i}
-                  style={S.dot(i === carouselIndex)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-transparent border-none p-0 cursor-pointer"
                   aria-label={`Imagen ${i + 1} de ${images.length}`}
                   onClick={() => {
                     scrollRef.current?.scrollTo({
@@ -467,7 +225,11 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
                     });
                   }}
                 >
-                  <span style={S.dotInner(i === carouselIndex)} />
+                  <span
+                    className={`block h-1.5 w-1.5 rounded-full transition-colors duration-150 ${
+                      i === carouselIndex ? 'bg-stone-950' : 'bg-stone-300'
+                    }`}
+                  />
                 </button>
               ))}
             </div>
@@ -476,63 +238,70 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
       )}
 
       {/* ---- Actions ---- */}
-      <div style={S.actions}>
+      <div className="flex items-center gap-4 px-3 py-2">
         <button
-          style={{
-            ...S.actionBtn,
-            color: liked ? 'var(--color-black)' : 'var(--color-stone)',
-          }}
+          className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer transition-transform duration-150 ${
+            liked ? 'text-stone-950' : 'text-stone-500'
+          }`}
           onClick={handleLike}
           aria-label={liked ? `Quitar me gusta · ${likesCount}` : `Me gusta · ${likesCount}`}
         >
           <Heart
             size={24}
-            fill={liked ? 'var(--color-black)' : 'none'}
-            color={liked ? 'var(--color-black)' : 'currentColor'}
+            fill={liked ? 'currentColor' : 'none'}
+            color="currentColor"
           />
-          {likesCount > 0 && <span style={S.actionCount}>{likesCount}</span>}
+          {likesCount > 0 && (
+            <span className="text-[13px] font-semibold text-stone-950">{likesCount}</span>
+          )}
         </button>
 
         <button
-          style={S.actionBtn}
+          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-500 transition-transform duration-150"
           onClick={() => onComment?.(post.id)}
           aria-label={`Comentar · ${commentsCount}`}
         >
           <MessageCircle size={24} />
           {commentsCount > 0 && (
-            <span style={S.actionCount}>{commentsCount}</span>
+            <span className="text-[13px] font-semibold text-stone-950">{commentsCount}</span>
           )}
         </button>
 
-        <button style={S.actionBtn} onClick={() => onShare?.(post.id)} aria-label="Compartir">
+        <button
+          className="flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer text-stone-500 transition-transform duration-150"
+          onClick={() => onShare?.(post.id)}
+          aria-label="Compartir"
+        >
           <Share2 size={24} />
         </button>
 
         <button
-          style={{
-            ...S.bookmarkBtn,
-            color: saved ? 'var(--color-black)' : 'var(--color-stone)',
-          }}
+          className={`ml-auto flex min-h-[44px] items-center bg-transparent border-none py-2.5 cursor-pointer ${
+            saved ? 'text-stone-950' : 'text-stone-500'
+          }`}
           onClick={handleSave}
           aria-label={saved ? 'Quitar guardado' : 'Guardar'}
         >
           <Bookmark
             size={24}
-            fill={saved ? 'var(--color-black)' : 'none'}
-            color={saved ? 'var(--color-black)' : 'currentColor'}
+            fill={saved ? 'currentColor' : 'none'}
+            color="currentColor"
           />
         </button>
       </div>
 
       {/* ---- Caption ---- */}
       {captionText && (
-        <div style={S.caption}>
-          <div style={S.captionText} ref={captionRef}>
-            <span style={S.captionName}>{user.name}</span>
+        <div className="px-4 pb-2 text-sm leading-[1.45] text-stone-950">
+          <div className={shouldClamp ? 'line-clamp-3' : ''}>
+            <span className="mr-1 font-semibold">{user.name}</span>
             {renderCaption(captionText)}
           </div>
           {shouldClamp && (
-            <button style={S.verMas} onClick={() => setExpanded(true)}>
+            <button
+              className="min-h-[44px] bg-transparent border-none p-0 py-1 text-sm text-stone-500 cursor-pointer font-[inherit]"
+              onClick={() => setExpanded(true)}
+            >
               ... Ver m&aacute;s
             </button>
           )}
@@ -541,22 +310,28 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, pri
 
       {/* ---- Tagged products ---- */}
       {normalizedProducts.length > 0 && (
-        <div style={S.productsRow}>
+        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 pb-3">
           {normalizedProducts.map((product) => (
             <button
               key={product.id || product.product_id}
-              style={S.productPill}
+              className="flex shrink-0 items-center gap-2 rounded-full bg-stone-100 py-1 pl-1 pr-3 border-none cursor-pointer font-[inherit]"
               onClick={() => navigate(`/product/${product.id || product.product_id}`)}
             >
               {(product.image || product.thumbnail) && (
                 <img
                   src={product.image || product.thumbnail}
                   alt={product.name || product.title}
-                  style={S.productImg}
+                  className="h-8 w-8 rounded-full object-cover"
                 />
               )}
-              <span style={S.productName}>{product.name || product.title}</span>
-              {product.price != null && <span style={S.productPrice}>{formatPrice(product.price)}</span>}
+              <span className="max-w-[120px] truncate text-xs font-medium text-stone-950">
+                {product.name || product.title}
+              </span>
+              {product.price != null && (
+                <span className="whitespace-nowrap text-xs font-bold text-stone-950">
+                  {formatPrice(product.price)}
+                </span>
+              )}
             </button>
           ))}
         </div>

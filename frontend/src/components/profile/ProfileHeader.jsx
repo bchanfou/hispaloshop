@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -15,13 +15,9 @@ import {
   Share2,
   Check,
   Plus,
-  X,
   Copy,
-  LogOut,
-  UserPlus,
   Package,
 } from 'lucide-react';
-import apiClient from '../../services/api/client';
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 
@@ -69,6 +65,19 @@ export default function ProfileHeader({
   const [showOptionsSheet, setShowOptionsSheet] = useState(false);
   const [bioExpanded, setBioExpanded] = useState(false);
 
+  /* close bottom sheets on Escape */
+  useEffect(() => {
+    if (!showAccountSwitcher && !showOptionsSheet) return;
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setShowAccountSwitcher(false);
+        setShowOptionsSheet(false);
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [showAccountSwitcher, showOptionsSheet]);
+
   /* ── accounts from localStorage ────────────────────────────────── */
 
   const accounts = useMemo(() => {
@@ -94,7 +103,7 @@ export default function ProfileHeader({
     ];
   }, [user]);
 
-  const currentToken = localStorage.getItem('hsp_token') || '';
+  const currentUserId = user?.user_id;
 
   /* ── avatar file pick ──────────────────────────────────────────── */
 
@@ -165,6 +174,9 @@ export default function ProfileHeader({
             {/* username dropdown */}
             <button
               onClick={() => setShowAccountSwitcher(true)}
+              aria-label="Cambiar cuenta"
+              aria-expanded={showAccountSwitcher}
+              aria-haspopup="dialog"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -190,7 +202,7 @@ export default function ProfileHeader({
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                padding: 4,
+                padding: 11,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -209,7 +221,7 @@ export default function ProfileHeader({
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                padding: 4,
+                padding: 11,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -231,7 +243,7 @@ export default function ProfileHeader({
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                padding: 4,
+                padding: 11,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -267,6 +279,9 @@ export default function ProfileHeader({
               initial="hidden"
               animate="visible"
               exit="exit"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Cambiar cuenta"
               style={{
                 position: 'fixed',
                 bottom: 0,
@@ -292,7 +307,7 @@ export default function ProfileHeader({
               <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>Cuentas</div>
 
               {accounts.map((acc) => {
-                const isActive = acc.token === currentToken;
+                const isActive = acc.user_id === currentUserId;
                 return (
                   <button
                     key={acc.user_id || acc.username}
@@ -578,9 +593,8 @@ export default function ProfileHeader({
             )}
             {user?.discount_code && (
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(user.discount_code);
-                  toast.success('Código copiado: ' + user.discount_code);
+                onClick={async () => {
+                  try { await navigator.clipboard.writeText(user.discount_code); toast.success('Código copiado: ' + user.discount_code); } catch { toast.error('No se pudo copiar'); }
                 }}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -598,7 +612,7 @@ export default function ProfileHeader({
         )}
 
         {/* website */}
-        {user?.website && (
+        {user?.website && /^https?:\/\//i.test(user.website) && (
           <div
             style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}
           >
@@ -637,7 +651,8 @@ export default function ProfileHeader({
               onClick={onEditProfile}
               style={{
                 flex: 1,
-                padding: 8,
+                padding: '10px 8px',
+                minHeight: 44,
                 fontSize: 13,
                 fontWeight: 600,
                 background: 'var(--color-surface)',
@@ -654,7 +669,8 @@ export default function ProfileHeader({
               onClick={shareProfile}
               style={{
                 flex: 1,
-                padding: 8,
+                padding: '10px 8px',
+                minHeight: 44,
                 fontSize: 13,
                 fontWeight: 600,
                 background: 'var(--color-surface)',
@@ -676,7 +692,8 @@ export default function ProfileHeader({
               aria-label={user?.is_following ? `Dejar de seguir a ${user?.name}` : `Seguir a ${user?.name}`}
               style={{
                 flex: 1,
-                padding: '8px 12px',
+                padding: '10px 12px',
+                minHeight: 44,
                 fontSize: 13,
                 fontWeight: 600,
                 borderRadius: 'var(--radius-xl)',
@@ -701,9 +718,11 @@ export default function ProfileHeader({
             {/* message */}
             <button
               onClick={onMessage}
+              aria-label="Enviar mensaje"
               style={{
                 flex: 1,
-                padding: '8px 12px',
+                padding: '10px 12px',
+                minHeight: 44,
                 fontSize: 13,
                 fontWeight: 600,
                 background: 'var(--color-white)',
@@ -730,7 +749,8 @@ export default function ProfileHeader({
                 }
                 style={{
                   flex: 1,
-                  padding: '8px 12px',
+                  padding: '10px 12px',
+                  minHeight: 44,
                   fontSize: 13,
                   fontWeight: 600,
                   background: 'var(--color-white)',
@@ -770,6 +790,7 @@ export default function ProfileHeader({
             >
               <button
                 onClick={() => toast('Próximamente')}
+                aria-label="Crear historia destacada"
                 style={{
                   width: 62,
                   height: 62,
@@ -860,6 +881,9 @@ export default function ProfileHeader({
               initial="hidden"
               animate="visible"
               exit="exit"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Opciones de perfil"
               style={{
                 position: 'fixed',
                 bottom: 0,
@@ -952,20 +976,16 @@ export default function ProfileHeader({
 /* ── Option row for the bottom sheet ─────────────────────────────── */
 
 function OptionRow({ icon, label, onClick, color }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <button
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: 12,
         width: '100%',
         padding: '14px 20px',
-        background: hovered ? 'var(--color-surface)' : 'transparent',
+        background: 'transparent',
         border: 'none',
         cursor: 'pointer',
         textAlign: 'left',
@@ -975,6 +995,8 @@ function OptionRow({ icon, label, onClick, color }) {
         fontFamily: 'var(--font-sans)',
         transition: 'var(--transition-fast)',
       }}
+      onPointerEnter={(e) => { e.currentTarget.style.background = 'var(--color-surface)'; }}
+      onPointerLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
     >
       {icon}
       {label}
