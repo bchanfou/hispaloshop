@@ -210,8 +210,8 @@ export default function ReelCard({ reel, isActive, onLike, embedded = false }) {
   const followBtnStyle = {
     position: 'absolute',
     bottom: '-10px',
-    width: '20px',
-    height: '20px',
+    width: 28,
+    height: 28,
     borderRadius: 'var(--radius-full)',
     background: 'var(--color-black)',
     border: 'none',

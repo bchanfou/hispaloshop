@@ -211,7 +211,8 @@ export default function SearchPage() {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const data = await apiClient.get('/search', { params: { q: query.trim(), limit: 8 } });
+        const sortParam = sortBy !== 'relevance' ? sortBy : undefined;
+        const data = await apiClient.get('/search', { params: { q: query.trim(), limit: 8, sort: sortParam } });
         setResults(data);
         setSearchParams({ q: query.trim() }, { replace: true });
       } catch {
@@ -221,7 +222,7 @@ export default function SearchPage() {
       }
     }, 320);
     return () => clearTimeout(timer);
-  }, [query, setSearchParams]);
+  }, [query, sortBy, setSearchParams]);
 
   const handleSubmit = useCallback((e) => {
     e?.preventDefault();

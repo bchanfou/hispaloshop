@@ -377,6 +377,14 @@ export default function ProducerProducts() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Price validation
+    const parsedPrice = parseFloat(formData.price);
+    if (!formData.price || isNaN(parsedPrice) || parsedPrice < 0.01 || parsedPrice > 99999.99) {
+      toast.error('El precio debe estar entre 0,01 y 99.999,99 EUR');
+      return;
+    }
+
     try {
       // Normalize images array before sending
       const normalizedImages = Array.isArray(formData.images) 

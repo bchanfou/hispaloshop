@@ -14,7 +14,7 @@ const V2 = {
   surface: '#F0EDE8',
   green: '#0c0a09',
   greenLight: '#f5f5f4',
-  greenBorder: '#A0D0B0',
+  greenBorder: '#d6d3d1',
   fontSans: 'Inter, sans-serif',
   radiusMd: 12,
   radiusFull: 9999,

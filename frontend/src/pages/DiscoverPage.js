@@ -153,6 +153,7 @@ export default function DiscoverPage() {
             <button
               key={pill.id}
               onClick={() => setActiveFilter(pill.id)}
+              aria-pressed={activeFilter === pill.id}
               style={{
                 flexShrink: 0,
                 padding: '7px 16px',

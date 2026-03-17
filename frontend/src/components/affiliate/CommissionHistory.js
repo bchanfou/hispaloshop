@@ -44,7 +44,7 @@ export function CommissionHistory() {
         <div className="p-6">
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-16 bg-stone-100 animate-pulse rounded" />
+              <div key={i} className="h-16 bg-stone-100 animate-pulse rounded-xl" />
             ))}
           </div>
         </div>

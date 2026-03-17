@@ -84,12 +84,13 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
             ))
           : stories.map((story, idx) => (
               <div role="button" aria-label={`Ver historia de ${story.user?.name || story.user?.username || 'usuario'}`} key={story.user?.id || idx}>
-              <StoryRing
-                user={story.user}
-                isSelf={false}
-                hasUnseenStory={story.has_unseen !== false}
-                onClick={() => onStoryClick && onStoryClick(stories, idx)}
-              />
+                <StoryRing
+                  user={story.user}
+                  isSelf={false}
+                  hasUnseenStory={story.has_unseen !== false}
+                  onClick={() => onStoryClick && onStoryClick(stories, idx)}
+                />
+              </div>
             ))}
       </div>
     </>

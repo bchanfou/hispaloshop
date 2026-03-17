@@ -15,10 +15,10 @@ const V2 = {
   surface: '#F0EDE8',
   green: '#0c0a09',
   greenLight: '#f5f5f4',
-  amber: '#B45309',
-  amberLight: '#FEF3C7',
-  red: '#DC2626',
-  redLight: '#FEE2E2',
+  amber: '#78716c',
+  amberLight: '#fafaf9',
+  red: 'var(--color-red)',
+  redLight: 'var(--color-red-light)',
   fontSans: 'Inter, sans-serif',
   radiusMd: 12,
   radiusFull: 9999,
@@ -135,7 +135,7 @@ export default function B2BDisputePage() {
         <div
           style={{
             background: V2.amberLight,
-            border: `1px solid rgba(180, 83, 9, 0.3)`,
+            border: `1px solid rgba(120,113,108, 0.3)`,
             borderRadius: V2.radiusMd,
             padding: 16,
             marginBottom: 24,

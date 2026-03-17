@@ -11,17 +11,17 @@ export default function MessageInput({ onSend, onTyping }) {
   };
 
   return (
-    <form onSubmit={submit} className="border-t p-3 flex gap-2">
+    <form onSubmit={submit} className="border-t border-stone-200 p-3 flex gap-2">
       <input
         value={value}
         onChange={(e) => {
           setValue(e.target.value);
           onTyping?.(Boolean(e.target.value));
         }}
-        className="flex-1 border rounded-xl px-3 py-2"
+        className="flex-1 border border-stone-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-stone-300"
         placeholder="Escribe un mensaje..."
       />
-      <button className="bg-stone-950 hover:bg-stone-800 text-white px-4 rounded-xl" type="submit">Enviar</button>
+      <button className="bg-stone-950 hover:bg-stone-800 text-white px-4 rounded-xl transition-colors" type="submit" aria-label="Enviar mensaje">Enviar</button>
     </form>
   );
 }
