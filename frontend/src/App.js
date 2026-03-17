@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import '@/App.css';
 import './locales/i18n';
@@ -239,14 +239,36 @@ function LegacyOrdersRedirect() {
   return <Navigate to="/dashboard/orders" replace />;
 }
 
-function LegacyProfileRedirect() {
-  const { user, loading } = useAuth();
+/**
+ * Handles /:username routes — renders profile if username exists, otherwise NotFound.
+ * Only matches single-segment paths that look like usernames.
+ */
+function UsernameProfileRoute() {
+  const { username } = useParams();
+  // Valid usernames: 3-30 chars, lowercase alpha, numbers, underscores, dots
+  const isValidUsername = /^[a-z0-9_.]{3,30}$/.test(username);
+  if (!isValidUsername) return <NotFoundPage />;
+  return <UserProfilePage />;
+}
 
-  if (loading) return <RouteLoader />;
+function LegacyProfileRedirect() {
+  const { user, loading, checkAuth } = useAuth();
+  const [retried, setRetried] = useState(false);
+
+  const userId = user ? (user.user_id || user.id || user.username) : null;
+  const needsRetry = !loading && user && !userId && !retried;
+
+  useEffect(() => {
+    if (needsRetry) {
+      setRetried(true);
+      checkAuth();
+    }
+  }, [needsRetry, checkAuth]);
+
+  if (loading || needsRetry) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
-  const userId = user.user_id || user.id || user.username;
   if (userId) return <Navigate to={`/user/${userId}`} replace />;
-  return <Navigate to="/" replace />;
+  return <Navigate to="/settings/profile" replace />;
 }
 
 const HeroBanner = lazy(() => import('./components/informativas/HeroBanner'));
@@ -700,6 +722,7 @@ function AppRouter() {
               {/* /checkout is now a real page, defined above */}
               <Route path="/stories/*" element={<Navigate to="/" replace />} />
               <Route path="/auth/*" element={<Navigate to="/login" replace />} />
+              <Route path="/:username" element={<UsernameProfileRoute />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </motion.div>

@@ -13,7 +13,8 @@ import OverlayErrorBoundary from '../components/OverlayErrorBoundary';
 import apiClient from '../services/api/client';
 
 export default function UserProfilePage() {
-  const { userId } = useParams();
+  const params = useParams();
+  const userId = params.userId || params.username;
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 

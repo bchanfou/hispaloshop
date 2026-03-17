@@ -620,14 +620,17 @@ async def get_user_profile(user_id: str, request: Request):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    followers_count = await db.user_follows.count_documents({"following_id": user_id})
-    following_count = await db.user_follows.count_documents({"follower_id": user_id})
-    posts_count = await db.user_posts.count_documents({"user_id": user_id})
+    # Use the actual user_id from the document (path param may be a username)
+    actual_user_id = user.get("user_id") or user_id
+
+    followers_count = await db.user_follows.count_documents({"following_id": actual_user_id})
+    following_count = await db.user_follows.count_documents({"follower_id": actual_user_id})
+    posts_count = await db.user_posts.count_documents({"user_id": actual_user_id})
 
     is_following = False
     current_user = await get_optional_user(request)
     if current_user:
-        follow_exists = await db.user_follows.find_one({"follower_id": current_user.user_id, "following_id": user_id})
+        follow_exists = await db.user_follows.find_one({"follower_id": current_user.user_id, "following_id": actual_user_id})
         is_following = follow_exists is not None
 
     profile = {
@@ -652,7 +655,7 @@ async def get_user_profile(user_id: str, request: Request):
     # Attach store_slug for producers
     if user.get("role") in ("producer", "importer"):
         store = await db.store_profiles.find_one(
-            {"producer_id": user.get("user_id")}, {"_id": 0, "slug": 1}
+            {"producer_id": actual_user_id}, {"_id": 0, "slug": 1}
         )
         profile["store_slug"] = store.get("slug") if store else user.get("username")
 
@@ -663,7 +666,7 @@ async def get_user_profile(user_id: str, request: Request):
         profile["youtube"] = user.get("youtube")
         profile["niche"] = user.get("niche")
         inf = await db.influencers.find_one(
-            {"$or": [{"user_id": user_id}, {"email": user.get("email", "").lower()}]},
+            {"$or": [{"user_id": actual_user_id}, {"email": user.get("email", "").lower()}]},
             {"_id": 0, "current_tier": 1, "niche": 1}
         )
         if inf:
@@ -672,17 +675,17 @@ async def get_user_profile(user_id: str, request: Request):
 
     if user.get("role") == "producer":
         orders = await db.orders.find(
-            {"line_items.producer_id": user_id, "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]}},
+            {"line_items.producer_id": actual_user_id, "status": {"$in": ["paid", "confirmed", "preparing", "shipped", "delivered"]}},
             {"_id": 0, "line_items": 1}
         ).to_list(1000)
         total_sales = 0
         total_orders = len(orders)
         for order in orders:
             for item in order.get("line_items", []):
-                if item.get("producer_id") == user_id:
+                if item.get("producer_id") == actual_user_id:
                     total_sales += item.get("subtotal", item.get("price", 0) * item.get("quantity", 1))
 
-        products = await db.products.find({"producer_id": user_id}, {"_id": 0, "product_id": 1}).to_list(100)
+        products = await db.products.find({"producer_id": actual_user_id}, {"_id": 0, "product_id": 1}).to_list(100)
         product_ids = [p["product_id"] for p in products]
         avg_rating = 0
         review_count = 0
@@ -696,11 +699,11 @@ async def get_user_profile(user_id: str, request: Request):
                 review_count = review_agg[0]["count"]
 
         featured_products = await db.products.find(
-            {"producer_id": user_id, **_public_product_filter()},
+            {"producer_id": actual_user_id, **_public_product_filter()},
             {"_id": 0, "product_id": 1, "name": 1, "price": 1, "images": 1}
         ).sort("created_at", -1).limit(4).to_list(4)
 
-        store = await db.store_profiles.find_one({"producer_id": user_id}, {"_id": 0, "slug": 1, "tagline": 1, "verified": 1, "badges": 1})
+        store = await db.store_profiles.find_one({"producer_id": actual_user_id}, {"_id": 0, "slug": 1, "tagline": 1, "verified": 1, "badges": 1})
 
         profile["seller_stats"] = {
             "total_sales": round(total_sales, 2),
