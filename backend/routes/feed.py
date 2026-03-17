@@ -198,3 +198,43 @@ async def get_best_sellers(country: Optional[str] = None, limit: int = 8):
     
     return products
 
+
+# ============================================
+# FEED ENDPOINTS — proxy to social.py feed
+# The frontend expects /feed/foryou and /feed at the /api prefix.
+# The actual implementation is in social.py's /feed endpoint.
+# ============================================
+
+@router.get("/feed/foryou")
+async def feed_foryou_proxy(
+    request: Request,
+    limit: int = 20,
+    cursor: Optional[str] = None,
+    skip: int = 0,
+):
+    """Proxy /feed/foryou → social.py feed endpoint (scope=hybrid)."""
+    from routes.social import get_social_feed
+    return await get_social_feed(
+        request=request,
+        scope="hybrid",
+        limit=limit,
+        skip=int(cursor) if cursor else skip,
+    )
+
+
+@router.get("/feed/following")
+async def feed_following_proxy(
+    request: Request,
+    limit: int = 20,
+    cursor: Optional[str] = None,
+    skip: int = 0,
+):
+    """Proxy /feed/following → social.py feed endpoint (scope=following)."""
+    from routes.social import get_social_feed
+    return await get_social_feed(
+        request=request,
+        scope="following",
+        limit=limit,
+        skip=int(cursor) if cursor else skip,
+    )
+
