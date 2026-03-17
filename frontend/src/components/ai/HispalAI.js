@@ -64,9 +64,6 @@ export default function HispalAI() {
   } = useHispalAI();
 
   const [input, setInput] = useState('');
-
-  // Don't render for unauthenticated users
-  if (!user) return null;
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -83,6 +80,9 @@ export default function HispalAI() {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
+
+  // Don't render for unauthenticated users (after all hooks)
+  if (!user) return null;
 
   const handleSend = () => {
     if (!input.trim()) return;
