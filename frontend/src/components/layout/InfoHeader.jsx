@@ -193,12 +193,12 @@ export default function InfoHeader() {
               color: '#fff',
               textDecoration: 'none',
               borderRadius: 'var(--radius-full)',
-              background: 'var(--color-green)',
-              border: '1px solid var(--color-green)',
+              background: 'var(--color-black)',
+              border: '1px solid var(--color-black)',
               transition: 'background 0.15s ease',
             }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--color-green-dark)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'var(--color-green)'}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--color-black)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--color-black)'}
             >
               Empieza gratis
             </Link>
@@ -305,7 +305,7 @@ export default function InfoHeader() {
                     justifyContent: 'center',
                     height: 44,
                     borderRadius: 'var(--radius-full)',
-                    background: 'var(--color-green)',
+                    background: 'var(--color-black)',
                     color: '#fff',
                     fontSize: 'var(--text-sm)',
                     fontWeight: 600,

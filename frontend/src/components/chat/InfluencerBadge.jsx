@@ -2,8 +2,8 @@ import React from 'react';
 import { Star } from 'lucide-react';
 
 const V2 = {
-  green: '#2E7D52',
-  greenLight: 'rgba(46,125,82,0.08)',
+  green: '#0c0a09',
+  greenLight: '#f5f5f4',
   fontSans: 'Inter, system-ui, sans-serif',
   radiusFull: 9999,
 };

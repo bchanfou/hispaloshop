@@ -374,7 +374,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     style={{
                       display: 'block', textAlign: 'center',
                       padding: '12px 0', borderRadius: 'var(--radius-full)',
-                      background: 'var(--color-green, #2E7D52)', color: '#fff',
+                      background: 'var(--color-black)', color: '#fff',
                       fontSize: 14, fontWeight: 600,
                       textDecoration: 'none', fontFamily: 'var(--font-sans)',
                     }}
@@ -520,7 +520,7 @@ function AccordionOption({ label, isActive, disabled, badge, badgeVariant, onCli
           {badge}
         </span>
       )}
-      {isActive && <Check size={16} color="var(--color-green, #2E7D52)" strokeWidth={2.5} />}
+      {isActive && <Check size={16} color="var(--color-black)" strokeWidth={2.5} />}
     </button>
   );
 }

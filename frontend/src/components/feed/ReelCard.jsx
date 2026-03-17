@@ -213,7 +213,7 @@ export default function ReelCard({ reel, isActive, onLike, embedded = false }) {
     width: '20px',
     height: '20px',
     borderRadius: 'var(--radius-full)',
-    background: 'var(--color-green)',
+    background: 'var(--color-black)',
     border: 'none',
     display: 'flex',
     alignItems: 'center',

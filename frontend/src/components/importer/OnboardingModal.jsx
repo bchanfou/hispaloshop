@@ -41,7 +41,7 @@ const CONFETTI = Array.from({ length: 12 }, (_, index) => ({
   left: `${10 + index * 7}%`,
   delay: index * 0.12,
   duration: 2.6 + (index % 3) * 0.35,
-  color: ['var(--color-amber)', 'var(--color-blue)', 'var(--color-green)', 'var(--color-red)'][index % 4],
+  color: ['var(--color-amber)', 'var(--color-blue)', 'var(--color-black)', 'var(--color-red)'][index % 4],
 }));
 
 let stripeLoader;

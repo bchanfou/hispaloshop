@@ -5,8 +5,8 @@ import apiClient from '@/services/api/client';
 
 const V2 = {
   black: '#0A0A0A',
-  green: '#2E7D52',
-  greenLight: '#E8F5EE',
+  green: '#0c0a09',
+  greenLight: '#f5f5f4',
   stone: '#8A8881',
   border: '#E5E2DA',
   surface: '#F0EDE8',

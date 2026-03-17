@@ -5,7 +5,7 @@ import { Camera, Video, FileText, ShoppingBag } from 'lucide-react';
 
 const V2 = {
   black: '#0A0A0A',
-  green: '#2E7D52',
+  green: '#0c0a09',
   stone: '#8A8881',
   border: '#E5E2DA',
   surface: '#F0EDE8',

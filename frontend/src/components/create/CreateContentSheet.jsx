@@ -4,15 +4,15 @@ import { useNavigate } from 'react-router-dom';
 
 const CONTENT_TYPES = [
   // Row 1 — 3 columns
-  { type: 'post',  emoji: '📸', label: 'Post',   green: false },
-  { type: 'reel',  emoji: '🎬', label: 'Reel',   green: false },
-  { type: 'story', emoji: '⭕', label: 'Story',  green: false },
+  { type: 'post',  emoji: '📸', label: 'Post',   primary: false },
+  { type: 'reel',  emoji: '🎬', label: 'Reel',   primary: false },
+  { type: 'story', emoji: '⭕', label: 'Story',  primary: false },
   // Row 2 — 2 columns (centrado)
-  { type: 'recipe', emoji: '🍳', label: 'Receta', green: true },
-  { type: 'text',   emoji: 'Aa', label: 'Texto',  green: false, isText: true },
+  { type: 'recipe', emoji: '🍳', label: 'Receta', primary: true },
+  { type: 'text',   emoji: 'Aa', label: 'Texto',  primary: false, isText: true },
 ];
 
-function ContentTypeButton({ emoji, label, green, isText, onSelect }) {
+function ContentTypeButton({ emoji, label, primary, isText, onSelect }) {
   return (
     <button
       type="button"
@@ -44,8 +44,8 @@ function ContentTypeButton({ emoji, label, green, isText, onSelect }) {
         justifyContent: 'center',
         fontSize: isText ? 22 : 26,
         fontWeight: isText ? 700 : 400,
-        background: green ? 'var(--color-green)' : 'var(--color-surface)',
-        color: green ? '#fff' : 'var(--color-black)',
+        background: primary ? 'var(--color-black)' : 'var(--color-surface)',
+        color: primary ? '#fff' : 'var(--color-black)',
       }}>
         {emoji}
       </div>

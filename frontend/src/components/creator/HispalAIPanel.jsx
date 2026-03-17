@@ -46,7 +46,7 @@ export default function HispalAIPanel({ isOpen, onClose, contentType, onApply })
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles size={18} color="var(--color-green)" />
+                <Sparkles size={18} color="var(--color-black)" />
                 <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>Hispal AI</span>
               </div>
               <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -76,7 +76,7 @@ export default function HispalAIPanel({ isOpen, onClose, contentType, onApply })
                   {suggestion.caption}
                 </p>
                 {suggestion.hashtags?.length > 0 && (
-                  <p style={{ fontSize: 13, color: 'var(--color-green)', marginBottom: 16 }}>
+                  <p style={{ fontSize: 13, color: 'var(--color-black)', marginBottom: 16 }}>
                     {suggestion.hashtags.map((h) => `#${h}`).join(' ')}
                   </p>
                 )}

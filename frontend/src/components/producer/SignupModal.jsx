@@ -187,7 +187,7 @@ function getPasswordStrength(password) {
   if (score === 2 || score === 3) {
     return { label: 'Media', color: 'var(--color-amber)', width: '66%' };
   }
-  return { label: 'Alta', color: 'var(--color-green)', width: '100%' };
+  return { label: 'Alta', color: 'var(--color-black)', width: '100%' };
 }
 
 function loadStripeJs() {

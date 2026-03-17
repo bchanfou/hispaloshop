@@ -76,7 +76,7 @@ export default function HeroBanner() {
             height: 40,
             padding: '0 20px',
             borderRadius: 'var(--radius-full)',
-            background: 'var(--color-green)',
+            background: 'var(--color-black)',
             color: '#fff',
             fontSize: 'var(--text-sm)',
             fontWeight: 600,

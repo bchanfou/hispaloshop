@@ -2,11 +2,11 @@ import React from 'react';
 
 const V2 = {
   black: '#0A0A0A',
-  green: '#2E7D52',
+  green: '#0c0a09',
   stone: '#8A8881',
   white: '#fff',
-  greenLight: '#E8F5EC',
-  greenBorder: '#B6DCC6',
+  greenLight: '#f5f5f4',
+  greenBorder: '#d6d3d1',
   fontSans: 'Inter, sans-serif',
   radiusMd: 12,
 };

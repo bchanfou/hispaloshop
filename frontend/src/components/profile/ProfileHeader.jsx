@@ -407,7 +407,7 @@ export default function ProfileHeader({
               width: 84,
               height: 84,
               borderRadius: '50%',
-              border: `2px solid ${user?.has_active_story ? 'var(--color-green)' : 'var(--color-border)'}`,
+              border: `2px solid ${user?.has_active_story ? 'var(--color-black)' : 'var(--color-border)'}`,
               objectFit: 'cover',
             }}
           />
