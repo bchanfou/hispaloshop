@@ -40,6 +40,7 @@ export default function BackButton({
         transition-colors duration-200
         font-medium rounded-xl
         hover:bg-stone-100
+        focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1
         ${sizeClasses[size]}
         ${className}
       `}

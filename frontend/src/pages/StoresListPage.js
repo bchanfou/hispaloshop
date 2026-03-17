@@ -338,7 +338,10 @@ export default function StoresListPage() {
               fontSize: 14, color: 'var(--color-black)',
               outline: 'none', boxSizing: 'border-box',
               fontFamily: 'var(--font-sans)',
+              transition: 'border-color 0.15s ease',
             }}
+            onFocus={e => e.currentTarget.style.borderColor = 'var(--color-black)'}
+            onBlur={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
           />
           {searchInput && (
             <button
@@ -346,7 +349,7 @@ export default function StoresListPage() {
               style={{
                 position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
                 background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
-                borderRadius: '50%', width: 22, height: 22,
+                borderRadius: '50%', width: 32, height: 32,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
               aria-label="Limpiar búsqueda"

@@ -232,7 +232,7 @@ export default function ProductsPage() {
                       setFilters((prev) => ({ ...prev, search: nextValue }));
                       updateSearchParams({ search: nextValue });
                     }}
-                    className="h-11 rounded-full border border-stone-200 bg-stone-50 pl-9 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 w-full"
+                    className="h-11 rounded-full border border-stone-200 bg-stone-50 pl-9 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 focus:ring-1 focus:ring-stone-300 w-full"
                     aria-label={t('products.searchPlaceholder', 'Buscar productos')}
                   />
                 </div>
@@ -245,7 +245,7 @@ export default function ProductsPage() {
                       setFilters((prev) => ({ ...prev, sort: nextValue }));
                       updateSearchParams({ sort: nextValue === 'relevance' ? '' : nextValue });
                     }}
-                    className="h-11 appearance-none rounded-full border border-stone-200 bg-white px-4 py-2.5 pr-9 text-sm outline-none focus:border-stone-950"
+                    className="h-11 appearance-none rounded-full border border-stone-200 bg-white px-4 py-2.5 pr-9 text-sm outline-none focus:border-stone-950 focus:ring-1 focus:ring-stone-300"
                     aria-label={t('products.sortLabel', 'Ordenar productos')}
                   >
                     {SORT_OPTIONS.map((option) => (
