@@ -1336,7 +1336,10 @@ async def get_social_feed(
         all_posts.sort(key=lambda p: p.get("created_at") or "", reverse=True)
 
     # Batch load product availability for tagged products
-    product_ids = set(p.get("tagged_product", {}).get("product_id") for p in all_posts if p.get("tagged_product"))
+    product_ids = set(
+        (p.get("tagged_product") if isinstance(p.get("tagged_product"), str) else (p.get("tagged_product") or {}).get("product_id"))
+        for p in all_posts if p.get("tagged_product")
+    )
     product_ids.discard(None)
 
     product_availability = {}
@@ -1367,7 +1370,7 @@ async def get_social_feed(
             product = post.get("tagged_product")
             is_available = True
             if product:
-                pid = product.get("product_id")
+                pid = product if isinstance(product, str) else product.get("product_id")
                 is_available = product_availability.get(pid, True)
             page_posts.append((post, is_available))
         total = len(all_posts)
@@ -1380,7 +1383,7 @@ async def get_social_feed(
             product = post.get("tagged_product")
             is_available = True
             if product:
-                pid = product.get("product_id")
+                pid = product if isinstance(product, str) else product.get("product_id")
                 product_sales = sales_counts.get(pid, 0)
                 is_available = product_availability.get(pid, True)
             score = (product_sales * 3) + (comments * 2) + (likes * 1)
@@ -1404,7 +1407,11 @@ async def get_social_feed(
 
     # --- Batch fetch to eliminate N+1 queries ---
     all_uids = list({p.get("user_id", "") for p, _ in page_posts if p.get("user_id")})
-    all_product_ids = list({p.get("tagged_product", {}).get("product_id") for p, _ in page_posts if p.get("tagged_product", {}).get("product_id")})
+    all_product_ids = list({
+        (p.get("tagged_product") if isinstance(p.get("tagged_product"), str) else (p.get("tagged_product") or {}).get("product_id"))
+        for p, _ in page_posts
+        if p.get("tagged_product")
+    } - {None})
     all_post_ids = [p["post_id"] for p, _ in page_posts if p.get("post_id")]
 
     # Batch fetch users
