@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useUserProfile, useUserFollow } from '../features/user/hooks';
-import { resolveUserImage } from '../features/user/queries';
+import { resolveUserImage, useUserHighlightsQuery, userKeys } from '../features/user/queries';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileTabs from '../components/profile/ProfileTabs';
 import EditProfileSheet from '../components/profile/EditProfileSheet';
@@ -21,6 +22,7 @@ export default function UserProfilePage() {
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showCreateHighlight, setShowCreateHighlight] = useState(false);
 
   const isOwn = currentUser && (
     String(currentUser.user_id) === String(userId) ||
@@ -52,6 +54,20 @@ export default function UserProfilePage() {
   } : null;
 
   const { toggleFollow, followLoading } = useUserFollow(user?.user_id, profile);
+  const { data: highlights = [] } = useUserHighlightsQuery(userId);
+  const queryClient = useQueryClient();
+
+  const handleCreateHighlight = useCallback(async (title) => {
+    if (!title?.trim()) return;
+    try {
+      await apiClient.post('/users/me/highlights', { title: title.trim(), story_ids: [] });
+      queryClient.invalidateQueries({ queryKey: userKeys.highlights(userId) });
+      setShowCreateHighlight(false);
+      toast.success('Destacado creado');
+    } catch {
+      toast.error('Error al crear destacado');
+    }
+  }, [userId, queryClient]);
 
   const handleFollowToggle = useCallback(async () => {
     if (!user || followLoading) return;
@@ -144,11 +160,13 @@ export default function UserProfilePage() {
       <ProfileHeader
         user={user}
         isOwn={isOwn}
-        onEditProfile={() => setShowEditProfile(true)}
+        onEditProfile={() => navigate('/settings/profile')}
         onShare={handleShare}
         onAvatarChange={handleAvatarChange}
         onFollowToggle={handleFollowToggle}
         onMessage={handleMessage}
+        highlights={highlights}
+        onCreateHighlight={() => setShowCreateHighlight(true)}
       />
 
       <ProfileTabs
@@ -165,6 +183,13 @@ export default function UserProfilePage() {
           onClose={() => { setShowEditProfile(false); refetch(); }}
           profile={profile}
           userId={user.user_id}
+        />
+      )}
+
+      {showCreateHighlight && (
+        <CreateHighlightSheet
+          onClose={() => setShowCreateHighlight(false)}
+          onCreate={handleCreateHighlight}
         />
       )}
 
@@ -185,6 +210,46 @@ export default function UserProfilePage() {
           onClose={() => setSelectedProduct(null)}
         />
       )}
+    </div>
+  );
+}
+
+/* ── Inline create-highlight sheet ───────────────────────────────── */
+
+function CreateHighlightSheet({ onClose, onCreate }) {
+  const [title, setTitle] = useState('');
+
+  return (
+    <div className="fixed inset-0 z-[9998]">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute bottom-0 left-0 right-0 z-[9999] rounded-t-xl bg-white px-5 pb-8 pt-4">
+        <div className="mx-auto mb-5 h-1 w-9 rounded-full bg-stone-200" />
+        <div className="mb-4 text-base font-semibold">Nuevo destacado</div>
+        <input
+          type="text"
+          placeholder="Nombre del destacado"
+          maxLength={30}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="mb-4 w-full rounded-xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-stone-400"
+          autoFocus
+        />
+        <div className="flex gap-2">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-xl bg-stone-100 py-3 text-sm font-semibold text-stone-950"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={() => onCreate(title)}
+            disabled={!title.trim()}
+            className="flex-1 rounded-xl bg-stone-950 py-3 text-sm font-semibold text-white disabled:opacity-40"
+          >
+            Crear
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

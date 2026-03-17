@@ -84,6 +84,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
   const displayName = user?.name || user?.full_name || user?.username || '';
   const username = user?.username || '';
   const profileUserId = user?.user_id || user?.id || user?.username || null;
+  const profileUsername = user?.username || null;
 
   const currentCountry = COUNTRIES.find(c => c.code === locale?.country) || COUNTRIES[0];
   const currentLang = LANGUAGES.find(l => l.code === locale?.language) || LANGUAGES[0];
@@ -331,7 +332,7 @@ export default function HamburgerMenu({ isOpen, onClose }) {
                     )}
                   </div>
 
-                  <MenuItem to={profileUserId ? `/user/${profileUserId}` : '/profile'} icon={<Settings size={20} />} label="Mi perfil" onClose={onClose} />
+                  <MenuItem to={profileUsername ? `/${profileUsername}` : '/profile'} icon={<Settings size={20} />} label="Mi perfil" onClose={onClose} />
                   <MenuItem to="/orders" icon={<Package size={20} />} label="Mis pedidos" onClose={onClose} />
                   <MenuItem to="/settings" icon={<Settings size={20} />} label="Configuración" onClose={onClose} />
                   <MenuItem to={dashboardUrl} icon={<LayoutDashboard size={20} />} label="Mi Dashboard" onClose={onClose} />

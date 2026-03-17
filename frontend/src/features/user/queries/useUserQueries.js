@@ -7,6 +7,7 @@ export const userKeys = {
   badges: (userId) => ['user', 'badges', userId],
   products: (userId) => ['user', 'products', userId],
   recipes: (userId) => ['user', 'recipes', userId],
+  highlights: (userId) => ['user', 'highlights', userId],
 };
 
 function buildFallbackProfile(userId) {
@@ -216,5 +217,16 @@ export function useCheckUserBadgesMutation() {
     onSuccess: (_data, userId) => {
       queryClient.invalidateQueries({ queryKey: userKeys.badges(userId) });
     },
+  });
+}
+
+export function useUserHighlightsQuery(userId) {
+  return useQuery({
+    queryKey: userKeys.highlights(userId),
+    queryFn: async () => {
+      const data = await apiClient.get(`/users/${userId}/highlights`);
+      return normalizeListResponse(data, ['highlights', 'items']);
+    },
+    enabled: Boolean(userId),
   });
 }

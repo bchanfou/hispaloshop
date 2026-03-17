@@ -229,16 +229,16 @@ export default function BottomNavBar() {
     }
   };
 
-  const profileUserId = user?.user_id || user?.id || user?.username || null;
-  const profileUrl   = profileUserId ? `/user/${profileUserId}` : (user ? '/profile' : '/login');
+  const profileUsername = user?.username || null;
+  const profileUrl   = profileUsername ? `/${profileUsername}` : (user ? '/profile' : '/login');
   const profileImage = user?.profile_image || user?.avatar_url || null;
 
   const isHome       = location.pathname === '/';
   const isExplore    = location.pathname.startsWith('/discover') || location.pathname.startsWith('/products');
   const isReels      = location.pathname.startsWith('/reels');
   const isChatActive = activePanel === 'chat';
-  const isProfile    = profileUserId
-    ? location.pathname === `/user/${profileUserId}`
+  const isProfile    = profileUsername
+    ? location.pathname === `/${profileUsername}`
     : location.pathname === '/profile';
 
 

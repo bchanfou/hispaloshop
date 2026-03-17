@@ -936,6 +936,97 @@ async def get_user_following(
     return {"users": result, "total": total, "page": page}
 
 
+# ── Story Highlights ──────────────────────────────────────────
+
+@router.get("/users/{user_id}/highlights")
+async def get_user_highlights(user_id: str):
+    """Get story highlights for a user profile (public)."""
+    # Resolve user_id or username
+    user_doc = await db.users.find_one({"user_id": user_id}, {"_id": 0, "user_id": 1})
+    if not user_doc:
+        user_doc = await db.users.find_one({"username": user_id}, {"_id": 0, "user_id": 1})
+    if not user_doc:
+        return []
+    actual_user_id = user_doc["user_id"]
+
+    highlights = await db.story_highlights.find(
+        {"user_id": actual_user_id},
+        {"_id": 0}
+    ).sort("order", 1).to_list(50)
+    return highlights
+
+
+@router.post("/users/me/highlights")
+async def create_highlight(request: Request, user: User = Depends(get_current_user)):
+    """Create a new story highlight group."""
+    body = await request.json()
+    title = str(body.get("title", "")).strip()
+    if not title or len(title) > 30:
+        raise HTTPException(status_code=400, detail="Title required (max 30 chars)")
+
+    cover_url = body.get("cover_url", "")
+    story_ids = body.get("story_ids", [])
+    if not isinstance(story_ids, list):
+        story_ids = []
+
+    existing = await db.story_highlights.count_documents({"user_id": user.user_id})
+    if existing >= 20:
+        raise HTTPException(status_code=400, detail="Max 20 highlights allowed")
+
+    highlight_id = f"hl_{uuid.uuid4().hex[:12]}"
+    highlight = {
+        "highlight_id": highlight_id,
+        "user_id": user.user_id,
+        "title": title[:30],
+        "cover_url": cover_url,
+        "story_ids": story_ids[:50],
+        "order": existing,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.story_highlights.insert_one(highlight)
+    highlight.pop("_id", None)
+    return highlight
+
+
+@router.put("/users/me/highlights/{highlight_id}")
+async def update_highlight(highlight_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Update a story highlight (title, cover, stories)."""
+    body = await request.json()
+    update = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    if "title" in body:
+        title = str(body["title"]).strip()
+        if not title or len(title) > 30:
+            raise HTTPException(status_code=400, detail="Title required (max 30 chars)")
+        update["title"] = title[:30]
+    if "cover_url" in body:
+        update["cover_url"] = body["cover_url"]
+    if "story_ids" in body:
+        if isinstance(body["story_ids"], list):
+            update["story_ids"] = body["story_ids"][:50]
+    if "order" in body:
+        update["order"] = int(body["order"])
+
+    result = await db.story_highlights.update_one(
+        {"highlight_id": highlight_id, "user_id": user.user_id},
+        {"$set": update}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Highlight not found")
+    return {"ok": True}
+
+
+@router.delete("/users/me/highlights/{highlight_id}")
+async def delete_highlight(highlight_id: str, user: User = Depends(get_current_user)):
+    """Delete a story highlight."""
+    result = await db.story_highlights.delete_one(
+        {"highlight_id": highlight_id, "user_id": user.user_id}
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Highlight not found")
+    return {"ok": True}
+
+
 # ── Posts ─────────────────────────────────────────────────────
 
 @router.post("/posts")

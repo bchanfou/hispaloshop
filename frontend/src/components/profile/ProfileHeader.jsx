@@ -57,6 +57,8 @@ export default function ProfileHeader({
   onAvatarChange,
   onFollowToggle,
   onMessage,
+  highlights = [],
+  onCreateHighlight,
 }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -116,7 +118,7 @@ export default function ProfileHeader({
 
   /* ── share / copy helper ───────────────────────────────────────── */
 
-  const profileUrl = `https://hispaloshop.com/user/${user?.username}`;
+  const profileUrl = `https://hispaloshop.com/${user?.username}`;
 
   const shareProfile = useCallback(async () => {
     if (navigator.share) {
@@ -138,8 +140,6 @@ export default function ProfileHeader({
     user?.bio && user.bio.length > 150 && !bioExpanded
       ? user.bio.slice(0, 150) + '...'
       : user?.bio;
-
-  const highlights = [];
 
   /* ================================================================
      RENDER
@@ -453,7 +453,7 @@ export default function ProfileHeader({
           {isOwn && (
             <div className="flex flex-col items-center gap-1">
               <button
-                onClick={() => toast('Próximamente')}
+                onClick={onCreateHighlight || (() => toast('Próximamente'))}
                 aria-label="Crear historia destacada"
                 className="flex h-[62px] w-[62px] shrink-0 items-center justify-center rounded-full border-2 border-dashed border-stone-200"
               >
@@ -464,10 +464,10 @@ export default function ProfileHeader({
           )}
 
           {highlights.map((hl, i) => (
-            <div key={hl.id || i} className="flex shrink-0 flex-col items-center gap-1">
-              <div className="h-[62px] w-[62px] overflow-hidden rounded-full bg-stone-100">
-                {hl.image && (
-                  <img src={hl.image} alt={hl.title} className="h-full w-full object-cover" />
+            <div key={hl.highlight_id || hl.id || i} className="flex shrink-0 flex-col items-center gap-1">
+              <div className="h-[62px] w-[62px] overflow-hidden rounded-full bg-stone-100 ring-2 ring-stone-200">
+                {(hl.cover_url || hl.image) && (
+                  <img src={hl.cover_url || hl.image} alt={hl.title} className="h-full w-full object-cover" />
                 )}
               </div>
               <span className="max-w-[62px] truncate text-[10px] text-stone-950">

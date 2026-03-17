@@ -255,8 +255,8 @@ function LegacyProfileRedirect() {
   const { user, loading, checkAuth } = useAuth();
   const [retried, setRetried] = useState(false);
 
-  const userId = user ? (user.user_id || user.id || user.username) : null;
-  const needsRetry = !loading && user && !userId && !retried;
+  const username = user?.username;
+  const needsRetry = !loading && user && !username && !retried;
 
   useEffect(() => {
     if (needsRetry) {
@@ -267,7 +267,7 @@ function LegacyProfileRedirect() {
 
   if (loading || needsRetry) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
-  if (userId) return <Navigate to={`/user/${userId}`} replace />;
+  if (username) return <Navigate to={`/${username}`} replace />;
   return <Navigate to="/settings/profile" replace />;
 }
 
