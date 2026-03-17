@@ -19,7 +19,7 @@ import {
 } from '../../features/influencer/hooks';
 import { asNumber } from '../../utils/safe';
 
-const MINIMUM_WITHDRAWAL = 50; // €50 minimum
+const MINIMUM_WITHDRAWAL = 20; // €20 minimum (synced with WithdrawalPage)
 
 // Withdrawal Component
 function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSuccess }) {

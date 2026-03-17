@@ -43,7 +43,7 @@ const descCard = {
   margin: '16px 16px 0',
   padding: 16,
   borderRadius: 'var(--radius-xl)',
-  background: 'rgba(59,130,246,0.08)',
+  background: 'var(--color-surface)',
   display: 'flex',
   gap: 12,
   alignItems: 'flex-start',

@@ -90,12 +90,10 @@ export default function ContentManagement() {
     try {
       await apiClient.delete(`/super-admin/products/${productId}`);
       toast.success(t('contentManagement.messages.productDeleted'), { duration: 2000 });
-      // Small delay to ensure UI updates properly on mobile
-      await new Promise(resolve => setTimeout(resolve, 100));
       setConfirmDelete(null);
       setActionLoading(null);
       await fetchProducts();
-      fetchProductStats();
+      await fetchProductStats();
     } catch (error) {
       toast.error(error.message || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
       setActionLoading(null);
@@ -107,12 +105,10 @@ export default function ContentManagement() {
     try {
       await apiClient.delete(`/super-admin/certificates/${certificateId}`);
       toast.success(t('contentManagement.messages.certificateDeleted'), { duration: 2000 });
-      // Small delay to ensure UI updates properly on mobile
-      await new Promise(resolve => setTimeout(resolve, 100));
       setConfirmDelete(null);
       setActionLoading(null);
       await fetchCertificates();
-      fetchCertStats();
+      await fetchCertStats();
     } catch (error) {
       toast.error(error.message || t('contentManagement.errors.deleteFailed'), { duration: 3000 });
       setActionLoading(null);

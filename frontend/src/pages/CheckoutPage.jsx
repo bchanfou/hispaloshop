@@ -157,19 +157,27 @@ export default function CheckoutPage() {
   [savedAddresses, selectedAddressId]);
 
   const handleSaveNewAddress = async () => {
-    if (!newAddress.full_name || !newAddress.street || !newAddress.postal_code || !newAddress.city) {
+    const trimmedName = newAddress.full_name.trim();
+    const trimmedStreet = newAddress.street.trim();
+    const trimmedPostal = newAddress.postal_code.trim();
+    const trimmedCity = newAddress.city.trim();
+    if (!trimmedName || !trimmedStreet || !trimmedPostal || !trimmedCity) {
       toast.error('Completa todos los campos obligatorios');
+      return;
+    }
+    if (!/^\d{5}$/.test(trimmedPostal)) {
+      toast.error('El código postal debe tener 5 dígitos');
       return;
     }
     try {
       await createAddress({
         name: 'Dirección',
-        full_name: newAddress.full_name,
-        street: newAddress.street + (newAddress.floor ? `, ${newAddress.floor}` : ''),
-        postal_code: newAddress.postal_code,
-        city: newAddress.city,
+        full_name: trimmedName,
+        street: trimmedStreet + (newAddress.floor ? `, ${newAddress.floor.trim()}` : ''),
+        postal_code: trimmedPostal,
+        city: trimmedCity,
         country: newAddress.country,
-        phone: newAddress.phone,
+        phone: newAddress.phone.trim(),
         is_default: savedAddresses.length === 0,
       });
       setShowNewForm(false);
@@ -183,7 +191,7 @@ export default function CheckoutPage() {
     if (!discountCode.trim()) return;
     setDiscountLoading(true);
     try {
-      const result = await applyDiscount(discountCode.toUpperCase());
+      const result = await applyDiscount(discountCode.trim().toUpperCase());
       if (!result?.success) throw new Error(result?.error || 'Código no válido');
       setDiscountCode('');
       toast.success('Descuento aplicado');
@@ -368,7 +376,7 @@ export default function CheckoutPage() {
                       <div style={{ display: 'flex', gap: 10 }}>
                         <div style={{ flex: 1 }}>
                           <label style={labelStyle}>Código postal</label>
-                          <input value={newAddress.postal_code} onChange={e => setNewAddress(p => ({ ...p, postal_code: e.target.value }))} style={inputStyle} placeholder="28001" />
+                          <input value={newAddress.postal_code} onChange={e => setNewAddress(p => ({ ...p, postal_code: e.target.value }))} style={inputStyle} placeholder="28001" pattern="[0-9]{5}" inputMode="numeric" maxLength={5} />
                         </div>
                         <div style={{ flex: 1.5 }}>
                           <label style={labelStyle}>Ciudad</label>

@@ -277,7 +277,7 @@ export default function LoginPage() {
           <p style={{
             fontSize: 13, color: 'var(--color-red)',
             textAlign: 'center', padding: '10px 14px', marginBottom: 16,
-            background: 'rgba(220,38,38,0.06)',
+            background: 'var(--color-red-light)',
             borderRadius: 'var(--radius-md)',
             fontFamily: 'var(--font-sans)',
           }}>

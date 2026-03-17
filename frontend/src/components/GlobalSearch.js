@@ -82,7 +82,7 @@ export default function GlobalSearch() {
               data-testid="search-input"
             />
             {loading && <Loader2 className="w-4 h-4 animate-spin text-stone-500" />}
-            <button onClick={() => setOpen(false)} className="p-1 hover:bg-stone-100 rounded">
+            <button onClick={() => setOpen(false)} className="p-1 hover:bg-stone-100 rounded" aria-label="Cerrar búsqueda">
               <X className="w-4 h-4 text-stone-500" />
             </button>
           </div>
@@ -104,8 +104,8 @@ export default function GlobalSearch() {
                 >
                   <Icon className={`w-4 h-4 ${color} shrink-0`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-stone-950 truncate">{r.title}</p>
-                    <p className="text-xs text-stone-500 truncate">{r.subtitle}</p>
+                    <p className="text-sm font-medium text-stone-950 truncate" title={r.title}>{r.title}</p>
+                    <p className="text-xs text-stone-500 truncate" title={r.subtitle}>{r.subtitle}</p>
                   </div>
                   <span className="text-[10px] text-stone-500 uppercase bg-stone-100 px-2 py-0.5 rounded-full shrink-0">{r.type}</span>
                 </button>

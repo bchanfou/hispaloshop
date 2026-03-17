@@ -58,8 +58,10 @@ function CategoryPills({ selectedCategory, onSelect }) {
               key={category.id}
               type="button"
               onClick={() => onSelect(category.id)}
-              whileTap={{ scale: 0.95 }}
-              className={`flex flex-shrink-0 snap-start flex-col items-center gap-1.5 ${
+              whileTap={!isSelected ? { scale: 0.95 } : {}}
+              aria-pressed={isSelected}
+              aria-label={category.label}
+              className={`flex flex-shrink-0 snap-start flex-col items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1 rounded-2xl ${
                 isSelected ? 'scale-105' : ''
               }`}
             >

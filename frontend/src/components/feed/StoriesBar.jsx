@@ -49,12 +49,14 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
         }}
       >
         {/* Self ring */}
-        <StoryRing
-          user={currentUser}
-          isSelf
-          hasUnseenStory={false}
-          onClick={onCreateStory}
-        />
+        <div role="button" aria-label="Crear historia">
+          <StoryRing
+            user={currentUser}
+            isSelf
+            hasUnseenStory={false}
+            onClick={onCreateStory}
+          />
+        </div>
 
         {loading
           ? Array.from({ length: 5 }).map((_, i) => (
@@ -81,8 +83,8 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
               </div>
             ))
           : stories.map((story, idx) => (
+              <div role="button" aria-label={`Ver historia de ${story.user?.name || story.user?.username || 'usuario'}`} key={story.user?.id || idx}>
               <StoryRing
-                key={story.user?.id || idx}
                 user={story.user}
                 isSelf={false}
                 hasUnseenStory={story.has_unseen !== false}

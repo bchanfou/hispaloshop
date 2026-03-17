@@ -225,7 +225,11 @@ export default function ProducerStoreProfile() {
       await apiClient.put('/producer/store-profile', profile);
       toast.success('Perfil de tienda actualizado');
     } catch (error) {
-      toast.error('Error al guardar');
+      if (error?.response?.status === 409) {
+        toast.error('Esta URL de tienda ya está en uso. Elige otra.');
+      } else {
+        toast.error('Error al guardar');
+      }
     } finally {
       setSaving(false);
     }
