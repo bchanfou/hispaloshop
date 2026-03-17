@@ -216,6 +216,7 @@ export default function RecipesPage() {
   const { user } = useAuth();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [difficulty, setDifficulty] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
@@ -228,9 +229,10 @@ export default function RecipesPage() {
   useEffect(() => {
     let active = true;
     setLoading(true);
+    setFetchError(false);
     apiClient.get('/recipes')
-      .then(data => { if (active) setRecipes(Array.isArray(data) ? data : []); })
-      .catch(() => { if (active) setRecipes([]); })
+      .then(data => { if (active) { setRecipes(Array.isArray(data) ? data : []); setFetchError(false); } })
+      .catch(() => { if (active) { setRecipes([]); setFetchError(true); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
@@ -371,6 +373,24 @@ export default function RecipesPage() {
                 animation: 'pulse 1.5s ease-in-out infinite',
               }} />
             ))}
+          </div>
+        ) : fetchError ? (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', gap: 12, padding: '60px 0',
+          }}>
+            <ChefHat size={56} color="var(--color-stone)" strokeWidth={1} />
+            <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', margin: 0 }}>
+              No pudimos cargar las recetas
+            </p>
+            <button onClick={() => { setLoading(true); setFetchError(false); apiClient.get('/recipes').then(data => setRecipes(Array.isArray(data) ? data : [])).catch(() => setFetchError(true)).finally(() => setLoading(false)); }}
+              style={{
+                padding: '10px 24px', background: 'var(--color-black)',
+                color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
+                fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer',
+              }}>
+              Reintentar
+            </button>
           </div>
         ) : filtered.length === 0 ? (
           <div style={{

@@ -47,21 +47,27 @@ export default function OrdersPage() {
   const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [activeTab, setActiveTab] = useState('active');
+
+  const loadOrders = async () => {
+    setLoading(true);
+    setFetchError(false);
+    try {
+      const data = await apiClient.get('/customer/orders');
+      setOrders(Array.isArray(data) ? data : data?.orders || []);
+    } catch {
+      setOrders([]);
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate('/login', { replace: true }); return; }
-    (async () => {
-      try {
-        const data = await apiClient.get('/customer/orders');
-        setOrders(Array.isArray(data) ? data : data?.orders || []);
-      } catch {
-        setOrders([]);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadOrders();
   }, [user, authLoading, navigate]);
 
   const filtered = useMemo(() => {
@@ -129,6 +135,27 @@ export default function OrdersPage() {
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
             <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+          </div>
+        ) : fetchError ? (
+          /* Error state */
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', gap: 12, padding: '60px 0',
+          }}>
+            <Package size={64} color="var(--color-stone)" strokeWidth={1} />
+            <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center' }}>
+              No pudimos cargar tus pedidos
+            </p>
+            <button
+              onClick={loadOrders}
+              style={{
+                padding: '10px 24px', background: 'var(--color-black)',
+                color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
+                fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer',
+              }}
+            >
+              Reintentar
+            </button>
           </div>
         ) : filtered.length === 0 ? (
           /* Empty state */

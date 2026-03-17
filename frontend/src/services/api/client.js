@@ -103,10 +103,33 @@ httpClient.interceptors.request.use((config) => {
   return nextConfig;
 });
 
+// Debounced global error toast — prevent spam on cascading failures
+let lastServerErrorToast = 0;
+const SERVER_ERROR_DEBOUNCE_MS = 5000;
+
 httpClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error?.config;
+    const status = error?.response?.status;
+
+    // Global 5xx toast (debounced)
+    if (status >= 500 && Date.now() - lastServerErrorToast > SERVER_ERROR_DEBOUNCE_MS) {
+      lastServerErrorToast = Date.now();
+      try {
+        const { toast } = await import('sonner');
+        toast.error('Servidor no disponible. Inténtalo de nuevo en unos segundos.');
+      } catch { /* sonner not loaded */ }
+    }
+
+    // Network error (no response at all)
+    if (!error?.response && error?.code !== 'ERR_CANCELED' && Date.now() - lastServerErrorToast > SERVER_ERROR_DEBOUNCE_MS) {
+      lastServerErrorToast = Date.now();
+      try {
+        const { toast } = await import('sonner');
+        toast.error('Sin conexión. Comprueba tu red.');
+      } catch { /* sonner not loaded */ }
+    }
 
     if (error?.response?.status === 401 && originalRequest && !originalRequest.__isRetryRequest) {
       originalRequest.__isRetryRequest = true;
