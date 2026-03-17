@@ -6,6 +6,7 @@ import { useStores } from '../hooks/useStores';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
 import ProductCard from '../components/ProductCard';
+import SEO from '../components/SEO';
 import { CATEGORY_GROUPS } from '../constants/categories';
 
 const FILTER_PILLS = [
@@ -58,6 +59,7 @@ export default function DiscoverPage() {
 
   return (
     <div className="min-h-screen pb-28" style={{ background: 'var(--color-cream)' }}>
+      <SEO title="Descubrir — Hispaloshop" description="Descubre productos artesanales locales, tiendas de productores verificados y comunidades de alimentación saludable." />
 
       <div style={{ padding: '12px 16px 0' }}>
 

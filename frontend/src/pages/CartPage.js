@@ -521,11 +521,13 @@ export default function CartPage() {
                 {savedAddresses.length > 0 && !showNewAddressForm && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-3 md:mb-4">
                     {savedAddresses.map((addr) => (
-                      <div
+                      <button
+                        type="button"
                         key={addr.address_id}
                         onClick={() => setSelectedAddressId(addr.address_id)}
-                        className={`cursor-pointer rounded-xl border-2 p-3 transition-all md:p-4 ${selectedAddressId === addr.address_id ? 'border-stone-950 bg-stone-100' : 'border-stone-200 hover:border-stone-950'}`}
+                        className={`w-full text-left cursor-pointer rounded-xl border-2 p-3 transition-all md:p-4 ${selectedAddressId === addr.address_id ? 'border-stone-950 bg-stone-100' : 'border-stone-200 hover:border-stone-950'}`}
                         data-testid={`address-${addr.address_id}`}
+                        aria-pressed={selectedAddressId === addr.address_id}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
@@ -543,7 +545,7 @@ export default function CartPage() {
                           </div>
                           {selectedAddressId === addr.address_id && <Check className="h-4 w-4 flex-shrink-0 text-stone-950 md:h-5 md:w-5" />}
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -721,7 +723,7 @@ export default function CartPage() {
                 type="button"
                 onClick={handleCheckout}
                 disabled={checkoutLoading || !emailVerified || stockIssues.length > 0 || (!getSelectedAddress() && !showNewAddressForm)}
-                className={`w-full rounded-full py-3 text-[14px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-400'}`}
+                className={`w-full rounded-full py-3 text-[14px] font-semibold transition-colors ${!checkoutLoading && emailVerified && stockIssues.length === 0 && (getSelectedAddress() || showNewAddressForm) ? 'bg-stone-950 text-white hover:bg-stone-800' : 'cursor-not-allowed bg-stone-100 text-stone-500'}`}
                 data-testid="checkout-button"
               >
                 {checkoutLoading

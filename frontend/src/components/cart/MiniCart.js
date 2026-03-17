@@ -19,7 +19,8 @@ const MiniCart = ({ isOpen, onClose }) => {
     if (isOpen && cartItems.length > 0) {
       getShippingPreview().then(setShippingData).catch(() => setShippingData(null));
     }
-  }, [isOpen, cartItems.length, getShippingPreview]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, cartItems.length]);
 
   const shipping = shippingData?.total_shipping_cents != null
     ? shippingData.total_shipping_cents / 100
@@ -65,7 +66,7 @@ const MiniCart = ({ isOpen, onClose }) => {
           />
           
           {/* Drawer */}
-          <FocusTrap focusTrapOptions={{ escapeDeactivates: false, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
+          <FocusTrap focusTrapOptions={{ escapeDeactivates: true, onDeactivate: onClose, allowOutsideClick: true, returnFocusOnDeactivate: true }}>
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}

@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp } from 'lucide-react';
 import apiClient from '../services/api/client';
+import SEO from '../components/SEO';
 
 const font = { fontFamily: 'var(--font-sans)' };
 const HISTORY_KEY = 'hispal_search_history';
@@ -68,7 +69,7 @@ function ProductCard({ p }) {
       }}>
         <div style={{ aspectRatio: '1', background: 'var(--color-surface)', overflow: 'hidden' }}>
           {p.images?.[0] ? (
-            <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={p.images[0]} alt={p.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ShoppingBag size={32} color="var(--color-stone)" />
@@ -99,7 +100,7 @@ function RecipeCard({ r }) {
       }}>
         <div style={{ aspectRatio: '1', background: 'var(--color-surface)', overflow: 'hidden' }}>
           {r.cover_image ? (
-            <img src={r.cover_image} alt={r.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={r.cover_image} alt={r.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ChefHat size={32} color="var(--color-stone)" />
@@ -137,7 +138,7 @@ function PersonRow({ person, linkBase }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         {img ? (
-          <img src={img} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={img} alt={name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : isStore ? (
           <Store size={18} color="var(--color-stone)" />
         ) : (
@@ -256,6 +257,7 @@ export default function SearchPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+      <SEO title="Buscar — Hispaloshop" description="Busca productos artesanales, recetas, tiendas y creadores de alimentación saludable local." />
       {/* ── Search Bar ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 40,

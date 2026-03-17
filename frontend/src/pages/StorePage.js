@@ -15,6 +15,7 @@ import { useLocale } from '../context/LocaleContext';
 import apiClient from '../services/api/client';
 import { useStoreFollow } from '../features/products/hooks';
 import { useChatContext } from '../context/chat/ChatProvider';
+import SEO from '../components/SEO';
 
 const F = 'var(--font-sans)';
 const normalizeEntityId = (v) => (v == null ? '' : String(v));
@@ -176,6 +177,11 @@ export default function StorePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: F, paddingBottom: 80 }}>
+      <SEO
+        title={`${store?.name || 'Tienda'} — Hispaloshop`}
+        description={store?.tagline || store?.story?.slice(0, 160) || `Tienda de productos artesanales en Hispaloshop`}
+        image={store?.hero_image || store?.logo}
+      />
 
       {/* ── TopBar (over hero) ── */}
       <div style={{
