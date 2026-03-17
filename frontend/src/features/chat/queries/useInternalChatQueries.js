@@ -21,6 +21,7 @@ export function useInternalChatInfluencers(enabled = true) {
   return useQuery({
     queryKey: internalChatKeys.directoryInfluencers,
     queryFn: () => apiClient.get('/directory/influencers'),
+    select: (data) => Array.isArray(data) ? data : (data?.items ?? []),
     enabled,
   });
 }

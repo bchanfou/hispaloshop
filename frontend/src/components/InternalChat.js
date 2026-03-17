@@ -756,7 +756,7 @@ export default function InternalChat({
 
   const sortedConversations = useMemo(
     () =>
-      [...conversations].sort((a, b) => {
+      [...(Array.isArray(conversations) ? conversations : [])].sort((a, b) => {
         const left = new Date(b.updated_at || b.created_at || 0).getTime();
         const right = new Date(a.updated_at || a.created_at || 0).getTime();
         return left - right;
@@ -766,7 +766,7 @@ export default function InternalChat({
 
   const directoryUsers = useMemo(() => {
     const registry = new Map();
-    [...producers, ...influencers].forEach((entry) => {
+    [...(Array.isArray(producers) ? producers : []), ...(Array.isArray(influencers) ? influencers : [])].forEach((entry) => {
       const userId = entry?.user_id || entry?.producer_id || entry?.influencer_id;
       if (!userId || userId === user?.user_id || registry.has(userId)) return;
 

@@ -216,7 +216,7 @@ export default function ProfileTabs({
     reels: `/users/${userId}/reels`,
     products: `/users/${userId}/products`,
     recipes: `/users/${userId}/recipes`,
-    saved: `/users/me/saved`,
+    saved: `/users/me/saved-posts`,
   };
 
   const fetchTab = useCallback(
@@ -225,7 +225,7 @@ export default function ProfileTabs({
       setLoading((prev) => ({ ...prev, [tabId]: true }));
       try {
         const res = await apiClient.get(endpointMap[tabId]);
-        const items = Array.isArray(res.data) ? res.data : res.data?.results ?? res.data?.data ?? [];
+        const items = Array.isArray(res) ? res : res?.results ?? res?.items ?? res?.data ?? [];
         setterMap[tabId](items);
       } catch {
         setterMap[tabId]([]);

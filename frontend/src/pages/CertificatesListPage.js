@@ -70,14 +70,14 @@ export default function CertificatesListPage() {
   });
 
   const allCertifications = useMemo(
-    () => [...new Set(data.flatMap((product) => product.certifications || []))].sort((a, b) => a.localeCompare(b, 'es')),
+    () => [...new Set((Array.isArray(data) ? data : []).flatMap((product) => product.certifications || []))].sort((a, b) => a.localeCompare(b, 'es')),
     [data],
   );
 
   const filteredProducts = useMemo(() => {
     const query = asLowerText(searchQuery.trim());
 
-    return [...data]
+    return [...(Array.isArray(data) ? data : [])]
       .filter((product) => {
         const matchesSearch =
           !query ||

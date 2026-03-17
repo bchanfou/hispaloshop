@@ -636,16 +636,25 @@ async def get_user_profile(user_id: str, request: Request):
         "username": user.get("username"),
         "profile_image": user.get("profile_image"),
         "bio": user.get("bio", ""),
+        "website": user.get("website"),
         "location": user.get("location"),
         "country": user.get("country"),
         "created_at": user.get("created_at"),
         "role": user.get("role"),
         "company_name": user.get("company_name"),
+        "is_verified": bool(user.get("is_verified") or user.get("approved")),
         "followers_count": followers_count,
         "following_count": following_count,
         "posts_count": posts_count,
         "is_following": is_following,
     }
+
+    # Attach store_slug for producers
+    if user.get("role") in ("producer", "importer"):
+        store = await db.store_profiles.find_one(
+            {"producer_id": user.get("user_id")}, {"_id": 0, "slug": 1}
+        )
+        profile["store_slug"] = store.get("slug") if store else user.get("username")
 
     # Influencer public info (social links, niche — NO earnings)
     if user.get("role") == "influencer":
@@ -719,6 +728,28 @@ async def get_user_posts(user_id: str, skip: int = 0, limit: int = 30):
         post["tagged_products"] = tagged_products
         post["tagged_product"] = tagged_products[0] if tagged_products else None
     return posts
+
+
+@router.get("/users/{user_id}/reels")
+async def get_user_reels(user_id: str, skip: int = 0, limit: int = 30):
+    """Get reels (video posts) for a user profile."""
+    reels = await db.user_posts.find(
+        {"user_id": user_id, "media_type": "video"},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    for reel in reels:
+        _normalize_post_media(reel)
+    return reels
+
+
+@router.get("/users/{user_id}/products")
+async def get_user_products(user_id: str, skip: int = 0, limit: int = 50):
+    """Get approved products for a producer's profile."""
+    products = await db.products.find(
+        {"producer_id": user_id, "approved": True},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return products
 
 
 @router.get("/users/{user_id}/recipes")
