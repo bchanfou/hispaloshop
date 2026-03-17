@@ -27,40 +27,28 @@ import { useSwipeToReply } from '../hooks/useSwipeToReply';
 
 const MAX_VISIBLE_MESSAGES = 150;
 
+// Module-level formatter singletons
+const timeFormatter = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit' });
+const shortDateFormatter = new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' });
+const longDateFormatter = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long' });
+
 function formatTime(value) {
   if (!value) return '';
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-
-  return new Intl.DateTimeFormat('es-ES', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+  return timeFormatter.format(date);
 }
 
 function formatConversationTime(value) {
   if (!value) return '';
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-
-  const now = new Date();
-  const sameDay = date.toDateString() === now.toDateString();
-
-  if (sameDay) {
-    return formatTime(value);
-  }
-
-  return new Intl.DateTimeFormat('es-ES', {
-    day: '2-digit',
-    month: 'short',
-  }).format(date);
+  if (date.toDateString() === new Date().toDateString()) return formatTime(value);
+  return shortDateFormatter.format(date);
 }
 
 function formatDayLabel(value) {
   if (!value) return '';
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
 
@@ -70,11 +58,7 @@ function formatDayLabel(value) {
 
   if (date.toDateString() === today.toDateString()) return 'Hoy';
   if (date.toDateString() === yesterday.toDateString()) return 'Ayer';
-
-  return new Intl.DateTimeFormat('es-ES', {
-    day: 'numeric',
-    month: 'long',
-  }).format(date);
+  return longDateFormatter.format(date);
 }
 
 function getRoleLabel(role) {
@@ -527,7 +511,7 @@ function ShareItemSheet({
             <button
               type="button"
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
               aria-label="Cerrar compartir contenido"
             >
               <X className="h-4 w-4" strokeWidth={2} />
@@ -618,7 +602,7 @@ function DirectorySheet({
             <button
               type="button"
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
               aria-label="Cerrar nuevo mensaje"
             >
               <X className="h-4 w-4" strokeWidth={2} />
@@ -666,8 +650,7 @@ function DirectorySheet({
                     type="button"
                     onClick={() => onStartConversation(entry.user_id)}
                     disabled={startingConversation}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 hover:bg-stone-50 disabled:cursor-wait disabled:opacity-60"
-                    style={{ minHeight: '64px' }}
+                    className="flex w-full min-h-[64px] items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 hover:bg-stone-50 disabled:cursor-wait disabled:opacity-60"
                   >
                     <ChatAvatar
                       src={entry.avatar}
@@ -746,7 +729,6 @@ export default function InternalChat({
   const [isNavigatingConversation, startConversationTransition] = useTransition();
 
   const wsRef = useRef(null);
-  const listEndRef = useRef(null);
   const virtuosoRef = useRef(null);
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -1240,6 +1222,11 @@ export default function InternalChat({
     setReplyingTo(null);
   }, [clearPendingImage, clearPendingSharedItem, selectedConversationId]);
 
+  // Cleanup typing timeout on unmount
+  useEffect(() => () => {
+    if (typingTimeoutRef.current) window.clearTimeout(typingTimeoutRef.current);
+  }, []);
+
   const handleSendMessage = useCallback(async () => {
     const trimmed = composerValue.trim();
     if (!selectedConversationId || (!trimmed && !pendingImage && !pendingSharedItem)) return;
@@ -1414,7 +1401,7 @@ export default function InternalChat({
             <button
               type="button"
               onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
               aria-label="Cerrar chat"
             >
               <X className="h-5 w-5" strokeWidth={2} />
@@ -1426,7 +1413,7 @@ export default function InternalChat({
           <button
             type="button"
             onClick={() => setIsDirectoryOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
             aria-label="Nuevo mensaje"
           >
             <PenSquare className="h-5 w-5" strokeWidth={1.8} />
@@ -1465,10 +1452,9 @@ export default function InternalChat({
                     key={conversation.conversation_id}
                     type="button"
                     onClick={() => loadConversation(conversation.conversation_id)}
-                    className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 ${
+                    className={`flex w-full min-h-[72px] items-center gap-3 px-4 py-3 text-left transition-colors active:bg-stone-50 ${
                       isActive ? 'bg-stone-50' : 'hover:bg-stone-50'
                     }`}
-                    style={{ minHeight: '72px' }}
                   >
                     <div className="shrink-0">
                       <ChatAvatar
@@ -1532,7 +1518,7 @@ export default function InternalChat({
                 <button
                   type="button"
                   onClick={() => setSelectedConversationId(null)}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100 md:hidden"
+                  className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100 md:hidden"
                   aria-label="Volver a conversaciones"
                 >
                   <ArrowLeft className="h-5 w-5" strokeWidth={2} />
@@ -1565,14 +1551,14 @@ export default function InternalChat({
               <div className="flex shrink-0 items-center gap-0.5">
                 <button
                   type="button"
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
                   aria-label="Llamada de voz"
                 >
                   <Phone className="h-[18px] w-[18px]" strokeWidth={1.8} />
                 </button>
                 <button
                   type="button"
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
                   aria-label="Videollamada"
                 >
                   <Video className="h-[20px] w-[20px]" strokeWidth={1.8} />
@@ -1581,7 +1567,7 @@ export default function InternalChat({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
                     aria-label="Cerrar chat"
                   >
                     <X className="h-4 w-4" strokeWidth={2} />
@@ -1784,7 +1770,7 @@ export default function InternalChat({
                   animate={{ rotate: isComposerActionsOpen ? 45 : 0 }}
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
                   onClick={() => setIsComposerActionsOpen((c) => !c)}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                  className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
                   aria-label="Más opciones"
                 >
                   <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth={2.3} strokeLinecap="round">
@@ -1823,7 +1809,7 @@ export default function InternalChat({
                       transition={{ duration: 0.14 }}
                       onClick={handleSendMessage}
                       disabled={sendingMessage || uploadingImage}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition-opacity active:opacity-75 disabled:opacity-50"
+                      className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition-opacity active:opacity-75 disabled:opacity-50"
                       aria-label="Enviar"
                     >
                       {sendingMessage || uploadingImage ? (
@@ -1841,7 +1827,7 @@ export default function InternalChat({
                       exit={{ scale: 0.5, opacity: 0 }}
                       transition={{ duration: 0.14 }}
                       onClick={() => fileInputRef.current?.click()}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
+                      className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full text-stone-800 transition-colors active:bg-stone-100"
                       aria-label="Adjuntar imagen"
                     >
                       <Images className="h-[22px] w-[22px]" strokeWidth={1.8} />

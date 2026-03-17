@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Loader2, Check } from 'lucide-react';
+import { ArrowLeft, Loader2, Check, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../services/api/client';
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
   /* ── Stepper dots ── */
   const Stepper = () => (
     <div style={{ display: 'flex', justifyContent: 'center', gap: 8, padding: '16px 0' }}>
-      {[1, 2, 3].map(s => (
+      {[1, 2, 3, 4].map(s => (
         <div key={s} style={{
           width: 8, height: 8, borderRadius: '50%',
           background: s === screen ? 'var(--color-black)' : 'transparent',
@@ -333,8 +333,137 @@ export default function OnboardingPage() {
     </div>
   );
 
-  /* ── SCREEN 3: Role-specific finish ── */
+  /* ── SCREEN 3: Follow suggestions ── */
   const Screen3 = () => {
+    const [suggestions, setSuggestions] = useState([]);
+    const [sugLoading, setSugLoading] = useState(true);
+    const [followedIds, setFollowedIds] = useState(new Set());
+
+    useEffect(() => {
+      let active = true;
+      const prefs = selectedPrefs.join(',');
+      apiClient.get(`/discovery/suggested-users?context=onboarding&limit=12${prefs ? `&preferences=${prefs}` : ''}`)
+        .then(data => { if (active) setSuggestions(data?.users || []); })
+        .catch(() => {})
+        .finally(() => { if (active) setSugLoading(false); });
+      return () => { active = false; };
+    }, []);
+
+    const handleFollowSuggestion = useCallback(async (userId) => {
+      try {
+        await apiClient.post(`/users/${userId}/follow`, {});
+        setFollowedIds(prev => new Set([...prev, userId]));
+      } catch { /* ignore */ }
+    }, []);
+
+    const ROLE_LABELS = { producer: 'Productor', influencer: 'Influencer', consumer: 'Consumidor', importer: 'Importador' };
+
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)', padding: '0 24px 120px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', padding: '16px 0' }}>
+          <button onClick={() => goTo(2)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)', padding: 0 }}>
+            <ArrowLeft size={18} /> Atrás
+          </button>
+        </div>
+        <Stepper />
+
+        <div style={{ maxWidth: 440, margin: '0 auto', paddingTop: 16 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', textAlign: 'center', marginBottom: 4 }}>
+            Personas para seguir
+          </h2>
+          <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', marginBottom: 24, lineHeight: 1.5 }}>
+            Sigue a personas para llenar tu feed con contenido que te interesa
+          </p>
+
+          {sugLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: 32 }}>
+              <Loader2 size={24} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+            </div>
+          ) : suggestions.length === 0 ? (
+            <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--color-stone)', padding: 32 }}>
+              No hay sugerencias disponibles ahora
+            </p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {suggestions.map(u => {
+                const isFollowed = followedIds.has(u.user_id);
+                return (
+                  <div key={u.user_id} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    padding: 16, background: 'var(--color-white)',
+                    border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)',
+                  }}>
+                    <div style={{
+                      width: 56, height: 56, borderRadius: '50%', overflow: 'hidden',
+                      background: 'var(--color-surface)', marginBottom: 8,
+                    }}>
+                      {u.profile_image ? (
+                        <img src={u.profile_image} alt={u.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: 'var(--color-stone)' }}>
+                          {(u.name || '?')[0].toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: '0 0 2px', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                      {u.name}
+                    </p>
+                    <span style={{
+                      fontSize: 10, fontWeight: 500, color: 'var(--color-stone)',
+                      padding: '2px 8px', borderRadius: 'var(--radius-full)',
+                      background: 'var(--color-surface)', marginBottom: 10,
+                    }}>
+                      {ROLE_LABELS[u.role] || u.role}
+                    </span>
+                    <button
+                      onClick={() => !isFollowed && handleFollowSuggestion(u.user_id)}
+                      disabled={isFollowed}
+                      style={{
+                        width: '100%', height: 36, borderRadius: 'var(--radius-full)',
+                        border: 'none', cursor: isFollowed ? 'default' : 'pointer',
+                        fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-sans)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                        background: isFollowed ? 'var(--color-surface)' : 'var(--color-black)',
+                        color: isFollowed ? 'var(--color-stone)' : '#fff',
+                        transition: 'var(--transition-fast)',
+                      }}
+                    >
+                      {isFollowed ? 'Siguiendo' : <><UserPlus size={13} /> Seguir</>}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Fixed bottom CTA */}
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, padding: '12px 24px',
+          paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+          background: 'var(--color-cream)', borderTop: '1px solid var(--color-border)',
+        }}>
+          <button
+            onClick={() => goTo(4)}
+            style={{
+              width: '100%', maxWidth: 440, margin: '0 auto', display: 'flex',
+              height: 48, alignItems: 'center', justifyContent: 'center',
+              background: 'var(--color-black)', color: '#fff',
+              border: 'none', borderRadius: 'var(--radius-lg)',
+              fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)',
+            }}
+          >
+            {followedIds.size > 0 ? `Continuar (${followedIds.size} seguidos) →` : 'Ahora no →'}
+          </button>
+        </div>
+
+        <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
+      </div>
+    );
+  };
+
+  /* ── SCREEN 4: Role-specific finish ── */
+  const Screen4 = () => {
     const renderContent = () => {
       switch (selectedRole) {
         case 'consumer':
@@ -558,7 +687,7 @@ export default function OnboardingPage() {
           padding: '16px 0',
         }}>
           <button
-            onClick={() => goTo(2)}
+            onClick={() => goTo(3)}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4,
@@ -593,6 +722,7 @@ export default function OnboardingPage() {
           {screen === 1 && <Screen1 />}
           {screen === 2 && <Screen2 />}
           {screen === 3 && <Screen3 />}
+          {screen === 4 && <Screen4 />}
         </motion.div>
       </AnimatePresence>
     </div>

@@ -8,15 +8,28 @@ import {
   Play,
   Pause,
   Plus,
+  Check,
   Volume2,
   VolumeX,
+  Send,
+  X as XIcon,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import apiClient from '../../services/api/client';
+import { useAuth } from '../../context/AuthContext';
 
 const priceFormatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 const formatPrice = (price) => priceFormatter.format(price);
 
 export default function ReelCard({ reel, isActive, onLike, onComment, onShare, embedded = false, priority = false }) {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [sendingComment, setSendingComment] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(reel.is_following ?? false);
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const playIconTimer = useRef(null);
@@ -30,6 +43,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
   const doubleTapHeartTimer = useRef(null);
 
   // Clean up timers on unmount
@@ -81,11 +95,15 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [isActive]);
 
-  // Track video progress
+  // Track video progress — throttled to avoid excess re-renders
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+    let lastUpdate = 0;
     const onTime = () => {
+      const now = performance.now();
+      if (now - lastUpdate < 250) return; // max 4 updates/sec
+      lastUpdate = now;
       if (video.duration > 0) setProgress(video.currentTime / video.duration);
     };
     video.addEventListener('timeupdate', onTime);
@@ -118,6 +136,40 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
     setShowPlayIcon(true);
     clearTimeout(playIconTimer.current);
     playIconTimer.current = setTimeout(() => setShowPlayIcon(false), 600);
+  }, []);
+
+  // Comment handlers
+  const fetchComments = useCallback(async () => {
+    setCommentsLoading(true);
+    try {
+      const reelId = reel.id || reel.reel_id || reel.post_id;
+      const res = await apiClient.get(`/reels/${reelId}/comments?limit=30`);
+      setComments(Array.isArray(res) ? res : res?.data || res?.comments || []);
+    } catch { setComments([]); }
+    finally { setCommentsLoading(false); }
+  }, [reel]);
+
+  const submitComment = useCallback(async () => {
+    if (!newComment.trim() || sendingComment) return;
+    setSendingComment(true);
+    try {
+      const reelId = reel.id || reel.reel_id || reel.post_id;
+      await apiClient.post(`/reels/${reelId}/comments`, { text: newComment.trim() });
+      setNewComment('');
+      fetchComments();
+    } catch { toast.error('Error al comentar'); }
+    finally { setSendingComment(false); }
+  }, [newComment, sendingComment, reel, fetchComments]);
+
+  const openComments = useCallback(() => {
+    setShowComments(true);
+    videoRef.current?.pause();
+    setPlaying(false);
+    fetchComments();
+  }, [fetchComments]);
+
+  const closeComments = useCallback(() => {
+    setShowComments(false);
   }, []);
 
   const toggleMute = useCallback(() => {
@@ -181,22 +233,34 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         muted={muted}
         preload={priority ? 'auto' : 'none'}
         onClick={handleVideoTap}
+        onLoadedMetadata={() => { if (videoRef.current) setVideoDuration(videoRef.current.duration); }}
         aria-label={playing ? 'Pausar vídeo' : 'Reproducir vídeo'}
       />
 
-      {/* Play/Pause icon flash */}
+      {/* Duration badge */}
+      {videoDuration > 0 && !playing && (
+        <div className="absolute top-4 right-4 z-[2] bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
+          <span className="text-[11px] text-white font-semibold font-sans tabular-nums">
+            {Math.floor(videoDuration / 60)}:{String(Math.floor(videoDuration % 60)).padStart(2, '0')}
+          </span>
+        </div>
+      )}
+
+      {/* Play/Pause icon — flash on toggle, persistent when paused */}
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none motion-reduce:hidden"
         style={{
-          opacity: showPlayIcon ? 0.8 : 0,
+          opacity: showPlayIcon ? 0.8 : (!playing && !showDoubleTapHeart ? 0.5 : 0),
           transition: `opacity ${showPlayIcon ? '100ms' : '400ms'} ease`,
         }}
       >
-        {playing ? (
-          <Pause size={48} className="text-white" />
-        ) : (
-          <Play size={48} className="text-white fill-white" />
-        )}
+        <div className="bg-black/30 rounded-full p-4">
+          {playing ? (
+            <Pause size={36} className="text-white" />
+          ) : (
+            <Play size={36} className="text-white fill-white" />
+          )}
+        </div>
       </div>
 
       {/* Stable keyframe — always present to avoid DOM thrashing */}
@@ -250,14 +314,36 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
               {(reel.user?.name || '?')[0].toUpperCase()}
             </div>
           )}
-          <button
-            className="absolute -bottom-3 w-11 h-11 rounded-full bg-transparent border-none flex items-center justify-center"
-            aria-label="Seguir"
-          >
-            <span className="w-5 h-5 rounded-full bg-black flex items-center justify-center">
-              <Plus size={12} className="text-white" strokeWidth={3} />
-            </span>
-          </button>
+          {(() => {
+            const reelUserId = reel.user?.id || reel.user?.user_id;
+            const isOwnReel = currentUser && reelUserId && (currentUser.id === reelUserId || currentUser.user_id === reelUserId);
+            if (isOwnReel) return null;
+            return (
+              <button
+                className="absolute -bottom-3 w-11 h-11 rounded-full bg-transparent border-none flex items-center justify-center"
+                aria-label={isFollowing ? 'Siguiendo' : 'Seguir'}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (isFollowing) return;
+                  try {
+                    await apiClient.post('/social/follow', { following_id: reelUserId });
+                    setIsFollowing(true);
+                    toast.success('Siguiendo a ' + (reel.user?.name || 'usuario'));
+                  } catch {
+                    toast.error('No se pudo seguir al usuario');
+                  }
+                }}
+              >
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center ${isFollowing ? 'bg-white' : 'bg-black'}`}>
+                  {isFollowing ? (
+                    <Check size={12} className="text-black" strokeWidth={3} />
+                  ) : (
+                    <Plus size={12} className="text-white" strokeWidth={3} />
+                  )}
+                </span>
+              </button>
+            );
+          })()}
         </div>
 
         {/* Like */}
@@ -277,7 +363,7 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         {/* Comment */}
         <button
           className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
-          onClick={() => onComment?.(reel.id)}
+          onClick={openComments}
           aria-label="Comentar"
         >
           <MessageCircle size={28} className="text-white" />
@@ -287,7 +373,16 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         {/* Share */}
         <button
           className="flex flex-col items-center justify-center gap-1 min-w-[44px] min-h-[44px] bg-transparent border-none p-0 cursor-pointer drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:scale-90 transition-transform"
-          onClick={() => onShare?.(reel.id)}
+          onClick={async () => {
+            const url = `${window.location.origin}/posts/${reel.id}`;
+            if (navigator.share) {
+              try { await navigator.share({ title: reel.caption || 'Reel', url }); } catch {}
+            } else {
+              await navigator.clipboard?.writeText(url);
+              toast.success('Enlace copiado');
+            }
+            onShare?.(reel.id);
+          }}
           aria-label="Compartir"
         >
           <Share2 size={28} className="text-white" />
@@ -359,10 +454,93 @@ export default function ReelCard({ reel, isActive, onLike, onComment, onShare, e
         </div>
       )}
 
-      {/* Progress bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/20 z-[3]">
+      {/* Comments bottom sheet */}
+      {showComments && (
+        <div className="absolute inset-0 z-[10] flex flex-col justify-end" onClick={closeComments}>
+          <div
+            className="bg-stone-950/95 backdrop-blur-xl rounded-t-2xl max-h-[55vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <span className="text-sm font-semibold text-white">Comentarios</span>
+              <button onClick={closeComments} className="bg-transparent border-none cursor-pointer p-1" aria-label="Cerrar">
+                <XIcon size={18} className="text-white/60" />
+              </button>
+            </div>
+            {/* List */}
+            <div className="flex-1 overflow-y-auto px-4 py-2 min-h-[100px]">
+              {commentsLoading ? (
+                <div className="flex justify-center py-8">
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                </div>
+              ) : comments.length === 0 ? (
+                <p className="text-center text-white/40 text-sm py-8">Sé el primero en comentar</p>
+              ) : (
+                comments.map((c, i) => (
+                  <div key={c.id || c._id || i} className="flex gap-2.5 py-2.5">
+                    <div className="w-7 h-7 rounded-full bg-stone-700 shrink-0 flex items-center justify-center text-white text-[10px] font-semibold overflow-hidden">
+                      {c.user?.avatar_url ? (
+                        <img src={c.user.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        (c.user?.name || '?').charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-white">{c.user?.name || c.user_name || 'Usuario'}</span>
+                        <span className="text-[10px] text-white/30">{c.created_at ? new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''}</span>
+                      </div>
+                      <p className="text-[13px] text-white/80 mt-0.5 leading-[1.4]">{c.text || c.content}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            {/* Input */}
+            <div className="flex items-center gap-2 px-4 py-3 border-t border-white/10">
+              <input
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value.slice(0, 500))}
+                onKeyDown={(e) => { if (e.key === 'Enter') submitComment(); }}
+                placeholder="Añade un comentario..."
+                className="flex-1 bg-white/10 text-white border-none rounded-full px-4 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+                aria-label="Escribir comentario"
+              />
+              <button
+                onClick={submitComment}
+                disabled={!newComment.trim() || sendingComment}
+                className={`w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer transition-colors ${
+                  newComment.trim() ? 'bg-white text-stone-950' : 'bg-white/10 text-white/30'
+                }`}
+                aria-label="Enviar comentario"
+              >
+                <Send size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Progress bar — clickable to seek */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-2 bg-white/20 z-[3] cursor-pointer"
+        onClick={(e) => {
+          const video = videoRef.current;
+          if (!video || !video.duration) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          video.currentTime = ratio * video.duration;
+          setProgress(ratio);
+        }}
+        role="slider"
+        aria-label="Progreso del vídeo"
+        aria-valuenow={Math.round(progress * 100)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
         <div
-          className="h-full w-full bg-white/80 origin-left"
+          className="h-full w-full bg-white/90 origin-left"
           style={{ transform: `scaleX(${progress})` }}
         />
       </div>

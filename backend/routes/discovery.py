@@ -15,7 +15,7 @@ GET  /discovery/producer-insights
 
 import asyncio
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Dict, Optional
 
 from bson.objectid import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -245,15 +245,23 @@ async def track_interaction(
     )
 
 
-# ── Suggested Users ───────────────────────────────────────────────────────────
+# ── Suggested Users (personalized) ────────────────────────────────────────────
 
 @router.get("/discovery/suggested-users")
 async def get_suggested_users(
-    limit: int = Query(3, le=10),
+    limit: int = Query(6, le=20),
+    context: str = Query("feed"),
+    seed_user_id: Optional[str] = Query(None),
+    roles: Optional[str] = Query(None, description="Comma-separated role filter"),
+    preferences: Optional[str] = Query(None, description="Comma-separated food preferences (for onboarding)"),
     request=None,
 ):
-    """Return popular users the caller is not yet following."""
-    from core.auth import get_optional_user
+    """Personalized user recommendations across all roles."""
+    from services.user_recommendations import (
+        get_personalized_suggestions,
+        get_anonymous_suggestions,
+        get_onboarding_suggestions,
+    )
 
     current_user = None
     if request:
@@ -264,41 +272,112 @@ async def get_suggested_users(
         except Exception:
             pass
 
-    db_obj = get_db()
+    if not current_user:
+        country = request.headers.get("x-country", "ES") if request else "ES"
+        users = await get_anonymous_suggestions(country=country, limit=limit)
+        return {"users": users}
 
-    # IDs the caller already follows
-    exclude_ids = set()
+    if context == "onboarding" and preferences:
+        pref_list = [p.strip() for p in preferences.split(",") if p.strip()]
+        users = await get_onboarding_suggestions(
+            preferences=pref_list,
+            role=current_user.role,
+            country=current_user.country,
+            limit=limit,
+        )
+        return {"users": users}
+
+    users = await get_personalized_suggestions(
+        user_id=current_user.user_id,
+        limit=limit,
+        context=context,
+    )
+    return {"users": users}
+
+
+@router.get("/discovery/suggested-users/post-follow/{followed_user_id}")
+async def get_post_follow_suggestions(
+    followed_user_id: str,
+    limit: int = Query(5, le=10),
+    user: User = Depends(get_current_user),
+):
+    """Users similar to the one just followed — shown in post-follow sheet."""
+    from services.user_recommendations import get_contextual_suggestions
+
+    users = await get_contextual_suggestions(
+        user_id=user.user_id,
+        just_followed_id=followed_user_id,
+        limit=limit,
+    )
+    return {"users": users}
+
+
+@router.get("/discovery/people")
+async def browse_people(
+    limit: int = Query(20, le=50),
+    cursor: Optional[str] = Query(None),
+    role: Optional[str] = Query(None),
+    country: Optional[str] = Query(None),
+    request=None,
+):
+    """Paginated people browse with optional role/country filters."""
+    db = get_db()
+
+    query: Dict = {}
+    if role and role != "all":
+        query["role"] = role
+    if country:
+        query["country"] = country.upper()
+
+    # Cursor = last user_id for keyset pagination
+    if cursor:
+        query["user_id"] = {"$gt": cursor}
+
+    users = await db.users.find(query, {
+        "user_id": 1, "name": 1, "username": 1, "role": 1,
+        "bio": 1, "country": 1, "followers_count": 1,
+        "profile_image": 1, "avatar": 1, "picture": 1,
+        "is_verified": 1,
+    }).sort("followers_count", -1).limit(limit + 1).to_list(length=limit + 1)
+
+    has_more = len(users) > limit
+    users = users[:limit]
+
+    # Check follow status if authenticated
+    current_user = None
+    if request:
+        try:
+            auth_header = request.headers.get("authorization")
+            from core.auth import get_current_user as _gc
+            current_user = await _gc(request, authorization=auth_header)
+        except Exception:
+            pass
+
+    following_ids = set()
     if current_user:
-        exclude_ids.add(current_user.user_id)
-        follows = await db_obj.user_follows.find(
-            {"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}
-        ).to_list(500)
-        exclude_ids.update(f["following_id"] for f in follows)
-
-    # Find users with most followers, excluding already-followed
-    pipeline = [
-        {"$group": {"_id": "$following_id", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}},
-        {"$limit": limit + len(exclude_ids) + 5},
-    ]
-    top = await db_obj.user_follows.aggregate(pipeline).to_list(limit + len(exclude_ids) + 5)
+        follows = await db.user_follows.find(
+            {"follower_id": current_user.user_id}, {"following_id": 1}
+        ).to_list(length=2000)
+        following_ids = {f["following_id"] for f in follows}
 
     result = []
-    for entry in top:
-        uid = entry["_id"]
-        if uid in exclude_ids:
-            continue
-        user_doc = await db_obj.users.find_one(
-            {"user_id": uid},
-            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "bio": 1, "role": 1},
-        )
-        if user_doc:
-            user_doc["followers_count"] = entry["count"]
-            result.append(user_doc)
-        if len(result) >= limit:
-            break
+    for u in users:
+        uid = u.get("user_id")
+        result.append({
+            "user_id": uid,
+            "name": u.get("name", ""),
+            "username": u.get("username", ""),
+            "role": u.get("role", "consumer"),
+            "bio": (u.get("bio") or "")[:120],
+            "profile_image": u.get("profile_image") or u.get("avatar") or u.get("picture"),
+            "country": u.get("country"),
+            "followers_count": u.get("followers_count", 0),
+            "is_verified": u.get("is_verified", False),
+            "is_following": uid in following_ids,
+        })
 
-    return {"users": result}
+    next_cursor = users[-1].get("user_id") if has_more and users else None
+    return {"users": result, "next_cursor": next_cursor, "has_more": has_more}
 
 
 # ── Growth Analytics (admin) ───────────────────────────────────────────────────

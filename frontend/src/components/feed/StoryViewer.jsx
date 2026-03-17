@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
+import apiClient from '../../services/api/client';
 
 const STORY_DURATION = 5000;
 
@@ -21,6 +22,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [showReactions, setShowReactions] = useState(false);
   const [videoDuration, setVideoDuration] = useState(null);
   const longPressRef = useRef(null);
   const intervalRef = useRef(null);
@@ -99,7 +101,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     // For video stories, wait until we know the duration
     if (currentItem?.video_url && !videoDuration) return;
 
-    const tick = 50;
+    const tick = 100; // 10Hz — smooth enough, half the CPU
     let elapsed = 0;
 
     intervalRef.current = setInterval(() => {
@@ -201,7 +203,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     touchStartTime.current = Date.now();
-    longPressRef.current = setTimeout(() => setPaused(true), 200);
+    longPressRef.current = setTimeout(() => setPaused(true), 120);
   };
 
   const handleTouchEnd = (e) => {
@@ -251,7 +253,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
   };
 
   const handleMouseDown = () => {
-    longPressRef.current = setTimeout(() => setPaused(true), 200);
+    longPressRef.current = setTimeout(() => setPaused(true), 120);
   };
 
   const handleMouseUp = () => {
@@ -287,7 +289,7 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           return (
             <div
               key={item.id || item._id || `story-seg-${i}`}
-              className="flex-1 h-0.5 rounded-full overflow-hidden bg-white/30"
+              className="flex-1 h-[3px] rounded-full overflow-hidden bg-white/30"
             >
               <div
                 className="h-full bg-white"
@@ -367,48 +369,89 @@ export default function StoryViewer({ stories, initialIndex = 0, onClose }) {
           />
         )}
 
-        {/* Product pill */}
+        {/* Product pills */}
         {currentItem?.products?.length > 0 && (
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-              const product = currentItem.products[0];
-              if (product?.slug || product?.id) {
-                navigate(`/product/${product.slug || product.id}`);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                e.stopPropagation();
-                onClose();
-                const product = currentItem.products[0];
-                if (product?.slug || product?.id) {
-                  navigate(`/product/${product.slug || product.id}`);
-                }
-              }
-            }}
-            className="absolute bottom-10 left-4 right-4 z-[2] flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
-            role="link"
-            tabIndex={0}
-            aria-label={`Ver producto: ${currentItem.products[0]?.name}`}
-          >
-            {currentItem.products[0]?.thumbnail && (
-              <img
-                src={currentItem.products[0].thumbnail}
-                alt=""
-                className="w-7 h-7 rounded-hs-md object-cover"
-              />
-            )}
-            <span className="text-[13px] text-white font-sans flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-              {currentItem.products[0]?.name}
-            </span>
-            <span className="text-[13px] text-white font-semibold font-sans shrink-0">
-              {'Ver →'}
-            </span>
+          <div className="absolute bottom-10 left-4 right-4 z-[2] flex flex-col gap-2">
+            {currentItem.products.map((product, idx) => (
+              <div
+                key={product.id || product.product_id || idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                  if (product?.slug || product?.id) {
+                    navigate(`/product/${product.slug || product.id}`);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onClose();
+                    if (product?.slug || product?.id) {
+                      navigate(`/product/${product.slug || product.id}`);
+                    }
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-2.5 min-h-[44px] rounded-full bg-white/15 backdrop-blur-xl cursor-pointer"
+                role="link"
+                tabIndex={0}
+                aria-label={`Ver producto: ${product?.name}`}
+              >
+                {(product?.thumbnail || product?.image) && (
+                  <img
+                    src={product.thumbnail || product.image}
+                    alt=""
+                    className="w-8 h-8 rounded-xl object-cover shrink-0"
+                  />
+                )}
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="text-[13px] text-white font-sans font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+                    {product?.name}
+                  </span>
+                  {product?.price != null && (
+                    <span className="text-[11px] text-white/70 font-semibold font-sans">
+                      {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(product.price)}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[12px] text-white font-semibold font-sans shrink-0 bg-white/20 rounded-full px-2.5 py-1">
+                  Ver →
+                </span>
+              </div>
+            ))}
           </div>
         )}
+
+        {/* Reaction bar */}
+        {showReactions && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[5] flex gap-3 bg-black/60 backdrop-blur-xl rounded-full px-4 py-2.5">
+            {['\u2764\uFE0F', '\uD83D\uDD25', '\uD83D\uDE0D', '\uD83E\uDD24', '\uD83D\uDC4F', '\uD83D\uDE2E'].map((emoji) => (
+              <button
+                key={emoji}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const el = e.currentTarget;
+                  el.style.transform = 'scale(1.5) translateY(-20px)';
+                  el.style.opacity = '0';
+                  setTimeout(() => { el.style.transform = ''; el.style.opacity = ''; }, 600);
+                  setShowReactions(false);
+                  try { apiClient.post(`/stories/${currentItem?.story_id}/react`, { emoji }); } catch {}
+                }}
+                className="text-2xl bg-transparent border-none cursor-pointer p-0 transition-all duration-300"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Reaction trigger */}
+        <button
+          onClick={(e) => { e.stopPropagation(); setShowReactions(r => !r); }}
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[3] bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 border-none cursor-pointer"
+        >
+          <span className="text-[11px] text-white/60 font-sans">{'\u2191'} Reaccionar</span>
+        </button>
       </div>
     </div>
   );

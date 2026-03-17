@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock } from 'lucide-react';
+import { X, ChevronLeft, Play, Pause, Volume2, VolumeX, MapPin, Globe, Lock, Check } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -54,6 +54,12 @@ export default function CreateReelPage() {
   const [audience, setAudience] = useState('public');
 
   const [isMuted, setIsMuted] = useState(true);
+  const [volume, setVolume] = useState(100);
+  const [trimStart, setTrimStart] = useState(0);
+  const [trimEnd, setTrimEnd] = useState(0); // 0 = full duration
+  const [textStyle, setTextStyle] = useState('clean'); // clean | box | outline
+  const [filterThumb, setFilterThumb] = useState(null); // base64 frame for filter previews
+  const trimDragRef = useRef(null);
 
   const videoRef = useRef(null);
   const videoPreviewRef = useRef(null);
@@ -110,12 +116,42 @@ export default function CreateReelPage() {
     }
   }, [speed]);
 
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = volume / 100;
+    }
+  }, [volume]);
+
   const handleTimeUpdate = useCallback(() => {
-    if (videoRef.current) setCurrentTime(videoRef.current.currentTime);
-  }, []);
+    const v = videoRef.current;
+    if (!v) return;
+    setCurrentTime(v.currentTime);
+    // Loop within trim bounds
+    const end = trimEnd || v.duration;
+    if (v.currentTime >= end) {
+      v.currentTime = trimStart;
+    } else if (v.currentTime < trimStart) {
+      v.currentTime = trimStart;
+    }
+  }, [trimStart, trimEnd]);
 
   const handleLoadedMetadata = useCallback(() => {
-    if (videoRef.current) setDuration(videoRef.current.duration);
+    const v = videoRef.current;
+    if (!v) return;
+    setDuration(v.duration);
+    setTrimEnd(v.duration);
+    // Capture a frame for filter thumbnails
+    const captureFrame = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 80;
+        canvas.height = 80;
+        canvas.getContext('2d').drawImage(v, 0, 0, 80, 80);
+        setFilterThumb(canvas.toDataURL('image/jpeg', 0.5));
+      } catch {}
+    };
+    if (v.readyState >= 2) captureFrame();
+    else v.addEventListener('seeked', captureFrame, { once: true });
   }, []);
 
   const addTextOverlay = useCallback(() => {
@@ -128,84 +164,93 @@ export default function CreateReelPage() {
         font: selectedFont,
         color: selectedColor,
         size: textSize,
+        style: textStyle,
         x: 50,
         y: 50,
       },
     ]);
     setTextDraft('');
     setShowTextInput(false);
-  }, [textDraft, selectedFont, selectedColor, textSize, textOverlays.length]);
+  }, [textDraft, selectedFont, selectedColor, textSize, textStyle, textOverlays.length]);
 
-  const handleTextDrag = useCallback((id, e) => {
+  const rafRef = useRef(null);
+
+  // Direct DOM drag for text overlays — no state during move
+  const handleTextDragDOM = useCallback((el, e) => {
     const touch = e.touches?.[0] || e;
     const container = videoPreviewRef.current;
-    if (!container) return;
+    if (!container || !el) return;
     const rect = container.getBoundingClientRect();
-    const x = ((touch.clientX - rect.left) / rect.width) * 100;
-    const y = ((touch.clientY - rect.top) / rect.height) * 100;
-    setTextOverlays((prev) =>
-      prev.map((t) =>
-        t.id === id ? { ...t, x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) } : t
-      )
-    );
+    const x = Math.max(5, Math.min(95, ((touch.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(5, Math.min(95, ((touch.clientY - rect.top) / rect.height) * 100));
+    dragRef.current.lastX = x;
+    dragRef.current.lastY = y;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      el.style.left = x + '%';
+      el.style.top = y + '%';
+    });
   }, []);
 
-  const startMouseDrag = useCallback((id) => {
-    dragRef.current = id;
+  const startMouseDrag = useCallback((id, el) => {
+    el.style.willChange = 'left, top';
+    dragRef.current = { id, el, lastX: 50, lastY: 50 };
     const handleMove = (e) => {
-      if (dragRef.current !== id) return;
-      const container = videoPreviewRef.current;
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setTextOverlays((prev) =>
-        prev.map((t) =>
-          t.id === id ? { ...t, x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) } : t
-        )
-      );
+      if (!dragRef.current?.el) return;
+      handleTextDragDOM(dragRef.current.el, e);
     };
     const handleUp = () => {
+      cancelAnimationFrame(rafRef.current);
+      if (dragRef.current?.el) {
+        dragRef.current.el.style.willChange = '';
+        const { id: dId, lastX, lastY } = dragRef.current;
+        setTextOverlays((prev) => prev.map((t) => t.id === dId ? { ...t, x: lastX, y: lastY } : t));
+      }
       dragRef.current = null;
       document.removeEventListener('mousemove', handleMove);
       document.removeEventListener('mouseup', handleUp);
     };
     document.addEventListener('mousemove', handleMove);
     document.addEventListener('mouseup', handleUp);
-  }, []);
+  }, [handleTextDragDOM]);
 
   const removeTextOverlay = useCallback((id) => {
     setTextOverlays((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  const [publishSuccess, setPublishSuccess] = useState(false);
 
   const handlePublish = useCallback(async () => {
     if (!videoFile) return;
     setPublishing(true);
     try {
       const fd = new FormData();
-      fd.append('type', 'reel');
-      fd.append('media', videoFile);
+      fd.append('file', videoFile);
       fd.append('caption', caption);
       if (location.trim()) fd.append('location', location.trim());
-      fd.append('audience', audience);
-      fd.append(
-        'metadata',
-        JSON.stringify({
-          filter: activeFilter,
-          speed,
-          textOverlays,
-          thumbnailIndex,
-        })
-      );
-      await apiClient.post('/posts', fd);
-      toast.success('Reel publicado');
-      navigate('/');
+      fd.append('playback_rate', String(speed));
+      fd.append('muted', String(isMuted));
+      if (trimStart > 0) fd.append('trim_start_seconds', String(trimStart.toFixed(2)));
+      if (trimEnd > 0 && trimEnd < duration) fd.append('trim_end_seconds', String(trimEnd.toFixed(2)));
+      if (thumbnailIndex > 0 && duration > 0) {
+        fd.append('cover_frame_seconds', String((duration / 5) * thumbnailIndex));
+      }
+      const res = await apiClient.post('/reels', fd);
+      const postId = res?.id || res?.post?.id || res?.data?.id;
+      if (navigator.vibrate) navigator.vibrate(50);
+      setPublishSuccess(true);
+      setTimeout(() => {
+        toast.success('Reel publicado', {
+          action: postId ? { label: 'Ver en el feed', onClick: () => navigate(`/posts/${postId}`) } : undefined,
+          duration: 4000,
+        });
+        navigate(postId ? `/posts/${postId}` : '/');
+      }, 800);
     } catch (err) {
       toast.error('Error al publicar el reel');
-    } finally {
       setPublishing(false);
     }
-  }, [videoFile, caption, activeFilter, speed, textOverlays, thumbnailIndex, navigate]);
+  }, [videoFile, caption, activeFilter, speed, textOverlays, thumbnailIndex, navigate, location, audience]);
 
   // ─── SCREEN 1: UPLOAD ─────────────────────────────────────────
   if (screen === 'upload') {
@@ -358,19 +403,25 @@ export default function CreateReelPage() {
                 top: `${t.y}%`,
                 transform: 'translate(-50%, -50%)',
                 fontSize: t.size,
-                color: t.color,
+                color: t.style === 'outline' ? 'transparent' : t.color,
                 fontFamily:
-                  t.font === 'Serif'
-                    ? 'Georgia, serif'
-                    : t.font === 'Mono'
-                    ? 'monospace'
-                    : t.font === 'Display'
-                    ? 'Impact, sans-serif'
+                  t.font === 'Serif' ? 'Georgia, serif'
+                    : t.font === 'Mono' ? 'monospace'
+                    : t.font === 'Display' ? 'Impact, sans-serif'
                     : 'var(--font-sans)',
-                textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+                textShadow: t.style === 'box' ? 'none' : '0 1px 4px rgba(0,0,0,0.6)',
+                ...(t.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
+                ...(t.style === 'outline' ? { WebkitTextStroke: `2px ${t.color}`, textShadow: 'none' } : {}),
               }}
-              onTouchMove={(e) => handleTextDrag(t.id, e)}
-              onMouseDown={(e) => { e.stopPropagation(); startMouseDrag(t.id); }}
+              onTouchMove={(e) => handleTextDragDOM(e.currentTarget, e)}
+              onTouchEnd={() => {
+                if (dragRef.current) {
+                  const { id: dId, lastX, lastY } = dragRef.current;
+                  setTextOverlays((prev) => prev.map((tt) => tt.id === dId ? { ...tt, x: lastX, y: lastY } : tt));
+                  dragRef.current = null;
+                }
+              }}
+              onMouseDown={(e) => { e.stopPropagation(); startMouseDrag(t.id, e.currentTarget); }}
             >
               {t.text}
               <button
@@ -397,28 +448,102 @@ export default function CreateReelPage() {
           )}
         </div>
 
-        {/* Trim bar */}
+        {/* Trim bar — functional drag handles */}
         <div className="px-4 py-2">
-          <div className="h-8 bg-white/10 rounded-lg relative flex items-center overflow-hidden">
-            {/* Progress */}
+          <div
+            className="h-10 bg-white/10 rounded-lg relative flex items-center"
+            onMouseDown={(e) => {
+              // Click on track = seek
+              const rect = e.currentTarget.getBoundingClientRect();
+              const ratio = (e.clientX - rect.left) / rect.width;
+              const t = ratio * duration;
+              if (videoRef.current) videoRef.current.currentTime = Math.max(trimStart, Math.min(trimEnd || duration, t));
+            }}
+          >
+            {/* Selected region highlight */}
             <div
-              className="absolute left-0 top-0 bottom-0 w-full bg-white/15 origin-left"
-              style={{ transform: `scaleX(${duration > 0 ? currentTime / duration : 0})` }}
+              className="absolute top-0 bottom-0 bg-white/20 rounded"
+              style={{
+                left: duration > 0 ? `${(trimStart / duration) * 100}%` : '0%',
+                right: duration > 0 ? `${(1 - (trimEnd || duration) / duration) * 100}%` : '0%',
+              }}
+            />
+            {/* Playhead */}
+            <div
+              className="absolute top-0 bottom-0 w-0.5 bg-white z-[2]"
+              style={{ left: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
             />
             {/* Left handle */}
-            <div className="w-3 h-full bg-white rounded-l cursor-ew-resize shrink-0" />
-            <div className="flex-1" />
+            <div
+              className="absolute top-0 bottom-0 w-4 bg-white rounded-l-lg cursor-ew-resize z-[3] flex items-center justify-center"
+              style={{ left: duration > 0 ? `calc(${(trimStart / duration) * 100}% - 8px)` : '0px' }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                const barRect = e.currentTarget.parentElement.getBoundingClientRect();
+                const onMove = (ev) => {
+                  const ratio = Math.max(0, Math.min(1, (ev.clientX - barRect.left) / barRect.width));
+                  const t = ratio * duration;
+                  setTrimStart(Math.min(t, (trimEnd || duration) - 1));
+                };
+                const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                const barRect = e.currentTarget.parentElement.getBoundingClientRect();
+                const onMove = (ev) => {
+                  const ratio = Math.max(0, Math.min(1, (ev.touches[0].clientX - barRect.left) / barRect.width));
+                  setTrimStart(Math.min(ratio * duration, (trimEnd || duration) - 1));
+                };
+                const onEnd = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); };
+                document.addEventListener('touchmove', onMove, { passive: true });
+                document.addEventListener('touchend', onEnd);
+              }}
+            >
+              <div className="w-1 h-4 bg-stone-950 rounded-full" />
+            </div>
             {/* Right handle */}
-            <div className="w-3 h-full bg-white rounded-r cursor-ew-resize shrink-0" />
+            <div
+              className="absolute top-0 bottom-0 w-4 bg-white rounded-r-lg cursor-ew-resize z-[3] flex items-center justify-center"
+              style={{ left: duration > 0 ? `calc(${((trimEnd || duration) / duration) * 100}% - 8px)` : 'calc(100% - 8px)' }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                const barRect = e.currentTarget.parentElement.getBoundingClientRect();
+                const onMove = (ev) => {
+                  const ratio = Math.max(0, Math.min(1, (ev.clientX - barRect.left) / barRect.width));
+                  const t = ratio * duration;
+                  setTrimEnd(Math.max(t, trimStart + 1));
+                };
+                const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                const barRect = e.currentTarget.parentElement.getBoundingClientRect();
+                const onMove = (ev) => {
+                  const ratio = Math.max(0, Math.min(1, (ev.touches[0].clientX - barRect.left) / barRect.width));
+                  setTrimEnd(Math.max(ratio * duration, trimStart + 1));
+                };
+                const onEnd = () => { document.removeEventListener('touchmove', onMove); document.removeEventListener('touchend', onEnd); };
+                document.addEventListener('touchmove', onMove, { passive: true });
+                document.addEventListener('touchend', onEnd);
+              }}
+            >
+              <div className="w-1 h-4 bg-stone-950 rounded-full" />
+            </div>
           </div>
-          <div className="text-center text-white/50 text-xs mt-1">
-            {fmt(currentTime)} / {fmt(duration)}
+          <div className="flex justify-between text-white/50 text-xs mt-1 tabular-nums">
+            <span>{fmt(trimStart)}</span>
+            <span>{fmt(currentTime)}</span>
+            <span>{fmt(trimEnd || duration)}</span>
           </div>
         </div>
 
         {/* Tool tabs */}
         <div className="flex overflow-x-auto px-4 py-2 border-b border-white/10">
-          {['velocidad', 'texto', 'filtros'].map((tab) => (
+          {['velocidad', 'audio', 'texto', 'filtros'].map((tab) => (
             <button
               key={tab}
               onClick={() => setEditTab(tab)}
@@ -453,6 +578,43 @@ export default function CreateReelPage() {
                   {s}x{speed === s ? ' ✓' : ''}
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* AUDIO */}
+          {editTab === 'audio' && (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-white font-medium">Audio original</span>
+                <button
+                  onClick={() => { setIsMuted((m) => !m); }}
+                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold cursor-pointer transition-colors ${
+                    isMuted ? 'bg-white/10 text-white/60 border border-white/20' : 'bg-white text-black border border-white'
+                  }`}
+                >
+                  {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                  {isMuted ? 'Silenciado' : 'Activo'}
+                </button>
+              </div>
+              {!isMuted && (
+                <div className="flex items-center gap-3">
+                  <VolumeX size={14} className="text-white/40 shrink-0" />
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={volume}
+                    onChange={(e) => setVolume(Number(e.target.value))}
+                    className="flex-1 accent-white"
+                    aria-label="Volumen del audio original"
+                  />
+                  <Volume2 size={14} className="text-white/40 shrink-0" />
+                  <span className="text-xs text-white/60 min-w-[32px] text-right tabular-nums">{volume}%</span>
+                </div>
+              )}
+              <p className="text-xs text-white/30">
+                Controla el volumen del audio original del vídeo.
+              </p>
             </div>
           )}
 
@@ -514,6 +676,27 @@ export default function CreateReelPage() {
                       />
                     ))}
                   </div>
+                  {/* Text style selector */}
+                  <div className="flex gap-1.5">
+                    {[
+                      { key: 'clean', label: 'Limpio', preview: 'text-white' },
+                      { key: 'box', label: 'Caja', preview: 'text-white bg-black/75 px-1.5 rounded' },
+                      { key: 'outline', label: 'Contorno', preview: 'text-transparent' },
+                    ].map((s) => (
+                      <button
+                        key={s.key}
+                        onClick={() => setTextStyle(s.key)}
+                        className={`flex-1 rounded-xl py-2 text-xs font-semibold cursor-pointer transition-colors ${
+                          textStyle === s.key ? 'bg-white text-black' : 'bg-white/10 text-white'
+                        }`}
+                        aria-pressed={textStyle === s.key}
+                      >
+                        <span className={s.key === 'outline' ? 'font-bold' : ''} style={s.key === 'outline' ? { WebkitTextStroke: '1px white', color: 'transparent' } : {}}>
+                          {s.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                   {/* Size slider */}
                   <div className="flex items-center gap-2">
                     <span className="text-white/50 text-[11px]">A</span>
@@ -554,16 +737,19 @@ export default function CreateReelPage() {
                 <button
                   key={f.name}
                   onClick={() => setActiveFilter(f.value)}
-                  className={`bg-white/[0.08] rounded-xl py-2.5 px-1 cursor-pointer flex flex-col items-center gap-1 border-2 ${
-                    activeFilter === f.value ? 'border-white' : 'border-transparent'
+                  className={`bg-white/[0.08] rounded-xl py-2.5 px-1 cursor-pointer flex flex-col items-center gap-1 border-2 transition-colors ${
+                    activeFilter === f.value ? 'border-white bg-white/15' : 'border-transparent'
                   }`}
                   aria-label={`Filtro ${f.name}`}
                   aria-pressed={activeFilter === f.value}
                 >
-                  <div
-                    className="w-10 h-10 rounded-lg bg-stone-600"
-                    style={{ filter: f.value === 'none' ? 'none' : f.value }}
-                  />
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-stone-700">
+                    {filterThumb ? (
+                      <img src={filterThumb} alt="" className="w-full h-full object-cover" style={{ filter: f.value === 'none' ? 'none' : f.value }} />
+                    ) : (
+                      <div className="w-full h-full" style={{ filter: f.value === 'none' ? 'none' : f.value, background: 'linear-gradient(135deg, #78716c, #d6d3d1)' }} />
+                    )}
+                  </div>
                   <span className="text-[10px] text-white font-medium">{f.emoji} {f.name}</span>
                 </button>
               ))}
@@ -681,6 +867,21 @@ export default function CreateReelPage() {
           />
         </div>
       </div>
+
+      {/* Publish success overlay */}
+      {publishSuccess && (
+        <div className="fixed inset-0 z-[70] bg-white flex flex-col items-center justify-center gap-4 animate-[fadeIn_0.3s_ease]">
+          <div className="w-16 h-16 rounded-full bg-stone-950 flex items-center justify-center animate-[scaleIn_0.4s_cubic-bezier(0.34,1.56,0.64,1)]">
+            <Check size={28} className="text-white" strokeWidth={2.5} />
+          </div>
+          <span className="text-base font-semibold text-stone-950">¡Reel publicado!</span>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+      `}</style>
 
       {/* Publish button */}
       <div className="px-4 pt-3 pb-6 border-t border-stone-200">

@@ -10,15 +10,32 @@ import { resolveUserImage } from '../features/user/queries';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import RecipeShoppingListOverlay from '../components/recipes/RecipeShoppingListOverlay';
 
-const DIFFICULTY_COLORS = {
-  easy: { bg: 'rgba(168,162,158,0.15)', color: '#57534e', label: 'Fácil' },
-  medium: { bg: 'rgba(120,113,108,0.15)', color: '#44403c', label: 'Media' },
-  hard: { bg: '#0c0a09', color: '#fafaf9', label: 'Difícil' },
+const DIFFICULTY_CLASSES = {
+  easy: { pill: 'bg-stone-200/50 text-stone-600', label: 'Fácil' },
+  medium: { pill: 'bg-stone-300/40 text-stone-700', label: 'Media' },
+  hard: { pill: 'bg-stone-950 text-stone-50', label: 'Difícil' },
 };
 
 function normalizeStep(step) {
   if (typeof step === 'string') return { text: step, image_url: '' };
   return { text: step?.text || step?.description || '', image_url: step?.image_url || '' };
+}
+
+/* ── Shared topbar used in loading / not-found / main ── */
+function Topbar({ title, onBack, right }) {
+  return (
+    <div className="sticky top-0 z-40 flex items-center gap-3 border-b border-stone-200 bg-white px-4 py-3">
+      <button
+        onClick={onBack}
+        aria-label="Volver"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
+      >
+        <ArrowLeft size={22} />
+      </button>
+      <span className="flex-1 truncate text-[17px] font-bold text-stone-950">{title}</span>
+      {right}
+    </div>
+  );
 }
 
 export default function RecipeDetailPage() {
@@ -83,53 +100,27 @@ export default function RecipeDetailPage() {
     }
   };
 
-  const font = { fontFamily: 'var(--font-sans)' };
-
+  /* ── Loading ── */
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
-        <div style={{
-          position: 'sticky', top: 0, zIndex: 40, background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
-          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-        }}>
-          <button onClick={() => navigate(-1)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
-            <ArrowLeft size={22} color="var(--color-black)" />
-          </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Receta</span>
+      <div className="min-h-screen bg-[var(--color-cream)] font-sans">
+        <Topbar title="Receta" onBack={() => navigate(-1)} />
+        <div className="flex justify-center p-12">
+          <Loader2 size={28} className="animate-spin text-stone-400" />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-          <Loader2 size={28} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
-        </div>
-        <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
       </div>
     );
   }
 
+  /* ── Not found ── */
   if (!recipe) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
-        <div style={{
-          position: 'sticky', top: 0, zIndex: 40, background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
-          display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-        }}>
-          <button onClick={() => navigate(-1)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
-            <ArrowLeft size={22} color="var(--color-black)" />
-          </button>
-          <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Receta</span>
-        </div>
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '60px 16px',
-        }}>
-          <ChefHat size={56} color="var(--color-stone)" strokeWidth={1} />
-          <p style={{ fontSize: 15, color: 'var(--color-stone)' }}>Receta no encontrada</p>
-          <Link to="/recipes" style={{
-            padding: '10px 24px', background: 'var(--color-black)', color: 'var(--color-white)',
-            borderRadius: 'var(--radius-lg)', fontSize: 14, fontWeight: 600, textDecoration: 'none',
-          }}>
+      <div className="min-h-screen bg-[var(--color-cream)] font-sans">
+        <Topbar title="Receta" onBack={() => navigate(-1)} />
+        <div className="flex flex-col items-center gap-3 px-4 py-16">
+          <ChefHat size={56} className="text-stone-300" strokeWidth={1} />
+          <p className="text-[15px] text-stone-500">Receta no encontrada</p>
+          <Link to="/recipes" className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-semibold text-white no-underline hover:bg-stone-800 transition-colors">
             Ver recetas
           </Link>
         </div>
@@ -137,206 +128,124 @@ export default function RecipeDetailPage() {
     );
   }
 
-  const diff = DIFFICULTY_COLORS[recipe.difficulty] || DIFFICULTY_COLORS.easy;
+  const diff = DIFFICULTY_CLASSES[recipe.difficulty] || DIFFICULTY_CLASSES.easy;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
+    <div className="min-h-screen bg-[var(--color-cream)] font-sans">
       {/* ── Topbar ── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40, background: 'var(--color-white)',
-        borderBottom: '1px solid var(--color-border)',
-        display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
-      }}>
-        <button onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
-          aria-label="Volver">
-          <ArrowLeft size={22} color="var(--color-black)" />
-        </button>
-        <span style={{
-          fontSize: 17, fontWeight: 700, color: 'var(--color-black)', flex: 1,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
-          {recipe.title}
-        </span>
-        <button
-          onClick={() => setSaved(!saved)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
-          aria-label="Guardar"
-        >
-          <Bookmark size={22} color="var(--color-black)" fill={saved ? 'var(--color-black)' : 'none'} />
-        </button>
-      </div>
+      <Topbar
+        title={recipe.title}
+        onBack={() => navigate(-1)}
+        right={
+          <button
+            onClick={() => setSaved(!saved)}
+            aria-label={saved ? 'Quitar guardado' : 'Guardar receta'}
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950"
+          >
+            <Bookmark size={22} fill={saved ? 'currentColor' : 'none'} />
+          </button>
+        }
+      />
 
-      {/* ── Hero Image (edge-to-edge) ── */}
-      <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', background: 'var(--color-surface)', position: 'relative' }}>
+      {/* ── Hero Image ── */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100">
         {recipe.image_url ? (
-          <img src={resolveUserImage(recipe.image_url)} alt={recipe.title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <img src={resolveUserImage(recipe.image_url)} alt={recipe.title} className="block h-full w-full object-cover" />
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ChefHat size={48} color="var(--color-stone)" />
+          <div className="flex h-full w-full items-center justify-center">
+            <ChefHat size={48} className="text-stone-400" />
           </div>
         )}
-        {/* Gradient */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)',
-        }} />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/40 to-transparent" />
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px 100px' }}>
+      <div className="mx-auto max-w-[600px] px-4 pb-24">
         {/* ── Title + Meta ── */}
-        <div style={{ padding: '16px 0' }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 10px', lineHeight: 1.3 }}>
-            {recipe.title}
-          </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{
-              fontSize: 12, fontWeight: 600, padding: '4px 10px',
-              borderRadius: 'var(--radius-full, 999px)', background: diff.bg, color: diff.color,
-            }}>
-              {diff.label}
-            </span>
-            <span style={{ fontSize: 12, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Clock3 size={13} /> {recipe.time_minutes || 0} min
-            </span>
-            <span style={{ fontSize: 12, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Users size={13} /> {recipe.servings || 1} porciones
-            </span>
+        <div className="py-4">
+          <h1 className="mb-2.5 text-[22px] font-bold leading-tight text-stone-950">{recipe.title}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${diff.pill}`}>{diff.label}</span>
+            <span className="flex items-center gap-1 text-xs text-stone-500"><Clock3 size={13} /> {recipe.time_minutes || 0} min</span>
+            <span className="flex items-center gap-1 text-xs text-stone-500"><Users size={13} /> {recipe.servings || 1} porciones</span>
           </div>
 
-          {/* Author */}
           {recipe.author_name && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: '50%', background: 'var(--color-surface)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-              }}>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-stone-100">
                 {recipe.author_avatar ? (
-                  <img src={recipe.author_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={recipe.author_avatar} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <User size={16} color="var(--color-stone)" />
+                  <User size={16} className="text-stone-400" />
                 )}
               </div>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>
-                  {recipe.author_name}
-                </p>
-              </div>
+              <p className="text-[13px] font-semibold text-stone-950">{recipe.author_name}</p>
             </div>
           )}
 
           {recipe.description && (
-            <p style={{ fontSize: 14, color: 'var(--color-stone)', lineHeight: 1.6, margin: '12px 0 0' }}>
-              {recipe.description}
-            </p>
+            <p className="mt-3 text-sm leading-relaxed text-stone-500">{recipe.description}</p>
           )}
         </div>
 
         {/* ── Portion Selector ── */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: 14, background: 'var(--color-white)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-xl)', marginBottom: 16,
-        }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-black)' }}>Porciones</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-stone-200 bg-white p-3.5">
+          <span className="text-sm font-semibold text-stone-950">Porciones</span>
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setPortions(p => Math.max(1, p - 1))}
               disabled={portions <= 1}
-              style={{
-                width: 32, height: 32, borderRadius: '50%',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-white)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: portions <= 1 ? 'default' : 'pointer',
-                opacity: portions <= 1 ? 0.4 : 1,
-              }}
+              aria-label="Menos porciones"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-950 disabled:opacity-40 cursor-pointer disabled:cursor-default"
             >
-              <Minus size={16} color="var(--color-black)" />
+              <Minus size={16} />
             </button>
-            <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-black)', minWidth: 24, textAlign: 'center' }}>
-              {portions}
-            </span>
+            <span className="min-w-[24px] text-center text-lg font-bold text-stone-950">{portions}</span>
             <button
               onClick={() => setPortions(p => p + 1)}
-              style={{
-                width: 32, height: 32, borderRadius: '50%',
-                border: '1px solid var(--color-border)',
-                background: 'var(--color-white)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer',
-              }}
+              aria-label="Más porciones"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-950 cursor-pointer"
             >
-              <Plus size={16} color="var(--color-black)" />
+              <Plus size={16} />
             </button>
           </div>
         </div>
 
         {/* ── Ingredients ── */}
-        <section style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 10px', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-            Ingredientes
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <section className="mb-5">
+          <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Ingredientes</h2>
+          <div className="flex flex-col gap-2">
             {(recipe.ingredients || []).map((ing, i) => {
               const hasProduct = ing.product || ing.product_id;
               const quantity = ing.quantity ? (parseFloat(ing.quantity) * ratio).toFixed(ing.quantity % 1 === 0 && ratio === Math.round(ratio) ? 0 : 1) : '';
               const displayQty = [quantity, ing.unit, ing.name].filter(Boolean).join(' ');
 
               return (
-                <div key={i} style={{
-                  padding: 12,
-                  background: hasProduct ? 'var(--color-surface-alt, #f5f5f4)' : 'var(--color-white)',
-                  border: `1px solid ${hasProduct ? 'var(--color-border, #e7e5e4)' : 'var(--color-border)'}`,
-                  borderRadius: 'var(--radius-xl)',
-                }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-black)', margin: 0 }}>
-                    {displayQty}
-                  </p>
+                <div key={i} className={`rounded-xl border p-3 ${hasProduct ? 'border-stone-200 bg-stone-50' : 'border-stone-200 bg-white'}`}>
+                  <p className="text-sm font-medium text-stone-950">{displayQty}</p>
 
                   {ing.product && (
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 10, marginTop: 8,
-                      padding: 8, background: 'var(--color-white)',
-                      border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)',
-                    }}>
-                      <div style={{
-                        width: 44, height: 44, borderRadius: 'var(--radius-md)',
-                        background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
-                        cursor: 'pointer',
-                      }}
+                    <div className="mt-2 flex items-center gap-2.5 rounded-lg border border-stone-200 bg-white p-2">
+                      <button
+                        type="button"
                         onClick={() => setSelectedProduct(ing.product)}
+                        className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-stone-100 border-none cursor-pointer p-0"
                       >
                         {ing.product.images?.[0] && (
-                          <img src={resolveUserImage(ing.product.images[0])} alt=""
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={resolveUserImage(ing.product.images[0])} alt="" className="h-full w-full object-cover" />
                         )}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{
-                          fontSize: 13, fontWeight: 500, color: 'var(--color-black)', margin: 0,
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        }}>
-                          {ing.product.name}
-                        </p>
+                      </button>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[13px] font-medium text-stone-950">{ing.product.name}</p>
                         {ing.product.price && (
-                          <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '2px 0 0' }}>
-                            {Number(ing.product.price).toFixed(2)}€
-                          </p>
+                          <p className="mt-0.5 text-xs text-stone-500">{Number(ing.product.price).toFixed(2)}€</p>
                         )}
                       </div>
                       <button
                         onClick={() => handleAddSingle(ing)}
-                        style={{
-                          padding: '6px 12px', borderRadius: 'var(--radius-full, 999px)',
-                          background: 'var(--color-black)', color: 'var(--color-white)',
-                          fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
-                          display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0,
-                        }}
+                        aria-label={`Añadir ${ing.product?.name || 'producto'} al carrito`}
+                        className="flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-stone-950 px-3.5 text-xs font-semibold text-white border-none cursor-pointer hover:bg-stone-800 transition-colors"
                       >
-                        <ShoppingCart size={11} /> Añadir
+                        <ShoppingCart size={12} /> Añadir
                       </button>
                     </div>
                   )}
@@ -345,21 +254,12 @@ export default function RecipeDetailPage() {
             })}
           </div>
 
-          {/* Add all to cart */}
           {taggedIngredients.length >= 2 && (
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleAddAllToCart}
               disabled={addingAll}
-              style={{
-                width: '100%', padding: 14, marginTop: 12,
-                background: 'var(--color-black)', color: 'var(--color-white)',
-                borderRadius: 'var(--radius-xl)', border: 'none',
-                fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                opacity: addingAll ? 0.6 : 1,
-                ...font,
-              }}
+              className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-none bg-stone-950 p-3.5 text-sm font-semibold text-white cursor-pointer transition-opacity ${addingAll ? 'opacity-60' : 'hover:bg-stone-800'}`}
             >
               <ShoppingCart size={18} />
               {addingAll ? 'Añadiendo...' : `Añadir todos al carrito (${taggedIngredients.length})`}
@@ -368,48 +268,26 @@ export default function RecipeDetailPage() {
         </section>
 
         {/* ── Steps ── */}
-        <section style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: '0 0 10px', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-            Preparación
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <section className="mb-5">
+          <h2 className="mb-2.5 text-base font-bold uppercase tracking-wide text-stone-950">Preparación</h2>
+          <div className="flex flex-col gap-3">
             {steps.map((step, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                style={{
-                  background: 'var(--color-white)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-xl)',
-                  padding: 14,
-                }}
+                className="rounded-xl border border-stone-200 bg-white p-3.5"
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  {/* Step number circle */}
-                  <div style={{
-                    width: 28, height: 28, borderRadius: '50%',
-                    background: 'var(--color-black)', color: 'var(--color-white)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700, flexShrink: 0,
-                  }}>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-950 text-xs font-bold text-white">
                     {i + 1}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {step.text && (
-                      <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--color-black)', margin: 0 }}>
-                        {step.text}
-                      </p>
-                    )}
+                  <div className="min-w-0 flex-1">
+                    {step.text && <p className="text-sm leading-relaxed text-stone-950">{step.text}</p>}
                     {step.image_url && (
-                      <div style={{ marginTop: 10, borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-                        <img
-                          src={resolveUserImage(step.image_url)}
-                          alt={`Paso ${i + 1}`}
-                          loading="lazy"
-                          style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }}
-                        />
+                      <div className="mt-2.5 overflow-hidden rounded-lg">
+                        <img src={resolveUserImage(step.image_url)} alt={`Paso ${i + 1}`} loading="lazy" className="block h-[180px] w-full object-cover" />
                       </div>
                     )}
                   </div>
@@ -421,35 +299,22 @@ export default function RecipeDetailPage() {
 
         {/* ── Chef Tips ── */}
         {recipe.tips && (
-          <section style={{ marginBottom: 20 }}>
-            <div style={{
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-xl)',
-              padding: 16,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <ChefHat size={18} color="var(--color-black)" />
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-black)' }}>Consejos del chef</span>
+          <section className="mb-5">
+            <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <ChefHat size={18} className="text-stone-950" />
+                <span className="text-sm font-bold text-stone-950">Consejos del chef</span>
               </div>
-              <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--color-stone)', margin: 0 }}>
-                {recipe.tips}
-              </p>
+              <p className="text-[13px] leading-relaxed text-stone-500">{recipe.tips}</p>
             </div>
           </section>
         )}
 
         {/* ── Tags ── */}
         {recipe.tags?.length > 0 && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+          <div className="mb-5 flex flex-wrap gap-1.5">
             {recipe.tags.map(tag => (
-              <span key={tag} style={{
-                fontSize: 12, padding: '4px 12px',
-                borderRadius: 'var(--radius-full, 999px)',
-                background: 'var(--color-white)',
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-stone)',
-              }}>
+              <span key={tag} className="rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-500">
                 #{tag}
               </span>
             ))}
@@ -458,23 +323,11 @@ export default function RecipeDetailPage() {
       </div>
 
       {selectedProduct && (
-        <ProductDetailOverlay
-          product={selectedProduct}
-          store={selectedProduct.store || null}
-          onClose={() => setSelectedProduct(null)}
-        />
+        <ProductDetailOverlay product={selectedProduct} store={selectedProduct.store || null} onClose={() => setSelectedProduct(null)} />
       )}
       {showShoppingList && (
-        <RecipeShoppingListOverlay
-          recipeId={recipeId}
-          defaultServings={recipe?.servings || 1}
-          onClose={() => setShowShoppingList(false)}
-        />
+        <RecipeShoppingListOverlay recipeId={recipeId} defaultServings={recipe?.servings || 1} onClose={() => setShowShoppingList(false)} />
       )}
-
-      <style>{`
-        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-      `}</style>
     </div>
   );
 }

@@ -7,7 +7,7 @@ const ringClasses = {
   seen: 'border-2 border-solid border-stone-200',
 };
 
-export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
+export default function StoryRing({ user, isSelf, hasUnseenStory, onClick, itemsCount }) {
   const label = isSelf ? 'Tu historia' : (user?.name || user?.username || '');
   const avatarUrl = user?.avatar_url || user?.avatar || user?.profile_image;
   const showPlaceholder = isSelf && !hasUnseenStory;
@@ -27,8 +27,9 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
       aria-label={isSelf ? 'Crear tu historia' : `Ver historia de ${label}`}
       className="flex flex-col items-center gap-1 cursor-pointer w-[68px] shrink-0 transition-transform duration-150 hover:scale-105 active:scale-95"
     >
+      <div className="relative">
       <div
-        className={`w-[62px] h-[62px] rounded-full overflow-hidden flex items-center justify-center ${ringClass}`}
+        className={`w-[62px] h-[62px] rounded-full overflow-hidden flex items-center justify-center ${ringClass}${hasUnseenStory ? ' animate-[pulse_3s_ease-in-out_infinite]' : ''}`}
       >
         {showPlaceholder ? (
           <Plus size={18} className="text-stone-950" />
@@ -43,6 +44,12 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
             {(label || '?').charAt(0).toUpperCase()}
           </span>
         )}
+      </div>
+      {itemsCount > 1 && hasUnseenStory && (
+        <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-stone-950 text-white text-[8px] font-bold flex items-center justify-center border border-white">
+          {itemsCount}
+        </span>
+      )}
       </div>
 
       <span

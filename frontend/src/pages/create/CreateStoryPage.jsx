@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Type, Tag, Check, Search, ShoppingBag } from 'lucide-react';
+import { X, Type, Tag, Check, Search, ShoppingBag, Pencil, Undo2, Redo2 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
@@ -55,16 +55,56 @@ export default function CreateStoryPage() {
   const [selectedFont, setSelectedFont] = useState('Sans');
   const [selectedColor, setSelectedColor] = useState('#ffffff');
   const [textSize, setTextSize] = useState(24);
+  const [textStyle, setTextStyle] = useState('clean');
   const [stickerTab, setStickerTab] = useState('culinarios');
   const [publishing, setPublishing] = useState(false);
   const [productQuery, setProductQuery] = useState('');
   const [productResults, setProductResults] = useState([]);
   const [productSearching, setProductSearching] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOption1, setPollOption1] = useState('');
+  const [pollOption2, setPollOption2] = useState('');
+  const [drawMode, setDrawMode] = useState(false);
+  const [drawColor, setDrawColor] = useState('#ffffff');
+  const [drawWidth, setDrawWidth] = useState(4);
+  const [drawPaths, setDrawPaths] = useState([]);
+  const [currentPath, setCurrentPath] = useState(null);
+
+  // ── Undo/Redo ──
+  const historyRef = useRef([{ t: [], s: [], d: [] }]);
+  const historyIdxRef = useRef(0);
+  const pushHistory = useCallback(() => {
+    const snap = JSON.parse(JSON.stringify({ t: textOverlays, s: stickerOverlays, d: drawPaths }));
+    const idx = historyIdxRef.current + 1;
+    historyRef.current = [...historyRef.current.slice(0, idx), snap].slice(-12);
+    historyIdxRef.current = historyRef.current.length - 1;
+  }, [textOverlays, stickerOverlays, drawPaths]);
+  const undo = useCallback(() => {
+    if (historyIdxRef.current <= 0) return;
+    historyIdxRef.current -= 1;
+    const s = historyRef.current[historyIdxRef.current];
+    setTextOverlays(s.t); setStickerOverlays(s.s); setDrawPaths(s.d);
+  }, []);
+  const redo = useCallback(() => {
+    if (historyIdxRef.current >= historyRef.current.length - 1) return;
+    historyIdxRef.current += 1;
+    const s = historyRef.current[historyIdxRef.current];
+    setTextOverlays(s.t); setStickerOverlays(s.s); setDrawPaths(s.d);
+  }, []);
+  // Auto-push after overlay changes (debounced)
+  const historyTimerRef = useRef(null);
+  useEffect(() => {
+    clearTimeout(historyTimerRef.current);
+    historyTimerRef.current = setTimeout(pushHistory, 400);
+    return () => clearTimeout(historyTimerRef.current);
+  }, [textOverlays.length, stickerOverlays.length, drawPaths.length, pushHistory]);
 
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const canvasRef = useRef(null);
+  const drawCanvasRef = useRef(null);
   const dragRef = useRef({ type: null, id: null, active: false });
+  const productSearchTimer = useRef(null);
 
   // Cleanup object URL on unmount to prevent memory leak
   useEffect(() => {
@@ -113,13 +153,14 @@ export default function CreateStoryPage() {
         font: selectedFont,
         color: selectedColor,
         size: textSize,
+        style: textStyle,
         x: 50,
         y: 50,
       },
     ]);
     setTextDraft('');
     setActivePanel(null);
-  }, [textDraft, selectedFont, selectedColor, textSize]);
+  }, [textDraft, selectedFont, selectedColor, textSize, textStyle]);
 
   const addSticker = useCallback((content, type) => {
     setStickerOverlays((prev) => [
@@ -134,32 +175,104 @@ export default function CreateStoryPage() {
     ]);
   }, []);
 
-  const handleOverlayDrag = useCallback((setCollection, id, e) => {
+  const rafRef = useRef(null);
+
+  // Direct DOM drag — no state updates during move, sync on end
+  const handleOverlayDragDOM = useCallback((el, e) => {
     const touch = e.touches?.[0] || e;
-    const canvas = canvasRef.current || e.currentTarget?.closest('[data-canvas]');
-    if (!canvas) return;
+    const canvas = canvasRef.current;
+    if (!canvas || !el) return;
     const rect = canvas.getBoundingClientRect();
-    const x = ((touch.clientX - rect.left) / rect.width) * 100;
-    const y = ((touch.clientY - rect.top) / rect.height) * 100;
-    setCollection((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) }
-          : item
-      )
-    );
+    const x = Math.max(5, Math.min(95, ((touch.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(5, Math.min(95, ((touch.clientY - rect.top) / rect.height) * 100));
+    dragRef.current.lastX = x;
+    dragRef.current.lastY = y;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      el.style.left = x + '%';
+      el.style.top = y + '%';
+    });
   }, []);
 
-  // Global mouse listeners for drag so it works even when cursor leaves the element
+  // Product search with debounce
+  useEffect(() => {
+    if (activePanel !== 'product') return;
+    clearTimeout(productSearchTimer.current);
+    if (!productQuery.trim()) { setProductResults([]); return; }
+    setProductSearching(true);
+    productSearchTimer.current = setTimeout(async () => {
+      try {
+        const res = await apiClient.get(`/products/search?q=${encodeURIComponent(productQuery)}`);
+        setProductResults(res?.results || res?.data?.results || res?.data || (Array.isArray(res) ? res : []));
+      } catch {
+        setProductResults([]);
+      } finally {
+        setProductSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(productSearchTimer.current);
+  }, [productQuery, activePanel]);
+
+  // Render draw paths on canvas
+  useEffect(() => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const allPaths = currentPath ? [...drawPaths, currentPath] : drawPaths;
+    for (const path of allPaths) {
+      if (path.points.length < 2) continue;
+      ctx.beginPath();
+      ctx.strokeStyle = path.color;
+      ctx.lineWidth = path.width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.moveTo(path.points[0].x, path.points[0].y);
+      for (let i = 1; i < path.points.length; i++) {
+        ctx.lineTo(path.points[i].x, path.points[i].y);
+      }
+      ctx.stroke();
+    }
+  }, [drawPaths, currentPath]);
+
+  const addProductSticker = useCallback((product) => {
+    setStickerOverlays((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        content: product.name || product.title,
+        type: 'product',
+        productId: product.id || product._id,
+        productImage: product.image || product.thumbnail || product.image_url,
+        productPrice: product.price,
+        x: 50,
+        y: 70,
+      },
+    ]);
+    setActivePanel(null);
+    setProductQuery('');
+    setProductResults([]);
+  }, []);
+
+  // Global mouse listeners — direct DOM during drag, single state sync on end
   useEffect(() => {
     const handleGlobalMouseMove = (e) => {
       if (!dragRef.current.active) return;
-      const { type, id } = dragRef.current;
-      const setFn = type === 'text' ? setTextOverlays : setStickerOverlays;
-      handleOverlayDrag(setFn, id, e);
+      handleOverlayDragDOM(dragRef.current.el, e);
     };
     const handleGlobalMouseUp = () => {
-      dragRef.current = { type: null, id: null, active: false };
+      cancelAnimationFrame(rafRef.current);
+      if (dragRef.current.active) {
+        const { type, id, lastX, lastY, el } = dragRef.current;
+        if (el) el.style.willChange = '';
+        const setFn = type === 'text' ? setTextOverlays : setStickerOverlays;
+        setFn((prev) => prev.map((item) => item.id === id ? { ...item, x: lastX, y: lastY } : item));
+      }
+      dragRef.current = { type: null, id: null, active: false, el: null, lastX: 50, lastY: 50 };
     };
     document.addEventListener('mousemove', handleGlobalMouseMove);
     document.addEventListener('mouseup', handleGlobalMouseUp);
@@ -167,36 +280,50 @@ export default function CreateStoryPage() {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [handleOverlayDrag]);
+  }, [handleOverlayDragDOM]);
+
+  const [publishSuccess, setPublishSuccess] = useState(false);
 
   const handlePublish = useCallback(async () => {
     setPublishing(true);
     try {
-      const fd = new FormData();
-      fd.append('type', 'story');
-      if (imageFile) {
-        fd.append('media', imageFile);
+      if (!imageFile) {
+        toast.error('Añade una imagen a tu historia');
+        setPublishing(false);
+        return;
       }
-      fd.append(
-        'metadata',
-        JSON.stringify({
-          background,
-          textOverlays,
-          stickerOverlays,
-        })
-      );
-      await apiClient.post('/posts', fd);
-      toast.success('Historia publicada');
-      navigate('/');
+      const fd = new FormData();
+      fd.append('file', imageFile);
+      fd.append('caption', '');
+      await apiClient.post('/stories', fd);
+      if (navigator.vibrate) navigator.vibrate(50);
+      setPublishSuccess(true);
+      setTimeout(() => {
+        toast.success('Historia publicada');
+        navigate('/');
+      }, 800);
     } catch (err) {
       toast.error('Error al publicar la historia');
-    } finally {
       setPublishing(false);
     }
   }, [imageFile, background, textOverlays, stickerOverlays, navigate]);
 
   return (
     <div className="fixed inset-0 z-50 bg-black font-sans flex flex-col">
+      {/* Publish success overlay */}
+      {publishSuccess && (
+        <div className="fixed inset-0 z-[70] bg-black flex flex-col items-center justify-center gap-4" style={{ animation: 'fadeIn 0.3s ease' }}>
+          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center" style={{ animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+            <Check size={28} className="text-stone-950" strokeWidth={2.5} />
+          </div>
+          <span className="text-base font-semibold text-white">¡Historia publicada!</span>
+        </div>
+      )}
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+      `}</style>
+
       {/* Hidden inputs */}
       <input
         ref={fileInputRef}
@@ -217,13 +344,25 @@ export default function CreateStoryPage() {
       {/* TopBar */}
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (imageFile || textOverlays.length > 0 || stickerOverlays.length > 0) {
+              if (!window.confirm('¿Salir sin publicar? Se perderá el contenido.')) return;
+            }
+            navigate(-1);
+          }}
           aria-label="Cerrar editor de historia"
           className="w-11 h-11 bg-transparent border-none cursor-pointer flex items-center justify-center"
         >
           <X size={22} className="text-white" />
         </button>
-        <span className="text-[13px] text-white/50">Story · 24h</span>
+        <div className="flex items-center gap-1">
+          <button onClick={undo} className="w-9 h-9 bg-white/10 rounded-full border-none cursor-pointer flex items-center justify-center" aria-label="Deshacer">
+            <Undo2 size={16} className="text-white/70" />
+          </button>
+          <button onClick={redo} className="w-9 h-9 bg-white/10 rounded-full border-none cursor-pointer flex items-center justify-center" aria-label="Rehacer">
+            <Redo2 size={16} className="text-white/70" />
+          </button>
+        </div>
         <button
           onClick={handlePublish}
           disabled={publishing}
@@ -271,21 +410,37 @@ export default function CreateStoryPage() {
           {textOverlays.map((t) => (
             <div
               key={t.id}
-              className="absolute -translate-x-1/2 -translate-y-1/2 font-bold cursor-grab select-none whitespace-nowrap z-[5]"
+              className="absolute -translate-x-1/2 -translate-y-1/2 font-bold cursor-grab select-none whitespace-nowrap z-[5] group"
               style={{
                 left: `${t.x}%`,
                 top: `${t.y}%`,
                 fontSize: t.size,
-                color: t.color,
+                color: t.style === 'outline' ? 'transparent' : t.color,
                 fontFamily: FONTS_MAP[t.font] || 'var(--font-sans)',
-                textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+                textShadow: t.style === 'box' || t.style === 'outline' ? 'none' : '0 1px 4px rgba(0,0,0,0.5)',
+                ...(t.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
+                ...(t.style === 'outline' ? { WebkitTextStroke: `2px ${t.color}` } : {}),
               }}
-              onTouchMove={(e) => handleOverlayDrag(setTextOverlays, t.id, e)}
-              onMouseDown={() => {
-                dragRef.current = { type: 'text', id: t.id, active: true };
+              onTouchMove={(e) => handleOverlayDragDOM(e.currentTarget, e)}
+              onTouchEnd={() => {
+                if (dragRef.current.active) {
+                  setTextOverlays((prev) => prev.map((item) => item.id === t.id ? { ...item, x: dragRef.current.lastX, y: dragRef.current.lastY } : item));
+                  dragRef.current = { type: null, id: null, active: false, el: null, lastX: 50, lastY: 50 };
+                }
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.willChange = 'left, top';
+                dragRef.current = { type: 'text', id: t.id, active: true, el: e.currentTarget, lastX: t.x, lastY: t.y };
               }}
             >
               {t.text}
+              <button
+                onClick={(e) => { e.stopPropagation(); setTextOverlays((prev) => prev.filter((o) => o.id !== t.id)); }}
+                className="absolute -top-2.5 -right-2.5 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border-none cursor-pointer p-0"
+                aria-label={`Eliminar texto "${t.text}"`}
+              >
+                ×
+              </button>
             </div>
           ))}
 
@@ -293,23 +448,108 @@ export default function CreateStoryPage() {
           {stickerOverlays.map((s) => (
             <div
               key={s.id}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none whitespace-nowrap z-[5] font-medium ${
-                s.type !== 'emoji'
-                  ? 'bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm'
-                  : 'text-4xl'
+              className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-grab select-none whitespace-nowrap z-[5] font-medium group ${
+                s.type === 'product'
+                  ? ''
+                  : s.type === 'emoji'
+                  ? 'text-4xl'
+                  : 'bg-black/60 text-white text-sm px-3 py-1.5 rounded-full backdrop-blur-sm'
               }`}
               style={{
                 left: `${s.x}%`,
                 top: `${s.y}%`,
               }}
-              onTouchMove={(e) => handleOverlayDrag(setStickerOverlays, s.id, e)}
-              onMouseDown={() => {
-                dragRef.current = { type: 'sticker', id: s.id, active: true };
+              onTouchMove={(e) => handleOverlayDragDOM(e.currentTarget, e)}
+              onTouchEnd={() => {
+                if (dragRef.current.active) {
+                  setStickerOverlays((prev) => prev.map((item) => item.id === s.id ? { ...item, x: dragRef.current.lastX, y: dragRef.current.lastY } : item));
+                  dragRef.current = { type: null, id: null, active: false, el: null, lastX: 50, lastY: 50 };
+                }
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.willChange = 'left, top';
+                dragRef.current = { type: 'sticker', id: s.id, active: true, el: e.currentTarget, lastX: s.x, lastY: s.y };
               }}
             >
-              {s.content}
+              {/* Remove button */}
+              <button
+                onClick={(e) => { e.stopPropagation(); setStickerOverlays((prev) => prev.filter((o) => o.id !== s.id)); }}
+                className="absolute -top-2.5 -right-2.5 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border-none cursor-pointer p-0 z-10"
+                aria-label="Eliminar sticker"
+              >
+                ×
+              </button>
+              {s.type === 'poll' ? (
+                <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-3 shadow-lg w-[180px] text-center">
+                  <p className="text-[12px] font-bold text-stone-950 mb-2">{s.content}</p>
+                  <div className="flex flex-col gap-1.5">
+                    {s.options?.map((opt, oi) => (
+                      <div key={oi} className="bg-stone-100 rounded-full py-2 px-3 text-[11px] font-semibold text-stone-950">
+                        {opt}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : s.type === 'product' ? (
+                <div className="flex items-center gap-2 bg-white/95 backdrop-blur-xl rounded-2xl p-2 pr-3 shadow-lg max-w-[200px]">
+                  {s.productImage ? (
+                    <img src={s.productImage} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center shrink-0">
+                      <ShoppingBag size={14} className="text-stone-400" />
+                    </div>
+                  )}
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[11px] font-semibold text-stone-950 truncate">{s.content}</span>
+                    {s.productPrice != null && (
+                      <span className="text-[10px] font-bold text-stone-950">
+                        {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(s.productPrice)}
+                      </span>
+                    )}
+                    <span className="text-[9px] text-stone-400 font-medium">Ver producto →</span>
+                  </div>
+                </div>
+              ) : (
+                s.content
+              )}
             </div>
           ))}
+
+          {/* Draw canvas overlay */}
+          {drawMode && (
+            <canvas
+              ref={drawCanvasRef}
+              className="absolute inset-0 z-[8] cursor-crosshair"
+              style={{ touchAction: 'none' }}
+              onPointerDown={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                setCurrentPath({ points: [{ x, y }], color: drawColor, width: drawWidth });
+              }}
+              onPointerMove={(e) => {
+                if (!currentPath) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                setCurrentPath(prev => ({ ...prev, points: [...prev.points, { x, y }] }));
+              }}
+              onPointerUp={() => {
+                if (currentPath && currentPath.points.length > 1) {
+                  setDrawPaths(prev => [...prev, currentPath]);
+                }
+                setCurrentPath(null);
+              }}
+            />
+          )}
+
+          {/* Committed draw paths (visible when not in draw mode) */}
+          {!drawMode && drawPaths.length > 0 && (
+            <canvas
+              ref={drawCanvasRef}
+              className="absolute inset-0 z-[8] pointer-events-none"
+            />
+          )}
 
           {/* Empty state */}
           {!imagePreviewUrl && textOverlays.length === 0 && stickerOverlays.length === 0 && (
@@ -341,6 +581,16 @@ export default function CreateStoryPage() {
             {tool.icon}
           </button>
         ))}
+        <button
+          onClick={() => { setDrawMode(m => !m); setActivePanel(null); }}
+          aria-label="Dibujar"
+          aria-pressed={drawMode}
+          className={`w-11 h-11 rounded-full border-none cursor-pointer flex items-center justify-center ${
+            drawMode ? 'bg-white/30' : 'bg-black/40'
+          }`}
+        >
+          <Pencil size={20} className="text-white" />
+        </button>
       </div>
 
       {/* Text panel */}
@@ -393,6 +643,28 @@ export default function CreateStoryPage() {
             ))}
           </div>
 
+          {/* Text style */}
+          <div className="flex gap-1.5">
+            {[
+              { key: 'clean', label: 'Limpio' },
+              { key: 'box', label: 'Caja' },
+              { key: 'outline', label: 'Contorno' },
+            ].map((s) => (
+              <button
+                key={s.key}
+                onClick={() => setTextStyle(s.key)}
+                className={`flex-1 rounded-full py-2 text-xs font-semibold cursor-pointer transition-colors ${
+                  textStyle === s.key ? 'bg-white text-black' : 'bg-white/15 text-white'
+                }`}
+                aria-pressed={textStyle === s.key}
+              >
+                <span style={s.key === 'outline' ? { WebkitTextStroke: '1px white', color: 'transparent' } : s.key === 'box' ? { background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: 3 } : {}}>
+                  {s.label}
+                </span>
+              </button>
+            ))}
+          </div>
+
           {/* Size slider */}
           <div className="flex items-center gap-2">
             <span className="text-white/50 text-[11px]">A</span>
@@ -427,6 +699,7 @@ export default function CreateStoryPage() {
               { key: 'culinarios', label: 'Culinarios' },
               { key: 'certificaciones', label: 'Certificaciones' },
               { key: 'frases', label: 'Frases' },
+              { key: 'encuesta', label: 'Encuesta' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -488,19 +761,159 @@ export default function CreateStoryPage() {
               ))}
             </div>
           )}
+
+          {/* Encuesta tab */}
+          {stickerTab === 'encuesta' && (
+            <div className="flex flex-col gap-2">
+              <input
+                value={pollQuestion}
+                onChange={(e) => setPollQuestion(e.target.value.slice(0, 80))}
+                placeholder="¿Qué prefieres?"
+                className="bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+              />
+              <div className="flex gap-2">
+                <input
+                  value={pollOption1}
+                  onChange={(e) => setPollOption1(e.target.value.slice(0, 30))}
+                  placeholder="Opción 1"
+                  className="flex-1 bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+                />
+                <input
+                  value={pollOption2}
+                  onChange={(e) => setPollOption2(e.target.value.slice(0, 30))}
+                  placeholder="Opción 2"
+                  className="flex-1 bg-white/10 text-white border border-white/20 rounded-xl px-3 py-2.5 text-sm outline-none placeholder:text-white/30 font-sans"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()) return;
+                  setStickerOverlays(prev => [...prev, {
+                    id: Date.now(),
+                    content: pollQuestion,
+                    type: 'poll',
+                    options: [pollOption1, pollOption2],
+                    x: 50,
+                    y: 50,
+                  }]);
+                  setPollQuestion(''); setPollOption1(''); setPollOption2('');
+                }}
+                disabled={!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()}
+                className={`bg-white text-black border-none rounded-full py-2.5 text-sm font-semibold cursor-pointer ${(!pollQuestion.trim() || !pollOption1.trim() || !pollOption2.trim()) ? 'opacity-40' : ''}`}
+              >
+                Añadir encuesta
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Product panel (placeholder) */}
+      {/* Product panel */}
       {activePanel === 'product' && (
-        <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 rounded-t-hs-xl z-20 flex flex-col items-center gap-3">
-          <Tag size={32} className="text-white/40" />
-          <span className="text-white/50 text-sm">
-            Etiqueta un producto de tu tienda
-          </span>
-          <span className="text-white/30 text-xs">
-            Próximamente
-          </span>
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl p-4 rounded-t-hs-xl z-20 flex flex-col gap-3 max-h-[55vh]">
+          <div className="flex items-center gap-2">
+            <ShoppingBag size={16} className="text-white/60 shrink-0" />
+            <span className="text-sm font-semibold text-white">Etiquetar producto</span>
+          </div>
+
+          {/* Search input */}
+          <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-2">
+            <Search size={16} className="text-white/40 shrink-0" />
+            <input
+              value={productQuery}
+              onChange={(e) => setProductQuery(e.target.value)}
+              placeholder="Buscar producto..."
+              autoFocus
+              aria-label="Buscar producto para etiquetar en la historia"
+              className="flex-1 bg-transparent text-white border-none outline-none text-sm placeholder:text-white/30 font-sans"
+            />
+            {productQuery && (
+              <button
+                onClick={() => { setProductQuery(''); setProductResults([]); }}
+                className="bg-transparent border-none cursor-pointer p-0"
+                aria-label="Limpiar búsqueda"
+              >
+                <X size={14} className="text-white/40" />
+              </button>
+            )}
+          </div>
+
+          {/* Results */}
+          <div className="flex-1 overflow-y-auto flex flex-col gap-1">
+            {productSearching && (
+              <div className="flex justify-center py-4">
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              </div>
+            )}
+
+            {!productSearching && productQuery && productResults.length === 0 && (
+              <p className="text-center text-white/40 text-sm py-4">Sin resultados</p>
+            )}
+
+            {productResults.map((product) => {
+              const name = product.name || product.title;
+              const img = product.image || product.thumbnail || product.image_url;
+              const price = product.price;
+              return (
+                <button
+                  key={product.id || product._id}
+                  onClick={() => addProductSticker(product)}
+                  className="flex items-center gap-3 w-full px-2 py-2.5 bg-transparent border-none cursor-pointer rounded-xl hover:bg-white/10 transition-colors text-left"
+                >
+                  {img ? (
+                    <img src={img} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                      <ShoppingBag size={16} className="text-white/30" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm text-white font-medium block truncate">{name}</span>
+                    {price != null && (
+                      <span className="text-xs text-white/60 font-semibold">
+                        {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price)}
+                      </span>
+                    )}
+                  </div>
+                  <Tag size={14} className="text-white/30 shrink-0" />
+                </button>
+              );
+            })}
+
+            {!productQuery && (
+              <p className="text-center text-white/30 text-xs py-4">
+                Busca un producto de tu catálogo para añadirlo como sticker interactivo
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Draw mode panel */}
+      {drawMode && (
+        <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl p-4 rounded-t-hs-xl z-20 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-white">Dibujar</span>
+            <div className="flex gap-2">
+              <button onClick={() => setDrawPaths(prev => prev.slice(0, -1))} className="text-white/60 text-xs bg-white/10 rounded-full px-3 py-1.5 border-none cursor-pointer">&#8617; Deshacer</button>
+              <button onClick={() => setDrawMode(false)} className="text-black text-xs bg-white rounded-full px-3 py-1.5 border-none cursor-pointer font-semibold">Listo</button>
+            </div>
+          </div>
+          {/* Colors */}
+          <div className="flex gap-2">
+            {['#ffffff', '#0c0a09', '#a8a29e', '#78716c', '#44403c'].map(c => (
+              <button key={c} onClick={() => setDrawColor(c)} className={`w-8 h-8 rounded-full border-2 cursor-pointer p-0 ${drawColor === c ? 'border-white ring-2 ring-white/50' : 'border-white/30'}`} style={{ background: c }} />
+            ))}
+          </div>
+          {/* Width */}
+          <div className="flex gap-3 items-center">
+            {[{ w: 2, label: 'Fino' }, { w: 4, label: 'Medio' }, { w: 8, label: 'Grueso' }].map(opt => (
+              <button key={opt.w} onClick={() => setDrawWidth(opt.w)} className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-xs cursor-pointer border-none ${drawWidth === opt.w ? 'bg-white text-black font-semibold' : 'bg-white/10 text-white'}`}>
+                <span className="rounded-full bg-current" style={{ width: opt.w * 2, height: opt.w * 2 }} />
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

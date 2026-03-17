@@ -81,7 +81,7 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
           <button
             type="button"
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition-colors duration-150 hover:bg-stone-50 hover:text-stone-950"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition-colors duration-150 hover:bg-stone-50 hover:text-stone-950"
             aria-label="Cerrar"
           >
             <X className="h-5 w-5" />
@@ -92,11 +92,11 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
           <div className="mb-4 flex items-center justify-between rounded-2xl border border-stone-100 bg-stone-50 p-3">
             <span className="text-sm font-medium text-stone-700">Raciones</span>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={() => setServings((value) => Math.max(1, value - 1))} className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700">
+              <button type="button" onClick={() => setServings((value) => Math.max(1, value - 1))} aria-label="Menos raciones" className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700">
                 <Minus className="h-4 w-4" />
               </button>
               <span className="w-8 text-center text-sm font-semibold text-stone-950">{servings}</span>
-              <button type="button" onClick={() => setServings((value) => value + 1)} className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700">
+              <button type="button" onClick={() => setServings((value) => value + 1)} aria-label="Más raciones" className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700">
                 <Plus className="h-4 w-4" />
               </button>
             </div>
@@ -121,7 +121,8 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
                     <button
                       type="button"
                       onClick={() => setQuantities((current) => ({ ...current, [item.product_id]: Math.max(1, (current[item.product_id] || item.quantity || 1) - 1) }))}
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700"
+                      aria-label={`Menos ${item.name}`}
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700"
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
@@ -129,7 +130,8 @@ export default function RecipeShoppingListOverlay({ recipeId, defaultServings = 
                     <button
                       type="button"
                       onClick={() => setQuantities((current) => ({ ...current, [item.product_id]: (current[item.product_id] || item.quantity || 1) + 1 }))}
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700"
+                      aria-label={`Más ${item.name}`}
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>

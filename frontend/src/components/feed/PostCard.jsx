@@ -197,7 +197,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
                   <Pencil size={16} /> Editar
                 </button>
                 <button
-                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-red-600 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
+                  className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-stone-950 bg-transparent border-none cursor-pointer hover:bg-stone-50 text-left"
                   onClick={() => { setShowDeleteConfirm(true); setShowMenu(false); }}
                 >
                   <Trash2 size={16} /> Eliminar
@@ -316,6 +316,13 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
         </button>
       </div>
 
+      {/* ---- Location ---- */}
+      {post.location && (
+        <div className="px-4 -mt-1 pb-1.5">
+          <span className="text-[11px] text-stone-500">{post.location}</span>
+        </div>
+      )}
+
       {/* ---- Media ---- */}
       {images.length > 0 && (
         <div className="relative w-full overflow-hidden">
@@ -333,16 +340,23 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
                   src={src}
                   alt={`Post ${post.id} imagen ${i + 1}`}
                   className="block w-full aspect-square object-cover"
-                  loading={i === 0 && priority ? 'eager' : 'lazy'}
+                  loading={(i === 0 && priority) || Math.abs(i - carouselIndex) <= 1 ? 'eager' : 'lazy'}
                 />
               </div>
             ))}
           </div>
 
+          {/* Carousel counter */}
+          {hasMultiple && (
+            <div className="absolute top-3 right-3 z-[1] bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-0.5">
+              <span className="text-[11px] text-white font-semibold tabular-nums">{carouselIndex + 1}/{images.length}</span>
+            </div>
+          )}
+
           {/* Price pill overlay */}
           {normalizedProducts.length > 0 && normalizedProducts[0].price != null && (
             <button
-              className="absolute top-3 right-3 z-[1] flex items-center gap-1 rounded-full bg-stone-950/70 backdrop-blur-sm px-2.5 py-1 border-none cursor-pointer"
+              className="absolute top-3 left-3 z-[1] flex items-center gap-1 rounded-full bg-stone-950/70 backdrop-blur-sm px-2.5 py-1 border-none cursor-pointer"
               onClick={(e) => { e.stopPropagation(); navigate(`/product/${normalizedProducts[0].id || normalizedProducts[0].product_id}`); }}
               aria-label={`Ver producto ${formatPrice(normalizedProducts[0].price)}`}
             >
@@ -390,7 +404,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
       {/* ---- Actions ---- */}
       <div className="flex items-center gap-4 px-3 py-2">
         <button
-          className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer transition-transform duration-150 ${
+          className={`flex min-h-[44px] items-center gap-1 bg-transparent border-none py-2.5 cursor-pointer transition-transform duration-150 active:scale-110 ${
             liked ? 'text-stone-950' : 'text-stone-500'
           }`}
           onClick={handleLike}
@@ -400,6 +414,7 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
             size={24}
             fill={liked ? 'currentColor' : 'none'}
             color="currentColor"
+            className={liked ? 'transition-transform duration-200' : ''}
           />
           {likesCount > 0 && (
             <span className="text-[13px] font-semibold text-stone-950">{likesCount}</span>
@@ -440,6 +455,15 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
         </button>
       </div>
 
+      {/* ---- Liked by context ---- */}
+      {likesCount > 0 && (post.liked_by_sample?.length > 0 || post.liked_by?.length > 0) && (
+        <div className="px-4 pb-1 text-[12px] text-stone-950 leading-tight">
+          <span>Le gusta a </span>
+          <span className="font-semibold">{(post.liked_by_sample || post.liked_by)[0]?.name || 'alguien'}</span>
+          {likesCount > 1 && <span> y <span className="font-semibold">{likesCount - 1} más</span></span>}
+        </div>
+      )}
+
       {/* ---- Caption ---- */}
       {captionText && (
         <div className="px-4 pb-2 text-sm leading-[1.45] text-stone-950">
@@ -467,6 +491,13 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
               className="flex shrink-0 items-center gap-2 rounded-full bg-stone-100 py-1 pl-1 pr-3 border-none cursor-pointer font-[inherit]"
               onClick={() => navigate(`/product/${product.id || product.product_id}`)}
             >
+              {(product.producer_avatar || product.store?.avatar) && (
+                <img
+                  src={product.producer_avatar || product.store?.avatar}
+                  alt={product.producer_name || product.store_name || product.store?.name || ''}
+                  className="h-4 w-4 rounded-full object-cover"
+                />
+              )}
               {(product.image || product.thumbnail) && (
                 <img
                   src={product.image || product.thumbnail}
@@ -474,9 +505,28 @@ export default function PostCard({ post, onLike, onComment, onShare, onSave, onD
                   className="h-8 w-8 rounded-full object-cover"
                 />
               )}
-              <span className="max-w-[120px] truncate text-xs font-medium text-stone-950">
-                {product.name || product.title}
-              </span>
+              <div className="flex flex-col items-start min-w-0">
+                <span className="max-w-[120px] truncate text-xs font-medium text-stone-950">
+                  {product.name || product.title}
+                </span>
+                {(product.producer_name || product.store_name || product.store?.name) && (
+                  <span className="max-w-[120px] truncate text-[10px] text-stone-500 flex items-center gap-0.5">
+                    {product.producer_name || product.store_name || product.store?.name}
+                    {product.verified && <span className="text-[9px]">✓</span>}
+                  </span>
+                )}
+                {/* Allergen/cert badges */}
+                {(product.certifications?.length > 0 || product.is_organic || product.is_vegan || product.is_gluten_free) && (
+                  <div className="flex gap-0.5 mt-0.5 flex-wrap">
+                    {product.is_organic && <span className="text-[8px] bg-stone-200 text-stone-700 rounded px-1">🌿 Eco</span>}
+                    {product.is_vegan && <span className="text-[8px] bg-stone-200 text-stone-700 rounded px-1">🌱 Vegano</span>}
+                    {product.is_gluten_free && <span className="text-[8px] bg-stone-200 text-stone-700 rounded px-1">🌾 Sin gluten</span>}
+                    {product.certifications?.slice(0, 2).map((cert, ci) => (
+                      <span key={ci} className="text-[8px] bg-stone-200 text-stone-700 rounded px-1">{cert.name || cert}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
               {product.price != null && (
                 <span className="whitespace-nowrap text-xs font-bold text-stone-950">
                   {formatPrice(product.price)}

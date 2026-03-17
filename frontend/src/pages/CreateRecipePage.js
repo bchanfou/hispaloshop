@@ -23,9 +23,9 @@ function normalizeIngredientName(value) {
 }
 
 const DIFFICULTY_MAP = {
-  easy: { label: 'Facil', color: 'var(--color-stone)' },
-  medium: { label: 'Media', color: 'var(--color-amber)' },
-  hard: { label: 'Dificil', color: 'var(--color-red)' },
+  easy: { label: 'Fácil', tw: 'text-stone-500' },
+  medium: { label: 'Media', tw: 'text-stone-700' },
+  hard: { label: 'Difícil', tw: 'text-stone-950' },
 };
 const DIFFICULTY_KEYS = ['easy', 'medium', 'hard'];
 
@@ -65,7 +65,6 @@ export default function CreateRecipePage() {
       setIngredientSuggestions([]);
       return undefined;
     }
-
     const timeoutId = window.setTimeout(async () => {
       setSuggestionLoading(true);
       try {
@@ -77,7 +76,6 @@ export default function CreateRecipePage() {
         setSuggestionLoading(false);
       }
     }, 180);
-
     return () => window.clearTimeout(timeoutId);
   }, [manualIngredientInput]);
 
@@ -86,588 +84,175 @@ export default function CreateRecipePage() {
     return null;
   }
 
-  const updateRecipe = (field, value) => {
-    setRecipe((current) => ({ ...current, [field]: value }));
-  };
+  const updateRecipe = (field, value) => setRecipe((c) => ({ ...c, [field]: value }));
 
   const handleMainImage = async (file) => {
-    if (!file?.type?.startsWith('image/')) {
-      toast.error(t('social.imagesOnly', 'Solo se permiten imagenes'));
-      return;
-    }
-
-    if (file.size > 8 * 1024 * 1024) {
-      toast.error(t('social.maxSize10', 'El tamano maximo es 10MB'));
-      return;
-    }
-
-    try {
-      const imageUrl = await fileToDataUrl(file);
-      updateRecipe('image_url', imageUrl);
-    } catch {
-      toast.error('No hemos podido cargar la imagen');
-    }
+    if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
+    if (file.size > 8 * 1024 * 1024) { toast.error(t('social.maxSize10', 'El tamano maximo es 10MB')); return; }
+    try { updateRecipe('image_url', await fileToDataUrl(file)); } catch { toast.error('No hemos podido cargar la imagen'); }
   };
 
-  const handleDrop = async (event) => {
-    event.preventDefault();
-    setDragActive(false);
-    const file = event.dataTransfer.files?.[0];
-    if (file) {
-      await handleMainImage(file);
-    }
-  };
+  const handleDrop = async (e) => { e.preventDefault(); setDragActive(false); const f = e.dataTransfer.files?.[0]; if (f) await handleMainImage(f); };
 
   const addManualIngredient = () => {
     const name = normalizeIngredientName(manualIngredientInput);
     if (!name) return;
-    if (recipe.ingredients.some((ingredient) => ingredient.name.toLowerCase() === name.toLowerCase())) {
-      setManualIngredientInput('');
-      return;
-    }
-
-    updateRecipe('ingredients', [
-      ...recipe.ingredients,
-      { name, quantity: '', unit: '', product_id: null, product: null, source: 'manual' },
-    ]);
+    if (recipe.ingredients.some((i) => i.name.toLowerCase() === name.toLowerCase())) { setManualIngredientInput(''); return; }
+    updateRecipe('ingredients', [...recipe.ingredients, { name, quantity: '', unit: '', product_id: null, product: null, source: 'manual' }]);
     setManualIngredientInput('');
     setIngredientSuggestions([]);
   };
 
-  const removeIngredient = (index) => {
-    updateRecipe(
-      'ingredients',
-      recipe.ingredients.filter((_, ingredientIndex) => ingredientIndex !== index),
-    );
-  };
-
-  const updateIngredientField = (index, field, value) => {
-    const nextIngredients = [...recipe.ingredients];
-    nextIngredients[index] = { ...nextIngredients[index], [field]: value };
-    updateRecipe('ingredients', nextIngredients);
-  };
+  const removeIngredient = (index) => updateRecipe('ingredients', recipe.ingredients.filter((_, i) => i !== index));
+  const updateIngredientField = (index, field, value) => { const n = [...recipe.ingredients]; n[index] = { ...n[index], [field]: value }; updateRecipe('ingredients', n); };
 
   const addProductIngredient = (product) => {
-    if (recipe.ingredients.some((ingredient) => ingredient.product_id === product.product_id)) {
-      return;
-    }
-
-    updateRecipe('ingredients', [
-      ...recipe.ingredients,
-      {
-        name: product.name,
-        quantity: '',
-        unit: '',
-        product_id: product.product_id,
-        product,
-        source: 'catalog',
-      },
-    ]);
+    if (recipe.ingredients.some((i) => i.product_id === product.product_id)) return;
+    updateRecipe('ingredients', [...recipe.ingredients, { name: product.name, quantity: '', unit: '', product_id: product.product_id, product, source: 'catalog' }]);
   };
 
-  const updateStep = (index, field, value) => {
-    const nextSteps = [...recipe.steps];
-    nextSteps[index] = { ...nextSteps[index], [field]: value };
-    updateRecipe('steps', nextSteps);
-  };
-
-  const addStep = () => {
-    updateRecipe('steps', [...recipe.steps, { text: '', image_url: '' }]);
-  };
-
-  const removeStep = (index) => {
-    updateRecipe(
-      'steps',
-      recipe.steps.filter((_, stepIndex) => stepIndex !== index),
-    );
-  };
+  const updateStep = (index, field, value) => { const n = [...recipe.steps]; n[index] = { ...n[index], [field]: value }; updateRecipe('steps', n); };
+  const addStep = () => updateRecipe('steps', [...recipe.steps, { text: '', image_url: '' }]);
+  const removeStep = (index) => updateRecipe('steps', recipe.steps.filter((_, i) => i !== index));
 
   const handleStepImage = async (index, file) => {
-    if (!file?.type?.startsWith('image/')) {
-      toast.error(t('social.imagesOnly', 'Solo se permiten imagenes'));
-      return;
-    }
-
-    try {
-      const imageUrl = await fileToDataUrl(file);
-      updateStep(index, 'image_url', imageUrl);
-    } catch {
-      toast.error('No hemos podido cargar la imagen del paso');
-    }
+    if (!file?.type?.startsWith('image/')) { toast.error(t('social.imagesOnly', 'Solo se permiten imagenes')); return; }
+    try { updateStep(index, 'image_url', await fileToDataUrl(file)); } catch { toast.error('No hemos podido cargar la imagen del paso'); }
   };
 
-  const cycleDifficulty = () => {
-    const idx = DIFFICULTY_KEYS.indexOf(recipe.difficulty);
-    const next = DIFFICULTY_KEYS[(idx + 1) % DIFFICULTY_KEYS.length];
-    updateRecipe('difficulty', next);
-  };
+  const cycleDifficulty = () => { const idx = DIFFICULTY_KEYS.indexOf(recipe.difficulty); updateRecipe('difficulty', DIFFICULTY_KEYS[(idx + 1) % DIFFICULTY_KEYS.length]); };
 
   const handleSubmit = async () => {
-    const cleanedIngredients = recipe.ingredients
-      .map((ingredient) => ({
-        name: normalizeIngredientName(ingredient.name),
-        quantity: ingredient.quantity || '',
-        unit: ingredient.unit || '',
-        product_id: ingredient.product_id || null,
-      }))
-      .filter((ingredient) => ingredient.name);
-
-    const cleanedSteps = recipe.steps
-      .map((step) => ({
-        text: step.text?.trim() || '',
-        image_url: step.image_url || '',
-      }))
-      .filter((step) => step.text || step.image_url);
-
-    if (!recipe.title.trim()) {
-      toast.error(t('recipes.missingTitle', 'Anade un titulo a la receta'));
-      return;
-    }
-
-    if (cleanedIngredients.length === 0) {
-      toast.error(t('recipes.missingIngredients', 'Anade al menos un ingrediente'));
-      return;
-    }
-
-    if (cleanedSteps.length === 0) {
-      toast.error(t('recipes.missingSteps', 'Anade al menos un paso de preparacion'));
-      return;
-    }
-
+    const ci = recipe.ingredients.map((i) => ({ name: normalizeIngredientName(i.name), quantity: i.quantity || '', unit: i.unit || '', product_id: i.product_id || null })).filter((i) => i.name);
+    const cs = recipe.steps.map((s) => ({ text: s.text?.trim() || '', image_url: s.image_url || '' })).filter((s) => s.text || s.image_url);
+    if (!recipe.title.trim()) { toast.error(t('recipes.missingTitle', 'Añade un título a la receta')); return; }
+    if (ci.length === 0) { toast.error(t('recipes.missingIngredients', 'Añade al menos un ingrediente')); return; }
+    if (cs.length === 0) { toast.error(t('recipes.missingSteps', 'Añade al menos un paso de preparación')); return; }
     setSubmitting(true);
     try {
-      const payload = {
-        ...recipe,
-        title: recipe.title.trim(),
-        description: recipe.description.trim(),
-        ingredients: cleanedIngredients,
-        steps: cleanedSteps,
-      };
-
-      const data = await apiClient.post('/recipes', payload);
+      const data = await apiClient.post('/recipes', { ...recipe, title: recipe.title.trim(), description: recipe.description.trim(), ingredients: ci, steps: cs });
       toast.success(t('recipes.published', 'Receta publicada'));
       navigate(`/recipes/${data.recipe_id}`);
-    } catch (error) {
-      toast.error(error.message || 'No hemos podido publicar la receta');
-    } finally {
-      setSubmitting(false);
-    }
+    } catch (error) { toast.error(error.message || 'No hemos podido publicar la receta'); }
+    finally { setSubmitting(false); }
   };
 
   const diff = DIFFICULTY_MAP[recipe.difficulty];
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--color-cream)',
-        fontFamily: 'var(--font-sans)',
-      }}
-    >
+    <div className="min-h-screen bg-[var(--color-cream)] font-sans">
       {/* TopBar */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 40,
-          background: 'var(--color-white)',
-          borderBottom: '1px solid var(--color-border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 16px',
-          height: 52,
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 4,
-            color: 'var(--color-black)',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-          aria-label="Volver"
-        >
+      <div className="sticky top-0 z-40 flex h-[52px] items-center justify-between border-b border-stone-200 bg-white px-4">
+        <button type="button" onClick={() => navigate(-1)} aria-label="Volver" className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-950">
           <ArrowLeft size={20} />
         </button>
-        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-black)' }}>
-          Nueva receta
-        </span>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={submitting}
-          style={{
-            background: 'var(--color-black)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 'var(--radius-full)',
-            padding: '7px 16px',
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: submitting ? 'not-allowed' : 'pointer',
-            opacity: submitting ? 0.5 : 1,
-            fontFamily: 'var(--font-sans)',
-          }}
-        >
+        <span className="text-[15px] font-semibold text-stone-950">Nueva receta</span>
+        <button type="button" onClick={handleSubmit} disabled={submitting} className="rounded-full bg-stone-950 px-4 py-1.5 text-xs font-semibold text-white border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-colors">
           {submitting ? 'Publicando...' : 'Publicar'}
         </button>
       </div>
 
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: '16px 16px 32px' }}>
+      <div className="mx-auto max-w-[480px] px-4 py-4 pb-8">
         {/* Cover photo */}
         <div
-          onDragOver={(event) => { event.preventDefault(); setDragActive(true); }}
+          onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
           onDragLeave={() => setDragActive(false)}
           onDrop={handleDrop}
-          style={{
-            height: 130,
-            borderRadius: 'var(--radius-lg)',
-            overflow: 'hidden',
-            position: 'relative',
-            background: recipe.image_url
-              ? undefined
-              : 'linear-gradient(135deg, var(--color-surface), var(--color-cream))',
-            border: dragActive ? '2px dashed var(--color-stone)' : 'none',
-          }}
+          className={`relative h-[130px] overflow-hidden rounded-xl ${dragActive ? 'border-2 border-dashed border-stone-400' : ''}`}
+          style={{ background: recipe.image_url ? undefined : 'linear-gradient(135deg, var(--color-surface), var(--color-cream))' }}
         >
           {recipe.image_url ? (
             <>
-              <img
-                src={recipe.image_url}
-                alt="Portada"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <button
-                type="button"
-                onClick={() => updateRecipe('image_url', '')}
-                style={{
-                  position: 'absolute',
-                  right: 10,
-                  top: 10,
-                  width: 28,
-                  height: 28,
-                  borderRadius: '50%',
-                  background: 'rgba(0,0,0,0.55)',
-                  border: 'none',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                }}
-                aria-label="Eliminar imagen"
-              >
+              <img src={recipe.image_url} alt="Portada" className="h-full w-full object-cover" />
+              <button type="button" onClick={() => updateRecipe('image_url', '')} aria-label="Eliminar imagen" className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white border-none cursor-pointer">
                 <X size={14} />
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              onClick={() => imageInputRef.current?.click()}
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                background: 'rgba(255,255,255,0.9)',
-                borderRadius: 10,
-                border: 'none',
-                padding: '10px 18px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                cursor: 'pointer',
-                fontSize: 12,
-                fontWeight: 500,
-                color: 'var(--color-black)',
-                fontFamily: 'var(--font-sans)',
-              }}
-            >
-              <Camera size={15} />
-              Foto de portada
+            <button type="button" onClick={() => imageInputRef.current?.click()} className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-xl bg-white/90 px-4 py-2.5 text-xs font-medium text-stone-950 border-none cursor-pointer">
+              <Camera size={15} /> Foto de portada
             </button>
           )}
         </div>
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={(event) => handleMainImage(event.target.files?.[0])}
-        />
+        <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleMainImage(e.target.files?.[0])} />
 
         {/* Recipe name */}
         <input
           value={recipe.title}
-          onChange={(event) => updateRecipe('title', event.target.value)}
+          onChange={(e) => updateRecipe('title', e.target.value)}
           placeholder="Nombre de la receta"
+          aria-label="Nombre de la receta"
           data-testid="recipe-title-input"
-          style={{
-            width: '100%',
-            fontSize: 16,
-            fontWeight: 500,
-            color: 'var(--color-black)',
-            border: 'none',
-            background: 'transparent',
-            outline: 'none',
-            padding: '16px 0 12px',
-            fontFamily: 'var(--font-sans)',
-            boxSizing: 'border-box',
-          }}
+          className="w-full border-none bg-transparent py-4 pb-3 text-base font-medium text-stone-950 outline-none placeholder:text-stone-400"
         />
 
         {/* Metadata grid */}
-        <div className="grid grid-cols-3" style={{ gap: 8, marginBottom: 20 }}>
+        <div className="mb-5 grid grid-cols-3 gap-2">
           {/* Time */}
-          <div
-            style={{
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              padding: '10px 12px',
-              textAlign: 'center',
-            }}
-          >
-            <Clock size={14} style={{ color: 'var(--color-stone)', margin: '0 auto 4px' }} />
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 }}>
-              <input
-                type="number"
-                value={recipe.time_minutes}
-                onChange={(event) => updateRecipe('time_minutes', Number(event.target.value) || 0)}
-                data-testid="recipe-time"
-                style={{
-                  width: 36,
-                  border: 'none',
-                  background: 'transparent',
-                  textAlign: 'center',
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: 'var(--color-black)',
-                  outline: 'none',
-                  fontFamily: 'var(--font-sans)',
-                }}
-              />
-              <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>min</span>
+          <div className="rounded-xl border border-stone-200 bg-white p-2.5 text-center">
+            <Clock size={14} className="mx-auto mb-1 text-stone-400" />
+            <div className="flex items-baseline justify-center gap-0.5">
+              <input type="number" value={recipe.time_minutes} onChange={(e) => updateRecipe('time_minutes', Number(e.target.value) || 0)} data-testid="recipe-time" aria-label="Tiempo en minutos" className="w-9 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
+              <span className="text-[10px] text-stone-400">min</span>
             </div>
           </div>
 
           {/* Difficulty */}
-          <button
-            type="button"
-            onClick={cycleDifficulty}
-            data-testid="recipe-difficulty"
-            style={{
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              padding: '10px 12px',
-              textAlign: 'center',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-sans)',
-            }}
-          >
-            <div style={{ fontSize: 10, color: 'var(--color-stone)', marginBottom: 4 }}>Dificultad</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: diff.color }}>{diff.label}</div>
+          <button type="button" onClick={cycleDifficulty} data-testid="recipe-difficulty" aria-label={`Dificultad: ${diff.label}`} className="rounded-xl border border-stone-200 bg-white p-2.5 text-center cursor-pointer">
+            <div className="text-[10px] text-stone-400 mb-1">Dificultad</div>
+            <div className={`text-[13px] font-semibold ${diff.tw}`}>{diff.label}</div>
           </button>
 
           {/* Servings */}
-          <div
-            style={{
-              background: 'var(--color-white)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              padding: '10px 12px',
-              textAlign: 'center',
-            }}
-          >
-            <Users size={14} style={{ color: 'var(--color-stone)', margin: '0 auto 4px' }} />
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 }}>
-              <input
-                type="number"
-                value={recipe.servings}
-                onChange={(event) => updateRecipe('servings', Number(event.target.value) || 1)}
-                data-testid="recipe-servings"
-                style={{
-                  width: 28,
-                  border: 'none',
-                  background: 'transparent',
-                  textAlign: 'center',
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: 'var(--color-black)',
-                  outline: 'none',
-                  fontFamily: 'var(--font-sans)',
-                }}
-              />
-              <span style={{ fontSize: 10, color: 'var(--color-stone)' }}>personas</span>
+          <div className="rounded-xl border border-stone-200 bg-white p-2.5 text-center">
+            <Users size={14} className="mx-auto mb-1 text-stone-400" />
+            <div className="flex items-baseline justify-center gap-0.5">
+              <input type="number" value={recipe.servings} onChange={(e) => updateRecipe('servings', Number(e.target.value) || 1)} data-testid="recipe-servings" aria-label="Número de raciones" className="w-7 border-none bg-transparent text-center text-[15px] font-semibold text-stone-950 outline-none" />
+              <span className="text-[10px] text-stone-400">personas</span>
             </div>
           </div>
         </div>
 
         {/* INGREDIENTES */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{
-            fontSize: 10,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--color-stone)',
-            marginBottom: 10,
-          }}>
-            Ingredientes
-          </div>
+        <div className="mb-6">
+          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-stone-500">Ingredientes</p>
 
-          {/* Ingredient cards */}
           {recipe.ingredients.map((ingredient, index) => (
-            <div
-              key={`${ingredient.name}-${index}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '8px 0',
-                borderBottom: index < recipe.ingredients.length - 1 ? '1px solid var(--color-border)' : 'none',
-              }}
-            >
-              {ingredient.product_id && ingredient.product?.images?.[0] ? (
-                <img
-                  src={resolveUserImage(ingredient.product.images[0])}
-                  alt={ingredient.name}
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 7,
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                  }}
-                />
-              ) : ingredient.product_id && ingredient.product?.image ? (
-                <img
-                  src={resolveUserImage(ingredient.product.image)}
-                  alt={ingredient.name}
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 7,
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                  }}
-                />
-              ) : null}
-
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {ingredient.quantity && (
-                    <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-black)' }}>
-                      {ingredient.quantity}{ingredient.unit ? ` ${ingredient.unit}` : ''}
-                    </span>
-                  )}
-                  <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-black)' }}>
-                    {ingredient.name}
-                  </span>
+            <div key={`${ingredient.name}-${index}`} className={`flex items-center gap-2.5 py-2 ${index < recipe.ingredients.length - 1 ? 'border-b border-stone-200' : ''}`}>
+              {ingredient.product_id && (ingredient.product?.images?.[0] || ingredient.product?.image) && (
+                <img src={resolveUserImage(ingredient.product.images?.[0] || ingredient.product.image)} alt={ingredient.name} className="h-7 w-7 shrink-0 rounded-lg object-cover" />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  {ingredient.quantity && <span className="text-[10px] font-medium text-stone-950">{ingredient.quantity}{ingredient.unit ? ` ${ingredient.unit}` : ''}</span>}
+                  <span className="text-[10px] font-medium text-stone-950">{ingredient.name}</span>
                 </div>
-                {ingredient.product_id && (
-                  <div style={{ fontSize: 9, color: 'var(--color-stone)', marginTop: 1 }}>
-                    {ingredient.product?.seller_name || 'Tienda'} &middot; etiquetado &#10003;
-                  </div>
-                )}
+                {ingredient.product_id && <p className="mt-0.5 text-[9px] text-stone-400">{ingredient.product?.seller_name || 'Tienda'} &middot; etiquetado &#10003;</p>}
               </div>
-
-              {/* Quantity / unit inline edits */}
-              <input
-                value={ingredient.quantity}
-                onChange={(e) => updateIngredientField(index, 'quantity', e.target.value)}
-                placeholder="Cant."
-                style={{
-                  width: 42,
-                  fontSize: 10,
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 6,
-                  padding: '4px 6px',
-                  outline: 'none',
-                  color: 'var(--color-black)',
-                  background: 'var(--color-white)',
-                  fontFamily: 'var(--font-sans)',
-                }}
-              />
-              <input
-                value={ingredient.unit}
-                onChange={(e) => updateIngredientField(index, 'unit', e.target.value)}
-                placeholder="Ud."
-                style={{
-                  width: 42,
-                  fontSize: 10,
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 6,
-                  padding: '4px 6px',
-                  outline: 'none',
-                  color: 'var(--color-black)',
-                  background: 'var(--color-white)',
-                  fontFamily: 'var(--font-sans)',
-                }}
-              />
-
-              <button
-                type="button"
-                onClick={() => removeIngredient(index)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--color-stone)',
-                  padding: 2,
-                  display: 'flex',
-                  flexShrink: 0,
-                }}
-              >
+              <input value={ingredient.quantity} onChange={(e) => updateIngredientField(index, 'quantity', e.target.value)} placeholder="Cant." aria-label={`Cantidad de ${ingredient.name}`} className="w-[42px] rounded-md border border-stone-200 bg-white px-1.5 py-1 text-[10px] text-stone-950 outline-none" />
+              <input value={ingredient.unit} onChange={(e) => updateIngredientField(index, 'unit', e.target.value)} placeholder="Ud." aria-label={`Unidad de ${ingredient.name}`} className="w-[42px] rounded-md border border-stone-200 bg-white px-1.5 py-1 text-[10px] text-stone-950 outline-none" />
+              <button type="button" onClick={() => removeIngredient(index)} aria-label={`Eliminar ${ingredient.name}`} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full bg-transparent border-none cursor-pointer text-stone-400 hover:text-stone-700">
                 <X size={13} />
               </button>
             </div>
           ))}
 
-          {/* Suggestion loading */}
           {suggestionLoading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', fontSize: 11, color: 'var(--color-stone)' }}>
-              <Loader2 size={13} className="animate-spin" />
-              Buscando coincidencias
+            <div className="flex items-center gap-1.5 py-2 text-[11px] text-stone-400">
+              <Loader2 size={13} className="animate-spin" /> Buscando coincidencias
             </div>
           )}
 
-          {/* Ingredient suggestions */}
           {!suggestionLoading && ingredientSuggestions.length > 0 && (
-            <div style={{ marginTop: 6, marginBottom: 6 }}>
+            <div className="my-1.5">
               {ingredientSuggestions.map((product) => (
-                <button
-                  key={product.product_id}
-                  type="button"
-                  onClick={() => addProductIngredient({ ...product, images: product.image ? [product.image] : [] })}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    width: '100%',
-                    padding: '8px 10px',
-                    marginBottom: 4,
-                    background: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    fontFamily: 'var(--font-sans)',
-                  }}
-                >
-                  <div style={{ width: 28, height: 28, borderRadius: 6, overflow: 'hidden', background: 'var(--color-white)', flexShrink: 0 }}>
-                    {product.image ? <img src={resolveUserImage(product.image)} alt={product.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : null}
+                <button key={product.product_id} type="button" onClick={() => addProductIngredient({ ...product, images: product.image ? [product.image] : [] })} className="mb-1 flex w-full items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 p-2.5 text-left cursor-pointer hover:bg-stone-100 transition-colors">
+                  <div className="h-7 w-7 shrink-0 overflow-hidden rounded-md bg-white">
+                    {product.image ? <img src={resolveUserImage(product.image)} alt={product.name} loading="lazy" className="h-full w-full object-cover" /> : null}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 11, fontWeight: 500, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</p>
-                    <p style={{ fontSize: 9, color: 'var(--color-stone)', margin: '1px 0 0' }}>Sugerencia para "{manualIngredientInput.trim()}"</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[11px] font-medium text-stone-950">{product.name}</p>
+                    <p className="text-[9px] text-stone-400">Sugerencia para &ldquo;{manualIngredientInput.trim()}&rdquo;</p>
                   </div>
                 </button>
               ))}
@@ -675,337 +260,112 @@ export default function CreateRecipePage() {
           )}
 
           {/* Add ingredient input */}
-          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+          <div className="mt-2 flex gap-1.5">
             <input
               value={manualIngredientInput}
-              onChange={(event) => setManualIngredientInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault();
-                  addManualIngredient();
-                }
-              }}
-              placeholder="Anadir ingrediente"
-              style={{
-                flex: 1,
-                fontSize: 11,
-                border: 'none',
-                borderBottom: '1px solid var(--color-border)',
-                background: 'transparent',
-                padding: '6px 0',
-                outline: 'none',
-                color: 'var(--color-black)',
-                fontFamily: 'var(--font-sans)',
-              }}
+              onChange={(e) => setManualIngredientInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addManualIngredient(); } }}
+              placeholder="Añadir ingrediente"
+              aria-label="Nuevo ingrediente"
+              className="flex-1 border-b border-stone-200 bg-transparent py-1.5 text-[11px] text-stone-950 outline-none placeholder:text-stone-400"
             />
-            <button
-              type="button"
-              onClick={addManualIngredient}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--color-stone)',
-                fontSize: 11,
-                fontWeight: 500,
-                padding: '6px 0',
-                fontFamily: 'var(--font-sans)',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <Plus size={13} style={{ display: 'inline', verticalAlign: -2, marginRight: 2 }} />
-              Anadir ingrediente
+            <button type="button" onClick={addManualIngredient} className="flex items-center gap-0.5 whitespace-nowrap border-none bg-transparent py-1.5 text-[11px] font-medium text-stone-500 cursor-pointer hover:text-stone-700">
+              <Plus size={13} /> Añadir
             </button>
           </div>
 
-          {/* Tag product */}
-          <button
-            type="button"
-            onClick={() => setProductModalOpen(true)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--color-stone)',
-              fontSize: 11,
-              fontWeight: 500,
-              padding: '8px 0 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              fontFamily: 'var(--font-sans)',
-            }}
-          >
-            <Plus size={13} />
-            Etiquetar producto
+          <button type="button" onClick={() => setProductModalOpen(true)} className="mt-2 flex items-center gap-1 border-none bg-transparent text-[11px] font-medium text-stone-500 cursor-pointer hover:text-stone-700 p-0">
+            <Plus size={13} /> Etiquetar producto
           </button>
         </div>
 
         {/* PASOS */}
-        <div style={{ marginBottom: 24 }}>
-          <div style={{
-            fontSize: 10,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--color-stone)',
-            marginBottom: 10,
-          }}>
-            Pasos
-          </div>
+        <div className="mb-6">
+          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-stone-500">Pasos</p>
 
           {recipe.steps.map((step, index) => (
-            <div key={`step-${index}`} style={{ display: 'flex', gap: 10, marginBottom: 12, position: 'relative' }}>
-              {/* Step number + connector line */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                <div
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: '50%',
-                    background: 'var(--color-black)',
-                    color: '#fff',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginTop: 2,
-                  }}
-                >
-                  {index + 1}
-                </div>
-                {/* Vertical connector line */}
-                {index < recipe.steps.length - 1 && (
-                  <div style={{ width: 2, flex: 1, minHeight: 20, background: 'var(--color-border)', marginTop: 4 }} />
-                )}
+            <div key={`step-${index}`} className="relative mb-3 flex gap-2.5">
+              <div className="flex shrink-0 flex-col items-center">
+                <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-stone-950 text-[11px] font-semibold text-white">{index + 1}</div>
+                {index < recipe.steps.length - 1 && <div className="mt-1 w-0.5 flex-1 bg-stone-200" style={{ minHeight: 20 }} />}
               </div>
-
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="min-w-0 flex-1">
                 <textarea
                   value={step.text}
-                  onChange={(event) => updateStep(index, 'text', event.target.value)}
+                  onChange={(e) => updateStep(index, 'text', e.target.value)}
                   placeholder={t('recipes.stepPlaceholder', 'Describe este paso')}
-                  style={{
-                    width: '100%',
-                    minHeight: 70,
-                    resize: 'none',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '10px 12px',
-                    fontSize: 12,
-                    color: 'var(--color-black)',
-                    background: 'var(--color-white)',
-                    outline: 'none',
-                    fontFamily: 'var(--font-sans)',
-                    boxSizing: 'border-box',
-                  }}
+                  aria-label={`Paso ${index + 1}`}
+                  className="w-full min-h-[70px] resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
                 />
-
-                {/* Step image */}
                 {step.image_url ? (
-                  <div style={{ position: 'relative', marginTop: 6, borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                    <img src={step.image_url} alt={`Paso ${index + 1}`} style={{ width: '100%', height: 120, objectFit: 'cover' }} />
-                    <button
-                      type="button"
-                      onClick={() => updateStep(index, 'image_url', '')}
-                      style={{
-                        position: 'absolute',
-                        right: 6,
-                        top: 6,
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        background: 'rgba(0,0,0,0.55)',
-                        border: 'none',
-                        color: '#fff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <X size={12} />
+                  <div className="relative mt-1.5 overflow-hidden rounded-xl">
+                    <img src={step.image_url} alt={`Paso ${index + 1}`} className="h-[120px] w-full object-cover" />
+                    <button type="button" onClick={() => updateStep(index, 'image_url', '')} aria-label={`Eliminar imagen del paso ${index + 1}`} className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white border-none cursor-pointer">
+                      <X size={14} />
                     </button>
                   </div>
                 ) : (
-                  <label style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 5,
-                    marginTop: 6,
-                    fontSize: 10,
-                    color: 'var(--color-stone)',
-                    cursor: 'pointer',
-                  }}>
-                    <ImagePlus size={13} />
-                    Imagen opcional
-                    <input
-                      type="file"
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      onChange={(event) => handleStepImage(index, event.target.files?.[0])}
-                    />
+                  <label className="mt-1.5 inline-flex cursor-pointer items-center gap-1.5 text-[10px] text-stone-400 hover:text-stone-600">
+                    <ImagePlus size={13} /> Imagen opcional
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleStepImage(index, e.target.files?.[0])} />
                   </label>
                 )}
               </div>
-
               {recipe.steps.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeStep(index)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--color-stone)',
-                    padding: 2,
-                    display: 'flex',
-                    alignSelf: 'flex-start',
-                    marginTop: 2,
-                    flexShrink: 0,
-                  }}
-                >
+                <button type="button" onClick={() => removeStep(index)} aria-label={`Eliminar paso ${index + 1}`} className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center self-start rounded-full bg-transparent border-none cursor-pointer text-stone-400 hover:text-stone-700">
                   <X size={13} />
                 </button>
               )}
             </div>
           ))}
 
-          <button
-            type="button"
-            onClick={addStep}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--color-stone)',
-              fontSize: 11,
-              fontWeight: 500,
-              padding: '4px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              fontFamily: 'var(--font-sans)',
-            }}
-          >
-            <Plus size={13} />
-            {t('recipes.addStep', 'Anadir paso')}
+          <button type="button" onClick={addStep} className="flex items-center gap-1 border-none bg-transparent py-1 text-[11px] font-medium text-stone-500 cursor-pointer hover:text-stone-700">
+            <Plus size={13} /> {t('recipes.addStep', 'Añadir paso')}
           </button>
         </div>
 
         {/* Description (optional collapsible) */}
-        <div style={{ marginBottom: 24 }}>
-          <button
-            type="button"
-            onClick={() => setDescriptionOpen(!descriptionOpen)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 11,
-              color: 'var(--color-stone)',
-              fontWeight: 500,
-              padding: 0,
-              fontFamily: 'var(--font-sans)',
-            }}
-          >
-            {descriptionOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            Descripcion (opcional)
+        <div className="mb-6">
+          <button type="button" onClick={() => setDescriptionOpen(!descriptionOpen)} className="flex items-center gap-1.5 border-none bg-transparent text-[11px] font-medium text-stone-500 cursor-pointer p-0 hover:text-stone-700">
+            {descriptionOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />} Descripción (opcional)
           </button>
           {descriptionOpen && (
             <textarea
               value={recipe.description}
-              onChange={(event) => updateRecipe('description', event.target.value)}
-              placeholder="Cuenta que hace especial esta receta..."
-              style={{
-                width: '100%',
-                minHeight: 90,
-                resize: 'none',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                padding: '10px 12px',
-                fontSize: 12,
-                color: 'var(--color-black)',
-                background: 'var(--color-white)',
-                outline: 'none',
-                marginTop: 8,
-                fontFamily: 'var(--font-sans)',
-                boxSizing: 'border-box',
-              }}
+              onChange={(e) => updateRecipe('description', e.target.value)}
+              placeholder="Cuenta qué hace especial esta receta..."
+              aria-label="Descripción de la receta"
+              className="mt-2 w-full min-h-[90px] resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-xs text-stone-950 outline-none placeholder:text-stone-400 focus:border-stone-400 box-border"
             />
           )}
         </div>
 
         {/* Hispal AI card */}
-        <div style={{
-          background: 'var(--color-surface, #f5f5f4)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-md)',
-          padding: 16,
-          marginBottom: 16,
-        }}>
-          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-black)', margin: '0 0 8px', lineHeight: 1.5 }}>
-            ✨ Hispal AI puede ayudarte con:
-          </p>
-          <ul style={{ fontSize: 'var(--text-sm)', color: 'var(--color-stone)', margin: '0 0 12px', paddingLeft: 16, lineHeight: 1.6 }}>
+        <div className="mb-4 rounded-xl border border-stone-200 bg-stone-50 p-4">
+          <p className="mb-2 text-sm text-stone-950 leading-relaxed">✨ Hispal AI puede ayudarte con:</p>
+          <ul className="mb-3 pl-4 text-sm text-stone-500 leading-relaxed">
             <li>Una introducción para tu receta</li>
             <li>Hashtags relevantes</li>
           </ul>
-          <button
-            type="button"
-            onClick={() => setShowAIPanel(true)}
-            style={{
-              background: 'var(--color-black)', color: '#fff',
-              border: 'none', borderRadius: 'var(--radius-full)',
-              fontSize: 'var(--text-sm)', fontWeight: 500,
-              padding: '6px 14px', cursor: 'pointer',
-              fontFamily: 'var(--font-sans)',
-            }}
-          >
+          <button type="button" onClick={() => setShowAIPanel(true)} className="rounded-full bg-stone-950 px-3.5 py-1.5 text-sm font-medium text-white border-none cursor-pointer hover:bg-stone-800 transition-colors">
             Sugerir con IA
           </button>
         </div>
 
-        {/* Publish button — GREEN (recipe is premium format) */}
+        {/* Publish button */}
         <button
           type="button"
           onClick={handleSubmit}
           disabled={submitting}
           data-testid="publish-recipe-btn"
-          style={{
-            width: '100%',
-            height: 52,
-            background: submitting ? 'var(--color-stone)' : 'var(--color-black)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 'var(--radius-full)',
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: submitting ? 'not-allowed' : 'pointer',
-            opacity: submitting ? 0.5 : 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            fontFamily: 'var(--font-sans)',
-          }}
+          className={`flex h-[52px] w-full items-center justify-center gap-2 rounded-full border-none text-sm font-semibold text-white cursor-pointer transition-colors ${submitting ? 'bg-stone-500 opacity-50 cursor-not-allowed' : 'bg-stone-950 hover:bg-stone-800'}`}
         >
           {submitting && <Loader2 size={15} className="animate-spin" />}
           Publicar receta
         </button>
       </div>
 
-      {/* Product Search Modal */}
-      <ProductSearchModal
-        isOpen={productModalOpen}
-        onClose={() => setProductModalOpen(false)}
-        onSelect={addProductIngredient}
-      />
-
+      <ProductSearchModal isOpen={productModalOpen} onClose={() => setProductModalOpen(false)} onSelect={addProductIngredient} />
       <HispalAIPanel
         isOpen={showAIPanel}
         onClose={() => setShowAIPanel(false)}

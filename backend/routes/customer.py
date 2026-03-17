@@ -115,7 +115,7 @@ async def get_customer_profile(user: User = Depends(get_current_user)):
 @router.put("/customer/profile")
 async def update_customer_profile(data: dict, user: User = Depends(get_current_user)):
     """Update customer profile"""
-    allowed_fields = ["name", "country", "username"]
+    allowed_fields = ["name", "country", "username", "bio", "website", "location", "avatar_url", "profile_image", "company_name", "store_description"]
     update_data = {k: v for k, v in data.items() if k in allowed_fields and v is not None}
 
     # Validate username if being updated
@@ -142,6 +142,9 @@ async def update_customer_profile(data: dict, user: User = Depends(get_current_u
         update_data["username"] = username
 
     if update_data:
+        # Map avatar_url to profile_image for storage consistency
+        if "avatar_url" in update_data:
+            update_data["profile_image"] = update_data.pop("avatar_url")
         await db.users.update_one({"user_id": user.user_id}, {"$set": update_data})
         # Sync name changes to store_profiles for producers/importers
         if "name" in update_data and user.role in ("producer", "importer"):

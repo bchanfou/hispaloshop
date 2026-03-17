@@ -29,6 +29,7 @@ export default function PostDetailPage() {
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
   const [sending, setSending] = useState(false);
+  const [likedComments, setLikedComments] = useState(new Set());
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -247,6 +248,15 @@ export default function PostDetailPage() {
                       >
                         @{c.user_name || 'usuario'}
                       </Link>
+                      {c.user_id === post.user_id && (
+                        <span style={{
+                          fontSize: 9, fontWeight: 700, color: 'var(--color-white)',
+                          background: '#0c0a09', borderRadius: 999,
+                          padding: '1px 6px', lineHeight: '14px',
+                        }}>
+                          Autor
+                        </span>
+                      )}
                       <span style={{ fontSize: 11, color: 'var(--color-stone)' }}>
                         {timeAgo(c.created_at)}
                       </span>
@@ -264,19 +274,41 @@ export default function PostDetailPage() {
                     </p>
                   </div>
 
-                  {/* Delete (own comments) */}
-                  {isOwn && (
+                  {/* Actions (like + delete) */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingTop: 2 }}>
                     <button
-                      onClick={() => handleDeleteComment(c.comment_id)}
-                      aria-label="Eliminar comentario"
+                      onClick={() => setLikedComments(prev => {
+                        const next = new Set(prev);
+                        if (next.has(c.comment_id)) next.delete(c.comment_id);
+                        else next.add(c.comment_id);
+                        return next;
+                      })}
+                      aria-label={likedComments.has(c.comment_id) ? 'Quitar me gusta' : 'Me gusta'}
                       style={{
                         background: 'none', border: 'none', cursor: 'pointer',
-                        padding: 4, alignSelf: 'flex-start', opacity: 0.4,
+                        padding: 4, display: 'flex',
                       }}
                     >
-                      <Trash2 size={14} color="var(--color-stone)" />
+                      <Heart
+                        size={14}
+                        color={likedComments.has(c.comment_id) ? '#ef4444' : 'var(--color-stone)'}
+                        fill={likedComments.has(c.comment_id) ? '#ef4444' : 'none'}
+                        style={{ transition: 'color 0.2s, fill 0.2s' }}
+                      />
                     </button>
-                  )}
+                    {isOwn && (
+                      <button
+                        onClick={() => { if (window.confirm('¿Eliminar este comentario?')) handleDeleteComment(c.comment_id); }}
+                        aria-label="Eliminar comentario"
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          padding: 4, opacity: 0.4, display: 'flex',
+                        }}
+                      >
+                        <Trash2 size={14} color="var(--color-stone)" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -290,61 +322,77 @@ export default function PostDetailPage() {
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
           background: 'var(--color-white)',
           borderTop: '1px solid var(--color-border)',
-          padding: '8px 16px', paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
-          display: 'flex', alignItems: 'center', gap: 10,
+          paddingBottom: 'max(4px, env(safe-area-inset-bottom))',
         }}>
-          {/* User avatar */}
-          <div style={{
-            width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-            background: 'var(--color-surface)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 700, color: 'var(--color-stone)',
-            overflow: 'hidden',
-          }}>
-            {user?.avatar_url ? (
-              <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              (user?.name || '?')[0].toUpperCase()
-            )}
+          {/* Emoji quick reactions */}
+          <div style={{ display: 'flex', gap: 4, padding: '4px 16px 0' }}>
+            {['\u2764\uFE0F', '\uD83D\uDD25', '\uD83D\uDE0D', '\uD83E\uDD24', '\uD83D\uDC4F', '\uD83D\uDE2E'].map((emoji) => (
+              <button key={emoji} onClick={() => setNewComment(prev => prev + emoji)} style={{ fontSize: 18, background: 'transparent', border: 'none', cursor: 'pointer', padding: 4 }}>{emoji}</button>
+            ))}
           </div>
 
-          <input
-            ref={inputRef}
-            type="text"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Añade un comentario..."
-            aria-label="Escribe un comentario"
-            maxLength={500}
-            style={{
-              flex: 1, height: 40, padding: '0 14px',
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-full, 999px)',
-              fontSize: 14, color: 'var(--color-black)',
+          {/* Input row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 16px' }}>
+            {/* User avatar */}
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
               background: 'var(--color-surface)',
-              outline: 'none', ...font,
-            }}
-          />
-
-          <button
-            onClick={handleSendComment}
-            disabled={!newComment.trim() || sending}
-            aria-label="Enviar comentario"
-            style={{
-              width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-              background: newComment.trim() ? 'var(--color-black)' : 'var(--color-surface)',
-              border: 'none', cursor: newComment.trim() ? 'pointer' : 'default',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'background 0.2s',
-            }}
-          >
-            {sending ? (
-              <Loader2 size={16} color="var(--color-white)" style={{ animation: 'spin 1s linear infinite' }} />
-            ) : (
-              <Send size={16} color={newComment.trim() ? 'var(--color-white)' : 'var(--color-stone)'} />
-            )}
-          </button>
+              fontSize: 13, fontWeight: 700, color: 'var(--color-stone)',
+              overflow: 'hidden',
+            }}>
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                (user?.name || '?')[0].toUpperCase()
+              )}
+            </div>
+
+            <input
+              ref={inputRef}
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Añade un comentario..."
+              aria-label="Escribe un comentario"
+              maxLength={500}
+              style={{
+                flex: 1, height: 40, padding: '0 14px',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-full, 999px)',
+                fontSize: 14, color: 'var(--color-black)',
+                background: 'var(--color-surface)',
+                outline: 'none', ...font,
+              }}
+            />
+
+            <button
+              onClick={handleSendComment}
+              disabled={!newComment.trim() || sending}
+              aria-label="Enviar comentario"
+              style={{
+                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                background: newComment.trim() ? 'var(--color-black)' : 'var(--color-surface)',
+                border: 'none', cursor: newComment.trim() ? 'pointer' : 'default',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.2s',
+              }}
+            >
+              {sending ? (
+                <Loader2 size={16} color="var(--color-white)" style={{ animation: 'spin 1s linear infinite' }} />
+              ) : (
+                <Send size={16} color={newComment.trim() ? 'var(--color-white)' : 'var(--color-stone)'} />
+              )}
+            </button>
+          </div>
+
+          {/* Character counter */}
+          {newComment.length > 0 && (
+            <div style={{ fontSize: 11, color: '#a8a29e', textAlign: 'right', padding: '0 16px 2px' }}>
+              {newComment.length}/500
+            </div>
+          )}
         </div>
       ) : (
         <div style={{

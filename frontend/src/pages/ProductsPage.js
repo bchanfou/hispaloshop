@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Search, SlidersHorizontal, Truck, X } from 'lucide-react';
@@ -93,35 +93,40 @@ export default function ProductsPage() {
     };
   }, [showMobileFilters]);
 
-  // Debounce search URL sync
-  const searchTimerRef = useRef(null);
-  const debouncedSearchSync = useCallback((value) => {
-    clearTimeout(searchTimerRef.current);
-    searchTimerRef.current = setTimeout(() => {
-      const nextParams = new URLSearchParams(searchParams);
-      if (value) nextParams.set('search', value);
-      else nextParams.delete('search');
-      setSearchParams(nextParams);
-    }, 350);
-  }, [searchParams, setSearchParams]);
+  // Debounced values for search and price (avoid API call per keystroke)
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+  const [debouncedMinPrice, setDebouncedMinPrice] = useState(filters.minPrice);
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState(filters.maxPrice);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
-    return () => clearTimeout(searchTimerRef.current);
-  }, []);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(filters.search);
+      setDebouncedMinPrice(filters.minPrice);
+      setDebouncedMaxPrice(filters.maxPrice);
+      // Sync search to URL
+      const nextParams = new URLSearchParams(searchParams);
+      if (filters.search) nextParams.set('search', filters.search);
+      else nextParams.delete('search');
+      setSearchParams(nextParams, { replace: true });
+    }, 350);
+    return () => clearTimeout(debounceRef.current);
+  }, [filters.search, filters.minPrice, filters.maxPrice]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const queryFilters = useMemo(
     () => ({
       country,
       lang: currentLang,
       origin_country: filters.origin_country || undefined,
-      min_price: filters.minPrice || undefined,
-      max_price: filters.maxPrice || undefined,
-      search: filters.search || undefined,
+      min_price: debouncedMinPrice || undefined,
+      max_price: debouncedMaxPrice || undefined,
+      search: debouncedSearch || undefined,
       sort: filters.sort !== 'relevance' ? filters.sort : undefined,
       free_shipping: filters.freeShipping ? 'true' : undefined,
       certifications: filters.certifications.length > 0 ? filters.certifications.join(',') : undefined,
     }),
-    [country, currentLang, filters],
+    [country, currentLang, filters.origin_country, filters.sort, filters.freeShipping, filters.certifications, debouncedSearch, debouncedMinPrice, debouncedMaxPrice],
   );
 
   const catalogQuery = useCatalog(queryFilters);
@@ -241,7 +246,6 @@ export default function ProductsPage() {
                     onChange={(event) => {
                       const nextValue = event.target.value;
                       setFilters((prev) => ({ ...prev, search: nextValue }));
-                      debouncedSearchSync(nextValue);
                     }}
                     className="h-11 rounded-full border border-stone-200 bg-stone-50 pl-9 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 focus:ring-1 focus:ring-stone-300 w-full"
                     aria-label={t('products.searchPlaceholder', 'Buscar productos')}
@@ -409,12 +413,12 @@ export default function ProductsPage() {
           </div>
         ) : null}
 
-        <p className="mb-5 text-sm text-stone-500">
+        <p className="mb-5 text-sm text-stone-500" aria-live="polite" aria-atomic="true">
           {products.length} {t('products.resultsFound', 'resultados')}
         </p>
 
         {catalogQuery.isLoading ? (
-          <div className="py-16 text-center" data-testid="loading-spinner">
+          <div className="py-16 text-center" data-testid="loading-spinner" role="status" aria-label={t('common.loading', 'Cargando')}>
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-stone-950" />
             <p className="text-stone-500">{t('common.loading', 'Cargando...')}</p>
           </div>

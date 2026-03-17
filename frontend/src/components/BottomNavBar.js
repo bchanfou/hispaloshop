@@ -239,8 +239,8 @@ export default function BottomNavBar() {
   const isReels      = location.pathname.startsWith('/reels');
   const isChatActive = activePanel === 'chat';
   const isProfile    = profileUsername
-    ? location.pathname === `/${profileUsername}`
-    : location.pathname === '/profile';
+    ? (location.pathname === `/${profileUsername}` || location.pathname.startsWith('/profile/'))
+    : (location.pathname === '/profile' || location.pathname.startsWith('/profile/'));
 
 
   return (

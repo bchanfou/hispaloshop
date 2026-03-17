@@ -116,6 +116,7 @@ export default function CreatePostPage() {
   const [filterIntensity, setFilterIntensity] = useState(100);
   const [adjustments, setAdjustments] = useState({ brightness: 0, contrast: 0, saturation: 0, warmth: 0, shadows: 0, highlights: 0, sharpness: 0, vignette: 0 });
   const [textOverlays, setTextOverlays] = useState([]);
+  const [textStyle, setTextStyle] = useState('clean');
   const [activeTab, setActiveTab] = useState('filtros');
   const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
 
@@ -128,6 +129,10 @@ export default function CreatePostPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [location, setLocation] = useState('');
   const [audience, setAudience] = useState('public'); // 'public' | 'followers'
+
+  /* --- filter swipe state --- */
+  const filterSwipeRef = useRef({ startX: 0 });
+  const [showFilterName, setShowFilterName] = useState(false);
 
   /* --- dragging text state --- */
   const dragRef = useRef(null);
@@ -168,25 +173,43 @@ export default function CreatePostPage() {
     return () => clearTimeout(t);
   }, [searchQuery, showProductSearch, searchProducts]);
 
+  /* ── filter name overlay ── */
+  useEffect(() => {
+    setShowFilterName(true);
+    const t = setTimeout(() => setShowFilterName(false), 1200);
+    return () => clearTimeout(t);
+  }, [activeFilter]);
+
   /* ── publish ── */
+  const [publishSuccess, setPublishSuccess] = useState(false);
+
   const handlePublish = async () => {
     if (publishing) return;
     setPublishing(true);
     try {
       const fd = new FormData();
-      selectedFiles.forEach((f) => fd.append('images', f));
+      selectedFiles.forEach((f) => fd.append('files', f));
       fd.append('caption', caption);
-      if (taggedProducts.length) fd.append('tagged_products', JSON.stringify(taggedProducts.map((p) => p.id)));
-      fd.append('filter', activeFilter.name);
-      fd.append('aspect_ratio', aspectRatio.label);
+      if (taggedProducts.length) fd.append('tagged_products_json', JSON.stringify(taggedProducts.map((p) => ({ product_id: p.id }))));
+      if (selectedFiles.length > 1) fd.append('post_type', 'carousel');
       if (location.trim()) fd.append('location', location.trim());
-      fd.append('audience', audience);
-      await apiClient.post('/posts', fd);
-      toast.success('Publicación creada');
-      navigate('/');
+      const res = await apiClient.post('/posts', fd);
+      const postId = res?.id || res?.post?.id || res?.data?.id;
+
+      // Haptic feedback
+      if (navigator.vibrate) navigator.vibrate(50);
+
+      // Show success animation before redirecting
+      setPublishSuccess(true);
+      setTimeout(() => {
+        toast.success('Publicación creada', {
+          action: postId ? { label: 'Ver en el feed', onClick: () => navigate(`/posts/${postId}`) } : undefined,
+          duration: 4000,
+        });
+        navigate(postId ? `/posts/${postId}` : '/');
+      }, 800);
     } catch (err) {
       toast.error('Error al publicar');
-    } finally {
       setPublishing(false);
     }
   };
@@ -196,7 +219,7 @@ export default function CreatePostPage() {
     if (textOverlays.length >= 3) return;
     setTextOverlays((prev) => [
       ...prev,
-      { id: Date.now(), text: 'Texto', x: 50, y: 50, font: FONT_OPTIONS[0].value, color: '#ffffff', size: 24 },
+      { id: Date.now(), text: 'Texto', x: 50, y: 50, font: FONT_OPTIONS[0].value, color: '#ffffff', size: 24, style: textStyle },
     ]);
   };
 
@@ -208,36 +231,52 @@ export default function CreatePostPage() {
     setTextOverlays((prev) => prev.filter((o) => o.id !== id));
   };
 
-  /* ── drag text ── */
+  /* ── drag text (perf: direct DOM during drag, state sync on end) ── */
+  const rafRef = useRef(null);
+
   const handleDragStart = (e, overlay) => {
     e.preventDefault();
-    const container = e.currentTarget.parentElement;
+    const el = e.currentTarget;
+    const container = el.parentElement;
     const rect = container.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    dragRef.current = { id: overlay.id, startX: clientX, startY: clientY, origX: overlay.x, origY: overlay.y, w: rect.width, h: rect.height };
+    dragRef.current = { id: overlay.id, el, startX: clientX, startY: clientY, origX: overlay.x, origY: overlay.y, w: rect.width, h: rect.height, lastX: overlay.x, lastY: overlay.y };
+    el.style.willChange = 'left, top';
 
     const move = (ev) => {
       if (!dragRef.current) return;
       const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
       const cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
-      const dx = ((cx - dragRef.current.startX) / dragRef.current.w) * 100;
-      const dy = ((cy - dragRef.current.startY) / dragRef.current.h) * 100;
-      updateOverlay(dragRef.current.id, {
-        x: Math.min(95, Math.max(5, dragRef.current.origX + dx)),
-        y: Math.min(95, Math.max(5, dragRef.current.origY + dy)),
+      const nx = Math.min(95, Math.max(5, dragRef.current.origX + ((cx - dragRef.current.startX) / dragRef.current.w) * 100));
+      const ny = Math.min(95, Math.max(5, dragRef.current.origY + ((cy - dragRef.current.startY) / dragRef.current.h) * 100));
+      dragRef.current.lastX = nx;
+      dragRef.current.lastY = ny;
+      // Direct DOM update — no React re-render
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        if (dragRef.current?.el) {
+          dragRef.current.el.style.left = nx + '%';
+          dragRef.current.el.style.top = ny + '%';
+        }
       });
     };
     const up = () => {
+      cancelAnimationFrame(rafRef.current);
+      if (dragRef.current) {
+        const { id, lastX, lastY, el: dragEl } = dragRef.current;
+        dragEl.style.willChange = '';
+        updateOverlay(id, { x: lastX, y: lastY }); // single state sync
+      }
       dragRef.current = null;
       window.removeEventListener('mousemove', move);
       window.removeEventListener('mouseup', up);
-      window.removeEventListener('touchmove', move);
+      window.removeEventListener('touchmove', move, { passive: true });
       window.removeEventListener('touchend', up);
     };
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
-    window.addEventListener('touchmove', move);
+    window.addEventListener('touchmove', move, { passive: true });
     window.addEventListener('touchend', up);
   };
 
@@ -285,9 +324,95 @@ export default function CreatePostPage() {
 
         {/* gallery bar */}
         <div style={{ background: 'rgba(0,0,0,0.8)', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-          <span style={{ fontSize: 13, color: '#fff', fontWeight: 500 }}>Recientes ▼</span>
+          <span style={{ fontSize: 13, color: '#fff', fontWeight: 500 }}>
+            {selectedFiles.length > 0 ? `${selectedFiles.length} seleccionada${selectedFiles.length > 1 ? 's' : ''}` : 'Recientes'} ▼
+          </span>
           <button onClick={() => cameraInputRef.current?.click()} aria-label="Abrir cámara" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18 }}>📷</button>
         </div>
+
+        {/* Reorder strip — shows selected images as draggable thumbnails */}
+        {selectedFiles.length > 1 && (
+          <div style={{ background: 'rgba(0,0,0,0.8)', padding: '4px 16px 8px', display: 'flex', gap: 6, overflowX: 'auto', flexShrink: 0 }}>
+            {previewUrls.map((url, i) => (
+              <div
+                key={i}
+                draggable
+                onDragStart={(e) => { e.dataTransfer.setData('text/plain', String(i)); }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                  if (isNaN(from) || from === i) return;
+                  setSelectedFiles((prev) => {
+                    const arr = [...prev];
+                    const [moved] = arr.splice(from, 1);
+                    arr.splice(i, 0, moved);
+                    return arr;
+                  });
+                  setPreviewIndex(i);
+                }}
+                onClick={() => setPreviewIndex(i)}
+                style={{
+                  position: 'relative',
+                  width: 44,
+                  height: 44,
+                  borderRadius: 8,
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  cursor: 'grab',
+                  border: previewIndex === i ? '2px solid #fff' : '2px solid transparent',
+                }}
+              >
+                <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <span style={{
+                  position: 'absolute',
+                  top: 2,
+                  left: 2,
+                  width: 16,
+                  height: 16,
+                  borderRadius: '50%',
+                  background: '#0c0a09',
+                  color: '#fff',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  {i + 1}
+                </span>
+                {/* Remove button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== i));
+                    if (previewIndex >= selectedFiles.length - 1) setPreviewIndex(Math.max(0, selectedFiles.length - 2));
+                  }}
+                  aria-label={`Quitar imagen ${i + 1}`}
+                  style={{
+                    position: 'absolute',
+                    top: 2,
+                    right: 2,
+                    width: 16,
+                    height: 16,
+                    borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.7)',
+                    color: '#fff',
+                    fontSize: 10,
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* gallery grid */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -342,12 +467,31 @@ export default function CreatePostPage() {
 
         {/* preview area */}
         <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#111', flexShrink: 0, maxHeight: '50%', overflow: 'hidden' }}>
-          <div style={{ position: 'relative', width: '100%', aspectRatio: previewAspect, maxHeight: '100%', overflow: 'hidden' }}>
+          <div
+            style={{ position: 'relative', width: '100%', aspectRatio: previewAspect, maxHeight: '100%', overflow: 'hidden' }}
+            onTouchStart={(e) => { filterSwipeRef.current.startX = e.touches[0].clientX; }}
+            onTouchEnd={(e) => {
+              const dx = e.changedTouches[0].clientX - filterSwipeRef.current.startX;
+              if (Math.abs(dx) < 40) return;
+              const currentIdx = FILTERS.findIndex(f => f.name === activeFilter.name);
+              if (dx < 0 && currentIdx < FILTERS.length - 1) {
+                setActiveFilter(FILTERS[currentIdx + 1]);
+              } else if (dx > 0 && currentIdx > 0) {
+                setActiveFilter(FILTERS[currentIdx - 1]);
+              }
+            }}
+          >
             <img
               src={previewUrls[previewIndex]}
               alt=""
               style={{ width: '100%', height: '100%', objectFit: 'cover', filter: filterCSS, transition: 'filter 0.2s' }}
             />
+            {/* filter name overlay */}
+            {showFilterName && activeFilter.name !== 'Natural' && (
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '6px 16px', borderRadius: 'var(--radius-full)', fontSize: 13, fontWeight: 600, pointerEvents: 'none', zIndex: 3 }}>
+                {activeFilter.emoji} {activeFilter.name}
+              </div>
+            )}
             {/* vignette overlay */}
             {adjustments.vignette > 0 && (
               <div style={{ position: 'absolute', inset: 0, ...buildVignetteStyle(adjustments.vignette) }} />
@@ -365,11 +509,13 @@ export default function CreatePostPage() {
                   transform: 'translate(-50%,-50%)',
                   fontFamily: o.font,
                   fontSize: o.size,
-                  color: o.color,
+                  color: o.style === 'outline' ? 'transparent' : o.color,
                   cursor: 'grab',
                   userSelect: 'none',
-                  textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+                  textShadow: o.style === 'box' || o.style === 'outline' ? 'none' : '0 1px 4px rgba(0,0,0,0.6)',
                   fontWeight: 600,
+                  ...(o.style === 'box' ? { background: 'rgba(0,0,0,0.75)', padding: '4px 10px', borderRadius: 6 } : {}),
+                  ...(o.style === 'outline' ? { WebkitTextStroke: `2px ${o.color}` } : {}),
                 }}
               >
                 {o.text}
@@ -578,6 +724,36 @@ export default function CreatePostPage() {
                       />
                     ))}
                   </div>
+                  {/* text style */}
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {[
+                      { key: 'clean', label: 'Limpio' },
+                      { key: 'box', label: 'Caja' },
+                      { key: 'outline', label: 'Contorno' },
+                    ].map((s) => (
+                      <button
+                        key={s.key}
+                        onClick={() => updateOverlay(o.id, { style: s.key })}
+                        aria-pressed={o.style === s.key}
+                        style={{
+                          flex: 1,
+                          background: o.style === s.key ? '#fff' : 'rgba(255,255,255,0.15)',
+                          color: o.style === s.key ? '#000' : '#fff',
+                          border: 'none',
+                          borderRadius: 'var(--radius-full)',
+                          padding: '6px 0',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'background 0.15s, color 0.15s',
+                        }}
+                      >
+                        <span style={s.key === 'outline' ? { WebkitTextStroke: '1px currentColor', color: 'transparent' } : s.key === 'box' ? { background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: 3 } : {}}>
+                          {s.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                   {/* size */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Tamaño</span>
@@ -664,14 +840,43 @@ export default function CreatePostPage() {
           </div>
         )}
 
-        {/* caption */}
+        {/* caption with hashtag/mention highlighting */}
         <div style={{ position: 'relative', marginBottom: 12 }}>
+          {/* Highlight backdrop — mirrors textarea text with colored tokens */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              padding: 12,
+              fontSize: 14,
+              fontFamily: 'var(--font-sans)',
+              lineHeight: '1.5',
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+              color: 'transparent',
+              pointerEvents: 'none',
+              boxSizing: 'border-box',
+              border: '1.5px solid transparent',
+            }}
+          >
+            {caption.split(/(#\w+|@\w+)/g).map((part, i) =>
+              part.startsWith('#') ? (
+                <span key={i} style={{ color: '#78716c', fontWeight: 600 }}>{part}</span>
+              ) : part.startsWith('@') ? (
+                <span key={i} style={{ color: '#57534e', fontWeight: 600 }}>{part}</span>
+              ) : (
+                <span key={i}>{part}</span>
+              )
+            )}
+          </div>
           <textarea
             value={caption}
             onChange={(e) => {
               const v = e.target.value.slice(0, 2200);
               setCaption(v);
-              // auto-resize
               e.target.style.height = 'auto';
               e.target.style.height = e.target.scrollHeight + 'px';
             }}
@@ -686,9 +891,13 @@ export default function CreatePostPage() {
               minHeight: 80,
               fontSize: 14,
               fontFamily: 'var(--font-sans)',
+              lineHeight: '1.5',
               outline: 'none',
               boxSizing: 'border-box',
               overflow: 'hidden',
+              background: 'transparent',
+              position: 'relative',
+              caretColor: '#0c0a09',
             }}
           />
           <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 11, color: caption.length > 2000 ? '#0c0a09' : 'var(--color-stone)', fontWeight: caption.length > 2000 ? 600 : 400 }}>
@@ -882,6 +1091,16 @@ export default function CreatePostPage() {
         </div>
       )}
 
+      {/* Publish success overlay */}
+      {publishSuccess && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'var(--color-white)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, animation: 'fadeIn 0.3s ease' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--color-black)', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
+            <Check size={28} color="#fff" strokeWidth={2.5} />
+          </div>
+          <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)' }}>¡Publicado!</span>
+        </div>
+      )}
+
       {/* fixed publish button */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: 16, background: 'var(--color-white)', borderTop: '1px solid var(--color-border)' }}>
         <button
@@ -924,8 +1143,12 @@ export default function CreatePostPage() {
         </button>
       </div>
 
-      {/* spinner keyframe */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      {/* keyframes */}
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+      `}</style>
     </div>
   );
 }

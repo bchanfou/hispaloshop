@@ -88,14 +88,12 @@ export default function DiscoverPage() {
       .catch(() => {})
       .finally(() => { if (active) setLoadingRecipes(false); });
 
-    if (user) {
-      apiClient.get('/discovery/suggested-users', { params: { limit: 3 } })
-        .then(data => {
-          const list = Array.isArray(data) ? data : data?.users || [];
-          if (active) setSuggestedUsers(list.slice(0, 3));
-        })
-        .catch(() => {});
-    }
+    apiClient.get('/discovery/suggested-users', { params: { limit: 5, context: 'discover' } })
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.users || [];
+        if (active) setSuggestedUsers(list.slice(0, 5));
+      })
+      .catch(() => {});
 
     return () => { active = false; };
   }, [userCountry, user]);
@@ -418,34 +416,49 @@ export default function DiscoverPage() {
         {/* ─── ⑦ CREADORES A SEGUIR ─── */}
         {suggestedUsers.length > 0 && (
           <div className="mb-8">
-            <span className="mb-3 block text-[10px] font-semibold uppercase tracking-wider text-stone-500">Creadores a seguir</span>
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">Personas que te gustarán</span>
+              <Link to="/discover/people" className="text-[12px] font-semibold text-stone-500 no-underline hover:text-stone-700">Ver todos →</Link>
+            </div>
             <div className="flex flex-col gap-3">
               {suggestedUsers.map(u => {
                 const uid = u.user_id || u.id;
                 const isFollowing = followingIds.has(uid);
+                const roleLabel = { producer: 'Productor', influencer: 'Influencer', consumer: 'Consumidor', importer: 'Importador' }[u.role] || u.role;
                 return (
                   <div key={uid} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-4 py-3">
-                    <Link to={`/user/${uid}`} className="shrink-0">
-                      <img
-                        src={u.profile_image || '/default-avatar.png'}
-                        alt={u.name} loading="lazy"
-                        className="h-11 w-11 rounded-full object-cover"
-                      />
+                    <Link to={`/user/${u.username || uid}`} className="shrink-0">
+                      {u.profile_image ? (
+                        <img src={u.profile_image} alt={u.name} loading="lazy" className="h-11 w-11 rounded-full object-cover" />
+                      ) : (
+                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-100 text-sm font-bold text-stone-500">
+                          {(u.name || '?')[0].toUpperCase()}
+                        </div>
+                      )}
                     </Link>
-                    <Link to={`/user/${uid}`} className="min-w-0 flex-1 no-underline">
+                    <Link to={`/user/${u.username || uid}`} className="min-w-0 flex-1 no-underline">
                       <p className="text-sm font-semibold text-stone-950">{u.name}</p>
-                      <p className="mt-px truncate text-xs text-stone-500">{u.bio || `@${u.username}`}</p>
+                      <div className="mt-px flex items-center gap-2">
+                        <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600">{roleLabel}</span>
+                        {u.bio && <p className="truncate text-xs text-stone-500">{u.bio}</p>}
+                      </div>
                     </Link>
-                    <button
-                      onClick={() => toggleFollow(uid)}
-                      className={`shrink-0 cursor-pointer rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors ${
-                        isFollowing
-                          ? 'border border-stone-200 bg-white text-stone-950'
-                          : 'border border-stone-950 bg-stone-950 text-white'
-                      }`}
-                    >
-                      {isFollowing ? 'Siguiendo' : 'Seguir'}
-                    </button>
+                    {user ? (
+                      <button
+                        onClick={() => toggleFollow(uid)}
+                        className={`min-h-[44px] shrink-0 cursor-pointer rounded-full px-4 py-2 text-[13px] font-semibold transition-colors ${
+                          isFollowing
+                            ? 'border border-stone-200 bg-white text-stone-950'
+                            : 'border border-stone-950 bg-stone-950 text-white'
+                        }`}
+                      >
+                        {isFollowing ? 'Siguiendo' : 'Seguir'}
+                      </button>
+                    ) : (
+                      <Link to="/login" className="min-h-[44px] flex items-center shrink-0 rounded-full bg-stone-950 px-4 py-2 text-[13px] font-semibold text-white no-underline">
+                        Seguir
+                      </Link>
+                    )}
                   </div>
                 );
               })}

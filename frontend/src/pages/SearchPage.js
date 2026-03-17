@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp } from 'lucide-react';
+import { Search, ArrowLeft, X, ChefHat, ShoppingBag, Store, Users, Clock, TrendingUp, UserPlus } from 'lucide-react';
 import apiClient from '../services/api/client';
 import SEO from '../components/SEO';
 import { toast } from 'sonner';
@@ -22,12 +22,79 @@ function clearHistoryStorage() {
 
 const TRENDING_FALLBACK = ['aceite de oliva', 'gazpacho', 'ibérico', 'queso manchego', 'almendra', 'azafrán'];
 
+const ROLE_LABELS = { producer: 'Productor', influencer: 'Influencer', consumer: 'Consumidor', importer: 'Importador' };
+
+function SuggestedPeopleSection() {
+  const [people, setPeople] = React.useState([]);
+  const [followedIds, setFollowedIds] = React.useState(new Set());
+
+  React.useEffect(() => {
+    let active = true;
+    apiClient.get('/discovery/suggested-users?context=search&limit=6')
+      .then(data => { if (active) setPeople(data?.users || []); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  if (people.length === 0) return null;
+
+  const handleFollow = async (userId) => {
+    try {
+      await apiClient.post(`/users/${userId}/follow`, {});
+      setFollowedIds(prev => new Set([...prev, userId]));
+    } catch { /* ignore */ }
+  };
+
+  return (
+    <section className="pt-6">
+      <div className="mb-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Users size={16} className="text-stone-500" />
+          <span className="text-[13px] font-bold text-stone-950">Personas populares</span>
+        </div>
+        <Link to="/discover/people" className="text-[12px] font-semibold text-stone-500 no-underline hover:text-stone-700">
+          Ver todos
+        </Link>
+      </div>
+      <div className="flex flex-col gap-2">
+        {people.map(u => {
+          const isFollowed = followedIds.has(u.user_id);
+          return (
+            <div key={u.user_id} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5">
+              <Link to={`/user/${u.username || u.user_id}`} className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-stone-100 block">
+                {u.profile_image ? (
+                  <img src={u.profile_image} alt={u.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-sm font-bold text-stone-400">{(u.name || '?')[0].toUpperCase()}</div>
+                )}
+              </Link>
+              <Link to={`/user/${u.username || u.user_id}`} className="min-w-0 flex-1 no-underline">
+                <p className="truncate text-[13px] font-semibold text-stone-950">{u.name}</p>
+                <span className="text-[10px] text-stone-500">{ROLE_LABELS[u.role] || u.role}</span>
+              </Link>
+              <button
+                onClick={() => !isFollowed && handleFollow(u.user_id)}
+                disabled={isFollowed}
+                className={`min-h-[36px] shrink-0 rounded-full px-3.5 text-[11px] font-semibold border-none cursor-pointer transition-colors ${
+                  isFollowed ? 'bg-stone-100 text-stone-500' : 'bg-stone-950 text-white hover:bg-stone-800'
+                }`}
+              >
+                {isFollowed ? 'Siguiendo' : 'Seguir'}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 const TABS = [
   { key: 'all', label: 'Todo' },
   { key: 'products', label: 'Productos', icon: ShoppingBag },
   { key: 'recipes', label: 'Recetas', icon: ChefHat },
   { key: 'stores', label: 'Tiendas', icon: Store },
-  { key: 'creators', label: 'Creadores', icon: Users },
+  { key: 'creators', label: 'Personas', icon: Users },
 ];
 
 /* ── Skeleton ── */
@@ -470,6 +537,8 @@ export default function SearchPage() {
                 ))}
               </div>
             </section>
+
+            <SuggestedPeopleSection />
           </motion.div>
         )}
       </div>

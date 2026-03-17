@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Grid3X3,
@@ -8,6 +8,7 @@ import {
   BookOpen,
   Camera,
   Film,
+  Lock,
 } from 'lucide-react';
 import apiClient from '../../services/api/client';
 
@@ -96,44 +97,40 @@ function MultiImageBadge() {
 /* ══════════════════════════════════════════════
    ProfileTabs
    ══════════════════════════════════════════════ */
-export default function ProfileTabs({
+const ProfileTabs = forwardRef(function ProfileTabs({
   userId,
   role = 'consumer',
   isOwn = false,
+  isPrivate = false,
+  isFollowing = false,
   onPostClick,
   onProductClick,
-}) {
+}, ref) {
   const navigate = useNavigate();
 
   const tabs = getTabsForRole(role, isOwn);
   const [activeTab, setActiveTab] = useState('posts');
 
-  const [postsData, setPostsData] = useState(null);
-  const [reelsData, setReelsData] = useState(null);
-  const [productsData, setProductsData] = useState(null);
-  const [recipesData, setRecipesData] = useState(null);
-  const [savedData, setSavedData] = useState(null);
+  // Expose switchTab to parent via ref (Q9)
+  useImperativeHandle(ref, () => ({
+    switchTab: (tabId) => {
+      if (tabs.some((t) => t.id === tabId)) setActiveTab(tabId);
+    },
+  }), [tabs]);
 
+  const PAGE_SIZE = 20;
+  const [data, setData] = useState({});
   const [loading, setLoading] = useState({});
-  const fetchedRef = useRef(new Set());
+  const [hasMore, setHasMore] = useState({});
+  const skipRef = useRef({});
+  const sentinelRef = useRef(null);
 
   useEffect(() => {
-    setPostsData(null);
-    setReelsData(null);
-    setProductsData(null);
-    setRecipesData(null);
-    setSavedData(null);
+    setData({});
     setLoading({});
-    fetchedRef.current = new Set();
+    setHasMore({});
+    skipRef.current = {};
   }, [userId]);
-
-  const setterMap = {
-    posts: setPostsData,
-    reels: setReelsData,
-    products: setProductsData,
-    recipes: setRecipesData,
-    saved: setSavedData,
-  };
 
   const endpointMap = {
     posts: `/users/${userId}/posts`,
@@ -144,16 +141,23 @@ export default function ProfileTabs({
   };
 
   const fetchTab = useCallback(
-    async (tabId) => {
-      if (fetchedRef.current.has(tabId)) return;
-      fetchedRef.current.add(tabId);
+    async (tabId, append = false) => {
+      if (loading[tabId]) return;
+      const skip = append ? (skipRef.current[tabId] || 0) : 0;
       setLoading((prev) => ({ ...prev, [tabId]: true }));
       try {
-        const res = await apiClient.get(endpointMap[tabId]);
+        const sep = endpointMap[tabId].includes('?') ? '&' : '?';
+        const res = await apiClient.get(`${endpointMap[tabId]}${sep}skip=${skip}&limit=${PAGE_SIZE}`);
         const items = Array.isArray(res) ? res : res?.results ?? res?.items ?? res?.data ?? [];
-        setterMap[tabId](items);
+        setData((prev) => ({
+          ...prev,
+          [tabId]: append ? [...(prev[tabId] || []), ...items] : items,
+        }));
+        skipRef.current[tabId] = skip + items.length;
+        setHasMore((prev) => ({ ...prev, [tabId]: items.length >= PAGE_SIZE }));
       } catch {
-        setterMap[tabId]([]);
+        if (!append) setData((prev) => ({ ...prev, [tabId]: [] }));
+        setHasMore((prev) => ({ ...prev, [tabId]: false }));
       } finally {
         setLoading((prev) => ({ ...prev, [tabId]: false }));
       }
@@ -163,8 +167,24 @@ export default function ProfileTabs({
   );
 
   useEffect(() => {
-    fetchTab(activeTab);
-  }, [activeTab, fetchTab]);
+    if (!data[activeTab] && !loading[activeTab]) fetchTab(activeTab);
+  }, [activeTab, fetchTab, data, loading]);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore[activeTab] && !loading[activeTab]) {
+          fetchTab(activeTab, true);
+        }
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [activeTab, hasMore, loading, fetchTab]);
 
   /* ── Tab bar ── */
   const tabBar = (
@@ -196,9 +216,9 @@ export default function ProfileTabs({
   /* ── Content renderers ── */
 
   function renderPosts() {
-    const data = postsData;
-    if (loading.posts || data === null) return <SkeletonGrid />;
-    if (data.length === 0) {
+    const items = data.posts;
+    if (loading.posts && !items) return <SkeletonGrid />;
+    if (!items || items.length === 0) {
       return isOwn ? (
         <EmptyState icon={Camera} title="Comparte tu primera foto" buttonLabel="Crear publicación" onButtonClick={() => navigate('/create/post')} />
       ) : (
@@ -207,7 +227,7 @@ export default function ProfileTabs({
     }
     return (
       <div className="grid grid-cols-3 gap-0.5">
-        {data.map((post, i) => {
+        {items.map((post, i) => {
           const src = (post.images?.length > 0 && post.images[0]) || post.image_url;
           const hasMultiple = post.images?.length > 1;
           return (
@@ -234,9 +254,9 @@ export default function ProfileTabs({
   }
 
   function renderReels() {
-    const data = reelsData;
-    if (loading.reels || data === null) return <SkeletonGrid />;
-    if (data.length === 0) {
+    const items = data.reels;
+    if (loading.reels && !items) return <SkeletonGrid />;
+    if (!items || items.length === 0) {
       return isOwn ? (
         <EmptyState icon={Film} title="Sube tu primer reel" buttonLabel="Crear reel" onButtonClick={() => navigate('/create/reel')} />
       ) : (
@@ -245,7 +265,7 @@ export default function ProfileTabs({
     }
     return (
       <div className="grid grid-cols-3 gap-0.5">
-        {data.map((reel, i) => {
+        {items.map((reel, i) => {
           const src = reel.thumbnail_url || reel.cover_url || reel.image_url || '';
           return (
             <div
@@ -278,9 +298,9 @@ export default function ProfileTabs({
   }
 
   function renderProducts() {
-    const data = productsData;
-    if (loading.products || data === null) return <SkeletonGrid count={6} columns={2} />;
-    if (data.length === 0) {
+    const items = data.products;
+    if (loading.products && !items) return <SkeletonGrid count={6} columns={2} />;
+    if (!items || items.length === 0) {
       return isOwn ? (
         <EmptyState icon={Package} title="Publica tu primer producto" buttonLabel="Publicar producto" onButtonClick={() => navigate('/producer/products')} />
       ) : (
@@ -289,7 +309,7 @@ export default function ProfileTabs({
     }
     return (
       <div className="grid grid-cols-2 gap-2 p-2">
-        {data.map((product, i) => {
+        {items.map((product, i) => {
           const src = product.image_url || product.images?.[0] || '';
           const handleProductClick = () =>
             onProductClick ? onProductClick(product) : navigate(`/products/${product.id || product.product_id}`);
@@ -324,9 +344,9 @@ export default function ProfileTabs({
   }
 
   function renderRecipes() {
-    const data = recipesData;
-    if (loading.recipes || data === null) return <SkeletonGrid count={6} columns={2} />;
-    if (data.length === 0) {
+    const items = data.recipes;
+    if (loading.recipes && !items) return <SkeletonGrid count={6} columns={2} />;
+    if (!items || items.length === 0) {
       return isOwn ? (
         <EmptyState icon={BookOpen} title="Comparte tu primera receta" buttonLabel="Crear receta" onButtonClick={() => navigate('/create/recipe')} />
       ) : (
@@ -335,7 +355,7 @@ export default function ProfileTabs({
     }
     return (
       <div className="grid grid-cols-2 gap-2 p-2">
-        {data.map((recipe, i) => {
+        {items.map((recipe, i) => {
           const src = recipe.image_url || recipe.images?.[0] || '';
           const recipeUrl = `/recipes/${recipe.id || recipe.recipe_id}`;
           return (
@@ -371,14 +391,14 @@ export default function ProfileTabs({
   }
 
   function renderSaved() {
-    const data = savedData;
-    if (loading.saved || data === null) return <SkeletonGrid />;
-    if (data.length === 0) {
+    const items = data.saved;
+    if (loading.saved && !items) return <SkeletonGrid />;
+    if (!items || items.length === 0) {
       return <EmptyState icon={Bookmark} title="Nada guardado todavía" />;
     }
     return (
       <div className="grid grid-cols-3 gap-0.5">
-        {data.map((item, i) => {
+        {items.map((item, i) => {
           const src = (item.images?.length > 0 && item.images[0]) || item.image_url;
           return (
             <div
@@ -410,12 +430,39 @@ export default function ProfileTabs({
     saved: renderSaved,
   };
 
+  // Private profile gate — show lock instead of content
+  if (isPrivate && !isFollowing && !isOwn) {
+    return (
+      <div>
+        {tabBar}
+        <div className="flex flex-col items-center py-16 text-center">
+          <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-2 border-stone-300">
+            <Lock size={28} className="text-stone-400" />
+          </div>
+          <p className="text-[15px] font-semibold text-stone-950">Esta cuenta es privada</p>
+          <p className="mt-1 max-w-[260px] text-[13px] text-stone-500">
+            Sigue esta cuenta para ver sus publicaciones, recetas y productos.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       {tabBar}
       <div role="tabpanel" aria-label={ALL_TABS.find(t => t.id === activeTab)?.label}>
         {renderers[activeTab]?.()}
+        {/* infinite scroll sentinel */}
+        <div ref={sentinelRef} className="h-4" />
+        {loading[activeTab] && data[activeTab]?.length > 0 && (
+          <div className="flex justify-center py-4">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
+          </div>
+        )}
       </div>
     </div>
   );
-}
+});
+
+export default ProfileTabs;

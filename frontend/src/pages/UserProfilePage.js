@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -7,7 +7,6 @@ import { useUserProfile, useUserFollow } from '../features/user/hooks';
 import { resolveUserImage, useUserHighlightsQuery, userKeys } from '../features/user/queries';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileTabs from '../components/profile/ProfileTabs';
-import EditProfileSheet from '../components/profile/EditProfileSheet';
 import PostViewer from '../components/PostViewer';
 import ProductDetailOverlay from '../components/store/ProductDetailOverlay';
 import OverlayErrorBoundary from '../components/OverlayErrorBoundary';
@@ -19,10 +18,10 @@ export default function UserProfilePage() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 
-  const [showEditProfile, setShowEditProfile] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showCreateHighlight, setShowCreateHighlight] = useState(false);
+  const tabsRef = useRef(null);
 
   const isOwn = currentUser && (
     String(currentUser.user_id) === String(userId) ||
@@ -46,11 +45,18 @@ export default function UserProfilePage() {
     following_count: profile.following_count || 0,
     posts_count: profile.posts_count || 0,
     is_following: profile.is_following,
+    is_private: profile.is_private,
+    follow_request_pending: profile.follow_request_pending,
     has_active_story: profile.has_active_story,
     store_slug: profile.store_slug || profile.username,
+    seller_stats: profile.seller_stats,
     sales_count: profile.sales_count,
     producers_count: profile.producers_count,
     discount_code: profile.discount_code,
+    instagram: profile.instagram,
+    tiktok: profile.tiktok,
+    youtube: profile.youtube,
+    mutual_followers: profile.mutual_followers,
   } : null;
 
   const { toggleFollow, followLoading } = useUserFollow(user?.user_id, profile);
@@ -82,8 +88,10 @@ export default function UserProfilePage() {
   const handleAvatarChange = useCallback(async (file) => {
     try {
       const fd = new FormData();
-      fd.append('avatar', file);
-      await apiClient.post('/users/me/avatar', fd);
+      fd.append('file', file);
+      await apiClient.post('/upload/avatar', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       refetch();
       toast.success('Foto actualizada');
     } catch {
@@ -94,7 +102,7 @@ export default function UserProfilePage() {
   const handleMessage = useCallback(async () => {
     if (!user) return;
     try {
-      const data = await apiClient.post('/conversations/direct', { recipient_id: user.user_id });
+      const data = await apiClient.post('/chat/conversations', { other_user_id: user.user_id });
       const convId = data?.conversation_id || data?.id;
       if (convId) navigate(`/messages/${convId}`);
     } catch {
@@ -167,24 +175,19 @@ export default function UserProfilePage() {
         onMessage={handleMessage}
         highlights={highlights}
         onCreateHighlight={() => setShowCreateHighlight(true)}
+        onSwitchTab={(tabId) => tabsRef.current?.switchTab(tabId)}
       />
 
       <ProfileTabs
+        ref={tabsRef}
         userId={user.user_id}
         role={user.role}
         isOwn={isOwn}
+        isPrivate={Boolean(user.is_private)}
+        isFollowing={Boolean(user.is_following)}
         onPostClick={(post) => setSelectedPost(post)}
         onProductClick={(product) => setSelectedProduct(product)}
       />
-
-      {showEditProfile && (
-        <EditProfileSheet
-          isOpen={showEditProfile}
-          onClose={() => { setShowEditProfile(false); refetch(); }}
-          profile={profile}
-          userId={user.user_id}
-        />
-      )}
 
       {showCreateHighlight && (
         <CreateHighlightSheet

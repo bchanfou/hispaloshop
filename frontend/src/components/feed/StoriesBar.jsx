@@ -90,6 +90,7 @@ export default function StoriesBar({ onStoryClick, onCreateStory }) {
               user={story.user}
               isSelf={false}
               hasUnseenStory={story.has_unseen !== false}
+              itemsCount={story.items?.length || story.items_count || 1}
               onClick={() => onStoryClick && onStoryClick(stories, idx)}
             />
           ))}

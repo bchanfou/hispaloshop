@@ -122,7 +122,7 @@ export default function RecipeOverlay({
             <button
               type="button"
               onClick={onClose}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition-colors duration-150 hover:bg-stone-50 hover:text-stone-950"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition-colors duration-150 hover:bg-stone-50 hover:text-stone-950"
               aria-label="Cerrar receta"
             >
               <X className="h-5 w-5" />

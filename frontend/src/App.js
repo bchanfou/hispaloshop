@@ -61,6 +61,7 @@ const LocaleSettingsPage = lazy(() => import('./pages/LocaleSettingsPage'));
 const StoresListPage = lazy(() => import('./pages/StoresListPage'));
 const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const PeoplePage = lazy(() => import('./pages/PeoplePage'));
 const ReelsPage = lazy(() => import('./pages/ReelsPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ImporterLandingPage = lazy(() => import('./pages/informativas/ForImporters'));
@@ -93,6 +94,7 @@ const PendingApprovalPage = lazy(() => import('./pages/PendingApprovalPage'));
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'));
 const EditProfilePage = lazy(() => import('./pages/settings/EditProfilePage'));
 const ChangePasswordPage = lazy(() => import('./pages/settings/ChangePasswordPage'));
+const FollowRequestsPage = lazy(() => import('./pages/settings/FollowRequestsPage'));
 const NotificationsSettingsPage = lazy(() => import('./pages/settings/NotificationsSettingsPage'));
 const PlanPage = lazy(() => import('./pages/settings/PlanPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -369,6 +371,7 @@ function AppRouter() {
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/settings/profile" element={<EditProfilePage />} />
               <Route path="/settings/password" element={<ChangePasswordPage />} />
+              <Route path="/settings/follow-requests" element={<FollowRequestsPage />} />
               <Route path="/settings/notifications" element={<NotificationsSettingsPage />} />
               <Route path="/settings/plan" element={<PlanPage />} />
               <Route path="/settings/payout" element={<PayoutSettingsPage />} />
@@ -383,6 +386,7 @@ function AppRouter() {
               <Route path="/user/:userId" element={<UserProfilePage />} />
               <Route path="/user/:username/followers" element={<FollowersPage />} />
               <Route path="/user/:username/following" element={<FollowersPage />} />
+              <Route path="/discover/people" element={<PeoplePage />} />
               <Route path="/discover" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/explore" element={<FeedLayout><DiscoverPage /></FeedLayout>} />
               <Route path="/explore/category/:slug" element={<ExploreCategoryPage />} />

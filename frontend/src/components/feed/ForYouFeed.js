@@ -7,6 +7,7 @@ import { AlertCircle, Sparkles } from 'lucide-react';
 import ReelCard from './ReelCard';
 import PostCard from './PostCard';
 import FeedSkeleton from './FeedSkeleton';
+import SuggestedUsersCard from './SuggestedUsersCard';
 import { useForYouFeed, useLikePost } from '@/features/feed/queries';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import PullIndicator from '@/components/ui/PullIndicator';
@@ -128,6 +129,9 @@ export default function ForYouFeed() {
             const isReel = post.video_url || post.type === 'reel';
             const animDelay = index < 5 ? index * 0.05 : 0;
 
+            // Inject suggested users after every 5th post (position 4, 14, 24...)
+            const showSuggestions = index === 4 || (index > 4 && (index - 4) % 10 === 0);
+
             if (isReel) {
               return (
                 <div>
@@ -166,6 +170,7 @@ export default function ForYouFeed() {
 
             return (
               <div>
+                {showSuggestions && <SuggestedUsersCard />}
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}

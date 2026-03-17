@@ -4,6 +4,13 @@ import { ChevronLeft, Loader2 } from 'lucide-react';
 import ReelCard from '../components/feed/ReelCard';
 import apiClient from '../services/api/client';
 
+const REEL_TABS = [
+  { key: 'foryou', label: 'Para ti' },
+  { key: 'following', label: 'Siguiendo' },
+  { key: 'recipes', label: 'Recetas' },
+  { key: 'producers', label: 'Productores' },
+];
+
 export default function ReelsPage() {
   const navigate = useNavigate();
   const [reels, setReels] = useState([]);
@@ -11,14 +18,19 @@ export default function ReelsPage() {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('reels_tab') || 'foryou');
   const containerRef = useRef(null);
   const fetchingRef = useRef(false);
+
+  useEffect(() => {
+    localStorage.setItem('reels_tab', activeTab);
+  }, [activeTab]);
 
   const fetchReels = useCallback(async (p) => {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
     try {
-      const data = await apiClient.get(`/reels?page=${p}&limit=10`);
+      const data = await apiClient.get(`/reels?page=${p}&limit=10&tab=${activeTab}`);
       const items = data?.reels || data?.items || data || [];
       if (items.length < 10) setHasMore(false);
       setReels((prev) => (p === 1 ? items : [...prev, ...items]));
@@ -28,9 +40,15 @@ export default function ReelsPage() {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, []);
+  }, [activeTab]);
 
+  // Re-fetch when tab changes
   useEffect(() => {
+    setReels([]);
+    setPage(1);
+    setHasMore(true);
+    setLoading(true);
+    setActiveIndex(0);
     fetchReels(1);
   }, [fetchReels]);
 
@@ -139,6 +157,21 @@ export default function ReelsPage() {
       >
         <ChevronLeft className="w-5.5 h-5.5 text-white" />
       </button>
+
+      {/* Category tabs */}
+      <div className="fixed top-12 left-0 right-0 z-[90] flex gap-1 px-4 py-2 bg-black/60 backdrop-blur-lg">
+        {REEL_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`rounded-full px-4 py-2 text-[13px] font-semibold cursor-pointer transition-colors border-none ${
+              activeTab === tab.key ? 'bg-white text-black' : 'bg-white/10 text-white'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
       {reels.map((reel, idx) => (
         <div

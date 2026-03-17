@@ -633,6 +633,39 @@ async def get_user_profile(user_id: str, request: Request):
         follow_exists = await db.user_follows.find_one({"follower_id": current_user.user_id, "following_id": actual_user_id})
         is_following = follow_exists is not None
 
+    # Check active stories (within 24h)
+    from datetime import datetime, timezone, timedelta
+    story_cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+    has_active_story = await db.hispalostories.count_documents({
+        "user_id": actual_user_id,
+        "created_at": {"$gte": story_cutoff},
+    }) > 0
+
+    # Mutual followers (people you follow who also follow them)
+    mutual_followers = []
+    if current_user and current_user.user_id != actual_user_id:
+        my_following = await db.user_follows.distinct("following_id", {"follower_id": current_user.user_id})
+        their_followers = await db.user_follows.distinct("follower_id", {"following_id": actual_user_id})
+        mutual_ids = list(set(my_following) & set(their_followers))[:3]
+        if mutual_ids:
+            mutual_users = await db.users.find(
+                {"user_id": {"$in": mutual_ids}},
+                {"_id": 0, "user_id": 1, "username": 1, "name": 1, "profile_image": 1}
+            ).to_list(3)
+            mutual_followers = mutual_users
+
+    is_own = current_user and current_user.user_id == actual_user_id
+    is_private = bool(user.get("is_private", False))
+    # Check pending follow request for private accounts
+    follow_request_pending = False
+    if is_private and current_user and not is_following and not is_own:
+        pending = await db.follow_requests.find_one({
+            "requester_id": current_user.user_id,
+            "target_id": actual_user_id,
+            "status": "pending",
+        })
+        follow_request_pending = pending is not None
+
     profile = {
         "user_id": user.get("user_id"),
         "name": user.get("name"),
@@ -650,6 +683,11 @@ async def get_user_profile(user_id: str, request: Request):
         "following_count": following_count,
         "posts_count": posts_count,
         "is_following": is_following,
+        "is_private": is_private,
+        "follow_request_pending": follow_request_pending,
+        "has_active_story": has_active_story,
+        "mutual_followers": mutual_followers,
+        "mutual_followers_count": len(mutual_followers),
     }
 
     # Attach store_slug for producers
@@ -719,7 +757,76 @@ async def get_user_profile(user_id: str, request: Request):
             "badges": store.get("badges", []) if store else [],
         }
 
+    # Privacy gate: if private and viewer is not a follower/self, strip detailed data
+    if is_private and not is_following and not is_own:
+        profile.pop("seller_stats", None)
+        profile.pop("website", None)
+        profile.pop("instagram", None)
+        profile.pop("tiktok", None)
+        profile.pop("youtube", None)
+        profile["posts_count"] = 0  # hide real count
+
     return profile
+
+
+# ── Follow Requests (for private accounts) ────────────────────────────────────
+
+@router.get("/users/me/follow-requests")
+async def get_follow_requests(user: User = Depends(get_current_user)):
+    """List pending follow requests for the current user."""
+    requests = await db.follow_requests.find(
+        {"target_id": user.user_id, "status": "pending"}
+    ).sort("created_at", -1).to_list(length=100)
+
+    result = []
+    for req in requests:
+        requester = await db.users.find_one(
+            {"user_id": req["requester_id"]},
+            {"_id": 0, "user_id": 1, "name": 1, "username": 1, "profile_image": 1, "role": 1},
+        )
+        if requester:
+            result.append({
+                "request_id": str(req.get("_id", "")),
+                "requester": requester,
+                "created_at": req.get("created_at"),
+            })
+    return {"requests": result}
+
+
+@router.post("/users/me/follow-requests/{request_id}/{action}")
+async def handle_follow_request(
+    request_id: str,
+    action: str,
+    user: User = Depends(get_current_user),
+):
+    """Accept or reject a follow request. action = 'accept' | 'reject'"""
+    if action not in ("accept", "reject"):
+        raise HTTPException(status_code=400, detail="Action must be 'accept' or 'reject'")
+
+    from bson import ObjectId as _OID
+    req = await db.follow_requests.find_one({
+        "_id": _OID(request_id),
+        "target_id": user.user_id,
+        "status": "pending",
+    })
+    if not req:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    if action == "accept":
+        # Create the actual follow relationship
+        await db.user_follows.update_one(
+            {"follower_id": req["requester_id"], "following_id": user.user_id},
+            {"$setOnInsert": {"follower_id": req["requester_id"], "following_id": user.user_id, "created_at": datetime.now(timezone.utc)}},
+            upsert=True,
+        )
+        await db.users.update_one({"user_id": req["requester_id"]}, {"$inc": {"following_count": 1}})
+        await db.users.update_one({"user_id": user.user_id}, {"$inc": {"followers_count": 1}})
+
+    await db.follow_requests.update_one(
+        {"_id": _OID(request_id)},
+        {"$set": {"status": action + "ed", "resolved_at": datetime.now(timezone.utc)}},
+    )
+    return {"status": action + "ed"}
 
 
 @router.get("/users/{user_id}/posts")
@@ -769,7 +876,29 @@ async def get_user_recipes(user_id: str, skip: int = 0, limit: int = 50):
 async def follow_user(user_id: str, user: User = Depends(get_current_user)):
     if user.user_id == user_id:
         raise HTTPException(status_code=400, detail="Cannot follow yourself")
-    # Atomic upsert to prevent duplicate follows from concurrent requests
+
+    # Check if target account is private
+    target_user = await db.users.find_one({"user_id": user_id}, {"is_private": 1, "role": 1})
+    is_target_private = bool(target_user and target_user.get("is_private", False))
+
+    if is_target_private:
+        # Create a follow request instead of an immediate follow
+        existing = await db.follow_requests.find_one({
+            "requester_id": user.user_id,
+            "target_id": user_id,
+            "status": "pending",
+        })
+        if existing:
+            return {"status": "pending", "message": "Solicitud ya enviada"}
+        await db.follow_requests.insert_one({
+            "requester_id": user.user_id,
+            "target_id": user_id,
+            "status": "pending",
+            "created_at": datetime.now(timezone.utc),
+        })
+        return {"status": "pending", "message": "Solicitud de seguimiento enviada"}
+
+    # Public account — immediate follow
     result = await db.user_follows.update_one(
         {"follower_id": user.user_id, "following_id": user_id},
         {"$setOnInsert": {"follower_id": user.user_id, "following_id": user_id, "created_at": datetime.now(timezone.utc).isoformat()}},
@@ -1385,6 +1514,30 @@ async def get_saved_posts(user: User = Depends(get_current_user), skip: int = 0,
     for post in ordered:
         _normalize_post_media(post)
     return ordered
+
+
+@router.patch("/posts/{post_id}")
+async def update_post(post_id: str, request: Request, user: User = Depends(get_current_user)):
+    """Update a post's caption or location. Only the owner can edit."""
+    post = await db.user_posts.find_one({"post_id": post_id}, {"_id": 0, "user_id": 1})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if post["user_id"] != user.user_id and user.role not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    body = await request.json()
+    update_fields = {}
+    if "caption" in body:
+        update_fields["caption"] = str(body["caption"])[:2200]
+        update_fields["edited"] = True
+    if "location" in body:
+        update_fields["location"] = str(body["location"])[:120]
+
+    if not update_fields:
+        raise HTTPException(status_code=400, detail="Nothing to update")
+
+    await db.user_posts.update_one({"post_id": post_id}, {"$set": update_fields})
+    return {"status": "updated", **update_fields}
 
 
 @router.delete("/posts/{post_id}")

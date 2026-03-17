@@ -27,9 +27,12 @@ class User(BaseModel):
     onboarding_completed: bool = False
     onboarding_step: int = 1
     interests: List[str] = []
+    food_preferences: List[str] = []
+    is_private: bool = False
     following: List[str] = []
     followers: List[str] = []
     followers_count: int = 0
+    following_count: int = 0
     subscription: Optional[Dict[str, Any]] = None
     company_name: Optional[str] = None
     phone: Optional[str] = None
