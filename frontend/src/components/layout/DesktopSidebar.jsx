@@ -13,9 +13,9 @@ export default function DesktopSidebar() {
     queryKey: ['sidebar-suggested-stores'],
     queryFn: async () => {
       try {
-        return await apiClient.get('/stores/suggested?limit=3');
+        return await apiClient.get('/stores?limit=3');
       } catch {
-        return await apiClient.get('/users?role=producer&limit=3');
+        return [];
       }
     },
     enabled: !!user,
@@ -25,7 +25,14 @@ export default function DesktopSidebar() {
 
   const { data: influencersData, isLoading: loadingInfluencers } = useQuery({
     queryKey: ['sidebar-suggested-influencers'],
-    queryFn: () => apiClient.get('/users/suggested?role=influencer&limit=3'),
+    queryFn: async () => {
+      try {
+        const data = await apiClient.get('/discovery/suggested-users?limit=3');
+        return data?.users || [];
+      } catch {
+        return [];
+      }
+    },
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
     retry: false,
