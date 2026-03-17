@@ -66,12 +66,12 @@ export const getAuthErrorMessage = (error, fallbackMessage = 'Ha ocurrido un err
 export const authApi = {
   async login(credentials) {
     const response = await apiClient.post('/auth/login', credentials);
-    return response.data;
+    return response;
   },
 
   async getGoogleAuthUrl() {
     const response = await apiClient.get('/auth/google/url');
-    return response.data;
+    return response;
   },
 
   async register(payload, options = {}) {
@@ -80,22 +80,22 @@ export const authApi = {
       params.ref = options.ref;
     }
     const response = await apiClient.post('/auth/register', payload, { params });
-    return response.data;
+    return response;
   },
 
   async getCurrentUser() {
     const response = await apiClient.get('/auth/me');
-    return response.data;
+    return response;
   },
 
   async logout() {
     const response = await apiClient.post('/auth/logout');
-    return response.data;
+    return response;
   },
 
   async refreshToken() {
     const response = await apiClient.post('/auth/refresh');
-    return response.data;
+    return response;
   },
 };
 

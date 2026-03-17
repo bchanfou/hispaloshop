@@ -206,35 +206,37 @@ async def get_best_sellers(country: Optional[str] = None, limit: int = 8):
 # ============================================
 
 @router.get("/feed/foryou")
-async def feed_foryou_proxy(
-    request: Request,
-    limit: int = 20,
-    cursor: Optional[str] = None,
-    skip: int = 0,
-):
-    """Proxy /feed/foryou → social.py feed endpoint (scope=hybrid)."""
-    from routes.social import get_social_feed
-    return await get_social_feed(
-        request=request,
-        scope="hybrid",
-        limit=limit,
-        skip=int(cursor) if cursor else skip,
-    )
+async def feed_foryou(request: Request, limit: int = 20, cursor: Optional[str] = None, skip: int = 0):
+    """For-you feed — returns posts sorted by engagement score."""
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+    offset = int(cursor) if cursor else skip
+    posts = await db.posts.find(
+        {"status": {"$in": ["published", "active"]}},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    return {"posts": posts, "items": posts, "total": len(posts), "has_more": len(posts) == limit}
 
 
 @router.get("/feed/following")
-async def feed_following_proxy(
-    request: Request,
-    limit: int = 20,
-    cursor: Optional[str] = None,
-    skip: int = 0,
-):
-    """Proxy /feed/following → social.py feed endpoint (scope=following)."""
-    from routes.social import get_social_feed
-    return await get_social_feed(
-        request=request,
-        scope="following",
-        limit=limit,
-        skip=int(cursor) if cursor else skip,
-    )
+async def feed_following(request: Request, limit: int = 20, cursor: Optional[str] = None, skip: int = 0):
+    """Following feed — posts from followed users only."""
+    try:
+        current_user = await get_optional_user(request)
+    except Exception:
+        current_user = None
+    offset = int(cursor) if cursor else skip
+    following_ids = []
+    if current_user:
+        follows = await db.user_follows.find(
+            {"follower_id": current_user.user_id}, {"_id": 0, "following_id": 1}
+        ).to_list(500)
+        following_ids = [f["following_id"] for f in follows]
+    query = {"status": {"$in": ["published", "active"]}}
+    if following_ids:
+        query["user_id"] = {"$in": following_ids}
+    posts = await db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    return {"posts": posts, "items": posts, "total": len(posts), "has_more": len(posts) == limit}
 
