@@ -196,10 +196,12 @@ export { httpClient };
 
 // Helper for WebSocket — centralizes the URL base:
 export const getWSUrl = (path) => {
-  const base = process.env.REACT_APP_WS_URL
-    || API_BASE_URL.replace(/^http/, 'ws')
-    || '';
-  return `${base}${path}`;
+  if (process.env.REACT_APP_WS_URL) {
+    return `${process.env.REACT_APP_WS_URL}${path}`;
+  }
+  // Strip /api suffix — WebSocket routes are mounted at the root (e.g. /ws/chat)
+  const origin = API_BASE_URL.replace(/\/api\/?$/, '').replace(/^http/, 'ws');
+  return `${origin}${path}`;
 };
 
 export default apiClient;

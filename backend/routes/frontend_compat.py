@@ -506,7 +506,7 @@ async def track_visit(payload: TrackVisitIn, request: Request):
     """Record an analytics page visit."""
     visit_doc = {
         "visit_id": str(uuid.uuid4()),
-        "path": payload.path,
+        "path": payload.resolved_path,
         "referrer": payload.referrer,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "user_agent": request.headers.get("user-agent"),

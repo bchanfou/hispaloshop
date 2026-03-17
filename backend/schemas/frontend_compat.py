@@ -93,8 +93,14 @@ class FeedResponseOut(BaseModel):
 
 
 class TrackVisitIn(BaseModel):
-    path: str
+    path: Optional[str] = None
+    page: Optional[str] = None
+    country: Optional[str] = None
     referrer: Optional[str] = None
+
+    @property
+    def resolved_path(self) -> str:
+        return self.path or self.page or "/"
 
 
 class TrackVisitOut(BaseModel):

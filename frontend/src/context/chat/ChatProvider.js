@@ -182,7 +182,7 @@ export function ChatProvider({ children }) {
       notifWsRef.current.close();
     }
 
-    const wsUrl = getWSUrl('');
+    const wsUrl = getWSUrl('/ws/chat');
     try {
       const ws = new WebSocket(wsUrl);
       notifWsRef.current = ws;
