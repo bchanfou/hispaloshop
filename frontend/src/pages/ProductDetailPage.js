@@ -116,6 +116,7 @@ export default function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [showB2BModal, setShowB2BModal] = useState(false);
   const galleryRef = useRef(null);
+  const addedTimerRef = useRef(null);
 
   useEffect(() => {
     if (hasProductError) toast.error(t('errors.notFound'));
@@ -174,7 +175,8 @@ export default function ProductDetailPage() {
     if (success && success !== 'redirect') {
       toast.success(t('success.added', '¡Añadido!'), { id: 'add-to-cart' });
       setAddedToCart(true);
-      setTimeout(() => setAddedToCart(false), 1800);
+      clearTimeout(addedTimerRef.current);
+      addedTimerRef.current = setTimeout(() => setAddedToCart(false), 1800);
     } else if (success !== 'redirect') {
       toast.error(t('errors.generic', 'Error'), { id: 'add-to-cart' });
     }
