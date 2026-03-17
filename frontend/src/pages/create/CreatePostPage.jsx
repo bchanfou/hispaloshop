@@ -413,7 +413,7 @@ export default function CreatePostPage() {
                         height: 56,
                         borderRadius: 'var(--radius-md)',
                         overflow: 'hidden',
-                        border: activeFilter.name === f.name ? '2px solid var(--color-green)' : '2px solid transparent',
+                        border: activeFilter.name === f.name ? '2px solid var(--color-black)' : '2px solid transparent',
                       }}
                     >
                       {previewUrls[previewIndex] && (
@@ -532,7 +532,7 @@ export default function CreatePostPage() {
                           height: 22,
                           borderRadius: '50%',
                           background: c.value,
-                          border: o.color === c.value ? '2px solid var(--color-green)' : '2px solid rgba(255,255,255,0.3)',
+                          border: o.color === c.value ? '2px solid var(--color-black)' : '2px solid rgba(255,255,255,0.3)',
                           cursor: 'pointer',
                           padding: 0,
                         }}
@@ -616,7 +616,7 @@ export default function CreatePostPage() {
                   overflow: 'hidden',
                   flexShrink: 0,
                   cursor: 'pointer',
-                  border: previewIndex === i ? '2px solid var(--color-green)' : '2px solid transparent',
+                  border: previewIndex === i ? '2px solid var(--color-black)' : '2px solid transparent',
                 }}
               >
                 <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -652,8 +652,8 @@ export default function CreatePostPage() {
         {/* AI suggest */}
         <button
           style={{
-            background: 'var(--color-green-light, #dcfce7)',
-            color: 'var(--color-green)',
+            background: 'var(--color-surface-alt, #f5f5f4)',
+            color: 'var(--color-black)',
             fontSize: 13,
             fontWeight: 500,
             borderRadius: 'var(--radius-full)',
