@@ -230,7 +230,8 @@ export default function BottomNavBar() {
   };
 
   const profileUsername = user?.username || null;
-  const profileUrl   = profileUsername ? `/${profileUsername}` : (user ? '/profile' : '/login');
+  const profileUserId = user?.user_id || user?.id || null;
+  const profileUrl   = profileUsername ? `/${profileUsername}` : (profileUserId ? `/profile/${profileUserId}` : '/login');
   const profileImage = user?.profile_image || user?.avatar_url || null;
 
   const isHome       = location.pathname === '/';

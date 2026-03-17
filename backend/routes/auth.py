@@ -756,10 +756,12 @@ async def auth_session(request: Request, response: Response):
     if not user_doc:
         # Create new user with Google data
         user_id = f"user_{uuid.uuid4().hex[:12]}"
+        auto_username = f"user_{uuid.uuid4().hex[:8]}"
         user_doc = {
             "user_id": user_id,
             "email": auth_data["email"],
             "name": auth_data["name"],
+            "username": auto_username,
             "picture": auth_data.get("picture"),
             "role": "customer",
             "email_verified": True,
@@ -813,7 +815,16 @@ async def get_me(request: Request):
     user = await get_optional_user(request)
     if not user:
         return None
-    return _sanitize_user_doc(user.model_dump())
+    user_dict = user.model_dump()
+    # Backfill missing username for legacy/OAuth users
+    if not user_dict.get("username"):
+        auto_username = f"user_{uuid.uuid4().hex[:8]}"
+        await db.users.update_one(
+            {"user_id": user_dict["user_id"]},
+            {"$set": {"username": auto_username}}
+        )
+        user_dict["username"] = auto_username
+    return _sanitize_user_doc(user_dict)
 
 
 @router.post("/auth/refresh")
@@ -1061,10 +1072,12 @@ async def google_auth_callback(
     if not user_doc:
         # Create new user
         user_id = f"user_{uuid.uuid4().hex[:12]}"
+        auto_username = f"user_{uuid.uuid4().hex[:8]}"
         user_doc = {
             "user_id": user_id,
             "email": google_user["email"],
             "name": google_user.get("name", google_user["email"].split("@")[0]),
+            "username": auto_username,
             "picture": google_user.get("picture"),
             "role": "customer",
             "email_verified": google_user.get("verified_email", True),

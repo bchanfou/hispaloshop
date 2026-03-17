@@ -268,6 +268,8 @@ function LegacyProfileRedirect() {
   if (loading || needsRetry) return <RouteLoader />;
   if (!user) return <Navigate to="/login" replace />;
   if (username) return <Navigate to={`/${username}`} replace />;
+  const userId = user?.user_id || user?.id;
+  if (userId) return <Navigate to={`/profile/${userId}`} replace />;
   return <Navigate to="/settings/profile" replace />;
 }
 
