@@ -437,8 +437,11 @@ async def get_feed(
         if author.get("account_status") == "suspended":
             continue
         tagged_product = post.get("tagged_product")
+        # tagged_product can be a string (product_id) or a dict
+        if isinstance(tagged_product, str):
+            tagged_product = {"product_id": tagged_product}
         tagged_products = post.get("tagged_products") or ([tagged_product] if tagged_product else [])
-        if tagged_product and tagged_product.get("product_id"):
+        if tagged_product and isinstance(tagged_product, dict) and tagged_product.get("product_id"):
             live_product = await db.products.find_one(
                 {"product_id": tagged_product["product_id"]},
                 {"_id": 0, "name": 1, "price": 1, "stock": 1, "images": 1, "track_stock": 1},
