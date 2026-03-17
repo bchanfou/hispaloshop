@@ -2,7 +2,7 @@
 All Pydantic models for Hispaloshop.
 Single source of truth — imported by server.py and all route modules.
 """
-from pydantic import BaseModel, ConfigDict, Field, EmailStr
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta, timezone
 
@@ -604,10 +604,16 @@ class OrderCreateInput(BaseModel):
 
 class OrderStatusUpdate(BaseModel):
     status: str = Field(pattern="^(pending|confirmed|processing|shipped|delivered|cancelled|refunded)$")
-    tracking_number: Optional[str] = None
-    tracking_url: Optional[str] = None
-    shipping_carrier: Optional[str] = None
-    notes: Optional[str] = None
+    tracking_number: Optional[str] = Field(default=None, max_length=100)
+    tracking_url: Optional[str] = Field(default=None, max_length=500)
+    shipping_carrier: Optional[str] = Field(default=None, max_length=100)
+    notes: Optional[str] = Field(default=None, max_length=500)
+
+    @validator('tracking_url')
+    def validate_tracking_url(cls, v):
+        if v and not v.startswith(('http://', 'https://')):
+            raise ValueError('tracking_url must be a valid HTTP(S) URL')
+        return v
 
 
 class BuyNowInput(BaseModel):

@@ -69,6 +69,9 @@ def calculate_predictions(orders: list, products_map: dict) -> list:
         purchase_count = len(dates)
         last_purchased = dates[-1]
         product_info = products_map.get(pid, {})
+        # Skip products that have been deleted or suspended (no longer purchasable)
+        if not product_info or product_info.get("status") in ("deleted", "suspended_by_admin"):
+            continue
         image = None
         images = product_info.get("images", [])
         if images:

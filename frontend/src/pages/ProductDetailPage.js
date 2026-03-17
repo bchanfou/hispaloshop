@@ -400,8 +400,8 @@ export default function ProductDetailPage() {
             {certs.map((cert, idx) => (
               <span key={idx} style={{
                 display: 'inline-flex', alignItems: 'center', gap: 4,
-                background: 'var(--color-green-light, rgba(46,125,82,0.1))',
-                color: 'var(--color-green)',
+                background: 'var(--color-surface)',
+                color: 'var(--color-black)',
                 fontSize: 10, fontWeight: 500, padding: '3px 8px',
                 borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
               }}>
@@ -1017,8 +1017,8 @@ export default function ProductDetailPage() {
         (user.user_id === product.seller_id || user.id === product.seller_id) && (
         <div style={{ padding: '0 16px 16px' }}>
           <div style={{
-            background: 'rgba(59,130,246,0.08)',
-            border: '1px solid rgba(59,130,246,0.2)',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-xl)',
             padding: 16,
           }}>

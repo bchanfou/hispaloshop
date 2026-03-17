@@ -467,11 +467,18 @@ async def delete_review(review_id: str, user: User = Depends(get_current_user)):
 
 # Seed Data
 @router.post("/seed-data")
-async def seed_data():
+async def seed_data(user: User = Depends(get_current_user)):
+    """Seed initial categories and admin. Super-admin only, non-production."""
+    await require_role(user, ["super_admin"])
+
+    import os
+    if os.environ.get("ENV", "development").lower() == "production":
+        raise HTTPException(status_code=503, detail="Seed endpoint disabled in production")
+
     existing_cats = await db.categories.count_documents({"is_active": True})
     if existing_cats > 0:
         return {"message": "Data already seeded"}
-    
+
     categories = [
         {"category_id": "cat_snacks", "name": "Snacks", "slug": "snacks", "description": "Healthy snacks and treats", "created_at": datetime.now(timezone.utc).isoformat()},
         {"category_id": "cat_frozen", "name": "Frozen", "slug": "frozen", "description": "Frozen foods", "created_at": datetime.now(timezone.utc).isoformat()},
@@ -482,20 +489,8 @@ async def seed_data():
         {"category_id": "cat_precooked", "name": "Pre cooked", "slug": "pre-cooked", "description": "Ready to eat meals", "created_at": datetime.now(timezone.utc).isoformat()}
     ]
     await db.categories.insert_many(categories)
-    
-    admin_id = "user_admin_root"
-    admin_user = {
-        "user_id": admin_id,
-        "email": "admin@hispaloshop.com",
-        "name": "Admin",
-        "role": "admin",
-        "email_verified": True,
-        "approved": True,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    await db.users.insert_one(admin_user)
-    
-    return {"message": "Data seeded successfully", "admin_email": "admin@hispaloshop.com"}
+
+    return {"message": "Data seeded successfully"}
 
 
 # ============================================================================

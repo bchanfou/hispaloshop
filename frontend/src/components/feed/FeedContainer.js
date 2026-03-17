@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import FollowingFeed from './FollowingFeed';
 import ForYouFeed from './ForYouFeed';
@@ -21,12 +21,13 @@ function FeedContainer({ activeTab: tabProp, onTabChange }) {
   });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const refreshTimerRef = useRef(null);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     // Feed components handle their own refetch via usePullToRefresh + React Query.
-    // This refresh indicator is shown during the process.
-    setTimeout(() => setIsRefreshing(false), 600);
+    clearTimeout(refreshTimerRef.current);
+    refreshTimerRef.current = setTimeout(() => setIsRefreshing(false), 600);
   }, []);
 
   const handleCreateStory = () => {

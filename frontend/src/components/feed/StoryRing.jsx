@@ -57,6 +57,7 @@ export default function StoryRing({ user, isSelf, hasUnseenStory, onClick }) {
       </div>
 
       <span
+        title={label}
         style={{
           fontSize: 10,
           color: 'var(--color-black)',

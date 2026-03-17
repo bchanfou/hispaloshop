@@ -87,6 +87,8 @@ export default function B2BDisputePage() {
     try {
       // In a real app, files would be uploaded first to get URLs
       const evidenceUrls = files.map((f) => URL.createObjectURL(f));
+      // Revoke blob URLs after request (they're only needed for the POST body)
+      setTimeout(() => evidenceUrls.forEach((u) => URL.revokeObjectURL(u)), 5000);
       await apiClient.post(`/b2b/operations/${operationId}/dispute`, {
         reason,
         description,

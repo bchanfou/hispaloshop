@@ -15,7 +15,7 @@ const PLANS = [
     name: 'Básico',
     tagline: 'Para explorar el catálogo',
     price: 0,
-    accentColor: '#34C759',
+    accentColor: '#0A0A0A',
     features: [
       'Acceso al catálogo español',
       'Hasta 5 consultas de precio/mes',

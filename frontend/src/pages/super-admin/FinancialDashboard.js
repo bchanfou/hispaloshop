@@ -132,6 +132,7 @@ export default function FinancialDashboard() {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
       toast.success('Reporte descargado correctamente');
     } catch (err) {
       toast.error('Error descargando reporte');

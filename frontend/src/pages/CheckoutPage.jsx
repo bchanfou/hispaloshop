@@ -95,7 +95,7 @@ function OrderSummary({ cartItems, cartSummary, appliedDiscount, shippingLabel }
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <Row label="Subtotal" value={`${subtotal.toFixed(2)}€`} />
-        {discount > 0 && <Row label="Descuento" value={`-${discount.toFixed(2)}€`} color="var(--color-green, #16a34a)" />}
+        {discount > 0 && <Row label="Descuento" value={`-${discount.toFixed(2)}€`} color="var(--color-black)" />}
         <Row label="Envío" value={shipping === 0 ? (shippingLabel || 'Calculando...') : `${shipping.toFixed(2)}€`} />
         <div style={{ height: 1, background: 'var(--color-border)', margin: '4px 0' }} />
         <Row label="Total" value={`${total.toFixed(2)}€`} bold />
@@ -313,8 +313,8 @@ export default function CheckoutPage() {
                         {addr.is_default && (
                           <span style={{
                             marginLeft: 8, fontSize: 11, fontWeight: 600,
-                            color: 'var(--color-green, #16a34a)',
-                            background: 'rgba(22,163,74,0.08)',
+                            color: 'var(--color-black)',
+                            background: 'var(--color-surface)',
                             padding: '2px 8px', borderRadius: 'var(--radius-full, 999px)',
                           }}>Principal</span>
                         )}
@@ -490,7 +490,7 @@ export default function CheckoutPage() {
                   <span style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     padding: '6px 12px', borderRadius: 'var(--radius-full, 999px)',
-                    background: 'rgba(22,163,74,0.08)', color: 'var(--color-green, #16a34a)',
+                    background: 'var(--color-surface)', color: 'var(--color-black)',
                     fontSize: 13, fontWeight: 600,
                   }}>
                     <Tag size={14} /> {appliedDiscount.code}
@@ -550,7 +550,7 @@ export default function CheckoutPage() {
                 border: 'none', borderRadius: 'var(--radius-full, 999px)',
                 fontSize: 16, fontWeight: 700,
                 cursor: checkoutLoading ? 'not-allowed' : 'pointer',
-                opacity: checkoutLoading ? 0.6 : 1,
+                opacity: checkoutLoading ? 0.5 : 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 fontFamily: 'var(--font-sans)',
                 transition: 'var(--transition-fast)',

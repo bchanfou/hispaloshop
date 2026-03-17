@@ -67,6 +67,8 @@ async def add_to_cart(
     current_user = Depends(get_current_user)
 ):
     """Añadir item al carrito"""
+    if quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantity must be at least 1")
     db = get_db()
     from bson.objectid import ObjectId
     
@@ -129,28 +131,29 @@ async def add_to_cart(
             if item.get("product_id") == product_id and item.get("variant_id") == variant_id:
                 existing_idx = idx
                 break
-        
+
         if existing_idx is not None:
-            # Actualizar cantidad
+            # Atomic update: increment quantity directly in DB to prevent race condition
             new_qty = cart["items"][existing_idx]["quantity"] + quantity
             if new_qty > stock:
                 raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
-            
-            cart["items"][existing_idx]["quantity"] = new_qty
-            cart["items"][existing_idx]["total_price_cents"] = unit_price_cents * new_qty
+            await db.carts.update_one(
+                {"_id": cart["_id"]},
+                {"$set": {
+                    f"items.{existing_idx}.quantity": new_qty,
+                    f"items.{existing_idx}.total_price_cents": unit_price_cents * new_qty,
+                    "updated_at": datetime.now(timezone.utc),
+                }}
+            )
         else:
-            # Añadir nuevo item
-            cart["items"].append(cart_item)
-        
-        await db.carts.update_one(
-            {"_id": cart["_id"]},
-            {
-                "$set": {
-                    "items": cart["items"],
-                    "updated_at": datetime.now(timezone.utc)
+            # Atomic push: add new item without overwriting concurrent changes
+            await db.carts.update_one(
+                {"_id": cart["_id"]},
+                {
+                    "$push": {"items": cart_item},
+                    "$set": {"updated_at": datetime.now(timezone.utc)},
                 }
-            }
-        )
+            )
     else:
         # Crear nuevo carrito
         new_cart = {

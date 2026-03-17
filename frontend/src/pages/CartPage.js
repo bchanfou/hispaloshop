@@ -355,7 +355,7 @@ export default function CartPage() {
                       className="flex-1 max-w-xs h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors"
                       data-testid="verification-input"
                     />
-                    <button type="button" onClick={handleVerifyEmail} disabled={verifying} className="rounded-xl bg-stone-950 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-60" data-testid="verify-button">
+                    <button type="button" onClick={handleVerifyEmail} disabled={verifying} className="rounded-xl bg-stone-950 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-50" data-testid="verify-button">
                       {verifying ? t('checkout.verifying') : t('checkout.verify')}
                     </button>
                   </div>
@@ -363,7 +363,7 @@ export default function CartPage() {
                     type="button"
                     onClick={handleResendVerification}
                     disabled={resending}
-                    className="inline-flex items-center gap-2 rounded-xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-50 disabled:opacity-50"
                     data-testid="resend-button"
                   >
                     <Mail className="w-4 h-4" />
@@ -617,7 +617,7 @@ export default function CartPage() {
                       <label htmlFor="is_default" className="text-sm text-stone-500">{t('checkout.setAsDefault') || 'Establecer como predeterminada'}</label>
                     </div>
                     <div className="flex gap-2.5">
-                      <button type="submit" disabled={savingAddress} className="flex-1 rounded-full bg-stone-950 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-60" data-testid="save-new-address-btn">
+                      <button type="submit" disabled={savingAddress} className="flex-1 rounded-full bg-stone-950 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-50" data-testid="save-new-address-btn">
                         {savingAddress ? t('common.loading') : t('common.save')}
                       </button>
                       {savedAddresses.length > 0 && (
@@ -645,7 +645,7 @@ export default function CartPage() {
                 {!appliedDiscount ? (
                   <div className="flex gap-2">
                     <input placeholder={t('cart.discountCode')} value={discountCode} onChange={(event) => setDiscountCode(event.target.value.toUpperCase())} className="flex-1 h-10 rounded-xl border border-stone-200 bg-white px-3 text-sm outline-none focus:border-stone-950 transition-colors" data-testid="discount-code-input" />
-                    <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-60" data-testid="apply-discount-btn">
+                    <button type="button" onClick={handleApplyDiscount} disabled={discountLoading} className="rounded-xl border border-stone-200 px-4 py-2 text-[13px] font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50" data-testid="apply-discount-btn">
                       {discountLoading ? t('common.loading') : t('cart.apply')}
                     </button>
                   </div>

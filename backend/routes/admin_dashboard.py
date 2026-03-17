@@ -700,14 +700,16 @@ async def superadmin_overview(user: User = Depends(get_current_user)):
     
     # Recent activity
     recent_orders = await db.orders.find({}, {"_id": 0, "order_id": 1, "user_name": 1, "total_amount": 1, "status": 1, "created_at": 1}).sort("created_at", -1).limit(5).to_list(5)
-    # Visit stats by country (real data)
+    # Visit stats by country (last 90 days to bound the aggregation)
+    ninety_days_ago = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
     visits_by_country = await db.page_visits.aggregate([
+        {"$match": {"timestamp": {"$gte": ninety_days_ago}}},
         {"$group": {"_id": "$country", "count": {"$sum": 1}}},
         {"$sort": {"count": -1}},
         {"$limit": 10}
     ]).to_list(10)
-    
-    total_visits = await db.page_visits.count_documents({})
+
+    total_visits = await db.page_visits.count_documents({"timestamp": {"$gte": ninety_days_ago}})
     visits_7d = await db.page_visits.count_documents({"timestamp": {"$gte": seven_days_ago}})
     
     # Daily visits last 7 days

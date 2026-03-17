@@ -246,7 +246,7 @@ function CommunityItem({ community }) {
     <Link to={`/communities/${slug}`} style={itemStyle}
       onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-      <div style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', background: `hsl(${(name.charCodeAt(0) * 7) % 360}, 40%, 70%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, overflow: 'hidden' }}>
+      <div style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', background: ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][name.charCodeAt(0) % 5], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, overflow: 'hidden' }}>
         {community.cover_image ? (
           <img src={community.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (community.emoji || '🌿')}

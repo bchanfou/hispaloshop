@@ -8,15 +8,15 @@ import apiClient from '../services/api/client';
 
 /* ── Password strength helper ── */
 function getPasswordStrength(pw) {
-  if (pw.length < 8) return { level: 0, label: 'Muy corta', color: 'var(--color-red, #dc2626)' };
+  if (pw.length < 8) return { level: 0, label: 'Muy corta', color: 'var(--color-red)' };
   const hasUpper = /[A-Z]/.test(pw);
   const hasNumber = /[0-9]/.test(pw);
   const hasSpecial = /[^A-Za-z0-9]/.test(pw);
   if (pw.length >= 12 && hasUpper && hasNumber && hasSpecial)
-    return { level: 3, label: 'Fuerte', color: 'var(--color-green, #16a34a)' };
+    return { level: 3, label: 'Fuerte', color: 'var(--color-black)' };
   if (hasUpper && hasNumber)
-    return { level: 2, label: 'Buena', color: 'var(--color-green, #16a34a)' };
-  return { level: 1, label: 'Débil', color: '#d97706' };
+    return { level: 2, label: 'Buena', color: 'var(--color-black)' };
+  return { level: 1, label: 'Débil', color: 'var(--color-stone)' };
 }
 
 export default function RegisterPage() {
@@ -267,9 +267,9 @@ export default function RegisterPage() {
               onChange={e => updateForm('fullName', e.target.value)}
               placeholder="María García"
               autoComplete="name"
-              style={{ ...inputStyle, ...(errors.fullName ? { borderColor: 'var(--color-red, #dc2626)' } : {}) }}
+              style={{ ...inputStyle, ...(errors.fullName ? { borderColor: 'var(--color-red)' } : {}) }}
             />
-            {errors.fullName && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.fullName}</p>}
+            {errors.fullName && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.fullName}</p>}
           </div>
 
           {/* Email */}
@@ -281,9 +281,9 @@ export default function RegisterPage() {
               onChange={e => updateForm('email', e.target.value)}
               placeholder="hola@ejemplo.com"
               autoComplete="email"
-              style={{ ...inputStyle, ...(errors.email ? { borderColor: 'var(--color-red, #dc2626)' } : {}) }}
+              style={{ ...inputStyle, ...(errors.email ? { borderColor: 'var(--color-red)' } : {}) }}
             />
-            {errors.email && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.email}</p>}
+            {errors.email && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.email}</p>}
           </div>
 
           {/* Username */}
@@ -306,7 +306,7 @@ export default function RegisterPage() {
                   ...inputStyle,
                   paddingLeft: 32,
                   paddingRight: 40,
-                  ...(errors.username ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                  ...(errors.username ? { borderColor: 'var(--color-red)' } : {}),
                 }}
               />
               {/* Status icon */}
@@ -317,7 +317,7 @@ export default function RegisterPage() {
                 }}>
                   {usernameStatus === 'available'
                     ? <Check size={18} color="var(--color-green, #16a34a)" />
-                    : <XIcon size={18} color="var(--color-red, #dc2626)" />
+                    : <XIcon size={18} color="var(--color-red)" />
                   }
                 </span>
               )}
@@ -330,9 +330,9 @@ export default function RegisterPage() {
               )}
             </div>
             {usernameStatus === 'taken' && (
-              <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>Este usuario ya está en uso</p>
+              <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>Este usuario ya está en uso</p>
             )}
-            {errors.username && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.username}</p>}
+            {errors.username && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.username}</p>}
           </div>
 
           {/* Password */}
@@ -348,7 +348,7 @@ export default function RegisterPage() {
                 style={{
                   ...inputStyle,
                   paddingRight: 48,
-                  ...(errors.password ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                  ...(errors.password ? { borderColor: 'var(--color-red)' } : {}),
                 }}
               />
               <button
@@ -383,7 +383,7 @@ export default function RegisterPage() {
                 <p style={{ fontSize: 11, color: strength.color, marginTop: 3 }}>{strength.label}</p>
               </div>
             )}
-            {errors.password && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.password}</p>}
+            {errors.password && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.password}</p>}
           </div>
 
           {/* Birth date */}
@@ -395,7 +395,7 @@ export default function RegisterPage() {
                 onChange={e => updateForm('birthDay', e.target.value)}
                 style={{
                   ...inputStyle, flex: 1, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                  ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}),
                 }}
               >
                 <option value="">Día</option>
@@ -408,7 +408,7 @@ export default function RegisterPage() {
                 onChange={e => updateForm('birthMonth', e.target.value)}
                 style={{
                   ...inputStyle, flex: 1.3, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                  ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}),
                 }}
               >
                 <option value="">Mes</option>
@@ -421,7 +421,7 @@ export default function RegisterPage() {
                 onChange={e => updateForm('birthYear', e.target.value)}
                 style={{
                   ...inputStyle, flex: 1.3, padding: '0 8px',
-                  ...(errors.birthDate ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                  ...(errors.birthDate ? { borderColor: 'var(--color-red)' } : {}),
                 }}
               >
                 <option value="">Año</option>
@@ -431,7 +431,7 @@ export default function RegisterPage() {
                 })}
               </select>
             </div>
-            {errors.birthDate && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.birthDate}</p>}
+            {errors.birthDate && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.birthDate}</p>}
           </div>
 
           {/* Terms checkbox */}
@@ -464,7 +464,7 @@ export default function RegisterPage() {
               </Link>
             </span>
           </label>
-          {errors.terms && <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: -6 }}>{errors.terms}</p>}
+          {errors.terms && <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: -6 }}>{errors.terms}</p>}
         </div>
 
         {/* Submit */}

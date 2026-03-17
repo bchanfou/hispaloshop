@@ -100,7 +100,7 @@ export default function InfluencerPage() {
             }}>
               <p style={{ fontSize: 13, color: '#AEAEB2',
                            marginBottom: 8 }}>{tier.range}</p>
-              <p style={{ fontSize: 44, fontWeight: 800, color: '#34C759',
+              <p style={{ fontSize: 44, fontWeight: 800, color: '#0A0A0A',
                            letterSpacing: '-0.03em', margin: 0 }}>
                 {tier.pct}
               </p>

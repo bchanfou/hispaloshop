@@ -212,7 +212,7 @@ function FollowingFeed() {
             }
           }}
           overscan={3}
-          style={{ height: 'calc(100vh - 120px)' }}
+          style={{ height: 'calc(100vh - var(--header-height, 56px) - var(--bottom-nav-height, 64px))' }}
           components={{
             Footer: () => feedQuery.isFetchingNextPage
               ? <FeedSkeleton count={2} />

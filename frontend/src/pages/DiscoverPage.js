@@ -173,7 +173,7 @@ export default function DiscoverPage() {
         <div style={{
           height: 130,
           borderRadius: 'var(--radius-xl)',
-          background: 'linear-gradient(135deg, #1c1917 0%, #0A0A0A 100%)',
+          background: 'var(--color-black)',
           padding: '20px 24px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           marginBottom: 24,

@@ -66,7 +66,7 @@ export default function ForYouFeed() {
   if (error) {
     return (
       <div className="flex flex-col items-center px-6 py-16 text-center">
-        <AlertCircle className="mb-3 h-8 w-8 text-stone-300" />
+        <AlertCircle className="mb-3 h-8 w-8 text-stone-400" />
         <p className="text-[14px] font-medium text-stone-700">
           {t('feed.error', 'Error al cargar el feed')}
         </p>
@@ -199,7 +199,7 @@ export default function ForYouFeed() {
             }
           }}
           overscan={3}
-          style={{ height: 'calc(100vh - 120px)' }}
+          style={{ height: 'calc(100vh - var(--header-height, 56px) - var(--bottom-nav-height, 64px))' }}
           components={{
             Footer: () => feedQuery.isFetchingNextPage
               ? <FeedSkeleton count={2} />

@@ -2466,23 +2466,30 @@ async def send_order_status_email(order: dict, new_status: str, tracking_number:
     lang_messages = status_messages.get(user_lang, status_messages["es"])
     status_info = lang_messages.get(new_status, lang_messages["default"])
     
-    # Build tracking section if available
+    # Build tracking section — HTML-escape all user-controlled values to prevent XSS
+    import html as _html
     tracking_html = ""
     if tracking_number or shipping_carrier:
-        carrier_text = f"<p style='margin: 0 0 5px 0; color: #7A7A7A;'>Transportista: <strong>{shipping_carrier}</strong></p>" if shipping_carrier else ""
+        safe_carrier = _html.escape(str(shipping_carrier)) if shipping_carrier else ""
+        safe_tracking = _html.escape(str(tracking_number)) if tracking_number else ""
+        carrier_text = f"<p style='margin: 0 0 5px 0; color: #7A7A7A;'>Transportista: <strong>{safe_carrier}</strong></p>" if shipping_carrier else ""
+        # Validate tracking_url is a safe HTTP(S) URL before embedding
+        safe_tracking_url = ""
+        if tracking_url and str(tracking_url).startswith(("http://", "https://")):
+            safe_tracking_url = _html.escape(str(tracking_url), quote=True)
         tracking_html = f"""
         <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4CAF50;">
-            <p style="margin: 0 0 5px 0; font-weight: bold; color: #2e7d32;">📦 Información de Envío</p>
+            <p style="margin: 0 0 5px 0; font-weight: bold; color: #2e7d32;">Información de Envío</p>
             {carrier_text}
-            {f"<p style='margin: 5px 0;'><strong>{lang_messages['tracking']}:</strong></p><p style='margin: 0; font-size: 18px; font-family: monospace; background: white; padding: 10px; border-radius: 4px;'>{tracking_number}</p>" if tracking_number else ""}
-            {"<a href='" + tracking_url + "' style='display: inline-block; margin-top: 10px; padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px;'>" + lang_messages['track'] + " →</a>" if tracking_url else ""}
+            {f"<p style='margin: 5px 0;'><strong>{lang_messages['tracking']}:</strong></p><p style='margin: 0; font-size: 18px; font-family: monospace; background: white; padding: 10px; border-radius: 4px;'>{safe_tracking}</p>" if tracking_number else ""}
+            {f"<a href='{safe_tracking_url}' style='display: inline-block; margin-top: 10px; padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px;'>{lang_messages['track']} →</a>" if safe_tracking_url else ""}
         </div>
         """
-    
-    # Build order items summary
+
+    # Build order items summary — escape product names
     items_html = ""
     for item in order.get("line_items", [])[:5]:  # Show max 5 items
-        items_html += f"<li>{item.get('product_name', 'Product')} x {item.get('quantity', 1)}</li>"
+        items_html += f"<li>{_html.escape(str(item.get('product_name', 'Product')))} x {item.get('quantity', 1)}</li>"
     
     email_html = f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -2756,20 +2763,22 @@ async def send_seller_shipped_email(order: dict, producer_id: str, tracking_numb
     for item in seller_items:
         items_html += f"""
         <tr>
-            <td style="padding: 10px; border-bottom: 1px solid #eee;">{item.get('product_name', 'Producto')}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">{_html.escape(str(item.get('product_name', 'Producto')))}</td>
             <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">{item.get('quantity', 1)}</td>
             <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">€{item.get('price', 0):.2f}</td>
         </tr>
         """
     
-    # Tracking info
+    # Tracking info — HTML-escape user-controlled values
     tracking_info = ""
     if tracking_number or shipping_carrier:
+        _safe_carrier = _html.escape(str(shipping_carrier)) if shipping_carrier else ""
+        _safe_track_num = _html.escape(str(tracking_number)) if tracking_number else ""
         tracking_info = f"""
         <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p style="margin: 0; font-weight: bold; color: #1565c0;">📦 Datos de Envío Registrados</p>
-            {f"<p style='margin: 5px 0 0 0;'>Transportista: <strong>{shipping_carrier}</strong></p>" if shipping_carrier else ""}
-            {f"<p style='margin: 5px 0 0 0;'>Nº Seguimiento: <strong>{tracking_number}</strong></p>" if tracking_number else ""}
+            <p style="margin: 0; font-weight: bold; color: #1565c0;">Datos de Envío Registrados</p>
+            {f"<p style='margin: 5px 0 0 0;'>Transportista: <strong>{_safe_carrier}</strong></p>" if shipping_carrier else ""}
+            {f"<p style='margin: 5px 0 0 0;'>Nº Seguimiento: <strong>{_safe_track_num}</strong></p>" if tracking_number else ""}
         </div>
         """
     

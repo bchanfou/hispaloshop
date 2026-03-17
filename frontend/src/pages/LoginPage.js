@@ -56,10 +56,11 @@ export default function LoginPage() {
       });
 
       if (data?.user) {
-        // Save token for API client (hispalo_access_token) + legacy key
+        // Save token for API client Bearer header — cookie is set automatically by server
+        // NOTE: token in localStorage is accessible via XSS; cookie (httpOnly) is not.
+        // This is kept for backward compatibility with the Bearer auth path.
         if (data.session_token) {
           setToken(data.session_token);
-          localStorage.setItem('hsp_token', data.session_token);
         }
 
         // Multi-account support
@@ -216,11 +217,11 @@ export default function LoginPage() {
             autoComplete="email"
             style={{
               ...inputStyle,
-              ...(errors.email ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+              ...(errors.email ? { borderColor: 'var(--color-red)' } : {}),
             }}
           />
           {errors.email && (
-            <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.email}</p>
+            <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.email}</p>
           )}
         </div>
 
@@ -237,7 +238,7 @@ export default function LoginPage() {
               style={{
                 ...inputStyle,
                 paddingRight: 48,
-                ...(errors.password ? { borderColor: 'var(--color-red, #dc2626)' } : {}),
+                ...(errors.password ? { borderColor: 'var(--color-red)' } : {}),
               }}
             />
             <button
@@ -256,7 +257,7 @@ export default function LoginPage() {
             </button>
           </div>
           {errors.password && (
-            <p style={{ fontSize: 12, color: 'var(--color-red, #dc2626)', marginTop: 4 }}>{errors.password}</p>
+            <p style={{ fontSize: 12, color: 'var(--color-red)', marginTop: 4 }}>{errors.password}</p>
           )}
           <div style={{ textAlign: 'right', marginTop: 8 }}>
             <Link
@@ -274,7 +275,7 @@ export default function LoginPage() {
         {/* Login error */}
         {loginError && (
           <p style={{
-            fontSize: 13, color: 'var(--color-red, #dc2626)',
+            fontSize: 13, color: 'var(--color-red)',
             textAlign: 'center', padding: '10px 14px', marginBottom: 16,
             background: 'rgba(220,38,38,0.06)',
             borderRadius: 'var(--radius-md)',

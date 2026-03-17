@@ -143,7 +143,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                                 </h4>
                                 <button
                                   onClick={() => handleRemove(item)}
-                                  className="p-1 hover:bg-stone-200 rounded-full transition-colors"
+                                  className="p-1 hover:bg-stone-100 rounded-full transition-colors"
                                   aria-label={`Eliminar ${item.name || item.product?.name}`}
                                 >
                                   <Trash2 className="w-4 h-4 text-stone-500" />
@@ -225,7 +225,7 @@ const MiniCart = ({ isOpen, onClose }) => {
                 <button
                   onClick={handleCheckout}
                   disabled={isProcessing}
-                  className="w-full py-3 bg-stone-950 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-stone-950/90 transition-colors disabled:opacity-70"
+                  className="w-full py-3 bg-stone-950 text-white rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-stone-800 transition-colors disabled:opacity-50"
                 >
                   Pagar ahora
                   <ArrowRight className="w-5 h-5" />
@@ -233,7 +233,7 @@ const MiniCart = ({ isOpen, onClose }) => {
 
                 <button
                   onClick={onClose}
-                  className="w-full py-3 border-2 border-stone-200 text-stone-950 rounded-xl font-medium hover:border-stone-950 hover:text-stone-950 transition-colors"
+                  className="w-full py-3 border-2 border-stone-200 text-stone-950 rounded-full font-medium hover:border-stone-950 hover:text-stone-950 transition-colors"
                 >
                   Seguir comprando
                 </button>

@@ -15,7 +15,7 @@ const PLANS = [
     name: 'Free',
     tagline: 'Para empezar a vender',
     price: 0,
-    accentColor: '#34C759',
+    accentColor: '#0A0A0A',
     features: [
       'Hasta 30 productos',
       'Tienda personalizada con historia',
@@ -117,12 +117,12 @@ export default function ProductorPage() {
 
       {/* Seccion ELITE especial */}
       <section style={{
-        background: 'linear-gradient(135deg, #1a0533 0%, #0d0d1a 50%, #001a33 100%)',
+        background: 'linear-gradient(135deg, #1c1917 0%, #0c0a09 50%, #0A0A0A 100%)',
         padding: 'clamp(56px, 8vw, 96px) 24px',
         textAlign: 'center',
       }}>
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em',
-                     textTransform: 'uppercase', color: '#9b99e8',
+                     textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)',
                      marginBottom: 16 }}>
           Plan ELITE · Agente Comercial IA
         </p>
@@ -167,7 +167,7 @@ export default function ProductorPage() {
         <a href="/registro?plan=elite" style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           padding: '15px 36px', borderRadius: 9999,
-          background: '#5856D6', color: '#FFFFFF',
+          background: '#FFFFFF', color: '#0A0A0A',
           fontSize: 16, fontWeight: 700, textDecoration: 'none',
         }}>
           Empezar con ELITE · 249€/mes →

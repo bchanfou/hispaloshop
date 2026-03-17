@@ -222,7 +222,7 @@ export default function AppHeader() {
                     width: 5,
                     height: 5,
                     borderRadius: '50%',
-                    background: 'var(--color-green)',
+                    background: 'var(--color-black)',
                   }} />
                 )}
               </Link>

@@ -366,6 +366,10 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
     # If moderation returned "review" (e.g., API failure), mark product for manual review
     needs_manual_review = mod_decision == "review"
 
+    # Require at least one image for publishable products
+    if not input.images or len(input.images) == 0:
+        needs_manual_review = True  # Products without images go to review queue
+
     product_id = f"prod_{uuid.uuid4().hex[:12]}"
     slug = input.name.lower().replace(' ', '-')
     

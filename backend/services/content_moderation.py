@@ -84,10 +84,10 @@ def _detect_content_type(url: str) -> str:
 
 async def _download_file(url: str) -> bytes | None:
     try:
-        async with httpx.AsyncClient(timeout=20) as http:
-            resp = await http.get(url)
-            if resp.status_code == 200:
-                return resp.content
+        from services.http_client import shared_http
+        resp = await shared_http.get(url, timeout=20)
+        if resp.status_code == 200:
+            return resp.content
     except Exception as e:
         logger.error("Download failed for %s: %s", url, e)
     return None

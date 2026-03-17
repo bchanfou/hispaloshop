@@ -352,9 +352,9 @@ async def get_insights_trends(user: User = Depends(get_current_user)):
     
     # Product interest trends
     product_trends = [
-        {"tag": tag, "count": count, "percentage": round(count / total_insights * 100, 1)}
+        {"tag": tag, "count": count, "percentage": round(count / total_insights * 100, 1) if total_insights > 0 else 0}
         for tag, count in sorted(product_interests.items(), key=lambda x: -x[1])[:15]
-    ]
+    ] if total_insights > 0 else []
     
     # Catalog gap analysis - What users want vs what we have
     products_cursor = db.products.find({}, {"_id": 0, "name": 1, "category_id": 1})

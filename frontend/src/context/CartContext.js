@@ -29,8 +29,11 @@ export function CartProvider({ children }) {
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [loading, setLoading] = useState(false);
   const prevUserRef = useRef(null);
+  const fetchingRef = useRef(false);
 
   const fetchCart = useCallback(async () => {
+    if (fetchingRef.current) return; // Guard against concurrent calls
+    fetchingRef.current = true;
     try {
       setLoading(true);
       const res = await apiClient.get('/cart');
@@ -48,6 +51,7 @@ export function CartProvider({ children }) {
       setAppliedDiscount(null);
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
   }, []);
 
@@ -93,6 +97,17 @@ export function CartProvider({ children }) {
       setAppliedDiscount(null);
     }
   }, [user, fetchCart, mergeGuestCart]);
+
+  // Cross-tab sync for guest cart via storage event
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === GUEST_CART_KEY && !user) {
+        setCartItems(readGuestCart());
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [user]);
 
   const addToCart = useCallback(async (productId, quantity, variantId = null, packId = null) => {
     if (!user) {

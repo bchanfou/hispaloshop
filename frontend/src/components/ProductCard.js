@@ -158,7 +158,7 @@ function ProductCard({ product, variant = 'default' }) {
         {certs.length > 0 && !isBlocked && (
           <span style={{
             position: 'absolute', left: 8, top: 8,
-            background: 'var(--color-green-light)', color: 'var(--color-green)',
+            background: 'var(--color-surface)', color: 'var(--color-black)',
             fontSize: 9, fontWeight: 500, padding: '2px 7px',
             borderRadius: 'var(--radius-full)', fontFamily: 'var(--font-sans)',
           }}>

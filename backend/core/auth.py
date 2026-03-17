@@ -40,6 +40,19 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
     if not session_doc:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
+    # Check session expiry explicitly (TTL cleanup is async, up to ~60s delay)
+    from datetime import datetime, timezone
+    expires_at = session_doc.get("expires_at")
+    if expires_at:
+        try:
+            exp_dt = datetime.fromisoformat(str(expires_at).replace("Z", "+00:00"))
+            if exp_dt.tzinfo is None:
+                exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+            if exp_dt < datetime.now(timezone.utc):
+                raise HTTPException(status_code=401, detail="Session expired")
+        except (ValueError, TypeError):
+            pass  # If expires_at is malformed, let TTL handle cleanup
+
     user_doc = await db.users.find_one({"user_id": session_doc["user_id"]}, {"_id": 0})
     if not user_doc:
         raise HTTPException(status_code=401, detail="Not authenticated")

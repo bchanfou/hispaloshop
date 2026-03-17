@@ -4,6 +4,7 @@ Endpoints that can be called by a scheduler or admin manually.
 """
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
+import html as _html
 import stripe
 import os
 import uuid
@@ -347,24 +348,25 @@ async def cron_predict_notifications(user: User = Depends(get_current_user)):
         }
         await db.user_notifications.insert_one(notification)
 
-        # Build and send email
+        # Build and send email — HTML-escape all user-controlled values to prevent XSS
         product_list_html = ""
         for p in overdue[:8]:
             days_abs = abs(p["days_until_next"])
             img_tag = ""
             if p.get("image"):
-                img_tag = f'<img src="{p["image"]}" width="40" height="40" style="object-fit:cover;border-radius:8px;" />'
+                safe_url = _html.escape(str(p["image"]), quote=True)
+                img_tag = f'<img src="{safe_url}" width="40" height="40" style="object-fit:cover;border-radius:8px;" />'
             product_list_html += PRODUCT_ROW_TEMPLATE.format(
                 img_tag=img_tag,
-                product_name=p["product_name"],
+                product_name=_html.escape(str(p["product_name"])),
                 days=days_abs,
             )
 
         html_body = PREDICT_EMAIL_TEMPLATE.format(
-            user_name=user_doc.get("name", "Cliente"),
+            user_name=_html.escape(str(user_doc.get("name", "Cliente"))),
             overdue_count=len(overdue),
             product_list_html=product_list_html,
-            frontend_url=FRONTEND_URL,
+            frontend_url=_html.escape(FRONTEND_URL, quote=True),
         )
 
         try:
@@ -638,9 +640,9 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
                             to=email,
                             subject="Certificado caducado — Hispaloshop",
                             html=CERT_EXPIRED_EMAIL.format(
-                                name=name,
-                                cert_type=cert.get("name", cert.get("type", "")),
-                                frontend_url=frontend,
+                                name=_html.escape(str(name)),
+                                cert_type=_html.escape(str(cert.get("name", cert.get("type", "")))),
+                                frontend_url=_html.escape(frontend, quote=True),
                             ),
                         )
                 except Exception as e:
@@ -667,13 +669,13 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
                     if email:
                         send_email(
                             to=email,
-                            subject=f"⚠️ Tu certificado caduca en {days_left} días",
+                            subject=f"Tu certificado caduca en {days_left} días",
                             html=CERT_EXPIRY_EMAIL_7.format(
-                                name=name,
-                                cert_type=cert.get("name", cert.get("type", "")),
-                                expiry_date=expiry,
+                                name=_html.escape(str(name)),
+                                cert_type=_html.escape(str(cert.get("name", cert.get("type", "")))),
+                                expiry_date=_html.escape(str(expiry)),
                                 days_left=days_left,
-                                frontend_url=frontend,
+                                frontend_url=_html.escape(frontend, quote=True),
                             ),
                         )
                 except Exception as e:
@@ -702,11 +704,11 @@ async def cron_certificate_expiry_alerts(user: User = Depends(get_current_user))
                             to=email,
                             subject=f"Tu certificado caduca en {days_left} días",
                             html=CERT_EXPIRY_EMAIL_30.format(
-                                name=name,
-                                cert_type=cert.get("name", cert.get("type", "")),
-                                expiry_date=expiry,
+                                name=_html.escape(str(name)),
+                                cert_type=_html.escape(str(cert.get("name", cert.get("type", "")))),
+                                expiry_date=_html.escape(str(expiry)),
                                 days_left=days_left,
-                                frontend_url=frontend,
+                                frontend_url=_html.escape(frontend, quote=True),
                             ),
                         )
                 except Exception as e:

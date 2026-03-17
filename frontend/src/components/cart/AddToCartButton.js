@@ -76,7 +76,7 @@ const AddToCartButton = ({
       text: inCartQuantity > 0 ? `+${inCartQuantity}` : 'Añadir'
     },
     'buy-now': {
-      button: 'w-full py-3 bg-stone-700 text-white rounded-xl font-semibold',
+      button: 'w-full py-3 bg-stone-950 text-white rounded-xl font-semibold hover:bg-stone-800',
       icon: 'w-5 h-5',
       text: 'Comprar ahora'
     }
@@ -90,7 +90,7 @@ const AddToCartButton = ({
       <motion.button
         onClick={handleBuyNow}
         disabled={state === 'loading'}
-        className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-70`}
+        className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-50`}
         whileTap={{ scale: 0.98 }}
       >
         <Zap className={style.icon} />
@@ -105,7 +105,7 @@ const AddToCartButton = ({
         <div className="flex items-center bg-stone-100 rounded-xl">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="p-2 hover:bg-stone-200 rounded-l-xl transition-colors"
+            className="p-2 hover:bg-stone-100 rounded-l-xl transition-colors"
             disabled={state === 'loading'}
           >
             <Minus className="w-4 h-4 text-stone-950" />
@@ -113,7 +113,7 @@ const AddToCartButton = ({
           <span className="w-10 text-center font-medium text-stone-950">{quantity}</span>
           <button
             onClick={() => setQuantity(quantity + 1)}
-            className="p-2 hover:bg-stone-200 rounded-r-xl transition-colors"
+            className="p-2 hover:bg-stone-100 rounded-r-xl transition-colors"
             disabled={state === 'loading'}
           >
             <Plus className="w-4 h-4 text-stone-950" />
@@ -124,7 +124,7 @@ const AddToCartButton = ({
       <motion.button
         onClick={handleAdd}
         disabled={state === 'loading'}
-        className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-70 ${
+        className={`${style.button} flex items-center justify-center gap-2 transition-all disabled:opacity-50 ${
           state === 'success' ? 'bg-stone-700' : ''
         } ${inCartQuantity > 0 && state === 'idle' ? 'bg-stone-700' : ''}`}
         whileTap={{ scale: 0.98 }}

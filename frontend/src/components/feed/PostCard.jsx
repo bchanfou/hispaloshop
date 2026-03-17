@@ -245,6 +245,7 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
       alignItems: 'center',
       gap: 4,
       color: 'var(--color-stone)',
+      transition: 'transform 0.15s ease',
     },
     actionCount: {
       fontSize: 13,
@@ -417,8 +418,8 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
             <div style={S.heartOverlay}>
               <Heart
                 size={72}
-                fill="#ef4444"
-                color="#ef4444"
+                fill="var(--color-black)"
+                color="var(--color-black)"
                 style={heartAnimStyle}
               />
             </div>
@@ -450,15 +451,15 @@ export default function PostCard({ post, onLike, onComment, onSave }) {
         <button
           style={{
             ...S.actionBtn,
-            color: liked ? '#ef4444' : 'var(--color-stone)',
+            color: liked ? 'var(--color-black)' : 'var(--color-stone)',
           }}
           onClick={handleLike}
           aria-label={liked ? 'Quitar me gusta' : 'Me gusta'}
         >
           <Heart
             size={24}
-            fill={liked ? '#ef4444' : 'none'}
-            color={liked ? '#ef4444' : 'currentColor'}
+            fill={liked ? 'var(--color-black)' : 'none'}
+            color={liked ? 'var(--color-black)' : 'currentColor'}
           />
           {likesCount > 0 && <span style={S.actionCount}>{likesCount}</span>}
         </button>

@@ -177,9 +177,9 @@ export default function OnboardingPage() {
               key={role.id}
               onClick={() => setSelectedRole(role.id)}
               style={{
-                background: isSelected ? 'rgba(46,125,82,0.15)' : 'rgba(255,255,255,0.08)',
+                background: isSelected ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)',
                 border: isSelected
-                  ? '1.5px solid var(--color-green, #16a34a)'
+                  ? '1.5px solid var(--color-black)'
                   : '1.5px solid rgba(255,255,255,0.15)',
                 borderRadius: 'var(--radius-xl)',
                 padding: '20px 16px',
@@ -215,7 +215,7 @@ export default function OnboardingPage() {
           onClick={() => goTo(2)}
           style={{
             width: '100%', maxWidth: 400, height: 52, marginTop: 24,
-            background: 'var(--color-green, #16a34a)',
+            background: 'var(--color-black)',
             color: '#fff', border: 'none',
             borderRadius: 'var(--radius-lg)',
             fontSize: 16, fontWeight: 600,
@@ -345,7 +345,7 @@ export default function OnboardingPage() {
                 background: 'var(--color-surface, #f5f5f4)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Check size={32} color="var(--color-green, #16a34a)" />
+                <Check size={32} color="var(--color-black)" />
               </div>
               <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-black)', textAlign: 'center', marginBottom: 8 }}>
                 ¡Todo listo!
@@ -358,7 +358,7 @@ export default function OnboardingPage() {
                 disabled={saving}
                 style={{
                   width: '100%', height: 52,
-                  background: 'var(--color-green, #16a34a)',
+                  background: 'var(--color-black)',
                   color: '#fff', border: 'none',
                   borderRadius: 'var(--radius-lg)',
                   fontSize: 16, fontWeight: 600,
@@ -402,7 +402,7 @@ export default function OnboardingPage() {
                       width: 22, height: 22, borderRadius: '50%',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 12,
-                      background: step.done ? 'var(--color-green, #16a34a)' : 'transparent',
+                      background: step.done ? 'var(--color-black)' : 'transparent',
                       color: step.done ? '#fff' : 'var(--color-stone)',
                       border: step.done ? 'none' : '1.5px solid var(--color-border)',
                     }}>
@@ -417,7 +417,7 @@ export default function OnboardingPage() {
                 disabled={saving}
                 style={{
                   width: '100%', height: 52,
-                  background: 'var(--color-green, #16a34a)',
+                  background: 'var(--color-black)',
                   color: '#fff', border: 'none',
                   borderRadius: 'var(--radius-lg)',
                   fontSize: 16, fontWeight: 600,
@@ -467,7 +467,7 @@ export default function OnboardingPage() {
                     padding: '8px 0',
                     borderBottom: i < 2 ? '1px solid var(--color-border)' : 'none',
                   }}>
-                    <span style={{ color: 'var(--color-green, #16a34a)', fontSize: 14 }}>✓</span>
+                    <span style={{ color: 'var(--color-black)', fontSize: 14 }}>✓</span>
                     <span style={{ fontSize: 14, color: 'var(--color-black)' }}>{text}</span>
                   </div>
                 ))}
@@ -477,7 +477,7 @@ export default function OnboardingPage() {
                 disabled={saving}
                 style={{
                   width: '100%', height: 52,
-                  background: 'var(--color-green, #16a34a)',
+                  background: 'var(--color-black)',
                   color: '#fff', border: 'none',
                   borderRadius: 'var(--radius-lg)',
                   fontSize: 16, fontWeight: 600,
@@ -517,7 +517,7 @@ export default function OnboardingPage() {
                     padding: '8px 0',
                     borderBottom: i < 3 ? '1px solid var(--color-border)' : 'none',
                   }}>
-                    <span style={{ color: 'var(--color-green, #16a34a)', fontSize: 14 }}>✓</span>
+                    <span style={{ color: 'var(--color-black)', fontSize: 14 }}>✓</span>
                     <span style={{ fontSize: 14, color: 'var(--color-black)' }}>{text}</span>
                   </div>
                 ))}
@@ -527,7 +527,7 @@ export default function OnboardingPage() {
                 disabled={saving}
                 style={{
                   width: '100%', height: 52,
-                  background: 'var(--color-green, #16a34a)',
+                  background: 'var(--color-black)',
                   color: '#fff', border: 'none',
                   borderRadius: 'var(--radius-lg)',
                   fontSize: 16, fontWeight: 600,
