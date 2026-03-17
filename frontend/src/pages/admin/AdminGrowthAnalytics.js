@@ -100,7 +100,7 @@ export default function AdminGrowthAnalytics() {
                 <button
                   key={p.value}
                   onClick={() => setDays(p.value)}
-                  className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
                     days === p.value
                       ? 'bg-stone-950 text-white'
                       : 'text-stone-600 hover:text-stone-950'

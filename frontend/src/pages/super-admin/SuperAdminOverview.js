@@ -13,10 +13,10 @@ const dark = {
   text: '#FFFFFF',
   textMuted: 'rgba(255,255,255,0.40)',
   textSubtle: 'rgba(255,255,255,0.30)',
-  accent: '#2E7D52',        /* --color-green / --color-accent */
-  accentBlue: '#007AFF',
-  accentPurple: '#5856D6',
-  accentAmber: '#FF9500',
+  accent: '#0c0a09',        /* stone-950 black */
+  accentBlue: '#a8a29e',
+  accentPurple: '#78716c',
+  accentAmber: '#57534e',
   hoverBg: 'rgba(255,255,255,0.08)',
   cardHover: 'rgba(255,255,255,0.04)',
 };
@@ -180,9 +180,9 @@ export default function SuperAdminOverview() {
           <div className="space-y-2">
             {countries.map((c, i) => {
               const statusStyles = {
-                active: { bg: '#1a2e1a', border: dark.accent, color: dark.accent },
+                active: { bg: 'rgba(12,10,9,0.15)', border: dark.accent, color: dark.accent },
                 beta: { bg: 'rgba(255,149,0,0.12)', border: dark.accentAmber, color: dark.accentAmber },
-                pending: { bg: 'rgba(255,59,48,0.12)', border: '#FF3B30', color: '#FF3B30' },
+                pending: { bg: 'var(--color-surface)', border: 'var(--color-red)', color: 'var(--color-red)' },
               };
               const s = statusStyles[c.status] || statusStyles.pending;
               return (
@@ -199,7 +199,7 @@ export default function SuperAdminOverview() {
                       {c.status}
                     </span>
                     {!c.admin && (
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,59,48,0.12)', color: '#FF3B30' }}>
+                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: 'var(--color-surface)', color: 'var(--color-red)' }}>
                         Sin admin
                       </span>
                     )}
@@ -267,11 +267,11 @@ export default function SuperAdminOverview() {
         <SACard>
           <h3 className="text-sm font-bold mb-3" style={{ color: dark.text }}>Visitas</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="rounded-lg p-3 text-center" style={{ background: dark.cardHover }}>
+            <div className="rounded-xl p-3 text-center" style={{ background: dark.cardHover }}>
               <p className="text-xl font-extrabold" style={{ color: dark.accent }}>{visits.total || 0}</p>
               <p className="text-[10px]" style={{ color: dark.textSubtle }}>Total</p>
             </div>
-            <div className="rounded-lg p-3 text-center" style={{ background: dark.cardHover }}>
+            <div className="rounded-xl p-3 text-center" style={{ background: dark.cardHover }}>
               <p className="text-xl font-extrabold" style={{ color: dark.accent }}>{visits.last_7d || 0}</p>
               <p className="text-[10px]" style={{ color: dark.textSubtle }}>Últimos 7d</p>
             </div>

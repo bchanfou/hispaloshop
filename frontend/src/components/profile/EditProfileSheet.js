@@ -280,7 +280,7 @@ export default function EditProfileSheet({ isOpen, profile, userId, onClose }) {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-400">
                       Bio
                     </p>
-                    <p className={`text-[11px] tabular-nums ${bioLength > bioMax ? 'font-semibold text-red-500' : 'text-stone-400'}`}>
+                    <p className={`text-[11px] tabular-nums ${bioLength > bioMax ? 'font-bold text-stone-950' : 'text-stone-400'}`}>
                       {bioLength}/{bioMax}
                     </p>
                   </div>

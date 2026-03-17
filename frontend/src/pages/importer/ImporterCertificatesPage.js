@@ -55,7 +55,7 @@ function CertificateRow({ cert }) {
             href={`/certificados/${cert.certificate_id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 py-1.5 border border-stone-200 rounded-lg text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+            className="px-2.5 py-1.5 border border-stone-200 rounded-xl text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
           >
             Ver
           </a>
@@ -65,7 +65,7 @@ function CertificateRow({ cert }) {
             href={cert.pdf_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 py-1.5 border border-stone-200 rounded-lg text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
+            className="px-2.5 py-1.5 border border-stone-200 rounded-xl text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors"
           >
             <Download className="w-3.5 h-3.5" />
           </a>

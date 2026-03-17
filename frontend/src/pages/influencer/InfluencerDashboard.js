@@ -112,7 +112,7 @@ function WithdrawalCard({ availableToWithdraw, stripeConnected, onWithdrawSucces
               {withdrawals.slice(0, 5).map((wd) => (
                 <div key={wd.withdrawal_id} className="flex items-center justify-between p-2 rounded" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)' }}>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-green)' }} />
+                    <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-black)' }} />
                     <span className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>€{wd.amount.toFixed(2)}</span>
                   </div>
                   <span className="text-xs" style={{ color: 'var(--color-stone)' }}>
@@ -616,17 +616,17 @@ export default function InfluencerDashboard() {
             <div className="px-6 pb-6">
               {stripeStatus?.connected && stripeStatus?.onboarding_complete ? (
                 <div className="text-center">
-                  <div className="h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--color-green-light)' }}>
-                    <Check className="h-8 w-8" style={{ color: 'var(--color-green)' }} />
+                  <div className="h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--color-surface, #f5f5f4)' }}>
+                    <Check className="h-8 w-8" style={{ color: 'var(--color-black)' }} />
                   </div>
-                  <p className="font-medium" style={{ color: 'var(--color-green)' }}>{t('influencer.stripeConnected')}</p>
+                  <p className="font-medium" style={{ color: 'var(--color-black)' }}>{t('influencer.stripeConnected')}</p>
                   <p className="text-sm mt-2" style={{ color: 'var(--color-stone)' }}>
                     {t('influencer.shareCode')}
                   </p>
                   <div className="mt-4 text-sm flex items-center gap-2" style={{ color: 'var(--color-stone)' }}>
                     <span>{t('influencer.payoutsEnabled')}:</span>
                     {stripeStatus.payouts_enabled ? (
-                      <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-green)' }} />
+                      <CheckCircle2 className="w-4 h-4" style={{ color: 'var(--color-black)' }} />
                     ) : (
                       <AlertCircle className="w-4 h-4" style={{ color: 'var(--color-stone)' }} />
                     )}
@@ -800,7 +800,7 @@ export default function InfluencerDashboard() {
                   </div>
                 )}
                 <div className="text-center p-3" style={{ background: 'var(--color-white)', borderRadius: 'var(--radius-md)' }}>
-                  <p className="text-lg font-bold" style={{ color: 'var(--color-green)' }}>
+                  <p className="text-lg font-bold" style={{ color: 'var(--color-black)' }}>
                     {(withholdingSummary?.net_ytd || 0).toFixed(2)}€
                   </p>
                   <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--color-stone)' }}>Cobrado neto</p>
@@ -882,8 +882,8 @@ export default function InfluencerDashboard() {
                           {(p.net_amount || p.amount || 0).toFixed(2)}€
                         </p>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
-                          background: p.status === 'completed' ? 'var(--color-green-light)' : 'var(--color-amber-light)',
-                          color: p.status === 'completed' ? 'var(--color-green)' : 'var(--color-amber)',
+                          background: p.status === 'completed' ? 'var(--color-surface, #f5f5f4)' : 'var(--color-amber-light)',
+                          color: p.status === 'completed' ? 'var(--color-black)' : 'var(--color-amber)',
                         }}>
                           {p.status === 'completed' ? 'Pagado' : 'Procesando'}
                         </span>
@@ -974,12 +974,12 @@ export default function InfluencerDashboard() {
                           </td>
                           <td className="py-3 px-4 text-sm">
                             {comm.commission_status === 'paid' ? (
-                              <span className="flex items-center gap-1" style={{ color: 'var(--color-green)' }}>
+                              <span className="flex items-center gap-1" style={{ color: 'var(--color-black)' }}>
                                 <CheckCircle2 className="w-4 h-4" />
                                 {t('influencer.collected')}
                               </span>
                             ) : isAvailable ? (
-                              <span className="font-medium flex items-center gap-1" style={{ color: 'var(--color-green)' }}>
+                              <span className="font-medium flex items-center gap-1" style={{ color: 'var(--color-black)' }}>
                                 <CheckCircle2 className="w-4 h-4" />
                                 {t('influencer.available')}
                               </span>
@@ -1034,10 +1034,10 @@ export default function InfluencerDashboard() {
                 const proposal = c.proposal || {};
                 const statusMap = {
                   proposed: { label: 'Pendiente', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-                  active: { label: 'Activa', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+                  active: { label: 'Activa', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
                   declined: { label: 'Rechazada', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
                   sample_sent: { label: 'Muestra enviada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-                  sample_received: { label: 'Muestra recibida', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+                  sample_received: { label: 'Muestra recibida', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
                 };
                 const badge = statusMap[c.status] || statusMap.proposed;
                 return (
@@ -1048,7 +1048,7 @@ export default function InfluencerDashboard() {
                     style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}
                   >
                     {proposal.product_image_url && (
-                      <img src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                      <img src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>{proposal.product_name}</p>

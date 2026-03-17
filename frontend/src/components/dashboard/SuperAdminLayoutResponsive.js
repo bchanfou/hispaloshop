@@ -68,7 +68,7 @@ export default function SuperAdminLayoutResponsive() {
           </div>
           <h1 className="text-xl font-semibold text-white mb-2">Acceso Denegado</h1>
           <p className="text-white/40 mb-4">Solo Super Admins pueden acceder</p>
-          <button onClick={() => navigate('/')} className="text-[#5856D6] hover:underline font-medium">
+          <button onClick={() => navigate('/')} className="text-[var(--color-white)] hover:underline font-medium">
             Volver
           </button>
         </div>
@@ -87,7 +87,7 @@ export default function SuperAdminLayoutResponsive() {
           <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
         </button>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#5856D6] text-white px-2 py-0.5 rounded">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[var(--color-white)] text-white px-2 py-0.5 rounded">
             SUPERADMIN
           </span>
         </div>
@@ -100,7 +100,7 @@ export default function SuperAdminLayoutResponsive() {
         <div className="p-4 pb-6">
           <p className="text-[17px] font-extrabold tracking-tight text-white">hispaloshop</p>
           <div className="mt-1.5">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[#5856D6] text-white px-2 py-0.5 rounded">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest bg-[var(--color-white)] text-white px-2 py-0.5 rounded">
               SUPERADMIN
             </span>
           </div>
@@ -114,7 +114,7 @@ export default function SuperAdminLayoutResponsive() {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-sm ${
+                `flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-all text-sm ${
                   isActive
                     ? 'bg-white/10 text-white font-bold'
                     : 'text-white/45 hover:text-white/70 hover:bg-white/[0.05]'
@@ -178,7 +178,7 @@ export default function SuperAdminLayoutResponsive() {
                 end={item.end}
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors shrink-0 ${
-                    isActive ? 'border-[#5856D6] text-white' : 'border-transparent text-white/40'
+                    isActive ? 'border-[var(--color-white)] text-white' : 'border-transparent text-white/40'
                   }`
                 }
               >

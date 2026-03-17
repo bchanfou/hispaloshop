@@ -82,9 +82,9 @@ function TogglePill({ emoji, label, selected, variant, onClick }) {
     }
     // interests
     return {
-      background: 'var(--color-green-light)',
-      border: '1px solid var(--color-green)',
-      color: 'var(--color-green)',
+      background: 'var(--color-surface-alt, #f5f5f4)',
+      border: '1px solid var(--color-border, #e7e5e4)',
+      color: 'var(--color-black)',
     };
   }, [selected, variant]);
 

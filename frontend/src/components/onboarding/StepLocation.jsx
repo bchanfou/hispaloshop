@@ -95,7 +95,7 @@ export default function StepLocation({ data, onUpdate, onNext, onBack }) {
         </div>
 
         {city && (
-          <div className="p-3 bg-stone-100 rounded-lg">
+          <div className="p-3 bg-stone-100 rounded-xl">
             <p className="text-sm text-stone-950">
               <strong>Ciudad detectada:</strong> {city}, España
             </p>

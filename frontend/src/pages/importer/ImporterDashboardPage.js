@@ -61,19 +61,19 @@ function AlertCard({ alert }) {
 }
 
 function QuickAction({ icon: Icon, label, href, variant = 'default' }) {
-  const isGreen = variant === 'green';
+  const isPrimary = variant === 'primary';
   return (
     <Link
       to={href}
       className="flex items-center gap-3 p-3.5 transition-all text-sm font-semibold"
       style={{
-        background: isGreen ? 'var(--color-green)' : 'var(--color-white)',
+        background: isPrimary ? 'var(--color-black)' : 'var(--color-white)',
         borderRadius: 'var(--radius-xl)',
-        border: isGreen ? 'none' : '1px solid var(--color-border)',
-        color: isGreen ? '#fff' : 'var(--color-black)',
+        border: isPrimary ? 'none' : '1px solid var(--color-border)',
+        color: isPrimary ? '#fff' : 'var(--color-black)',
       }}
     >
-      <Icon className="w-5 h-5 shrink-0" style={{ color: isGreen ? '#fff' : 'var(--color-stone)' }} />
+      <Icon className="w-5 h-5 shrink-0" style={{ color: isPrimary ? '#fff' : 'var(--color-stone)' }} />
       {label}
     </Link>
   );
@@ -148,8 +148,8 @@ function formatRelativeTime(dateStr) {
 function B2BOrderStatusBadge({ status }) {
   const config = {
     pending_producer: { label: 'Esperando productor', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-    confirmed_by_producer: { label: 'Confirmado', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
-    paid: { label: 'Pagado', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+    confirmed_by_producer: { label: 'Confirmado', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
+    paid: { label: 'Pagado', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
     shipped: { label: 'En camino', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
     delivered: { label: 'Recibido', bg: 'var(--color-black)', color: '#fff' },
     cancelled: { label: 'Cancelado', bg: 'var(--color-white)', color: 'var(--color-stone)' },
@@ -168,7 +168,7 @@ function B2COrderStatusBadge({ status }) {
     pending: { label: 'Pendiente', bg: 'var(--color-amber-light)', color: 'var(--color-amber)' },
     processing: { label: 'Procesando', bg: 'var(--color-blue-light)', color: 'var(--color-blue)' },
     shipped: { label: 'Enviado', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-    delivered: { label: 'Entregado', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+    delivered: { label: 'Entregado', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
     cancelled: { label: 'Cancelado', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
     refunded: { label: 'Reembolsado', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
   };
@@ -416,7 +416,7 @@ export default function ImporterDashboardPage() {
             <h2 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Acciones rápidas</h2>
             <div className="grid grid-cols-2 gap-2">
               <QuickAction icon={Store} label="Ver mi tienda" href="/producer/store-profile" />
-              <QuickAction icon={Plus} label="Publicar producto" href="/producer/products/new" variant="green" />
+              <QuickAction icon={Plus} label="Publicar producto" href="/producer/products/new" variant="primary" />
             </div>
           </div>
 
@@ -705,7 +705,7 @@ export default function ImporterDashboardPage() {
             <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--color-black)' }}>Certificados activos</h3>
             <div className="flex flex-wrap gap-2">
               {(stats?.certificates || []).length > 0 ? (stats.certificates || []).map((cert, i) => (
-                <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--color-green-light)', color: 'var(--color-green)' }}>
+                <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ background: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' }}>
                   {cert.name || cert}
                 </span>
               )) : (
@@ -725,7 +725,7 @@ export default function ImporterDashboardPage() {
               icon: PenTool,
               label: 'Firma digital',
               sublabel: user?.signature_url ? 'Configurada' : 'Pendiente',
-              sublabelColor: user?.signature_url ? 'var(--color-green)' : 'var(--color-amber)',
+              sublabelColor: user?.signature_url ? 'var(--color-black)' : 'var(--color-amber)',
               to: '/settings/signature',
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },

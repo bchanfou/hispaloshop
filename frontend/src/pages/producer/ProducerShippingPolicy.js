@@ -102,7 +102,7 @@ export default function ProducerShippingPolicy() {
                   step="0.01"
                   value={toEuros(policy.base_cost_cents)}
                   onChange={(e) => setPolicy((prev) => ({ ...prev, base_cost_cents: toCents(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -112,7 +112,7 @@ export default function ProducerShippingPolicy() {
                   step="0.01"
                   value={toEuros(policy.per_item_cents)}
                   onChange={(e) => setPolicy((prev) => ({ ...prev, per_item_cents: toCents(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -130,11 +130,11 @@ export default function ProducerShippingPolicy() {
                     free_threshold_cents: e.target.value ? toCents(e.target.value) : null,
                   }))
                 }
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
               />
             </div>
 
-            <div className="rounded-lg bg-stone-50 border border-stone-200 p-3 text-sm text-stone-700">
+            <div className="rounded-xl bg-stone-50 border border-stone-200 p-3 text-sm text-stone-700">
               Ejemplo 3 ítems: €{toEuros(preview)} de envío.
             </div>
           </>
@@ -154,7 +154,7 @@ export default function ProducerShippingPolicy() {
           />
         </label>
 
-        <button onClick={savePolicy} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors w-full md:w-auto">
+        <button onClick={savePolicy} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors w-full md:w-auto">
           <Save className="w-4 h-4 mr-2 inline" />
           {saving ? 'Guardando...' : 'Guardar'}
         </button>

@@ -22,10 +22,10 @@ function AffiliateLinkCard({ link }) {
           <img
             src={link.product_image}
             alt={link.product_name}
-            className="w-12 h-12 rounded-lg object-cover shrink-0"
+            className="w-12 h-12 rounded-xl object-cover shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center shrink-0">
             <Link2 className="w-5 h-5 text-stone-400" />
           </div>
         )}
@@ -42,7 +42,7 @@ function AffiliateLinkCard({ link }) {
           { label: 'Conversiones', value: link.conversions || 0 },
           { label: 'Comisión', value: `${(link.commission_eur || 0).toFixed(2)}€` },
         ].map((stat) => (
-          <div key={stat.label} className="bg-stone-50 rounded-lg p-2 text-center">
+          <div key={stat.label} className="bg-stone-50 rounded-xl p-2 text-center">
             <p className="text-base font-bold text-stone-950">{stat.value}</p>
             <p className="text-[10px] text-stone-500">{stat.label}</p>
           </div>
@@ -213,10 +213,10 @@ export default function AffiliateLinksPage() {
                       <img
                         src={product.images[0]}
                         alt=""
-                        className="w-9 h-9 rounded-lg object-cover shrink-0"
+                        className="w-9 h-9 rounded-xl object-cover shrink-0"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-lg bg-stone-100 shrink-0" />
+                      <div className="w-9 h-9 rounded-xl bg-stone-100 shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-stone-950 truncate">
@@ -243,7 +243,7 @@ export default function AffiliateLinksPage() {
                 <img
                   src={selectedProduct.images[0]}
                   alt=""
-                  className="w-12 h-12 rounded-lg object-cover shrink-0"
+                  className="w-12 h-12 rounded-xl object-cover shrink-0"
                 />
               )}
               <div>
@@ -251,7 +251,7 @@ export default function AffiliateLinksPage() {
                 <p className="text-xs text-stone-500">Link de afiliado generado</p>
               </div>
             </div>
-            <div className="bg-white rounded-lg px-3 py-2 text-xs text-stone-500 font-mono mb-3 break-all border border-stone-200">
+            <div className="bg-white rounded-xl px-3 py-2 text-xs text-stone-500 font-mono mb-3 break-all border border-stone-200">
               {generatedLink}
             </div>
             <div className="flex gap-2">

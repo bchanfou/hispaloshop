@@ -278,7 +278,7 @@ export default function MediaUploader({
         {progress === 100 && !uploading && previewSrc && (
           <div style={{
             position: 'absolute', top: '8px', right: '8px',
-            background: 'var(--color-green)', borderRadius: '50%', width: '24px', height: '24px',
+            background: 'var(--color-black)', borderRadius: '50%', width: '24px', height: '24px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">

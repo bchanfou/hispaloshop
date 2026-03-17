@@ -364,8 +364,8 @@ class NutritionalInfo(BaseModel):
 
 class PackInput(BaseModel):
     pack_id: Optional[str] = None
-    quantity: int
-    price: float
+    quantity: int = Field(ge=1)
+    price: float = Field(gt=0)
     label: Optional[str] = None
 
 
@@ -445,7 +445,7 @@ class Review(BaseModel):
 class ReviewCreateInput(BaseModel):
     product_id: str
     order_id: str
-    rating: int = Field(ge=0, le=10)
+    rating: int = Field(ge=1, le=5)
     comment: str = Field(max_length=500)
 
 

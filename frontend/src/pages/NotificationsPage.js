@@ -83,9 +83,9 @@ const TYPE_META = {
 
 // Icon circle styles by category
 const CATEGORY_ICON_STYLE = {
-  pedidos: { bg: 'var(--color-green-light)', color: 'var(--color-green)', Icon: ShoppingBag },
-  social:  { bg: '#E8F0FE', color: '#1a73e8', Icon: User },
-  ofertas: { bg: 'var(--color-amber-light)', color: 'var(--color-amber)', Icon: Tag },
+  pedidos: { bg: 'var(--color-surface)', color: 'var(--color-black)', Icon: ShoppingBag },
+  social:  { bg: 'var(--color-surface)', color: 'var(--color-black)', Icon: User },
+  ofertas: { bg: 'var(--color-surface)', color: 'var(--color-black)', Icon: Tag },
   sistema: { bg: 'var(--color-surface)', color: 'var(--color-stone)', Icon: Info },
 };
 

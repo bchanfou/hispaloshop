@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 const T = {
   black: '#0A0A0A', cream: '#F7F6F2', stone: '#8A8881',
   white: '#FFFFFF', border: '#E5E2DA', surface: '#F0EDE8',
-  green: '#2E7D52', greenLight: '#E8F5EE',
+  green: '#0c0a09', greenLight: '#f5f5f4',
   amber: '#B45309', amberLight: '#FEF3C7',
   red: '#DC2626', redLight: '#FEE2E2',
   radius: '16px',
@@ -39,7 +39,7 @@ function DocThumb({ url, label, status, onClick }) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1 group">
       <div
-        className="w-[52px] h-[52px] rounded-lg overflow-hidden flex items-center justify-center relative"
+        className="w-[52px] h-[52px] rounded-xl overflow-hidden flex items-center justify-center relative"
         style={{ border: `1px solid ${T.border}`, background: T.surface }}
       >
         {url ? (

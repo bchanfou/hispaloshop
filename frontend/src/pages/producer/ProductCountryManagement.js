@@ -69,7 +69,7 @@ function MarketRow({ market, onChange, onRemove }) {
               min="0"
               value={market.price || ''}
               onChange={(e) => onChange({ ...market, price: parseFloat(e.target.value) || 0 })}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+              className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
               placeholder="0.00"
               data-testid={`price-${market.country_code}`}
             />
@@ -81,7 +81,7 @@ function MarketRow({ market, onChange, onRemove }) {
               min="0"
               value={market.stock || ''}
               onChange={(e) => onChange({ ...market, stock: parseInt(e.target.value) || 0 })}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+              className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
               placeholder="0"
               data-testid={`stock-${market.country_code}`}
             />
@@ -94,7 +94,7 @@ function MarketRow({ market, onChange, onRemove }) {
               max="48"
               value={market.delivery_sla_hours || ''}
               onChange={(e) => onChange({ ...market, delivery_sla_hours: Math.min(48, parseInt(e.target.value) || 48) })}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+              className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
               placeholder="48"
               data-testid={`sla-${market.country_code}`}
             />
@@ -105,7 +105,7 @@ function MarketRow({ market, onChange, onRemove }) {
               type="text"
               value={market.warehouse_id || ''}
               onChange={(e) => onChange({ ...market, warehouse_id: e.target.value })}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+              className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
               placeholder="wh_..."
             />
           </div>
@@ -199,7 +199,7 @@ export default function ProductCountryManagement() {
     <div className="space-y-5" data-testid="market-management-page">
       {/* Header */}
       <div className="flex items-center gap-3 mb-2">
-        <button onClick={() => navigate('/producer/products')} className="p-1 hover:bg-stone-100 rounded-lg text-stone-600">
+        <button onClick={() => navigate('/producer/products')} className="p-1 hover:bg-stone-100 rounded-xl text-stone-600">
           <ArrowLeft className="w-4 h-4" />
         </button>
         <div>
@@ -231,7 +231,7 @@ export default function ProductCountryManagement() {
           <select
             value={addCountry}
             onChange={(e) => setAddCountry(e.target.value)}
-            className="text-sm border border-stone-200 rounded-lg px-3 py-2 bg-white"
+            className="text-sm border border-stone-200 rounded-xl px-3 py-2 bg-white"
             data-testid="add-country-select"
           >
             <option value="">{t('producer.addMarket')}</option>
@@ -239,7 +239,7 @@ export default function ProductCountryManagement() {
               <option key={code} value={code}>{code} — {COUNTRIES[code].name}</option>
             ))}
           </select>
-          <button onClick={handleAddCountry} disabled={!addCountry} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50" data-testid="add-country-btn">
+          <button onClick={handleAddCountry} disabled={!addCountry} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors disabled:opacity-50" data-testid="add-country-btn">
             <Plus className="w-4 h-4 mr-1 inline" /> Agregar
           </button>
         </div>
@@ -267,8 +267,8 @@ export default function ProductCountryManagement() {
       {/* Save */}
       {markets.length > 0 && (
         <div className="flex justify-end gap-3 pt-2">
-          <button onClick={() => navigate('/producer/products')} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors">Cancelar</button>
-          <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors" data-testid="save-markets-btn">
+          <button onClick={() => navigate('/producer/products')} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors">Cancelar</button>
+          <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors" data-testid="save-markets-btn">
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5 inline" /> : <Save className="w-4 h-4 mr-1.5 inline" />}
             Guardar mercados
           </button>

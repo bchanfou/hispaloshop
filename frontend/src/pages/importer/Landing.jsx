@@ -29,7 +29,7 @@ const PLANS = [
     name: 'Distribuidor',
     tagline: 'Para distribuidores activos',
     price: 99,
-    accentColor: '#FF9500',
+    accentColor: '#57534e',
     isPopular: true,
     features: [
       'Catálogo completo sin límites',
@@ -47,7 +47,7 @@ const PLANS = [
     name: 'Global',
     tagline: 'Para importadores internacionales',
     price: 199,
-    accentColor: '#5856D6',
+    accentColor: '#0A0A0A',
     isDark: true,
     features: [
       'Todo lo del Distribuidor',

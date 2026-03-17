@@ -27,9 +27,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # XSS Protection (legacy browsers)
         response.headers["X-XSS-Protection"] = "1; mode=block"
         
-        # HTTPS Strict Transport Security (solo en producción con HTTPS)
-        # response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-        
+        # HTTPS Strict Transport Security (enabled in production)
+        import os
+        if os.environ.get("ENV", "development").lower() == "production":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+
         # Control de referrer
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         

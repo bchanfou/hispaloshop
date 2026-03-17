@@ -2,7 +2,7 @@
 Customer dashboard, profile, account management, and shipping addresses.
 Extracted from server.py.
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Body
 from typing import Optional
 from datetime import datetime, timezone
 import uuid
@@ -143,18 +143,29 @@ async def update_customer_profile(data: dict, user: User = Depends(get_current_u
 
     if update_data:
         await db.users.update_one({"user_id": user.user_id}, {"$set": update_data})
+        # Sync name changes to store_profiles for producers/importers
+        if "name" in update_data and user.role in ("producer", "importer"):
+            await db.store_profiles.update_one(
+                {"producer_id": user.user_id},
+                {"$set": {"name": update_data["name"]}},
+            )
     return {"message": "Profile updated"}
 
 @router.put("/customer/password")
-async def change_customer_password(current_password: str, new_password: str, user: User = Depends(get_current_user)):
+async def change_customer_password(data: dict = Body(...), user: User = Depends(get_current_user)):
     """Change customer password"""
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+    if not current_password or not new_password:
+        raise HTTPException(status_code=400, detail="Current password and new password are required")
+
     user_doc = await db.users.find_one({"user_id": user.user_id})
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     if not verify_password(current_password, user_doc.get("password_hash", "")):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
-    
+
     await db.users.update_one({"user_id": user.user_id}, {"$set": {"password_hash": hash_password(new_password)}})
     return {"message": "Password changed"}
 

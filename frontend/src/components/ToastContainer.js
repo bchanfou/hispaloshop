@@ -24,7 +24,7 @@ export function ToastContainer({ toasts, onRemove }) {
         return (
           <div
             key={toast.id}
-            className={`${styles[toast.type]} border rounded-lg shadow-lg p-4 flex items-start gap-3 animate-slide-in`}
+            className={`${styles[toast.type]} border rounded-xl shadow-lg p-4 flex items-start gap-3 animate-slide-in`}
             role="alert"
           >
             <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />

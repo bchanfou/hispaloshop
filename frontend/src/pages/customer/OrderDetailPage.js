@@ -162,7 +162,7 @@ export default function OrderDetailPage() {
                       <div style={{
                         width: 32, height: 32, borderRadius: '50%',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: isCompleted ? 'var(--color-black)' : isActive ? '#16a34a' : 'transparent',
+                        background: isCompleted ? 'var(--color-black)' : isActive ? 'var(--color-black)' : 'transparent',
                         border: isPending ? '2px solid var(--color-border)' : 'none',
                         position: 'relative',
                       }}>
@@ -179,12 +179,12 @@ export default function OrderDetailPage() {
                             transition={{ duration: 2, repeat: Infinity }}
                             style={{
                               position: 'absolute', inset: -4,
-                              borderRadius: '50%', border: '2px solid #16a34a',
+                              borderRadius: '50%', border: '2px solid var(--color-black)',
                             }}
                           />
                         )}
                       </div>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: isActive ? '#16a34a' : isCompleted ? 'var(--color-black)' : 'var(--color-stone)', marginTop: 6, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: isActive ? 'var(--color-black)' : isCompleted ? 'var(--color-black)' : 'var(--color-stone)', marginTop: 6, textAlign: 'center', whiteSpace: 'nowrap' }}>
                         {STATUS_LABELS[s] || s}
                       </span>
                       {ts && (isCompleted || isActive) && (
@@ -209,15 +209,15 @@ export default function OrderDetailPage() {
         {/* Tracking card */}
         {(status === 'shipped' || status === 'in_transit') && (
           <div style={{
-            background: 'rgba(37,99,235,0.06)',
-            border: '1px solid rgba(37,99,235,0.15)',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-xl)',
             padding: 14, marginBottom: 16,
             display: 'flex', alignItems: 'center', gap: 10,
           }}>
-            <Truck size={20} color="#2563eb" />
+            <Truck size={20} color="var(--color-black)" />
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: '#2563eb', margin: 0 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>
                 {order.carrier || 'Transportista'} {order.tracking_number && `· ${order.tracking_number}`}
               </p>
             </div>
@@ -228,7 +228,7 @@ export default function OrderDetailPage() {
                 rel="noopener noreferrer"
                 style={{
                   display: 'flex', alignItems: 'center', gap: 4,
-                  fontSize: 13, fontWeight: 600, color: '#2563eb', textDecoration: 'none',
+                  fontSize: 13, fontWeight: 600, color: 'var(--color-black)', textDecoration: 'none',
                 }}
               >
                 Rastrear <ExternalLink size={14} />
@@ -301,7 +301,7 @@ export default function OrderDetailPage() {
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {subtotal && <PaymentRow label="Subtotal" value={`${subtotal}€`} />}
-            {discount && Number(discount) > 0 && <PaymentRow label="Descuento" value={`-${discount}€`} color="var(--color-green, #16a34a)" />}
+            {discount && Number(discount) > 0 && <PaymentRow label="Descuento" value={`-${discount}€`} color="var(--color-black)" />}
             {shipping != null && <PaymentRow label="Envío" value={Number(shipping) === 0 ? 'Gratis' : `${shipping}€`} />}
             <div style={{ height: 1, background: 'var(--color-border)', margin: '4px 0' }} />
             <PaymentRow label="Total" value={`${total}€`} bold />
@@ -365,8 +365,8 @@ export default function OrderDetailPage() {
         {/* ── Review form (if delivered) ── */}
         {isDelivered && (
           <div style={{
-            background: 'rgba(22,163,74,0.04)',
-            border: '1px solid rgba(22,163,74,0.15)',
+            background: 'var(--color-surface-alt, #f5f5f4)',
+            border: '1px solid var(--color-border, #e7e5e4)',
             borderRadius: 'var(--radius-xl)',
             padding: 16, marginTop: 24,
           }}>
@@ -412,7 +412,7 @@ export default function OrderDetailPage() {
               disabled={reviewSubmitting}
               style={{
                 marginTop: 10, padding: '8px 20px',
-                background: '#16a34a', color: '#fff',
+                background: 'var(--color-black)', color: '#fff',
                 border: 'none', borderRadius: 'var(--radius-md)',
                 fontSize: 13, fontWeight: 600, cursor: 'pointer',
               }}
@@ -446,10 +446,10 @@ export default function OrderDetailPage() {
                 style={{
                   width: '100%', height: 44,
                   background: 'transparent',
-                  border: '1px solid rgba(220,38,38,0.3)',
+                  border: '1px solid var(--color-red)',
                   borderRadius: 'var(--radius-lg)',
                   fontSize: 14, fontWeight: 600,
-                  color: '#dc2626',
+                  color: 'var(--color-red)',
                   cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
               >

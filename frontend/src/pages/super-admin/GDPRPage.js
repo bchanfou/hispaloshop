@@ -4,9 +4,9 @@ import apiClient from '../../services/api/client';
 import { toast } from 'sonner';
 
 const TYPE_CONFIG = {
-  deletion: { label: 'Derecho al olvido', icon: Trash2, color: '#FF3B30' },
-  access: { label: 'Acceso a datos', icon: FileText, color: '#007AFF' },
-  portability: { label: 'Portabilidad', icon: Download, color: '#FF9500' },
+  deletion: { label: 'Derecho al olvido', icon: Trash2, color: 'var(--color-red)' },
+  access: { label: 'Acceso a datos', icon: FileText, color: 'var(--color-white)' },
+  portability: { label: 'Portabilidad', icon: Download, color: 'var(--color-stone)' },
 };
 
 function SACard({ children, className = '' }) {
@@ -35,8 +35,8 @@ function DeadlineBadge({ deadline }) {
   const isWarning = daysLeft <= 14;
   return (
     <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
-      isUrgent ? 'bg-[#FF3B30]/20 text-[#FF3B30]'
-        : isWarning ? 'bg-[#FF9500]/20 text-[#FF9500]'
+      isUrgent ? 'bg-[var(--color-red)]/20 text-[var(--color-red)]'
+        : isWarning ? 'bg-[var(--color-stone)]/20 text-[var(--color-stone)]'
           : 'bg-white/10 text-white/40'
     }`}>
       {daysLeft > 0 ? `${daysLeft}d restantes` : 'Vencido'}
@@ -136,20 +136,20 @@ export default function GDPRPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleAction(req.id, 'fulfill')}
-                      className="px-4 py-2 bg-[#5856D6] rounded-lg text-xs font-bold text-white hover:bg-[#4846c4] transition-colors"
+                      className="px-4 py-2 bg-[var(--color-white)] rounded-xl text-xs font-bold text-white hover:bg-[#4846c4] transition-colors"
                     >
                       Procesar
                     </button>
                     <button
                       onClick={() => handleAction(req.id, 'reject')}
-                      className="px-4 py-2 bg-white/[0.08] rounded-lg text-xs text-white/50 hover:bg-white/[0.12] transition-colors"
+                      className="px-4 py-2 bg-white/[0.08] rounded-xl text-xs text-white/50 hover:bg-white/[0.12] transition-colors"
                     >
                       Rechazar
                     </button>
                   </div>
                 )}
                 {req.status === 'fulfilled' && (
-                  <span className="text-[11px] font-bold text-[#34C759]">Procesada</span>
+                  <span className="text-[11px] font-bold text-stone-950">Procesada</span>
                 )}
                 {req.status === 'rejected' && (
                   <span className="text-[11px] font-bold text-white/30">Rechazada</span>
@@ -211,7 +211,7 @@ function ExportUserTool() {
       <button
         onClick={handleExport}
         disabled={exporting}
-        className="px-5 py-2.5 bg-[#5856D6] rounded-xl text-sm font-bold text-white disabled:opacity-50 flex items-center gap-1.5"
+        className="px-5 py-2.5 bg-[var(--color-white)] rounded-xl text-sm font-bold text-white disabled:opacity-50 flex items-center gap-1.5"
       >
         {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
         Exportar

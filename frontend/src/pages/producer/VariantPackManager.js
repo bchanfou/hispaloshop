@@ -158,7 +158,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
             </h2>
             <p className="text-sm text-stone-500">{product.name}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-stone-100 rounded-lg">
+          <button onClick={onClose} className="p-2 hover:bg-stone-100 rounded-xl">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -167,12 +167,12 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Variants List */}
           {variants.length === 0 ? (
-            <div className="text-center py-8 bg-stone-50 rounded-lg border border-dashed border-stone-300">
+            <div className="text-center py-8 bg-stone-50 rounded-xl border border-dashed border-stone-300">
               <Package className="w-8 h-8 text-stone-400 mx-auto mb-2" />
               <p className="text-stone-500 mb-4">No variants yet</p>
               <button
                 onClick={() => setShowAddVariant(true)}
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
               >
                 <Plus className="w-4 h-4 mr-2 inline" /> Add First Variant
               </button>
@@ -182,7 +182,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
               {variants.map((variant) => (
                 <div
                   key={variant.variant_id}
-                  className="border border-stone-200 rounded-lg overflow-hidden"
+                  className="border border-stone-200 rounded-xl overflow-hidden"
                   data-testid={`variant-${variant.variant_id}`}
                 >
                   {/* Variant Header */}
@@ -243,13 +243,13 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
 
                       {/* Add Pack Form */}
                       {addingPack === variant.variant_id ? (
-                        <div className="mt-4 p-4 bg-stone-50 rounded-lg space-y-3">
+                        <div className="mt-4 p-4 bg-stone-50 rounded-xl space-y-3">
                           <div className="grid grid-cols-4 gap-3">
                             <input
                               placeholder="Label (e.g., Pack of 6)"
                               value={newPack.label}
                               onChange={(e) => setNewPack({ ...newPack, label: e.target.value })}
-                              className="col-span-2 px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                              className="col-span-2 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                             />
                             <input
                               type="number"
@@ -257,7 +257,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                               min="1"
                               value={newPack.units}
                               onChange={(e) => setNewPack({ ...newPack, units: e.target.value })}
-                              className="px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                              className="px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                             />
                             <input
                               type="number"
@@ -266,7 +266,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                               min="0"
                               value={newPack.price}
                               onChange={(e) => setNewPack({ ...newPack, price: e.target.value })}
-                              className="px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                              className="px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                             />
                           </div>
                           <div className="flex gap-3 items-center">
@@ -276,12 +276,12 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                               min="0"
                               value={newPack.stock}
                               onChange={(e) => setNewPack({ ...newPack, stock: e.target.value })}
-                              className="w-32 px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                              className="w-32 px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                             />
                             <button
                               onClick={() => handleAddPack(variant.variant_id)}
                               disabled={saving}
-                              className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+                              className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
                             >
                               {saving ? 'Adding...' : 'Add Pack'}
                             </button>
@@ -290,7 +290,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                                 setAddingPack(null);
                                 setNewPack({ label: '', units: 1, price: '', stock: '' });
                               }}
-                              className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
+                              className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
                             >
                               Cancel
                             </button>
@@ -299,7 +299,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                       ) : (
                         <button
                           onClick={() => setAddingPack(variant.variant_id)}
-                          className="w-full py-2 text-sm text-stone-500 border border-dashed border-stone-300 rounded-lg hover:border-stone-400 hover:text-stone-600"
+                          className="w-full py-2 text-sm text-stone-500 border border-dashed border-stone-300 rounded-xl hover:border-stone-400 hover:text-stone-600"
                         >
                           <Plus className="w-4 h-4 inline mr-1" /> Add Pack
                         </button>
@@ -313,27 +313,27 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
 
           {/* Add Variant Form */}
           {showAddVariant && (
-            <div className="p-4 bg-stone-50 rounded-lg border border-stone-200 space-y-3">
+            <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-3">
               <h3 className="font-medium text-stone-950">New Variant</h3>
               <div className="grid grid-cols-2 gap-3">
                 <input
                   placeholder="Variant name (e.g., Tomato, 500g)"
                   value={newVariantName}
                   onChange={(e) => setNewVariantName(e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
                 <input
                   placeholder="SKU (optional)"
                   value={newVariantSku}
                   onChange={(e) => setNewVariantSku(e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={handleAddVariant}
                   disabled={saving}
-                  className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+                  className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
                 >
                   {saving ? 'Creating...' : 'Create Variant'}
                 </button>
@@ -343,7 +343,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
                     setNewVariantName('');
                     setNewVariantSku('');
                   }}
-                  className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
+                  className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
                 >
                   Cancel
                 </button>
@@ -355,7 +355,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
           {variants.length > 0 && !showAddVariant && (
             <button
               onClick={() => setShowAddVariant(true)}
-              className="w-full py-3 text-sm text-stone-500 border border-dashed border-stone-300 rounded-lg hover:border-stone-400 hover:text-stone-600"
+              className="w-full py-3 text-sm text-stone-500 border border-dashed border-stone-300 rounded-xl hover:border-stone-400 hover:text-stone-600"
             >
               <Plus className="w-4 h-4 inline mr-1" /> Add Another Variant
             </button>
@@ -366,7 +366,7 @@ export default function VariantPackManager({ product, onClose, onUpdate }) {
         <div className="px-6 py-4 border-t border-stone-200">
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+            className="w-full px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
           >
             Done
           </button>
@@ -398,30 +398,30 @@ function PackRow({ pack, onUpdate, onDelete }) {
 
   if (editing) {
     return (
-      <div className="flex items-center gap-2 p-2 bg-stone-50 rounded-lg" data-testid={`pack-edit-${pack.pack_id}`}>
+      <div className="flex items-center gap-2 p-2 bg-stone-50 rounded-xl" data-testid={`pack-edit-${pack.pack_id}`}>
         <input
           value={editData.label}
           onChange={(e) => setEditData({ ...editData, label: e.target.value })}
-          className="flex-1 px-2 py-1 border border-stone-200 rounded-lg text-stone-950 text-sm focus:outline-none focus:border-stone-950"
+          className="flex-1 px-2 py-1 border border-stone-200 rounded-xl text-stone-950 text-sm focus:outline-none focus:border-stone-950"
         />
         <input
           type="number"
           value={editData.units}
           onChange={(e) => setEditData({ ...editData, units: e.target.value })}
-          className="w-16 px-2 py-1 border border-stone-200 rounded-lg text-stone-950 text-sm focus:outline-none focus:border-stone-950"
+          className="w-16 px-2 py-1 border border-stone-200 rounded-xl text-stone-950 text-sm focus:outline-none focus:border-stone-950"
         />
         <input
           type="number"
           step="0.01"
           value={editData.price}
           onChange={(e) => setEditData({ ...editData, price: e.target.value })}
-          className="w-24 px-2 py-1 border border-stone-200 rounded-lg text-stone-950 text-sm focus:outline-none focus:border-stone-950"
+          className="w-24 px-2 py-1 border border-stone-200 rounded-xl text-stone-950 text-sm focus:outline-none focus:border-stone-950"
         />
         <input
           type="number"
           value={editData.stock}
           onChange={(e) => setEditData({ ...editData, stock: e.target.value })}
-          className="w-20 px-2 py-1 border border-stone-200 rounded-lg text-stone-950 text-sm focus:outline-none focus:border-stone-950"
+          className="w-20 px-2 py-1 border border-stone-200 rounded-xl text-stone-950 text-sm focus:outline-none focus:border-stone-950"
         />
         <button onClick={handleSave} className="p-1 text-stone-950 hover:bg-stone-100 rounded">
           <Save className="w-4 h-4" />
@@ -435,7 +435,7 @@ function PackRow({ pack, onUpdate, onDelete }) {
 
   return (
     <div
-      className="flex items-center justify-between p-2 bg-white border border-stone-200 rounded-lg"
+      className="flex items-center justify-between p-2 bg-white border border-stone-200 rounded-xl"
       data-testid={`pack-${pack.pack_id}`}
     >
       <div className="flex items-center gap-4">

@@ -11,7 +11,7 @@ import apiClient from '../../services/api/client';
 const T = {
   black: '#0A0A0A', cream: '#F7F6F2', stone: '#8A8881',
   white: '#FFFFFF', border: '#E5E2DA', surface: '#F0EDE8',
-  green: '#2E7D52', greenLight: '#E8F5EE',
+  green: '#0c0a09', greenLight: '#f5f5f4',
   amber: '#B45309', amberLight: '#FEF3C7',
   red: '#DC2626', redLight: '#FEE2E2',
   blue: '#3060A0', blueLight: '#EBF0F8',

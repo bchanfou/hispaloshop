@@ -6,15 +6,15 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../services/api/client';
 
 function getStrength(pw) {
-  if (!pw || pw.length < 6) return { level: 0, label: 'Muy corta', color: '#dc2626' };
+  if (!pw || pw.length < 6) return { level: 0, label: 'Muy corta', color: 'var(--color-red)' };
   let score = 0;
   if (pw.length >= 8) score++;
   if (/[A-Z]/.test(pw)) score++;
   if (/[0-9]/.test(pw)) score++;
   if (/[^A-Za-z0-9]/.test(pw)) score++;
-  if (score <= 1) return { level: 1, label: 'Débil', color: '#d97706' };
-  if (score === 2) return { level: 2, label: 'Buena', color: '#16a34a' };
-  return { level: 3, label: 'Fuerte', color: '#16a34a' };
+  if (score <= 1) return { level: 1, label: 'Débil', color: 'var(--color-stone)' };
+  if (score === 2) return { level: 2, label: 'Buena', color: 'var(--color-black)' };
+  return { level: 3, label: 'Fuerte', color: 'var(--color-black)' };
 }
 
 export default function ChangePasswordPage() {
@@ -177,13 +177,13 @@ export default function ChangePasswordPage() {
               onChange={e => setConfirm(e.target.value)}
               style={{
                 ...inputStyle,
-                borderColor: mismatch ? '#dc2626' : 'var(--color-border)',
+                borderColor: mismatch ? 'var(--color-red)' : 'var(--color-border)',
               }}
             />
             {eyeBtn(showConfirm, () => setShowConfirm(!showConfirm))}
           </div>
           {mismatch && (
-            <p style={{ fontSize: 12, color: '#dc2626', margin: '4px 0 0', ...font }}>
+            <p style={{ fontSize: 12, color: 'var(--color-red)', margin: '4px 0 0', ...font }}>
               Las contraseñas no coinciden
             </p>
           )}

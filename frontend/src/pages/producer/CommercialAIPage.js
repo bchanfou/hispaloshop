@@ -24,12 +24,12 @@ const S = {
   text3: 'var(--color-stone, #AEAEB2)',
   border: 'var(--color-divider, rgba(0,0,0,0.08))',
   borderMed: 'var(--color-border, rgba(0,0,0,0.12))',
-  purple: 'var(--color-blue, #5856D6)',
-  purpleBg: 'var(--color-blue-light, #F2F2FF)',
-  green: 'var(--color-green, #34C759)',
-  greenBg: 'var(--color-green-light, #F0FBF4)',
-  orange: 'var(--color-amber, #FF9500)',
-  orangeBg: 'var(--color-amber-light, #FFF8EC)',
+  purple: 'var(--color-blue, #44403c)',
+  purpleBg: 'var(--color-blue-light, #f5f5f4)',
+  green: 'var(--color-black, #0c0a09)',
+  greenBg: 'var(--color-surface, #f5f5f4)',
+  orange: 'var(--color-amber, #78716c)',
+  orangeBg: 'var(--color-amber-light, #fafaf9)',
   shadowSm: 'var(--shadow-sm, 0 2px 10px rgba(0,0,0,0.07))',
   shadowMd: 'var(--shadow-md, 0 4px 20px rgba(0,0,0,0.09))',
   rLg: 'var(--radius-lg, 16px)',
@@ -54,10 +54,10 @@ const OPPORTUNITIES = [
 ];
 
 const TOOL_LABELS = {
-  search_importers: { icon: Users, label: 'Importadores', color: '#007AFF' },
-  analyze_market: { icon: BarChart3, label: 'Mercado', color: '#5856D6' },
-  predict_demand: { icon: TrendingUp, label: 'Predicción', color: '#34C759' },
-  generate_contract: { icon: FileText, label: 'Contrato', color: '#FF9500' },
+  search_importers: { icon: Users, label: 'Importadores', color: '#57534e' },
+  analyze_market: { icon: BarChart3, label: 'Mercado', color: '#44403c' },
+  predict_demand: { icon: TrendingUp, label: 'Predicción', color: 'var(--color-black)' },
+  generate_contract: { icon: FileText, label: 'Contrato', color: '#78716c' },
   check_producer_plan: { icon: Sparkles, label: 'Plan', color: '#6E6E73' },
 };
 
@@ -120,7 +120,7 @@ function UpgradeBanner() {
         style={{
           padding: '14px 32px',
           borderRadius: S.rFull,
-          background: '#5856D6', color: '#FFFFFF',
+          background: '#44403c', color: '#FFFFFF',
           border: 'none', fontSize: 15, fontWeight: 600,
           cursor: 'pointer',
           fontFamily: S.font,
@@ -297,7 +297,7 @@ export default function CommercialAIPage() {
             padding: '4px 12px',
             borderRadius: S.rFull,
             background: S.purpleBg,
-            color: '#5856D6',
+            color: '#44403c',
             fontSize: 11, fontWeight: 700,
             letterSpacing: '0.06em',
           }}>
@@ -367,8 +367,8 @@ export default function CommercialAIPage() {
                   {opp.product}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <TrendingUp size={13} color="#34C759" />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#34C759' }}>
+                  <TrendingUp size={13} color="var(--color-black)" />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)' }}>
                     {opp.trend}
                   </span>
                   <span style={{ fontSize: 11, color: S.text3 }}>{opp.period}</span>
@@ -402,7 +402,7 @@ export default function CommercialAIPage() {
         }}>
           <div style={{
             width: 40, height: 40, borderRadius: 12,
-            background: 'linear-gradient(135deg, #5856D6, #7B79E0)',
+            background: 'linear-gradient(135deg, #44403c, #57534e)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <Globe size={20} color="#FFFFFF" />
@@ -418,7 +418,7 @@ export default function CommercialAIPage() {
           <div style={{
             marginLeft: 'auto',
             width: 8, height: 8, borderRadius: '50%',
-            background: '#34C759',
+            background: 'var(--color-black)',
           }} />
         </div>
 

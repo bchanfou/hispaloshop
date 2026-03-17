@@ -181,7 +181,7 @@ function RequestCard({ request, onAction }) {
           <img
             src={request.product_image || '/placeholder.png'}
             alt={request.product_name}
-            className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+            className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-stone-950 truncate">{request.product_name}</p>
@@ -210,7 +210,7 @@ function RequestCard({ request, onAction }) {
 
         {/* Importer notes */}
         {request.notes && (
-          <div className="bg-stone-50 rounded-lg p-3 mb-3 border-l-3 border-stone-300">
+          <div className="bg-stone-50 rounded-xl p-3 mb-3 border-l-3 border-stone-300">
             <p className="text-[11px] font-bold text-stone-500 mb-1">Nota del importador:</p>
             <p className="text-sm text-stone-700">"{request.notes}"</p>
           </div>
@@ -264,7 +264,7 @@ function RequestCard({ request, onAction }) {
                 className="w-full px-3 py-2 border border-stone-200 rounded-xl text-sm resize-none focus:outline-none focus:border-stone-950"
               />
             </div>
-            <div className="bg-white rounded-lg p-2.5 mb-3 text-xs text-stone-500">
+            <div className="bg-white rounded-xl p-2.5 mb-3 text-xs text-stone-500">
               El importador verá: <strong className="text-stone-950">
                 {request.quantity} {request.unit} × {parseFloat(confirmedPrice || 0).toFixed(2)}€ = {totalConfirmado.toFixed(2)}€
               </strong> + 3% comisión Hispaloshop

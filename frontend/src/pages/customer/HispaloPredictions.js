@@ -43,11 +43,11 @@ function PredictionCard({ prediction, onReorder, t }) {
           <img
             src={prediction.image}
             alt={prediction.product_name}
-            className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+            className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
             onError={e => { e.target.style.display = 'none'; }}
           />
         ) : (
-          <div className="w-14 h-14 rounded-lg bg-stone-200 flex items-center justify-center flex-shrink-0">
+          <div className="w-14 h-14 rounded-xl bg-stone-200 flex items-center justify-center flex-shrink-0">
             <ShoppingCart className="w-6 h-6 text-stone-400" />
           </div>
         )}
@@ -157,7 +157,7 @@ export default function HispaloPredictions() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-stone-900 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-stone-900 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div>

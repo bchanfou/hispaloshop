@@ -136,8 +136,8 @@ const statusBadge = (active) => ({
   fontWeight: 600,
   padding: '3px 10px',
   borderRadius: 'var(--radius-full)',
-  background: active ? 'rgba(46,125,82,0.10)' : 'rgba(232,160,32,0.12)',
-  color: active ? 'var(--color-green)' : 'var(--color-amber, #E8A020)',
+  background: active ? 'rgba(12,10,9,0.08)' : 'var(--color-surface)',
+  color: active ? 'var(--color-black)' : 'var(--color-stone)',
 });
 
 const btnRow = {

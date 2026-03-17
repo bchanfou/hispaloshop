@@ -222,7 +222,7 @@ export default function PayoutSettingsPage() {
                       padding: '8px 14px', borderRadius: 'var(--radius-full, 999px)',
                       background: 'var(--color-surface)', marginBottom: 12, width: 'fit-content',
                     }}>
-                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a' }} />
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-black)' }} />
                       <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)' }}>Conectado</span>
                     </div>
                     <p style={{ fontSize: 13, color: 'var(--color-stone)', margin: 0, lineHeight: 1.5 }}>

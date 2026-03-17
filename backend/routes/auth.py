@@ -832,7 +832,16 @@ async def refresh_token(request: Request, response: Response):
     )
 
     if not session:
-        raise HTTPException(status_code=401, detail="Invalid session")
+        # Legacy fallback: sessions created before token hashing migration
+        session = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
+        if session:
+            await db.user_sessions.update_one(
+                {"session_token": session_token},
+                {"$set": {"session_token": hashed_token}}
+            )
+
+    if not session:
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
     # Check expiration
     expires_at = datetime.fromisoformat(session["expires_at"])
@@ -877,7 +886,10 @@ async def refresh_token(request: Request, response: Response):
 async def logout(request: Request):
     session_token = request.cookies.get('session_token')
     if session_token:
-        await db.user_sessions.delete_one({"session_token": _hash_session_token(session_token)})
+        # Delete by hashed token, or legacy plaintext token
+        result = await db.user_sessions.delete_one({"session_token": _hash_session_token(session_token)})
+        if result.deleted_count == 0:
+            await db.user_sessions.delete_one({"session_token": session_token})
     response = JSONResponse(content={"message": "Logged out"})
     response.delete_cookie("session_token", path="/")
     return response

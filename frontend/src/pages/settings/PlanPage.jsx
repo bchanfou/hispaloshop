@@ -123,7 +123,7 @@ export default function PlanPage() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '4px 12px', borderRadius: 'var(--radius-full, 999px)',
-              background: 'rgba(217,119,6,0.1)', color: '#d97706',
+              background: 'var(--color-surface)', color: 'var(--color-stone)',
               fontSize: 12, fontWeight: 600, marginBottom: 12,
             }}>
               Trial activo · {trialDays} días restantes
@@ -202,7 +202,7 @@ export default function PlanPage() {
                 <div style={{ marginBottom: 12 }}>
                   {plan.features.map((f, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
-                      <Check size={14} color="#16a34a" />
+                      <Check size={14} color="var(--color-black)" />
                       <span style={{ fontSize: 13, color: 'var(--color-black)' }}>{f}</span>
                     </div>
                   ))}

@@ -9,7 +9,7 @@ import {
 import { toast } from 'sonner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const REGION_COLORS = { US: '#007AFF', EU: '#34C759', KR: '#FF9500', Other: '#5856D6' };
+const REGION_COLORS = { US: '#57534e', EU: '#78716c', KR: '#a8a29e', Other: '#44403c' };
 const EVENT_LABELS = {
   order_paid: 'Pago recibido',
   seller_transfer: 'Transferencia a productor',
@@ -33,7 +33,7 @@ function SACard({ children, className = '' }) {
   );
 }
 
-function StatCard({ icon: Icon, label, value, sub, color = '#007AFF', testId }) {
+function StatCard({ icon: Icon, label, value, sub, color = '#57534e', testId }) {
   return (
     <SACard className="!p-4" data-testid={testId}>
       <div className="flex items-center gap-2 mb-2">
@@ -48,11 +48,11 @@ function StatCard({ icon: Icon, label, value, sub, color = '#007AFF', testId }) 
 
 function EventBadge({ type }) {
   const config = {
-    order_paid: 'bg-[#34C759]/15 text-[#34C759]',
-    seller_transfer: 'bg-[#007AFF]/15 text-[#007AFF]',
-    influencer_scheduled: 'bg-[#FF9500]/15 text-[#FF9500]',
-    influencer_paid: 'bg-[#5856D6]/15 text-[#5856D6]',
-    refund: 'bg-[#FF3B30]/15 text-[#FF3B30]',
+    order_paid: 'bg-stone-100 text-stone-950',
+    seller_transfer: 'bg-[#57534e]/15 text-[#57534e]',
+    influencer_scheduled: 'bg-[#a8a29e]/15 text-[#a8a29e]',
+    influencer_paid: 'bg-[#44403c]/15 text-[#44403c]',
+    refund: 'bg-[var(--color-red)]/15 text-[var(--color-red)]',
   };
   return (
     <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${config[type] || 'bg-white/[0.08] text-white/40'}`}>
@@ -64,7 +64,7 @@ function EventBadge({ type }) {
 const DarkTooltip = ({ active, payload, label, formatter }) => {
   if (!active || !payload) return null;
   return (
-    <div className="bg-[#2C2C2E] border border-white/[0.1] rounded-lg px-3 py-2 text-xs shadow-xl">
+    <div className="bg-[#2C2C2E] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-xl">
       <p className="text-white/50 mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} className="text-white font-medium">
@@ -212,14 +212,14 @@ export default function FinancialDashboard() {
             type="date"
             value={dateFrom}
             onChange={e => setDateFrom(e.target.value)}
-            className="bg-white/[0.06] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#5856D6]"
+            className="bg-white/[0.06] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#44403c]"
             title="Desde"
           />
           <input
             type="date"
             value={dateTo}
             onChange={e => setDateTo(e.target.value)}
-            className="bg-white/[0.06] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#5856D6]"
+            className="bg-white/[0.06] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#44403c]"
             title="Hasta"
           />
           <button
@@ -236,9 +236,9 @@ export default function FinancialDashboard() {
 
       {/* Pending payouts alert */}
       {duePayouts.length > 0 && (
-        <div className="bg-[#FF9500]/10 border border-[#FF9500]/20 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3" data-testid="due-payouts-alert">
+        <div className="bg-[#a8a29e]/10 border border-[#a8a29e]/20 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3" data-testid="due-payouts-alert">
           <div className="flex items-center gap-2 flex-1">
-            <AlertTriangle className="w-5 h-5 text-[#FF9500] flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-[#a8a29e] flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-white">
                 {duePayouts.length} payout{duePayouts.length > 1 ? 's' : ''} de influencer pendiente{duePayouts.length > 1 ? 's' : ''}
@@ -251,7 +251,7 @@ export default function FinancialDashboard() {
           <button
             onClick={handleProcessPayouts}
             disabled={processing}
-            className="px-4 py-2 bg-[#FF9500] hover:bg-[#E08600] disabled:opacity-50 text-white rounded-xl transition-colors self-start inline-flex items-center text-sm font-semibold"
+            className="px-4 py-2 bg-[#a8a29e] hover:bg-[#78716c] disabled:opacity-50 text-white rounded-xl transition-colors self-start inline-flex items-center text-sm font-semibold"
             data-testid="process-payouts-btn"
           >
             {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
@@ -262,16 +262,16 @@ export default function FinancialDashboard() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <StatCard icon={DollarSign} label={t('superAdmin.grossRevenue')} value={`${fixed2(summary.total_gross)}€`} color="#34C759" testId="stat-gross" />
-        <StatCard icon={TrendingUp} label={t('superAdmin.platformCommission')} value={`${fixed2(summary.total_platform_fee)}€`} color="#007AFF" testId="stat-platform-fee" />
-        <StatCard icon={Receipt} label={t('superAdmin.paidToSellers')} value={`${fixed2(summary.total_seller_net)}€`} color="#FF9500" testId="stat-seller-net" />
-        <StatCard icon={Globe} label="Consolidado USD" value={`$${fixed2(summary.total_usd_equivalent)}`} sub="Florida LLC" color="#5856D6" testId="stat-usd" />
+        <StatCard icon={DollarSign} label={t('superAdmin.grossRevenue')} value={`${fixed2(summary.total_gross)}€`} color="var(--color-black)" testId="stat-gross" />
+        <StatCard icon={TrendingUp} label={t('superAdmin.platformCommission')} value={`${fixed2(summary.total_platform_fee)}€`} color="#57534e" testId="stat-platform-fee" />
+        <StatCard icon={Receipt} label={t('superAdmin.paidToSellers')} value={`${fixed2(summary.total_seller_net)}€`} color="#a8a29e" testId="stat-seller-net" />
+        <StatCard icon={Globe} label="Consolidado USD" value={`$${fixed2(summary.total_usd_equivalent)}`} sub="Florida LLC" color="#44403c" testId="stat-usd" />
         <StatCard
           icon={Clock}
           label={t('superAdmin.pendingPayouts')}
           value={pendingPayouts.length}
           sub={`${duePayouts.length} vencidos`}
-          color={duePayouts.length > 0 ? '#FF3B30' : '#34C759'}
+          color={duePayouts.length > 0 ? 'var(--color-red)' : 'var(--color-black)'}
           testId="stat-payouts"
         />
       </div>
@@ -333,7 +333,7 @@ export default function FinancialDashboard() {
                     labelLine={{ stroke: 'rgba(255,255,255,0.2)' }}
                   >
                     {pieData.map((entry) => (
-                      <Cell key={entry.name} fill={REGION_COLORS[entry.name] || '#5856D6'} />
+                      <Cell key={entry.name} fill={REGION_COLORS[entry.name] || '#44403c'} />
                     ))}
                   </Pie>
                   <Tooltip
@@ -360,7 +360,7 @@ export default function FinancialDashboard() {
             <select
               value={filter}
               onChange={e => setFilter(e.target.value)}
-              className="text-xs bg-white/[0.06] border border-white/[0.08] rounded-lg px-2 py-1.5 text-white focus:outline-none"
+              className="text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl px-2 py-1.5 text-white focus:outline-none"
               data-testid="ledger-filter"
             >
               <option value="all" className="bg-[#1C1C1E]">Todos</option>
@@ -481,7 +481,7 @@ export default function FinancialDashboard() {
                       <td className="px-3 py-2.5 text-right font-medium text-white">{fixed2(p.amount)} {p.currency}</td>
                       <td className="px-3 py-2.5 text-white/50">{(p.due_date || '').slice(0, 10)}</td>
                       <td className="px-3 py-2.5">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${isDue ? 'bg-[#FF3B30]/15 text-[#FF3B30]' : 'bg-[#FF9500]/15 text-[#FF9500]'}`}>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium ${isDue ? 'bg-[var(--color-red)]/15 text-[var(--color-red)]' : 'bg-[#a8a29e]/15 text-[#a8a29e]'}`}>
                           {isDue ? 'Vencido' : 'Pendiente'}
                         </span>
                       </td>

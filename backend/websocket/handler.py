@@ -120,6 +120,14 @@ async def handle_websocket(websocket: WebSocket, token: str = Query(None)):
         # Validar session token contra la base de datos
         session_doc = await db.user_sessions.find_one({"session_token": _hash_session_token(session_token)}, {"_id": 0})
         if not session_doc:
+            # Legacy fallback: sessions created before token hashing migration
+            session_doc = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
+            if session_doc:
+                await db.user_sessions.update_one(
+                    {"session_token": session_token},
+                    {"$set": {"session_token": _hash_session_token(session_token)}}
+                )
+        if not session_doc:
             logger.warning("[WS] Invalid session token")
             await websocket.send_json({"type": "auth_error", "message": "Invalid session"})
             await websocket.close(code=4001, reason="Invalid session")

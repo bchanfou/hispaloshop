@@ -357,7 +357,7 @@ export default function ProfileHeader({
                         {ROLE_LABELS[acc.role] || acc.role}
                       </span>
                     )}
-                    {isActive && <Check size={18} color="var(--color-green)" />}
+                    {isActive && <Check size={18} color="var(--color-black)" />}
                   </button>
                 );
               })}

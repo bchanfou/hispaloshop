@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 function StatusBadge({ verified, needsReview, blocked, hasUrl }) {
   if (verified) return (
-    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-green-light)', color: 'var(--color-green)' }}>Verificado</span>
+    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-surface-alt, #f5f5f4)', color: 'var(--color-black)' }}>Verificado</span>
   );
   if (needsReview) return (
     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-amber-light)', color: 'var(--color-amber)' }}>Revisión manual</span>
@@ -339,7 +339,7 @@ export default function AdminFiscalPage() {
                 onClick={() => handleReview('approve')}
                 disabled={reviewing}
                 className="flex-1 py-2.5 text-sm font-semibold flex items-center justify-center gap-1 transition-colors"
-                style={{ background: 'var(--color-green)', color: '#fff', borderRadius: 'var(--radius-xl)', border: 'none', cursor: 'pointer' }}
+                style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)', border: 'none', cursor: 'pointer' }}
               >
                 {reviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 Verificar

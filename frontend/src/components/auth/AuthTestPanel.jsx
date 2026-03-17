@@ -102,14 +102,14 @@ export default function AuthTestPanel() {
         <button
           onClick={runAllTests}
           disabled={testing}
-          className="w-full px-3 py-2 bg-stone-950 text-white text-xs rounded-lg hover:bg-stone-800 disabled:opacity-50"
+          className="w-full px-3 py-2 bg-stone-950 text-white text-xs rounded-xl hover:bg-stone-800 disabled:opacity-50"
         >
           {testing ? 'Probando...' : 'Probar todas las cuentas'}
         </button>
         
         <button
           onClick={testCurrentUser}
-          className="w-full px-3 py-2 bg-stone-100 text-stone-700 text-xs rounded-lg hover:bg-stone-200"
+          className="w-full px-3 py-2 bg-stone-100 text-stone-700 text-xs rounded-xl hover:bg-stone-200"
         >
           Ver usuario actual
         </button>

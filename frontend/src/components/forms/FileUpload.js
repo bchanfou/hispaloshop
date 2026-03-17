@@ -110,7 +110,7 @@ const FileUpload = ({
       {files.length > 0 && (
         <div className="mt-3 space-y-2">
           {files.map((file) => (
-            <div key={file.id} className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg">
+            <div key={file.id} className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl">
               {file.preview ? (
                 <img src={file.preview} alt="" className="w-10 h-10 rounded object-cover" />
               ) : (

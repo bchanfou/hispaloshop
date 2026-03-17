@@ -139,7 +139,7 @@ export default function CommunityPage() {
           aspectRatio: '3/1', overflow: 'hidden',
           background: community.cover_image
             ? 'var(--color-surface)'
-            : `hsl(${(community.name.charCodeAt(0) * 7) % 360},40%,70%)`,
+            : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][community.name.charCodeAt(0) % 5],
         }}>
           {community.cover_image ? (
             <img src={community.cover_image} alt=""
@@ -603,7 +603,7 @@ const CommunityPostCard = ({ post, isAdmin, onDelete }) => {
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 5,
-            fontSize: 13, color: liked ? '#FF375F' : 'var(--color-stone)',
+            fontSize: 13, color: liked ? 'var(--color-black)' : 'var(--color-stone)',
             fontWeight: liked ? 700 : 400, padding: 0,
             fontFamily: 'var(--font-sans)',
           }}>

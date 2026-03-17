@@ -142,14 +142,14 @@ export default function InsightsDashboard() {
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors gap-2 inline-flex items-center disabled:opacity-50"
+            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors gap-2 inline-flex items-center disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             {t('superAdmin.insights.refresh')}
           </button>
           <button
             onClick={() => setShowConfigModal(true)}
-            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors gap-2 inline-flex items-center"
+            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors gap-2 inline-flex items-center"
           >
             <Settings className="w-4 h-4" />
             {t('superAdmin.insights.config')}
@@ -169,7 +169,7 @@ export default function InsightsDashboard() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-stone-950 text-white'
                 : 'text-stone-500 hover:bg-stone-50'
@@ -219,7 +219,7 @@ export default function InsightsDashboard() {
                   max="100"
                   value={configForm.anonymity_threshold}
                   onChange={(e) => setConfigForm({...configForm, anonymity_threshold: parseInt(e.target.value)})}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl"
                 />
                 <p className="text-xs text-stone-500 mt-1">
                   Minimum users required to display sensitive aggregated data
@@ -254,8 +254,8 @@ export default function InsightsDashboard() {
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowConfigModal(false)} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors">Cancel</button>
-              <button onClick={saveConfig} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white rounded-lg transition-colors">Save</button>
+              <button onClick={() => setShowConfigModal(false)} className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors">Cancel</button>
+              <button onClick={saveConfig} className="px-4 py-2 bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors">Save</button>
             </div>
           </div>
         </div>
@@ -431,7 +431,7 @@ function CountryIntelligenceTab({ globalData, countryData, selectedCountry, onSe
             <button
               key={country.country}
               onClick={() => onSelectCountry(country.country)}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
                 selectedCountry === country.country
                   ? 'bg-stone-950 text-white'
                   : 'bg-stone-50 text-stone-950 hover:bg-stone-200'
@@ -628,15 +628,15 @@ function AIPerformanceTab({ data }) {
       <div className="bg-white rounded-xl border border-stone-200 p-6">
         <h3 className="font-medium text-stone-950 mb-4">Conversion Impact</h3>
         <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="p-4 bg-stone-50 rounded-lg">
+          <div className="p-4 bg-stone-50 rounded-xl">
             <p className="text-sm text-stone-500">Total Orders</p>
             <p className="text-2xl font-bold text-stone-950">{asNumber(conversionMetrics.total_orders)}</p>
           </div>
-          <div className="p-4 bg-stone-50 rounded-lg">
+          <div className="p-4 bg-stone-50 rounded-xl">
             <p className="text-sm text-stone-600">From AI Users</p>
             <p className="text-2xl font-bold text-stone-950">{asNumber(conversionMetrics.orders_from_ai_users)}</p>
           </div>
-          <div className="p-4 bg-stone-50 rounded-lg">
+          <div className="p-4 bg-stone-50 rounded-xl">
             <p className="text-sm text-stone-600">&quot;Add All&quot; Usage</p>
             <p className="text-2xl font-bold text-stone-950">{asNumber(conversionMetrics.add_all_to_cart_usage)}</p>
           </div>
@@ -715,7 +715,7 @@ function TrendsTab({ data }) {
         {asArray(data?.fear_trends).length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {asArray(data?.fear_trends).slice(0, 8).map((item, i) => (
-              <div key={i} className="bg-white p-3 rounded-lg">
+              <div key={i} className="bg-white p-3 rounded-xl">
                 <p className="text-sm text-stone-600 font-medium">{item.tag.replace(/_/g, ' ')}</p>
                 <p className="text-xl font-bold text-stone-900">{item.percentage}%</p>
                 <p className="text-xs text-stone-500">{item.count} users</p>
@@ -740,7 +740,7 @@ function TrendsTab({ data }) {
         {asArray(data?.potential_catalog_gaps).length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {asArray(data?.potential_catalog_gaps).slice(0, 8).map((gap, i) => (
-              <div key={i} className="bg-stone-50 p-3 rounded-lg">
+              <div key={i} className="bg-stone-50 p-3 rounded-xl">
                 <p className="font-medium text-stone-950">{gap.interest.replace(/_/g, ' ')}</p>
                 <p className="text-sm text-stone-500">{gap.demand_signals} demand signals</p>
               </div>
@@ -816,7 +816,7 @@ function ComplianceTab({ data, config }) {
   return (
     <div className="space-y-6">
       {/* Sub-tabs */}
-      <div className="flex gap-2 bg-stone-50 p-1 rounded-lg w-fit">
+      <div className="flex gap-2 bg-stone-50 p-1 rounded-xl w-fit">
         {[
           { id: 'overview', label: 'Overview' },
           { id: 'audit', label: 'Audit Log' },
@@ -888,11 +888,11 @@ function ComplianceTab({ data, config }) {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-stone-50 p-4 rounded-lg text-center">
+                  <div className="bg-stone-50 p-4 rounded-xl text-center">
                     <p className="text-3xl font-bold text-stone-950">{asNumber(consentMetrics.users_with_consent)}</p>
                     <p className="text-xs text-stone-600 font-medium">Consented Users</p>
                   </div>
-                  <div className="bg-stone-100 p-4 rounded-lg text-center">
+                  <div className="bg-stone-100 p-4 rounded-xl text-center">
                     <p className="text-3xl font-bold text-stone-600">{asNumber(consentMetrics.users_without_consent)}</p>
                     <p className="text-xs text-stone-600 font-medium">No Consent</p>
                   </div>
@@ -920,15 +920,15 @@ function ComplianceTab({ data, config }) {
                 Sensitive Data Tracking
               </h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-xl">
                   <span className="text-stone-700 text-sm">Fear/Health Signals</span>
                   <span className="font-bold text-stone-900">{asNumber(sensitiveCoverage.users_with_fear_signals)}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-xl">
                   <span className="text-stone-700 text-sm">Allergy Signals</span>
                   <span className="font-bold text-stone-900">{asNumber(sensitiveCoverage.users_with_allergy_signals)}</span>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-lg">
+                <div className="flex justify-between items-center p-3 bg-stone-50 rounded-xl">
                   <span className="text-stone-700 text-sm">Health Goal Signals</span>
                   <span className="font-bold text-stone-900">{asNumber(sensitiveCoverage.users_with_health_signals)}</span>
                 </div>
@@ -1084,7 +1084,7 @@ function ComplianceTab({ data, config }) {
                 <h3 className="font-medium text-stone-950 mb-4">Data Categories & Legal Basis</h3>
                 <div className="space-y-4">
                   {Object.entries(asObject(gdprSummary?.data_categories)).map(([key, category]) => (
-                    <div key={key} className="p-4 bg-stone-50 rounded-lg">
+                    <div key={key} className="p-4 bg-stone-50 rounded-xl">
                       <h4 className="font-medium text-stone-950 capitalize mb-2">{key} Data</h4>
                       <p className="text-sm text-stone-500 mb-2">{category.description}</p>
                       <div className="flex flex-wrap gap-2 text-xs">

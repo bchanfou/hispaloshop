@@ -92,9 +92,9 @@ function B2BOrderCard({ order, onRefresh }) {
         {/* Product */}
         <div className="flex gap-3 mb-3">
           {order.product_image ? (
-            <img src={order.product_image} alt="" className="w-13 h-13 rounded-lg object-cover shrink-0" style={{ width: 52, height: 52 }} />
+            <img src={order.product_image} alt="" className="w-13 h-13 rounded-xl object-cover shrink-0" style={{ width: 52, height: 52 }} />
           ) : (
-            <div className="rounded-lg bg-stone-100 shrink-0" style={{ width: 52, height: 52 }} />
+            <div className="rounded-xl bg-stone-100 shrink-0" style={{ width: 52, height: 52 }} />
           )}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-stone-950 truncate">{order.product_name}</p>
@@ -126,13 +126,13 @@ function B2BOrderCard({ order, onRefresh }) {
               <button
                 onClick={handleApproveAndPay}
                 disabled={processing}
-                className="flex-1 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1"
+                className="flex-1 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-medium rounded-xl transition-colors flex items-center justify-center gap-1"
               >
                 {processing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '✓ Aprobar y pagar →'}
               </button>
               <button
                 onClick={handleReject}
-                className="px-3 py-2 border border-stone-200 rounded-lg text-xs font-medium text-stone-600 hover:bg-stone-50 transition-colors"
+                className="px-3 py-2 border border-stone-200 rounded-xl text-xs font-medium text-stone-600 hover:bg-stone-50 transition-colors"
               >
                 Rechazar
               </button>

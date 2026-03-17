@@ -15,11 +15,11 @@ export default function ProductCardInChat({ product, onAddToCart, onViewProduct 
         <img
           src={product.image_url}
           alt={product.name}
-          className="h-16 w-16 flex-shrink-0 rounded-lg object-cover"
+          className="h-16 w-16 flex-shrink-0 rounded-xl object-cover"
           loading="lazy"
         />
       ) : (
-        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-stone-100 text-stone-400">
+        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-400">
           <ShoppingCart className="h-6 w-6" />
         </div>
       )}

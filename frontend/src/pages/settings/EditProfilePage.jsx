@@ -213,7 +213,7 @@ export default function EditProfilePage() {
               maxLength={30}
               style={{
                 width: '100%', height: 44, paddingLeft: 30, paddingRight: 36,
-                border: `1px solid ${usernameStatus === 'taken' ? '#dc2626' : usernameStatus === 'available' ? '#16a34a' : 'var(--color-border)'}`,
+                border: `1px solid ${usernameStatus === 'taken' ? 'var(--color-red)' : usernameStatus === 'available' ? 'var(--color-black)' : 'var(--color-border)'}`,
                 borderRadius: 'var(--radius-lg)',
                 fontSize: 14, color: 'var(--color-black)',
                 outline: 'none', boxSizing: 'border-box', ...font,
@@ -223,14 +223,14 @@ export default function EditProfilePage() {
               <Loader2 size={16} color="var(--color-stone)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', animation: 'spin 1s linear infinite' }} />
             )}
             {usernameStatus === 'available' && (
-              <Check size={16} color="#16a34a" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
+              <Check size={16} color="var(--color-black)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
             )}
             {usernameStatus === 'taken' && (
-              <X size={16} color="#dc2626" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
+              <X size={16} color="var(--color-red)" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }} />
             )}
           </div>
           {usernameStatus === 'taken' && (
-            <p style={{ fontSize: 12, color: '#dc2626', margin: '4px 0 0', ...font }}>Este usuario ya está en uso</p>
+            <p style={{ fontSize: 12, color: 'var(--color-red)', margin: '4px 0 0', ...font }}>Este usuario ya está en uso</p>
           )}
         </div>
 
@@ -286,7 +286,7 @@ export default function EditProfilePage() {
                   <span style={{
                     fontSize: 10, fontWeight: 700, padding: '2px 8px',
                     borderRadius: 'var(--radius-full, 999px)',
-                    background: 'rgba(22,163,74,0.1)', color: '#16a34a',
+                    background: 'rgba(22,163,74,0.1)', color: 'var(--color-black)',
                   }}>
                     Verificado ✓
                   </span>

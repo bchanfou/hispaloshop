@@ -58,7 +58,8 @@ class ModerationService:
         result = await db.moderation_queue.insert_one(queue_item)
         
         # Disparar análisis IA en background
-        asyncio.create_task(self._analyze_with_ai(str(result.inserted_id), content_preview))
+        from services.background import create_safe_task
+        create_safe_task(self._analyze_with_ai(str(result.inserted_id), content_preview), name="ai_moderation")
         
         return str(result.inserted_id)
     

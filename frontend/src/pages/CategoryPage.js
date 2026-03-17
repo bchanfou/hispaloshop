@@ -94,7 +94,7 @@ const CategoryPage = () => {
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-stone-100">
                 <Icon className="h-4 w-4 text-stone-700" />
               </div>
               <h1 className="text-base font-semibold text-stone-950">{category.label}</h1>

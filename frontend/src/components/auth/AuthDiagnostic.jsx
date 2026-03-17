@@ -66,7 +66,7 @@ export default function AuthDiagnostic() {
         <button
           onClick={runAllTests}
           disabled={testing}
-          className="px-3 py-1 bg-stone-950 text-white text-sm rounded-lg disabled:opacity-50"
+          className="px-3 py-1 bg-stone-950 text-white text-sm rounded-xl disabled:opacity-50"
         >
           {testing ? 'Probando...' : 'Test Conexión'}
         </button>
@@ -84,7 +84,7 @@ export default function AuthDiagnostic() {
         {results.map((result, idx) => (
           <div
             key={idx}
-            className={`p-3 rounded-lg text-sm ${
+            className={`p-3 rounded-xl text-sm ${
               result.success ? 'bg-stone-50 border border-stone-200' : 'bg-stone-100 border border-stone-200'
             }`}
           >

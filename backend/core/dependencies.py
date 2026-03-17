@@ -41,10 +41,22 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
         {"session_token": _hash_session_token(session_token)},
         {"_id": 0}
     )
-    
+
+    if not session_doc:
+        # Legacy fallback: sessions created before token hashing migration
+        session_doc = await db.user_sessions.find_one(
+            {"session_token": session_token},
+            {"_id": 0}
+        )
+        if session_doc:
+            await db.user_sessions.update_one(
+                {"session_token": session_token},
+                {"$set": {"session_token": _hash_session_token(session_token)}}
+            )
+
     if not session_doc:
         logger.warning(f"[get_current_user] Session not found in DB for token: {session_token[:20]}...")
-        raise HTTPException(status_code=401, detail="Invalid session")
+        raise HTTPException(status_code=401, detail="Not authenticated")
     
     logger.info(f"[get_current_user] Session found for user: {session_doc.get('user_id')}")
     

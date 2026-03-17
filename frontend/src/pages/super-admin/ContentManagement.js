@@ -246,7 +246,7 @@ export default function ContentManagement() {
               placeholder={t('contentManagement.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950 pl-10"
+              className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950 pl-10"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -254,7 +254,7 @@ export default function ContentManagement() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-stone-200 bg-white text-sm"
+              className="px-3 py-2 rounded-xl border border-stone-200 bg-white text-sm"
             >
               <option value="all">{t('contentManagement.filters.all')}</option>
               <option value="approved">{t('contentManagement.filters.approved')}</option>
@@ -265,7 +265,7 @@ export default function ContentManagement() {
             </select>
           </div>
           <button
-            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
+            className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
             onClick={() => activeTab === 'products' ? fetchProducts() : fetchCertificates()}
           >
             <RefreshCw className="w-4 h-4" />
@@ -309,7 +309,7 @@ export default function ContentManagement() {
                     <tr key={product.product_id} className="hover:bg-stone-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden flex-shrink-0">
+                          <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden flex-shrink-0">
                             {product.images?.[0] ? (
                               <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
                             ) : (
@@ -342,7 +342,7 @@ export default function ContentManagement() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
-                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
+                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
                           onClick={() => { setConfirmDelete(product); setDeleteType('product'); }}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -413,7 +413,7 @@ export default function ContentManagement() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
-                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
+                          className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
                           onClick={() => { setConfirmDelete(cert); setDeleteType('certificate'); }}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -457,7 +457,7 @@ export default function ContentManagement() {
               {t('contentManagement.deleteModal.message')}
             </p>
 
-            <div className="bg-stone-50 rounded-lg p-3 mb-4">
+            <div className="bg-stone-50 rounded-xl p-3 mb-4">
               <p className="font-medium text-stone-950">{confirmDelete.name}</p>
               <p className="text-sm text-stone-500">
                 {confirmDelete.producer_name}
@@ -470,13 +470,13 @@ export default function ContentManagement() {
 
             <div className="flex gap-3">
               <button
-                className="flex-1 px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors"
+                className="flex-1 px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors"
                 onClick={() => setConfirmDelete(null)}
               >
                 {t('common.cancel')}
               </button>
               <button
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
                 onClick={() => {
                   if (deleteType === 'product') {
                     deleteProduct(confirmDelete.product_id);

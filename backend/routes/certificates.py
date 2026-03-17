@@ -186,7 +186,8 @@ async def create_certificate(input: CertificateInput, user: User = Depends(get_c
     await db.certificates.insert_one(certificate)
     
     # Trigger background translation to all languages
-    asyncio.create_task(translate_certificate_to_all(certificate_id, input.source_language or "es"))
+    from services.background import create_safe_task
+    create_safe_task(translate_certificate_to_all(certificate_id, input.source_language or "es"), name="cert_translate")
     
     return certificate
 

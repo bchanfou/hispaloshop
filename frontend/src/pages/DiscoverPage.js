@@ -43,9 +43,11 @@ export default function DiscoverPage() {
   const isB2BUser = user?.role === 'producer' || user?.role === 'importer';
 
   useEffect(() => {
+    let active = true;
     apiClient.get('/communities?limit=4').then((data) => {
-      setCommunities(data?.communities || data || []);
-    }).catch(() => setCommunities([]));
+      if (active) setCommunities(data?.communities || data || []);
+    }).catch(() => { if (active) setCommunities([]); });
+    return () => { active = false; };
   }, []);
 
   const handleSearch = (query) => {

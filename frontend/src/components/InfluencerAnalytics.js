@@ -105,7 +105,7 @@ export default function InfluencerAnalytics() {
           <select
             value={period}
             onChange={(e) => setPeriod(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 focus:outline-none focus:border-stone-950 text-sm"
+            className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 focus:outline-none focus:border-stone-950 text-sm"
           >
             <option value={7}>Últimos 7 días</option>
             <option value={30}>Últimos 30 días</option>
@@ -127,7 +127,7 @@ export default function InfluencerAnalytics() {
               </div>
               <button
                 onClick={copyReferralLink}
-                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
               >
                 Copiar enlace
               </button>
@@ -268,7 +268,7 @@ export default function InfluencerAnalytics() {
             Cómo funcionan tus comisiones
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-lg p-4 border border-stone-200">
+            <div className="bg-white rounded-xl p-4 border border-stone-200">
               <p className="text-sm font-medium text-stone-950 mb-2">Cálculo de tu comisión:</p>
               <ul className="space-y-1 text-sm text-stone-600">
                 <li>• Tu comisión depende de tu tier activo (3% a 7%)</li>
@@ -276,7 +276,7 @@ export default function InfluencerAnalytics() {
                 <li>• Tasa efectiva actual: {effectiveRateLabel}</li>
               </ul>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-stone-200">
+            <div className="bg-white rounded-xl p-4 border border-stone-200">
               <p className="text-sm font-medium text-stone-950 mb-2">Calendario de pagos:</p>
               <ul className="space-y-1 text-sm text-stone-600">
                 <li>• Las comisiones se desbloquean 15 días después de la venta</li>

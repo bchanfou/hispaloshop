@@ -34,7 +34,7 @@ export function InfluencerDashboard() {
         <p className="text-stone-600 mb-4">Error cargando dashboard</p>
         <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
         >
           Reintentar
         </button>
@@ -78,7 +78,7 @@ export function InfluencerDashboard() {
             </div>
             <button
               onClick={copyLink}
-              className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors gap-2 shrink-0 flex items-center bg-white"
+              className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors gap-2 shrink-0 flex items-center bg-white"
             >
               {copied ? 'Copiado!' : <><Copy className="w-4 h-4" /> Copiar link</>}
             </button>
@@ -150,7 +150,7 @@ export function InfluencerDashboard() {
                 top_products.map((product) => (
                   <div
                     key={product._id}
-                    className="flex justify-between items-center p-3 bg-stone-50 rounded-lg hover:bg-stone-100 transition"
+                    className="flex justify-between items-center p-3 bg-stone-50 rounded-xl hover:bg-stone-100 transition"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="font-medium truncate">{product.product_name}</p>
@@ -181,7 +181,7 @@ export function InfluencerDashboard() {
                 recent_conversions.map((conv, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg"
+                    className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl"
                   >
                     {conv.product_image ? (
                       <img
@@ -268,18 +268,18 @@ function ProductLinkGenerator({ affiliateCode }) {
           placeholder="ID del producto"
           value={productId}
           onChange={(e) => setProductId(e.target.value)}
-          className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500 border-stone-200"
+          className="flex-1 px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-stone-500 border-stone-200"
         />
         <button
           onClick={generateLink}
-          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+          className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
         >
           Generar
         </button>
       </div>
 
       {generatedLink && (
-        <div className="flex items-center gap-2 p-3 bg-stone-50 rounded-lg">
+        <div className="flex items-center gap-2 p-3 bg-stone-50 rounded-xl">
           <code className="flex-1 text-sm truncate">{generatedLink}</code>
           <button
             onClick={copyGeneratedLink}

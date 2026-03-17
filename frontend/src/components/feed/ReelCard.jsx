@@ -329,8 +329,8 @@ export default function ReelCard({ reel, isActive, onLike, embedded = false }) {
         <button style={actionBtnStyle} onClick={handleLike} aria-label="Me gusta">
           <Heart
             size={28}
-            color={liked ? '#ef4444' : 'var(--color-white)'}
-            fill={liked ? '#ef4444' : 'none'}
+            color={liked ? 'var(--color-white)' : 'var(--color-white)'}
+            fill={liked ? 'var(--color-white)' : 'none'}
           />
           <span style={actionCountStyle}>{likesCount}</span>
         </button>

@@ -316,7 +316,7 @@ export default function RegisterPage() {
                   display: 'flex',
                 }}>
                   {usernameStatus === 'available'
-                    ? <Check size={18} color="var(--color-green, #16a34a)" />
+                    ? <Check size={18} color="var(--color-black)" />
                     : <XIcon size={18} color="var(--color-red)" />
                   }
                 </span>

@@ -18,10 +18,10 @@ export default function MessageInput({ onSend, onTyping }) {
           setValue(e.target.value);
           onTyping?.(Boolean(e.target.value));
         }}
-        className="flex-1 border rounded-lg px-3 py-2"
+        className="flex-1 border rounded-xl px-3 py-2"
         placeholder="Escribe un mensaje..."
       />
-      <button className="bg-stone-950 hover:bg-stone-800 text-white px-4 rounded-lg" type="submit">Enviar</button>
+      <button className="bg-stone-950 hover:bg-stone-800 text-white px-4 rounded-xl" type="submit">Enviar</button>
     </form>
   );
 }

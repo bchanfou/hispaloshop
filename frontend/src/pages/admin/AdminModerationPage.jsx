@@ -108,7 +108,7 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
         {/* Content preview */}
         <div className="flex gap-3">
           {item.preview?.image && (
-            <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0" style={{ border: '1px solid var(--color-border)' }}>
+            <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid var(--color-border)' }}>
               <img src={item.preview.image} alt="" className="w-full h-full object-cover" />
             </div>
           )}
@@ -144,7 +144,7 @@ function ModerationCard({ item, onConfirm, onRestore, onEscalate, busy }) {
           </button>
         )}
         {expanded && item.ai_reason && (
-          <p className="text-[11px] mt-1 p-2 rounded-lg leading-relaxed" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
+          <p className="text-[11px] mt-1 p-2 rounded-xl leading-relaxed" style={{ background: 'var(--color-surface)', color: 'var(--color-stone)' }}>
             {item.ai_reason}
           </p>
         )}

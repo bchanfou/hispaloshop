@@ -512,7 +512,7 @@ export default function ProductDetailPage() {
             background: 'var(--color-surface)', borderRadius: 'var(--radius-md)',
             padding: '10px 12px', marginTop: 12,
           }}>
-            <AlertTriangle size={16} color="var(--color-amber, #E8A020)" />
+            <AlertTriangle size={16} color="var(--color-stone)" />
             <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-stone)', fontFamily: 'var(--font-sans)' }}>
               {t('productDetail.lowStockWarning', { count: stock })}
             </span>
@@ -828,7 +828,7 @@ export default function ProductDetailPage() {
 
         {/* Allergens */}
         {currentAllergens?.length > 0 && (
-          <CollapsibleSection title={t('productDetail.allergens', 'Alérgenos')} icon={<AlertTriangle size={16} color="var(--color-amber, #E8A020)" />}>
+          <CollapsibleSection title={t('productDetail.allergens', 'Alérgenos')} icon={<AlertTriangle size={16} color="var(--color-stone)" />}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {currentAllergens.map((allergen, idx) => (
                 <span key={idx} style={{
@@ -1180,7 +1180,7 @@ export default function ProductDetailPage() {
             disabled={isOutOfStock}
             animate={{
               background: addedToCart
-                ? 'var(--color-green, #2E7D52)'
+                ? 'var(--color-black, #0c0a09)'
                 : isOutOfStock
                   ? 'var(--color-surface, #f5f5f4)'
                   : 'var(--color-black, #0c0a09)',

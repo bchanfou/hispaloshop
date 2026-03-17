@@ -102,9 +102,9 @@ export default function ProducerAnalytics() {
                   {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
                 </span>
                 {product.image ? (
-                  <img src={product.image} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                  <img src={product.image} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
                 ) : (
-                  <div className="w-10 h-10 rounded-lg bg-stone-100 shrink-0" />
+                  <div className="w-10 h-10 rounded-xl bg-stone-100 shrink-0" />
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-stone-950 truncate">{product.name}</p>

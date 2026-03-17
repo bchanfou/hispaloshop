@@ -91,7 +91,7 @@ export default function WhatIsHispaloshop() {
             {/* Green separator */}
             <div style={{
               width: 40, height: 3,
-              background: 'var(--color-green)',
+              background: 'var(--color-black)',
               margin: '32px auto',
               borderRadius: 'var(--radius-full)',
             }} />
@@ -240,7 +240,7 @@ export default function WhatIsHispaloshop() {
               }} className="reveal">
                 <div style={{
                   width: 48, height: 48, borderRadius: '50%',
-                  background: 'var(--color-green)',
+                  background: 'var(--color-black)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 24, marginBottom: 16,
                 }}>
@@ -468,7 +468,7 @@ export default function WhatIsHispaloshop() {
               height: 56,
               padding: '0 40px',
               borderRadius: 'var(--radius-full)',
-              background: 'var(--color-green)',
+              background: 'var(--color-black)',
               color: '#fff',
               fontSize: 'var(--text-md)',
               fontWeight: 600,

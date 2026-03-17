@@ -381,9 +381,10 @@ async def create_community_post(
         except Exception as e:
             logger.error("Background moderation failed: %s", e)
 
-    asyncio.create_task(_moderate_community_post(
+    from services.background import create_safe_task
+    create_safe_task(_moderate_community_post(
         result.inserted_id, user.user_id, body.text, body.image_url,
-    ))
+    ), name="community_post_moderation")
 
     return {"id": str(result.inserted_id), "ok": True}
 

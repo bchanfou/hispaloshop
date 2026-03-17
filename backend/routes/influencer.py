@@ -189,7 +189,7 @@ async def get_influencer_dashboard(user: User = Depends(get_current_user)):
         "platform_commission": PLATFORM_COMMISSION,  # 0.18 = 18%
         "total_sales_generated": round(influencer.get("total_sales_generated", 0), 2),
         "total_commission_earned": round(influencer.get("total_commission_earned", 0), 2),
-        "available_balance": round(influencer.get("available_balance", 0), 2),
+        "available_balance": max(0, round(influencer.get("available_balance", 0), 2)),
         "stripe_connected": influencer.get("stripe_onboarding_complete", False),
         "pending_commissions": pending_count,
         "paid_commissions": paid_count,

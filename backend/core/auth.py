@@ -36,7 +36,17 @@ async def get_current_user(request: Request, authorization: Optional[str] = Head
     if not session_token:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
+    # Try hashed token first, fall back to plaintext for legacy sessions
     session_doc = await db.user_sessions.find_one({"session_token": _hash_session_token(session_token)}, {"_id": 0})
+    if not session_doc:
+        # Legacy fallback: sessions created before token hashing migration
+        session_doc = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
+        if session_doc:
+            # Migrate legacy session to hashed token
+            await db.user_sessions.update_one(
+                {"session_token": session_token},
+                {"$set": {"session_token": _hash_session_token(session_token)}}
+            )
     if not session_doc:
         raise HTTPException(status_code=401, detail="Not authenticated")
 

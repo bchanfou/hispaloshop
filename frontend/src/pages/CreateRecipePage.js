@@ -23,7 +23,7 @@ function normalizeIngredientName(value) {
 }
 
 const DIFFICULTY_MAP = {
-  easy: { label: 'Facil', color: 'var(--color-green)' },
+  easy: { label: 'Facil', color: 'var(--color-stone)' },
   medium: { label: 'Media', color: 'var(--color-amber)' },
   hard: { label: 'Dificil', color: 'var(--color-red)' },
 };
@@ -573,7 +573,7 @@ export default function CreateRecipePage() {
                   </span>
                 </div>
                 {ingredient.product_id && (
-                  <div style={{ fontSize: 9, color: 'var(--color-green)', marginTop: 1 }}>
+                  <div style={{ fontSize: 9, color: 'var(--color-stone)', marginTop: 1 }}>
                     {ingredient.product?.seller_name || 'Tienda'} &middot; etiquetado &#10003;
                   </div>
                 )}
@@ -726,7 +726,7 @@ export default function CreateRecipePage() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: 'var(--color-green)',
+              color: 'var(--color-stone)',
               fontSize: 11,
               fontWeight: 500,
               padding: '8px 0 0',
@@ -942,8 +942,8 @@ export default function CreateRecipePage() {
 
         {/* Hispal AI card */}
         <div style={{
-          background: 'var(--color-green-light)',
-          border: '1px solid var(--color-green-border)',
+          background: 'var(--color-surface, #f5f5f4)',
+          border: '1px solid var(--color-border)',
           borderRadius: 'var(--radius-md)',
           padding: 16,
           marginBottom: 16,
@@ -979,7 +979,7 @@ export default function CreateRecipePage() {
           style={{
             width: '100%',
             height: 52,
-            background: submitting ? 'var(--color-stone)' : 'var(--color-green)',
+            background: submitting ? 'var(--color-stone)' : 'var(--color-black)',
             color: '#fff',
             border: 'none',
             borderRadius: 'var(--radius-full)',

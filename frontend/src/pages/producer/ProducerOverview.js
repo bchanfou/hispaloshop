@@ -22,8 +22,8 @@ import { asNumber } from '../../utils/safe';
 function PlanBadge({ plan }) {
   const p = (plan || 'FREE').toUpperCase();
   let bg, color;
-  if (p === 'ELITE') { bg = 'var(--color-amber-light)'; color = 'var(--color-amber)'; }
-  else if (p === 'PRO') { bg = 'var(--color-green-light)'; color = 'var(--color-green)'; }
+  if (p === 'ELITE') { bg = 'var(--color-black)'; color = 'var(--color-white)'; }
+  else if (p === 'PRO') { bg = 'var(--color-surface)'; color = 'var(--color-black)'; }
   else { bg = 'var(--color-surface)'; color = 'var(--color-stone)'; }
   return (
     <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ background: bg, color }}>{p}</span>
@@ -105,9 +105,9 @@ function StripeConnectSection() {
   if (loading) {
     return (
       <div className="p-4 md:p-6" style={{ background: 'var(--color-white)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-xl)' }}>
-        <div className="flex items-center gap-2" style={{ color: 'var(--color-stone)' }}>
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span className="text-sm">Cargando estado de Stripe...</span>
+        <div className="animate-pulse space-y-3">
+          <div style={{ width: '50%', height: 14, borderRadius: 6, background: 'var(--color-surface)' }} />
+          <div style={{ width: '70%', height: 12, borderRadius: 6, background: 'var(--color-surface)' }} />
         </div>
       </div>
     );
@@ -480,9 +480,9 @@ function B2BOperationsSection() {
           <span style={{ color: 'var(--color-stone)' }}>activas</span>
         </div>
         {urgent.length > 0 && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: '#FEF3C7', borderRadius: 'var(--radius-full)', fontSize: 12 }}>
-            <span style={{ fontWeight: 600, color: '#B45309' }}>{urgent.length}</span>
-            <span style={{ color: '#B45309' }}>pendientes</span>
+          <div className="flex items-center gap-1.5 px-3 py-1.5" style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-full)', fontSize: 12 }}>
+            <span style={{ fontWeight: 600, color: 'var(--color-black)' }}>{urgent.length}</span>
+            <span style={{ color: 'var(--color-stone)' }}>pendientes</span>
           </div>
         )}
       </div>
@@ -599,13 +599,34 @@ export default function ProducerOverview() {
 
   const publicProfileUrl = user?.user_id ? `/user/${user.user_id}` : null;
 
-  // Loading state
+  // Loading skeleton — mirrors the real dashboard layout for zero-layout-shift
   if (loading) {
+    const Bone = ({ w = '100%', h = 14, r = 8, mb = 0 }) => (
+      <div className="animate-pulse" style={{ width: w, height: h, borderRadius: r, background: 'var(--color-surface)', marginBottom: mb }} />
+    );
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="w-8 h-8 rounded-full animate-spin mx-auto mb-4" style={{ border: '2px solid var(--color-black)', borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: 'var(--color-stone)' }}>{t('producer.loadingDashboard')}</p>
+      <div className="space-y-4 px-4 py-4 md:px-6 md:py-6">
+        {/* H1 skeleton */}
+        <Bone w="55%" h={28} mb={4} />
+        <Bone w="30%" h={14} mb={16} />
+        {/* Stripe Connect card skeleton */}
+        <div style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', padding: 20 }}>
+          <Bone w="40%" h={16} mb={12} />
+          <Bone w="70%" h={12} />
+        </div>
+        {/* Stats grid skeleton */}
+        <div className="grid grid-cols-2 gap-3">
+          {[1,2,3,4].map(i => (
+            <div key={i} style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', padding: 16 }}>
+              <Bone w="60%" h={12} mb={8} />
+              <Bone w="40%" h={24} />
+            </div>
+          ))}
+        </div>
+        {/* Quick actions skeleton */}
+        <div className="grid grid-cols-2 gap-3">
+          <Bone h={80} r={16} />
+          <Bone h={80} r={16} />
         </div>
       </div>
     );
@@ -709,14 +730,14 @@ export default function ProducerOverview() {
         <Link
           to="/producer/verification"
           className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-amber-light)', border: '1px solid var(--color-amber)' }}
+          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)', border: '1px solid var(--color-stone)' }}
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-stone)' }} />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: 'var(--color-amber)' }}>Cuenta no verificada</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-amber)' }}>No puedes publicar productos hasta completar la verificación.</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-stone)' }}>Cuenta no verificada</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>No puedes publicar productos hasta completar la verificación.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-amber)' }} />
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
         </Link>
       )}
       {verificationStatus?.is_verified && verificationStatus?.documents?.certificates?.some(c => {
@@ -726,28 +747,28 @@ export default function ProducerOverview() {
         <Link
           to="/producer/verification"
           className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-amber-light)', border: '1px solid var(--color-amber)' }}
+          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)', border: '1px solid var(--color-stone)' }}
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-amber)' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-stone)' }} />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: 'var(--color-amber)' }}>Certificado próximo a caducar</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-amber)' }}>Renuévalo para no interrumpir tus ventas.</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-stone)' }}>Certificado próximo a caducar</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>Renuévalo para no interrumpir tus ventas.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-amber)' }} />
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
         </Link>
       )}
       {verificationStatus?.documents?.certificates?.some(c => c.status === 'expired') && (
         <Link
           to="/producer/verification"
           className="flex items-start gap-3 p-4 transition-colors"
-          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-red-light)', border: '1px solid var(--color-red)' }}
+          style={{ borderRadius: 'var(--radius-xl)', background: 'var(--color-surface)', border: '1px solid var(--color-stone)' }}
         >
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-red)' }} />
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-stone)' }} />
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: 'var(--color-red)' }}>Certificado caducado</p>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--color-red)' }}>Tus ventas pueden estar pausadas. Renueva ahora.</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--color-stone)' }}>Certificado caducado</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-stone)' }}>Tus ventas pueden estar pausadas. Renueva ahora.</p>
           </div>
-          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-red)' }} />
+          <ChevronRight className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
         </Link>
       )}
 
@@ -769,8 +790,8 @@ export default function ProducerOverview() {
           {alerts.map((alert, i) => (
             <div key={i} className="flex items-start gap-3 p-3" style={{
               borderRadius: 'var(--radius-xl)',
-              background: alert.type === 'danger' ? 'var(--color-red-light)' : 'var(--color-surface)',
-              border: `1px solid ${alert.type === 'danger' ? 'var(--color-red)' : 'var(--color-border)'}`,
+              background: alert.type === 'danger' ? 'var(--color-surface)' : 'var(--color-surface)',
+              border: `1px solid ${alert.type === 'danger' ? 'var(--color-stone)' : 'var(--color-border)'}`,
             }}>
               <span className="text-lg shrink-0">{alert.type === 'danger' ? '\uD83D\uDEA8' : '\u26A0\uFE0F'}</span>
               <div className="flex-1 min-w-0">
@@ -790,7 +811,7 @@ export default function ProducerOverview() {
       {/* Quick Actions — 2 Big Buttons */}
       <div className="grid grid-cols-2 gap-3" data-testid="quick-actions">
         {/* "Publicar nuevo producto" — THE ONLY GREEN BUTTON */}
-        <Link to="/producer/products" className="flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: 'var(--color-green)', color: '#fff', borderRadius: 'var(--radius-xl)' }} data-testid="quick-add-product">
+        <Link to="/producer/products" className="flex flex-col items-center justify-center gap-2 p-5 transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: 'var(--color-black)', color: '#fff', borderRadius: 'var(--radius-xl)' }} data-testid="quick-add-product">
           <Package className="w-8 h-8" />
           <span className="text-sm font-semibold">{t('sellerDashboard.newProduct', 'Publicar nuevo producto')}</span>
         </Link>
@@ -969,10 +990,10 @@ export default function ProducerOverview() {
               const proposal = c.proposal || {};
               const statusStyles = {
                 proposed: { label: 'Pendiente', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-                active: { label: 'Activa', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
-                declined: { label: 'Rechazada', bg: 'var(--color-red-light)', color: 'var(--color-red)' },
+                active: { label: 'Activa', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
+                declined: { label: 'Rechazada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
                 sample_sent: { label: 'Muestra enviada', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
-                sample_received: { label: 'Muestra recibida', bg: 'var(--color-green-light)', color: 'var(--color-green)' },
+                sample_received: { label: 'Muestra recibida', bg: 'var(--color-surface, #f5f5f4)', color: 'var(--color-black)' },
               };
               const badge = statusStyles[c.status] || statusStyles.proposed;
               return (
@@ -983,7 +1004,7 @@ export default function ProducerOverview() {
                   style={{ borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
                 >
                   {proposal.product_image_url && (
-                    <img src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                    <img src={proposal.product_image_url} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>{proposal.product_name}</p>
@@ -1103,7 +1124,7 @@ export default function ProducerOverview() {
               icon: PenTool,
               label: 'Firma digital',
               sublabel: user?.signature_url ? 'Configurada' : 'Pendiente',
-              sublabelColor: user?.signature_url ? 'var(--color-green)' : 'var(--color-amber)',
+              sublabelColor: user?.signature_url ? 'var(--color-black)' : 'var(--color-stone)',
               to: '/settings/signature',
             },
             { icon: FileText, label: 'Mis documentos', sublabel: 'Contratos y certificados', to: '/documents' },

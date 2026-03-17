@@ -83,13 +83,13 @@ function FollowedStoreCard({ store, onUnfollow }) {
         <div className="flex items-center gap-2 mt-4">
           {storeSlug ? (
             <Link to={`/store/${storeSlug}`} className="flex-1">
-              <button className="w-full px-3 py-1.5 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-xs flex items-center justify-center">
+              <button className="w-full px-3 py-1.5 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-xs flex items-center justify-center">
                 <ExternalLink className="w-3 h-3 mr-1" />
                 {t('followedStores.visitStore', 'Ver tienda')}
               </button>
             </Link>
           ) : (
-            <button className="flex-1 px-3 py-1.5 border border-stone-200 text-stone-600 rounded-lg text-xs flex items-center justify-center opacity-50" disabled>
+            <button className="flex-1 px-3 py-1.5 border border-stone-200 text-stone-600 rounded-xl text-xs flex items-center justify-center opacity-50" disabled>
               <ExternalLink className="w-3 h-3 mr-1" />
               {t('followedStores.visitStore', 'Ver tienda')}
             </button>
@@ -97,7 +97,7 @@ function FollowedStoreCard({ store, onUnfollow }) {
           <button
             onClick={handleUnfollow}
             disabled={unfollowing}
-            className="p-2 text-stone-500 hover:text-stone-950 hover:bg-stone-100 rounded-lg transition-colors disabled:opacity-50"
+            className="p-2 text-stone-500 hover:text-stone-950 hover:bg-stone-100 rounded-xl transition-colors disabled:opacity-50"
           >
             {unfollowing ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -176,7 +176,7 @@ export default function CustomerFollowedStores() {
               {t('followedStores.noStoresDesc', 'Explora nuestras tiendas y sigue a tus favoritas para recibir notificaciones de nuevos productos.')}
             </p>
             <Link to="/stores">
-              <button className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center gap-2 mx-auto">
+              <button className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors flex items-center gap-2 mx-auto">
                 <Store className="w-4 h-4" />
                 {t('followedStores.exploreStores', 'Explorar tiendas')}
               </button>
@@ -203,7 +203,7 @@ export default function CustomerFollowedStores() {
                   </div>
                 </div>
                 <Link to="/stores">
-                  <button className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-sm">
+                  <button className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-sm">
                     {t('followedStores.discoverMore', 'Descubrir más')}
                   </button>
                 </Link>

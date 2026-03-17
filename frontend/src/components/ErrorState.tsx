@@ -37,7 +37,7 @@ export function ErrorState({
 // Variante compacta para usar en cards
 export function CompactError({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="flex items-center gap-2 p-3 bg-stone-50 rounded-lg">
+    <div className="flex items-center gap-2 p-3 bg-stone-50 rounded-xl">
       <AlertCircle className="w-4 h-4 text-stone-500 flex-shrink-0" />
       <p className="text-xs text-stone-600 flex-1">{message}</p>
       {onRetry && (

@@ -66,8 +66,8 @@ export function CommissionHistory() {
               setPage(1);
             }}
             className={statusFilter === status
-              ? 'px-3 py-1.5 sm:px-4 sm:py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors text-xs sm:text-sm'
-              : 'px-3 py-1.5 sm:px-4 sm:py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-xs sm:text-sm'}
+              ? 'px-3 py-1.5 sm:px-4 sm:py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors text-xs sm:text-sm'
+              : 'px-3 py-1.5 sm:px-4 sm:py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors text-xs sm:text-sm'}
           >
             {status === 'all' ? 'Todos' : STATUS_CONFIG[status]?.label || status}
           </button>
@@ -75,7 +75,7 @@ export function CommissionHistory() {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="ml-auto px-3 py-1.5 border border-stone-200 text-stone-600 rounded-lg text-xs sm:text-sm bg-white"
+          className="ml-auto px-3 py-1.5 border border-stone-200 text-stone-600 rounded-xl text-xs sm:text-sm bg-white"
         >
           <option value="recent">Más recientes</option>
           <option value="highest">Mayor comisión</option>
@@ -114,7 +114,7 @@ export function CommissionHistory() {
               <button
                 onClick={() => setPage(p => p - 1)}
                 disabled={page === 1}
-                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50 flex items-center text-sm"
+                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors disabled:opacity-50 flex items-center text-sm"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" /> Anterior
               </button>
@@ -126,7 +126,7 @@ export function CommissionHistory() {
               <button
                 onClick={() => setPage(p => p + 1)}
                 disabled={page >= pages}
-                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50 flex items-center text-sm"
+                className="px-4 py-2 border border-stone-200 text-stone-600 rounded-xl hover:bg-stone-50 transition-colors disabled:opacity-50 flex items-center text-sm"
               >
                 Siguiente <ChevronRight className="w-4 h-4 ml-1" />
               </button>
@@ -143,7 +143,7 @@ function CommissionRow({ commission }) {
   const StatusIcon = status.icon;
 
   return (
-    <div className="flex items-center gap-4 p-4 border border-stone-100 rounded-lg hover:bg-stone-50 transition">
+    <div className="flex items-center gap-4 p-4 border border-stone-100 rounded-xl hover:bg-stone-50 transition">
       <div className={`p-2 rounded-full ${status.bg}`}>
         <StatusIcon className={`w-5 h-5 ${status.color}`} />
       </div>

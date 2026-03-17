@@ -32,10 +32,12 @@ export default function PostDetailPage() {
   const inputRef = useRef(null);
 
   useEffect(() => {
+    let active = true;
     apiClient.get(`/posts/${postId}`)
-      .then((data) => setPost(data?.post || data))
-      .catch(() => setPost(null))
-      .finally(() => setLoading(false));
+      .then((data) => { if (active) setPost(data?.post || data); })
+      .catch(() => { if (active) setPost(null); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [postId]);
 
   const fetchComments = useCallback(() => {

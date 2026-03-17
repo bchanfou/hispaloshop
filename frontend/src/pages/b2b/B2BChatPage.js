@@ -225,7 +225,7 @@ export default function B2BChatPage() {
     <>
       <div className="px-4 py-3 border-b border-stone-200 flex items-center gap-3">
         <button
-          className="md:hidden p-1.5 rounded-lg hover:bg-stone-100"
+          className="md:hidden p-1.5 rounded-xl hover:bg-stone-100"
           onClick={() => setMobileView('list')}
         >
           <ArrowLeft className="w-5 h-5 text-stone-600" />
@@ -236,7 +236,7 @@ export default function B2BChatPage() {
           <p className="text-xs text-stone-400">B2B</p>
         </div>
         <button
-          className="ml-auto p-1.5 rounded-lg hover:bg-stone-100"
+          className="ml-auto p-1.5 rounded-xl hover:bg-stone-100"
           onClick={() => convsQuery.refetch()}
         >
           <RefreshCw className="w-4 h-4 text-stone-400" />

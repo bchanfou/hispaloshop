@@ -95,7 +95,7 @@ export default function ProducerConnectPage() {
             type="button"
             onClick={handleStart}
             disabled={submitting}
-            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-lg transition-colors"
+            className="px-4 py-2 bg-stone-950 hover:bg-stone-800 disabled:opacity-50 text-white rounded-xl transition-colors"
           >
             {submitting ? 'Procesando...' : status?.has_account ? 'Completar onboarding' : 'Crear cuenta y conectar'}
           </button>

@@ -324,6 +324,7 @@ def _notify_creator(item: dict, confirmed: bool):
             logger.warning("Failed to notify creator: %s", e)
 
     try:
-        asyncio.create_task(_send())
+        from services.background import create_safe_task
+        create_safe_task(_send(), name="moderation_notify")
     except RuntimeError:
         pass

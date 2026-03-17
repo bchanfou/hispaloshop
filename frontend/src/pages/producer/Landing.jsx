@@ -31,7 +31,7 @@ const PLANS = [
     name: 'PRO',
     tagline: 'Para crecer en España',
     price: 79,
-    accentColor: '#FF9500',
+    accentColor: '#57534e',
     isPopular: true,
     features: [
       'Productos ilimitados',
@@ -50,7 +50,7 @@ const PLANS = [
     name: 'ELITE',
     tagline: 'Para exportar al mundo',
     price: 249,
-    accentColor: '#5856D6',
+    accentColor: '#0A0A0A',
     isDark: true,
     features: [
       'Todo lo del PRO',

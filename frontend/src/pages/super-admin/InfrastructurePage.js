@@ -32,10 +32,10 @@ function SACard({ children, className = '' }) {
 
 function StatusDot({ status }) {
   const color =
-    status === 'ok' ? '#34C759' :
-    status === 'degraded' ? '#FF9500' :
+    status === 'ok' ? 'var(--color-black)' :
+    status === 'degraded' ? 'var(--color-stone)' :
     status === 'unknown' ? '#8E8E93' :
-    '#FF3B30';
+    'var(--color-red)';
   return (
     <div
       className="w-2 h-2 rounded-full shrink-0"
@@ -126,8 +126,8 @@ export default function InfrastructurePage() {
           <div
             className="w-3 h-3 rounded-full"
             style={{
-              background: allOk ? '#34C759' : '#FF9500',
-              boxShadow: `0 0 8px ${allOk ? '#34C75988' : '#FF950088'}`,
+              background: allOk ? 'var(--color-black)' : 'var(--color-stone)',
+              boxShadow: `0 0 8px ${allOk ? 'rgba(12,10,9,0.5)' : 'var(--color-stone)88'}`,
             }}
           />
           <span className="text-sm font-bold text-white">
@@ -150,7 +150,7 @@ export default function InfrastructurePage() {
               return (
                 <div
                   key={svc.key}
-                  className="flex items-center gap-2.5 px-3 py-2.5 bg-white/[0.04] rounded-lg"
+                  className="flex items-center gap-2.5 px-3 py-2.5 bg-white/[0.04] rounded-xl"
                 >
                   <StatusDot status={h?.status || 'unknown'} />
                   <div>
@@ -200,7 +200,7 @@ export default function InfrastructurePage() {
             { label: 'Hosting Web', value: 'Vercel' },
             { label: 'Pagos', value: 'Stripe Connect' },
           ].map(item => (
-            <div key={item.label} className="bg-white/[0.04] rounded-lg px-3 py-2.5">
+            <div key={item.label} className="bg-white/[0.04] rounded-xl px-3 py-2.5">
               <p className="text-[10px] text-white/30 mb-0.5">{item.label}</p>
               <p className="text-xs font-semibold text-white">{item.value}</p>
             </div>

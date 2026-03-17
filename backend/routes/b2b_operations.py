@@ -237,7 +237,7 @@ async def get_operation(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized to view this operation")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     return _serialize_operation(operation)
 
@@ -264,7 +264,7 @@ async def add_counteroffer(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized to modify this operation")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     # Detect modified fields vs previous version
     prev_offer = operation["offers"][-1]
@@ -312,7 +312,7 @@ async def accept_offer(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     # Guard: cannot accept on already-completed/accepted operations
     op_status = operation.get("status", "")
@@ -366,7 +366,8 @@ async def accept_offer(
         except Exception as exc:
             logger.error("Background contract generation failed for %s: %s", operation_id, exc)
 
-    asyncio.create_task(_generate_in_bg(updated))
+    from services.background import create_safe_task
+    create_safe_task(_generate_in_bg(updated), name="b2b_contract_gen")
 
     return _serialize_operation(updated)
 
@@ -391,7 +392,7 @@ async def reject_offer(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     # Find the offer version
     target_offer = None
@@ -441,7 +442,7 @@ async def generate_contract_endpoint(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     if operation["status"] not in ("offer_accepted", "contract_generated"):
         raise HTTPException(
@@ -499,7 +500,7 @@ async def sign_contract(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     if operation["status"] not in ("contract_generated", "contract_pending"):
         raise HTTPException(
@@ -605,7 +606,7 @@ async def get_required_documents(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     # Get the accepted offer
     offer = operation["offers"][-1] if operation.get("offers") else {}
@@ -723,7 +724,7 @@ async def upload_document(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     # Read file bytes
     file_bytes = await file.read()
@@ -845,7 +846,7 @@ async def open_dispute(
 
     user_id = current_user.user_id
     if user_id not in (operation["buyer_id"], operation["seller_id"]):
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Operation not found")
 
     if operation["status"] not in ("in_transit", "delivered", "payment_confirmed"):
         raise HTTPException(

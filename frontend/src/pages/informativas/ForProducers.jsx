@@ -60,7 +60,7 @@ export default function ForProducers() {
                 style={{
                   height: 46, padding: '0 28px',
                   borderRadius: 'var(--radius-full)',
-                  background: 'var(--color-green)',
+                  background: 'var(--color-black)',
                   color: '#fff', fontSize: 'var(--text-sm)', fontWeight: 600,
                   border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
                 }}
@@ -156,14 +156,14 @@ export default function ForProducers() {
               <div key={i} style={{ transitionDelay: `${i * 100}ms` }} className="reveal">
                 <div style={{
                   width: 36, height: 36, borderRadius: '50%',
-                  background: 'var(--color-green)',
+                  background: 'var(--color-black)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 15, fontWeight: 700, color: '#fff',
                   marginBottom: 12,
                 }}>
                   {step.num}
                 </div>
-                <p className="info-eyebrow" style={{ color: 'var(--color-green)', marginBottom: 8 }}>
+                <p className="info-eyebrow" style={{ color: 'var(--color-black)', marginBottom: 8 }}>
                   {step.day}
                 </p>
                 <h4 className="info-h4" style={{ color: '#fff', marginBottom: 8 }}>{step.title}</h4>
@@ -252,7 +252,7 @@ export default function ForProducers() {
               'Pagos seguros con retención de fondos',
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Check size={18} color="var(--color-green)" strokeWidth={2.5} />
+                <Check size={18} color="var(--color-black)" strokeWidth={2.5} />
                 <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)' }}>{item}</span>
               </div>
             ))}
@@ -274,7 +274,7 @@ export default function ForProducers() {
             style={{
               height: 56, padding: '0 40px',
               borderRadius: 'var(--radius-full)',
-              background: 'var(--color-green)', color: '#fff',
+              background: 'var(--color-black)', color: '#fff',
               fontSize: 'var(--text-md)', fontWeight: 600,
               border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)',
             }}

@@ -109,7 +109,7 @@ function B2BProductCard({ product, onRequest }) {
 
         <button
           onClick={() => onRequest(product)}
-          className="w-full py-2 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-lg transition-colors"
+          className="w-full py-2 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-xl transition-colors"
         >
           Solicitar pedido
         </button>
@@ -182,9 +182,9 @@ function B2BOrderRequestModal({ product, onClose, onSuccess }) {
           {/* Product info */}
           <div className="flex gap-3 mb-5">
             {product.images?.[0] ? (
-              <img src={product.images[0]} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
+              <img src={product.images[0]} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
             ) : (
-              <div className="w-16 h-16 rounded-lg bg-stone-100 shrink-0" />
+              <div className="w-16 h-16 rounded-xl bg-stone-100 shrink-0" />
             )}
             <div>
               <p className="text-[15px] font-bold text-stone-950">{product.name}</p>

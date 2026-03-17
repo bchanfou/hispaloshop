@@ -171,7 +171,7 @@ export default function CreateCommunityPage() {
             height: 120, borderRadius: 'var(--radius-lg)', overflow: 'hidden',
             background: coverPreview
               ? 'var(--color-surface)'
-              : `hsl(${(form.name.charCodeAt(0) || 100) * 7 % 360},40%,75%)`,
+              : ['#d6d3d1','#a8a29e','#78716c','#57534e','#44403c'][(form.name.charCodeAt(0) || 100) % 5],
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer',
             border: '2px dashed var(--color-border)',

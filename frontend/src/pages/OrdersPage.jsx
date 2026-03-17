@@ -11,15 +11,15 @@ const TABS = [
 ];
 
 const STATUS_BADGES = {
-  pending: { label: 'Confirmado', bg: 'rgba(217,119,6,0.08)', color: '#d97706' },
-  confirmed: { label: 'Confirmado', bg: 'rgba(217,119,6,0.08)', color: '#d97706' },
-  preparing: { label: 'Preparando', bg: 'rgba(217,119,6,0.08)', color: '#d97706' },
-  processing: { label: 'Procesando', bg: 'rgba(217,119,6,0.08)', color: '#d97706' },
-  shipped: { label: 'En camino', bg: 'rgba(37,99,235,0.08)', color: '#2563eb' },
-  in_transit: { label: 'En camino', bg: 'rgba(37,99,235,0.08)', color: '#2563eb' },
-  delivered: { label: 'Entregado', bg: 'rgba(22,163,74,0.08)', color: '#16a34a' },
-  cancelled: { label: 'Cancelado', bg: 'rgba(220,38,38,0.08)', color: '#dc2626' },
-  refunded: { label: 'Reembolsado', bg: 'rgba(220,38,38,0.08)', color: '#dc2626' },
+  pending: { label: 'Confirmado', bg: 'rgba(168,162,158,0.12)', color: '#57534e' },
+  confirmed: { label: 'Confirmado', bg: 'rgba(168,162,158,0.12)', color: '#57534e' },
+  preparing: { label: 'Preparando', bg: 'rgba(168,162,158,0.12)', color: '#57534e' },
+  processing: { label: 'Procesando', bg: 'rgba(168,162,158,0.12)', color: '#57534e' },
+  shipped: { label: 'En camino', bg: 'rgba(120,113,108,0.12)', color: '#44403c' },
+  in_transit: { label: 'En camino', bg: 'rgba(120,113,108,0.12)', color: '#44403c' },
+  delivered: { label: 'Entregado', bg: '#0c0a09', color: '#fafaf9' },
+  cancelled: { label: 'Cancelado', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
+  refunded: { label: 'Reembolsado', bg: 'var(--color-surface)', color: 'var(--color-stone)' },
 };
 
 function StatusBadge({ status }) {
@@ -239,9 +239,9 @@ export default function OrdersPage() {
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: 6,
                       padding: '8px 12px', marginBottom: 12,
-                      background: 'rgba(37,99,235,0.06)',
+                      background: 'var(--color-surface)',
                       borderRadius: 'var(--radius-md)',
-                      fontSize: 13, color: '#2563eb',
+                      fontSize: 13, color: 'var(--color-black)',
                     }}>
                       <Truck size={16} />
                       <span>En camino</span>
@@ -252,7 +252,7 @@ export default function OrdersPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={e => e.stopPropagation()}
-                          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontWeight: 600, color: '#2563eb', textDecoration: 'none' }}
+                          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontWeight: 600, color: 'var(--color-black)', textDecoration: 'none' }}
                         >
                           Rastrear <ExternalLink size={12} />
                         </a>

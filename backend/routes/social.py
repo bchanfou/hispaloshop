@@ -474,7 +474,18 @@ async def create_reel(
         "views_count": 0,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
-    await db.reels.insert_one(reel)
+    try:
+        await db.reels.insert_one(reel)
+    except Exception as db_err:
+        # Compensating action: delete orphaned Cloudinary video if DB insert fails
+        if video_public_id:
+            try:
+                from services.cloudinary_storage import delete_media
+                await delete_media(video_public_id, resource_type="video")
+                logger.warning(f"[REEL] Cleaned up orphaned Cloudinary video {video_public_id} after DB insert failure")
+            except Exception:
+                logger.error(f"[REEL] Failed to cleanup orphaned video {video_public_id}")
+        raise db_err
     for tag in tagged_products:
         await _record_intelligence_signal(
             "content_product_tagged",

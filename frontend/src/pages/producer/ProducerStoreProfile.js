@@ -137,7 +137,7 @@ function GalleryUploader({ images, onChange, maxImages = 6 }) {
       </label>
       <div className="grid grid-cols-3 gap-3">
         {images.map((img, idx) => (
-          <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-stone-200">
+          <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-stone-200">
             <img src={img} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
             <button
               type="button"
@@ -257,7 +257,7 @@ export default function ProducerStoreProfile() {
         <div className="flex items-center gap-3">
           {profile.slug && (
             <Link to={`/store/${profile.slug}`} target="_blank">
-              <button type="button" className="flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-lg text-sm text-stone-700 hover:bg-stone-50 transition-colors">
+              <button type="button" className="flex items-center gap-2 px-4 py-2 border border-stone-200 rounded-xl text-sm text-stone-700 hover:bg-stone-50 transition-colors">
                 <Eye className="w-4 h-4" />
                 Ver tienda
               </button>
@@ -277,7 +277,7 @@ export default function ProducerStoreProfile() {
 
       {/* URL Preview + Ver mi tienda */}
       {profile.slug && (
-        <div className="bg-stone-50 rounded-lg p-3 border border-stone-200 flex items-center justify-between gap-3">
+        <div className="bg-stone-50 rounded-xl p-3 border border-stone-200 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm text-stone-500">URL de tu tienda:</p>
             <p className="text-stone-950 font-medium">{window.location.origin}/store/{profile.slug}</p>
@@ -325,7 +325,7 @@ export default function ProducerStoreProfile() {
                 value={profile.name}
                 onChange={(e) => updateField('name', e.target.value)}
                 placeholder="Artisan Foods Co"
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
@@ -336,7 +336,7 @@ export default function ProducerStoreProfile() {
                 onChange={(e) => updateField('tagline', e.target.value)}
                 placeholder="Aceites ecológicos desde 1985"
                 maxLength={150}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
               <p className="text-xs text-stone-500 mt-1">{(profile.tagline || '').length}/150 caracteres</p>
             </div>
@@ -354,7 +354,7 @@ export default function ProducerStoreProfile() {
                 placeholder="Cuenta la historia de tu marca, cómo empezaste, tu filosofía..."
                 rows={5}
                 maxLength={500}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
               />
               <p className="text-xs text-stone-500 mt-1">{(profile.story || '').length}/500 caracteres</p>
             </div>
@@ -366,7 +366,7 @@ export default function ProducerStoreProfile() {
                   value={profile.founder_name || ''}
                   onChange={(e) => updateField('founder_name', e.target.value)}
                   placeholder="Carlos Martínez"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -375,7 +375,7 @@ export default function ProducerStoreProfile() {
                   value={profile.founder_quote || ''}
                   onChange={(e) => updateField('founder_quote', e.target.value)}
                   placeholder="La calidad no es un accidente..."
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -411,7 +411,7 @@ export default function ProducerStoreProfile() {
                 value={profile.location || ''}
                 onChange={(e) => updateField('location', e.target.value)}
                 placeholder="Jaén, Andalucía, España"
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
@@ -421,7 +421,7 @@ export default function ProducerStoreProfile() {
                 value={profile.full_address || ''}
                 onChange={(e) => updateField('full_address', e.target.value)}
                 placeholder="Ctra. de los Olivares, km 12, 23001 Jaén"
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
@@ -432,7 +432,7 @@ export default function ProducerStoreProfile() {
                   value={profile.coverage_area || ''}
                   onChange={(e) => updateField('coverage_area', e.target.value)}
                   placeholder="Toda España peninsular"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -441,7 +441,7 @@ export default function ProducerStoreProfile() {
                   value={profile.delivery_time || ''}
                   onChange={(e) => updateField('delivery_time', e.target.value)}
                   placeholder="24-48 horas"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -462,7 +462,7 @@ export default function ProducerStoreProfile() {
                   value={profile.contact_email || ''}
                   onChange={(e) => updateField('contact_email', e.target.value)}
                   placeholder="info@tutienda.es"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -471,7 +471,7 @@ export default function ProducerStoreProfile() {
                   value={profile.contact_phone || ''}
                   onChange={(e) => updateField('contact_phone', e.target.value)}
                   placeholder="+34 953 123 456"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -483,7 +483,7 @@ export default function ProducerStoreProfile() {
                   value={profile.whatsapp || ''}
                   onChange={(e) => updateField('whatsapp', e.target.value)}
                   placeholder="+34 600 123 456"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
               <div>
@@ -492,7 +492,7 @@ export default function ProducerStoreProfile() {
                   value={profile.website || ''}
                   onChange={(e) => updateField('website', e.target.value)}
                   placeholder="https://tutienda.es"
-                  className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
                 />
               </div>
             </div>
@@ -504,7 +504,7 @@ export default function ProducerStoreProfile() {
                 onChange={(e) => updateField('business_hours', e.target.value)}
                 placeholder="Lun-Vie: 9:00-18:00&#10;Sáb: 9:00-14:00"
                 rows={2}
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950 resize-none"
               />
             </div>
           </div>
@@ -524,7 +524,7 @@ export default function ProducerStoreProfile() {
                 value={profile.social_instagram || ''}
                 onChange={(e) => updateField('social_instagram', e.target.value)}
                 placeholder="https://instagram.com/tutienda"
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
             
@@ -536,7 +536,7 @@ export default function ProducerStoreProfile() {
                 value={profile.social_facebook || ''}
                 onChange={(e) => updateField('social_facebook', e.target.value)}
                 placeholder="https://facebook.com/tutienda"
-                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
+                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:border-stone-950"
               />
             </div>
           </div>

@@ -26,7 +26,7 @@ const Step2Basic = ({ onNext, data, onDataChange }) => {
 
   const fieldClass = (error, wasTouched) =>
     `mt-2 h-12 w-full rounded-2xl border bg-white px-3 text-base md:h-11 md:text-sm ${
-      error && wasTouched ? 'border-red-500' : 'border-stone-200'
+      error && wasTouched ? 'border-stone-950' : 'border-stone-200'
     }`;
 
   const handleSubmit = () => {

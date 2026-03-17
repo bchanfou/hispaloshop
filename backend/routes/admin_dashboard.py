@@ -183,7 +183,8 @@ async def approve_product(product_id: str, approved: bool, user: User = Depends(
             store = await db.store_profiles.find_one({"producer_id": product["producer_id"]})
             if store:
                 from routes.stores import notify_store_followers
-                asyncio.create_task(notify_store_followers(store["store_id"], product["name"], product_id))
+                from services.background import create_safe_task
+                create_safe_task(notify_store_followers(store["store_id"], product["name"], product_id), name="admin_notify_followers")
         except Exception as e:
             logger.warning(f"Could not notify: {e}")
     elif not approved and product:

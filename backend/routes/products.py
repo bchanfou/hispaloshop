@@ -496,13 +496,14 @@ async def create_product(input: ProductInput, user: User = Depends(get_current_u
         logger.warning(f"[CERT] Auto-create failed: {e}")
     
     # Trigger background translation + notify followers (non-blocking)
+    from services.background import create_safe_task
     if product.get("approved"):
-        asyncio.create_task(translate_product_to_all_bg(product_id, input.source_language or "es"))
+        create_safe_task(translate_product_to_all_bg(product_id, input.source_language or "es"), name="product_translate")
         try:
             store = await db.store_profiles.find_one({"producer_id": user.user_id})
             if store:
                 from routes.stores import notify_store_followers
-                asyncio.create_task(notify_store_followers(store["store_id"], input.name, product_id))
+                create_safe_task(notify_store_followers(store["store_id"], input.name, product_id), name="notify_followers")
         except Exception as e:
             logger.warning(f"Could not notify store followers: {e}")
     
@@ -615,7 +616,8 @@ async def update_product(product_id: str, input: ProductInput, user: User = Depe
     
     # Trigger re-translation if content changed and product is approved
     if content_changed and product.get("approved"):
-        asyncio.create_task(translate_product_to_all_bg(product_id, input.source_language or "es"))
+        from services.background import create_safe_task
+        create_safe_task(translate_product_to_all_bg(product_id, input.source_language or "es"), name="product_retranslate")
     
     return {"message": "Product updated"}
 

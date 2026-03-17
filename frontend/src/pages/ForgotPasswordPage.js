@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
           width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
           background: 'var(--color-surface, #f5f5f4)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 32, color: 'var(--color-green, #16a34a)',
+          fontSize: 32, color: 'var(--color-black)',
         }}>
           ✉️
         </div>

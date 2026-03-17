@@ -233,7 +233,7 @@ export default function SettingsPage() {
             style={{
               width: '100%', padding: 10,
               background: 'none', border: 'none',
-              fontSize: 14, fontWeight: 500, color: '#dc2626',
+              fontSize: 14, fontWeight: 500, color: 'var(--color-red)',
               cursor: 'pointer', ...font,
             }}
           >
@@ -308,7 +308,7 @@ export default function SettingsPage() {
           }}
             onClick={e => e.stopPropagation()}
           >
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#dc2626', margin: '0 0 8px', ...font }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-red)', margin: '0 0 8px', ...font }}>
               Eliminar cuenta
             </h3>
             <p style={{ fontSize: 14, color: 'var(--color-stone)', margin: '0 0 16px', lineHeight: 1.5, ...font }}>
@@ -344,7 +344,7 @@ export default function SettingsPage() {
                 disabled={deleteEmail !== user?.email || deleting}
                 style={{
                   flex: 1, padding: 12, borderRadius: 'var(--radius-lg)',
-                  border: 'none', background: '#dc2626', color: 'var(--color-white)',
+                  border: 'none', background: 'var(--color-red)', color: 'var(--color-white)',
                   fontSize: 14, fontWeight: 600, cursor: 'pointer',
                   opacity: (deleteEmail !== user?.email || deleting) ? 0.5 : 1, ...font,
                 }}>

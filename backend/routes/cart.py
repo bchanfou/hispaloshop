@@ -138,7 +138,7 @@ async def add_to_cart(
             if new_qty > stock:
                 raise HTTPException(status_code=400, detail=f"Max stock available: {stock}")
             await db.carts.update_one(
-                {"_id": cart["_id"]},
+                {"_id": cart["_id"], "user_id": current_user.user_id},
                 {"$set": {
                     f"items.{existing_idx}.quantity": new_qty,
                     f"items.{existing_idx}.total_price_cents": unit_price_cents * new_qty,
@@ -148,7 +148,7 @@ async def add_to_cart(
         else:
             # Atomic push: add new item without overwriting concurrent changes
             await db.carts.update_one(
-                {"_id": cart["_id"]},
+                {"_id": cart["_id"], "user_id": current_user.user_id},
                 {
                     "$push": {"items": cart_item},
                     "$set": {"updated_at": datetime.now(timezone.utc)},
@@ -221,10 +221,10 @@ async def update_cart_item(
         items[item_idx]["total_price_cents"] = unit_price * quantity
     
     await db.carts.update_one(
-        {"_id": cart["_id"]},
+        {"_id": cart["_id"], "user_id": current_user.user_id},
         {"$set": {"items": items, "updated_at": datetime.now(timezone.utc)}}
     )
-    
+
     return {"success": True, "message": "Cart updated"}
 
 
@@ -249,10 +249,10 @@ async def remove_from_cart(
     items = [i for i in items if not (i.get("product_id") == product_id and i.get("variant_id") == variant_id)]
     
     await db.carts.update_one(
-        {"_id": cart["_id"]},
+        {"_id": cart["_id"], "user_id": current_user.user_id},
         {"$set": {"items": items, "updated_at": datetime.now(timezone.utc)}}
     )
-    
+
     return {"success": True, "message": "Item removed"}
 
 
@@ -331,7 +331,7 @@ async def apply_country_change(request: Request, current_user = Depends(get_curr
         next_items.append(updated_item)
 
     await db.carts.update_one(
-        {"_id": cart["_id"]},
+        {"_id": cart["_id"], "user_id": current_user.user_id},
         {"$set": {"items": next_items, "updated_at": datetime.now(timezone.utc)}},
     )
 
@@ -410,7 +410,7 @@ async def apply_coupon(
         )
 
     await db.carts.update_one(
-        {"_id": cart["_id"]},
+        {"_id": cart["_id"], "user_id": current_user.user_id},
         {"$set": update_fields},
     )
 
@@ -487,7 +487,7 @@ async def sync_cart(request: Request, current_user = Depends(get_current_user)):
 
     if existing_cart:
         await db.carts.update_one(
-            {"_id": existing_cart["_id"]},
+            {"_id": existing_cart["_id"], "user_id": current_user.user_id},
             {
                 "$set": {
                     "items": normalized_items,
@@ -551,7 +551,7 @@ async def remove_coupon(current_user=Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Cart not found")
 
     await db.carts.update_one(
-        {"_id": cart["_id"]},
+        {"_id": cart["_id"], "user_id": current_user.user_id},
         {
             "$set": {
                 "coupon_code": None,

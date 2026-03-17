@@ -233,7 +233,7 @@ export default function CreatePostPage() {
           <button
             disabled={!selectedFiles.length}
             onClick={() => setStep(2)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-green)', opacity: selectedFiles.length ? 1 : 0.4 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-black)', opacity: selectedFiles.length ? 1 : 0.4 }}
           >
             Siguiente →
           </button>
@@ -306,7 +306,7 @@ export default function CreatePostPage() {
             <ChevronLeft size={18} /> Volver
           </button>
           <span style={{ flex: 1, textAlign: 'center', color: '#fff', fontSize: 15, fontWeight: 500 }}>Editar</span>
-          <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-green)' }}>
+          <button onClick={() => setStep(3)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--color-black)' }}>
             Siguiente →
           </button>
         </div>

@@ -96,7 +96,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
           <input
             {...register('producer_id')}
             placeholder="prod_abc123"
-            className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+            className={`w-full px-3 py-2 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
               errors.producer_id ? 'border-stone-400' : 'border-stone-200'
             }`}
           />
@@ -113,7 +113,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
             render={({ field }) => (
               <select
                 {...field}
-                className={`w-full px-3 py-2 rounded-lg border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+                className={`w-full px-3 py-2 rounded-xl border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 ${
                   errors.target_country ? 'border-stone-400' : 'border-stone-200'
                 }`}
               >
@@ -146,7 +146,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
           {...register('message')}
           rows={4}
           placeholder="Describe volumen, formatos, certificaciones o requisitos logísticos."
-          className={`w-full px-3 py-2 rounded-lg border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+          className={`w-full px-3 py-2 rounded-xl border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-stone-500 ${
             errors.message ? 'border-stone-400' : 'border-stone-200'
           }`}
         />
@@ -165,7 +165,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
                 <input
                   {...register(`rows.${idx}.product_id`)}
                   placeholder="ID del producto"
-                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+                  className={`w-full px-3 py-2 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
                     errors.rows?.[idx]?.product_id ? 'border-stone-400' : 'border-stone-200'
                   }`}
                 />
@@ -177,7 +177,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
                   type="number"
                   min="1"
                   placeholder="Cant."
-                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
+                  className={`w-full px-3 py-2 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-stone-500 ${
                     errors.rows?.[idx]?.qty_requested ? 'border-stone-400' : 'border-stone-200'
                   }`}
                 />
@@ -187,7 +187,7 @@ export default function QuoteBuilder({ initialProducerId = '' }) {
                 <button
                   type="button"
                   onClick={() => remove(idx)}
-                  className="mt-1 p-2 text-stone-600 hover:bg-stone-50 rounded-lg transition-colors"
+                  className="mt-1 p-2 text-stone-600 hover:bg-stone-50 rounded-xl transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

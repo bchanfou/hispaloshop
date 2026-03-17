@@ -2135,7 +2135,7 @@ async def cancel_order(order_id: str, user: User = Depends(get_current_user)):
         raise HTTPException(status_code=400, detail="Order cannot be cancelled")
 
     await db.orders.update_one(
-        {"order_id": order_id},
+        {"order_id": order_id, "user_id": user.user_id},
         {
             "$set": {
                 "status": "cancelled",
@@ -2256,8 +2256,16 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, user: Us
         update_data["delivered_at"] = datetime.now(timezone.utc).isoformat()
     
     # Atomic status transition: verify current status hasn't changed since we read it
+    # Build ownership filter based on role to prevent IDOR
+    ownership_filter = {"order_id": order_id, "status": current_status}
+    if user.role in ("customer", "consumer"):
+        ownership_filter["user_id"] = user.user_id
+    elif user.role in ("producer", "importer"):
+        ownership_filter["line_items.producer_id"] = user.user_id
+    # admin/super_admin can update any order
+
     result = await db.orders.update_one(
-        {"order_id": order_id, "status": current_status},
+        ownership_filter,
         {
             "$set": update_data,
             "$push": {"status_history": status_entry}

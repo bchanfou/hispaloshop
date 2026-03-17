@@ -66,7 +66,7 @@ export default function ProducerInsights() {
                 <button
                   key={p.value}
                   onClick={() => setDays(p.value)}
-                  className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
                     days === p.value ? 'bg-stone-950 text-white' : 'text-stone-600 hover:text-stone-950'
                   }`}
                 >
@@ -135,7 +135,7 @@ export default function ProducerInsights() {
                           <img
                             src={p.image || '/placeholder-product.png'}
                             alt={p.name}
-                            className="h-9 w-9 shrink-0 rounded-lg object-cover"
+                            className="h-9 w-9 shrink-0 rounded-xl object-cover"
                           />
                           <div className="min-w-0">
                             <p className="truncate text-sm font-medium text-stone-950 max-w-[160px]">

@@ -28,9 +28,9 @@ const DIET_PILLS = [
 ];
 
 const DIFFICULTY_COLORS = {
-  easy: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', label: 'Fácil' },
-  medium: { bg: 'rgba(217,119,6,0.1)', color: '#d97706', label: 'Media' },
-  hard: { bg: 'rgba(220,38,38,0.1)', color: '#dc2626', label: 'Difícil' },
+  easy: { bg: 'rgba(168,162,158,0.15)', color: '#57534e', label: 'Fácil' },
+  medium: { bg: 'rgba(120,113,108,0.15)', color: '#44403c', label: 'Media' },
+  hard: { bg: '#0c0a09', color: '#fafaf9', label: 'Difícil' },
 };
 
 function useDebounce(value, delay) {

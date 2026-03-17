@@ -47,7 +47,7 @@ export default function WelcomeStep({ onComplete, onError }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 bg-stone-50 rounded-lg">
+        <div className="p-4 bg-stone-50 rounded-xl">
           <div className="text-2xl mb-2">🛒</div>
           <h3 className="font-medium text-stone-900 mb-1">Compra directo</h3>
           <p className="text-sm text-stone-600">
@@ -55,7 +55,7 @@ export default function WelcomeStep({ onComplete, onError }) {
           </p>
         </div>
         
-        <div className="p-4 bg-stone-50 rounded-lg">
+        <div className="p-4 bg-stone-50 rounded-xl">
           <div className="text-2xl mb-2">📱</div>
           <h3 className="font-medium text-stone-900 mb-1">Red social</h3>
           <p className="text-sm text-stone-600">
@@ -63,7 +63,7 @@ export default function WelcomeStep({ onComplete, onError }) {
           </p>
         </div>
         
-        <div className="p-4 bg-stone-50 rounded-lg">
+        <div className="p-4 bg-stone-50 rounded-xl">
           <div className="text-2xl mb-2">🏆</div>
           <h3 className="font-medium text-stone-900 mb-1">Recompensas</h3>
           <p className="text-sm text-stone-600">
@@ -76,7 +76,7 @@ export default function WelcomeStep({ onComplete, onError }) {
         <button
           onClick={handleStart}
           disabled={loading}
-          className="w-full sm:w-auto px-8 py-3 bg-stone-900 text-white rounded-lg font-medium disabled:opacity-50 hover:bg-stone-800 transition-colors"
+          className="w-full sm:w-auto px-8 py-3 bg-stone-900 text-white rounded-xl font-medium disabled:opacity-50 hover:bg-stone-800 transition-colors"
         >
           {loading ? 'Cargando...' : 'Empezar a explorar'}
         </button>

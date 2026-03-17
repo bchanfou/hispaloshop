@@ -311,7 +311,7 @@ export default function FiscalSetupPage() {
                     onChange={(e) => setCountrySearch(e.target.value)}
                     placeholder="Buscar país..."
                     autoFocus
-                    className="w-full px-3 py-2 text-sm rounded-lg focus:outline-none"
+                    className="w-full px-3 py-2 text-sm rounded-xl focus:outline-none"
                     style={{ background: 'var(--color-surface)', color: 'var(--color-black)' }}
                   />
                 </div>
@@ -328,7 +328,7 @@ export default function FiscalSetupPage() {
                       style={{ color: 'var(--color-black)' }}
                     >
                       {c.name}
-                      {c.code === country && <Check className="w-4 h-4" style={{ color: 'var(--color-green)' }} />}
+                      {c.code === country && <Check className="w-4 h-4" style={{ color: 'var(--color-black)' }} />}
                     </button>
                   ))}
                 </div>
@@ -340,8 +340,8 @@ export default function FiscalSetupPage() {
         {/* Withholding badge */}
         {withholdingInfo && (
           <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" style={{
-            background: withholdingInfo.color === 'amber' ? 'var(--color-amber-light)' : 'var(--color-green-light)',
-            color: withholdingInfo.color === 'amber' ? 'var(--color-amber)' : 'var(--color-green)',
+            background: withholdingInfo.color === 'amber' ? 'var(--color-amber-light)' : 'var(--color-surface-alt, #f5f5f4)',
+            color: withholdingInfo.color === 'amber' ? 'var(--color-amber)' : 'var(--color-black)',
           }}>
             {withholdingInfo.label}
           </div>
@@ -384,7 +384,7 @@ export default function FiscalSetupPage() {
 
         {certStatus === 'uploading' && (
           <div className="p-5 flex items-center gap-3" style={{ background: 'var(--color-amber-light)', borderRadius: 'var(--radius-xl)' }}>
-            <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--color-green)' }} />
+            <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--color-black)' }} />
             <p className="text-sm font-medium" style={{ color: 'var(--color-black)' }}>
               Analizando tu certificado... esto tarda unos segundos
             </p>
@@ -392,9 +392,9 @@ export default function FiscalSetupPage() {
         )}
 
         {certStatus === 'verified' && (
-          <div className="p-4" style={{ background: 'var(--color-green-light)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-green)' }}>
+          <div className="p-4" style={{ background: 'var(--color-surface-alt, #f5f5f4)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border, #e7e5e4)' }}>
             <div className="flex items-start gap-3">
-              <Check className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-green)' }} />
+              <Check className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--color-black)' }} />
               <div>
                 <p className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Certificado verificado</p>
                 <p className="text-xs mt-1" style={{ color: 'var(--color-stone)' }}>
@@ -481,7 +481,7 @@ export default function FiscalSetupPage() {
               <CreditCard className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
               <span className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Stripe</span>
               {payoutMethod === 'stripe' && fiscal?.stripe_onboarding_complete && (
-                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-green-light)', color: 'var(--color-green)' }}>
+                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-surface-alt, #f5f5f4)', color: 'var(--color-black)' }}>
                   Conectado
                 </span>
               )}
@@ -512,7 +512,7 @@ export default function FiscalSetupPage() {
                 <Building2 className="w-5 h-5 shrink-0" style={{ color: 'var(--color-stone)' }} />
                 <span className="text-sm font-semibold" style={{ color: 'var(--color-black)' }}>Transferencia bancaria (SEPA)</span>
                 {payoutMethod === 'sepa' && fiscal?.sepa_iban_last4 && (
-                  <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-green-light)', color: 'var(--color-green)' }}>
+                  <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--color-surface-alt, #f5f5f4)', color: 'var(--color-black)' }}>
                     Configurado
                   </span>
                 )}
@@ -586,7 +586,7 @@ export default function FiscalSetupPage() {
             )}
             <div className="pt-2 flex justify-between text-sm" style={{ borderTop: '1px solid var(--color-border)' }}>
               <span className="font-bold" style={{ color: 'var(--color-black)' }}>RECIBIRÁS</span>
-              <span className="font-bold" style={{ color: 'var(--color-green)' }}>{netPreview.toFixed(2)}€</span>
+              <span className="font-bold" style={{ color: 'var(--color-black)' }}>{netPreview.toFixed(2)}€</span>
             </div>
           </div>
         </div>

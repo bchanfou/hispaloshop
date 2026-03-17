@@ -30,12 +30,12 @@ import SampleShipmentCard from '@/components/chat/collab/SampleShipmentCard';
 const V = {
   cream: '#F7F6F2',
   black: '#0A0A0A',
-  green: '#2E7D52',
+  green: '#0c0a09',
   stone: '#8A8881',
   border: '#E5E2DA',
   surface: '#F0EDE8',
   white: '#FFFFFF',
-  greenLight: '#e8f5ee',
+  greenLight: '#f5f5f4',
   greenBorder: '#b6dcc6',
   fontSans: "'Inter', sans-serif",
   radiusMd: 12,
@@ -593,7 +593,9 @@ function CollabProposalMessage({ message, isOwn, gap, touchProps }) {
 
   useEffect(() => {
     if (!collabId) return;
-    apiClient.get(`/collaborations/${collabId}`).then(setCollab).catch(() => {});
+    let active = true;
+    apiClient.get(`/collaborations/${collabId}`).then(d => { if (active) setCollab(d); }).catch(() => {});
+    return () => { active = false; };
   }, [collabId]);
 
   if (!collab) return null;
@@ -652,8 +654,10 @@ function CollabAffiliateMessage({ message, isOwn, gap, touchProps }) {
 
   useEffect(() => {
     if (!collabId) return;
-    apiClient.get(`/collaborations/${collabId}`).then(setCollab).catch(() => {});
-    apiClient.get(`/collaborations/${collabId}/stats`).then(setStats).catch(() => {});
+    let active = true;
+    apiClient.get(`/collaborations/${collabId}`).then(d => { if (active) setCollab(d); }).catch(() => {});
+    apiClient.get(`/collaborations/${collabId}/stats`).then(d => { if (active) setStats(d); }).catch(() => {});
+    return () => { active = false; };
   }, [collabId]);
 
   if (!collab?.affiliate_link?.url) return null;
@@ -678,7 +682,9 @@ function CollabSampleMessage({ message, isOwn, gap, touchProps }) {
 
   useEffect(() => {
     if (!collabId) return;
-    apiClient.get(`/collaborations/${collabId}`).then(setCollab).catch(() => {});
+    let active = true;
+    apiClient.get(`/collaborations/${collabId}`).then(d => { if (active) setCollab(d); }).catch(() => {});
+    return () => { active = false; };
   }, [collabId]);
 
   if (!collab?.sample_shipment?.tracking_number) return null;
@@ -908,7 +914,7 @@ function MessageContextMenu({ contextMenu, onClose, userId }) {
                 borderRadius: 8,
                 fontSize: 13,
                 fontWeight: 500,
-                color: opt.danger ? '#dc2626' : V.black,
+                color: opt.danger ? 'var(--color-red)' : V.black,
                 fontFamily: V.fontSans,
               }}
               onMouseEnter={(e) => {

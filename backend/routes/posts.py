@@ -159,7 +159,8 @@ async def create_post(
         except Exception as e:
             logger.error("Background moderation failed for post %s: %s", post_id, e)
 
-    asyncio.create_task(_moderate_bg(result.inserted_id, current_user.user_id, content, media, hashtags))
+    from services.background import create_safe_task
+    create_safe_task(_moderate_bg(result.inserted_id, current_user.user_id, content, media, hashtags), name="post_moderation")
 
     return {"success": True, "data": post_doc}
 

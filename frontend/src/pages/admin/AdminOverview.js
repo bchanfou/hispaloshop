@@ -36,7 +36,7 @@ function PendingRow({ label, count, to }) {
       <span className="font-medium" style={{ color: 'var(--color-stone)' }}>{label}</span>
       <div className="flex items-center gap-2">
         {count > 0 && (
-          <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center" style={{ background: 'var(--color-red-light)', color: 'var(--color-red)' }}>
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center" style={{ background: 'var(--color-surface)', color: 'var(--color-black)' }}>
             {count}
           </span>
         )}
@@ -156,9 +156,9 @@ export default function AdminOverview() {
           <Link
             to="/admin/verification"
             className="flex items-center gap-3 p-3.5 transition-all text-sm"
-            style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-red)', background: 'var(--color-red-light)' }}
+            style={{ borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}
           >
-            <span className="font-medium" style={{ color: 'var(--color-red)' }}>
+            <span className="font-medium" style={{ color: 'var(--color-black)' }}>
               {stats.blocked_by_expired_cert} productor(es) bloqueados por certificado caducado
             </span>
             <ArrowRight className="w-4 h-4 ml-auto shrink-0" style={{ color: 'var(--color-red)' }} />

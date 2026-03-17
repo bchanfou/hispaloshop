@@ -1635,12 +1635,13 @@ async def admin_list_users(
     if approved is not None:
         query["approved"] = approved
     
+    total = await db.users.count_documents(query)
     users = await db.users.find(
         query,
         {"_id": 0, "password_hash": 0}
-    ).sort("created_at", -1).to_list(500)
-    
-    return users
+    ).sort("created_at", -1).limit(200).to_list(200)
+
+    return {"users": users, "total": total, "has_more": total > 200}
 
 
 @router.get("/admin/products")
@@ -1658,12 +1659,13 @@ async def admin_list_products(
     if seller_type:
         query["seller_type"] = seller_type
     
+    total = await db.products.count_documents(query)
     products = await db.products.find(
         query,
         {"_id": 0}
-    ).sort("created_at", -1).to_list(500)
-    
-    return products
+    ).sort("created_at", -1).limit(200).to_list(200)
+
+    return {"products": products, "total": total, "has_more": total > 200}
 
 
 @router.get("/admin/orders")
@@ -1679,12 +1681,13 @@ async def admin_list_orders(
     if status:
         query["status"] = status
     
+    total = await db.orders.count_documents(query)
     orders = await db.orders.find(
         query,
         {"_id": 0}
     ).sort("created_at", -1).limit(limit).to_list(limit)
-    
-    return orders
+
+    return {"orders": orders, "total": total, "has_more": total > limit}
 
 
 @router.put("/admin/products/{product_id}/approve")

@@ -130,7 +130,7 @@ export default function AdminManagement() {
   const getRoleBadge = (role) => {
     if (role === 'super_admin') {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-[#5856D6] text-white">
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-[var(--color-black)] text-white">
           <Shield className="w-3 h-3" />
           Super Admin
         </span>
@@ -148,14 +148,14 @@ export default function AdminManagement() {
     switch (status) {
       case 'active':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-[#34C759]/20 text-[#34C759]">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-stone-100 text-stone-950">
             <CheckCircle className="w-3 h-3" />
             {t('common.active')}
           </span>
         );
       case 'suspended':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-[#FF3B30]/20 text-[#FF3B30]">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-[var(--color-red)]/20 text-[var(--color-red)]">
             <Ban className="w-3 h-3" />
             Suspended
           </span>
@@ -191,7 +191,7 @@ export default function AdminManagement() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#5856D6] text-white rounded-xl hover:bg-[#4846B5] transition-colors text-sm font-semibold"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--color-black)] text-white rounded-xl hover:bg-[var(--color-black)] transition-colors text-sm font-semibold"
           data-testid="create-admin-button"
         >
           <UserPlus className="w-4 h-4" />
@@ -250,7 +250,7 @@ export default function AdminManagement() {
                         {admin.status !== 'suspended' ? (
                           <button
                             onClick={() => handleStatusChange(admin.user_id, 'suspended')}
-                            className="p-1.5 text-white/40 hover:text-[#FF9500] hover:bg-white/[0.06] rounded-lg transition-colors"
+                            className="p-1.5 text-white/40 hover:text-[var(--color-stone)] hover:bg-white/[0.06] rounded-xl transition-colors"
                             title={t('admin.suspend')}
                             data-testid={`suspend-admin-${admin.user_id}`}
                           >
@@ -259,7 +259,7 @@ export default function AdminManagement() {
                         ) : (
                           <button
                             onClick={() => handleStatusChange(admin.user_id, 'active')}
-                            className="p-1.5 text-white/40 hover:text-[#34C759] hover:bg-white/[0.06] rounded-lg transition-colors"
+                            className="p-1.5 text-white/40 hover:text-white hover:bg-white/[0.06] rounded-xl transition-colors"
                             title={t('admin.reactivate')}
                             data-testid={`activate-admin-${admin.user_id}`}
                           >
@@ -268,7 +268,7 @@ export default function AdminManagement() {
                         )}
                         <button
                           onClick={() => setShowDeleteConfirm(admin)}
-                          className="p-1.5 text-white/40 hover:text-[#FF3B30] hover:bg-white/[0.06] rounded-lg transition-colors"
+                          className="p-1.5 text-white/40 hover:text-[var(--color-red)] hover:bg-white/[0.06] rounded-xl transition-colors"
                           title="Delete"
                           data-testid={`delete-admin-${admin.user_id}`}
                         >
@@ -277,7 +277,7 @@ export default function AdminManagement() {
                       </div>
                     )}
                     {admin.user_id === user?.user_id && (
-                      <span className="text-xs text-[#5856D6]">Tú</span>
+                      <span className="text-xs text-[var(--color-black)]">Tú</span>
                     )}
                     {admin.role === 'super_admin' && admin.user_id !== user?.user_id && (
                       <span className="text-xs text-white/25">Protegido</span>
@@ -316,7 +316,7 @@ export default function AdminManagement() {
 
             <form onSubmit={handleCreateAdmin} className="space-y-4">
               {formError && (
-                <div className="p-3 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-xl text-[#FF3B30] text-sm">
+                <div className="p-3 bg-[var(--color-red)]/10 border border-[var(--color-red)]/20 rounded-xl text-[var(--color-red)] text-sm">
                   {formError}
                 </div>
               )}
@@ -329,7 +329,7 @@ export default function AdminManagement() {
                   type="text"
                   value={newAdmin.name}
                   onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#5856D6]"
+                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[var(--color-black)]"
                   placeholder="John Doe"
                   data-testid="admin-name-input"
                 />
@@ -343,7 +343,7 @@ export default function AdminManagement() {
                   type="email"
                   value={newAdmin.email}
                   onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#5856D6]"
+                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[var(--color-black)]"
                   placeholder="admin@example.com"
                   data-testid="admin-email-input"
                 />
@@ -358,7 +358,7 @@ export default function AdminManagement() {
                     type={showPassword ? 'text' : 'password'}
                     value={newAdmin.password}
                     onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-                    className="w-full px-4 py-2.5 pr-10 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#5856D6]"
+                    className="w-full px-4 py-2.5 pr-10 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[var(--color-black)]"
                     placeholder="Min. 8 characters"
                     data-testid="admin-password-input"
                   />
@@ -377,7 +377,7 @@ export default function AdminManagement() {
                 <select
                   value={newAdmin.role}
                   onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm focus:outline-none focus:border-[#5856D6]"
+                  className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm focus:outline-none focus:border-[var(--color-black)]"
                   data-testid="admin-role-select"
                 >
                   <option value="admin" className="bg-[#1C1C1E]">Admin</option>
@@ -393,7 +393,7 @@ export default function AdminManagement() {
                   <select
                     value={newAdmin.assigned_country}
                     onChange={(e) => setNewAdmin({ ...newAdmin, assigned_country: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm focus:outline-none focus:border-[#5856D6]"
+                    className="w-full px-4 py-2.5 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white text-sm focus:outline-none focus:border-[var(--color-black)]"
                     data-testid="admin-country-select"
                   >
                     {COUNTRIES.map(country => (
@@ -417,7 +417,7 @@ export default function AdminManagement() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-4 py-2.5 bg-[#5856D6] text-white rounded-xl hover:bg-[#4846B5] transition-colors disabled:opacity-50 text-sm font-semibold"
+                  className="flex-1 px-4 py-2.5 bg-[var(--color-black)] text-white rounded-xl hover:bg-[var(--color-black)] transition-colors disabled:opacity-50 text-sm font-semibold"
                   data-testid="submit-create-admin"
                 >
                   {submitting ? t('common.loading') : t('common.create')}
@@ -435,8 +435,8 @@ export default function AdminManagement() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-[#1C1C1E] rounded-2xl border border-white/[0.08] max-w-md w-full mx-4 p-6" data-testid="delete-confirm-modal">
             <div className="text-center">
-              <div className="w-12 h-12 bg-[#FF3B30]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-6 h-6 text-[#FF3B30]" />
+              <div className="w-12 h-12 bg-[var(--color-red)]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-6 h-6 text-[var(--color-red)]" />
               </div>
               <h3 className="text-lg font-bold text-white mb-2">
                 Eliminar cuenta admin
@@ -456,7 +456,7 @@ export default function AdminManagement() {
                 </button>
                 <button
                   onClick={() => handleDeleteAdmin(showDeleteConfirm.user_id)}
-                  className="flex-1 px-4 py-2.5 bg-[#FF3B30] text-white rounded-xl hover:bg-[#E5352B] transition-colors text-sm font-semibold"
+                  className="flex-1 px-4 py-2.5 bg-[var(--color-red)] text-white rounded-xl hover:bg-[var(--color-red)] transition-colors text-sm font-semibold"
                   data-testid="confirm-delete-admin"
                 >
                   {t('common.delete')}

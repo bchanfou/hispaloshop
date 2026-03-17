@@ -68,7 +68,7 @@ export default function ReviewModal({ open, onClose, order }) {
               <h3 className="text-base font-bold text-stone-950">Valorar pedido</h3>
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors"
+                className="p-1.5 rounded-xl hover:bg-stone-100 transition-colors"
               >
                 <X className="w-5 h-5 text-stone-500" />
               </button>
@@ -107,7 +107,7 @@ export default function ReviewModal({ open, onClose, order }) {
               {product && (
                 <div className="flex items-center gap-3 bg-stone-50 rounded-xl p-3">
                   {product.image && (
-                    <img src={product.image} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+                    <img src={product.image} alt="" className="w-12 h-12 rounded-xl object-cover shrink-0" />
                   )}
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-stone-950 truncate">{product.name || product.product_name}</p>

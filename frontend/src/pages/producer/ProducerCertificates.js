@@ -269,7 +269,7 @@ export default function ProducerCertificates() {
               <p className="text-stone-500 mb-4">
                 {t('certificates.allProductsCertified', 'Todos tus productos ya tienen certificados.')}
               </p>
-              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors">
+              <button type="button" onClick={resetForm} className="px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">
                 {t('common.goBack', 'Volver')}
               </button>
             </div>
@@ -524,7 +524,7 @@ export default function ProducerCertificates() {
                     <button
                       type="button"
                       onClick={() => setCurrentStep(currentStep - 1)}
-                      className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors"
+                      className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
                     >
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       {t('common.back', 'Atrás')}
@@ -537,7 +537,7 @@ export default function ProducerCertificates() {
                     <button
                       type="button"
                       onClick={() => handleSubmit(true)}
-                      className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors"
+                      className="flex items-center px-4 py-2 text-sm font-medium border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors"
                     >
                       <Save className="w-4 h-4 mr-2" />
                       {t('certificates.saveDraft', 'Guardar borrador')}
@@ -549,7 +549,7 @@ export default function ProducerCertificates() {
                       type="button"
                       onClick={() => setCurrentStep(currentStep + 1)}
                       disabled={!canProceed()}
-                      className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-lg transition-colors"
+                      className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-colors"
                     >
                       {t('common.next', 'Siguiente')}
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -558,7 +558,7 @@ export default function ProducerCertificates() {
                     <button
                       type="button"
                       onClick={() => handleSubmit(false)}
-                      className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-lg transition-colors"
+                      className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       {t('certificates.submitForApproval', 'Enviar para aprobación')}
@@ -588,7 +588,7 @@ export default function ProducerCertificates() {
         <button
           type="button"
           onClick={() => setShowCreateForm(true)}
-          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-lg transition-colors"
+          className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors"
           data-testid="create-certificate"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -608,7 +608,7 @@ export default function ProducerCertificates() {
             <p className="text-stone-500 mb-4">
               {t('certificates.noCertificates', 'No tienes certificados todavía.')}
             </p>
-            <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-lg transition-colors">
+            <button type="button" onClick={() => setShowCreateForm(true)} className="flex items-center px-4 py-2 text-sm font-medium bg-stone-950 hover:bg-stone-800 text-white rounded-xl transition-colors">
               <Plus className="w-4 h-4 mr-2" />
               {t('certificates.createFirst', 'Crear tu primer certificado')}
             </button>

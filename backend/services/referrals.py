@@ -52,12 +52,13 @@ async def check_influencer_attribution(db, customer_id: str, influencer_code: st
 
 
 async def create_attribution(db, customer_id: str, influencer_id: str, code_used: str):
-    """Create or update a user-level referral attribution (18 month lock)."""
+    """Create a user-level referral attribution (18 month lock). Idempotent — won't overwrite existing."""
     now = datetime.now(timezone.utc)
     expiry = now + timedelta(days=ATTRIBUTION_LOCK_MONTHS * 30)
 
-    await db.users.update_one(
-        {"user_id": customer_id},
+    # Only set attribution if none exists yet (prevents race condition from overwriting)
+    result = await db.users.update_one(
+        {"user_id": customer_id, "referred_by": {"$exists": False}},
         {
             "$set": {
                 "referred_by": influencer_id,
@@ -66,4 +67,8 @@ async def create_attribution(db, customer_id: str, influencer_id: str, code_used
             }
         },
     )
-    logger.info(f"[ATTRIBUTION] Customer {customer_id} -> Influencer {influencer_id} (18 months)")
+    if result.modified_count > 0:
+        logger.info(f"[ATTRIBUTION] Customer {customer_id} -> Influencer {influencer_id} (18 months)")
+    else:
+        # Attribution already exists — log but don't overwrite
+        logger.info(f"[ATTRIBUTION] Customer {customer_id} already attributed, skipping {influencer_id}")

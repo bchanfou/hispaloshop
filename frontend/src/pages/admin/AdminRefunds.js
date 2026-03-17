@@ -178,7 +178,7 @@ function OrderRow({ order, showRefundButton, onRefund }) {
           {showRefundButton && !isRefunded && (
             <button
               onClick={() => onRefund(order)}
-              className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 text-white text-xs font-medium rounded-xl transition-colors flex items-center gap-1"
             >
               <RotateCcw className="w-3 h-3" />
               Reembolsar

@@ -68,7 +68,7 @@ export default function WithdrawalPage() {
   if (success) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4" style={{ fontFamily: 'var(--font-sans)', background: 'var(--color-cream)', minHeight: '100vh' }}>
-        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5" style={{ background: 'var(--color-green)' }}>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5" style={{ background: 'var(--color-black)' }}>
           <Check className="w-7 h-7" style={{ color: '#fff' }} strokeWidth={2.5} />
         </div>
         <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--color-black)' }}>¡Cobro en camino!</h2>
@@ -98,7 +98,7 @@ export default function WithdrawalPage() {
           )}
           <div className="pt-2 flex justify-between text-sm font-bold" style={{ borderTop: '1px solid var(--color-border)' }}>
             <span style={{ color: 'var(--color-black)' }}>Neto</span>
-            <span style={{ color: 'var(--color-green)' }}>{success.net_amount.toFixed(2)}€</span>
+            <span style={{ color: 'var(--color-black)' }}>{success.net_amount.toFixed(2)}€</span>
           </div>
           <div className="flex justify-between text-xs pt-1">
             <span style={{ color: 'var(--color-stone)' }}>Método</span>
@@ -155,14 +155,14 @@ export default function WithdrawalPage() {
             <div className="flex items-center gap-1">
               <span style={{ color: 'var(--color-stone)' }} title="La comisión real puede variar según tu método de pago">Fee de transferencia (aprox.)</span>
             </div>
-            <span className="font-semibold" style={{ color: transferFee > 0 ? 'var(--color-red)' : 'var(--color-green)' }}>
+            <span className="font-semibold" style={{ color: transferFee > 0 ? 'var(--color-red)' : 'var(--color-black)' }}>
               {transferFee > 0 ? `−${transferFee.toFixed(2)}€` : '0€'}
             </span>
           </div>
 
           <div className="pt-3 flex justify-between" style={{ borderTop: '1px solid var(--color-border)' }}>
             <span className="text-sm font-bold" style={{ color: 'var(--color-black)' }}>RECIBIRÁS</span>
-            <span className="text-base font-bold" style={{ color: 'var(--color-green)' }}>{net.toFixed(2)}€</span>
+            <span className="text-base font-bold" style={{ color: 'var(--color-black)' }}>{net.toFixed(2)}€</span>
           </div>
         </div>
       </div>
@@ -221,7 +221,7 @@ export default function WithdrawalPage() {
         disabled={!canWithdraw || submitting}
         className="w-full py-3.5 text-sm font-semibold transition-colors mb-8 flex items-center justify-center gap-2"
         style={{
-          background: canWithdraw ? 'var(--color-green)' : 'var(--color-surface)',
+          background: canWithdraw ? 'var(--color-black)' : 'var(--color-surface)',
           color: canWithdraw ? '#fff' : 'var(--color-stone)',
           borderRadius: 'var(--radius-xl)',
           border: 'none',

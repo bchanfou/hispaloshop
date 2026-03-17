@@ -149,7 +149,7 @@ export default function CollabProposalPage() {
                   onClick={() => setSelectedProduct(p)}
                   className="flex items-center gap-3 w-full p-3 text-left hover:bg-stone-50 transition-colors"
                 >
-                  {p.images?.[0]?.url && <img src={p.images[0].url} alt="" className="w-10 h-10 rounded-lg object-cover" />}
+                  {p.images?.[0]?.url && <img src={p.images[0].url} alt="" className="w-10 h-10 rounded-xl object-cover" />}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate" style={{ color: 'var(--color-black)' }}>{p.name}</p>
                     <p className="text-xs" style={{ color: 'var(--color-stone)' }}>{p.price?.toFixed(2)}€</p>

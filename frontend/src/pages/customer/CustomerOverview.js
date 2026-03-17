@@ -102,7 +102,7 @@ export default function CustomerOverview() {
           {/* Green progress bar */}
           <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.12)' }}>
             <div className="h-full rounded-full" style={{
-              background: 'var(--color-green)',
+              background: 'var(--color-white)',
               width: latestOrder.status === 'delivered' ? '100%' : latestOrder.status === 'shipped' ? '75%' : latestOrder.status === 'preparing' ? '50%' : '25%'
             }} />
           </div>
