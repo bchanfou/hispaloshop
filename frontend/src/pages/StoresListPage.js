@@ -1,18 +1,77 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Star, ChevronRight, MapPin, Package, Truck, Loader2, Store, ShieldCheck, X } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft, Search, Star, MapPin, Package, Truck, X, Map as MapIcon, List, Navigation } from 'lucide-react';
 import apiClient from '../services/api/client';
+import { useAuth } from '../context/AuthContext';
+import { useLocale } from '../context/LocaleContext';
 
-const FILTER_PILLS = [
-  { id: 'all', label: 'Todas' },
-  { id: 'verified', label: 'Verificadas' },
-  { id: 'ES', label: 'España' },
-  { id: 'FR', label: 'Francia' },
-  { id: 'elite', label: 'ELITE' },
-  { id: 'pro', label: 'PRO' },
-  { id: 'free_shipping', label: 'Envío gratis' },
+/* ══════════════════════════════════════════
+   Region / Country mapping
+   ══════════════════════════════════════════ */
+
+const IBEROESFERA = new Set([
+  'ES','PT','MX','CO','AR','CL','PE','VE','EC','BO','PY','UY','CR','PA',
+  'DO','CU','GT','HN','SV','NI','BR','GQ','PH',
+]);
+
+const REGIONS = [
+  { id: 'iberoesfera', emoji: '🌍', label: 'Iberoesfera', countries: IBEROESFERA },
+  { id: 'europa', emoji: '🇪🇺', label: 'Europa', countries: new Set([
+    'ES','PT','FR','DE','IT','NL','BE','AT','CH','IE','GB','DK','SE','NO','FI',
+    'PL','CZ','SK','HU','RO','BG','HR','SI','GR','EE','LV','LT','LU','MT','CY',
+  ])},
+  { id: 'americas', emoji: '🌎', label: 'Américas', countries: new Set([
+    'US','CA','MX','CO','AR','CL','PE','VE','EC','BO','PY','UY','CR','PA',
+    'DO','CU','GT','HN','SV','NI','BR','JM','TT','HT',
+  ])},
+  { id: 'asia', emoji: '🌏', label: 'Asia', countries: new Set([
+    'CN','JP','KR','IN','TH','VN','ID','MY','SG','PH','TW','HK','PK','BD',
+    'LK','NP','MM','KH','LA','MN','KZ','UZ','TM','KG','TJ',
+  ])},
+  { id: 'mena', emoji: '🕌', label: 'MENA', countries: new Set([
+    'MA','DZ','TN','LY','EG','SA','AE','QA','KW','BH','OM','JO','LB','IQ',
+    'SY','YE','IR','IL','PS','TR',
+  ])},
+  { id: 'africa', emoji: '🌍', label: 'África', countries: new Set([
+    'NG','GH','KE','TZ','UG','ET','ZA','SN','CI','CM','CD','AO','MZ','MG',
+    'ZW','RW','ML','BF','NE','TD','GQ','GA','CG','BJ','TG','SL','LR','GW',
+    'MR','SO','DJ','ER','SS','MW','ZM','BW','NA','LS','SZ',
+  ])},
 ];
+
+const COUNTRY_NAMES = {
+  ES:'España',PT:'Portugal',FR:'Francia',DE:'Alemania',IT:'Italia',NL:'Países Bajos',
+  BE:'Bélgica',AT:'Austria',CH:'Suiza',IE:'Irlanda',GB:'Reino Unido',DK:'Dinamarca',
+  SE:'Suecia',NO:'Noruega',FI:'Finlandia',PL:'Polonia',CZ:'Chequia',GR:'Grecia',
+  RO:'Rumanía',HU:'Hungría',HR:'Croacia',BG:'Bulgaria',
+  US:'Estados Unidos',CA:'Canadá',MX:'México',CO:'Colombia',AR:'Argentina',
+  CL:'Chile',PE:'Perú',VE:'Venezuela',EC:'Ecuador',BO:'Bolivia',PY:'Paraguay',
+  UY:'Uruguay',CR:'Costa Rica',PA:'Panamá',DO:'Rep. Dominicana',CU:'Cuba',
+  GT:'Guatemala',HN:'Honduras',SV:'El Salvador',NI:'Nicaragua',BR:'Brasil',
+  GQ:'Guinea Ecuatorial',PH:'Filipinas',
+  CN:'China',JP:'Japón',KR:'Corea del Sur',IN:'India',TH:'Tailandia',
+  VN:'Vietnam',ID:'Indonesia',MY:'Malasia',SG:'Singapur',TW:'Taiwán',
+  MA:'Marruecos',DZ:'Argelia',TN:'Túnez',EG:'Egipto',SA:'Arabia Saudí',
+  AE:'Emiratos Árabes',QA:'Qatar',TR:'Turquía',IL:'Israel',JO:'Jordania',LB:'Líbano',
+  NG:'Nigeria',GH:'Ghana',KE:'Kenia',TZ:'Tanzania',ZA:'Sudáfrica',SN:'Senegal',
+  ET:'Etiopía',UG:'Uganda',CI:'Costa de Marfil',CM:'Camerún',
+};
+
+const COUNTRY_FLAGS = {
+  ES:'🇪🇸',PT:'🇵🇹',FR:'🇫🇷',DE:'🇩🇪',IT:'🇮🇹',NL:'🇳🇱',BE:'🇧🇪',AT:'🇦🇹',CH:'🇨🇭',
+  IE:'🇮🇪',GB:'🇬🇧',DK:'🇩🇰',SE:'🇸🇪',NO:'🇳🇴',FI:'🇫🇮',PL:'🇵🇱',CZ:'🇨🇿',GR:'🇬🇷',
+  RO:'🇷🇴',HU:'🇭🇺',HR:'🇭🇷',BG:'🇧🇬',
+  US:'🇺🇸',CA:'🇨🇦',MX:'🇲🇽',CO:'🇨🇴',AR:'🇦🇷',CL:'🇨🇱',PE:'🇵🇪',VE:'🇻🇪',
+  EC:'🇪🇨',BO:'🇧🇴',PY:'🇵🇾',UY:'🇺🇾',CR:'🇨🇷',PA:'🇵🇦',DO:'🇩🇴',CU:'🇨🇺',
+  GT:'🇬🇹',HN:'🇭🇳',SV:'🇸🇻',NI:'🇳🇮',BR:'🇧🇷',GQ:'🇬🇶',PH:'🇵🇭',
+  CN:'🇨🇳',JP:'🇯🇵',KR:'🇰🇷',IN:'🇮🇳',TH:'🇹🇭',VN:'🇻🇳',ID:'🇮🇩',MY:'🇲🇾',SG:'🇸🇬',TW:'🇹🇼',
+  MA:'🇲🇦',DZ:'🇩🇿',TN:'🇹🇳',EG:'🇪🇬',SA:'🇸🇦',AE:'🇦🇪',QA:'🇶🇦',TR:'🇹🇷',IL:'🇮🇱',JO:'🇯🇴',LB:'🇱🇧',
+  NG:'🇳🇬',GH:'🇬🇭',KE:'🇰🇪',TZ:'🇹🇿',ZA:'🇿🇦',SN:'🇸🇳',ET:'🇪🇹',UG:'🇺🇬',CI:'🇨🇮',CM:'🇨🇲',
+};
+
+/* ══════════════════════════════════════════
+   Helpers
+   ══════════════════════════════════════════ */
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value);
@@ -23,100 +82,183 @@ function useDebounce(value, delay) {
   return debounced;
 }
 
-function PlanBadge({ plan }) {
-  if (!plan || plan === 'free') return null;
-  const upper = plan.toUpperCase();
-  const isElite = upper === 'ELITE';
+const pill = (active) => ({
+  flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
+  padding: '7px 14px', borderRadius: 'var(--radius-full)',
+  fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)',
+  whiteSpace: 'nowrap', cursor: 'pointer', transition: 'var(--transition-fast)',
+  border: active ? 'none' : '1px solid var(--color-border)',
+  background: active ? 'var(--color-black)' : 'var(--color-white)',
+  color: active ? '#fff' : 'var(--color-black)',
+});
+
+const sLabel = {
+  fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
+  letterSpacing: '0.06em', color: 'var(--color-stone)',
+  fontFamily: 'var(--font-sans)', display: 'block', marginBottom: 12,
+};
+
+/* ══════════════════════════════════════════
+   Map Component (Leaflet)
+   ══════════════════════════════════════════ */
+
+function StoreMap({ stores, onStoreClick }) {
+  const mapRef = useRef(null);
+  const [mapReady, setMapReady] = useState(false);
+  const [L, setL] = useState(null);
+
+  // Dynamic import of Leaflet (avoid SSR issues)
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([
+      import('leaflet'),
+      import('leaflet/dist/leaflet.css'),
+    ]).then(([leaflet]) => {
+      if (!cancelled) setL(leaflet.default || leaflet);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (!L || !mapRef.current || mapReady) return;
+
+    const storesWithCoords = stores.filter(s => s.coordinates?.lat && s.coordinates?.lng);
+    const center = storesWithCoords.length > 0
+      ? [storesWithCoords[0].coordinates.lat, storesWithCoords[0].coordinates.lng]
+      : [40.4168, -3.7038]; // Madrid default
+
+    const map = L.map(mapRef.current, {
+      center,
+      zoom: storesWithCoords.length > 1 ? 5 : 12,
+      zoomControl: false,
+    });
+
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 18,
+    }).addTo(map);
+
+    // Custom icon
+    const makeIcon = (store) => {
+      const logoUrl = store.logo;
+      if (logoUrl) {
+        return L.divIcon({
+          className: '',
+          html: `<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:2px solid var(--color-black);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2)">
+            <img src="${logoUrl}" style="width:100%;height:100%;object-fit:cover" />
+          </div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18],
+        });
+      }
+      return L.divIcon({
+        className: '',
+        html: `<div style="width:28px;height:28px;border-radius:50%;background:var(--color-black);border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.2)"></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+      });
+    };
+
+    storesWithCoords.forEach(store => {
+      const marker = L.marker(
+        [store.coordinates.lat, store.coordinates.lng],
+        { icon: makeIcon(store) }
+      ).addTo(map);
+
+      const slug = store.slug || store.store_slug;
+      marker.bindPopup(`
+        <div style="font-family:var(--font-sans);min-width:160px">
+          <p style="font-size:14px;font-weight:600;margin:0 0 4px">${store.name}</p>
+          <p style="font-size:11px;color:#78716c;margin:0 0 8px">${store.location || ''}</p>
+          <a href="/store/${slug}" style="font-size:12px;font-weight:600;color:#0c0a09;text-decoration:none">Ver tienda →</a>
+        </div>
+      `, { closeButton: false, className: 'store-popup' });
+    });
+
+    // Fit bounds if multiple stores
+    if (storesWithCoords.length > 1) {
+      const bounds = L.latLngBounds(storesWithCoords.map(s => [s.coordinates.lat, s.coordinates.lng]));
+      map.fitBounds(bounds, { padding: [40, 40] });
+    }
+
+    setMapReady(true);
+    return () => { map.remove(); setMapReady(false); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [L, stores]);
+
   return (
-    <span style={{
-      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
-      padding: '2px 8px', borderRadius: 'var(--radius-full, 999px)',
-      background: isElite ? 'var(--color-black)' : 'var(--color-surface)',
-      color: isElite ? 'var(--color-white)' : 'var(--color-black)',
-      whiteSpace: 'nowrap',
-    }}>
-      {upper}
-    </span>
+    <div style={{ position: 'relative' }}>
+      <style>{`
+        .store-popup .leaflet-popup-content-wrapper {
+          border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+          padding: 0;
+        }
+        .store-popup .leaflet-popup-content { margin: 12px 16px; }
+        .store-popup .leaflet-popup-tip { display: none; }
+      `}</style>
+      <div ref={mapRef} style={{ width: '100%', height: 'calc(100vh - 160px)', borderRadius: 'var(--radius-xl)', overflow: 'hidden' }} />
+    </div>
   );
 }
 
-function RatingStars({ rating }) {
-  if (!rating) return null;
-  return (
-    <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'var(--color-stone)' }}>
-      <Star size={13} fill="var(--color-black)" color="var(--color-black)" />
-      {Number(rating).toFixed(1)}
-    </span>
-  );
-}
+/* ══════════════════════════════════════════
+   StoreCard
+   ══════════════════════════════════════════ */
 
-/* ── Destacada Card (horizontal scroll) ── */
-function FeaturedStoreCard({ store }) {
+function StoreCard({ store }) {
   const slug = store.slug || store.store_slug;
-  const banner = store.hero_image || store.banner_image || null;
-  const logo = store.logo || null;
+  const hero = store.hero_image || store.banner_image || store.logo;
   const rating = store.average_rating || store.rating;
-  const plan = store.plan || store.subscription_plan;
 
   return (
     <Link
-      to={slug ? `/store/${slug}` : '/stores'}
+      to={`/store/${slug}`}
       style={{
-        display: 'block', width: 200, flexShrink: 0,
+        display: 'block', textDecoration: 'none',
+        borderRadius: 'var(--radius-xl)', overflow: 'hidden',
         background: 'var(--color-white)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-xl)',
-        overflow: 'hidden', textDecoration: 'none',
+        border: '0.5px solid var(--color-border)',
         transition: 'var(--transition-fast)',
       }}
     >
-      {/* Banner */}
-      <div style={{ height: 100, background: 'var(--color-surface)', position: 'relative', overflow: 'hidden' }}>
-        {banner ? (
-          <img src={banner} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Store size={28} color="var(--color-stone)" />
-          </div>
+      {/* hero */}
+      <div style={{ aspectRatio: '16/10', background: 'var(--color-surface)', position: 'relative', overflow: 'hidden' }}>
+        {hero && <img src={hero} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+        {/* logo overlap */}
+        {store.logo && (
+          <img src={store.logo} alt="" style={{
+            position: 'absolute', bottom: -14, left: 12,
+            width: 32, height: 32, borderRadius: '50%', objectFit: 'cover',
+            border: '2px solid var(--color-white)', background: 'var(--color-white)',
+          }} />
         )}
-        {/* Avatar overlap */}
-        <div style={{
-          position: 'absolute', bottom: -18, left: 12,
-          width: 40, height: 40, borderRadius: 'var(--radius-full, 999px)',
-          border: '2px solid var(--color-white)',
-          background: 'var(--color-surface)', overflow: 'hidden',
-        }}>
-          {logo ? (
-            <img src={logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Store size={16} color="var(--color-stone)" />
-            </div>
-          )}
-        </div>
       </div>
-
-      {/* Info */}
-      <div style={{ padding: '22px 12px 12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <p style={{
-            fontSize: 14, fontWeight: 600, color: 'var(--color-black)',
-            margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
-          }}>
-            {store.name}
-          </p>
-          <PlanBadge plan={plan} />
-        </div>
-        {store.location && (
-          <p style={{ fontSize: 12, color: 'var(--color-stone)', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <MapPin size={11} />
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{store.location}</span>
-          </p>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-          <RatingStars rating={rating} />
+      {/* info */}
+      <div style={{ padding: '18px 12px 12px' }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {store.name}
+        </p>
+        <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '3px 0 0', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <MapPin size={10} /> {store.location || 'España'}
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+          {rating > 0 && (
+            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Star size={10} style={{ fill: 'var(--color-black)', color: 'var(--color-black)' }} />
+              {Number(rating).toFixed(1)}
+            </span>
+          )}
           {store.product_count > 0 && (
-            <span style={{ fontSize: 11, color: 'var(--color-stone)' }}>{store.product_count} prod.</span>
+            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Package size={10} /> {store.product_count}
+            </span>
+          )}
+          {store.free_shipping && (
+            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Truck size={10} /> Gratis
+            </span>
           )}
         </div>
       </div>
@@ -124,374 +266,370 @@ function FeaturedStoreCard({ store }) {
   );
 }
 
-/* ── StoreRow (vertical list) ── */
-function StoreRow({ store }) {
-  const navigate = useNavigate();
+/* ══════════════════════════════════════════
+   FeaturedStoreCard (horizontal scroll)
+   ══════════════════════════════════════════ */
+
+function FeaturedCard({ store }) {
   const slug = store.slug || store.store_slug;
-  const logo = store.logo || null;
-  const rating = store.average_rating || store.rating;
-  const plan = store.plan || store.subscription_plan;
-  const verified = store.verified || store.is_verified;
+  const hero = store.hero_image || store.banner_image || store.logo;
 
   return (
-    <div
-      onClick={() => navigate(slug ? `/store/${slug}` : '/stores')}
+    <Link
+      to={`/store/${slug}`}
       style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '14px 16px',
-        background: 'var(--color-white)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-xl)',
-        cursor: 'pointer',
-        transition: 'var(--transition-fast)',
+        flexShrink: 0, width: 260, textDecoration: 'none',
+        borderRadius: 'var(--radius-xl)', overflow: 'hidden',
+        background: 'var(--color-black)', position: 'relative',
+        aspectRatio: '16/9',
       }}
     >
-      {/* Avatar */}
-      <div style={{
-        width: 52, height: 52, borderRadius: 'var(--radius-full, 999px)',
-        background: 'var(--color-surface)', overflow: 'hidden', flexShrink: 0,
-      }}>
-        {logo ? (
-          <img src={logo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Store size={22} color="var(--color-stone)" />
+      {hero && <img src={hero} alt="" loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {store.logo && <img src={store.logo} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255,255,255,0.4)' }} />}
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', margin: 0 }}>{store.name}</p>
+            <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', margin: 0, display: 'flex', alignItems: 'center', gap: 3 }}>
+              <MapPin size={9} /> {store.location || 'España'}
+            </p>
           </div>
-        )}
-      </div>
-
-      {/* Info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <p style={{
-            fontSize: 15, fontWeight: 600, color: 'var(--color-black)',
-            margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>
-            {store.name}
-          </p>
-          {verified && <ShieldCheck size={14} color="var(--color-black)" />}
-          <PlanBadge plan={plan} />
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 }}>
-          {store.location && (
-            <span style={{ fontSize: 12, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 3 }}>
-              <MapPin size={11} /> {store.location}
-            </span>
-          )}
-          <RatingStars rating={rating} />
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
-          {store.product_count > 0 && (
-            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 3 }}>
-              <Package size={11} /> {store.product_count} productos
-            </span>
-          )}
-          {store.free_shipping && (
-            <span style={{ fontSize: 11, color: 'var(--color-stone)', display: 'flex', alignItems: 'center', gap: 3 }}>
-              <Truck size={11} /> Envío gratis
-            </span>
-          )}
         </div>
       </div>
-
-      {/* CTA */}
-      <span style={{
-        fontSize: 13, fontWeight: 600, color: 'var(--color-stone)',
-        display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0,
-      }}>
-        Ver <ChevronRight size={16} />
-      </span>
-    </div>
+    </Link>
   );
 }
 
-/* ── Skeleton ── */
-function SkeletonCard() {
-  return (
-    <div style={{
-      width: 200, height: 200, flexShrink: 0,
-      background: 'var(--color-surface)', borderRadius: 'var(--radius-xl)',
-      animation: 'pulse 1.5s ease-in-out infinite',
-    }} />
-  );
-}
+/* ══════════════════════════════════════════
+   Main Page
+   ══════════════════════════════════════════ */
 
-function SkeletonRow() {
-  return (
-    <div style={{
-      height: 80, background: 'var(--color-surface)',
-      borderRadius: 'var(--radius-xl)',
-      animation: 'pulse 1.5s ease-in-out infinite',
-    }} />
-  );
-}
-
-/* ══════════════════════════════════════════════ */
-/*  MAIN COMPONENT                               */
-/* ══════════════════════════════════════════════ */
 export default function StoresListPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { country: localeCountry } = useLocale?.() || {};
+  const userCountry = user?.country || localeCountry || 'ES';
+
   const [stores, setStores] = useState([]);
+  const [eliteStores, setEliteStores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchInput, setSearchInput] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [visibleCount, setVisibleCount] = useState(15);
-  const scrollRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 400);
+
+  const [activeRegion, setActiveRegion] = useState(null);
+  const [activeCountry, setActiveCountry] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'map'
+
+  const [visibleCount, setVisibleCount] = useState(12);
   const sentinelRef = useRef(null);
 
-  const debouncedSearch = useDebounce(searchInput, 400);
-
-  /* Fetch stores */
-  const fetchStores = useCallback(async (search) => {
+  /* ── fetch stores ── */
+  useEffect(() => {
+    let active = true;
     setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      const url = `/stores${params.toString() ? `?${params}` : ''}`;
-      const data = await apiClient.get(url);
-      setStores(Array.isArray(data) ? data : []);
-    } catch {
-      setStores([]);
-    } finally {
-      setLoading(false);
+    const params = debouncedSearch ? `?search=${encodeURIComponent(debouncedSearch)}` : '';
+    apiClient.get(`/stores${params}`)
+      .then(data => {
+        if (!active) return;
+        const list = Array.isArray(data) ? data : data?.stores || [];
+        setStores(list);
+      })
+      .catch(() => { if (active) setStores([]); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [debouncedSearch]);
+
+  /* ── fetch elite stores ── */
+  useEffect(() => {
+    apiClient.get(`/stores?plan=elite&country=${userCountry}&limit=10`)
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.stores || [];
+        setEliteStores(list);
+      })
+      .catch(() => {});
+  }, [userCountry]);
+
+  /* ── infinite scroll ── */
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setVisibleCount(prev => prev + 12);
+    }, { rootMargin: '200px' });
+    obs.observe(sentinelRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  /* ── filter logic ── */
+  const filteredStores = useMemo(() => {
+    let list = stores;
+
+    // region filter
+    if (activeRegion) {
+      const region = REGIONS.find(r => r.id === activeRegion);
+      if (region) {
+        list = list.filter(s => {
+          const c = (s.country || '').toUpperCase();
+          return region.countries.has(c);
+        });
+      }
     }
-  }, []);
 
-  useEffect(() => {
-    fetchStores(debouncedSearch);
-  }, [debouncedSearch, fetchStores]);
+    // country filter
+    if (activeCountry) {
+      list = list.filter(s => (s.country || '').toUpperCase() === activeCountry);
+    }
 
-  /* Infinite scroll via IntersectionObserver */
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisibleCount(p => p + 15); },
-      { rootMargin: '200px' }
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, []);
+    return list;
+  }, [stores, activeRegion, activeCountry]);
 
-  /* Filter logic */
-  const filtered = useMemo(() => {
-    return stores.filter(s => {
-      if (activeFilter === 'all') return true;
-      if (activeFilter === 'verified') return s.verified || s.is_verified;
-      if (activeFilter === 'ES') return (s.country || '').toUpperCase() === 'ES';
-      if (activeFilter === 'FR') return (s.country || '').toUpperCase() === 'FR';
-      if (activeFilter === 'elite') return (s.plan || s.subscription_plan || '').toLowerCase() === 'elite';
-      if (activeFilter === 'pro') return (s.plan || s.subscription_plan || '').toLowerCase() === 'pro';
-      if (activeFilter === 'free_shipping') return s.free_shipping;
-      return true;
+  /* ── available regions (only those with stores) ── */
+  const availableRegions = useMemo(() => {
+    const storeCodes = new Set(stores.map(s => (s.country || '').toUpperCase()));
+    return REGIONS.filter(r => {
+      for (const code of storeCodes) {
+        if (r.countries.has(code)) return true;
+      }
+      return false;
     });
-  }, [stores, activeFilter]);
-
-  /* Featured = verified or elite/pro, max 10 */
-  const featured = useMemo(() => {
-    return stores
-      .filter(s => s.verified || s.is_verified || ['elite', 'pro'].includes((s.plan || s.subscription_plan || '').toLowerCase()))
-      .slice(0, 10);
   }, [stores]);
 
-  const font = { fontFamily: 'var(--font-sans)' };
+  /* ── country chips for active region ── */
+  const regionCountryChips = useMemo(() => {
+    if (!activeRegion) return [];
+    const region = REGIONS.find(r => r.id === activeRegion);
+    if (!region) return [];
 
+    const counts = {};
+    stores.forEach(s => {
+      const c = (s.country || '').toUpperCase();
+      if (region.countries.has(c)) {
+        counts[c] = (counts[c] || 0) + 1;
+      }
+    });
+
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([code, count]) => ({
+        code,
+        name: COUNTRY_NAMES[code] || code,
+        flag: COUNTRY_FLAGS[code] || '🏳️',
+        count,
+      }));
+  }, [activeRegion, stores]);
+
+  /* ── handlers ── */
+  const handleRegionClick = (regionId) => {
+    if (activeRegion === regionId) {
+      setActiveRegion(null);
+      setActiveCountry(null);
+    } else {
+      setActiveRegion(regionId);
+      setActiveCountry(null);
+    }
+    setVisibleCount(12);
+  };
+
+  const handleCountryClick = (code) => {
+    setActiveCountry(activeCountry === code ? null : code);
+    setVisibleCount(12);
+  };
+
+  const visibleStores = filteredStores.slice(0, visibleCount);
+
+  /* ── render ── */
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', ...font }}>
-      {/* ── Topbar ── */}
+    <div style={{ minHeight: '100vh', background: 'var(--color-cream)', fontFamily: 'var(--font-sans)', paddingBottom: 80 }}>
+      <style>{`
+        @keyframes storesPulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+        .stores-grid { display:grid; gap:12px; grid-template-columns:repeat(2,1fr); }
+        @media(min-width:600px){ .stores-grid{grid-template-columns:repeat(3,1fr);gap:14px} }
+        @media(min-width:1024px){ .stores-grid{grid-template-columns:repeat(4,1fr);gap:16px} }
+      `}</style>
+
+      {/* ── TOPBAR ── */}
       <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'var(--color-white)',
+        position: 'sticky', top: 0, zIndex: 20,
+        height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 16px', background: 'var(--color-white)',
         borderBottom: '1px solid var(--color-border)',
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '12px 16px',
       }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
-          aria-label="Volver"
-        >
+        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}>
           <ArrowLeft size={22} color="var(--color-black)" />
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-black)' }}>Tiendas</span>
+        <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-black)' }}>Tiendas</span>
+        <button
+          onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex',
+            color: 'var(--color-black)',
+          }}
+          aria-label={viewMode === 'list' ? 'Ver mapa' : 'Ver lista'}
+        >
+          {viewMode === 'list' ? <MapIcon size={22} /> : <List size={22} />}
+        </button>
       </div>
 
-      {/* ── Search ── */}
-      <div style={{ padding: '12px 16px 0', maxWidth: 600, margin: '0 auto' }}>
-        <div style={{ position: 'relative' }}>
-          <Search
-            size={18}
-            color="var(--color-stone)"
-            style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-          />
+      <div style={{ padding: '12px 16px 0' }}>
+
+        {/* ── SEARCH ── */}
+        <div style={{ position: 'relative', marginBottom: 12 }}>
+          <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-stone)' }} />
           <input
             type="text"
-            value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
-            placeholder="Buscar tienda o ubicación..."
+            placeholder="Buscar tiendas…"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
             style={{
-              width: '100%', height: 44,
-              paddingLeft: 42, paddingRight: searchInput ? 36 : 14,
-              border: '1px solid var(--color-border)',
-              borderRadius: 'var(--radius-full, 999px)',
-              background: 'var(--color-white)',
-              fontSize: 14, color: 'var(--color-black)',
-              outline: 'none', boxSizing: 'border-box',
-              fontFamily: 'var(--font-sans)',
-              transition: 'border-color 0.15s ease',
+              width: '100%', height: 44, borderRadius: 'var(--radius-full)',
+              border: '0.5px solid var(--color-border)', background: 'var(--color-white)',
+              paddingLeft: 42, paddingRight: searchQuery ? 40 : 16,
+              fontSize: 14, fontFamily: 'var(--font-sans)', color: 'var(--color-black)', outline: 'none',
             }}
-            onFocus={e => e.currentTarget.style.borderColor = 'var(--color-black)'}
-            onBlur={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
           />
-          {searchInput && (
+          {searchQuery && (
             <button
-              onClick={() => setSearchInput('')}
-              style={{
-                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                background: 'var(--color-surface)', border: 'none', cursor: 'pointer',
-                borderRadius: '50%', width: 32, height: 32,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
-              aria-label="Limpiar búsqueda"
+              onClick={() => setSearchQuery('')}
+              style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex' }}
             >
-              <X size={13} color="var(--color-stone)" />
+              <X size={16} color="var(--color-stone)" />
             </button>
           )}
         </div>
-      </div>
 
-      {/* ── Filter Pills ── */}
-      <div style={{
-        display: 'flex', gap: 8, padding: '12px 16px',
-        overflowX: 'auto', maxWidth: 600, margin: '0 auto',
-        WebkitOverflowScrolling: 'touch',
-        msOverflowStyle: 'none', scrollbarWidth: 'none',
-      }}>
-        {FILTER_PILLS.map(pill => {
-          const active = activeFilter === pill.id;
-          return (
-            <button
-              key={pill.id}
-              onClick={() => { setActiveFilter(pill.id); setVisibleCount(15); }}
-              style={{
-                flexShrink: 0,
-                padding: '7px 16px',
-                borderRadius: 'var(--radius-full, 999px)',
-                border: active ? '1px solid var(--color-black)' : '1px solid var(--color-border)',
-                background: active ? 'var(--color-black)' : 'var(--color-white)',
-                color: active ? 'var(--color-white)' : 'var(--color-black)',
-                fontSize: 13, fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'var(--transition-fast)',
-                fontFamily: 'var(--font-sans)',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {pill.label}
+        {/* ── REGION PILLS ── */}
+        <div className="scrollbar-hide" style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 8, paddingBottom: 4, scrollbarWidth: 'none' }}>
+          <button onClick={() => { setActiveRegion(null); setActiveCountry(null); }} style={pill(!activeRegion)}>
+            Todas
+          </button>
+          {availableRegions.map(r => (
+            <button key={r.id} onClick={() => handleRegionClick(r.id)} style={pill(activeRegion === r.id)}>
+              {r.emoji} {r.label}
             </button>
-          );
-        })}
-      </div>
+          ))}
+        </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px 100px' }}>
-        {/* ── TIENDAS DESTACADAS ── */}
-        {!loading && featured.length > 0 && !searchInput && activeFilter === 'all' && (
-          <section style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: 0, letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-                Tiendas destacadas
-              </h2>
-            </div>
-            <div
-              ref={scrollRef}
-              style={{
-                display: 'flex', gap: 12,
-                overflowX: 'auto', paddingBottom: 4,
-                WebkitOverflowScrolling: 'touch',
-                msOverflowStyle: 'none', scrollbarWidth: 'none',
-              }}
-            >
-              {featured.map(store => (
-                <motion.div
-                  key={store.store_id || store.slug}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <FeaturedStoreCard store={store} />
-                </motion.div>
-              ))}
-            </div>
-          </section>
+        {/* ── COUNTRY CHIPS (appear when region selected) ── */}
+        {regionCountryChips.length > 0 && (
+          <div className="scrollbar-hide" style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 12, paddingBottom: 4, scrollbarWidth: 'none' }}>
+            {regionCountryChips.map(c => (
+              <button
+                key={c.code}
+                onClick={() => handleCountryClick(c.code)}
+                style={{
+                  flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '5px 12px', borderRadius: 'var(--radius-full)',
+                  fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-sans)',
+                  cursor: 'pointer', transition: 'var(--transition-fast)',
+                  border: activeCountry === c.code ? 'none' : '0.5px solid var(--color-border)',
+                  background: activeCountry === c.code ? 'var(--color-black)' : 'var(--color-surface)',
+                  color: activeCountry === c.code ? '#fff' : 'var(--color-black)',
+                }}
+              >
+                {c.flag} {c.name} <span style={{ opacity: 0.5 }}>({c.count})</span>
+              </button>
+            ))}
+          </div>
         )}
 
-        {/* ── TODAS LAS TIENDAS ── */}
-        <section>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-black)', margin: 0, letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-              {activeFilter === 'all' ? 'Todas las tiendas' : FILTER_PILLS.find(p => p.id === activeFilter)?.label || 'Tiendas'}
-            </h2>
-            {!loading && (
-              <span style={{ fontSize: 12, color: 'var(--color-stone)' }}>{filtered.length} tiendas</span>
+        {/* ── MAP VIEW ── */}
+        {viewMode === 'map' && (
+          <div style={{ marginBottom: 24 }}>
+            <StoreMap stores={filteredStores} />
+            {/* mini list below map */}
+            {filteredStores.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <span style={sLabel}>{filteredStores.length} tiendas</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {filteredStores.slice(0, 8).map(store => {
+                    const slug = store.slug || store.store_slug;
+                    return (
+                      <Link key={store.store_id || slug} to={`/store/${slug}`} style={{
+                        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px',
+                        background: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
+                        border: '0.5px solid var(--color-border)', textDecoration: 'none',
+                      }}>
+                        <img src={store.logo || '/default-avatar.png'} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-black)', margin: 0 }}>{store.name}</p>
+                          <p style={{ fontSize: 11, color: 'var(--color-stone)', margin: '1px 0 0' }}>{store.location || ''}</p>
+                        </div>
+                        {(store.average_rating || store.rating) > 0 && (
+                          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-black)', display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Star size={12} style={{ fill: 'var(--color-black)', color: 'var(--color-black)' }} />
+                            {Number(store.average_rating || store.rating).toFixed(1)}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
+        )}
 
-          {loading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[0, 1, 2, 3, 4].map(i => <SkeletonRow key={i} />)}
-            </div>
-          ) : filtered.length === 0 ? (
-            /* Empty state */
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              justifyContent: 'center', gap: 12, padding: '60px 0',
-            }}>
-              <Store size={56} color="var(--color-stone)" strokeWidth={1} />
-              <p style={{ fontSize: 15, color: 'var(--color-stone)', textAlign: 'center', margin: 0 }}>
-                No se encontraron tiendas
-              </p>
-              {(searchInput || activeFilter !== 'all') && (
-                <button
-                  onClick={() => { setSearchInput(''); setActiveFilter('all'); }}
-                  style={{
-                    padding: '10px 24px', background: 'var(--color-black)',
-                    color: 'var(--color-white)', borderRadius: 'var(--radius-lg)',
-                    fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer',
-                  }}
-                >
-                  Limpiar filtros
-                </button>
-              )}
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {filtered.slice(0, visibleCount).map((store, i) => (
-                <motion.div
-                  key={store.store_id || store.slug || i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2, delay: Math.min(i * 0.03, 0.3) }}
-                >
-                  <StoreRow store={store} />
-                </motion.div>
-              ))}
-
-              {/* Infinite scroll sentinel */}
-              {visibleCount < filtered.length && (
-                <div ref={sentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>
-                  <Loader2 size={24} color="var(--color-stone)" style={{ animation: 'spin 1s linear infinite' }} />
+        {/* ── LIST VIEW ── */}
+        {viewMode === 'list' && (
+          <>
+            {/* ELITE featured scroll */}
+            {eliteStores.length > 0 && !debouncedSearch && !activeRegion && (
+              <div style={{ marginBottom: 24 }}>
+                <span style={sLabel}>Destacadas</span>
+                <div className="scrollbar-hide" style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
+                  {eliteStores.map(store => (
+                    <FeaturedCard key={store.store_id || store.slug} store={store} />
+                  ))}
                 </div>
+              </div>
+            )}
+
+            {/* ALL STORES grid */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={sLabel}>
+                  {activeRegion || activeCountry
+                    ? `${filteredStores.length} tiendas`
+                    : 'Todas las tiendas'}
+                </span>
+              </div>
+
+              {loading ? (
+                <div className="stores-grid">
+                  {[1,2,3,4,5,6].map(i => (
+                    <div key={i} style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', background: 'var(--color-white)', border: '0.5px solid var(--color-border)' }}>
+                      <div style={{ aspectRatio: '16/10', background: 'var(--color-surface)', animation: 'storesPulse 1.5s ease-in-out infinite' }} />
+                      <div style={{ padding: '18px 12px 12px' }}>
+                        <div style={{ height: 12, width: '60%', background: 'var(--color-surface)', borderRadius: 4, animation: 'storesPulse 1.5s ease-in-out infinite' }} />
+                        <div style={{ height: 10, width: '40%', background: 'var(--color-surface)', borderRadius: 4, marginTop: 6, animation: 'storesPulse 1.5s ease-in-out infinite' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : filteredStores.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                  <MapPin size={36} style={{ color: 'var(--color-stone)', margin: '0 auto 12px' }} />
+                  <p style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-black)' }}>No hay tiendas</p>
+                  <p style={{ fontSize: 13, color: 'var(--color-stone)', marginTop: 4 }}>
+                    {debouncedSearch ? 'Prueba con otro término' : 'No hay tiendas en esta región todavía'}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="stores-grid">
+                    {visibleStores.map(store => (
+                      <StoreCard key={store.store_id || store.slug || store.id} store={store} />
+                    ))}
+                  </div>
+                  {visibleCount < filteredStores.length && (
+                    <div ref={sentinelRef} style={{ height: 1 }} />
+                  )}
+                </>
               )}
             </div>
-          )}
-        </section>
+          </>
+        )}
       </div>
-
-      {/* Pulse + spin keyframes (injected once) */}
-      <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-      `}</style>
     </div>
   );
 }

@@ -1265,23 +1265,6 @@
   resolved "https://registry.npmjs.org/@eslint/js/-/js-9.23.0.tgz"
   integrity sha512-35MJ8vCPU0ZMxo7zfev2pypqTwWTofFZO6m4KAtdoFhRpLJUpHTZZ+KB3C7Hb1d7bULYwO4lJXGCi5Se+8OMbw==
 
-"@ffmpeg/ffmpeg@^0.12.15":
-  version "0.12.15"
-  resolved "https://registry.npmjs.org/@ffmpeg/ffmpeg/-/ffmpeg-0.12.15.tgz"
-  integrity sha512-1C8Obr4GsN3xw+/1Ww6PFM84wSQAGsdoTuTWPOj2OizsRDLT4CXTaVjPhkw6ARyDus1B9X/L2LiXHqYYsGnRFw==
-  dependencies:
-    "@ffmpeg/types" "^0.12.4"
-
-"@ffmpeg/types@^0.12.4":
-  version "0.12.4"
-  resolved "https://registry.npmjs.org/@ffmpeg/types/-/types-0.12.4.tgz"
-  integrity sha512-k9vJQNBGTxE5AhYDtOYR5rO5fKsspbg51gbcwtbkw2lCdoIILzklulcjJfIDwrtn7XhDeF2M+THwJ2FGrLeV6A==
-
-"@ffmpeg/util@^0.12.2":
-  version "0.12.2"
-  resolved "https://registry.npmjs.org/@ffmpeg/util/-/util-0.12.2.tgz"
-  integrity sha512-ouyoW+4JB7WxjeZ2y6KpRvB+dLp7Cp4ro8z0HIVpZVCM7AwFlHa0c4R8Y/a4M3wMqATpYKhC7lSFHQ0T11MEDw==
-
 "@floating-ui/core@^1.7.3":
   version "1.7.3"
   resolved "https://registry.npmjs.org/@floating-ui/core/-/core-1.7.3.tgz"
@@ -6188,11 +6171,6 @@ gzip-size@^6.0.0:
   dependencies:
     duplexer "^0.1.2"
 
-hammerjs@^2.0.8:
-  version "2.0.8"
-  resolved "https://registry.npmjs.org/hammerjs/-/hammerjs-2.0.8.tgz"
-  integrity sha512-tSQXBXS/MWQOn/RKckawJ61vvsDpCom87JgxiYdGwHdOa0ht0vzUWDlfioofFCRU0L+6NGDt6XzbgoJvZkMeRQ==
-
 handle-thing@^2.0.0:
   version "2.0.1"
   resolved "https://registry.npmjs.org/handle-thing/-/handle-thing-2.0.1.tgz"
@@ -6396,13 +6374,6 @@ https-proxy-agent@^5.0.0:
   dependencies:
     agent-base "6"
     debug "4"
-
-httpx@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/httpx/-/httpx-3.0.1.tgz"
-  integrity sha512-ILTmufYaGAH2Def/wQ++6mz41xDghoRFd3b49uSkVMIRUKm2nHTvPPaVGtNN5hoTu9E3bJ8Jg+8TRkx+PiN6sg==
-  dependencies:
-    debug "^4.1.1"
 
 human-signals@^2.1.0:
   version "2.1.0"
@@ -8025,11 +7996,6 @@ normalize-url@^6.0.1:
   resolved "https://registry.npmjs.org/normalize-url/-/normalize-url-6.1.0.tgz"
   integrity sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==
 
-normalize-wheel@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/normalize-wheel/-/normalize-wheel-1.0.1.tgz"
-  integrity sha512-1OnlAPZ3zgrk8B91HyRj+eVv+kS5u+Z0SCsak6Xil/kmgEia50ga7zfkumayonZrImffAxPU/5WcyGhzetHNPA==
-
 npm-run-path@^4.0.1:
   version "4.0.1"
   resolved "https://registry.npmjs.org/npm-run-path/-/npm-run-path-4.0.1.tgz"
@@ -9174,14 +9140,6 @@ react-dom@^19.0.0:
   dependencies:
     scheduler "^0.27.0"
 
-react-easy-crop@^5.5.6:
-  version "5.5.6"
-  resolved "https://registry.npmjs.org/react-easy-crop/-/react-easy-crop-5.5.6.tgz"
-  integrity sha512-Jw3/ozs8uXj3NpL511Suc4AHY+mLRO23rUgipXvNYKqezcFSYHxe4QXibBymkOoY6oOtLVMPO2HNPRHYvMPyTw==
-  dependencies:
-    normalize-wheel "^1.0.1"
-    tslib "^2.0.1"
-
 react-error-overlay@^6.0.11:
   version "6.1.0"
   resolved "https://registry.npmjs.org/react-error-overlay/-/react-error-overlay-6.1.0.tgz"
@@ -9236,13 +9194,6 @@ react-leaflet@^5.0.0:
   integrity sha512-CWbTpr5vcHw5bt9i4zSlPEVQdTVcML390TjeDG0cK59z1ylexpqC6M1PJFjV8jD7CF+ACBFsLIDs6DRMoLEofw==
   dependencies:
     "@react-leaflet/core" "^3.0.0"
-
-react-pull-to-refresh@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/react-pull-to-refresh/-/react-pull-to-refresh-2.0.1.tgz"
-  integrity sha512-mbNI9r3sBF4X+2fBO8c9CuXDLIywNuoZ24AIGU3Odi+L8C4MpS0tuhMQUSg5cSOuUtDFkE8Z/YnBYixo10QI6Q==
-  dependencies:
-    hammerjs "^2.0.8"
 
 "react-redux@8.x.x || 9.x.x":
   version "9.2.0"
@@ -10730,7 +10681,7 @@ tslib@^1.8.1:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.0, tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.4.0:
+tslib@^2.0.0, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.4.0:
   version "2.8.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz"
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==
