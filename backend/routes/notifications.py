@@ -16,13 +16,13 @@ async def get_notifications(
     unread_only: bool = Query(False),
     page: int = Query(1, ge=1),
     limit: int = Query(50, ge=1, le=100),
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Obtener notificaciones del usuario
     """
     return await notification_dispatcher.get_notifications(
-        user_id=str(current_user["_id"]),
+        user_id=current_user.user_id,
         unread_only=unread_only,
         page=page,
         limit=limit
@@ -31,7 +31,7 @@ async def get_notifications(
 
 @router.get("/unread-count")
 async def get_unread_count(
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Lightweight unread count — single count_documents query.
@@ -40,7 +40,7 @@ async def get_unread_count(
     from core.database import db
 
     count = await db.notifications.count_documents({
-        "user_id": str(current_user["_id"]),
+        "user_id": current_user.user_id,
         "read_at": None,
     })
     return {"unread_count": count}
@@ -49,21 +49,21 @@ async def get_unread_count(
 @router.post("/{notification_id}/read")
 async def mark_as_read(
     notification_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Marcar notificación como leída
     """
     await notification_dispatcher.mark_as_read(
         notification_id=notification_id,
-        user_id=str(current_user["_id"])
+        user_id=current_user.user_id
     )
     return {"status": "marked_as_read"}
 
 
 @router.post("/mark-all-read")
 async def mark_all_read(
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Marcar todas las notificaciones como leídas
@@ -74,7 +74,7 @@ async def mark_all_read(
 
     await db.notifications.update_many(
         {
-            "user_id": str(current_user["_id"]),
+            "user_id": current_user.user_id,
             "read_at": None
         },
         {"$set": {"read_at": datetime.now(timezone.utc)}}
@@ -86,7 +86,7 @@ async def mark_all_read(
 @router.delete("/{notification_id}")
 async def delete_notification(
     notification_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """Delete a single notification (own only)."""
     from core.database import db
@@ -94,7 +94,7 @@ async def delete_notification(
 
     result = await db.notifications.delete_one({
         "_id": ObjectId(notification_id),
-        "user_id": str(current_user["_id"]),
+        "user_id": current_user.user_id,
     })
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Notification not found")
@@ -106,13 +106,13 @@ async def register_push_token(
     token: str,
     platform: str,  # ios, android, web
     device_id: Optional[str] = None,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Registrar token de notificaciones push
     """
     await notification_dispatcher.register_push_token(
-        user_id=str(current_user["_id"]),
+        user_id=current_user.user_id,
         token=token,
         platform=platform,
         device_id=device_id
@@ -123,13 +123,13 @@ async def register_push_token(
 @router.delete("/push-token")
 async def unregister_push_token(
     token: str,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Desregistrar token de notificaciones push
     """
     await notification_dispatcher.unregister_push_token(
-        user_id=str(current_user["_id"]),
+        user_id=current_user.user_id,
         token=token
     )
     return {"status": "token_unregistered"}
@@ -137,7 +137,7 @@ async def unregister_push_token(
 
 @router.get("/preferences")
 async def get_notification_preferences(
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Obtener preferencias de notificación
@@ -145,7 +145,7 @@ async def get_notification_preferences(
     from core.database import db
     
     prefs = await db.user_notification_preferences.find_one({
-        "user_id": str(current_user["_id"])
+        "user_id": current_user.user_id
     })
     
     if not prefs:
@@ -166,7 +166,7 @@ async def get_notification_preferences(
 @router.put("/preferences")
 async def update_notification_preferences(
     preferences: dict,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Actualizar preferencias de notificación
@@ -174,11 +174,11 @@ async def update_notification_preferences(
     from core.database import db
     from datetime import datetime, timezone
 
-    preferences["user_id"] = str(current_user["_id"])
+    preferences["user_id"] = current_user.user_id
     preferences["updated_at"] = datetime.now(timezone.utc)
     
     await db.user_notification_preferences.update_one(
-        {"user_id": str(current_user["_id"])},
+        {"user_id": current_user.user_id},
         {"$set": preferences},
         upsert=True
     )
@@ -195,12 +195,12 @@ async def admin_send_notification(
     notification_type: str = "system",
     channels: List[str] = ["in_app"],
     priority: str = "normal",
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """
     Enviar notificación (solo admin/superadmin)
     """
-    if current_user.get("role") not in ["admin", "superadmin"]:
+    if getattr(current_user, "role", None) not in ["admin", "super_admin"]:
         from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Admin access required")
     

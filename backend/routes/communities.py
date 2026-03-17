@@ -27,9 +27,9 @@ def _oid(val):
 
 
 def _str_id(doc):
-    """Stringify _id if present."""
+    """Stringify _id if present, remove raw ObjectId to prevent serialization errors."""
     if doc and "_id" in doc:
-        doc["id"] = str(doc["_id"])
+        doc["id"] = str(doc.pop("_id"))
     return doc
 
 
@@ -97,7 +97,7 @@ async def list_communities(
         c["is_member"] = False
         if user_id:
             mem = await db.community_members.find_one(
-                {"community_id": str(c["_id"]), "user_id": user_id}
+                {"community_id": c["id"], "user_id": user_id}
             )
             c["is_member"] = mem is not None
         communities.append(c)
@@ -144,7 +144,7 @@ async def get_community(slug: str, request: Request):
 
     if user_id:
         mem = await db.community_members.find_one(
-            {"community_id": str(c["_id"]), "user_id": user_id}
+            {"community_id": c["id"], "user_id": user_id}
         )
         if mem:
             c["is_member"] = True

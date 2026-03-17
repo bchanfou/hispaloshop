@@ -110,9 +110,9 @@ async def manual_log_action(
     Log manual de acción (para casos especiales)
     """
     log_id = await audit_service.log_action(
-        admin_id=str(current_user["_id"]),
-        admin_email=current_user.get("email", ""),
-        admin_role=current_user.get("role", ""),
+        admin_id=current_user.user_id,
+        admin_email=getattr(current_user, "email", ""),
+        admin_role=getattr(current_user, "role", ""),
         action=action,
         resource_type=resource_type,
         resource_id=resource_id,

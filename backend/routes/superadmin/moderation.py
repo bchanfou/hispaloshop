@@ -53,7 +53,7 @@ async def process_moderation_action(
     """
     success = await moderation_service.process_moderation_action(
         action=action,
-        moderator_id=str(current_user["_id"])
+        moderator_id=current_user.user_id
     )
     
     if not success:
@@ -90,7 +90,7 @@ async def submit_content(
         content_id=content_id,
         content_preview=content_preview,
         content_url=content_url,
-        reported_by=str(current_user["_id"]),
+        reported_by=current_user.user_id,
         report_reason=report_reason
     )
     
@@ -130,7 +130,7 @@ async def acknowledge_alert(
     success = await moderation_service.update_alert_status(
         alert_id=alert_id,
         new_status=SystemAlertStatus.ACKNOWLEDGED,
-        user_id=str(current_user["_id"]),
+        user_id=current_user.user_id,
         notes=notes
     )
     
@@ -153,7 +153,7 @@ async def resolve_alert(
     success = await moderation_service.update_alert_status(
         alert_id=alert_id,
         new_status=SystemAlertStatus.RESOLVED,
-        user_id=str(current_user["_id"]),
+        user_id=current_user.user_id,
         notes=notes
     )
     
